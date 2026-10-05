@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 /**
  * Shadow Beliefs Store
  *
@@ -15,6 +16,7 @@ import { shadowBeliefsDexieRepository } from '@/repositories/exercisesDexieRepos
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useShadowBeliefsStore = defineStore('shadowBeliefs', () => {
+  const sessionScope = createStoreSessionScope()
   const beliefsList = ref<ShadowBeliefs[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
@@ -29,33 +31,45 @@ export const useShadowBeliefsStore = defineStore('shadowBeliefs', () => {
 
   const getBeliefsById = computed(() => {
     return (id: string): ShadowBeliefs | undefined => {
-      return beliefsList.value.find((b) => b.id === id)
+      return beliefsList.value.find(b => b.id === id)
     }
   })
 
   async function loadBeliefs(): Promise<void> {
-    isLoading.value = true
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      beliefsList.value = await shadowBeliefsDexieRepository.getAll()
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load shadow beliefs'
-      console.error('Error loading shadow beliefs:', err)
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+      try {
+        beliefsList.value = await operation.wait(shadowBeliefsDexieRepository.getAll())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to load shadow beliefs'
+        console.error('Error loading shadow beliefs:', err)
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function createBeliefs(data: CreateShadowBeliefsPayload): Promise<ShadowBeliefs> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const beliefs = await shadowBeliefsDexieRepository.create(data)
+      const beliefs = await operation.wait(shadowBeliefsDexieRepository.create(data))
       void useExerciseCompletionsStore()
         .record('shadow-beliefs', beliefs.id)
-        .catch((err) => console.error('Failed to record exercise completion:', err))
+        .catch(err => console.error('Failed to record exercise completion:', err))
       beliefsList.value.push(beliefs)
       return beliefs
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to create shadow beliefs'
       console.error('Error creating shadow beliefs:', err)
       throw err
@@ -64,17 +78,20 @@ export const useShadowBeliefsStore = defineStore('shadowBeliefs', () => {
 
   async function updateBeliefs(
     id: string,
-    data: UpdateShadowBeliefsPayload,
+    data: UpdateShadowBeliefsPayload
   ): Promise<ShadowBeliefs> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const updated = await shadowBeliefsDexieRepository.update(id, data)
-      const index = beliefsList.value.findIndex((b) => b.id === id)
+      const updated = await operation.wait(shadowBeliefsDexieRepository.update(id, data))
+      const index = beliefsList.value.findIndex(b => b.id === id)
       if (index !== -1) {
         beliefsList.value[index] = updated
       }
       return updated
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to update shadow beliefs'
       console.error('Error updating shadow beliefs:', err)
       throw err
@@ -82,14 +99,21 @@ export const useShadowBeliefsStore = defineStore('shadowBeliefs', () => {
   }
 
   async function deleteBeliefs(id: string): Promise<void> {
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await shadowBeliefsDexieRepository.delete(id)
-      beliefsList.value = beliefsList.value.filter((b) => b.id !== id)
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete shadow beliefs'
-      console.error('Error deleting shadow beliefs:', err)
-      throw err
+      error.value = null
+      try {
+        await operation.wait(shadowBeliefsDexieRepository.delete(id))
+        beliefsList.value = beliefsList.value.filter(b => b.id !== id)
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to delete shadow beliefs'
+        console.error('Error deleting shadow beliefs:', err)
+        throw err
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -99,6 +123,7 @@ export const useShadowBeliefsStore = defineStore('shadowBeliefs', () => {
    * data before the next `load*()` re-fetches from the new database.
    */
   function reset(): void {
+    sessionScope.reset()
     beliefsList.value = []
     isLoading.value = false
     error.value = null

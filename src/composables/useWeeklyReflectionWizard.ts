@@ -3,9 +3,13 @@ import type { DayRef, WeekRef } from '@/domain/period'
 import type { WeeklyReflectionDataBundle } from '@/services/reflectionDataQueries'
 import { getWeeklyReflectionDataBundle } from '@/services/reflectionDataQueries'
 import { useStructuredReflectionStore } from '@/stores/structuredReflection.store'
-import { loadDraftFromDB, saveDraftToDB, clearDraftFromDB } from '@/services/draftStorage'
+import { createScopedDraftStorage } from '@/services/scopedDraftStorage'
 import type { CreateWeeklyReflectionPayload, WeeklyRatingKey } from '@/domain/reflection'
-import { MATRIX_SECTIONS, REFLECTION_MATRIX_AREAS, type LifeAreaKey } from '@/domain/reflectionMatrix'
+import {
+  MATRIX_SECTIONS,
+  REFLECTION_MATRIX_AREAS,
+  type LifeAreaKey,
+} from '@/domain/reflectionMatrix'
 import type { ReflectionSubjectType } from '@/domain/planningState'
 import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
 import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'
@@ -14,16 +18,10 @@ import { getChildPeriods, getPeriodBounds, getPeriodRefsForDate } from '@/utils/
 // The week ritual is one wizard: planning steps (always available) then reflection
 // steps (unlocked only from the penultimate day of the week onward — see reflectionUnlocked).
 // Ratings are grouped by life area (one step per matrix row: demand → action → state).
-export type WeeklyReflectionStep =
-  | 'plan'
-  | 'days'
-  | 'review'
-  | LifeAreaKey
-  | 'anchors'
-  | 'journal'
+export type WeeklyReflectionStep = 'plan' | 'days' | 'review' | LifeAreaKey | 'anchors' | 'journal'
 
 const PLANNING_STEPS: WeeklyReflectionStep[] = ['plan', 'days']
-const AREA_STEPS: WeeklyReflectionStep[] = REFLECTION_MATRIX_AREAS.map((area) => area.key)
+const AREA_STEPS: WeeklyReflectionStep[] = REFLECTION_MATRIX_AREAS.map(area => area.key)
 const REFLECTION_STEPS: WeeklyReflectionStep[] = ['review', ...AREA_STEPS, 'anchors', 'journal']
 
 export const STEP_ORDER: WeeklyReflectionStep[] = [...PLANNING_STEPS, ...REFLECTION_STEPS]
@@ -73,6 +71,7 @@ export function isReflectionUnlocked(weekRef: WeekRef, todayDayRef: DayRef): boo
 }
 
 export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
+  const { loadDraftFromDB, saveDraftToDB, clearDraftFromDB } = createScopedDraftStorage()
   const store = useStructuredReflectionStore()
 
   // Step management — start on planning; reflection unlocks late in the week.
@@ -82,7 +81,7 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
   // Reflection unlocks from the penultimate day (Saturday) of the week onward, which also
   // covers every already-ended week. Future weeks and the early current week stay planning-only.
   const reflectionUnlocked = computed(() =>
-    isReflectionUnlocked(weekRef.value, getPeriodRefsForDate(new Date()).day),
+    isReflectionUnlocked(weekRef.value, getPeriodRefsForDate(new Date()).day)
   )
 
   function isStepLocked(step: WeeklyReflectionStep): boolean {
@@ -156,11 +155,9 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
 
   // Step validation: an area step needs at least one of its 3 ratings.
   const canAdvance = computed(() => {
-    const area = REFLECTION_MATRIX_AREAS.find((a) => a.key === currentStep.value)
+    const area = REFLECTION_MATRIX_AREAS.find(a => a.key === currentStep.value)
     if (area) {
-      return MATRIX_SECTIONS.some(
-        (section) => ratingRefsByKey[area.fields[section]].value !== null,
-      )
+      return MATRIX_SECTIONS.some(section => ratingRefsByKey[area.fields[section]].value !== null)
     }
     return true
   })
@@ -238,22 +235,30 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
       }
 
       // Hydrate demands
-      if (data.physicalIntensityRating != null) physicalIntensityRating.value = data.physicalIntensityRating as number
-      if (data.emotionalIntensityRating != null) emotionalIntensityRating.value = data.emotionalIntensityRating as number
+      if (data.physicalIntensityRating != null)
+        physicalIntensityRating.value = data.physicalIntensityRating as number
+      if (data.emotionalIntensityRating != null)
+        emotionalIntensityRating.value = data.emotionalIntensityRating as number
       if (data.taskLoadRating != null) taskLoadRating.value = data.taskLoadRating as number
-      if (data.closeOnesNeedsRating != null) closeOnesNeedsRating.value = data.closeOnesNeedsRating as number
+      if (data.closeOnesNeedsRating != null)
+        closeOnesNeedsRating.value = data.closeOnesNeedsRating as number
       // Hydrate actions
-      if (data.physicalCareRating != null) physicalCareRating.value = data.physicalCareRating as number
-      if (data.emotionalProcessingRating != null) emotionalProcessingRating.value = data.emotionalProcessingRating as number
-      if (data.productivityRating != null) productivityRating.value = data.productivityRating as number
-      if (data.closeOnesSupportRating != null) closeOnesSupportRating.value = data.closeOnesSupportRating as number
+      if (data.physicalCareRating != null)
+        physicalCareRating.value = data.physicalCareRating as number
+      if (data.emotionalProcessingRating != null)
+        emotionalProcessingRating.value = data.emotionalProcessingRating as number
+      if (data.productivityRating != null)
+        productivityRating.value = data.productivityRating as number
+      if (data.closeOnesSupportRating != null)
+        closeOnesSupportRating.value = data.closeOnesSupportRating as number
       // Hydrate state
       if (data.moodRating != null) moodRating.value = data.moodRating as number
       if (data.energyRating != null) energyRating.value = data.energyRating as number
       if (data.calmRating != null) calmRating.value = data.calmRating as number
       if (data.connectionRating != null) connectionRating.value = data.connectionRating as number
 
-      if (data.promptResponses) promptResponses.value = data.promptResponses as Record<string, string>
+      if (data.promptResponses)
+        promptResponses.value = data.promptResponses as Record<string, string>
       if (data.freeformReflection) freeformReflection.value = data.freeformReflection as string
       if (typeof data.aiSummary === 'string') aiSummary.value = data.aiSummary
       if (data.objectComments) objectComments.value = data.objectComments as Record<string, string>
@@ -300,7 +305,7 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
       ])
       dataBundle.value = bundle
       topPriorityKeys.value = (weekPlan?.topPriorities ?? []).map(
-        (ref) => `${ref.subjectType}:${ref.subjectId}`,
+        ref => `${ref.subjectType}:${ref.subjectId}`
       )
       const existingComments: Record<string, string> = {}
       for (const reflection of allObjectReflections) {
@@ -396,7 +401,7 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
             subjectType,
             subjectId,
             note,
-          }),
+          })
         )
       } else if (initialComments[key]) {
         ops.push(
@@ -404,8 +409,8 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
             'week',
             weekRef.value,
             subjectType,
-            subjectId,
-          ),
+            subjectId
+          )
         )
       }
     }

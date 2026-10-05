@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 /**
  * Tragic Optimism Store
  *
@@ -16,6 +17,7 @@ import { tragicOptimismDexieRepository } from '@/repositories/exercisesDexieRepo
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useTragicOptimismStore = defineStore('tragicOptimism', () => {
+  const sessionScope = createStoreSessionScope()
   const entries = ref<TragicOptimism[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
@@ -30,33 +32,45 @@ export const useTragicOptimismStore = defineStore('tragicOptimism', () => {
 
   const getEntryById = computed(() => {
     return (id: string): TragicOptimism | undefined => {
-      return entries.value.find((e) => e.id === id)
+      return entries.value.find(e => e.id === id)
     }
   })
 
   async function loadEntries(): Promise<void> {
-    isLoading.value = true
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      entries.value = await tragicOptimismDexieRepository.getAll()
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load tragic optimism entries'
-      console.error('Error loading tragic optimism entries:', err)
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+      try {
+        entries.value = await operation.wait(tragicOptimismDexieRepository.getAll())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to load tragic optimism entries'
+        console.error('Error loading tragic optimism entries:', err)
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function createEntry(data: CreateTragicOptimismPayload): Promise<TragicOptimism> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const entry = await tragicOptimismDexieRepository.create(data)
+      const entry = await operation.wait(tragicOptimismDexieRepository.create(data))
       void useExerciseCompletionsStore()
         .record('tragic-optimism', entry.id)
-        .catch((err) => console.error('Failed to record exercise completion:', err))
+        .catch(err => console.error('Failed to record exercise completion:', err))
       entries.value.push(entry)
       return entry
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to create tragic optimism entry'
       console.error('Error creating tragic optimism entry:', err)
       throw err
@@ -65,17 +79,20 @@ export const useTragicOptimismStore = defineStore('tragicOptimism', () => {
 
   async function updateEntry(
     id: string,
-    data: UpdateTragicOptimismPayload,
+    data: UpdateTragicOptimismPayload
   ): Promise<TragicOptimism> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const updated = await tragicOptimismDexieRepository.update(id, data)
-      const index = entries.value.findIndex((e) => e.id === id)
+      const updated = await operation.wait(tragicOptimismDexieRepository.update(id, data))
+      const index = entries.value.findIndex(e => e.id === id)
       if (index !== -1) {
         entries.value[index] = updated
       }
       return updated
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to update tragic optimism entry'
       console.error('Error updating tragic optimism entry:', err)
       throw err
@@ -83,14 +100,21 @@ export const useTragicOptimismStore = defineStore('tragicOptimism', () => {
   }
 
   async function deleteEntry(id: string): Promise<void> {
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await tragicOptimismDexieRepository.delete(id)
-      entries.value = entries.value.filter((e) => e.id !== id)
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete tragic optimism entry'
-      console.error('Error deleting tragic optimism entry:', err)
-      throw err
+      error.value = null
+      try {
+        await operation.wait(tragicOptimismDexieRepository.delete(id))
+        entries.value = entries.value.filter(e => e.id !== id)
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to delete tragic optimism entry'
+        console.error('Error deleting tragic optimism entry:', err)
+        throw err
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -100,6 +124,7 @@ export const useTragicOptimismStore = defineStore('tragicOptimism', () => {
    * data before the next `load*()` re-fetches from the new database.
    */
   function reset(): void {
+    sessionScope.reset()
     entries.value = []
     isLoading.value = false
     error.value = null

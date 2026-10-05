@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type {
@@ -12,6 +13,7 @@ import type { MonthRef, WeekRef } from '@/domain/period'
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
 
 export const useStructuredReflectionStore = defineStore('structuredReflection', () => {
+  const sessionScope = createStoreSessionScope()
   const weeklyReflections = ref<WeeklyReflection[]>([])
   const monthlyReflections = ref<MonthlyReflection[]>([])
   const isLoading = ref(false)
@@ -27,39 +29,52 @@ export const useStructuredReflectionStore = defineStore('structuredReflection', 
 
   const getWeeklyByRef = computed(() => {
     return (weekRef: WeekRef): WeeklyReflection | undefined =>
-      weeklyReflections.value.find((r) => r.weekRef === weekRef)
+      weeklyReflections.value.find(r => r.weekRef === weekRef)
   })
 
   const getMonthlyByRef = computed(() => {
     return (monthRef: MonthRef): MonthlyReflection | undefined =>
-      monthlyReflections.value.find((r) => r.monthRef === monthRef)
+      monthlyReflections.value.find(r => r.monthRef === monthRef)
   })
 
   async function loadAll(): Promise<void> {
-    isLoading.value = true
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      const [weekly, monthly] = await Promise.all([
-        structuredReflectionDexieRepository.listWeekly(),
-        structuredReflectionDexieRepository.listMonthly(),
-      ])
-      weeklyReflections.value = weekly
-      monthlyReflections.value = monthly
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load reflections'
-      console.error('Error loading structured reflections:', err)
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+      try {
+        const [weekly, monthly] = await operation.wait(
+          Promise.all([
+            structuredReflectionDexieRepository.listWeekly(),
+            structuredReflectionDexieRepository.listMonthly(),
+          ])
+        )
+        weeklyReflections.value = weekly
+        monthlyReflections.value = monthly
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to load reflections'
+        console.error('Error loading structured reflections:', err)
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function upsertWeekly(
     data: CreateWeeklyReflectionPayload | UpdateWeeklyReflectionPayload
   ): Promise<WeeklyReflection> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const result = await structuredReflectionDexieRepository.upsertWeekly(data)
-      const index = weeklyReflections.value.findIndex((r) => r.weekRef === result.weekRef)
+      const result = await operation.wait(structuredReflectionDexieRepository.upsertWeekly(data))
+      const index = weeklyReflections.value.findIndex(r => r.weekRef === result.weekRef)
       if (index !== -1) {
         weeklyReflections.value[index] = result
       } else {
@@ -67,6 +82,7 @@ export const useStructuredReflectionStore = defineStore('structuredReflection', 
       }
       return result
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to save weekly reflection'
       console.error('Error upserting weekly reflection:', err)
       throw err
@@ -76,10 +92,12 @@ export const useStructuredReflectionStore = defineStore('structuredReflection', 
   async function upsertMonthly(
     data: CreateMonthlyReflectionPayload | UpdateMonthlyReflectionPayload
   ): Promise<MonthlyReflection> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const result = await structuredReflectionDexieRepository.upsertMonthly(data)
-      const index = monthlyReflections.value.findIndex((r) => r.monthRef === result.monthRef)
+      const result = await operation.wait(structuredReflectionDexieRepository.upsertMonthly(data))
+      const index = monthlyReflections.value.findIndex(r => r.monthRef === result.monthRef)
       if (index !== -1) {
         monthlyReflections.value[index] = result
       } else {
@@ -87,6 +105,7 @@ export const useStructuredReflectionStore = defineStore('structuredReflection', 
       }
       return result
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to save monthly reflection'
       console.error('Error upserting monthly reflection:', err)
       throw err
@@ -94,26 +113,40 @@ export const useStructuredReflectionStore = defineStore('structuredReflection', 
   }
 
   async function deleteWeekly(weekRef: WeekRef): Promise<void> {
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await structuredReflectionDexieRepository.deleteWeekly(weekRef)
-      weeklyReflections.value = weeklyReflections.value.filter((r) => r.weekRef !== weekRef)
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete weekly reflection'
-      console.error('Error deleting weekly reflection:', err)
-      throw err
+      error.value = null
+      try {
+        await operation.wait(structuredReflectionDexieRepository.deleteWeekly(weekRef))
+        weeklyReflections.value = weeklyReflections.value.filter(r => r.weekRef !== weekRef)
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to delete weekly reflection'
+        console.error('Error deleting weekly reflection:', err)
+        throw err
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function deleteMonthly(monthRef: MonthRef): Promise<void> {
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await structuredReflectionDexieRepository.deleteMonthly(monthRef)
-      monthlyReflections.value = monthlyReflections.value.filter((r) => r.monthRef !== monthRef)
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete monthly reflection'
-      console.error('Error deleting monthly reflection:', err)
-      throw err
+      error.value = null
+      try {
+        await operation.wait(structuredReflectionDexieRepository.deleteMonthly(monthRef))
+        monthlyReflections.value = monthlyReflections.value.filter(r => r.monthRef !== monthRef)
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to delete monthly reflection'
+        console.error('Error deleting monthly reflection:', err)
+        throw err
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -123,6 +156,7 @@ export const useStructuredReflectionStore = defineStore('structuredReflection', 
    * reflections before the next `loadAll()` re-fetches from the new DB.
    */
   function reset(): void {
+    sessionScope.reset()
     weeklyReflections.value = []
     monthlyReflections.value = []
     isLoading.value = false

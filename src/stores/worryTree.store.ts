@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 /**
  * Worry Tree Store
  *
@@ -16,6 +17,7 @@ import { worryTreeEntryDexieRepository } from '@/repositories/exercisesDexieRepo
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useWorryTreeStore = defineStore('worryTree', () => {
+  const sessionScope = createStoreSessionScope()
   const entries = ref<WorryTreeEntry[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
@@ -30,33 +32,45 @@ export const useWorryTreeStore = defineStore('worryTree', () => {
 
   const getEntryById = computed(() => {
     return (id: string): WorryTreeEntry | undefined => {
-      return entries.value.find((e) => e.id === id)
+      return entries.value.find(e => e.id === id)
     }
   })
 
   async function loadEntries(): Promise<void> {
-    isLoading.value = true
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      entries.value = await worryTreeEntryDexieRepository.getAll()
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load worry tree entries'
-      console.error('Error loading worry tree entries:', err)
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+      try {
+        entries.value = await operation.wait(worryTreeEntryDexieRepository.getAll())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to load worry tree entries'
+        console.error('Error loading worry tree entries:', err)
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function createEntry(data: CreateWorryTreeEntryPayload): Promise<WorryTreeEntry> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const entry = await worryTreeEntryDexieRepository.create(data)
+      const entry = await operation.wait(worryTreeEntryDexieRepository.create(data))
       void useExerciseCompletionsStore()
         .record('worry-tree', entry.id)
-        .catch((err) => console.error('Failed to record exercise completion:', err))
+        .catch(err => console.error('Failed to record exercise completion:', err))
       entries.value.push(entry)
       return entry
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to create worry tree entry'
       console.error('Error creating worry tree entry:', err)
       throw err
@@ -65,17 +79,20 @@ export const useWorryTreeStore = defineStore('worryTree', () => {
 
   async function updateEntry(
     id: string,
-    data: UpdateWorryTreeEntryPayload,
+    data: UpdateWorryTreeEntryPayload
   ): Promise<WorryTreeEntry> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const updated = await worryTreeEntryDexieRepository.update(id, data)
-      const index = entries.value.findIndex((e) => e.id === id)
+      const updated = await operation.wait(worryTreeEntryDexieRepository.update(id, data))
+      const index = entries.value.findIndex(e => e.id === id)
       if (index !== -1) {
         entries.value[index] = updated
       }
       return updated
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to update worry tree entry'
       console.error('Error updating worry tree entry:', err)
       throw err
@@ -83,14 +100,21 @@ export const useWorryTreeStore = defineStore('worryTree', () => {
   }
 
   async function deleteEntry(id: string): Promise<void> {
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await worryTreeEntryDexieRepository.delete(id)
-      entries.value = entries.value.filter((e) => e.id !== id)
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete worry tree entry'
-      console.error('Error deleting worry tree entry:', err)
-      throw err
+      error.value = null
+      try {
+        await operation.wait(worryTreeEntryDexieRepository.delete(id))
+        entries.value = entries.value.filter(e => e.id !== id)
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to delete worry tree entry'
+        console.error('Error deleting worry tree entry:', err)
+        throw err
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -100,6 +124,7 @@ export const useWorryTreeStore = defineStore('worryTree', () => {
    * data before the next `load*()` re-fetches from the new database.
    */
   function reset(): void {
+    sessionScope.reset()
     entries.value = []
     isLoading.value = false
     error.value = null

@@ -1,3 +1,4 @@
+import { userDatabaseOperation } from './userDatabaseOperation'
 import type { MonthRef, WeekRef } from '@/domain/period'
 import type {
   CreatePeriodObjectReflectionPayload,
@@ -31,64 +32,128 @@ class ReflectionDexieRepository implements ReflectionRepository {
     periodType: ReflectionPeriodType,
     periodRef: MonthRef | WeekRef
   ): Promise<PeriodReflection | undefined> {
-    try {
-      return await this.db.periodReflections
-        .where('[periodType+periodRef]')
-        .equals([periodType, periodRef])
-        .first()
-    } catch (error) {
-      console.error(`Failed to get period reflection for ${periodType}:${periodRef}:`, error)
-      throw new Error(`Failed to retrieve period reflection for ${periodType}:${periodRef}`)
-    }
+    return userDatabaseOperation(
+      'r',
+      [
+        'periodReflections',
+        'periodObjectReflections',
+        'goals',
+        'keyResults',
+        'habits',
+        'trackers',
+        'initiatives',
+        'weeklyIntentions',
+        'priorities',
+      ],
+      async db => {
+        try {
+          return await db.periodReflections
+            .where('[periodType+periodRef]')
+            .equals([periodType, periodRef])
+            .first()
+        } catch (error) {
+          console.error(`Failed to get period reflection for ${periodType}:${periodRef}:`, error)
+          throw new Error(`Failed to retrieve period reflection for ${periodType}:${periodRef}`)
+        }
+      }
+    )
   }
 
   async listPeriodReflections(): Promise<PeriodReflection[]> {
-    try {
-      return await this.db.periodReflections.toArray()
-    } catch (error) {
-      console.error('Failed to list period reflections:', error)
-      throw new Error('Failed to retrieve period reflections from database')
-    }
+    return userDatabaseOperation(
+      'r',
+      [
+        'periodReflections',
+        'periodObjectReflections',
+        'goals',
+        'keyResults',
+        'habits',
+        'trackers',
+        'initiatives',
+        'weeklyIntentions',
+        'priorities',
+      ],
+      async db => {
+        try {
+          return await db.periodReflections.toArray()
+        } catch (error) {
+          console.error('Failed to list period reflections:', error)
+          throw new Error('Failed to retrieve period reflections from database')
+        }
+      }
+    )
   }
 
   async upsertPeriodReflection(
     data: CreatePeriodReflectionPayload | UpdatePeriodReflectionPayload
   ): Promise<PeriodReflection> {
-    try {
-      const existing = await this.findExistingPeriodReflection(data)
-      const normalized = normalizePeriodReflectionPayload(data, existing)
+    return userDatabaseOperation(
+      'rw',
+      [
+        'periodReflections',
+        'periodObjectReflections',
+        'goals',
+        'keyResults',
+        'habits',
+        'trackers',
+        'initiatives',
+        'weeklyIntentions',
+        'priorities',
+      ],
+      async db => {
+        try {
+          const existing = await this.findExistingPeriodReflection(data)
+          const normalized = normalizePeriodReflectionPayload(data, existing)
 
-      if (existing) {
-      const updated = updatePlanningRecord(existing, normalized)
-      await this.db.periodReflections.put(toPlain(updated))
-      invalidatePlanningQueryCache()
-      return updated
+          if (existing) {
+            const updated = updatePlanningRecord(existing, normalized)
+            await db.periodReflections.put(toPlain(updated))
+            invalidatePlanningQueryCache()
+            return updated
+          }
+
+          const created = createPlanningRecord<PeriodReflection>(normalized)
+          await db.periodReflections.add(toPlain(created))
+          invalidatePlanningQueryCache()
+          return created
+        } catch (error) {
+          console.error('Failed to upsert period reflection:', error)
+          throw new Error('Failed to persist period reflection in database')
+        }
       }
-
-      const created = createPlanningRecord<PeriodReflection>(normalized)
-      await this.db.periodReflections.add(toPlain(created))
-      invalidatePlanningQueryCache()
-      return created
-    } catch (error) {
-      console.error('Failed to upsert period reflection:', error)
-      throw new Error('Failed to persist period reflection in database')
-    }
+    )
   }
 
   async deletePeriodReflection(
     periodType: ReflectionPeriodType,
     periodRef: MonthRef | WeekRef
   ): Promise<void> {
-    try {
-      const existing = await this.getPeriodReflection(periodType, periodRef)
-      if (!existing) return
+    return userDatabaseOperation(
+      'rw',
+      [
+        'periodReflections',
+        'periodObjectReflections',
+        'goals',
+        'keyResults',
+        'habits',
+        'trackers',
+        'initiatives',
+        'weeklyIntentions',
+        'priorities',
+      ],
+      async db => {
+        try {
+          const existing = await this.getPeriodReflection(periodType, periodRef)
+          if (!existing) return
 
-      await this.db.periodReflections.delete(existing.id)
-      invalidatePlanningQueryCache()
-    } catch (error) {
-      console.error(`Failed to delete period reflection for ${periodType}:${periodRef}:`, error)
-      throw new Error(`Failed to delete period reflection for ${periodType}:${periodRef}`)
-    }
+          await db.periodReflections.delete(existing.id)
+          invalidatePlanningQueryCache()
+        } catch (error) {
+          console.error(`Failed to delete period reflection for ${periodType}:${periodRef}:`, error)
+          throw new Error(`Failed to delete period reflection for ${periodType}:${periodRef}`)
+        }
+      }
+    )
   }
 
   async getPeriodObjectReflection(
@@ -97,52 +162,102 @@ class ReflectionDexieRepository implements ReflectionRepository {
     subjectType: ReflectionSubjectType,
     subjectId: string
   ): Promise<PeriodObjectReflection | undefined> {
-    try {
-      return await this.db.periodObjectReflections
-        .where('[periodType+periodRef+subjectType+subjectId]')
-        .equals([periodType, periodRef, subjectType, subjectId])
-        .first()
-    } catch (error) {
-      console.error(
-        `Failed to get period object reflection for ${subjectType}:${subjectId} in ${periodType}:${periodRef}:`,
-        error
-      )
-      throw new Error(`Failed to retrieve period object reflection for ${subjectType}:${subjectId}`)
-    }
+    return userDatabaseOperation(
+      'r',
+      [
+        'periodReflections',
+        'periodObjectReflections',
+        'goals',
+        'keyResults',
+        'habits',
+        'trackers',
+        'initiatives',
+        'weeklyIntentions',
+        'priorities',
+      ],
+      async db => {
+        try {
+          return await db.periodObjectReflections
+            .where('[periodType+periodRef+subjectType+subjectId]')
+            .equals([periodType, periodRef, subjectType, subjectId])
+            .first()
+        } catch (error) {
+          console.error(
+            `Failed to get period object reflection for ${subjectType}:${subjectId} in ${periodType}:${periodRef}:`,
+            error
+          )
+          throw new Error(
+            `Failed to retrieve period object reflection for ${subjectType}:${subjectId}`
+          )
+        }
+      }
+    )
   }
 
   async listPeriodObjectReflections(): Promise<PeriodObjectReflection[]> {
-    try {
-      return await this.db.periodObjectReflections.toArray()
-    } catch (error) {
-      console.error('Failed to list period object reflections:', error)
-      throw new Error('Failed to retrieve period object reflections from database')
-    }
+    return userDatabaseOperation(
+      'r',
+      [
+        'periodReflections',
+        'periodObjectReflections',
+        'goals',
+        'keyResults',
+        'habits',
+        'trackers',
+        'initiatives',
+        'weeklyIntentions',
+        'priorities',
+      ],
+      async db => {
+        try {
+          return await db.periodObjectReflections.toArray()
+        } catch (error) {
+          console.error('Failed to list period object reflections:', error)
+          throw new Error('Failed to retrieve period object reflections from database')
+        }
+      }
+    )
   }
 
   async upsertPeriodObjectReflection(
     data: CreatePeriodObjectReflectionPayload | UpdatePeriodObjectReflectionPayload
   ): Promise<PeriodObjectReflection> {
-    try {
-      const existing = await this.findExistingPeriodObjectReflection(data)
-      const normalized = normalizePeriodObjectReflectionPayload(data, existing)
-      await this.assertReflectionSubjectExists(normalized.subjectType, normalized.subjectId)
+    return userDatabaseOperation(
+      'rw',
+      [
+        'periodReflections',
+        'periodObjectReflections',
+        'goals',
+        'keyResults',
+        'habits',
+        'trackers',
+        'initiatives',
+        'weeklyIntentions',
+        'priorities',
+      ],
+      async db => {
+        try {
+          const existing = await this.findExistingPeriodObjectReflection(data)
+          const normalized = normalizePeriodObjectReflectionPayload(data, existing)
+          await this.assertReflectionSubjectExists(normalized.subjectType, normalized.subjectId)
 
-      if (existing) {
-      const updated = updatePlanningRecord(existing, normalized)
-      await this.db.periodObjectReflections.put(toPlain(updated))
-      invalidatePlanningQueryCache()
-      return updated
+          if (existing) {
+            const updated = updatePlanningRecord(existing, normalized)
+            await db.periodObjectReflections.put(toPlain(updated))
+            invalidatePlanningQueryCache()
+            return updated
+          }
+
+          const created = createPlanningRecord<PeriodObjectReflection>(normalized)
+          await db.periodObjectReflections.add(toPlain(created))
+          invalidatePlanningQueryCache()
+          return created
+        } catch (error) {
+          console.error('Failed to upsert period object reflection:', error)
+          throw new Error('Failed to persist period object reflection in database')
+        }
       }
-
-      const created = createPlanningRecord<PeriodObjectReflection>(normalized)
-      await this.db.periodObjectReflections.add(toPlain(created))
-      invalidatePlanningQueryCache()
-      return created
-    } catch (error) {
-      console.error('Failed to upsert period object reflection:', error)
-      throw new Error('Failed to persist period object reflection in database')
-    }
+    )
   }
 
   async deletePeriodObjectReflection(
@@ -151,24 +266,42 @@ class ReflectionDexieRepository implements ReflectionRepository {
     subjectType: ReflectionSubjectType,
     subjectId: string
   ): Promise<void> {
-    try {
-      const existing = await this.getPeriodObjectReflection(
-        periodType,
-        periodRef,
-        subjectType,
-        subjectId
-      )
-      if (!existing) return
+    return userDatabaseOperation(
+      'rw',
+      [
+        'periodReflections',
+        'periodObjectReflections',
+        'goals',
+        'keyResults',
+        'habits',
+        'trackers',
+        'initiatives',
+        'weeklyIntentions',
+        'priorities',
+      ],
+      async db => {
+        try {
+          const existing = await this.getPeriodObjectReflection(
+            periodType,
+            periodRef,
+            subjectType,
+            subjectId
+          )
+          if (!existing) return
 
-      await this.db.periodObjectReflections.delete(existing.id)
-      invalidatePlanningQueryCache()
-    } catch (error) {
-      console.error(
-        `Failed to delete period object reflection for ${subjectType}:${subjectId} in ${periodType}:${periodRef}:`,
-        error
-      )
-      throw new Error(`Failed to delete period object reflection for ${subjectType}:${subjectId}`)
-    }
+          await db.periodObjectReflections.delete(existing.id)
+          invalidatePlanningQueryCache()
+        } catch (error) {
+          console.error(
+            `Failed to delete period object reflection for ${subjectType}:${subjectId} in ${periodType}:${periodRef}:`,
+            error
+          )
+          throw new Error(
+            `Failed to delete period object reflection for ${subjectType}:${subjectId}`
+          )
+        }
+      }
+    )
   }
 
   private async findExistingPeriodReflection(

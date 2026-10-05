@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import type {
@@ -37,6 +38,7 @@ function isRetakeEligible(retakeEligibleAt?: string): boolean {
 }
 
 export const useAssessmentStore = defineStore('assessment', () => {
+  const sessionScope = createStoreSessionScope()
   const attemptsByAssessment = ref<Partial<Record<AssessmentId, AssessmentAttempt[]>>>({})
   const responsesByAttemptId = ref<Record<string, AssessmentResponse[]>>({})
   const activeAttemptIdByAssessment = ref<Partial<Record<AssessmentId, string>>>({})
@@ -54,7 +56,7 @@ export const useAssessmentStore = defineStore('assessment', () => {
     return (assessmentId: AssessmentId): AssessmentAttempt | undefined => {
       const attempts = attemptsByAssessment.value[assessmentId] ?? []
       return attempts
-        .filter((attempt) => attempt.status === 'completed' && Boolean(attempt.completedAt))
+        .filter(attempt => attempt.status === 'completed' && Boolean(attempt.completedAt))
         .sort((a, b) => (b.completedAt ?? '').localeCompare(a.completedAt ?? ''))[0]
     }
   })
@@ -63,7 +65,9 @@ export const useAssessmentStore = defineStore('assessment', () => {
     return (assessmentId: AssessmentId): AssessmentAttempt | undefined => {
       const attemptId = activeAttemptIdByAssessment.value[assessmentId]
       if (!attemptId) return undefined
-      return (attemptsByAssessment.value[assessmentId] ?? []).find((attempt) => attempt.id === attemptId)
+      return (attemptsByAssessment.value[assessmentId] ?? []).find(
+        attempt => attempt.id === attemptId
+      )
     }
   })
 
@@ -85,7 +89,7 @@ export const useAssessmentStore = defineStore('assessment', () => {
 
   function upsertAttempt(attempt: AssessmentAttempt): void {
     const current = [...(attemptsByAssessment.value[attempt.assessmentId] ?? [])]
-    const index = current.findIndex((entry) => entry.id === attempt.id)
+    const index = current.findIndex(entry => entry.id === attempt.id)
 
     if (index === -1) {
       current.push(attempt)
@@ -102,7 +106,7 @@ export const useAssessmentStore = defineStore('assessment', () => {
 
   function upsertResponse(attemptId: string, response: AssessmentResponse): void {
     const current = [...(responsesByAttemptId.value[attemptId] ?? [])]
-    const index = current.findIndex((entry) => entry.itemId === response.itemId)
+    const index = current.findIndex(entry => entry.itemId === response.itemId)
 
     if (index === -1) {
       current.push(response)
@@ -117,77 +121,101 @@ export const useAssessmentStore = defineStore('assessment', () => {
   }
 
   async function loadAttempts(assessmentId: AssessmentId): Promise<AssessmentAttempt[]> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     isLoading.value = true
     error.value = null
 
     try {
-      const attempts = await assessmentsDexieRepository.getAttemptsByAssessment(assessmentId)
+      const attempts = await operation.wait(
+        assessmentsDexieRepository.getAttemptsByAssessment(assessmentId)
+      )
       attemptsByAssessment.value = {
         ...attemptsByAssessment.value,
         [assessmentId]: attempts,
       }
       return attempts
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to load assessment attempts'
       console.error('Error loading assessment attempts:', err)
       return []
     } finally {
-      isLoading.value = false
+      if (operation.isCurrent()) {
+        isLoading.value = false
+      }
     }
   }
 
   async function loadResponses(attemptId: string): Promise<AssessmentResponse[]> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     isLoading.value = true
     error.value = null
 
     try {
-      const responses = await assessmentsDexieRepository.getResponsesByAttempt(attemptId)
+      const responses = await operation.wait(
+        assessmentsDexieRepository.getResponsesByAttempt(attemptId)
+      )
       responsesByAttemptId.value = {
         ...responsesByAttemptId.value,
         [attemptId]: responses,
       }
       return responses
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to load assessment responses'
       console.error('Error loading assessment responses:', err)
       return []
     } finally {
-      isLoading.value = false
+      if (operation.isCurrent()) {
+        isLoading.value = false
+      }
     }
   }
 
   async function hydrateAssessment(assessmentId: AssessmentId): Promise<void> {
-    const attempts = await loadAttempts(assessmentId)
-    const inProgress = attempts.find((attempt) => attempt.status === 'in-progress')
-    if (!inProgress) return
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    try {
+      const attempts = await operation.wait(loadAttempts(assessmentId))
+      const inProgress = attempts.find(attempt => attempt.status === 'in-progress')
+      if (!inProgress) return
 
-    activeAttemptIdByAssessment.value = {
-      ...activeAttemptIdByAssessment.value,
-      [assessmentId]: inProgress.id,
-    }
+      activeAttemptIdByAssessment.value = {
+        ...activeAttemptIdByAssessment.value,
+        [assessmentId]: inProgress.id,
+      }
 
-    if (!responsesByAttemptId.value[inProgress.id]) {
-      await loadResponses(inProgress.id)
+      if (!responsesByAttemptId.value[inProgress.id]) {
+        await operation.wait(loadResponses(inProgress.id))
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function startAttempt(
     assessmentId: AssessmentId,
-    language: LocaleId,
+    language: LocaleId
   ): Promise<AssessmentAttempt> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     isSaving.value = true
     error.value = null
 
     try {
       const definition = getAssessmentDefinition(assessmentId)
-      const attempt = await assessmentsDexieRepository.startAttempt({
-        assessmentId,
-        instrumentVersion: definition.instrumentVersion,
-        language,
-        scoringKeyVersion: definition.scoringKeyVersion,
-        missingDataPolicyVersion: definition.missingDataPolicy.id,
-        totalItems: definition.items.length,
-      })
+      const attempt = await operation.wait(
+        assessmentsDexieRepository.startAttempt({
+          assessmentId,
+          instrumentVersion: definition.instrumentVersion,
+          language,
+          scoringKeyVersion: definition.scoringKeyVersion,
+          missingDataPolicyVersion: definition.missingDataPolicy.id,
+          totalItems: definition.items.length,
+        })
+      )
 
       upsertAttempt(attempt)
       activeAttemptIdByAssessment.value = {
@@ -201,21 +229,28 @@ export const useAssessmentStore = defineStore('assessment', () => {
 
       return attempt
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to start assessment attempt'
       console.error('Error starting assessment attempt:', err)
       throw err
     } finally {
-      isSaving.value = false
+      if (operation.isCurrent()) {
+        isSaving.value = false
+      }
     }
   }
 
   async function resumeOrStartAttempt(
     assessmentId: AssessmentId,
-    language: LocaleId,
+    language: LocaleId
   ): Promise<AssessmentAttempt> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
 
-    const inProgress = await assessmentsDexieRepository.getInProgressAttempt(assessmentId)
+    const inProgress = await operation.wait(
+      assessmentsDexieRepository.getInProgressAttempt(assessmentId)
+    )
     if (inProgress) {
       upsertAttempt(inProgress)
       activeAttemptIdByAssessment.value = {
@@ -223,7 +258,7 @@ export const useAssessmentStore = defineStore('assessment', () => {
         [assessmentId]: inProgress.id,
       }
       if (!responsesByAttemptId.value[inProgress.id]) {
-        await loadResponses(inProgress.id)
+        await operation.wait(loadResponses(inProgress.id))
       }
       return inProgress
     }
@@ -233,11 +268,15 @@ export const useAssessmentStore = defineStore('assessment', () => {
 
   async function restartAttempt(
     assessmentId: AssessmentId,
-    language: LocaleId,
+    language: LocaleId
   ): Promise<AssessmentAttempt> {
-    const inProgress = await assessmentsDexieRepository.getInProgressAttempt(assessmentId)
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    const inProgress = await operation.wait(
+      assessmentsDexieRepository.getInProgressAttempt(assessmentId)
+    )
     if (inProgress) {
-      await abandonAttempt(inProgress.id)
+      await operation.wait(abandonAttempt(inProgress.id))
     }
     return startAttempt(assessmentId, language)
   }
@@ -246,49 +285,58 @@ export const useAssessmentStore = defineStore('assessment', () => {
     assessmentId: AssessmentId,
     attemptId: string,
     itemId: string,
-    responseValue: number,
+    responseValue: number
   ): Promise<AssessmentResponse> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     isSaving.value = true
     error.value = null
 
     try {
       const definition = getAssessmentDefinition(assessmentId)
-      const item = definition.items.find((entry) => entry.id === itemId)
+      const item = definition.items.find(entry => entry.id === itemId)
       if (!item) {
         throw new Error(`Item ${itemId} not found for assessment ${assessmentId}`)
       }
 
-      const response = await assessmentsDexieRepository.saveResponse({
-        attemptId,
-        assessmentId,
-        itemId,
-        responseValue,
-        reverseFlagAtTime: item.reverse,
-        scoringKeyVersion: definition.scoringKeyVersion,
-      })
+      const response = await operation.wait(
+        assessmentsDexieRepository.saveResponse({
+          attemptId,
+          assessmentId,
+          itemId,
+          responseValue,
+          reverseFlagAtTime: item.reverse,
+          scoringKeyVersion: definition.scoringKeyVersion,
+        })
+      )
 
       upsertResponse(attemptId, response)
 
-      const attempt = await assessmentsDexieRepository.getAttemptById(attemptId)
+      const attempt = await operation.wait(assessmentsDexieRepository.getAttemptById(attemptId))
       if (attempt) {
         upsertAttempt(attempt)
       }
 
       return response
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to save assessment response'
       console.error('Error saving assessment response:', err)
       throw err
     } finally {
-      isSaving.value = false
+      if (operation.isCurrent()) {
+        isSaving.value = false
+      }
     }
   }
 
   async function bulkSaveResponses(
     assessmentId: AssessmentId,
     attemptId: string,
-    values: Record<string, number>,
+    values: Record<string, number>
   ): Promise<AssessmentResponse[]> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     isSaving.value = true
     error.value = null
 
@@ -296,7 +344,7 @@ export const useAssessmentStore = defineStore('assessment', () => {
       const definition = getAssessmentDefinition(assessmentId)
       const payload = Object.entries(values)
         .map(([itemId, responseValue]) => {
-          const item = definition.items.find((entry) => entry.id === itemId)
+          const item = definition.items.find(entry => entry.id === itemId)
           if (!item) return null
           return {
             attemptId,
@@ -307,52 +355,68 @@ export const useAssessmentStore = defineStore('assessment', () => {
             scoringKeyVersion: definition.scoringKeyVersion,
           }
         })
-        .filter((entry): entry is {
-          attemptId: string
-          assessmentId: AssessmentId
-          itemId: string
-          responseValue: number
-          reverseFlagAtTime: boolean
-          scoringKeyVersion: string
-        } => entry !== null)
+        .filter(
+          (
+            entry
+          ): entry is {
+            attemptId: string
+            assessmentId: AssessmentId
+            itemId: string
+            responseValue: number
+            reverseFlagAtTime: boolean
+            scoringKeyVersion: string
+          } => entry !== null
+        )
 
-      const responses = await assessmentsDexieRepository.bulkSaveResponses(payload)
+      const responses = await operation.wait(assessmentsDexieRepository.bulkSaveResponses(payload))
 
       for (const response of responses) {
         upsertResponse(attemptId, response)
       }
 
-      const attempt = await assessmentsDexieRepository.getAttemptById(attemptId)
+      const attempt = await operation.wait(assessmentsDexieRepository.getAttemptById(attemptId))
       if (attempt) {
         upsertAttempt(attempt)
       }
 
       return responses
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to bulk save assessment responses'
       console.error('Error bulk saving assessment responses:', err)
       throw err
     } finally {
-      isSaving.value = false
+      if (operation.isCurrent()) {
+        isSaving.value = false
+      }
     }
   }
 
   async function resolveAttemptAndResponses(
     assessmentId: AssessmentId,
-    attemptId: string,
-  ): Promise<{ definition: AssessmentDefinition; attempt: AssessmentAttempt; responses: AssessmentResponse[] }> {
+    attemptId: string
+  ): Promise<{
+    definition: AssessmentDefinition
+    attempt: AssessmentAttempt
+    responses: AssessmentResponse[]
+  }> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     const definition = getAssessmentDefinition(assessmentId)
 
-    let attempt = (attemptsByAssessment.value[assessmentId] ?? []).find((entry) => entry.id === attemptId)
+    let attempt = (attemptsByAssessment.value[assessmentId] ?? []).find(
+      entry => entry.id === attemptId
+    )
     if (!attempt) {
-      attempt = await assessmentsDexieRepository.getAttemptById(attemptId)
+      attempt = await operation.wait(assessmentsDexieRepository.getAttemptById(attemptId))
     }
 
     if (!attempt) {
       throw new Error(`Assessment attempt ${attemptId} not found`)
     }
 
-    const responses = responsesByAttemptId.value[attemptId] ?? (await loadResponses(attemptId))
+    const responses =
+      responsesByAttemptId.value[attemptId] ?? (await operation.wait(loadResponses(attemptId)))
 
     return {
       definition,
@@ -364,15 +428,21 @@ export const useAssessmentStore = defineStore('assessment', () => {
   async function completeAttempt(
     assessmentId: AssessmentId,
     attemptId: string,
-    options?: CompleteAttemptOptions,
+    options?: CompleteAttemptOptions
   ): Promise<{ attempt: AssessmentAttempt; computation: AssessmentComputation }> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     isSaving.value = true
     error.value = null
 
     try {
-      const { definition, attempt, responses } = await resolveAttemptAndResponses(assessmentId, attemptId)
+      const { definition, attempt, responses } = await operation.wait(
+        resolveAttemptAndResponses(assessmentId, attemptId)
+      )
 
-      const previousAttempt = await assessmentsDexieRepository.getLatestCompletedAttempt(assessmentId)
+      const previousAttempt = await operation.wait(
+        assessmentsDexieRepository.getLatestCompletedAttempt(assessmentId)
+      )
 
       const computation = scoreAssessment({
         assessmentId,
@@ -381,12 +451,14 @@ export const useAssessmentStore = defineStore('assessment', () => {
         centeredScoringEnabled: options?.centeredScoringEnabled,
       })
 
-      const completed = await assessmentsDexieRepository.completeAttempt(attempt.id, {
-        computedScales: computation.computedScales,
-        overallSummary: computation.overallSummary,
-        scoringComputationMetadata: computation.scoringComputationMetadata,
-        retakeEligibleAt: plusWeeks(nowIso(), definition.retakePolicy.weeks),
-      })
+      const completed = await operation.wait(
+        assessmentsDexieRepository.completeAttempt(attempt.id, {
+          computedScales: computation.computedScales,
+          overallSummary: computation.overallSummary,
+          scoringComputationMetadata: computation.scoringComputationMetadata,
+          retakeEligibleAt: plusWeeks(nowIso(), definition.retakePolicy.weeks),
+        })
+      )
 
       upsertAttempt(completed)
       activeAttemptIdByAssessment.value = {
@@ -399,24 +471,33 @@ export const useAssessmentStore = defineStore('assessment', () => {
         computation,
       }
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to complete assessment attempt'
       console.error('Error completing assessment attempt:', err)
       throw err
     } finally {
-      isSaving.value = false
+      if (operation.isCurrent()) {
+        isSaving.value = false
+      }
     }
   }
 
   async function recomputeAttempt(
     assessmentId: AssessmentId,
     attemptId: string,
-    centeredScoringEnabled?: boolean,
+    centeredScoringEnabled?: boolean
   ): Promise<AssessmentComputation> {
-    const { attempt, responses } = await resolveAttemptAndResponses(assessmentId, attemptId)
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    const { attempt, responses } = await operation.wait(
+      resolveAttemptAndResponses(assessmentId, attemptId)
+    )
 
     const previousAttempt = attempt.completedAt
-      ? await assessmentsDexieRepository.getPreviousCompletedAttempt(assessmentId, attempt.completedAt)
-      : await assessmentsDexieRepository.getLatestCompletedAttempt(assessmentId)
+      ? await operation.wait(
+          assessmentsDexieRepository.getPreviousCompletedAttempt(assessmentId, attempt.completedAt)
+        )
+      : await operation.wait(assessmentsDexieRepository.getLatestCompletedAttempt(assessmentId))
 
     return scoreAssessment({
       assessmentId,
@@ -427,11 +508,13 @@ export const useAssessmentStore = defineStore('assessment', () => {
   }
 
   async function abandonAttempt(attemptId: string): Promise<AssessmentAttempt> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     isSaving.value = true
     error.value = null
 
     try {
-      const abandoned = await assessmentsDexieRepository.abandonAttempt(attemptId)
+      const abandoned = await operation.wait(assessmentsDexieRepository.abandonAttempt(attemptId))
       upsertAttempt(abandoned)
 
       if (activeAttemptIdByAssessment.value[abandoned.assessmentId] === abandoned.id) {
@@ -443,11 +526,14 @@ export const useAssessmentStore = defineStore('assessment', () => {
 
       return abandoned
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to abandon assessment attempt'
       console.error('Error abandoning assessment attempt:', err)
       throw err
     } finally {
-      isSaving.value = false
+      if (operation.isCurrent()) {
+        isSaving.value = false
+      }
     }
   }
 
@@ -471,6 +557,7 @@ export const useAssessmentStore = defineStore('assessment', () => {
    * attempts, responses, or active-attempt selections.
    */
   function reset(): void {
+    sessionScope.reset()
     attemptsByAssessment.value = {}
     responsesByAttemptId.value = {}
     activeAttemptIdByAssessment.value = {}

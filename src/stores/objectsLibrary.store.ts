@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import type {
@@ -17,6 +18,7 @@ import {
 import type { PeriodRef } from '@/domain/period'
 
 export const useObjectsLibraryStore = defineStore('objectsLibrary', () => {
+  const sessionScope = createStoreSessionScope()
   const query = ref<ObjectsLibraryQuery>(createDefaultObjectsLibraryQuery())
   const bundle = ref<ObjectsLibraryBundle | null>(null)
   const isLoading = ref(false)
@@ -24,13 +26,13 @@ export const useObjectsLibraryStore = defineStore('objectsLibrary', () => {
 
   const items = computed(() => bundle.value?.items ?? [])
   const filterOptions = computed(
-    () => bundle.value?.filterOptions ?? { lifeAreas: [], priorities: [], goals: [] },
+    () => bundle.value?.filterOptions ?? { lifeAreas: [], priorities: [], goals: [] }
   )
   const expandedItem = computed<ObjectsLibraryDetailRecord | undefined>(
-    () => bundle.value?.expandedItem,
+    () => bundle.value?.expandedItem
   )
   const composerItem = computed<ObjectsLibraryDetailRecord | undefined>(
-    () => bundle.value?.composerItem,
+    () => bundle.value?.composerItem
   )
   const hasActiveFilters = computed(
     () =>
@@ -38,12 +40,12 @@ export const useObjectsLibraryStore = defineStore('objectsLibrary', () => {
       Boolean(query.value.period) ||
       query.value.lifeAreaIds.length > 0 ||
       query.value.priorityIds.length > 0 ||
-      query.value.showClosed,
+      query.value.showClosed
   )
 
   function hydrateFromRoute(
     familyParam: string | string[] | undefined,
-    routeQuery: Record<string, unknown>,
+    routeQuery: Record<string, unknown>
   ): void {
     query.value = parseObjectsLibraryQueryFromRoute(familyParam, routeQuery)
   }
@@ -53,16 +55,25 @@ export const useObjectsLibraryStore = defineStore('objectsLibrary', () => {
   }
 
   async function loadBundle(): Promise<void> {
-    isLoading.value = true
-    error.value = null
-
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      bundle.value = await loadObjectsLibraryBundle(query.value)
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load library bundle'
-      throw err
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+
+      try {
+        bundle.value = await operation.wait(loadObjectsLibraryBundle(query.value))
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to load library bundle'
+        throw err
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -125,7 +136,7 @@ export const useObjectsLibraryStore = defineStore('objectsLibrary', () => {
     composerMode: ObjectsLibraryComposerMode,
     composerType: ObjectsLibraryPanelType,
     composerId?: string,
-    parentContext?: { composerParentType?: 'goal'; composerParentId?: string },
+    parentContext?: { composerParentType?: 'goal'; composerParentId?: string }
   ): void {
     query.value = {
       ...query.value,
@@ -170,6 +181,7 @@ export const useObjectsLibraryStore = defineStore('objectsLibrary', () => {
    * library bundle or filter selections.
    */
   function reset(): void {
+    sessionScope.reset()
     query.value = createDefaultObjectsLibraryQuery()
     bundle.value = null
     isLoading.value = false
@@ -206,6 +218,6 @@ export const useObjectsLibraryStore = defineStore('objectsLibrary', () => {
 
 function toggleInList(values: string[], nextValue: string): string[] {
   return values.includes(nextValue)
-    ? values.filter((value) => value !== nextValue)
+    ? values.filter(value => value !== nextValue)
     : [...values, nextValue]
 }

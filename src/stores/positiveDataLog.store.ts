@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 /**
  * Positive Data Log Store
  *
@@ -16,6 +17,7 @@ import { positiveDataLogDexieRepository } from '@/repositories/exercisesDexieRep
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const usePositiveDataLogStore = defineStore('positiveDataLog', () => {
+  const sessionScope = createStoreSessionScope()
   const logs = ref<PositiveDataLog[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
@@ -34,33 +36,45 @@ export const usePositiveDataLogStore = defineStore('positiveDataLog', () => {
 
   const getLogById = computed(() => {
     return (id: string): PositiveDataLog | undefined => {
-      return logs.value.find((l) => l.id === id)
+      return logs.value.find(l => l.id === id)
     }
   })
 
   async function loadLogs(): Promise<void> {
-    isLoading.value = true
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      logs.value = await positiveDataLogDexieRepository.getAll()
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load positive data logs'
-      console.error('Error loading positive data logs:', err)
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+      try {
+        logs.value = await operation.wait(positiveDataLogDexieRepository.getAll())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to load positive data logs'
+        console.error('Error loading positive data logs:', err)
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function createLog(data: CreatePositiveDataLogPayload): Promise<PositiveDataLog> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const log = await positiveDataLogDexieRepository.create(data)
+      const log = await operation.wait(positiveDataLogDexieRepository.create(data))
       void useExerciseCompletionsStore()
         .record('positive-data-log', log.id)
-        .catch((err) => console.error('Failed to record exercise completion:', err))
+        .catch(err => console.error('Failed to record exercise completion:', err))
       logs.value.push(log)
       return log
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to create positive data log'
       console.error('Error creating positive data log:', err)
       throw err
@@ -69,25 +83,28 @@ export const usePositiveDataLogStore = defineStore('positiveDataLog', () => {
 
   async function updateLog(
     id: string,
-    data: UpdatePositiveDataLogPayload,
+    data: UpdatePositiveDataLogPayload
   ): Promise<PositiveDataLog> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const previousEntryCount = logs.value.find((l) => l.id === id)?.entries.length ?? 0
-      const updated = await positiveDataLogDexieRepository.update(id, data)
+      const previousEntryCount = logs.value.find(l => l.id === id)?.entries.length ?? 0
+      const updated = await operation.wait(positiveDataLogDexieRepository.update(id, data))
       // Adding an entry to an ongoing log IS the exercise ("add one piece of
       // evidence") — edits/removals are not completions.
       if (updated.entries.length > previousEntryCount) {
         void useExerciseCompletionsStore()
           .record('positive-data-log', updated.id)
-          .catch((err) => console.error('Failed to record exercise completion:', err))
+          .catch(err => console.error('Failed to record exercise completion:', err))
       }
-      const index = logs.value.findIndex((l) => l.id === id)
+      const index = logs.value.findIndex(l => l.id === id)
       if (index !== -1) {
         logs.value[index] = updated
       }
       return updated
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to update positive data log'
       console.error('Error updating positive data log:', err)
       throw err
@@ -95,14 +112,21 @@ export const usePositiveDataLogStore = defineStore('positiveDataLog', () => {
   }
 
   async function deleteLog(id: string): Promise<void> {
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await positiveDataLogDexieRepository.delete(id)
-      logs.value = logs.value.filter((l) => l.id !== id)
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete positive data log'
-      console.error('Error deleting positive data log:', err)
-      throw err
+      error.value = null
+      try {
+        await operation.wait(positiveDataLogDexieRepository.delete(id))
+        logs.value = logs.value.filter(l => l.id !== id)
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to delete positive data log'
+        console.error('Error deleting positive data log:', err)
+        throw err
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -112,6 +136,7 @@ export const usePositiveDataLogStore = defineStore('positiveDataLog', () => {
    * data before the next `load*()` re-fetches from the new database.
    */
   function reset(): void {
+    sessionScope.reset()
     logs.value = []
     isLoading.value = false
     error.value = null

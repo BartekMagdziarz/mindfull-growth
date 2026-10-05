@@ -1,4 +1,10 @@
-import type { MeasurementEntryMode, MeasurementTarget, MultiCompletionItem, WeeklyIntention } from '@/domain/planning'
+import { captureUserSession } from '@/services/userSessionScope'
+import type {
+  MeasurementEntryMode,
+  MeasurementTarget,
+  MultiCompletionItem,
+  WeeklyIntention,
+} from '@/domain/planning'
 import { createMultiCompletionItem } from '@/domain/planning'
 import type { MonthRef, WeekRef } from '@/domain/period'
 import type { WeekPlan, WeekTopPriorityRef } from '@/domain/planningState'
@@ -41,37 +47,42 @@ function seedMultiItems(title: string): MultiCompletionItem[] {
  * "this week" section and satisfies the week-state activation invariants.
  */
 export async function createWeeklyIntention(
-  input: CreateWeeklyIntentionInput,
+  input: CreateWeeklyIntentionInput
 ): Promise<WeeklyIntention> {
-  const intention = await weeklyIntentionDexieRepository.create({
-    weekRef: input.weekRef,
-    title: input.title,
-    description: input.description,
-    icon: input.icon,
-    isActive: true,
-    entryMode: input.entryMode,
-    cadence: 'weekly',
-    target: input.target,
-    ratingScaleMin: input.ratingScaleMin,
-    ratingScale: input.ratingScale,
-    multiItems:
-      input.entryMode === 'multi-completion'
-        ? input.multiItems?.length
-          ? input.multiItems
-          : seedMultiItems(input.title)
-        : undefined,
-    multiDailyThreshold: input.multiDailyThreshold,
-    status: 'open',
-    priorityIds: input.priorityIds ?? [],
-    ...(input.programLink ? { programLink: input.programLink } : {}),
-  })
+  const session = captureUserSession()
+  const intention = await session.wait(
+    weeklyIntentionDexieRepository.create({
+      weekRef: input.weekRef,
+      title: input.title,
+      description: input.description,
+      icon: input.icon,
+      isActive: true,
+      entryMode: input.entryMode,
+      cadence: 'weekly',
+      target: input.target,
+      ratingScaleMin: input.ratingScaleMin,
+      ratingScale: input.ratingScale,
+      multiItems:
+        input.entryMode === 'multi-completion'
+          ? input.multiItems?.length
+            ? input.multiItems
+            : seedMultiItems(input.title)
+          : undefined,
+      multiDailyThreshold: input.multiDailyThreshold,
+      status: 'open',
+      priorityIds: input.priorityIds ?? [],
+      ...(input.programLink ? { programLink: input.programLink } : {}),
+    })
+  )
 
-  await linkMeasurementPeriod({
-    subjectType: 'weeklyIntention',
-    subjectId: intention.id,
-    cadence: 'weekly',
-    periodRef: input.weekRef,
-  })
+  await session.wait(
+    linkMeasurementPeriod({
+      subjectType: 'weeklyIntention',
+      subjectId: intention.id,
+      cadence: 'weekly',
+      periodRef: input.weekRef,
+    })
+  )
 
   return intention
 }
@@ -82,9 +93,10 @@ export function listWeeklyIntentions(weekRef: WeekRef): Promise<WeeklyIntention[
 
 /** All intentions of the month's (child-period) weeks, in week order. */
 export async function listWeeklyIntentionsForMonth(monthRef: MonthRef): Promise<WeeklyIntention[]> {
+  const session = captureUserSession()
   const weekRefs = getChildPeriods(monthRef) as WeekRef[]
-  const lists = await Promise.all(
-    weekRefs.map((weekRef) => weeklyIntentionDexieRepository.listByWeek(weekRef)),
+  const lists = await session.wait(
+    Promise.all(weekRefs.map(weekRef => weeklyIntentionDexieRepository.listByWeek(weekRef)))
   )
   return lists.flat()
 }
@@ -105,12 +117,13 @@ export interface UpdateWeeklyIntentionInput {
 /** Edit an existing intention's title / measurement. */
 export async function updateWeeklyIntention(
   id: string,
-  input: UpdateWeeklyIntentionInput,
+  input: UpdateWeeklyIntentionInput
 ): Promise<WeeklyIntention> {
+  const session = captureUserSession()
   if (input.entryMode === 'multi-completion' && !input.multiItems) {
     // Switching to multi-completion from a surface that doesn't edit items:
     // keep stored items when they exist, otherwise seed the default one.
-    const existing = await weeklyIntentionDexieRepository.getById(id)
+    const existing = await session.wait(weeklyIntentionDexieRepository.getById(id))
     if (!existing?.multiItems?.length) {
       input = { ...input, multiItems: seedMultiItems(input.title ?? existing?.title ?? '') }
     }
@@ -124,21 +137,25 @@ export async function updateWeeklyIntention(
  * states (and any day assignments) before removing the row itself.
  */
 export async function deleteWeeklyIntention(id: string, weekRef: WeekRef): Promise<void> {
-  await unlinkMeasurementPeriod({
-    subjectType: 'weeklyIntention',
-    subjectId: id,
-    cadence: 'weekly',
-    periodRef: weekRef,
-  })
-  await weeklyIntentionDexieRepository.delete(id)
+  const session = captureUserSession()
+  await session.wait(
+    unlinkMeasurementPeriod({
+      subjectType: 'weeklyIntention',
+      subjectId: id,
+      cadence: 'weekly',
+      periodRef: weekRef,
+    })
+  )
+  await session.wait(weeklyIntentionDexieRepository.delete(id))
 }
 
 /** Lazily upsert the week's plan record with the chosen top-3 priority refs. */
 export async function setWeekTopPriorities(
   weekRef: WeekRef,
-  topPriorities: WeekTopPriorityRef[],
+  topPriorities: WeekTopPriorityRef[]
 ): Promise<WeekPlan> {
-  const existing = await periodPlanDexieRepository.getWeekPlan(weekRef)
+  const session = captureUserSession()
+  const existing = await session.wait(periodPlanDexieRepository.getWeekPlan(weekRef))
   if (existing) {
     return periodPlanDexieRepository.updateWeekPlan(existing.id, { topPriorities })
   }

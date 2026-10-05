@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type {
@@ -9,6 +10,7 @@ import { ifsPartsDialogueDexieRepository } from '@/repositories/exercisesDexieRe
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useIFSPartsDialogueStore = defineStore('ifsPartsDialogue', () => {
+  const sessionScope = createStoreSessionScope()
   const dialogues = ref<IFSPartsDialogue[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
@@ -23,49 +25,67 @@ export const useIFSPartsDialogueStore = defineStore('ifsPartsDialogue', () => {
 
   const getDialogueById = computed(() => {
     return (id: string): IFSPartsDialogue | undefined => {
-      return dialogues.value.find((d) => d.id === id)
+      return dialogues.value.find(d => d.id === id)
     }
   })
 
   async function loadDialogues(): Promise<void> {
-    isLoading.value = true
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      dialogues.value = await ifsPartsDialogueDexieRepository.getAll()
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load parts dialogues'
-      console.error('Error loading parts dialogues:', err)
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+      try {
+        dialogues.value = await operation.wait(ifsPartsDialogueDexieRepository.getAll())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to load parts dialogues'
+        console.error('Error loading parts dialogues:', err)
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function createDialogue(data: CreateIFSPartsDialoguePayload): Promise<IFSPartsDialogue> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const dialogue = await ifsPartsDialogueDexieRepository.create(data)
+      const dialogue = await operation.wait(ifsPartsDialogueDexieRepository.create(data))
       void useExerciseCompletionsStore()
         .record('parts-dialogue', dialogue.id)
-        .catch((err) => console.error('Failed to record exercise completion:', err))
+        .catch(err => console.error('Failed to record exercise completion:', err))
       dialogues.value.push(dialogue)
       return dialogue
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to create parts dialogue'
       console.error('Error creating parts dialogue:', err)
       throw err
     }
   }
 
-  async function updateDialogue(id: string, data: UpdateIFSPartsDialoguePayload): Promise<IFSPartsDialogue> {
+  async function updateDialogue(
+    id: string,
+    data: UpdateIFSPartsDialoguePayload
+  ): Promise<IFSPartsDialogue> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const updated = await ifsPartsDialogueDexieRepository.update(id, data)
-      const index = dialogues.value.findIndex((d) => d.id === id)
+      const updated = await operation.wait(ifsPartsDialogueDexieRepository.update(id, data))
+      const index = dialogues.value.findIndex(d => d.id === id)
       if (index !== -1) {
         dialogues.value[index] = updated
       }
       return updated
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to update parts dialogue'
       console.error('Error updating parts dialogue:', err)
       throw err
@@ -73,14 +93,21 @@ export const useIFSPartsDialogueStore = defineStore('ifsPartsDialogue', () => {
   }
 
   async function deleteDialogue(id: string): Promise<void> {
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await ifsPartsDialogueDexieRepository.delete(id)
-      dialogues.value = dialogues.value.filter((d) => d.id !== id)
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete parts dialogue'
-      console.error('Error deleting parts dialogue:', err)
-      throw err
+      error.value = null
+      try {
+        await operation.wait(ifsPartsDialogueDexieRepository.delete(id))
+        dialogues.value = dialogues.value.filter(d => d.id !== id)
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to delete parts dialogue'
+        console.error('Error deleting parts dialogue:', err)
+        throw err
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -90,6 +117,7 @@ export const useIFSPartsDialogueStore = defineStore('ifsPartsDialogue', () => {
    * data before the next `load*()` re-fetches from the new database.
    */
   function reset(): void {
+    sessionScope.reset()
     dialogues.value = []
     isLoading.value = false
     error.value = null

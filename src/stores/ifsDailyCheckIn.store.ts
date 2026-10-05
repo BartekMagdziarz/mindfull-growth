@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type {
@@ -10,6 +11,7 @@ import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 import { addDaysToDayRef, getPeriodRefsForDate } from '@/utils/periods'
 
 export const useIFSDailyCheckInStore = defineStore('ifsDailyCheckIn', () => {
+  const sessionScope = createStoreSessionScope()
   const checkIns = ref<IFSDailyCheckIn[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
@@ -24,7 +26,7 @@ export const useIFSDailyCheckInStore = defineStore('ifsDailyCheckIn', () => {
 
   const getCheckInById = computed(() => {
     return (id: string): IFSDailyCheckIn | undefined => {
-      return checkIns.value.find((c) => c.id === id)
+      return checkIns.value.find(c => c.id === id)
     }
   })
 
@@ -36,7 +38,7 @@ export const useIFSDailyCheckInStore = defineStore('ifsDailyCheckIn', () => {
   const currentWeekCheckIns = computed(() => {
     const todayRef = getPeriodRefsForDate(new Date()).day
     const fromRef = addDaysToDayRef(todayRef, -6)
-    return checkIns.value.filter((checkIn) => {
+    return checkIns.value.filter(checkIn => {
       const day = getPeriodRefsForDate(checkIn.createdAt).day
       return day >= fromRef && day <= todayRef
     })
@@ -48,50 +50,70 @@ export const useIFSDailyCheckInStore = defineStore('ifsDailyCheckIn', () => {
 
   /** How many check-ins in the rolling window unlock the weekly AI summary. */
   const WEEKLY_SUMMARY_THRESHOLD = 5
-  const hasEnoughForWeeklySummary = computed(() => weeklyCheckInCount.value >= WEEKLY_SUMMARY_THRESHOLD)
+  const hasEnoughForWeeklySummary = computed(
+    () => weeklyCheckInCount.value >= WEEKLY_SUMMARY_THRESHOLD
+  )
   const checkInsNeededForWeeklySummary = computed(() =>
-    Math.max(0, WEEKLY_SUMMARY_THRESHOLD - weeklyCheckInCount.value),
+    Math.max(0, WEEKLY_SUMMARY_THRESHOLD - weeklyCheckInCount.value)
   )
 
   async function loadCheckIns(): Promise<void> {
-    isLoading.value = true
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      checkIns.value = await ifsDailyCheckInDexieRepository.getAll()
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load daily check-ins'
-      console.error('Error loading daily check-ins:', err)
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+      try {
+        checkIns.value = await operation.wait(ifsDailyCheckInDexieRepository.getAll())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to load daily check-ins'
+        console.error('Error loading daily check-ins:', err)
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function createCheckIn(data: CreateIFSDailyCheckInPayload): Promise<IFSDailyCheckIn> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const checkIn = await ifsDailyCheckInDexieRepository.create(data)
+      const checkIn = await operation.wait(ifsDailyCheckInDexieRepository.create(data))
       void useExerciseCompletionsStore()
         .record('daily-ifs-checkin', checkIn.id)
-        .catch((err) => console.error('Failed to record exercise completion:', err))
+        .catch(err => console.error('Failed to record exercise completion:', err))
       checkIns.value.push(checkIn)
       return checkIn
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to create daily check-in'
       console.error('Error creating daily check-in:', err)
       throw err
     }
   }
 
-  async function updateCheckIn(id: string, data: UpdateIFSDailyCheckInPayload): Promise<IFSDailyCheckIn> {
+  async function updateCheckIn(
+    id: string,
+    data: UpdateIFSDailyCheckInPayload
+  ): Promise<IFSDailyCheckIn> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const updated = await ifsDailyCheckInDexieRepository.update(id, data)
-      const index = checkIns.value.findIndex((c) => c.id === id)
+      const updated = await operation.wait(ifsDailyCheckInDexieRepository.update(id, data))
+      const index = checkIns.value.findIndex(c => c.id === id)
       if (index !== -1) {
         checkIns.value[index] = updated
       }
       return updated
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to update daily check-in'
       console.error('Error updating daily check-in:', err)
       throw err
@@ -99,14 +121,21 @@ export const useIFSDailyCheckInStore = defineStore('ifsDailyCheckIn', () => {
   }
 
   async function deleteCheckIn(id: string): Promise<void> {
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await ifsDailyCheckInDexieRepository.delete(id)
-      checkIns.value = checkIns.value.filter((c) => c.id !== id)
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete daily check-in'
-      console.error('Error deleting daily check-in:', err)
-      throw err
+      error.value = null
+      try {
+        await operation.wait(ifsDailyCheckInDexieRepository.delete(id))
+        checkIns.value = checkIns.value.filter(c => c.id !== id)
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to delete daily check-in'
+        console.error('Error deleting daily check-in:', err)
+        throw err
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -116,6 +145,7 @@ export const useIFSDailyCheckInStore = defineStore('ifsDailyCheckIn', () => {
    * data before the next `load*()` re-fetches from the new database.
    */
   function reset(): void {
+    sessionScope.reset()
     checkIns.value = []
     isLoading.value = false
     error.value = null

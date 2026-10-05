@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 /**
  * Core Beliefs Exploration Store
  *
@@ -16,6 +17,7 @@ import { coreBeliefsExplorationDexieRepository } from '@/repositories/exercisesD
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useCoreBeliefsStore = defineStore('coreBeliefs', () => {
+  const sessionScope = createStoreSessionScope()
   const explorations = ref<CoreBeliefsExploration[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
@@ -30,33 +32,48 @@ export const useCoreBeliefsStore = defineStore('coreBeliefs', () => {
 
   const getExplorationById = computed(() => {
     return (id: string): CoreBeliefsExploration | undefined => {
-      return explorations.value.find((e) => e.id === id)
+      return explorations.value.find(e => e.id === id)
     }
   })
 
   async function loadExplorations(): Promise<void> {
-    isLoading.value = true
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      explorations.value = await coreBeliefsExplorationDexieRepository.getAll()
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load core beliefs explorations'
-      console.error('Error loading core beliefs explorations:', err)
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+      try {
+        explorations.value = await operation.wait(coreBeliefsExplorationDexieRepository.getAll())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value =
+          err instanceof Error ? err.message : 'Failed to load core beliefs explorations'
+        console.error('Error loading core beliefs explorations:', err)
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
-  async function createExploration(data: CreateCoreBeliefsExplorationPayload): Promise<CoreBeliefsExploration> {
+  async function createExploration(
+    data: CreateCoreBeliefsExplorationPayload
+  ): Promise<CoreBeliefsExploration> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const exploration = await coreBeliefsExplorationDexieRepository.create(data)
+      const exploration = await operation.wait(coreBeliefsExplorationDexieRepository.create(data))
       void useExerciseCompletionsStore()
         .record('core-beliefs', exploration.id)
-        .catch((err) => console.error('Failed to record exercise completion:', err))
+        .catch(err => console.error('Failed to record exercise completion:', err))
       explorations.value.push(exploration)
       return exploration
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to create core beliefs exploration'
       console.error('Error creating core beliefs exploration:', err)
       throw err
@@ -65,17 +82,20 @@ export const useCoreBeliefsStore = defineStore('coreBeliefs', () => {
 
   async function updateExploration(
     id: string,
-    data: UpdateCoreBeliefsExplorationPayload,
+    data: UpdateCoreBeliefsExplorationPayload
   ): Promise<CoreBeliefsExploration> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const updated = await coreBeliefsExplorationDexieRepository.update(id, data)
-      const index = explorations.value.findIndex((e) => e.id === id)
+      const updated = await operation.wait(coreBeliefsExplorationDexieRepository.update(id, data))
+      const index = explorations.value.findIndex(e => e.id === id)
       if (index !== -1) {
         explorations.value[index] = updated
       }
       return updated
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to update core beliefs exploration'
       console.error('Error updating core beliefs exploration:', err)
       throw err
@@ -83,14 +103,22 @@ export const useCoreBeliefsStore = defineStore('coreBeliefs', () => {
   }
 
   async function deleteExploration(id: string): Promise<void> {
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await coreBeliefsExplorationDexieRepository.delete(id)
-      explorations.value = explorations.value.filter((e) => e.id !== id)
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete core beliefs exploration'
-      console.error('Error deleting core beliefs exploration:', err)
-      throw err
+      error.value = null
+      try {
+        await operation.wait(coreBeliefsExplorationDexieRepository.delete(id))
+        explorations.value = explorations.value.filter(e => e.id !== id)
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value =
+          err instanceof Error ? err.message : 'Failed to delete core beliefs exploration'
+        console.error('Error deleting core beliefs exploration:', err)
+        throw err
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -100,6 +128,7 @@ export const useCoreBeliefsStore = defineStore('coreBeliefs', () => {
    * data before the next `load*()` re-fetches from the new database.
    */
   function reset(): void {
+    sessionScope.reset()
     explorations.value = []
     isLoading.value = false
     error.value = null

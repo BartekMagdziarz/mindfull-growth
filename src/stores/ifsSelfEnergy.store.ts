@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type {
@@ -10,11 +11,18 @@ import { ifsSelfEnergyDexieRepository } from '@/repositories/exercisesDexieRepos
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 const ALL_QUALITIES: SelfEnergyQuality[] = [
-  'calm', 'curiosity', 'compassion', 'clarity',
-  'courage', 'creativity', 'confidence', 'connection',
+  'calm',
+  'curiosity',
+  'compassion',
+  'clarity',
+  'courage',
+  'creativity',
+  'confidence',
+  'connection',
 ]
 
 export const useIFSSelfEnergyStore = defineStore('ifsSelfEnergy', () => {
+  const sessionScope = createStoreSessionScope()
   const checkIns = ref<IFSSelfEnergyCheckIn[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
@@ -29,7 +37,7 @@ export const useIFSSelfEnergyStore = defineStore('ifsSelfEnergy', () => {
 
   const getCheckInById = computed(() => {
     return (id: string): IFSSelfEnergyCheckIn | undefined => {
-      return checkIns.value.find((c) => c.id === id)
+      return checkIns.value.find(c => c.id === id)
     }
   })
 
@@ -62,28 +70,40 @@ export const useIFSSelfEnergyStore = defineStore('ifsSelfEnergy', () => {
   })
 
   async function loadCheckIns(): Promise<void> {
-    isLoading.value = true
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      checkIns.value = await ifsSelfEnergyDexieRepository.getAll()
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load self-energy check-ins'
-      console.error('Error loading self-energy check-ins:', err)
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+      try {
+        checkIns.value = await operation.wait(ifsSelfEnergyDexieRepository.getAll())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to load self-energy check-ins'
+        console.error('Error loading self-energy check-ins:', err)
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function createCheckIn(data: CreateIFSSelfEnergyPayload): Promise<IFSSelfEnergyCheckIn> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const checkIn = await ifsSelfEnergyDexieRepository.create(data)
+      const checkIn = await operation.wait(ifsSelfEnergyDexieRepository.create(data))
       void useExerciseCompletionsStore()
         .record('self-energy', checkIn.id)
-        .catch((err) => console.error('Failed to record exercise completion:', err))
+        .catch(err => console.error('Failed to record exercise completion:', err))
       checkIns.value.push(checkIn)
       return checkIn
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to create self-energy check-in'
       console.error('Error creating self-energy check-in:', err)
       throw err
@@ -92,17 +112,20 @@ export const useIFSSelfEnergyStore = defineStore('ifsSelfEnergy', () => {
 
   async function updateCheckIn(
     id: string,
-    data: UpdateIFSSelfEnergyPayload,
+    data: UpdateIFSSelfEnergyPayload
   ): Promise<IFSSelfEnergyCheckIn> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const updated = await ifsSelfEnergyDexieRepository.update(id, data)
-      const index = checkIns.value.findIndex((c) => c.id === id)
+      const updated = await operation.wait(ifsSelfEnergyDexieRepository.update(id, data))
+      const index = checkIns.value.findIndex(c => c.id === id)
       if (index !== -1) {
         checkIns.value[index] = updated
       }
       return updated
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to update self-energy check-in'
       console.error('Error updating self-energy check-in:', err)
       throw err
@@ -110,14 +133,21 @@ export const useIFSSelfEnergyStore = defineStore('ifsSelfEnergy', () => {
   }
 
   async function deleteCheckIn(id: string): Promise<void> {
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await ifsSelfEnergyDexieRepository.delete(id)
-      checkIns.value = checkIns.value.filter((c) => c.id !== id)
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete self-energy check-in'
-      console.error('Error deleting self-energy check-in:', err)
-      throw err
+      error.value = null
+      try {
+        await operation.wait(ifsSelfEnergyDexieRepository.delete(id))
+        checkIns.value = checkIns.value.filter(c => c.id !== id)
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to delete self-energy check-in'
+        console.error('Error deleting self-energy check-in:', err)
+        throw err
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -127,6 +157,7 @@ export const useIFSSelfEnergyStore = defineStore('ifsSelfEnergy', () => {
    * data before the next `load*()` re-fetches from the new database.
    */
   function reset(): void {
+    sessionScope.reset()
     checkIns.value = []
     isLoading.value = false
     error.value = null

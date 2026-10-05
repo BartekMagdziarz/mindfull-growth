@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 /**
  * Thought Record Store
  *
@@ -16,6 +17,7 @@ import { thoughtRecordDexieRepository } from '@/repositories/exercisesDexieRepos
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useThoughtRecordStore = defineStore('thoughtRecord', () => {
+  const sessionScope = createStoreSessionScope()
   const records = ref<ThoughtRecord[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
@@ -30,33 +32,45 @@ export const useThoughtRecordStore = defineStore('thoughtRecord', () => {
 
   const getRecordById = computed(() => {
     return (id: string): ThoughtRecord | undefined => {
-      return records.value.find((r) => r.id === id)
+      return records.value.find(r => r.id === id)
     }
   })
 
   async function loadRecords(): Promise<void> {
-    isLoading.value = true
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      records.value = await thoughtRecordDexieRepository.getAll()
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load thought records'
-      console.error('Error loading thought records:', err)
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+      try {
+        records.value = await operation.wait(thoughtRecordDexieRepository.getAll())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to load thought records'
+        console.error('Error loading thought records:', err)
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function createRecord(data: CreateThoughtRecordPayload): Promise<ThoughtRecord> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const record = await thoughtRecordDexieRepository.create(data)
+      const record = await operation.wait(thoughtRecordDexieRepository.create(data))
       void useExerciseCompletionsStore()
         .record('thought-record', record.id)
-        .catch((err) => console.error('Failed to record exercise completion:', err))
+        .catch(err => console.error('Failed to record exercise completion:', err))
       records.value.push(record)
       return record
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to create thought record'
       console.error('Error creating thought record:', err)
       throw err
@@ -65,17 +79,20 @@ export const useThoughtRecordStore = defineStore('thoughtRecord', () => {
 
   async function updateRecord(
     id: string,
-    data: UpdateThoughtRecordPayload,
+    data: UpdateThoughtRecordPayload
   ): Promise<ThoughtRecord> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const updated = await thoughtRecordDexieRepository.update(id, data)
-      const index = records.value.findIndex((r) => r.id === id)
+      const updated = await operation.wait(thoughtRecordDexieRepository.update(id, data))
+      const index = records.value.findIndex(r => r.id === id)
       if (index !== -1) {
         records.value[index] = updated
       }
       return updated
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to update thought record'
       console.error('Error updating thought record:', err)
       throw err
@@ -83,14 +100,21 @@ export const useThoughtRecordStore = defineStore('thoughtRecord', () => {
   }
 
   async function deleteRecord(id: string): Promise<void> {
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await thoughtRecordDexieRepository.delete(id)
-      records.value = records.value.filter((r) => r.id !== id)
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete thought record'
-      console.error('Error deleting thought record:', err)
-      throw err
+      error.value = null
+      try {
+        await operation.wait(thoughtRecordDexieRepository.delete(id))
+        records.value = records.value.filter(r => r.id !== id)
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to delete thought record'
+        console.error('Error deleting thought record:', err)
+        throw err
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -100,6 +124,7 @@ export const useThoughtRecordStore = defineStore('thoughtRecord', () => {
    * data before the next `load*()` re-fetches from the new database.
    */
   function reset(): void {
+    sessionScope.reset()
     records.value = []
     isLoading.value = false
     error.value = null

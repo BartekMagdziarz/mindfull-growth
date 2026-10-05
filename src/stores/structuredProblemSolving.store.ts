@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 /**
  * Structured Problem Solving Store
  *
@@ -17,6 +18,7 @@ import { structuredProblemSolvingDexieRepository } from '@/repositories/exercise
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useStructuredProblemSolvingStore = defineStore('structuredProblemSolving', () => {
+  const sessionScope = createStoreSessionScope()
   const sessions = ref<StructuredProblemSolving[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
@@ -30,42 +32,56 @@ export const useStructuredProblemSolvingStore = defineStore('structuredProblemSo
   })
 
   const inProgressSessions = computed(() => {
-    return sortedSessions.value.filter((s) => s.status === 'in-progress')
+    return sortedSessions.value.filter(s => s.status === 'in-progress')
   })
 
   const completedSessions = computed(() => {
-    return sortedSessions.value.filter((s) => s.status === 'completed')
+    return sortedSessions.value.filter(s => s.status === 'completed')
   })
 
   const getSessionById = computed(() => {
     return (id: string): StructuredProblemSolving | undefined => {
-      return sessions.value.find((s) => s.id === id)
+      return sessions.value.find(s => s.id === id)
     }
   })
 
   async function loadSessions(): Promise<void> {
-    isLoading.value = true
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      sessions.value = await structuredProblemSolvingDexieRepository.getAll()
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load problem solving sessions'
-      console.error('Error loading problem solving sessions:', err)
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+      try {
+        sessions.value = await operation.wait(structuredProblemSolvingDexieRepository.getAll())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to load problem solving sessions'
+        console.error('Error loading problem solving sessions:', err)
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
-  async function createSession(data: CreateStructuredProblemSolvingPayload): Promise<StructuredProblemSolving> {
+  async function createSession(
+    data: CreateStructuredProblemSolvingPayload
+  ): Promise<StructuredProblemSolving> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const session = await structuredProblemSolvingDexieRepository.create(data)
+      const session = await operation.wait(structuredProblemSolvingDexieRepository.create(data))
       void useExerciseCompletionsStore()
         .record('structured-problem-solving', session.id)
-        .catch((err) => console.error('Failed to record exercise completion:', err))
+        .catch(err => console.error('Failed to record exercise completion:', err))
       sessions.value.push(session)
       return session
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to create problem solving session'
       console.error('Error creating problem solving session:', err)
       throw err
@@ -74,17 +90,20 @@ export const useStructuredProblemSolvingStore = defineStore('structuredProblemSo
 
   async function updateSession(
     id: string,
-    data: UpdateStructuredProblemSolvingPayload,
+    data: UpdateStructuredProblemSolvingPayload
   ): Promise<StructuredProblemSolving> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const updated = await structuredProblemSolvingDexieRepository.update(id, data)
-      const index = sessions.value.findIndex((s) => s.id === id)
+      const updated = await operation.wait(structuredProblemSolvingDexieRepository.update(id, data))
+      const index = sessions.value.findIndex(s => s.id === id)
       if (index !== -1) {
         sessions.value[index] = updated
       }
       return updated
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to update problem solving session'
       console.error('Error updating problem solving session:', err)
       throw err
@@ -92,14 +111,22 @@ export const useStructuredProblemSolvingStore = defineStore('structuredProblemSo
   }
 
   async function deleteSession(id: string): Promise<void> {
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await structuredProblemSolvingDexieRepository.delete(id)
-      sessions.value = sessions.value.filter((s) => s.id !== id)
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete problem solving session'
-      console.error('Error deleting problem solving session:', err)
-      throw err
+      error.value = null
+      try {
+        await operation.wait(structuredProblemSolvingDexieRepository.delete(id))
+        sessions.value = sessions.value.filter(s => s.id !== id)
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value =
+          err instanceof Error ? err.message : 'Failed to delete problem solving session'
+        console.error('Error deleting problem solving session:', err)
+        throw err
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -109,6 +136,7 @@ export const useStructuredProblemSolvingStore = defineStore('structuredProblemSo
    * data before the next `load*()` re-fetches from the new database.
    */
   function reset(): void {
+    sessionScope.reset()
     sessions.value = []
     isLoading.value = false
     error.value = null

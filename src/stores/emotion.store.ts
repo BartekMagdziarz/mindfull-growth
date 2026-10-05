@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Emotion, Quadrant } from '@/domain/emotion'
@@ -21,6 +22,7 @@ export type EmotionScatterCoord = { pleasantness: number; energy: number; anchor
 const scatterCoordMap = scatterCoords as Record<string, EmotionScatterCoord>
 
 export const useEmotionStore = defineStore('emotion', () => {
+  const sessionScope = createStoreSessionScope()
   const prefsStore = useUserPreferencesStore()
 
   // State
@@ -32,7 +34,7 @@ export const useEmotionStore = defineStore('emotion', () => {
     const translations = emotionTranslations[locale] ?? emotionTranslations['en']
     const fallback = emotionTranslations['en']
 
-    return emotionsMeta.map((meta) => {
+    return emotionsMeta.map(meta => {
       const trans = translations[meta.id] ?? fallback[meta.id]
       return {
         id: meta.id,
@@ -46,8 +48,14 @@ export const useEmotionStore = defineStore('emotion', () => {
 
   // Actions
   async function loadEmotions(): Promise<void> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     // Data is statically imported; just mark as loaded
-    isLoaded.value = true
+    try {
+      isLoaded.value = true
+    } catch (error) {
+      if (operation.isCurrent()) throw error
+    }
   }
 
   // Getters
@@ -56,11 +64,11 @@ export const useEmotionStore = defineStore('emotion', () => {
   })
 
   function getEmotionsByQuadrant(quadrant: Quadrant): Emotion[] {
-    return emotions.value.filter((emotion) => getQuadrant(emotion) === quadrant)
+    return emotions.value.filter(emotion => getQuadrant(emotion) === quadrant)
   }
 
   function getEmotionById(id: string): Emotion | undefined {
-    return emotions.value.find((emotion) => emotion.id === id)
+    return emotions.value.find(emotion => emotion.id === id)
   }
 
   // Współrzędne scatter (ułamkowe) dla układu pola w EmotionSelector.
@@ -75,6 +83,7 @@ export const useEmotionStore = defineStore('emotion', () => {
    * exists for consistency with every other store.
    */
   function reset(): void {
+    sessionScope.reset()
     isLoaded.value = false
   }
 

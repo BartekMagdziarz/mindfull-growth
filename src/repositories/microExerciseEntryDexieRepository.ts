@@ -1,77 +1,84 @@
+import { userDatabaseOperation } from './userDatabaseOperation'
 import type {
   CreateMicroExerciseEntryPayload,
   MicroExerciseEntry,
   UpdateMicroExerciseEntryPayload,
 } from '@/domain/microExercises'
-import { getUserDatabase } from '@/services/userDatabase.service'
 import type { MicroExerciseEntryRepository } from './microExerciseEntryRepository'
 import { toPlain } from './planningDexieRepository.shared'
 
 class MicroExerciseEntryDexieRepository implements MicroExerciseEntryRepository {
-  private get db() {
-    return getUserDatabase()
-  }
-
   async create(payload: CreateMicroExerciseEntryPayload): Promise<MicroExerciseEntry> {
-    try {
-      const { createdAt: createdAtOverride, ...data } = payload
-      const now = new Date().toISOString()
-      const createdAt = createdAtOverride ?? now
-      const entry: MicroExerciseEntry = {
-        id: crypto.randomUUID(),
-        createdAt,
-        updatedAt: createdAt,
-        ...data,
+    return userDatabaseOperation('rw', ['microExerciseEntries'], async db => {
+      try {
+        const { createdAt: createdAtOverride, ...data } = payload
+        const now = new Date().toISOString()
+        const createdAt = createdAtOverride ?? now
+        const entry: MicroExerciseEntry = {
+          id: crypto.randomUUID(),
+          createdAt,
+          updatedAt: createdAt,
+          ...data,
+        }
+        await db.microExerciseEntries.add(toPlain(entry))
+        return entry
+      } catch (error) {
+        console.error('Failed to create micro exercise entry:', error)
+        throw new Error('Failed to create micro exercise entry in database')
       }
-      await this.db.microExerciseEntries.add(toPlain(entry))
-      return entry
-    } catch (error) {
-      console.error('Failed to create micro exercise entry:', error)
-      throw new Error('Failed to create micro exercise entry in database')
-    }
+    })
   }
 
   async getAll(): Promise<MicroExerciseEntry[]> {
-    try {
-      return await this.db.microExerciseEntries.toArray()
-    } catch (error) {
-      console.error('Failed to list micro exercise entries:', error)
-      throw new Error('Failed to retrieve micro exercise entries from database')
-    }
+    return userDatabaseOperation('r', ['microExerciseEntries'], async db => {
+      try {
+        return await db.microExerciseEntries.toArray()
+      } catch (error) {
+        console.error('Failed to list micro exercise entries:', error)
+        throw new Error('Failed to retrieve micro exercise entries from database')
+      }
+    })
   }
 
   async getBySlug(exerciseSlug: string): Promise<MicroExerciseEntry[]> {
-    try {
-      return await this.db.microExerciseEntries
-        .where('exerciseSlug')
-        .equals(exerciseSlug)
-        .toArray()
-    } catch (error) {
-      console.error(`Failed to list micro exercise entries for ${exerciseSlug}:`, error)
-      throw new Error(`Failed to retrieve micro exercise entries for ${exerciseSlug}`)
-    }
+    return userDatabaseOperation('r', ['microExerciseEntries'], async db => {
+      try {
+        return await db.microExerciseEntries.where('exerciseSlug').equals(exerciseSlug).toArray()
+      } catch (error) {
+        console.error(`Failed to list micro exercise entries for ${exerciseSlug}:`, error)
+        throw new Error(`Failed to retrieve micro exercise entries for ${exerciseSlug}`)
+      }
+    })
   }
 
   async update(id: string, patch: UpdateMicroExerciseEntryPayload): Promise<MicroExerciseEntry> {
-    try {
-      const existing = await this.db.microExerciseEntries.get(id)
-      if (!existing) throw new Error(`Micro exercise entry with id ${id} not found`)
-      const updated: MicroExerciseEntry = { ...existing, ...patch, updatedAt: new Date().toISOString() }
-      await this.db.microExerciseEntries.put(toPlain(updated))
-      return updated
-    } catch (error) {
-      console.error(`Failed to update micro exercise entry with id ${id}:`, error)
-      throw new Error(`Failed to update micro exercise entry with id ${id}`)
-    }
+    return userDatabaseOperation('rw', ['microExerciseEntries'], async db => {
+      try {
+        const existing = await db.microExerciseEntries.get(id)
+        if (!existing) throw new Error(`Micro exercise entry with id ${id} not found`)
+        const updated: MicroExerciseEntry = {
+          ...existing,
+          ...patch,
+          updatedAt: new Date().toISOString(),
+        }
+        await db.microExerciseEntries.put(toPlain(updated))
+        return updated
+      } catch (error) {
+        console.error(`Failed to update micro exercise entry with id ${id}:`, error)
+        throw new Error(`Failed to update micro exercise entry with id ${id}`)
+      }
+    })
   }
 
   async delete(id: string): Promise<void> {
-    try {
-      await this.db.microExerciseEntries.delete(id)
-    } catch (error) {
-      console.error(`Failed to delete micro exercise entry with id ${id}:`, error)
-      throw new Error(`Failed to delete micro exercise entry with id ${id}`)
-    }
+    return userDatabaseOperation('rw', ['microExerciseEntries'], async db => {
+      try {
+        await db.microExerciseEntries.delete(id)
+      } catch (error) {
+        console.error(`Failed to delete micro exercise entry with id ${id}:`, error)
+        throw new Error(`Failed to delete micro exercise entry with id ${id}`)
+      }
+    })
   }
 }
 

@@ -6,7 +6,9 @@
  * so that in-progress drafts survive browser refresh and tab close.
  */
 
-import { getUserDatabase, isUserDatabaseConnected } from './userDatabase.service'
+import { isUserDatabaseConnected } from './userDatabase.service'
+import { userDatabaseOperation } from '@/repositories/userDatabaseOperation'
+import { captureUserSession } from './userSessionScope'
 
 /**
  * Load a draft blob from IndexedDB by key.
@@ -15,7 +17,7 @@ import { getUserDatabase, isUserDatabaseConnected } from './userDatabase.service
 export async function loadDraftFromDB(key: string): Promise<string | null> {
   if (!isUserDatabaseConnected()) return null
   try {
-    const record = await getUserDatabase().drafts.get(key)
+    const record = await userDatabaseOperation('r', ['drafts'], db => db.drafts.get(key))
     return record?.data ?? null
   } catch {
     return null
@@ -28,13 +30,17 @@ export async function loadDraftFromDB(key: string): Promise<string | null> {
  */
 export async function saveDraftToDB(key: string, data: string): Promise<void> {
   if (!isUserDatabaseConnected()) return
+  const session = captureUserSession()
   try {
-    await getUserDatabase().drafts.put({
-      key,
-      data,
-      updatedAt: new Date().toISOString(),
+    await userDatabaseOperation('rw', ['drafts'], async db => {
+      await db.drafts.put({
+        key,
+        data,
+        updatedAt: new Date().toISOString(),
+      })
     })
   } catch (error) {
+    if (!session.isCurrent()) return
     console.warn('Failed to save draft to IndexedDB:', error)
   }
 }
@@ -45,9 +51,11 @@ export async function saveDraftToDB(key: string, data: string): Promise<void> {
  */
 export async function clearDraftFromDB(key: string): Promise<void> {
   if (!isUserDatabaseConnected()) return
+  const session = captureUserSession()
   try {
-    await getUserDatabase().drafts.delete(key)
+    await userDatabaseOperation('rw', ['drafts'], db => db.drafts.delete(key))
   } catch (error) {
+    if (!session.isCurrent()) return
     console.warn('Failed to clear draft from IndexedDB:', error)
   }
 }

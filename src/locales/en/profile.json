@@ -29,7 +29,14 @@
       "changePassword": "Change password",
       "exportData": "Export data",
       "deleteAccount": "Delete account",
-      "comingSoon": "Coming soon."
+      "comingSoon": "Coming soon.",
+      "importData": "Restore backup",
+      "backupHint": "The backup contains your private data in plain text. Keep it in a safe place. Passwords and API settings are excluded.",
+      "exportSuccess": "Backup downloaded.",
+      "backupError": "Could not export or restore this backup. Check the file and try again.",
+      "importTitle": "Replace your local data?",
+      "importMessage": "This backup contains {count} records. Restoring replaces the current account’s local data. Download a backup first. Passwords and current API settings are kept. The app will reload.",
+      "importConfirm": "Replace and restore"
     }
   },
   "lifeAreas": {

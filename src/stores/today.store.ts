@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { DayRef } from '@/domain/period'
@@ -62,10 +63,14 @@ function sortItems(items: TodayItem[]): TodayItem[] {
 
 function sectionPriority(sectionId: string): number {
   switch (sectionId) {
-    case 'scheduled': return 0
-    case 'week': return 1
-    case 'month': return 2
-    default: return 3
+    case 'scheduled':
+      return 0
+    case 'week':
+      return 1
+    case 'month':
+      return 2
+    default:
+      return 3
   }
 }
 
@@ -80,6 +85,7 @@ function sortBySectionThenTitle<T extends TodayItem>(items: T[]): T[] {
 }
 
 export const useTodayStore = defineStore('today', () => {
+  const sessionScope = createStoreSessionScope()
   const bundle = ref<TodayViewBundle | null>(null)
   const isLoading = ref(false)
   const error = ref<string | null>(null)
@@ -89,7 +95,11 @@ export const useTodayStore = defineStore('today', () => {
    * only: a new operation replaces it, a reload of the page forgets it.
    * Measurement entries are never part of undo.
    */
-  const undoState = ref<{ kind: 'hide' | 'move' | 'reschedule' | 'add'; itemKey: string; run: () => Promise<void> } | null>(null)
+  const undoState = ref<{
+    kind: 'hide' | 'move' | 'reschedule' | 'add'
+    itemKey: string
+    run: () => Promise<void>
+  } | null>(null)
   /** Compass highlight: hover previews, pin sticks. Keys: `priority:<id>` | `object:<itemKey>`. */
   const hoverKey = ref<string | null>(null)
   const pinnedKey = ref<string | null>(null)
@@ -103,7 +113,9 @@ export const useTodayStore = defineStore('today', () => {
 
   const dayRef = computed(() => bundle.value?.dayRef)
   const rawEntries = computed<DailyMeasurementEntry[]>(() => bundle.value?.rawEntries ?? [])
-  const allDayAssignments = computed<MeasurementDayAssignment[]>(() => bundle.value?.allDayAssignments ?? [])
+  const allDayAssignments = computed<MeasurementDayAssignment[]>(
+    () => bundle.value?.allDayAssignments ?? []
+  )
   const scheduledItems = computed(() => bundle.value?.sections.scheduled ?? [])
   const weekItems = computed(() => bundle.value?.sections.week ?? [])
   const monthItems = computed(() => bundle.value?.sections.month ?? [])
@@ -204,48 +216,81 @@ export const useTodayStore = defineStore('today', () => {
   }
 
   async function loadBundle(targetDayRef?: DayRef): Promise<void> {
-    isLoading.value = true
-    error.value = null
-    if (targetDayRef && targetDayRef !== bundle.value?.dayRef) {
-      targetingItem.value = null
-      pendingPick.value = null
-    }
-
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      bundle.value = targetDayRef
-        ? await getTodayViewBundleForDay(targetDayRef)
-        : await getTodayViewBundle()
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load Today workspace'
-      throw err
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+      if (targetDayRef && targetDayRef !== bundle.value?.dayRef) {
+        targetingItem.value = null
+        pendingPick.value = null
+      }
+
+      try {
+        bundle.value = targetDayRef
+          ? await operation.wait(getTodayViewBundleForDay(targetDayRef))
+          : await operation.wait(getTodayViewBundle())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to load Today workspace'
+        throw err
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function goToPreviousDay(): Promise<void> {
-    const current = bundle.value?.dayRef
-    if (!current) return
-    await loadBundle(shiftDay(current, -1))
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    try {
+      const current = bundle.value?.dayRef
+      if (!current) return
+      await operation.wait(loadBundle(shiftDay(current, -1)))
+    } catch (error) {
+      if (operation.isCurrent()) throw error
+    }
   }
 
   async function goToNextDay(): Promise<void> {
-    const current = bundle.value?.dayRef
-    if (!current) return
-    await loadBundle(shiftDay(current, 1))
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    try {
+      const current = bundle.value?.dayRef
+      if (!current) return
+      await operation.wait(loadBundle(shiftDay(current, 1)))
+    } catch (error) {
+      if (operation.isCurrent()) throw error
+    }
   }
 
   async function goToDay(targetDayRef: DayRef): Promise<void> {
-    await loadBundle(targetDayRef)
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    try {
+      await operation.wait(loadBundle(targetDayRef))
+    } catch (error) {
+      if (operation.isCurrent()) throw error
+    }
   }
 
   async function reloadCurrentDay(): Promise<void> {
-    if (bundle.value) {
-      await loadBundle(bundle.value.dayRef)
-      return
-    }
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    try {
+      if (bundle.value) {
+        await operation.wait(loadBundle(bundle.value.dayRef))
+        return
+      }
 
-    await loadBundle()
+      await operation.wait(loadBundle())
+    } catch (error) {
+      if (operation.isCurrent()) throw error
+    }
   }
 
   function patchMeasurementEntry(key: string, nextEntry: DailyMeasurementEntry | undefined): void {
@@ -269,7 +314,8 @@ export const useTodayStore = defineStore('today', () => {
     let patchedRawEntries = bundle.value.rawEntries
     if (nextEntry) {
       const existingIdx = patchedRawEntries.findIndex(
-        e => e.subjectType === nextEntry.subjectType &&
+        e =>
+          e.subjectType === nextEntry.subjectType &&
           e.subjectId === nextEntry.subjectId &&
           e.dayRef === nextEntry.dayRef
       )
@@ -284,7 +330,12 @@ export const useTodayStore = defineStore('today', () => {
       const [subjectType, subjectId] = key.split(':')
       const currentDayRef = bundle.value.dayRef
       patchedRawEntries = patchedRawEntries.filter(
-        e => !(e.subjectType === subjectType && e.subjectId === subjectId && e.dayRef === currentDayRef)
+        e =>
+          !(
+            e.subjectType === subjectType &&
+            e.subjectId === subjectId &&
+            e.dayRef === currentDayRef
+          )
       )
     }
 
@@ -359,173 +410,238 @@ export const useTodayStore = defineStore('today', () => {
   }
 
   async function toggleCompletion(item: TodayMeasurementItem): Promise<void> {
-    if (!bundle.value) {
-      return
-    }
-
-    setPending(item.key, true)
-    patchMeasurementEntry(
-      item.key,
-      item.todayEntry ? undefined : createOptimisticEntry(item, bundle.value.dayRef, null)
-    )
-
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await toggleTodayCompletion(item, bundle.value.dayRef)
-      await reloadCurrentDay()
-    } catch (err) {
-      await reloadCurrentDay()
-      throw err
-    } finally {
-      setPending(item.key, false)
+      if (!bundle.value) {
+        return
+      }
+
+      setPending(item.key, true)
+      patchMeasurementEntry(
+        item.key,
+        item.todayEntry ? undefined : createOptimisticEntry(item, bundle.value.dayRef, null)
+      )
+
+      try {
+        await operation.wait(toggleTodayCompletion(item, bundle.value.dayRef))
+        await operation.wait(reloadCurrentDay())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        await operation.wait(reloadCurrentDay())
+        throw err
+      } finally {
+        if (operation.isCurrent()) {
+          setPending(item.key, false)
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function toggleMultiItem(item: TodayMeasurementItem, multiItemId: string): Promise<void> {
-    if (!bundle.value) {
-      return
-    }
-
-    setPending(item.key, true)
-    const current = item.todayEntry?.checkedItemIds ?? []
-    const next = current.includes(multiItemId)
-      ? current.filter(id => id !== multiItemId)
-      : [...current, multiItemId]
-    patchMeasurementEntry(
-      item.key,
-      next.length === 0
-        ? undefined
-        : { ...createOptimisticEntry(item, bundle.value.dayRef, null), checkedItemIds: next }
-    )
-
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await toggleTodayMultiItem(item, bundle.value.dayRef, multiItemId)
-      await reloadCurrentDay()
-    } catch (err) {
-      await reloadCurrentDay()
-      throw err
-    } finally {
-      setPending(item.key, false)
+      if (!bundle.value) {
+        return
+      }
+
+      setPending(item.key, true)
+      const current = item.todayEntry?.checkedItemIds ?? []
+      const next = current.includes(multiItemId)
+        ? current.filter(id => id !== multiItemId)
+        : [...current, multiItemId]
+      patchMeasurementEntry(
+        item.key,
+        next.length === 0
+          ? undefined
+          : { ...createOptimisticEntry(item, bundle.value.dayRef, null), checkedItemIds: next }
+      )
+
+      try {
+        await operation.wait(toggleTodayMultiItem(item, bundle.value.dayRef, multiItemId))
+        await operation.wait(reloadCurrentDay())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        await operation.wait(reloadCurrentDay())
+        throw err
+      } finally {
+        if (operation.isCurrent()) {
+          setPending(item.key, false)
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function saveEntry(item: TodayMeasurementItem, value: number): Promise<void> {
-    if (!bundle.value) {
-      return
-    }
-
-    setPending(item.key, true)
-    patchMeasurementEntry(item.key, createOptimisticEntry(item, bundle.value.dayRef, value))
-
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await saveTodayMeasurementEntry(item, bundle.value.dayRef, value)
-      await reloadCurrentDay()
-    } catch (err) {
-      await reloadCurrentDay()
-      throw err
-    } finally {
-      setPending(item.key, false)
+      if (!bundle.value) {
+        return
+      }
+
+      setPending(item.key, true)
+      patchMeasurementEntry(item.key, createOptimisticEntry(item, bundle.value.dayRef, value))
+
+      try {
+        await operation.wait(saveTodayMeasurementEntry(item, bundle.value.dayRef, value))
+        await operation.wait(reloadCurrentDay())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        await operation.wait(reloadCurrentDay())
+        throw err
+      } finally {
+        if (operation.isCurrent()) {
+          setPending(item.key, false)
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function clearEntry(item: TodayMeasurementItem): Promise<void> {
-    if (!bundle.value) {
-      return
-    }
-
-    setPending(item.key, true)
-    patchMeasurementEntry(item.key, undefined)
-
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await clearTodayMeasurementEntry(item, bundle.value.dayRef)
-      await reloadCurrentDay()
-    } catch (err) {
-      await reloadCurrentDay()
-      throw err
-    } finally {
-      setPending(item.key, false)
+      if (!bundle.value) {
+        return
+      }
+
+      setPending(item.key, true)
+      patchMeasurementEntry(item.key, undefined)
+
+      try {
+        await operation.wait(clearTodayMeasurementEntry(item, bundle.value.dayRef))
+        await operation.wait(reloadCurrentDay())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        await operation.wait(reloadCurrentDay())
+        throw err
+      } finally {
+        if (operation.isCurrent()) {
+          setPending(item.key, false)
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function hideItem(item: TodayItem): Promise<void> {
-    if (!bundle.value) {
-      return
-    }
-
-    const hiddenDayRef = bundle.value.dayRef
-    setPending(item.key, true)
-    moveToHidden(item)
-
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await hideTodayItem(item, hiddenDayRef)
-      undoState.value = {
-        kind: 'hide',
-        itemKey: item.key,
-        run: async () => {
-          await restoreTodayItem(item, hiddenDayRef)
-          await reloadCurrentDay()
-        },
+      if (!bundle.value) {
+        return
       }
-      await reloadCurrentDay()
-    } catch (err) {
-      await reloadCurrentDay()
-      throw err
-    } finally {
-      setPending(item.key, false)
+
+      const hiddenDayRef = bundle.value.dayRef
+      setPending(item.key, true)
+      moveToHidden(item)
+
+      try {
+        await operation.wait(hideTodayItem(item, hiddenDayRef))
+        undoState.value = {
+          kind: 'hide',
+          itemKey: item.key,
+          run: async () => {
+            operation.assertCurrent()
+            await operation.wait(restoreTodayItem(item, hiddenDayRef))
+            await operation.wait(reloadCurrentDay())
+          },
+        }
+        await operation.wait(reloadCurrentDay())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        await operation.wait(reloadCurrentDay())
+        throw err
+      } finally {
+        if (operation.isCurrent()) {
+          setPending(item.key, false)
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function restoreItem(item: TodayItem): Promise<void> {
-    if (!bundle.value) {
-      return
-    }
-
-    setPending(item.key, true)
-    restoreFromHidden(item)
-
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await restoreTodayItem(item, bundle.value.dayRef)
-      await reloadCurrentDay()
-    } catch (err) {
-      await reloadCurrentDay()
-      throw err
-    } finally {
-      setPending(item.key, false)
+      if (!bundle.value) {
+        return
+      }
+
+      setPending(item.key, true)
+      restoreFromHidden(item)
+
+      try {
+        await operation.wait(restoreTodayItem(item, bundle.value.dayRef))
+        await operation.wait(reloadCurrentDay())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        await operation.wait(reloadCurrentDay())
+        throw err
+      } finally {
+        if (operation.isCurrent()) {
+          setPending(item.key, false)
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function moveScheduledItem(item: TodayItem, toDayRef: DayRef): Promise<void> {
-    if (!bundle.value) {
-      return
-    }
-
-    const fromDayRef = bundle.value.dayRef
-    setPending(item.key, true)
-    removeItem(item)
-
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      if (item.kind === 'initiative') {
-        await moveTodayInitiative(item, toDayRef)
-      } else {
-        await moveTodayMeasurementAssignment(item, fromDayRef, toDayRef)
+      if (!bundle.value) {
+        return
       }
-      undoState.value = {
-        kind: 'move',
-        itemKey: item.key,
-        run: async () => {
-          if (item.kind === 'initiative') {
-            await moveTodayInitiative(item, fromDayRef)
-          } else {
-            await moveTodayMeasurementAssignment(item, toDayRef, fromDayRef)
-          }
-          await reloadCurrentDay()
-        },
+
+      const fromDayRef = bundle.value.dayRef
+      setPending(item.key, true)
+      removeItem(item)
+
+      try {
+        if (item.kind === 'initiative') {
+          await operation.wait(moveTodayInitiative(item, toDayRef))
+        } else {
+          await operation.wait(moveTodayMeasurementAssignment(item, fromDayRef, toDayRef))
+        }
+        undoState.value = {
+          kind: 'move',
+          itemKey: item.key,
+          run: async () => {
+            operation.assertCurrent()
+            if (item.kind === 'initiative') {
+              await operation.wait(moveTodayInitiative(item, fromDayRef))
+            } else {
+              await operation.wait(moveTodayMeasurementAssignment(item, toDayRef, fromDayRef))
+            }
+            await operation.wait(reloadCurrentDay())
+          },
+        }
+        await operation.wait(reloadCurrentDay())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        await operation.wait(reloadCurrentDay())
+        throw err
+      } finally {
+        if (operation.isCurrent()) {
+          setPending(item.key, false)
+        }
       }
-      await reloadCurrentDay()
-    } catch (err) {
-      await reloadCurrentDay()
-      throw err
-    } finally {
-      setPending(item.key, false)
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -533,114 +649,167 @@ export const useTodayStore = defineStore('today', () => {
    * "Jutro" / "Dzień" for a week- or month-context row: hidden here, present on
    * the target day. Undo restores both sides.
    */
-  async function rescheduleContextItem(item: TodayMeasurementItem, toDayRef: DayRef): Promise<void> {
-    if (!bundle.value) {
-      return
-    }
-
-    const fromDayRef = bundle.value.dayRef
-    setPending(item.key, true)
-    moveToHidden(item)
-
+  async function rescheduleContextItem(
+    item: TodayMeasurementItem,
+    toDayRef: DayRef
+  ): Promise<void> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      const { createdAssignment } = await rescheduleContextItemAction(item, fromDayRef, toDayRef)
-      undoState.value = {
-        kind: 'reschedule',
-        itemKey: item.key,
-        run: async () => {
-          await undoRescheduleContextItem(item, fromDayRef, toDayRef, createdAssignment)
-          await reloadCurrentDay()
-        },
+      if (!bundle.value) {
+        return
       }
-      await reloadCurrentDay()
-    } catch (err) {
-      await reloadCurrentDay()
-      throw err
-    } finally {
-      setPending(item.key, false)
+
+      const fromDayRef = bundle.value.dayRef
+      setPending(item.key, true)
+      moveToHidden(item)
+
+      try {
+        const { createdAssignment } = await operation.wait(
+          rescheduleContextItemAction(item, fromDayRef, toDayRef)
+        )
+        undoState.value = {
+          kind: 'reschedule',
+          itemKey: item.key,
+          run: async () => {
+            operation.assertCurrent()
+            await operation.wait(
+              undoRescheduleContextItem(item, fromDayRef, toDayRef, createdAssignment)
+            )
+            await operation.wait(reloadCurrentDay())
+          },
+        }
+        await operation.wait(reloadCurrentDay())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        await operation.wait(reloadCurrentDay())
+        throw err
+      } finally {
+        if (operation.isCurrent()) {
+          setPending(item.key, false)
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   /** "Dodaj do planu": place a candidate on the current day. Undo removes the placement. */
   async function addToDay(candidate: TodayAddCandidate): Promise<void> {
-    if (!bundle.value) {
-      return
-    }
-
-    const dayRef = bundle.value.dayRef
-    setPending(candidate.key, true)
-
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await addMeasurementToDay(candidate, dayRef)
-      undoState.value = {
-        kind: 'add',
-        itemKey: candidate.key,
-        run: async () => {
-          await removeMeasurementFromDay(candidate, dayRef)
-          await reloadCurrentDay()
-        },
+      if (!bundle.value) {
+        return
       }
-      await reloadCurrentDay()
-    } catch (err) {
-      await reloadCurrentDay()
-      throw err
-    } finally {
-      setPending(candidate.key, false)
+
+      const dayRef = bundle.value.dayRef
+      setPending(candidate.key, true)
+
+      try {
+        await operation.wait(addMeasurementToDay(candidate, dayRef))
+        undoState.value = {
+          kind: 'add',
+          itemKey: candidate.key,
+          run: async () => {
+            operation.assertCurrent()
+            await operation.wait(removeMeasurementFromDay(candidate, dayRef))
+            await operation.wait(reloadCurrentDay())
+          },
+        }
+        await operation.wait(reloadCurrentDay())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        await operation.wait(reloadCurrentDay())
+        throw err
+      } finally {
+        if (operation.isCurrent()) {
+          setPending(candidate.key, false)
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function clearScheduledItem(item: TodayItem): Promise<void> {
-    if (!bundle.value) {
-      return
-    }
-
-    setPending(item.key, true)
-    removeItem(item)
-
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      if (item.kind === 'initiative') {
-        await clearTodayInitiative(item)
-      } else {
-        await clearTodayMeasurementAssignment(item, bundle.value.dayRef)
+      if (!bundle.value) {
+        return
       }
-      await reloadCurrentDay()
-    } catch (err) {
-      await reloadCurrentDay()
-      throw err
-    } finally {
-      setPending(item.key, false)
+
+      setPending(item.key, true)
+      removeItem(item)
+
+      try {
+        if (item.kind === 'initiative') {
+          await operation.wait(clearTodayInitiative(item))
+        } else {
+          await operation.wait(clearTodayMeasurementAssignment(item, bundle.value.dayRef))
+        }
+        await operation.wait(reloadCurrentDay())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        await operation.wait(reloadCurrentDay())
+        throw err
+      } finally {
+        if (operation.isCurrent()) {
+          setPending(item.key, false)
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function deleteItem(item: TodayItem): Promise<void> {
-    if (!bundle.value) {
-      return
-    }
-
-    setPending(item.key, true)
-    removeItem(item)
-
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await deleteTodayItem(item)
-      await reloadCurrentDay()
-    } catch (err) {
-      await reloadCurrentDay()
-      throw err
-    } finally {
-      setPending(item.key, false)
+      if (!bundle.value) {
+        return
+      }
+
+      setPending(item.key, true)
+      removeItem(item)
+
+      try {
+        await operation.wait(deleteTodayItem(item))
+        await operation.wait(reloadCurrentDay())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        await operation.wait(reloadCurrentDay())
+        throw err
+      } finally {
+        if (operation.isCurrent()) {
+          setPending(item.key, false)
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   /** Reverts the last reversible planning operation, if any. */
   async function undoLast(): Promise<void> {
-    const pending = undoState.value
-    if (!pending) return
-    undoState.value = null
-    setPending(pending.itemKey, true)
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await pending.run()
-    } finally {
-      setPending(pending.itemKey, false)
+      const pending = undoState.value
+      if (!pending) return
+      undoState.value = null
+      setPending(pending.itemKey, true)
+      try {
+        await operation.wait(pending.run())
+      } finally {
+        if (operation.isCurrent()) {
+          setPending(pending.itemKey, false)
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -683,6 +852,7 @@ export const useTodayStore = defineStore('today', () => {
    * Today bundle before the view re-fetches from the new database.
    */
   function reset(): void {
+    sessionScope.reset()
     selectedItemKey.value = null
     draggingItemKey.value = null
     bundle.value = null

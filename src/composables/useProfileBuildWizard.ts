@@ -28,21 +28,14 @@ import {
   type UserProfileScope,
 } from '@/domain/userProfile'
 import { profileBuildLogDexieRepository } from '@/repositories/profileBuildLogDexieRepository'
-import {
-  clearDraftFromDB,
-  loadDraftFromDB,
-  saveDraftToDB,
-} from '@/services/draftStorage'
+import { createScopedDraftStorage } from '@/services/scopedDraftStorage'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import {
   ProfileBuildError,
   type ProfileBuildErrorCode,
   useUserProfileStore,
 } from '@/stores/userProfile.store'
-import {
-  queryScopePreview,
-  type ProfilePreviewObjectHeader,
-} from '@/services/profileScopeQueries'
+import { queryScopePreview, type ProfilePreviewObjectHeader } from '@/services/profileScopeQueries'
 
 export type { ProfilePreviewObjectHeader }
 
@@ -116,9 +109,7 @@ export function resolveDateRange(range: ProfileDateRange): { start: string; end:
     const startIso = range.start
       ? new Date(range.start + 'T00:00:00.000Z').toISOString()
       : new Date(0).toISOString()
-    const endIso = range.end
-      ? new Date(range.end + 'T23:59:59.999Z').toISOString()
-      : end
+    const endIso = range.end ? new Date(range.end + 'T23:59:59.999Z').toISOString() : end
     return { start: startIso, end: endIso }
   }
 
@@ -149,10 +140,7 @@ interface PersistedDraft {
 }
 
 function isProfileDataType(value: unknown): value is ProfileDataType {
-  return (
-    typeof value === 'string' &&
-    (PROFILE_DATA_TYPES as readonly string[]).includes(value)
-  )
+  return typeof value === 'string' && (PROFILE_DATA_TYPES as readonly string[]).includes(value)
 }
 
 function coerceProfileDataType(value: unknown): ProfileDataType | null {
@@ -172,9 +160,7 @@ function coerceProfileDataTypes(values: unknown[]): ProfileDataType[] {
 function sanitiseDraft(raw: unknown): PersistedDraft | null {
   if (!raw || typeof raw !== 'object') return null
   const obj = raw as Record<string, unknown>
-  const dataTypes = Array.isArray(obj.dataTypes)
-    ? coerceProfileDataTypes(obj.dataTypes)
-    : null
+  const dataTypes = Array.isArray(obj.dataTypes) ? coerceProfileDataTypes(obj.dataTypes) : null
   const dateRange = obj.dateRange as ProfileDateRange | undefined
   const filters = obj.filters as ProfileScopeFilters | undefined
   if (!dataTypes || !dateRange || typeof dateRange !== 'object') return null
@@ -194,6 +180,7 @@ function sanitiseDraft(raw: unknown): PersistedDraft | null {
 }
 
 export function useProfileBuildWizard() {
+  const { loadDraftFromDB, saveDraftToDB, clearDraftFromDB } = createScopedDraftStorage()
   const prefs = useUserPreferencesStore()
 
   // --- Step state --------------------------------------------------------
@@ -219,7 +206,7 @@ export function useProfileBuildWizard() {
   const previewError = ref<string | null>(null)
 
   const previewTotalCount = computed(() =>
-    Object.values(previewCountsByType.value).reduce((sum, n) => sum + (n ?? 0), 0),
+    Object.values(previewCountsByType.value).reduce((sum, n) => sum + (n ?? 0), 0)
   )
 
   // --- Scope snapshot ----------------------------------------------------
@@ -232,9 +219,9 @@ export function useProfileBuildWizard() {
       contextTagIds: filters.contextTagIds ? [...filters.contextTagIds] : [],
       lifeAreaIds: filters.lifeAreaIds ? [...filters.lifeAreaIds] : [],
     },
-    includedObjectIds: JSON.parse(
-      JSON.stringify(previewObjectIdsByType.value),
-    ) as Partial<Record<ProfileDataType, string[]>>,
+    includedObjectIds: JSON.parse(JSON.stringify(previewObjectIdsByType.value)) as Partial<
+      Record<ProfileDataType, string[]>
+    >,
     approxTokenCount: previewApproxTokens.value,
     locale: prefs.locale,
     grammaticalGender: prefs.grammaticalGender,
@@ -301,8 +288,8 @@ export function useProfileBuildWizard() {
         acc[id] = false
         return acc
       },
-      {} as Record<ProfileSectionId, boolean>,
-    ),
+      {} as Record<ProfileSectionId, boolean>
+    )
   )
 
   // --- Save state (Story 6) ---------------------------------------------
@@ -404,11 +391,9 @@ export function useProfileBuildWizard() {
       generateState.value = 'success'
       currentStep.value = 'review'
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Failed to build profile.'
+      const message = err instanceof Error ? err.message : 'Failed to build profile.'
       generateError.value = message
-      generateErrorCode.value =
-        err instanceof ProfileBuildError ? err.code : null
+      generateErrorCode.value = err instanceof ProfileBuildError ? err.code : null
       generateState.value = 'error'
     }
   }
@@ -428,7 +413,7 @@ export function useProfileBuildWizard() {
    *     'generate' and then to 'review' on success.
    */
   async function regenerate(
-    options: { force?: boolean } = {},
+    options: { force?: boolean } = {}
   ): Promise<{ confirmationNeeded: boolean }> {
     if (hasUnsavedEdits.value && !options.force) {
       return { confirmationNeeded: true }
@@ -501,8 +486,7 @@ export function useProfileBuildWizard() {
       await resetDraft()
       return { profile: created }
     } catch (err) {
-      saveError.value =
-        err instanceof Error ? err.message : 'Save failed'
+      saveError.value = err instanceof Error ? err.message : 'Save failed'
       return { error: saveError.value }
     } finally {
       isSaving.value = false
@@ -531,23 +515,15 @@ export function useProfileBuildWizard() {
     filters.emotionQuadrants = sourceFilters.emotionQuadrants
       ? [...sourceFilters.emotionQuadrants]
       : []
-    filters.peopleTagIds = sourceFilters.peopleTagIds
-      ? [...sourceFilters.peopleTagIds]
-      : []
-    filters.contextTagIds = sourceFilters.contextTagIds
-      ? [...sourceFilters.contextTagIds]
-      : []
-    filters.lifeAreaIds = sourceFilters.lifeAreaIds
-      ? [...sourceFilters.lifeAreaIds]
-      : []
+    filters.peopleTagIds = sourceFilters.peopleTagIds ? [...sourceFilters.peopleTagIds] : []
+    filters.contextTagIds = sourceFilters.contextTagIds ? [...sourceFilters.contextTagIds] : []
+    filters.lifeAreaIds = sourceFilters.lifeAreaIds ? [...sourceFilters.lifeAreaIds] : []
 
     // Preview: zero-out counts/headers (we did not re-run a query) but
     // preserve the recorded approxTokenCount so the save summary has
     // something meaningful to show.
     previewCountsByType.value = {}
-    previewObjectIdsByType.value = JSON.parse(
-      JSON.stringify(source.scope.includedObjectIds ?? {}),
-    )
+    previewObjectIdsByType.value = JSON.parse(JSON.stringify(source.scope.includedObjectIds ?? {}))
     previewObjectHeaders.value = []
     previewApproxTokens.value = source.scope.approxTokenCount
     // No persisted breakdown on a saved profile — recomputed on the next preview.
@@ -828,7 +804,7 @@ export function useProfileBuildWizard() {
       if (!ready.value) return
       scheduleSave()
     },
-    { deep: true },
+    { deep: true }
   )
 
   onMounted(() => {

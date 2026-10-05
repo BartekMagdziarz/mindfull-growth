@@ -1,4 +1,15 @@
+import type { JournalDraft } from '@/domain/journalDraft'
 import Dexie, { type Table } from 'dexie'
+import { invalidateUserSession, UserSessionChangedError } from './userSessionScope'
+import type { CompanionIntroduction } from '@/domain/companionIntroduction'
+import type { HistoryDigest } from '@/domain/historyDigest'
+import type {
+  ApprovedProfileItem,
+  ProfileProposal,
+  ProfileChange,
+  ProfileTask,
+} from '@/domain/approvedProfile'
+import type { CompanionConversation } from '@/domain/companionConversation'
 import type { JournalEntry } from '@/domain/journal'
 import type { PeopleTag, ContextTag } from '@/domain/tag'
 import type { EmotionLog } from '@/domain/emotionLog'
@@ -40,7 +51,18 @@ import type {
 import type { LifeArea } from '@/domain/lifeArea'
 import type { LifeAreaAssessment } from '@/domain/lifeAreaAssessment'
 import type { AssessmentAttempt, AssessmentResponse } from '@/domain/assessments'
-import { MAX_ACTIVE_PRIORITIES, type Goal, type Habit, type Initiative, type KeyResult, type Priority, type PriorityLink, type PriorityLinkSubjectType, type Tracker, type WeeklyIntention } from '@/domain/planning'
+import {
+  MAX_ACTIVE_PRIORITIES,
+  type Goal,
+  type Habit,
+  type Initiative,
+  type KeyResult,
+  type Priority,
+  type PriorityLink,
+  type PriorityLinkSubjectType,
+  type Tracker,
+  type WeeklyIntention,
+} from '@/domain/planning'
 import type {
   DailyMeasurementEntry,
   GoalMonthState,
@@ -65,6 +87,7 @@ import type { ProgramEnrollment } from '@/domain/program'
 import { getPeriodRefsForDate } from '@/utils/periods'
 import { migrateLogsToMoments } from '@/services/migrations/momentsMigration'
 import { migrateEnrollmentsContent } from '@/services/programContentMigration'
+import { repairPersistenceV33 } from '@/services/migrations/persistenceRepairV33'
 
 /**
  * v23 completion-backfill sources — FROZEN at authoring time (2026-07-05).
@@ -121,11 +144,16 @@ export const V23_BACKFILL_SOURCES: ReadonlyArray<{
 ]
 
 export class UserDatabase extends Dexie {
+  dataRepairArchives!: Table<
+    { id: string; collection: string; record: Record<string, unknown>; archivedAt: string },
+    string
+  >
   journalEntries!: Table<JournalEntry, string>
   peopleTags!: Table<PeopleTag, string>
   contextTags!: Table<ContextTag, string>
   emotionLogs!: Table<EmotionLog, string>
   userSettings!: Table<{ key: string; value: string }, string>
+  companionConversations!: Table<CompanionConversation, string>
 
   valuesDiscoveries!: Table<ValuesDiscovery, string>
   valueMaps!: Table<ValueMap, string>
@@ -195,6 +223,15 @@ export class UserDatabase extends Dexie {
   profileBuildLogs!: Table<ProfileBuildLogEntry, string>
   profilePeriodSummaries!: Table<ProfilePeriodSummary, string>
   annualPlans!: Table<AnnualPlan, string>
+
+  approvedProfileItems!: Table<ApprovedProfileItem, string>
+  profileProposals!: Table<ProfileProposal, string>
+  profileChanges!: Table<ProfileChange, string>
+  profileTasks!: Table<ProfileTask, string>
+
+  journalDrafts!: Table<JournalDraft, string>
+  companionIntroductions!: Table<CompanionIntroduction, string>
+  historyDigests!: Table<HistoryDigest, string>
 
   constructor(databaseName: string) {
     super(databaseName)
@@ -987,7 +1024,7 @@ export class UserDatabase extends Dexie {
         weeklyReflections: 'id, &weekRef',
         monthlyReflections: 'id, &monthRef',
       })
-      .upgrade(async (trans) => {
+      .upgrade(async trans => {
         // Migrate weekly reflections: map old dimension fields to new
         await trans
           .table('weeklyReflections')
@@ -1178,14 +1215,14 @@ export class UserDatabase extends Dexie {
         userProfiles: 'id, createdAt',
         profileBuildLogs: 'id, timestamp, success',
       })
-      .upgrade(async (trans) => {
+      .upgrade(async trans => {
         await trans
           .table('lifeAreas')
           .toCollection()
           .modify((record: Record<string, unknown>) => {
             record.reflectionSignals = Array.isArray(record.reflectionSignals)
               ? record.reflectionSignals.filter(
-                  (signal): signal is string => typeof signal === 'string',
+                  (signal): signal is string => typeof signal === 'string'
                 )
               : []
 
@@ -1270,7 +1307,7 @@ export class UserDatabase extends Dexie {
         userProfiles: 'id, createdAt',
         profileBuildLogs: 'id, timestamp, success',
       })
-      .upgrade(async (trans) => {
+      .upgrade(async trans => {
         const yearRefPattern = /^\d{4}$/
         const isValidYearRef = (value: unknown): value is string => {
           if (typeof value !== 'string' || !yearRefPattern.test(value)) return false
@@ -1286,19 +1323,20 @@ export class UserDatabase extends Dexie {
           return new Date().getFullYear().toString()
         }
 
-        const priorities = await trans.table('priorities').toArray() as Record<string, unknown>[]
+        const priorities = (await trans.table('priorities').toArray()) as Record<string, unknown>[]
         const activeCandidates = priorities
           .filter(record => record.isActive !== false)
-          .sort((left, right) =>
-            fallbackYear(left).localeCompare(fallbackYear(right)) ||
-            String(left.title ?? '').localeCompare(String(right.title ?? '')) ||
-            String(left.createdAt ?? '').localeCompare(String(right.createdAt ?? '')),
+          .sort(
+            (left, right) =>
+              fallbackYear(left).localeCompare(fallbackYear(right)) ||
+              String(left.title ?? '').localeCompare(String(right.title ?? '')) ||
+              String(left.createdAt ?? '').localeCompare(String(right.createdAt ?? ''))
           )
         const activeIds = new Set(
           activeCandidates
             .slice(0, MAX_ACTIVE_PRIORITIES)
             .map(record => record.id)
-            .filter((id): id is string => typeof id === 'string'),
+            .filter((id): id is string => typeof id === 'string')
         )
         const activeOrderById = new Map([...activeIds].map((id, index) => [id, index + 1]))
 
@@ -1409,7 +1447,7 @@ export class UserDatabase extends Dexie {
       .stores({
         weeklyReflections: 'id, &weekRef',
       })
-      .upgrade(async (trans) => {
+      .upgrade(async trans => {
         // Weekly reflection schema redesigned around demands/actions/state with
         // 4 lifestyle spheres (physical / emotional / tasks / close ones).
         // Old per-dimension fields are dropped and replaced with the new names.
@@ -1434,7 +1472,7 @@ export class UserDatabase extends Dexie {
       .stores({
         shadowBeliefs: 'id',
       })
-      .upgrade(async (trans) => {
+      .upgrade(async trans => {
         // Shadow beliefs restructured: the two flat lists (selfSabotagingBeliefs +
         // reframedBeliefs) become one list of per-belief entries (so a reframe is
         // tied to its belief and each belief can carry an evidence review), and
@@ -1446,19 +1484,19 @@ export class UserDatabase extends Dexie {
           .modify((record: Record<string, unknown>) => {
             const oldBeliefs = Array.isArray(record.selfSabotagingBeliefs)
               ? (record.selfSabotagingBeliefs as unknown[]).filter(
-                  (b): b is string => typeof b === 'string' && b.trim().length > 0,
+                  (b): b is string => typeof b === 'string' && b.trim().length > 0
                 )
               : []
             const oldReframes = Array.isArray(record.reframedBeliefs)
               ? (record.reframedBeliefs as unknown[]).filter(
-                  (r): r is string => typeof r === 'string' && r.trim().length > 0,
+                  (r): r is string => typeof r === 'string' && r.trim().length > 0
                 )
               : []
             // Pair belief↔reframe by position — best-effort, since the old UI
             // presented them as two parallel lists with no explicit link.
             // Surplus reframes (more reframes than beliefs) become their own entries.
             const beliefs: Array<{ belief: string; reframe?: string }> = oldBeliefs.map(
-              (belief, i) => (oldReframes[i] ? { belief, reframe: oldReframes[i] } : { belief }),
+              (belief, i) => (oldReframes[i] ? { belief, reframe: oldReframes[i] } : { belief })
             )
             for (let i = oldBeliefs.length; i < oldReframes.length; i++) {
               beliefs.push({ belief: '', reframe: oldReframes[i] })
@@ -1469,11 +1507,11 @@ export class UserDatabase extends Dexie {
 
             const oldAdvice = Array.isArray(record.adviceToOthers)
               ? (record.adviceToOthers as unknown[]).filter(
-                  (a): a is string => typeof a === 'string' && a.trim().length > 0,
+                  (a): a is string => typeof a === 'string' && a.trim().length > 0
                 )
               : []
             // Old advice was plain strings; self-application was never captured.
-            record.adviceToOthers = oldAdvice.map((advice) => ({ advice }))
+            record.adviceToOthers = oldAdvice.map(advice => ({ advice }))
           })
       })
 
@@ -1499,7 +1537,7 @@ export class UserDatabase extends Dexie {
         exerciseCompletions: 'id, exerciseSlug, dayRef, completedAt',
         microExerciseEntries: 'id, exerciseSlug, createdAt',
       })
-      .upgrade(async (trans) => {
+      .upgrade(async trans => {
         const rows: ExerciseCompletion[] = []
         const addRow = (slug: string, timestamp: unknown, recordId: unknown) => {
           // Defensive per-record skips: a malformed row must not strand the
@@ -1565,9 +1603,9 @@ export class UserDatabase extends Dexie {
       .stores({
         priorityLinks: 'id, priorityId, status, [subjectRef.subjectType+subjectRef.subjectId]',
       })
-      .upgrade(async (trans) => {
+      .upgrade(async trans => {
         const priorityIds = new Set<string>(
-          (await trans.table('priorities').toArray()).map((priority) => String(priority.id)),
+          (await trans.table('priorities').toArray()).map(priority => String(priority.id))
         )
 
         const sources: Array<{ table: string; subjectType: PriorityLinkSubjectType }> = [
@@ -1604,7 +1642,8 @@ export class UserDatabase extends Dexie {
                 subjectRef: { subjectType: source.subjectType, subjectId: record.id },
                 contribution: '',
                 expectedSignal: '',
-                validFrom: typeof record.createdAt === 'string' && record.createdAt ? record.createdAt : now,
+                validFrom:
+                  typeof record.createdAt === 'string' && record.createdAt ? record.createdAt : now,
                 needsEnrichment: true,
               })
             }
@@ -1621,14 +1660,14 @@ export class UserDatabase extends Dexie {
     // and pending plan items under the variant slug. No schema change.
     this.version(27)
       .stores({})
-      .upgrade(async (trans) => {
+      .upgrade(async trans => {
         await migrateLogsToMoments({
           entries: await trans.table('microExerciseEntries').toArray(),
           completions: await trans.table('exerciseCompletions').toArray(),
           planItems: await trans.table('exercisePlanItems').toArray(),
-          putEntry: (row) => trans.table('microExerciseEntries').put(row),
-          putCompletion: (row) => trans.table('exerciseCompletions').put(row),
-          putPlanItem: (row) => trans.table('exercisePlanItems').put(row),
+          putEntry: row => trans.table('microExerciseEntries').put(row),
+          putCompletion: row => trans.table('exerciseCompletions').put(row),
+          putPlanItem: row => trans.table('exercisePlanItems').put(row),
         })
       })
 
@@ -1638,23 +1677,49 @@ export class UserDatabase extends Dexie {
     // step plan items are dropped and re-materialized by the scheduler.
     this.version(28)
       .stores({})
-      .upgrade(async (trans) => {
+      .upgrade(async trans => {
         await migrateEnrollmentsContent({
           enrollments: await trans.table('programEnrollments').toArray(),
           planItems: await trans.table('exercisePlanItems').toArray(),
-          putEnrollment: (row) => trans.table('programEnrollments').put(row),
-          deletePlanItem: (id) => trans.table('exercisePlanItems').delete(id),
+          putEnrollment: row => trans.table('programEnrollments').put(row),
+          deletePlanItem: id => trans.table('exercisePlanItems').delete(id),
         })
       })
+    this.version(29).stores({ companionConversations: 'id, periodRef, updatedAt' })
+    this.version(30).stores({
+      approvedProfileItems: 'id, category, status, updatedAt',
+      profileProposals: 'id, &dedupeKey, status, updatedAt',
+      profileChanges: 'id, itemId, at',
+      profileTasks: 'id, status',
+    })
+    this.version(31).stores({
+      companionIntroductions: 'id, status, updatedAt',
+      historyDigests: 'id, kind, subject',
+    })
+    this.version(32).stores({ journalDrafts: 'id, updatedAt' })
+    // Repair duplicates before creating unique indexes in the following version.
+    this.version(33)
+      .stores({ dataRepairArchives: 'id, collection, archivedAt' })
+      .upgrade(repairPersistenceV33)
+    this.version(34).stores({
+      assessmentResponses: 'id, attemptId, itemId, &[attemptId+itemId]',
+      exercisePlanItems: 'id, exerciseSlug, dayRef, status, source, &pendingProgramKey',
+      exerciseCompletions: 'id, exerciseSlug, dayRef, completedAt, &eventId',
+    })
   }
 }
 
 let currentDb: UserDatabase | null = null
 let currentUserId: string | null = null
+let connectionRevision = 0
+let opening: { userId: string; promise: Promise<UserDatabase> } | null = null
 
 export function getUserDatabase(): UserDatabase {
   if (!currentDb) {
     throw new Error('No user database connected. User must be logged in.')
+  }
+  if (Dexie.currentTransaction && Dexie.currentTransaction.db !== currentDb) {
+    throw new UserSessionChangedError()
   }
   return currentDb
 }
@@ -1667,6 +1732,10 @@ export async function connectUserDatabase(userId: string): Promise<UserDatabase>
   if (currentUserId === userId && currentDb) {
     return currentDb
   }
+  if (opening?.userId === userId) return opening.promise
+
+  const revision = ++connectionRevision
+  invalidateUserSession()
 
   if (currentDb) {
     currentDb.close()
@@ -1674,16 +1743,29 @@ export async function connectUserDatabase(userId: string): Promise<UserDatabase>
     currentUserId = null
   }
 
-  const db = new UserDatabase(`MindfullGrowthDB_simplify_${userId}`)
-  await db.open()
-
-  currentDb = db
-  currentUserId = userId
-
-  return db
+  const promise = (async () => {
+    const db = new UserDatabase(`MindfullGrowthDB_simplify_${userId}`)
+    try {
+      await db.open()
+      if (revision !== connectionRevision) throw new UserSessionChangedError()
+      currentDb = db
+      currentUserId = userId
+      return db
+    } catch (error) {
+      db.close()
+      throw error
+    } finally {
+      if (revision === connectionRevision) opening = null
+    }
+  })()
+  opening = { userId, promise }
+  return promise
 }
 
 export async function disconnectUserDatabase(): Promise<void> {
+  connectionRevision++
+  opening = null
+  invalidateUserSession()
   if (currentDb) {
     currentDb.close()
     currentDb = null

@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { EmotionLog } from '@/domain/emotionLog'
@@ -16,6 +17,7 @@ function validateSelection(emotionIds: unknown, emotionFamilyIds: unknown): void
 }
 
 export const useEmotionLogStore = defineStore('emotionLog', () => {
+  const sessionScope = createStoreSessionScope()
   const logs = ref<EmotionLog[]>([])
   const isLoading = ref(false)
   const isLoaded = ref(false)
@@ -38,19 +40,27 @@ export const useEmotionLogStore = defineStore('emotionLog', () => {
   }
 
   async function loadLogs(): Promise<void> {
-    isLoading.value = true
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      const loadedLogs = await emotionLogDexieRepository.getAll()
-      logs.value = loadedLogs.map(withDefaults)
-      isLoaded.value = true
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Failed to load emotion logs'
-      error.value = message
-      console.error('Error loading emotion logs:', err)
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+      try {
+        const loadedLogs = await operation.wait(emotionLogDexieRepository.getAll())
+        logs.value = loadedLogs.map(withDefaults)
+        isLoaded.value = true
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        const message = err instanceof Error ? err.message : 'Failed to load emotion logs'
+        error.value = message
+        console.error('Error loading emotion logs:', err)
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -62,22 +72,32 @@ export const useEmotionLogStore = defineStore('emotionLog', () => {
    * the next caller retries.
    */
   async function ensureLoaded(): Promise<void> {
-    if (isLoaded.value || isLoading.value) return
-    await loadLogs()
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    try {
+      if (isLoaded.value || isLoading.value) return
+      await operation.wait(loadLogs())
+    } catch (error) {
+      if (operation.isCurrent()) throw error
+    }
   }
 
   async function createLog(
     payload: Omit<EmotionLog, 'id' | 'createdAt' | 'updatedAt'> & { createdAt?: string }
   ): Promise<EmotionLog> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
       validateSelection(payload.emotionIds, payload.emotionFamilyIds)
-      const createdLog = withDefaults(await emotionLogDexieRepository.create(payload))
+      const createdLog = withDefaults(
+        await operation.wait(emotionLogDexieRepository.create(payload))
+      )
       logs.value.push(createdLog)
       return createdLog
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Failed to create emotion log'
+      operation.assertCurrent()
+      const message = err instanceof Error ? err.message : 'Failed to create emotion log'
       error.value = message
       console.error('Error creating emotion log:', err)
       throw err
@@ -85,18 +105,20 @@ export const useEmotionLogStore = defineStore('emotionLog', () => {
   }
 
   async function updateLog(log: EmotionLog): Promise<EmotionLog> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
       validateSelection(log.emotionIds, log.emotionFamilyIds)
-      const updatedLog = withDefaults(await emotionLogDexieRepository.update(log))
-      const index = logs.value.findIndex((existing) => existing.id === log.id)
+      const updatedLog = withDefaults(await operation.wait(emotionLogDexieRepository.update(log)))
+      const index = logs.value.findIndex(existing => existing.id === log.id)
       if (index !== -1) {
         logs.value[index] = updatedLog
       }
       return updatedLog
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Failed to update emotion log'
+      operation.assertCurrent()
+      const message = err instanceof Error ? err.message : 'Failed to update emotion log'
       error.value = message
       console.error(`Error updating emotion log with id ${log.id}:`, err)
       throw err
@@ -104,16 +126,22 @@ export const useEmotionLogStore = defineStore('emotionLog', () => {
   }
 
   async function deleteLog(id: string): Promise<void> {
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await emotionLogDexieRepository.delete(id)
-      logs.value = logs.value.filter((log) => log.id !== id)
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Failed to delete emotion log'
-      error.value = message
-      console.error(`Error deleting emotion log with id ${id}:`, err)
-      throw err
+      error.value = null
+      try {
+        await operation.wait(emotionLogDexieRepository.delete(id))
+        logs.value = logs.value.filter(log => log.id !== id)
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        const message = err instanceof Error ? err.message : 'Failed to delete emotion log'
+        error.value = message
+        console.error(`Error deleting emotion log with id ${id}:`, err)
+        throw err
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -123,6 +151,7 @@ export const useEmotionLogStore = defineStore('emotionLog', () => {
    * data before the next `load*()` re-fetches from the new database.
    */
   function reset(): void {
+    sessionScope.reset()
     logs.value = []
     isLoading.value = false
     isLoaded.value = false
@@ -143,4 +172,3 @@ export const useEmotionLogStore = defineStore('emotionLog', () => {
     reset,
   }
 })
-

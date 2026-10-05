@@ -12,10 +12,21 @@ export function getSession(): SessionData | null {
     const stored = sessionStorage.getItem(SESSION_KEY)
     if (!stored) return null
 
-    const session: SessionData = JSON.parse(stored)
+    const session = JSON.parse(stored) as SessionData | null
 
     // Check expiration
-    if (session.expiresAt < Date.now()) {
+    if (
+      !session ||
+      typeof session !== 'object' ||
+      typeof session.userId !== 'string' ||
+      !session.userId.trim() ||
+      typeof session.username !== 'string' ||
+      !session.username.trim() ||
+      (session.displayName !== undefined && typeof session.displayName !== 'string') ||
+      typeof session.expiresAt !== 'number' ||
+      !Number.isFinite(session.expiresAt) ||
+      session.expiresAt <= Date.now()
+    ) {
       clearSession()
       return null
     }

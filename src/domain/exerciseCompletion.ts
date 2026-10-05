@@ -20,6 +20,8 @@ export type ExerciseCompletionSource = 'standalone' | 'plan' | 'program'
 
 export interface ExerciseCompletion {
   id: string
+  /** Stable caller-supplied id for safe retries; absent on historical rows. */
+  eventId?: string
   /** Catalog slug (`src/data/exerciseCatalog.ts`). */
   exerciseSlug: string
   /** Local day the completion belongs to, derived from `completedAt`. */
@@ -32,6 +34,7 @@ export interface ExerciseCompletion {
 }
 
 export interface CreateExerciseCompletionPayload {
+  eventId?: string
   exerciseSlug: string
   dayRef: DayRef
   completedAt: string

@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type {
@@ -9,6 +10,7 @@ import { ifsTrailheadDexieRepository } from '@/repositories/exercisesDexieReposi
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useIFSTrailheadStore = defineStore('ifsTrailhead', () => {
+  const sessionScope = createStoreSessionScope()
   const entries = ref<IFSTrailheadEntry[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
@@ -23,7 +25,7 @@ export const useIFSTrailheadStore = defineStore('ifsTrailhead', () => {
 
   const getEntryById = computed(() => {
     return (id: string): IFSTrailheadEntry | undefined => {
-      return entries.value.find((e) => e.id === id)
+      return entries.value.find(e => e.id === id)
     }
   })
 
@@ -32,44 +34,62 @@ export const useIFSTrailheadStore = defineStore('ifsTrailhead', () => {
   })
 
   async function loadEntries(): Promise<void> {
-    isLoading.value = true
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      entries.value = await ifsTrailheadDexieRepository.getAll()
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load trailhead entries'
-      console.error('Error loading trailhead entries:', err)
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+      try {
+        entries.value = await operation.wait(ifsTrailheadDexieRepository.getAll())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to load trailhead entries'
+        console.error('Error loading trailhead entries:', err)
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function createEntry(data: CreateIFSTrailheadPayload): Promise<IFSTrailheadEntry> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const entry = await ifsTrailheadDexieRepository.create(data)
+      const entry = await operation.wait(ifsTrailheadDexieRepository.create(data))
       void useExerciseCompletionsStore()
         .record('trailhead', entry.id)
-        .catch((err) => console.error('Failed to record exercise completion:', err))
+        .catch(err => console.error('Failed to record exercise completion:', err))
       entries.value.push(entry)
       return entry
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to create trailhead entry'
       console.error('Error creating trailhead entry:', err)
       throw err
     }
   }
 
-  async function updateEntry(id: string, data: UpdateIFSTrailheadPayload): Promise<IFSTrailheadEntry> {
+  async function updateEntry(
+    id: string,
+    data: UpdateIFSTrailheadPayload
+  ): Promise<IFSTrailheadEntry> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const updated = await ifsTrailheadDexieRepository.update(id, data)
-      const index = entries.value.findIndex((e) => e.id === id)
+      const updated = await operation.wait(ifsTrailheadDexieRepository.update(id, data))
+      const index = entries.value.findIndex(e => e.id === id)
       if (index !== -1) {
         entries.value[index] = updated
       }
       return updated
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to update trailhead entry'
       console.error('Error updating trailhead entry:', err)
       throw err
@@ -77,14 +97,21 @@ export const useIFSTrailheadStore = defineStore('ifsTrailhead', () => {
   }
 
   async function deleteEntry(id: string): Promise<void> {
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await ifsTrailheadDexieRepository.delete(id)
-      entries.value = entries.value.filter((e) => e.id !== id)
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete trailhead entry'
-      console.error('Error deleting trailhead entry:', err)
-      throw err
+      error.value = null
+      try {
+        await operation.wait(ifsTrailheadDexieRepository.delete(id))
+        entries.value = entries.value.filter(e => e.id !== id)
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to delete trailhead entry'
+        console.error('Error deleting trailhead entry:', err)
+        throw err
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -94,6 +121,7 @@ export const useIFSTrailheadStore = defineStore('ifsTrailhead', () => {
    * data before the next `load*()` re-fetches from the new database.
    */
   function reset(): void {
+    sessionScope.reset()
     entries.value = []
     isLoading.value = false
     error.value = null

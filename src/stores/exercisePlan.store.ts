@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 /**
  * Exercise Plan Store
  *
@@ -22,12 +23,13 @@ import {
 } from '@/services/exercisePlanService'
 
 export const useExercisePlanStore = defineStore('exercisePlan', () => {
+  const sessionScope = createStoreSessionScope()
   const items = ref<ExercisePlanItem[]>([])
   const isLoaded = ref(false)
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
-  const pendingItems = computed(() => items.value.filter((item) => item.status === 'pending'))
+  const pendingItems = computed(() => items.value.filter(item => item.status === 'pending'))
 
   /** Due + overdue for the visible day (D3), oldest first. */
   const dueItems = computed(() => {
@@ -38,25 +40,34 @@ export const useExercisePlanStore = defineStore('exercisePlan', () => {
   const oldestPendingForSlug = computed(() => {
     return (slug: string): ExercisePlanItem | undefined =>
       pendingItems.value
-        .filter((item) => item.exerciseSlug === slug)
+        .filter(item => item.exerciseSlug === slug)
         .sort((a, b) =>
           a.dayRef === b.dayRef
             ? a.createdAt.localeCompare(b.createdAt)
-            : a.dayRef.localeCompare(b.dayRef),
+            : a.dayRef.localeCompare(b.dayRef)
         )[0]
   })
 
   async function loadItems(): Promise<void> {
-    isLoading.value = true
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      items.value = await listPlans()
-      isLoaded.value = true
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load exercise plans'
-      console.error('Error loading exercise plans:', err)
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+      try {
+        items.value = await operation.wait(listPlans())
+        isLoaded.value = true
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to load exercise plans'
+        console.error('Error loading exercise plans:', err)
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -65,8 +76,14 @@ export const useExercisePlanStore = defineStore('exercisePlan', () => {
    * `isLoaded` stays false, so the next caller retries.
    */
   async function ensureLoaded(): Promise<void> {
-    if (isLoaded.value || isLoading.value) return
-    await loadItems()
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    try {
+      if (isLoaded.value || isLoading.value) return
+      await operation.wait(loadItems())
+    } catch (error) {
+      if (operation.isCurrent()) throw error
+    }
   }
 
   /**
@@ -76,7 +93,7 @@ export const useExercisePlanStore = defineStore('exercisePlan', () => {
    */
   function applyUpdate(item: ExercisePlanItem): void {
     if (!isLoaded.value) return
-    const index = items.value.findIndex((existing) => existing.id === item.id)
+    const index = items.value.findIndex(existing => existing.id === item.id)
     if (index === -1) {
       items.value.push(item)
     } else {
@@ -91,34 +108,46 @@ export const useExercisePlanStore = defineStore('exercisePlan', () => {
    */
   function applyRemoval(id: string): void {
     if (!isLoaded.value) return
-    items.value = items.value.filter((item) => item.id !== id)
+    items.value = items.value.filter(item => item.id !== id)
   }
 
   async function createPlan(
     slug: string,
     dayRef: DayRef,
-    source: ExercisePlanSource = 'repeat',
+    source: ExercisePlanSource = 'repeat'
   ): Promise<ExercisePlanItem> {
-    const item = await createPlanService(slug, dayRef, source)
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    const item = await operation.wait(createPlanService(slug, dayRef, source))
     if (isLoaded.value) items.value.push(item)
     return item
   }
 
   async function movePlan(id: string, dayRef: DayRef): Promise<ExercisePlanItem> {
-    const item = await movePlanService(id, dayRef)
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    const item = await operation.wait(movePlanService(id, dayRef))
     applyUpdate(item)
     return item
   }
 
   async function skipPlan(id: string): Promise<ExercisePlanItem> {
-    const item = await skipPlanService(id)
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    const item = await operation.wait(skipPlanService(id))
     applyUpdate(item)
     return item
   }
 
   async function cancelPlan(id: string): Promise<void> {
-    await cancelPlanService(id)
-    items.value = items.value.filter((item) => item.id !== id)
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    try {
+      await operation.wait(cancelPlanService(id))
+      items.value = items.value.filter(item => item.id !== id)
+    } catch (error) {
+      if (operation.isCurrent()) throw error
+    }
   }
 
   /**
@@ -127,6 +156,7 @@ export const useExercisePlanStore = defineStore('exercisePlan', () => {
    * data before the next `load*()` re-fetches from the new database.
    */
   function reset(): void {
+    sessionScope.reset()
     items.value = []
     isLoaded.value = false
     isLoading.value = false

@@ -1,3 +1,4 @@
+import { captureUserSession } from '@/services/userSessionScope'
 /**
  * Task ↔ exercise bridge (shame path v2 plan §5, decision D5/D7).
  *
@@ -42,18 +43,18 @@ export function matchProgramTasks(
   weekRef: WeekRef,
   enrollments: readonly ProgramEnrollment[],
   intentions: readonly WeeklyIntention[],
-  resolveProgram: (programSlug: string) => ProgramDefinition | undefined = getProgramDefinition,
+  resolveProgram: (programSlug: string) => ProgramDefinition | undefined = getProgramDefinition
 ): ProgramTaskMatch[] {
   const matches: ProgramTaskMatch[] = []
   for (const enrollment of enrollments) {
     if (enrollment.status !== 'active') continue
     const program = resolveProgram(enrollment.programSlug)
     if (!program) continue
-    const entry = enrollment.weekLog?.find((candidate) => candidate.weekRef === weekRef)
+    const entry = enrollment.weekLog?.find(candidate => candidate.weekRef === weekRef)
     if (!entry || entry.decision !== 'accepted' || !entry.intentionId) continue
-    const task = program.weeklyTasks?.find((candidate) => candidate.key === entry.taskKey)
+    const task = program.weeklyTasks?.find(candidate => candidate.key === entry.taskKey)
     if (!task || task.linkSlug !== slug) continue
-    const intention = intentions.find((candidate) => candidate.id === entry.intentionId)
+    const intention = intentions.find(candidate => candidate.id === entry.intentionId)
     if (!intention) continue
     matches.push({ enrollment, program, task, intention })
   }
@@ -73,30 +74,36 @@ export interface TaskProgressResult {
 export async function recordTaskProgress(
   slug: string,
   dayRef: DayRef,
-  recordId?: string,
+  recordId?: string
 ): Promise<TaskProgressResult> {
+  const session = captureUserSession()
   const weekRef = getPeriodRefsForDate(new Date(`${dayRef}T12:00:00`)).week
-  const enrollments = await programEnrollmentDexieRepository.listAll()
-  if (!enrollments.some((enrollment) => enrollment.status === 'active')) return { intentionIds: [] }
-  const intentions = await listWeeklyIntentions(weekRef)
+  const enrollments = await session.wait(programEnrollmentDexieRepository.listAll())
+  if (!enrollments.some(enrollment => enrollment.status === 'active')) return { intentionIds: [] }
+  const intentions = await session.wait(listWeeklyIntentions(weekRef))
   const matches = matchProgramTasks(slug, weekRef, enrollments, intentions)
   const intentionIds: string[] = []
   for (const match of matches) {
-    await planningStateDexieRepository.upsertDailyMeasurementEntry({
-      subjectType: 'weeklyIntention',
-      subjectId: match.intention.id,
-      dayRef,
-      value: null,
-    })
+    await session.wait(
+      planningStateDexieRepository.upsertDailyMeasurementEntry({
+        subjectType: 'weeklyIntention',
+        subjectId: match.intention.id,
+        dayRef,
+        value: null,
+      })
+    )
     intentionIds.push(match.intention.id)
   }
   const first = matches[0]
   if (first && recordId && getMicroExercise(definitionSlugFor(slug))) {
     try {
-      await microExerciseEntryDexieRepository.update(recordId, {
-        programRef: { enrollmentId: first.enrollment.id, taskKey: first.task.key, weekRef },
-      })
+      await session.wait(
+        microExerciseEntryDexieRepository.update(recordId, {
+          programRef: { enrollmentId: first.enrollment.id, taskKey: first.task.key, weekRef },
+        })
+      )
     } catch (err) {
+      session.assertCurrent()
       // The day is already counted; the tag is a convenience.
       console.error('Failed to tag the micro entry with its program task:', err)
     }

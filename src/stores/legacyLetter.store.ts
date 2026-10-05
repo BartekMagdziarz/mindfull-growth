@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 /**
  * Legacy Letter Store
  *
@@ -16,6 +17,7 @@ import { legacyLetterDexieRepository } from '@/repositories/exercisesDexieReposi
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useLegacyLetterStore = defineStore('legacyLetter', () => {
+  const sessionScope = createStoreSessionScope()
   const letters = ref<LegacyLetter[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
@@ -30,52 +32,64 @@ export const useLegacyLetterStore = defineStore('legacyLetter', () => {
 
   const getLetterById = computed(() => {
     return (id: string): LegacyLetter | undefined => {
-      return letters.value.find((l) => l.id === id)
+      return letters.value.find(l => l.id === id)
     }
   })
 
   async function loadLetters(): Promise<void> {
-    isLoading.value = true
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      letters.value = await legacyLetterDexieRepository.getAll()
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load legacy letters'
-      console.error('Error loading legacy letters:', err)
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+      try {
+        letters.value = await operation.wait(legacyLetterDexieRepository.getAll())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to load legacy letters'
+        console.error('Error loading legacy letters:', err)
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function createLetter(data: CreateLegacyLetterPayload): Promise<LegacyLetter> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const letter = await legacyLetterDexieRepository.create(data)
+      const letter = await operation.wait(legacyLetterDexieRepository.create(data))
       void useExerciseCompletionsStore()
         .record('legacy-letter', letter.id)
-        .catch((err) => console.error('Failed to record exercise completion:', err))
+        .catch(err => console.error('Failed to record exercise completion:', err))
       letters.value.push(letter)
       return letter
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to create legacy letter'
       console.error('Error creating legacy letter:', err)
       throw err
     }
   }
 
-  async function updateLetter(
-    id: string,
-    data: UpdateLegacyLetterPayload,
-  ): Promise<LegacyLetter> {
+  async function updateLetter(id: string, data: UpdateLegacyLetterPayload): Promise<LegacyLetter> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const updated = await legacyLetterDexieRepository.update(id, data)
-      const index = letters.value.findIndex((l) => l.id === id)
+      const updated = await operation.wait(legacyLetterDexieRepository.update(id, data))
+      const index = letters.value.findIndex(l => l.id === id)
       if (index !== -1) {
         letters.value[index] = updated
       }
       return updated
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to update legacy letter'
       console.error('Error updating legacy letter:', err)
       throw err
@@ -83,14 +97,21 @@ export const useLegacyLetterStore = defineStore('legacyLetter', () => {
   }
 
   async function deleteLetter(id: string): Promise<void> {
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await legacyLetterDexieRepository.delete(id)
-      letters.value = letters.value.filter((l) => l.id !== id)
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete legacy letter'
-      console.error('Error deleting legacy letter:', err)
-      throw err
+      error.value = null
+      try {
+        await operation.wait(legacyLetterDexieRepository.delete(id))
+        letters.value = letters.value.filter(l => l.id !== id)
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to delete legacy letter'
+        console.error('Error deleting legacy letter:', err)
+        throw err
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -100,6 +121,7 @@ export const useLegacyLetterStore = defineStore('legacyLetter', () => {
    * data before the next `load*()` re-fetches from the new database.
    */
   function reset(): void {
+    sessionScope.reset()
     letters.value = []
     isLoading.value = false
     error.value = null

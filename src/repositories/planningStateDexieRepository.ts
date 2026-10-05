@@ -1,3 +1,4 @@
+import { userDatabaseOperation } from './userDatabaseOperation'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import type { Habit, KeyResult, Tracker, WeeklyIntention } from '@/domain/planning'
 import type {
@@ -52,81 +53,181 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
   }
 
   async getGoalMonthState(monthRef: MonthRef, goalId: string): Promise<GoalMonthState | undefined> {
-    try {
-      return await this.db.goalMonthStates
-        .where('[monthRef+goalId]')
-        .equals([monthRef, goalId])
-        .first()
-    } catch (error) {
-      console.error(`Failed to get goal month state for ${goalId} in ${monthRef}:`, error)
-      throw new Error(`Failed to retrieve goal month state for ${goalId} in ${monthRef}`, { cause: error })
-    }
+    return userDatabaseOperation(
+      'r',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          return await db.goalMonthStates
+            .where('[monthRef+goalId]')
+            .equals([monthRef, goalId])
+            .first()
+        } catch (error) {
+          console.error(`Failed to get goal month state for ${goalId} in ${monthRef}:`, error)
+          throw new Error(`Failed to retrieve goal month state for ${goalId} in ${monthRef}`, {
+            cause: error,
+          })
+        }
+      }
+    )
   }
 
   async listGoalMonthStates(): Promise<GoalMonthState[]> {
-    try {
-      return await this.db.goalMonthStates.toArray()
-    } catch (error) {
-      console.error('Failed to list goal month states:', error)
-      throw new Error('Failed to retrieve goal month states from database', { cause: error })
-    }
+    return userDatabaseOperation(
+      'r',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          return await db.goalMonthStates.toArray()
+        } catch (error) {
+          console.error('Failed to list goal month states:', error)
+          throw new Error('Failed to retrieve goal month states from database', { cause: error })
+        }
+      }
+    )
   }
 
   async listGoalMonthStatesForMonths(monthRefs: MonthRef[]): Promise<GoalMonthState[]> {
-    if (monthRefs.length === 0) {
-      return []
-    }
+    return userDatabaseOperation(
+      'r',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        if (monthRefs.length === 0) {
+          return []
+        }
 
-    try {
-      return await this.db.goalMonthStates.where('monthRef').anyOf(monthRefs).toArray()
-    } catch (error) {
-      console.error('Failed to list goal month states for months:', error)
-      throw new Error('Failed to retrieve goal month states from database', { cause: error })
-    }
+        try {
+          return await db.goalMonthStates.where('monthRef').anyOf(monthRefs).toArray()
+        } catch (error) {
+          console.error('Failed to list goal month states for months:', error)
+          throw new Error('Failed to retrieve goal month states from database', { cause: error })
+        }
+      }
+    )
   }
 
   async upsertGoalMonthState(
     data: CreateGoalMonthStatePayload | UpdateGoalMonthStatePayload
   ): Promise<GoalMonthState> {
-    try {
-      const record = await this.db.transaction(
-        'rw',
-        [this.db.goalMonthStates, this.db.goals],
-        async () => {
-          const existing = await this.findExistingGoalMonthState(data)
-          const normalized = normalizeGoalMonthStatePayload(data, existing)
-          await this.assertGoalExists(normalized.goalId)
+    return userDatabaseOperation(
+      'rw',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          const record = await db.transaction('rw', [db.goalMonthStates, db.goals], async () => {
+            const existing = await this.findExistingGoalMonthState(data)
+            const normalized = normalizeGoalMonthStatePayload(data, existing)
+            await this.assertGoalExists(normalized.goalId)
 
-          if (existing) {
-            const updated = updatePlanningRecord(existing, normalized)
-            await this.db.goalMonthStates.put(toPlain(updated))
-            return updated
-          }
+            if (existing) {
+              const updated = updatePlanningRecord(existing, normalized)
+              await db.goalMonthStates.put(toPlain(updated))
+              return updated
+            }
 
-          const created = createPlanningRecord<GoalMonthState>(normalized)
-          await this.db.goalMonthStates.add(toPlain(created))
-          return created
+            const created = createPlanningRecord<GoalMonthState>(normalized)
+            await db.goalMonthStates.add(toPlain(created))
+            return created
+          })
+          invalidatePlanningQueryCache()
+          return record
+        } catch (error) {
+          console.error('Failed to upsert goal month state:', error)
+          throw new Error('Failed to persist goal month state in database', { cause: error })
         }
-      )
-      invalidatePlanningQueryCache()
-      return record
-    } catch (error) {
-      console.error('Failed to upsert goal month state:', error)
-      throw new Error('Failed to persist goal month state in database', { cause: error })
-    }
+      }
+    )
   }
 
   async deleteGoalMonthState(monthRef: MonthRef, goalId: string): Promise<void> {
-    try {
-      const existing = await this.getGoalMonthState(monthRef, goalId)
-      if (!existing) return
+    return userDatabaseOperation(
+      'rw',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          const existing = await this.getGoalMonthState(monthRef, goalId)
+          if (!existing) return
 
-      await this.db.goalMonthStates.delete(existing.id)
-      invalidatePlanningQueryCache()
-    } catch (error) {
-      console.error(`Failed to delete goal month state for ${goalId} in ${monthRef}:`, error)
-      throw new Error(`Failed to delete goal month state for ${goalId} in ${monthRef}`, { cause: error })
-    }
+          await db.goalMonthStates.delete(existing.id)
+          invalidatePlanningQueryCache()
+        } catch (error) {
+          console.error(`Failed to delete goal month state for ${goalId} in ${monthRef}:`, error)
+          throw new Error(`Failed to delete goal month state for ${goalId} in ${monthRef}`, {
+            cause: error,
+          })
+        }
+      }
+    )
   }
 
   async getMeasurementMonthState(
@@ -134,93 +235,208 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     subjectType: MeasurementSubjectType,
     subjectId: string
   ): Promise<MeasurementMonthState | undefined> {
-    try {
-      return await this.db.measurementMonthStates
-        .where('[monthRef+subjectType+subjectId]')
-        .equals([monthRef, subjectType, subjectId])
-        .first()
-    } catch (error) {
-      console.error(
-        `Failed to get measurement month state for ${subjectType}:${subjectId} in ${monthRef}:`,
-        error
-      )
-      throw new Error(`Failed to retrieve measurement month state for ${subjectType}:${subjectId}`, { cause: error })
-    }
+    return userDatabaseOperation(
+      'r',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          return await db.measurementMonthStates
+            .where('[monthRef+subjectType+subjectId]')
+            .equals([monthRef, subjectType, subjectId])
+            .first()
+        } catch (error) {
+          console.error(
+            `Failed to get measurement month state for ${subjectType}:${subjectId} in ${monthRef}:`,
+            error
+          )
+          throw new Error(
+            `Failed to retrieve measurement month state for ${subjectType}:${subjectId}`,
+            { cause: error }
+          )
+        }
+      }
+    )
   }
 
   async listMeasurementMonthStates(): Promise<MeasurementMonthState[]> {
-    try {
-      return await this.db.measurementMonthStates.toArray()
-    } catch (error) {
-      console.error('Failed to list measurement month states:', error)
-      throw new Error('Failed to retrieve measurement month states from database', { cause: error })
-    }
+    return userDatabaseOperation(
+      'r',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          return await db.measurementMonthStates.toArray()
+        } catch (error) {
+          console.error('Failed to list measurement month states:', error)
+          throw new Error('Failed to retrieve measurement month states from database', {
+            cause: error,
+          })
+        }
+      }
+    )
   }
 
-  async listMeasurementMonthStatesForMonths(monthRefs: MonthRef[]): Promise<MeasurementMonthState[]> {
-    if (monthRefs.length === 0) {
-      return []
-    }
+  async listMeasurementMonthStatesForMonths(
+    monthRefs: MonthRef[]
+  ): Promise<MeasurementMonthState[]> {
+    return userDatabaseOperation(
+      'r',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        if (monthRefs.length === 0) {
+          return []
+        }
 
-    try {
-      return await this.db.measurementMonthStates.where('monthRef').anyOf(monthRefs).toArray()
-    } catch (error) {
-      console.error('Failed to list measurement month states for months:', error)
-      throw new Error('Failed to retrieve measurement month states from database', { cause: error })
-    }
+        try {
+          return await db.measurementMonthStates.where('monthRef').anyOf(monthRefs).toArray()
+        } catch (error) {
+          console.error('Failed to list measurement month states for months:', error)
+          throw new Error('Failed to retrieve measurement month states from database', {
+            cause: error,
+          })
+        }
+      }
+    )
   }
 
   async listMeasurementMonthStatesForSubject(
     subjectType: MeasurementSubjectType,
     subjectId: string
   ): Promise<MeasurementMonthState[]> {
-    try {
-      return await this.db.measurementMonthStates
-        .where('[subjectType+subjectId]')
-        .equals([subjectType, subjectId])
-        .toArray()
-    } catch (error) {
-      console.error(`Failed to list measurement month states for ${subjectType}:${subjectId}:`, error)
-      throw new Error(`Failed to retrieve measurement month states for ${subjectType}:${subjectId}`, { cause: error })
-    }
+    return userDatabaseOperation(
+      'r',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          return await db.measurementMonthStates
+            .where('[subjectType+subjectId]')
+            .equals([subjectType, subjectId])
+            .toArray()
+        } catch (error) {
+          console.error(
+            `Failed to list measurement month states for ${subjectType}:${subjectId}:`,
+            error
+          )
+          throw new Error(
+            `Failed to retrieve measurement month states for ${subjectType}:${subjectId}`,
+            { cause: error }
+          )
+        }
+      }
+    )
   }
 
   async upsertMeasurementMonthState(
     data: CreateMeasurementMonthStatePayload | UpdateMeasurementMonthStatePayload
   ): Promise<MeasurementMonthState> {
-    try {
-      const record = await this.db.transaction(
-        'rw',
-        [
-          this.db.measurementMonthStates,
-          this.db.keyResults,
-          this.db.habits,
-          this.db.trackers,
-          this.db.weeklyIntentions,
-          this.db.goalMonthStates,
-        ],
-        async () => {
-          const existing = await this.findExistingMeasurementMonthState(data)
-          const normalized = normalizeMeasurementMonthStatePayload(data, existing)
-          await this.assertMeasurementMonthStateAllowed(normalized)
+    return userDatabaseOperation(
+      'rw',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          const record = await db.transaction(
+            'rw',
+            [
+              db.measurementMonthStates,
+              db.keyResults,
+              db.habits,
+              db.trackers,
+              db.weeklyIntentions,
+              db.goalMonthStates,
+            ],
+            async () => {
+              const existing = await this.findExistingMeasurementMonthState(data)
+              const normalized = normalizeMeasurementMonthStatePayload(data, existing)
+              await this.assertMeasurementMonthStateAllowed(normalized)
 
-          if (existing) {
-            const updated = updatePlanningRecord(existing, normalized)
-            await this.db.measurementMonthStates.put(toPlain(updated))
-            return updated
-          }
+              if (existing) {
+                const updated = updatePlanningRecord(existing, normalized)
+                await db.measurementMonthStates.put(toPlain(updated))
+                return updated
+              }
 
-          const created = createPlanningRecord<MeasurementMonthState>(normalized)
-          await this.db.measurementMonthStates.add(toPlain(created))
-          return created
+              const created = createPlanningRecord<MeasurementMonthState>(normalized)
+              await db.measurementMonthStates.add(toPlain(created))
+              return created
+            }
+          )
+          invalidatePlanningQueryCache()
+          return record
+        } catch (error) {
+          console.error('Failed to upsert measurement month state:', error)
+          throw new Error('Failed to persist measurement month state in database', { cause: error })
         }
-      )
-      invalidatePlanningQueryCache()
-      return record
-    } catch (error) {
-      console.error('Failed to upsert measurement month state:', error)
-      throw new Error('Failed to persist measurement month state in database', { cause: error })
-    }
+      }
+    )
   }
 
   async deleteMeasurementMonthState(
@@ -228,19 +444,42 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     subjectType: MeasurementSubjectType,
     subjectId: string
   ): Promise<void> {
-    try {
-      const existing = await this.getMeasurementMonthState(monthRef, subjectType, subjectId)
-      if (!existing) return
+    return userDatabaseOperation(
+      'rw',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          const existing = await this.getMeasurementMonthState(monthRef, subjectType, subjectId)
+          if (!existing) return
 
-      await this.db.measurementMonthStates.delete(existing.id)
-      invalidatePlanningQueryCache()
-    } catch (error) {
-      console.error(
-        `Failed to delete measurement month state for ${subjectType}:${subjectId} in ${monthRef}:`,
-        error
-      )
-      throw new Error(`Failed to delete measurement month state for ${subjectType}:${subjectId}`, { cause: error })
-    }
+          await db.measurementMonthStates.delete(existing.id)
+          invalidatePlanningQueryCache()
+        } catch (error) {
+          console.error(
+            `Failed to delete measurement month state for ${subjectType}:${subjectId} in ${monthRef}:`,
+            error
+          )
+          throw new Error(
+            `Failed to delete measurement month state for ${subjectType}:${subjectId}`,
+            { cause: error }
+          )
+        }
+      }
+    )
   }
 
   async getMeasurementWeekState(
@@ -249,103 +488,216 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     subjectId: string,
     sourceMonthRef?: MonthRef
   ): Promise<MeasurementWeekState | undefined> {
-    try {
-      if (sourceMonthRef) {
-        return await this.db.measurementWeekStates
-          .where('[weekRef+sourceMonthRef+subjectType+subjectId]')
-          .equals([weekRef, sourceMonthRef, subjectType, subjectId])
-          .first()
+    return userDatabaseOperation(
+      'r',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          if (sourceMonthRef) {
+            return await db.measurementWeekStates
+              .where('[weekRef+sourceMonthRef+subjectType+subjectId]')
+              .equals([weekRef, sourceMonthRef, subjectType, subjectId])
+              .first()
+          }
+
+          const candidate = await db.measurementWeekStates
+            .where('[weekRef+subjectType+subjectId]')
+            .equals([weekRef, subjectType, subjectId])
+            .first()
+
+          return candidate?.sourceMonthRef ? undefined : candidate
+        } catch (error) {
+          console.error(
+            `Failed to get measurement week state for ${subjectType}:${subjectId} in ${weekRef}:`,
+            error
+          )
+          throw new Error(
+            `Failed to retrieve measurement week state for ${subjectType}:${subjectId}`,
+            { cause: error }
+          )
+        }
       }
-
-      const candidate = await this.db.measurementWeekStates
-        .where('[weekRef+subjectType+subjectId]')
-        .equals([weekRef, subjectType, subjectId])
-        .first()
-
-      return candidate?.sourceMonthRef ? undefined : candidate
-    } catch (error) {
-      console.error(
-        `Failed to get measurement week state for ${subjectType}:${subjectId} in ${weekRef}:`,
-        error
-      )
-      throw new Error(`Failed to retrieve measurement week state for ${subjectType}:${subjectId}`, { cause: error })
-    }
+    )
   }
 
   async listMeasurementWeekStates(): Promise<MeasurementWeekState[]> {
-    try {
-      return await this.db.measurementWeekStates.toArray()
-    } catch (error) {
-      console.error('Failed to list measurement week states:', error)
-      throw new Error('Failed to retrieve measurement week states from database', { cause: error })
-    }
+    return userDatabaseOperation(
+      'r',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          return await db.measurementWeekStates.toArray()
+        } catch (error) {
+          console.error('Failed to list measurement week states:', error)
+          throw new Error('Failed to retrieve measurement week states from database', {
+            cause: error,
+          })
+        }
+      }
+    )
   }
 
   async listMeasurementWeekStatesForWeeks(weekRefs: WeekRef[]): Promise<MeasurementWeekState[]> {
-    if (weekRefs.length === 0) {
-      return []
-    }
+    return userDatabaseOperation(
+      'r',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        if (weekRefs.length === 0) {
+          return []
+        }
 
-    try {
-      return await this.db.measurementWeekStates.where('weekRef').anyOf(weekRefs).toArray()
-    } catch (error) {
-      console.error('Failed to list measurement week states for weeks:', error)
-      throw new Error('Failed to retrieve measurement week states from database', { cause: error })
-    }
+        try {
+          return await db.measurementWeekStates.where('weekRef').anyOf(weekRefs).toArray()
+        } catch (error) {
+          console.error('Failed to list measurement week states for weeks:', error)
+          throw new Error('Failed to retrieve measurement week states from database', {
+            cause: error,
+          })
+        }
+      }
+    )
   }
 
   async listMeasurementWeekStatesForSubject(
     subjectType: MeasurementSubjectType,
     subjectId: string
   ): Promise<MeasurementWeekState[]> {
-    try {
-      return await this.db.measurementWeekStates
-        .where('[subjectType+subjectId]')
-        .equals([subjectType, subjectId])
-        .toArray()
-    } catch (error) {
-      console.error(`Failed to list measurement week states for ${subjectType}:${subjectId}:`, error)
-      throw new Error(`Failed to retrieve measurement week states for ${subjectType}:${subjectId}`, { cause: error })
-    }
+    return userDatabaseOperation(
+      'r',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          return await db.measurementWeekStates
+            .where('[subjectType+subjectId]')
+            .equals([subjectType, subjectId])
+            .toArray()
+        } catch (error) {
+          console.error(
+            `Failed to list measurement week states for ${subjectType}:${subjectId}:`,
+            error
+          )
+          throw new Error(
+            `Failed to retrieve measurement week states for ${subjectType}:${subjectId}`,
+            { cause: error }
+          )
+        }
+      }
+    )
   }
 
   async upsertMeasurementWeekState(
     data: CreateMeasurementWeekStatePayload | UpdateMeasurementWeekStatePayload
   ): Promise<MeasurementWeekState> {
-    try {
-      const record = await this.db.transaction(
-        'rw',
-        [
-          this.db.measurementWeekStates,
-          this.db.keyResults,
-          this.db.habits,
-          this.db.trackers,
-          this.db.weeklyIntentions,
-          this.db.measurementMonthStates,
-          this.db.goalMonthStates,
-        ],
-        async () => {
-          const existing = await this.findExistingMeasurementWeekState(data)
-          const normalized = normalizeMeasurementWeekStatePayload(data, existing)
-          await this.assertMeasurementWeekStateAllowed(normalized)
+    return userDatabaseOperation(
+      'rw',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          const record = await db.transaction(
+            'rw',
+            [
+              db.measurementWeekStates,
+              db.keyResults,
+              db.habits,
+              db.trackers,
+              db.weeklyIntentions,
+              db.measurementMonthStates,
+              db.goalMonthStates,
+            ],
+            async () => {
+              const existing = await this.findExistingMeasurementWeekState(data)
+              const normalized = normalizeMeasurementWeekStatePayload(data, existing)
+              await this.assertMeasurementWeekStateAllowed(normalized)
 
-          if (existing) {
-            const updated = updatePlanningRecord(existing, normalized)
-            await this.db.measurementWeekStates.put(toPlain(updated))
-            return updated
-          }
+              if (existing) {
+                const updated = updatePlanningRecord(existing, normalized)
+                await db.measurementWeekStates.put(toPlain(updated))
+                return updated
+              }
 
-          const created = createPlanningRecord<MeasurementWeekState>(normalized)
-          await this.db.measurementWeekStates.add(toPlain(created))
-          return created
+              const created = createPlanningRecord<MeasurementWeekState>(normalized)
+              await db.measurementWeekStates.add(toPlain(created))
+              return created
+            }
+          )
+          invalidatePlanningQueryCache()
+          return record
+        } catch (error) {
+          console.error('Failed to upsert measurement week state:', error)
+          throw new Error('Failed to persist measurement week state in database', { cause: error })
         }
-      )
-      invalidatePlanningQueryCache()
-      return record
-    } catch (error) {
-      console.error('Failed to upsert measurement week state:', error)
-      throw new Error('Failed to persist measurement week state in database', { cause: error })
-    }
+      }
+    )
   }
 
   async deleteMeasurementWeekState(
@@ -354,24 +706,47 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     subjectId: string,
     sourceMonthRef?: MonthRef
   ): Promise<void> {
-    try {
-      const existing = await this.getMeasurementWeekState(
-        weekRef,
-        subjectType,
-        subjectId,
-        sourceMonthRef
-      )
-      if (!existing) return
+    return userDatabaseOperation(
+      'rw',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          const existing = await this.getMeasurementWeekState(
+            weekRef,
+            subjectType,
+            subjectId,
+            sourceMonthRef
+          )
+          if (!existing) return
 
-      await this.db.measurementWeekStates.delete(existing.id)
-      invalidatePlanningQueryCache()
-    } catch (error) {
-      console.error(
-        `Failed to delete measurement week state for ${subjectType}:${subjectId} in ${weekRef}:`,
-        error
-      )
-      throw new Error(`Failed to delete measurement week state for ${subjectType}:${subjectId}`, { cause: error })
-    }
+          await db.measurementWeekStates.delete(existing.id)
+          invalidatePlanningQueryCache()
+        } catch (error) {
+          console.error(
+            `Failed to delete measurement week state for ${subjectType}:${subjectId} in ${weekRef}:`,
+            error
+          )
+          throw new Error(
+            `Failed to delete measurement week state for ${subjectType}:${subjectId}`,
+            { cause: error }
+          )
+        }
+      }
+    )
   }
 
   async getMeasurementDayAssignment(
@@ -379,84 +754,170 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     subjectType: MeasurementSubjectType,
     subjectId: string
   ): Promise<MeasurementDayAssignment | undefined> {
-    try {
-      return await this.db.measurementDayAssignments
-        .where('[dayRef+subjectType+subjectId]')
-        .equals([dayRef, subjectType, subjectId])
-        .first()
-    } catch (error) {
-      console.error(
-        `Failed to get measurement day assignment for ${subjectType}:${subjectId} on ${dayRef}:`,
-        error
-      )
-      throw new Error(
-        `Failed to retrieve measurement day assignment for ${subjectType}:${subjectId}`,
-        { cause: error }
-      )
-    }
+    return userDatabaseOperation(
+      'r',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          return await db.measurementDayAssignments
+            .where('[dayRef+subjectType+subjectId]')
+            .equals([dayRef, subjectType, subjectId])
+            .first()
+        } catch (error) {
+          console.error(
+            `Failed to get measurement day assignment for ${subjectType}:${subjectId} on ${dayRef}:`,
+            error
+          )
+          throw new Error(
+            `Failed to retrieve measurement day assignment for ${subjectType}:${subjectId}`,
+            { cause: error }
+          )
+        }
+      }
+    )
   }
 
   async listMeasurementDayAssignments(): Promise<MeasurementDayAssignment[]> {
-    try {
-      return await this.db.measurementDayAssignments.toArray()
-    } catch (error) {
-      console.error('Failed to list measurement day assignments:', error)
-      throw new Error('Failed to retrieve measurement day assignments from database', { cause: error })
-    }
+    return userDatabaseOperation(
+      'r',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          return await db.measurementDayAssignments.toArray()
+        } catch (error) {
+          console.error('Failed to list measurement day assignments:', error)
+          throw new Error('Failed to retrieve measurement day assignments from database', {
+            cause: error,
+          })
+        }
+      }
+    )
   }
 
   async listMeasurementDayAssignmentsForDayRange(
     startDayRef: DayRef,
     endDayRef: DayRef
   ): Promise<MeasurementDayAssignment[]> {
-    try {
-      return await this.db.measurementDayAssignments
-        .where('dayRef')
-        .between(startDayRef, endDayRef, true, true)
-        .toArray()
-    } catch (error) {
-      console.error('Failed to list measurement day assignments for day range:', error)
-      throw new Error('Failed to retrieve measurement day assignments from database', { cause: error })
-    }
+    return userDatabaseOperation(
+      'r',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          return await db.measurementDayAssignments
+            .where('dayRef')
+            .between(startDayRef, endDayRef, true, true)
+            .toArray()
+        } catch (error) {
+          console.error('Failed to list measurement day assignments for day range:', error)
+          throw new Error('Failed to retrieve measurement day assignments from database', {
+            cause: error,
+          })
+        }
+      }
+    )
   }
 
   async upsertMeasurementDayAssignment(
     data: CreateMeasurementDayAssignmentPayload | UpdateMeasurementDayAssignmentPayload
   ): Promise<MeasurementDayAssignment> {
-    try {
-      const record = await this.db.transaction(
-        'rw',
-        [
-          this.db.measurementDayAssignments,
-          this.db.keyResults,
-          this.db.habits,
-          this.db.trackers,
-          this.db.weeklyIntentions,
-          this.db.measurementWeekStates,
-          this.db.measurementMonthStates,
-        ],
-        async () => {
-          const existing = await this.findExistingMeasurementDayAssignment(data)
-          const normalized = normalizeMeasurementDayAssignmentPayload(data, existing)
-          await this.assertMeasurementDayAssignmentAllowed(normalized)
+    return userDatabaseOperation(
+      'rw',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          const record = await db.transaction(
+            'rw',
+            [
+              db.measurementDayAssignments,
+              db.keyResults,
+              db.habits,
+              db.trackers,
+              db.weeklyIntentions,
+              db.measurementWeekStates,
+              db.measurementMonthStates,
+            ],
+            async () => {
+              const existing = await this.findExistingMeasurementDayAssignment(data)
+              const normalized = normalizeMeasurementDayAssignmentPayload(data, existing)
+              await this.assertMeasurementDayAssignmentAllowed(normalized)
 
-          if (existing) {
-            const updated = updatePlanningRecord(existing, normalized)
-            await this.db.measurementDayAssignments.put(toPlain(updated))
-            return updated
-          }
+              if (existing) {
+                const updated = updatePlanningRecord(existing, normalized)
+                await db.measurementDayAssignments.put(toPlain(updated))
+                return updated
+              }
 
-          const created = createPlanningRecord<MeasurementDayAssignment>(normalized)
-          await this.db.measurementDayAssignments.add(toPlain(created))
-          return created
+              const created = createPlanningRecord<MeasurementDayAssignment>(normalized)
+              await db.measurementDayAssignments.add(toPlain(created))
+              return created
+            }
+          )
+          invalidatePlanningQueryCache()
+          return record
+        } catch (error) {
+          console.error('Failed to upsert measurement day assignment:', error)
+          throw new Error('Failed to persist measurement day assignment in database', {
+            cause: error,
+          })
         }
-      )
-      invalidatePlanningQueryCache()
-      return record
-    } catch (error) {
-      console.error('Failed to upsert measurement day assignment:', error)
-      throw new Error('Failed to persist measurement day assignment in database', { cause: error })
-    }
+      }
+    )
   }
 
   async deleteMeasurementDayAssignment(
@@ -464,19 +925,42 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     subjectType: MeasurementSubjectType,
     subjectId: string
   ): Promise<void> {
-    try {
-      const existing = await this.getMeasurementDayAssignment(dayRef, subjectType, subjectId)
-      if (!existing) return
+    return userDatabaseOperation(
+      'rw',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          const existing = await this.getMeasurementDayAssignment(dayRef, subjectType, subjectId)
+          if (!existing) return
 
-      await this.db.measurementDayAssignments.delete(existing.id)
-      invalidatePlanningQueryCache()
-    } catch (error) {
-      console.error(
-        `Failed to delete measurement day assignment for ${subjectType}:${subjectId} on ${dayRef}:`,
-        error
-      )
-      throw new Error(`Failed to delete measurement day assignment for ${subjectType}:${subjectId}`, { cause: error })
-    }
+          await db.measurementDayAssignments.delete(existing.id)
+          invalidatePlanningQueryCache()
+        } catch (error) {
+          console.error(
+            `Failed to delete measurement day assignment for ${subjectType}:${subjectId} on ${dayRef}:`,
+            error
+          )
+          throw new Error(
+            `Failed to delete measurement day assignment for ${subjectType}:${subjectId}`,
+            { cause: error }
+          )
+        }
+      }
+    )
   }
 
   async getDailyMeasurementEntry(
@@ -484,73 +968,166 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     subjectId: string,
     dayRef: DayRef
   ): Promise<DailyMeasurementEntry | undefined> {
-    try {
-      return await this.db.dailyMeasurementEntries
-        .where('[subjectType+subjectId+dayRef]')
-        .equals([subjectType, subjectId, dayRef])
-        .first()
-    } catch (error) {
-      console.error(
-        `Failed to get daily measurement entry for ${subjectType}:${subjectId} on ${dayRef}:`,
-        error
-      )
-      throw new Error(`Failed to retrieve daily measurement entry for ${subjectType}:${subjectId}`, { cause: error })
-    }
+    return userDatabaseOperation(
+      'r',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          return await db.dailyMeasurementEntries
+            .where('[subjectType+subjectId+dayRef]')
+            .equals([subjectType, subjectId, dayRef])
+            .first()
+        } catch (error) {
+          console.error(
+            `Failed to get daily measurement entry for ${subjectType}:${subjectId} on ${dayRef}:`,
+            error
+          )
+          throw new Error(
+            `Failed to retrieve daily measurement entry for ${subjectType}:${subjectId}`,
+            { cause: error }
+          )
+        }
+      }
+    )
   }
 
   async listDailyMeasurementEntries(): Promise<DailyMeasurementEntry[]> {
-    try {
-      return await this.db.dailyMeasurementEntries.toArray()
-    } catch (error) {
-      console.error('Failed to list daily measurement entries:', error)
-      throw new Error('Failed to retrieve daily measurement entries from database', { cause: error })
-    }
+    return userDatabaseOperation(
+      'r',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          return await db.dailyMeasurementEntries.toArray()
+        } catch (error) {
+          console.error('Failed to list daily measurement entries:', error)
+          throw new Error('Failed to retrieve daily measurement entries from database', {
+            cause: error,
+          })
+        }
+      }
+    )
   }
 
   async listDailyMeasurementEntriesForDayRange(
     startDayRef: DayRef,
     endDayRef: DayRef
   ): Promise<DailyMeasurementEntry[]> {
-    try {
-      return await this.db.dailyMeasurementEntries
-        .where('dayRef')
-        .between(startDayRef, endDayRef, true, true)
-        .toArray()
-    } catch (error) {
-      console.error('Failed to list daily measurement entries for day range:', error)
-      throw new Error('Failed to retrieve daily measurement entries from database', { cause: error })
-    }
+    return userDatabaseOperation(
+      'r',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          return await db.dailyMeasurementEntries
+            .where('dayRef')
+            .between(startDayRef, endDayRef, true, true)
+            .toArray()
+        } catch (error) {
+          console.error('Failed to list daily measurement entries for day range:', error)
+          throw new Error('Failed to retrieve daily measurement entries from database', {
+            cause: error,
+          })
+        }
+      }
+    )
   }
 
   async upsertDailyMeasurementEntry(
     data: CreateDailyMeasurementEntryPayload | UpdateDailyMeasurementEntryPayload
   ): Promise<DailyMeasurementEntry> {
-    try {
-      const record = await this.db.transaction(
-        'rw',
-        [this.db.dailyMeasurementEntries, this.db.keyResults, this.db.habits, this.db.trackers, this.db.weeklyIntentions],
-        async () => {
-          const existing = await this.findExistingDailyMeasurementEntry(data)
-          const normalized = normalizeDailyMeasurementEntryPayload(data, existing)
-          await this.assertDailyMeasurementEntryAllowed(normalized)
+    return userDatabaseOperation(
+      'rw',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          const record = await db.transaction(
+            'rw',
+            [
+              db.dailyMeasurementEntries,
+              db.keyResults,
+              db.habits,
+              db.trackers,
+              db.weeklyIntentions,
+            ],
+            async () => {
+              const existing = await this.findExistingDailyMeasurementEntry(data)
+              const normalized = normalizeDailyMeasurementEntryPayload(data, existing)
+              await this.assertDailyMeasurementEntryAllowed(normalized)
 
-          if (existing) {
-            const updated = updatePlanningRecord(existing, normalized)
-            await this.db.dailyMeasurementEntries.put(toPlain(updated))
-            return updated
-          }
+              if (existing) {
+                const updated = updatePlanningRecord(existing, normalized)
+                await db.dailyMeasurementEntries.put(toPlain(updated))
+                return updated
+              }
 
-          const created = createPlanningRecord<DailyMeasurementEntry>(normalized)
-          await this.db.dailyMeasurementEntries.add(toPlain(created))
-          return created
+              const created = createPlanningRecord<DailyMeasurementEntry>(normalized)
+              await db.dailyMeasurementEntries.add(toPlain(created))
+              return created
+            }
+          )
+          invalidatePlanningQueryCache()
+          return record
+        } catch (error) {
+          console.error('Failed to upsert daily measurement entry:', error)
+          throw new Error('Failed to persist daily measurement entry in database', { cause: error })
         }
-      )
-      invalidatePlanningQueryCache()
-      return record
-    } catch (error) {
-      console.error('Failed to upsert daily measurement entry:', error)
-      throw new Error('Failed to persist daily measurement entry in database', { cause: error })
-    }
+      }
+    )
   }
 
   async deleteDailyMeasurementEntry(
@@ -558,19 +1135,42 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     subjectId: string,
     dayRef: DayRef
   ): Promise<void> {
-    try {
-      const existing = await this.getDailyMeasurementEntry(subjectType, subjectId, dayRef)
-      if (!existing) return
+    return userDatabaseOperation(
+      'rw',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          const existing = await this.getDailyMeasurementEntry(subjectType, subjectId, dayRef)
+          if (!existing) return
 
-      await this.db.dailyMeasurementEntries.delete(existing.id)
-      invalidatePlanningQueryCache()
-    } catch (error) {
-      console.error(
-        `Failed to delete daily measurement entry for ${subjectType}:${subjectId} on ${dayRef}:`,
-        error
-      )
-      throw new Error(`Failed to delete daily measurement entry for ${subjectType}:${subjectId}`, { cause: error })
-    }
+          await db.dailyMeasurementEntries.delete(existing.id)
+          invalidatePlanningQueryCache()
+        } catch (error) {
+          console.error(
+            `Failed to delete daily measurement entry for ${subjectType}:${subjectId} on ${dayRef}:`,
+            error
+          )
+          throw new Error(
+            `Failed to delete daily measurement entry for ${subjectType}:${subjectId}`,
+            { cause: error }
+          )
+        }
+      }
+    )
   }
 
   async getTodayHiddenState(
@@ -578,74 +1178,156 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     subjectType: TodayHiddenSubjectType,
     subjectId: string
   ): Promise<TodayHiddenState | undefined> {
-    try {
-      return await this.db.todayHiddenStates
-        .where('[dayRef+subjectType+subjectId]')
-        .equals([dayRef, subjectType, subjectId])
-        .first()
-    } catch (error) {
-      console.error(
-        `Failed to get Today hidden state for ${subjectType}:${subjectId} on ${dayRef}:`,
-        error
-      )
-      throw new Error(`Failed to retrieve Today hidden state for ${subjectType}:${subjectId}`, { cause: error })
-    }
+    return userDatabaseOperation(
+      'r',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          return await db.todayHiddenStates
+            .where('[dayRef+subjectType+subjectId]')
+            .equals([dayRef, subjectType, subjectId])
+            .first()
+        } catch (error) {
+          console.error(
+            `Failed to get Today hidden state for ${subjectType}:${subjectId} on ${dayRef}:`,
+            error
+          )
+          throw new Error(`Failed to retrieve Today hidden state for ${subjectType}:${subjectId}`, {
+            cause: error,
+          })
+        }
+      }
+    )
   }
 
   async listTodayHiddenStates(): Promise<TodayHiddenState[]> {
-    try {
-      return await this.db.todayHiddenStates.toArray()
-    } catch (error) {
-      console.error('Failed to list Today hidden states:', error)
-      throw new Error('Failed to retrieve Today hidden states from database', { cause: error })
-    }
+    return userDatabaseOperation(
+      'r',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          return await db.todayHiddenStates.toArray()
+        } catch (error) {
+          console.error('Failed to list Today hidden states:', error)
+          throw new Error('Failed to retrieve Today hidden states from database', { cause: error })
+        }
+      }
+    )
   }
 
   async listTodayHiddenStatesForDay(dayRef: DayRef): Promise<TodayHiddenState[]> {
-    try {
-      return await this.db.todayHiddenStates.where('dayRef').equals(dayRef).toArray()
-    } catch (error) {
-      console.error(`Failed to list Today hidden states for ${dayRef}:`, error)
-      throw new Error('Failed to retrieve Today hidden states from database', { cause: error })
-    }
+    return userDatabaseOperation(
+      'r',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          return await db.todayHiddenStates.where('dayRef').equals(dayRef).toArray()
+        } catch (error) {
+          console.error(`Failed to list Today hidden states for ${dayRef}:`, error)
+          throw new Error('Failed to retrieve Today hidden states from database', { cause: error })
+        }
+      }
+    )
   }
 
   async upsertTodayHiddenState(
     data: CreateTodayHiddenStatePayload | UpdateTodayHiddenStatePayload
   ): Promise<TodayHiddenState> {
-    try {
-      const record = await this.db.transaction(
-        'rw',
-        [
-          this.db.todayHiddenStates,
-          this.db.initiatives,
-          this.db.keyResults,
-          this.db.habits,
-          this.db.trackers,
-          this.db.weeklyIntentions,
-        ],
-        async () => {
-          const existing = await this.findExistingTodayHiddenState(data)
-          const normalized = normalizeTodayHiddenStatePayload(data, existing)
-          await this.assertTodayHiddenStateAllowed(normalized)
+    return userDatabaseOperation(
+      'rw',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          const record = await db.transaction(
+            'rw',
+            [
+              db.todayHiddenStates,
+              db.initiatives,
+              db.keyResults,
+              db.habits,
+              db.trackers,
+              db.weeklyIntentions,
+            ],
+            async () => {
+              const existing = await this.findExistingTodayHiddenState(data)
+              const normalized = normalizeTodayHiddenStatePayload(data, existing)
+              await this.assertTodayHiddenStateAllowed(normalized)
 
-          if (existing) {
-            const updated = updatePlanningRecord(existing, normalized)
-            await this.db.todayHiddenStates.put(toPlain(updated))
-            return updated
-          }
+              if (existing) {
+                const updated = updatePlanningRecord(existing, normalized)
+                await db.todayHiddenStates.put(toPlain(updated))
+                return updated
+              }
 
-          const created = createPlanningRecord<TodayHiddenState>(normalized)
-          await this.db.todayHiddenStates.add(toPlain(created))
-          return created
+              const created = createPlanningRecord<TodayHiddenState>(normalized)
+              await db.todayHiddenStates.add(toPlain(created))
+              return created
+            }
+          )
+          invalidatePlanningQueryCache()
+          return record
+        } catch (error) {
+          console.error('Failed to upsert Today hidden state:', error)
+          throw new Error('Failed to persist Today hidden state in database', { cause: error })
         }
-      )
-      invalidatePlanningQueryCache()
-      return record
-    } catch (error) {
-      console.error('Failed to upsert Today hidden state:', error)
-      throw new Error('Failed to persist Today hidden state in database', { cause: error })
-    }
+      }
+    )
   }
 
   async deleteTodayHiddenState(
@@ -653,81 +1335,189 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     subjectType: TodayHiddenSubjectType,
     subjectId: string
   ): Promise<void> {
-    try {
-      const existing = await this.getTodayHiddenState(dayRef, subjectType, subjectId)
-      if (!existing) return
+    return userDatabaseOperation(
+      'rw',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          const existing = await this.getTodayHiddenState(dayRef, subjectType, subjectId)
+          if (!existing) return
 
-      await this.db.todayHiddenStates.delete(existing.id)
-      invalidatePlanningQueryCache()
-    } catch (error) {
-      console.error(
-        `Failed to delete Today hidden state for ${subjectType}:${subjectId} on ${dayRef}:`,
-        error
-      )
-      throw new Error(`Failed to delete Today hidden state for ${subjectType}:${subjectId}`, { cause: error })
-    }
+          await db.todayHiddenStates.delete(existing.id)
+          invalidatePlanningQueryCache()
+        } catch (error) {
+          console.error(
+            `Failed to delete Today hidden state for ${subjectType}:${subjectId} on ${dayRef}:`,
+            error
+          )
+          throw new Error(`Failed to delete Today hidden state for ${subjectType}:${subjectId}`, {
+            cause: error,
+          })
+        }
+      }
+    )
   }
 
   async getInitiativePlanState(initiativeId: string): Promise<InitiativePlanState | undefined> {
-    try {
-      return await this.db.initiativePlanStates.where('initiativeId').equals(initiativeId).first()
-    } catch (error) {
-      console.error(`Failed to get initiative plan state for ${initiativeId}:`, error)
-      throw new Error(`Failed to retrieve initiative plan state for ${initiativeId}`, { cause: error })
-    }
+    return userDatabaseOperation(
+      'r',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          return await db.initiativePlanStates.where('initiativeId').equals(initiativeId).first()
+        } catch (error) {
+          console.error(`Failed to get initiative plan state for ${initiativeId}:`, error)
+          throw new Error(`Failed to retrieve initiative plan state for ${initiativeId}`, {
+            cause: error,
+          })
+        }
+      }
+    )
   }
 
   async listInitiativePlanStates(): Promise<InitiativePlanState[]> {
-    try {
-      return await this.db.initiativePlanStates.toArray()
-    } catch (error) {
-      console.error('Failed to list initiative plan states:', error)
-      throw new Error('Failed to retrieve initiative plan states from database', { cause: error })
-    }
+    return userDatabaseOperation(
+      'r',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          return await db.initiativePlanStates.toArray()
+        } catch (error) {
+          console.error('Failed to list initiative plan states:', error)
+          throw new Error('Failed to retrieve initiative plan states from database', {
+            cause: error,
+          })
+        }
+      }
+    )
   }
 
   async upsertInitiativePlanState(
     data: CreateInitiativePlanStatePayload | UpdateInitiativePlanStatePayload
   ): Promise<InitiativePlanState> {
-    try {
-      const record = await this.db.transaction(
-        'rw',
-        [this.db.initiativePlanStates, this.db.initiatives],
-        async () => {
-          const existing = await this.findExistingInitiativePlanState(data)
-          const normalized = normalizeInitiativePlanStatePayload(data, existing)
-          await this.assertInitiativeExists(normalized.initiativeId)
+    return userDatabaseOperation(
+      'rw',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          const record = await db.transaction(
+            'rw',
+            [db.initiativePlanStates, db.initiatives],
+            async () => {
+              const existing = await this.findExistingInitiativePlanState(data)
+              const normalized = normalizeInitiativePlanStatePayload(data, existing)
+              await this.assertInitiativeExists(normalized.initiativeId)
 
-          if (existing) {
-            const updated = updatePlanningRecord(existing, normalized)
-            await this.db.initiativePlanStates.put(toPlain(updated))
-            return updated
-          }
+              if (existing) {
+                const updated = updatePlanningRecord(existing, normalized)
+                await db.initiativePlanStates.put(toPlain(updated))
+                return updated
+              }
 
-          const created = createPlanningRecord<InitiativePlanState>(normalized)
-          await this.db.initiativePlanStates.add(toPlain(created))
-          return created
+              const created = createPlanningRecord<InitiativePlanState>(normalized)
+              await db.initiativePlanStates.add(toPlain(created))
+              return created
+            }
+          )
+          invalidatePlanningQueryCache()
+          return record
+        } catch (error) {
+          console.error('Failed to upsert initiative plan state:', error)
+          throw new Error('Failed to persist initiative plan state in database', { cause: error })
         }
-      )
-      invalidatePlanningQueryCache()
-      return record
-    } catch (error) {
-      console.error('Failed to upsert initiative plan state:', error)
-      throw new Error('Failed to persist initiative plan state in database', { cause: error })
-    }
+      }
+    )
   }
 
   async deleteInitiativePlanState(initiativeId: string): Promise<void> {
-    try {
-      const existing = await this.getInitiativePlanState(initiativeId)
-      if (!existing) return
+    return userDatabaseOperation(
+      'rw',
+      [
+        'goalMonthStates',
+        'goals',
+        'measurementMonthStates',
+        'keyResults',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'measurementWeekStates',
+        'measurementDayAssignments',
+        'dailyMeasurementEntries',
+        'todayHiddenStates',
+        'initiatives',
+        'initiativePlanStates',
+      ],
+      async db => {
+        try {
+          const existing = await this.getInitiativePlanState(initiativeId)
+          if (!existing) return
 
-      await this.db.initiativePlanStates.delete(existing.id)
-      invalidatePlanningQueryCache()
-    } catch (error) {
-      console.error(`Failed to delete initiative plan state for ${initiativeId}:`, error)
-      throw new Error(`Failed to delete initiative plan state for ${initiativeId}`, { cause: error })
-    }
+          await db.initiativePlanStates.delete(existing.id)
+          invalidatePlanningQueryCache()
+        } catch (error) {
+          console.error(`Failed to delete initiative plan state for ${initiativeId}:`, error)
+          throw new Error(`Failed to delete initiative plan state for ${initiativeId}`, {
+            cause: error,
+          })
+        }
+      }
+    )
   }
 
   private async findExistingGoalMonthState(
@@ -855,7 +1645,10 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
   private async assertMeasurementMonthStateAllowed(
     normalized: Omit<MeasurementMonthState, 'id' | 'createdAt' | 'updatedAt'>
   ): Promise<void> {
-    const subject = await this.resolveMeasurementSubject(normalized.subjectType, normalized.subjectId)
+    const subject = await this.resolveMeasurementSubject(
+      normalized.subjectType,
+      normalized.subjectId
+    )
     if (normalized.subjectType === 'tracker') {
       if (normalized.successNote) {
         throw new Error('Tracker month state does not support successNote')
@@ -936,7 +1729,9 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
           (subject as KeyResult).goalId
         )
         if (goalMonthState?.activityState !== 'active') {
-          throw new Error('Goal must be active in the source month to assign a KeyResult week to it')
+          throw new Error(
+            'Goal must be active in the source month to assign a KeyResult week to it'
+          )
         }
       }
       return
@@ -1041,7 +1836,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         }
         // Archived items stay resolvable on purpose — retro edits of old days
         // may keep ids that have since been archived.
-        const knownItemIds = new Set((subject.multiItems ?? []).map((item) => item.id))
+        const knownItemIds = new Set((subject.multiItems ?? []).map(item => item.id))
         for (const itemId of normalized.checkedItemIds) {
           if (!knownItemIds.has(itemId)) {
             throw new Error(`Unknown multi-completion item id: ${itemId}`)

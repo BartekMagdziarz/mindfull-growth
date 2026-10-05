@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 /**
  * Transformative Purpose Store
  *
@@ -15,6 +16,7 @@ import { transformativePurposeDexieRepository } from '@/repositories/exercisesDe
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useTransformativePurposeStore = defineStore('transformativePurpose', () => {
+  const sessionScope = createStoreSessionScope()
   const purposes = ref<TransformativePurpose[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
@@ -29,38 +31,48 @@ export const useTransformativePurposeStore = defineStore('transformativePurpose'
 
   const getPurposeById = computed(() => {
     return (id: string): TransformativePurpose | undefined => {
-      return purposes.value.find((p) => p.id === id)
+      return purposes.value.find(p => p.id === id)
     }
   })
 
   async function loadPurposes(): Promise<void> {
-    isLoading.value = true
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      purposes.value = await transformativePurposeDexieRepository.getAll()
-    } catch (err) {
-      error.value =
-        err instanceof Error ? err.message : 'Failed to load transformative purposes'
-      console.error('Error loading transformative purposes:', err)
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+      try {
+        purposes.value = await operation.wait(transformativePurposeDexieRepository.getAll())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to load transformative purposes'
+        console.error('Error loading transformative purposes:', err)
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function createPurpose(
-    data: CreateTransformativePurposePayload,
+    data: CreateTransformativePurposePayload
   ): Promise<TransformativePurpose> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const purpose = await transformativePurposeDexieRepository.create(data)
+      const purpose = await operation.wait(transformativePurposeDexieRepository.create(data))
       void useExerciseCompletionsStore()
         .record('purpose', purpose.id)
-        .catch((err) => console.error('Failed to record exercise completion:', err))
+        .catch(err => console.error('Failed to record exercise completion:', err))
       purposes.value.push(purpose)
       return purpose
     } catch (err) {
-      error.value =
-        err instanceof Error ? err.message : 'Failed to create transformative purpose'
+      operation.assertCurrent()
+      error.value = err instanceof Error ? err.message : 'Failed to create transformative purpose'
       console.error('Error creating transformative purpose:', err)
       throw err
     }
@@ -68,34 +80,42 @@ export const useTransformativePurposeStore = defineStore('transformativePurpose'
 
   async function updatePurpose(
     id: string,
-    data: UpdateTransformativePurposePayload,
+    data: UpdateTransformativePurposePayload
   ): Promise<TransformativePurpose> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const updated = await transformativePurposeDexieRepository.update(id, data)
-      const index = purposes.value.findIndex((p) => p.id === id)
+      const updated = await operation.wait(transformativePurposeDexieRepository.update(id, data))
+      const index = purposes.value.findIndex(p => p.id === id)
       if (index !== -1) {
         purposes.value[index] = updated
       }
       return updated
     } catch (err) {
-      error.value =
-        err instanceof Error ? err.message : 'Failed to update transformative purpose'
+      operation.assertCurrent()
+      error.value = err instanceof Error ? err.message : 'Failed to update transformative purpose'
       console.error('Error updating transformative purpose:', err)
       throw err
     }
   }
 
   async function deletePurpose(id: string): Promise<void> {
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await transformativePurposeDexieRepository.delete(id)
-      purposes.value = purposes.value.filter((p) => p.id !== id)
-    } catch (err) {
-      error.value =
-        err instanceof Error ? err.message : 'Failed to delete transformative purpose'
-      console.error('Error deleting transformative purpose:', err)
-      throw err
+      error.value = null
+      try {
+        await operation.wait(transformativePurposeDexieRepository.delete(id))
+        purposes.value = purposes.value.filter(p => p.id !== id)
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to delete transformative purpose'
+        console.error('Error deleting transformative purpose:', err)
+        throw err
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -105,6 +125,7 @@ export const useTransformativePurposeStore = defineStore('transformativePurpose'
    * data before the next `load*()` re-fetches from the new database.
    */
   function reset(): void {
+    sessionScope.reset()
     purposes.value = []
     isLoading.value = false
     error.value = null

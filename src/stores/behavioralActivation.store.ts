@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 /**
  * Behavioral Activation Store
  *
@@ -16,6 +17,7 @@ import { behavioralActivationDexieRepository } from '@/repositories/exercisesDex
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useBehavioralActivationStore = defineStore('behavioralActivation', () => {
+  const sessionScope = createStoreSessionScope()
   const activations = ref<BehavioralActivation[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
@@ -30,33 +32,47 @@ export const useBehavioralActivationStore = defineStore('behavioralActivation', 
 
   const getActivationById = computed(() => {
     return (id: string): BehavioralActivation | undefined => {
-      return activations.value.find((a) => a.id === id)
+      return activations.value.find(a => a.id === id)
     }
   })
 
   async function loadActivations(): Promise<void> {
-    isLoading.value = true
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      activations.value = await behavioralActivationDexieRepository.getAll()
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load behavioral activations'
-      console.error('Error loading behavioral activations:', err)
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+      try {
+        activations.value = await operation.wait(behavioralActivationDexieRepository.getAll())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to load behavioral activations'
+        console.error('Error loading behavioral activations:', err)
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
-  async function createActivation(data: CreateBehavioralActivationPayload): Promise<BehavioralActivation> {
+  async function createActivation(
+    data: CreateBehavioralActivationPayload
+  ): Promise<BehavioralActivation> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const activation = await behavioralActivationDexieRepository.create(data)
+      const activation = await operation.wait(behavioralActivationDexieRepository.create(data))
       void useExerciseCompletionsStore()
         .record('behavioral-activation', activation.id)
-        .catch((err) => console.error('Failed to record exercise completion:', err))
+        .catch(err => console.error('Failed to record exercise completion:', err))
       activations.value.push(activation)
       return activation
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to create behavioral activation'
       console.error('Error creating behavioral activation:', err)
       throw err
@@ -65,17 +81,20 @@ export const useBehavioralActivationStore = defineStore('behavioralActivation', 
 
   async function updateActivation(
     id: string,
-    data: UpdateBehavioralActivationPayload,
+    data: UpdateBehavioralActivationPayload
   ): Promise<BehavioralActivation> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const updated = await behavioralActivationDexieRepository.update(id, data)
-      const index = activations.value.findIndex((a) => a.id === id)
+      const updated = await operation.wait(behavioralActivationDexieRepository.update(id, data))
+      const index = activations.value.findIndex(a => a.id === id)
       if (index !== -1) {
         activations.value[index] = updated
       }
       return updated
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to update behavioral activation'
       console.error('Error updating behavioral activation:', err)
       throw err
@@ -83,14 +102,21 @@ export const useBehavioralActivationStore = defineStore('behavioralActivation', 
   }
 
   async function deleteActivation(id: string): Promise<void> {
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await behavioralActivationDexieRepository.delete(id)
-      activations.value = activations.value.filter((a) => a.id !== id)
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete behavioral activation'
-      console.error('Error deleting behavioral activation:', err)
-      throw err
+      error.value = null
+      try {
+        await operation.wait(behavioralActivationDexieRepository.delete(id))
+        activations.value = activations.value.filter(a => a.id !== id)
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to delete behavioral activation'
+        console.error('Error deleting behavioral activation:', err)
+        throw err
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -100,6 +126,7 @@ export const useBehavioralActivationStore = defineStore('behavioralActivation', 
    * data before the next `load*()` re-fetches from the new database.
    */
   function reset(): void {
+    sessionScope.reset()
     activations.value = []
     isLoading.value = false
     error.value = null

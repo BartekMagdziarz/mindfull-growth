@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type {
@@ -9,6 +10,7 @@ import { ifsConstellationDexieRepository } from '@/repositories/exercisesDexieRe
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useIFSConstellationStore = defineStore('ifsConstellation', () => {
+  const sessionScope = createStoreSessionScope()
   const constellations = ref<IFSConstellation[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
@@ -23,33 +25,47 @@ export const useIFSConstellationStore = defineStore('ifsConstellation', () => {
 
   const getConstellationById = computed(() => {
     return (id: string): IFSConstellation | undefined => {
-      return constellations.value.find((c) => c.id === id)
+      return constellations.value.find(c => c.id === id)
     }
   })
 
   async function loadConstellations(): Promise<void> {
-    isLoading.value = true
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      constellations.value = await ifsConstellationDexieRepository.getAll()
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load constellations'
-      console.error('Error loading constellations:', err)
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+      try {
+        constellations.value = await operation.wait(ifsConstellationDexieRepository.getAll())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to load constellations'
+        console.error('Error loading constellations:', err)
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
-  async function createConstellation(data: CreateIFSConstellationPayload): Promise<IFSConstellation> {
+  async function createConstellation(
+    data: CreateIFSConstellationPayload
+  ): Promise<IFSConstellation> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const constellation = await ifsConstellationDexieRepository.create(data)
+      const constellation = await operation.wait(ifsConstellationDexieRepository.create(data))
       void useExerciseCompletionsStore()
         .record('constellation', constellation.id)
-        .catch((err) => console.error('Failed to record exercise completion:', err))
+        .catch(err => console.error('Failed to record exercise completion:', err))
       constellations.value.push(constellation)
       return constellation
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to create constellation'
       console.error('Error creating constellation:', err)
       throw err
@@ -58,17 +74,20 @@ export const useIFSConstellationStore = defineStore('ifsConstellation', () => {
 
   async function updateConstellation(
     id: string,
-    data: UpdateIFSConstellationPayload,
+    data: UpdateIFSConstellationPayload
   ): Promise<IFSConstellation> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const updated = await ifsConstellationDexieRepository.update(id, data)
-      const index = constellations.value.findIndex((c) => c.id === id)
+      const updated = await operation.wait(ifsConstellationDexieRepository.update(id, data))
+      const index = constellations.value.findIndex(c => c.id === id)
       if (index !== -1) {
         constellations.value[index] = updated
       }
       return updated
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to update constellation'
       console.error('Error updating constellation:', err)
       throw err
@@ -76,14 +95,21 @@ export const useIFSConstellationStore = defineStore('ifsConstellation', () => {
   }
 
   async function deleteConstellation(id: string): Promise<void> {
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await ifsConstellationDexieRepository.delete(id)
-      constellations.value = constellations.value.filter((c) => c.id !== id)
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete constellation'
-      console.error('Error deleting constellation:', err)
-      throw err
+      error.value = null
+      try {
+        await operation.wait(ifsConstellationDexieRepository.delete(id))
+        constellations.value = constellations.value.filter(c => c.id !== id)
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to delete constellation'
+        console.error('Error deleting constellation:', err)
+        throw err
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -93,6 +119,7 @@ export const useIFSConstellationStore = defineStore('ifsConstellation', () => {
    * data before the next `load*()` re-fetches from the new database.
    */
   function reset(): void {
+    sessionScope.reset()
     constellations.value = []
     isLoading.value = false
     error.value = null

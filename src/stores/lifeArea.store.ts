@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 /**
  * Life Area Store
  *
@@ -15,6 +16,7 @@ import { lifeAreaAssessmentDexieRepository } from '@/repositories/lifeAreaAssess
 import { getDefaultIconIdByLifeAreaName } from '@/constants/entityIconCatalog'
 
 export const useLifeAreaStore = defineStore('lifeArea', () => {
+  const sessionScope = createStoreSessionScope()
   // ============================================================================
   // State
   // ============================================================================
@@ -32,19 +34,17 @@ export const useLifeAreaStore = defineStore('lifeArea', () => {
   })
 
   const activeLifeAreas = computed(() => {
-    return lifeAreas.value
-      .filter((la) => la.isActive)
-      .sort((a, b) => a.sortOrder - b.sortOrder)
+    return lifeAreas.value.filter(la => la.isActive).sort((a, b) => a.sortOrder - b.sortOrder)
   })
 
   const getLifeAreaById = computed(() => {
     return (id: string): LifeArea | undefined => {
-      return lifeAreas.value.find((la) => la.id === id)
+      return lifeAreas.value.find(la => la.id === id)
     }
   })
 
   const getLifeAreaNames = computed(() => {
-    return activeLifeAreas.value.map((la) => la.name)
+    return activeLifeAreas.value.map(la => la.name)
   })
 
   // ============================================================================
@@ -52,55 +52,64 @@ export const useLifeAreaStore = defineStore('lifeArea', () => {
   // ============================================================================
 
   async function loadLifeAreas(): Promise<void> {
-    isLoading.value = true
-    error.value = null
-
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      lifeAreas.value = await lifeAreaDexieRepository.getAll()
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'Failed to load life areas'
-      error.value = errorMessage
-      console.error('Error loading life areas:', err)
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+
+      try {
+        lifeAreas.value = await operation.wait(lifeAreaDexieRepository.getAll())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load life areas'
+        error.value = errorMessage
+        console.error('Error loading life areas:', err)
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function createLifeArea(data: CreateLifeAreaPayload): Promise<LifeArea> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
 
     try {
-      const newLifeArea = await lifeAreaDexieRepository.create(data)
+      const newLifeArea = await operation.wait(lifeAreaDexieRepository.create(data))
       lifeAreas.value.push(newLifeArea)
       return newLifeArea
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'Failed to create life area'
+      operation.assertCurrent()
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create life area'
       error.value = errorMessage
       console.error('Error creating life area:', err)
       throw err
     }
   }
 
-  async function updateLifeArea(
-    id: string,
-    data: UpdateLifeAreaPayload,
-  ): Promise<LifeArea> {
+  async function updateLifeArea(id: string, data: UpdateLifeAreaPayload): Promise<LifeArea> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
 
     try {
-      const updatedLifeArea = await lifeAreaDexieRepository.update(id, data)
+      const updatedLifeArea = await operation.wait(lifeAreaDexieRepository.update(id, data))
 
-      const index = lifeAreas.value.findIndex((la) => la.id === id)
+      const index = lifeAreas.value.findIndex(la => la.id === id)
       if (index !== -1) {
         lifeAreas.value[index] = updatedLifeArea
       }
 
       return updatedLifeArea
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'Failed to update life area'
+      operation.assertCurrent()
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update life area'
       error.value = errorMessage
       console.error('Error updating life area:', err)
       throw err
@@ -108,58 +117,78 @@ export const useLifeAreaStore = defineStore('lifeArea', () => {
   }
 
   async function deleteLifeArea(id: string): Promise<void> {
-    error.value = null
-
-    const linkedAssessments = await lifeAreaAssessmentDexieRepository.getByLifeArea(id)
-    if (linkedAssessments.length > 0) {
-      const message = 'Cannot permanently delete a life area with assessment history'
-      error.value = message
-      throw new Error(message)
-    }
-
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await lifeAreaDexieRepository.delete(id)
-      lifeAreas.value = lifeAreas.value.filter((la) => la.id !== id)
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'Failed to delete life area'
-      error.value = errorMessage
-      console.error('Error deleting life area:', err)
-      throw err
+      error.value = null
+
+      const linkedAssessments = await operation.wait(
+        lifeAreaAssessmentDexieRepository.getByLifeArea(id)
+      )
+      if (linkedAssessments.length > 0) {
+        const message = 'Cannot permanently delete a life area with assessment history'
+        error.value = message
+        throw new Error(message)
+      }
+
+      try {
+        await operation.wait(lifeAreaDexieRepository.delete(id))
+        lifeAreas.value = lifeAreas.value.filter(la => la.id !== id)
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        const errorMessage = err instanceof Error ? err.message : 'Failed to delete life area'
+        error.value = errorMessage
+        console.error('Error deleting life area:', err)
+        throw err
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function reorderLifeAreas(idsInOrder: string[]): Promise<void> {
-    error.value = null
-
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      const updatePromises = idsInOrder.map((id, index) =>
-        lifeAreaDexieRepository.update(id, { sortOrder: index }),
-      )
+      error.value = null
 
-      const updatedLifeAreas = await Promise.all(updatePromises)
+      try {
+        const updatePromises = idsInOrder.map((id, index) =>
+          lifeAreaDexieRepository.update(id, { sortOrder: index })
+        )
 
-      for (const updated of updatedLifeAreas) {
-        const index = lifeAreas.value.findIndex((la) => la.id === updated.id)
-        if (index !== -1) {
-          lifeAreas.value[index] = updated
+        const updatedLifeAreas = await operation.wait(Promise.all(updatePromises))
+
+        for (const updated of updatedLifeAreas) {
+          const index = lifeAreas.value.findIndex(la => la.id === updated.id)
+          if (index !== -1) {
+            lifeAreas.value[index] = updated
+          }
         }
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        const errorMessage = err instanceof Error ? err.message : 'Failed to reorder life areas'
+        error.value = errorMessage
+        console.error('Error reordering life areas:', err)
+        throw err
       }
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'Failed to reorder life areas'
-      error.value = errorMessage
-      console.error('Error reordering life areas:', err)
-      throw err
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function setLifeAreaActive(id: string, isActive: boolean): Promise<LifeArea> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     return updateLifeArea(id, { isActive })
   }
 
   async function hasAssessmentHistory(id: string): Promise<boolean> {
-    const linkedAssessments = await lifeAreaAssessmentDexieRepository.getByLifeArea(id)
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    const linkedAssessments = await operation.wait(
+      lifeAreaAssessmentDexieRepository.getByLifeArea(id)
+    )
     return linkedAssessments.length > 0
   }
 
@@ -168,16 +197,24 @@ export const useLifeAreaStore = defineStore('lifeArea', () => {
    * Only creates areas if none exist.
    */
   async function seedDefaultAreas(): Promise<void> {
-    if (lifeAreas.value.length > 0) return
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    try {
+      if (lifeAreas.value.length > 0) return
 
-    for (let i = 0; i < DEFAULT_LIFE_AREAS.length; i++) {
-      await createLifeArea({
-        name: DEFAULT_LIFE_AREAS[i],
-        icon: getDefaultIconIdByLifeAreaName(DEFAULT_LIFE_AREAS[i]),
-        reflectionSignals: [],
-        isActive: true,
-        sortOrder: i,
-      })
+      for (let i = 0; i < DEFAULT_LIFE_AREAS.length; i++) {
+        await operation.wait(
+          createLifeArea({
+            name: DEFAULT_LIFE_AREAS[i],
+            icon: getDefaultIconIdByLifeAreaName(DEFAULT_LIFE_AREAS[i]),
+            reflectionSignals: [],
+            isActive: true,
+            sortOrder: i,
+          })
+        )
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -191,6 +228,7 @@ export const useLifeAreaStore = defineStore('lifeArea', () => {
    * data before the next `load*()` re-fetches from the new database.
    */
   function reset(): void {
+    sessionScope.reset()
     lifeAreas.value = []
     isLoading.value = false
     error.value = null

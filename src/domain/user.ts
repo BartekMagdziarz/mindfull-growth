@@ -4,7 +4,7 @@
 export interface User {
   id: string
   username: string // unique, stored lowercase for case-insensitive comparison
-  passwordHash: string // Argon2id encoded hash (includes salt)
+  passwordHash: string // PBKDF2-SHA256 encoded hash (includes salt)
   createdAt: string // ISO timestamp
   lastLoginAt: string // ISO timestamp
   displayName?: string

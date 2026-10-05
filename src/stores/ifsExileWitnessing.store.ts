@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type {
@@ -9,6 +10,7 @@ import { ifsExileWitnessingDexieRepository } from '@/repositories/exercisesDexie
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useIFSExileWitnessingStore = defineStore('ifsExileWitnessing', () => {
+  const sessionScope = createStoreSessionScope()
   const witnessings = ref<IFSExileWitnessing[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
@@ -23,33 +25,47 @@ export const useIFSExileWitnessingStore = defineStore('ifsExileWitnessing', () =
 
   const getWitnessingById = computed(() => {
     return (id: string): IFSExileWitnessing | undefined => {
-      return witnessings.value.find((w) => w.id === id)
+      return witnessings.value.find(w => w.id === id)
     }
   })
 
   async function loadWitnessings(): Promise<void> {
-    isLoading.value = true
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      witnessings.value = await ifsExileWitnessingDexieRepository.getAll()
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load exile witnessings'
-      console.error('Error loading exile witnessings:', err)
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+      try {
+        witnessings.value = await operation.wait(ifsExileWitnessingDexieRepository.getAll())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to load exile witnessings'
+        console.error('Error loading exile witnessings:', err)
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
-  async function createWitnessing(data: CreateIFSExileWitnessingPayload): Promise<IFSExileWitnessing> {
+  async function createWitnessing(
+    data: CreateIFSExileWitnessingPayload
+  ): Promise<IFSExileWitnessing> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const witnessing = await ifsExileWitnessingDexieRepository.create(data)
+      const witnessing = await operation.wait(ifsExileWitnessingDexieRepository.create(data))
       void useExerciseCompletionsStore()
         .record('exile-witnessing', witnessing.id)
-        .catch((err) => console.error('Failed to record exercise completion:', err))
+        .catch(err => console.error('Failed to record exercise completion:', err))
       witnessings.value.push(witnessing)
       return witnessing
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to create exile witnessing'
       console.error('Error creating exile witnessing:', err)
       throw err
@@ -58,17 +74,20 @@ export const useIFSExileWitnessingStore = defineStore('ifsExileWitnessing', () =
 
   async function updateWitnessing(
     id: string,
-    data: UpdateIFSExileWitnessingPayload,
+    data: UpdateIFSExileWitnessingPayload
   ): Promise<IFSExileWitnessing> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const updated = await ifsExileWitnessingDexieRepository.update(id, data)
-      const index = witnessings.value.findIndex((w) => w.id === id)
+      const updated = await operation.wait(ifsExileWitnessingDexieRepository.update(id, data))
+      const index = witnessings.value.findIndex(w => w.id === id)
       if (index !== -1) {
         witnessings.value[index] = updated
       }
       return updated
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to update exile witnessing'
       console.error('Error updating exile witnessing:', err)
       throw err
@@ -76,14 +95,21 @@ export const useIFSExileWitnessingStore = defineStore('ifsExileWitnessing', () =
   }
 
   async function deleteWitnessing(id: string): Promise<void> {
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await ifsExileWitnessingDexieRepository.delete(id)
-      witnessings.value = witnessings.value.filter((w) => w.id !== id)
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete exile witnessing'
-      console.error('Error deleting exile witnessing:', err)
-      throw err
+      error.value = null
+      try {
+        await operation.wait(ifsExileWitnessingDexieRepository.delete(id))
+        witnessings.value = witnessings.value.filter(w => w.id !== id)
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to delete exile witnessing'
+        console.error('Error deleting exile witnessing:', err)
+        throw err
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -93,6 +119,7 @@ export const useIFSExileWitnessingStore = defineStore('ifsExileWitnessing', () =
    * data before the next `load*()` re-fetches from the new database.
    */
   function reset(): void {
+    sessionScope.reset()
     witnessings.value = []
     isLoading.value = false
     error.value = null

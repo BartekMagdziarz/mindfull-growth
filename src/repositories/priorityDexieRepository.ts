@@ -1,4 +1,14 @@
-import type { CreatePriorityPayload, Goal, Habit, Initiative, Priority, Tracker, UpdatePriorityPayload, WeeklyIntention } from '@/domain/planning'
+import { userDatabaseOperation } from './userDatabaseOperation'
+import type {
+  CreatePriorityPayload,
+  Goal,
+  Habit,
+  Initiative,
+  Priority,
+  Tracker,
+  UpdatePriorityPayload,
+  WeeklyIntention,
+} from '@/domain/planning'
 import { MAX_ACTIVE_PRIORITIES, normalizePriorityPayload } from '@/domain/planning'
 import { invalidatePlanningQueryCache } from '@/services/planningQueryCache'
 import { getUserDatabase } from '@/services/userDatabase.service'
@@ -18,118 +28,196 @@ class PriorityDexieRepository implements PriorityRepository {
   }
 
   async getById(id: string): Promise<Priority | undefined> {
-    try {
-      return await this.db.priorities.get(id)
-    } catch (error) {
-      console.error(`Failed to get priority with id ${id}:`, error)
-      throw new Error(`Failed to retrieve priority with id ${id}`)
-    }
+    return userDatabaseOperation(
+      'r',
+      [
+        'priorities',
+        'priorityLinks',
+        'goals',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'initiatives',
+      ],
+      async db => {
+        try {
+          return await db.priorities.get(id)
+        } catch (error) {
+          console.error(`Failed to get priority with id ${id}:`, error)
+          throw new Error(`Failed to retrieve priority with id ${id}`)
+        }
+      }
+    )
   }
 
   async listAll(): Promise<Priority[]> {
-    try {
-      return await this.db.priorities.toArray()
-    } catch (error) {
-      console.error('Failed to list priorities:', error)
-      throw new Error('Failed to retrieve priorities from database')
-    }
+    return userDatabaseOperation(
+      'r',
+      [
+        'priorities',
+        'priorityLinks',
+        'goals',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'initiatives',
+      ],
+      async db => {
+        try {
+          return await db.priorities.toArray()
+        } catch (error) {
+          console.error('Failed to list priorities:', error)
+          throw new Error('Failed to retrieve priorities from database')
+        }
+      }
+    )
   }
 
   async create(data: CreatePriorityPayload): Promise<Priority> {
-    try {
-      const normalized = normalizePriorityPayload(data)
-      await this.assertActivePriorityLimit(normalized)
+    return userDatabaseOperation(
+      'rw',
+      [
+        'priorities',
+        'priorityLinks',
+        'goals',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'initiatives',
+      ],
+      async db => {
+        try {
+          const normalized = normalizePriorityPayload(data)
+          await this.assertActivePriorityLimit(normalized)
 
-      const priority = createPlanningRecord<Priority>({
-        ...normalized,
-        order: normalized.status === 'active'
-          ? normalized.order ?? await this.nextActiveOrder()
-          : undefined,
-      })
+          const priority = createPlanningRecord<Priority>({
+            ...normalized,
+            order:
+              normalized.status === 'active'
+                ? (normalized.order ?? (await this.nextActiveOrder()))
+                : undefined,
+          })
 
-      await this.db.transaction('rw', this.db.priorities, async () => {
-        await this.db.priorities.add(toPlain(priority))
-        await this.normalizeActivePriorityOrders()
-      })
-      invalidatePlanningQueryCache()
-      return requireRecord(await this.db.priorities.get(priority.id), `Priority with id ${priority.id} not found`)
-    } catch (error) {
-      console.error('Failed to create priority:', error)
-      throw new Error('Failed to create priority in database')
-    }
+          await db.transaction('rw', db.priorities, async () => {
+            await db.priorities.add(toPlain(priority))
+            await this.normalizeActivePriorityOrders()
+          })
+          invalidatePlanningQueryCache()
+          return requireRecord(
+            await db.priorities.get(priority.id),
+            `Priority with id ${priority.id} not found`
+          )
+        } catch (error) {
+          console.error('Failed to create priority:', error)
+          throw new Error('Failed to create priority in database')
+        }
+      }
+    )
   }
 
   async update(id: string, data: UpdatePriorityPayload): Promise<Priority> {
-    try {
-      const existing = requireRecord(await this.db.priorities.get(id), `Priority with id ${id} not found`)
-      const normalized = normalizePriorityPayload(data, existing)
-      await this.assertActivePriorityLimit(normalized, id)
+    return userDatabaseOperation(
+      'rw',
+      [
+        'priorities',
+        'priorityLinks',
+        'goals',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'initiatives',
+      ],
+      async db => {
+        try {
+          const existing = requireRecord(
+            await db.priorities.get(id),
+            `Priority with id ${id} not found`
+          )
+          const normalized = normalizePriorityPayload(data, existing)
+          await this.assertActivePriorityLimit(normalized, id)
 
-      const updated = updatePlanningRecord(existing, {
-        ...normalized,
-        order: normalized.status === 'active'
-          ? normalized.order ?? await this.nextActiveOrder(id)
-          : undefined,
-      })
+          const updated = updatePlanningRecord(existing, {
+            ...normalized,
+            order:
+              normalized.status === 'active'
+                ? (normalized.order ?? (await this.nextActiveOrder(id)))
+                : undefined,
+          })
 
-      await this.db.transaction('rw', [this.db.priorities, this.db.priorityLinks], async () => {
-        await this.db.priorities.put(toPlain(updated))
-        // Closing ends the chapter: links become history (proposed ones are
-        // dropped — their objects never existed). Pausing keeps links live.
-        if (updated.status === 'closed' && existing.status !== 'closed') {
-          await retirePriorityLinksForPriority(this.db.priorityLinks, id)
+          await db.transaction('rw', [db.priorities, db.priorityLinks], async () => {
+            await db.priorities.put(toPlain(updated))
+            // Closing ends the chapter: links become history (proposed ones are
+            // dropped — their objects never existed). Pausing keeps links live.
+            if (updated.status === 'closed' && existing.status !== 'closed') {
+              await retirePriorityLinksForPriority(db.priorityLinks, id)
+            }
+            await this.normalizeActivePriorityOrders()
+          })
+          invalidatePlanningQueryCache()
+          return requireRecord(await db.priorities.get(id), `Priority with id ${id} not found`)
+        } catch (error) {
+          console.error(`Failed to update priority with id ${id}:`, error)
+          throw new Error(`Failed to update priority with id ${id}`)
         }
-        await this.normalizeActivePriorityOrders()
-      })
-      invalidatePlanningQueryCache()
-      return requireRecord(await this.db.priorities.get(id), `Priority with id ${id} not found`)
-    } catch (error) {
-      console.error(`Failed to update priority with id ${id}:`, error)
-      throw new Error(`Failed to update priority with id ${id}`)
-    }
+      }
+    )
   }
 
   async delete(id: string): Promise<void> {
-    try {
-      await this.db.transaction(
-        'rw',
-        [
-          this.db.priorities,
-          this.db.priorityLinks,
-          this.db.goals,
-          this.db.habits,
-          this.db.trackers,
-          this.db.weeklyIntentions,
-          this.db.initiatives,
-        ],
-        async () => {
-          await this.db.priorities.delete(id)
-          await deletePriorityLinksForPriority(this.db.priorityLinks, id)
-          await Promise.all([
-            this.unlinkPriorityFromTable<Goal>(this.db.goals, id),
-            this.unlinkPriorityFromTable<Habit>(this.db.habits, id),
-            this.unlinkPriorityFromTable<Tracker>(this.db.trackers, id),
-            this.unlinkPriorityFromTable<WeeklyIntention>(this.db.weeklyIntentions, id),
-            this.unlinkPriorityFromTable<Initiative>(this.db.initiatives, id),
-          ])
-          await this.normalizeActivePriorityOrders()
-        },
-      )
-      invalidatePlanningQueryCache()
-    } catch (error) {
-      console.error(`Failed to delete priority with id ${id}:`, error)
-      throw new Error(`Failed to delete priority with id ${id}`)
-    }
+    return userDatabaseOperation(
+      'rw',
+      [
+        'priorities',
+        'priorityLinks',
+        'goals',
+        'habits',
+        'trackers',
+        'weeklyIntentions',
+        'initiatives',
+      ],
+      async db => {
+        try {
+          await db.transaction(
+            'rw',
+            [
+              db.priorities,
+              db.priorityLinks,
+              db.goals,
+              db.habits,
+              db.trackers,
+              db.weeklyIntentions,
+              db.initiatives,
+            ],
+            async () => {
+              await db.priorities.delete(id)
+              await deletePriorityLinksForPriority(db.priorityLinks, id)
+              await Promise.all([
+                this.unlinkPriorityFromTable<Goal>(db.goals, id),
+                this.unlinkPriorityFromTable<Habit>(db.habits, id),
+                this.unlinkPriorityFromTable<Tracker>(db.trackers, id),
+                this.unlinkPriorityFromTable<WeeklyIntention>(db.weeklyIntentions, id),
+                this.unlinkPriorityFromTable<Initiative>(db.initiatives, id),
+              ])
+              await this.normalizeActivePriorityOrders()
+            }
+          )
+          invalidatePlanningQueryCache()
+        } catch (error) {
+          console.error(`Failed to delete priority with id ${id}:`, error)
+          throw new Error(`Failed to delete priority with id ${id}`)
+        }
+      }
+    )
   }
 
   private async assertActivePriorityLimit(
     priority: Omit<Priority, 'id' | 'createdAt' | 'updatedAt'>,
-    existingId?: string,
+    existingId?: string
   ): Promise<void> {
     if (priority.status !== 'active') return
 
     const activePriorities = (await this.db.priorities.toArray()).filter(
-      item => item.status === 'active' && item.id !== existingId,
+      item => item.status === 'active' && item.id !== existingId
     )
     if (activePriorities.length >= MAX_ACTIVE_PRIORITIES) {
       throw new Error(`At most ${MAX_ACTIVE_PRIORITIES} priorities can be active at the same time`)
@@ -138,7 +226,7 @@ class PriorityDexieRepository implements PriorityRepository {
 
   private async nextActiveOrder(existingId?: string): Promise<number> {
     const activePriorities = (await this.db.priorities.toArray()).filter(
-      item => item.status === 'active' && item.id !== existingId,
+      item => item.status === 'active' && item.id !== existingId
     )
     const maxOrder = activePriorities.reduce((max, item) => Math.max(max, item.order ?? 0), 0)
     return maxOrder + 1
@@ -148,33 +236,42 @@ class PriorityDexieRepository implements PriorityRepository {
     const priorities = await this.db.priorities.toArray()
     const active = priorities
       .filter(item => item.status === 'active')
-      .sort((left, right) =>
-        (left.order ?? Number.MAX_SAFE_INTEGER) - (right.order ?? Number.MAX_SAFE_INTEGER) ||
-        left.title.localeCompare(right.title) ||
-        left.createdAt.localeCompare(right.createdAt)
+      .sort(
+        (left, right) =>
+          (left.order ?? Number.MAX_SAFE_INTEGER) - (right.order ?? Number.MAX_SAFE_INTEGER) ||
+          left.title.localeCompare(right.title) ||
+          left.createdAt.localeCompare(right.createdAt)
       )
 
-    await Promise.all(active.map((priority, index) => {
-      const order = index + 1
-      if (priority.order === order) return Promise.resolve()
-      return this.db.priorities.put(toPlain({ ...priority, order, updatedAt: new Date().toISOString() }))
-    }))
+    await Promise.all(
+      active.map((priority, index) => {
+        const order = index + 1
+        if (priority.order === order) return Promise.resolve()
+        return this.db.priorities.put(
+          toPlain({ ...priority, order, updatedAt: new Date().toISOString() })
+        )
+      })
+    )
   }
 
   private async unlinkPriorityFromTable<T extends { priorityIds: string[]; updatedAt: string }>(
     table: { toArray: () => Promise<T[]>; put: (record: T) => Promise<unknown> },
-    priorityId: string,
+    priorityId: string
   ): Promise<void> {
     const records = await table.toArray()
     const now = new Date().toISOString()
-    await Promise.all(records.map((record) => {
-      if (!record.priorityIds.includes(priorityId)) return Promise.resolve()
-      return table.put(toPlain({
-        ...record,
-        priorityIds: record.priorityIds.filter(id => id !== priorityId),
-        updatedAt: now,
-      }))
-    }))
+    await Promise.all(
+      records.map(record => {
+        if (!record.priorityIds.includes(priorityId)) return Promise.resolve()
+        return table.put(
+          toPlain({
+            ...record,
+            priorityIds: record.priorityIds.filter(id => id !== priorityId),
+            updatedAt: now,
+          })
+        )
+      })
+    )
   }
 }
 

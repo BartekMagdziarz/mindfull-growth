@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type {
@@ -9,6 +10,7 @@ import { ifsProtectorAppreciationDexieRepository } from '@/repositories/exercise
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useIFSProtectorAppreciationStore = defineStore('ifsProtectorAppreciation', () => {
+  const sessionScope = createStoreSessionScope()
   const appreciations = ref<IFSProtectorAppreciation[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
@@ -23,35 +25,49 @@ export const useIFSProtectorAppreciationStore = defineStore('ifsProtectorAppreci
 
   const getAppreciationById = computed(() => {
     return (id: string): IFSProtectorAppreciation | undefined => {
-      return appreciations.value.find((a) => a.id === id)
+      return appreciations.value.find(a => a.id === id)
     }
   })
 
   async function loadAppreciations(): Promise<void> {
-    isLoading.value = true
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      appreciations.value = await ifsProtectorAppreciationDexieRepository.getAll()
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load protector appreciations'
-      console.error('Error loading protector appreciations:', err)
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+      try {
+        appreciations.value = await operation.wait(ifsProtectorAppreciationDexieRepository.getAll())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to load protector appreciations'
+        console.error('Error loading protector appreciations:', err)
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function createAppreciation(
-    data: CreateIFSProtectorAppreciationPayload,
+    data: CreateIFSProtectorAppreciationPayload
   ): Promise<IFSProtectorAppreciation> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const appreciation = await ifsProtectorAppreciationDexieRepository.create(data)
+      const appreciation = await operation.wait(
+        ifsProtectorAppreciationDexieRepository.create(data)
+      )
       void useExerciseCompletionsStore()
         .record('protector-appreciation', appreciation.id)
-        .catch((err) => console.error('Failed to record exercise completion:', err))
+        .catch(err => console.error('Failed to record exercise completion:', err))
       appreciations.value.push(appreciation)
       return appreciation
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to create protector appreciation'
       console.error('Error creating protector appreciation:', err)
       throw err
@@ -60,17 +76,20 @@ export const useIFSProtectorAppreciationStore = defineStore('ifsProtectorAppreci
 
   async function updateAppreciation(
     id: string,
-    data: UpdateIFSProtectorAppreciationPayload,
+    data: UpdateIFSProtectorAppreciationPayload
   ): Promise<IFSProtectorAppreciation> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const updated = await ifsProtectorAppreciationDexieRepository.update(id, data)
-      const index = appreciations.value.findIndex((a) => a.id === id)
+      const updated = await operation.wait(ifsProtectorAppreciationDexieRepository.update(id, data))
+      const index = appreciations.value.findIndex(a => a.id === id)
       if (index !== -1) {
         appreciations.value[index] = updated
       }
       return updated
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to update protector appreciation'
       console.error('Error updating protector appreciation:', err)
       throw err
@@ -78,14 +97,21 @@ export const useIFSProtectorAppreciationStore = defineStore('ifsProtectorAppreci
   }
 
   async function deleteAppreciation(id: string): Promise<void> {
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await ifsProtectorAppreciationDexieRepository.delete(id)
-      appreciations.value = appreciations.value.filter((a) => a.id !== id)
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete protector appreciation'
-      console.error('Error deleting protector appreciation:', err)
-      throw err
+      error.value = null
+      try {
+        await operation.wait(ifsProtectorAppreciationDexieRepository.delete(id))
+        appreciations.value = appreciations.value.filter(a => a.id !== id)
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to delete protector appreciation'
+        console.error('Error deleting protector appreciation:', err)
+        throw err
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -95,6 +121,7 @@ export const useIFSProtectorAppreciationStore = defineStore('ifsProtectorAppreci
    * data before the next `load*()` re-fetches from the new database.
    */
   function reset(): void {
+    sessionScope.reset()
     appreciations.value = []
     isLoading.value = false
     error.value = null

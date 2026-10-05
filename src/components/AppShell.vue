@@ -40,24 +40,16 @@ const userPreferencesStore = useUserPreferencesStore()
 // <main> is offset via padding (not margin) — the scrollbar stays at the edge.
 
 const isJournalEditorRoute = computed(() => {
-  return (
-    route.path === '/journal/edit' ||
-    /^\/journal\/[^/]+\/edit$/.test(route.path)
-  )
+  return route.path === '/journal/edit' || /^\/journal\/[^/]+\/edit$/.test(route.path)
 })
 
 const isEmotionEditorRoute = computed(() => {
-  return (
-    route.path === '/emotions/edit' ||
-    /^\/emotions\/[^/]+\/edit$/.test(route.path)
-  )
+  return route.path === '/emotions/edit' || /^\/emotions\/[^/]+\/edit$/.test(route.path)
 })
 
 const showBackButton = computed(() => {
   return (
-    isJournalEditorRoute.value ||
-    isEmotionEditorRoute.value ||
-    route.path === '/dev/ai-playground'
+    isJournalEditorRoute.value || isEmotionEditorRoute.value || route.path === '/dev/ai-playground'
   )
 })
 
@@ -108,6 +100,7 @@ watch(
     if (newId === oldId) return
     resetAppState()
   },
+  { flush: 'sync' }
 )
 
 // Theme follows the user. Source switched from `isAuthenticated`
@@ -123,14 +116,14 @@ watch(
     }
     await syncThemeFromPreferences()
   },
-  { immediate: true },
+  { immediate: true }
 )
 
 watch(
   () => userPreferencesStore.themePreference,
-  (theme) => {
+  theme => {
     if (!authStore.isAuthenticated) return
     applyTheme(theme)
-  },
+  }
 )
 </script>

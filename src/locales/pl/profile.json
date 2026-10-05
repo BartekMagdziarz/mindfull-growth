@@ -29,7 +29,14 @@
       "changePassword": "Zmień hasło",
       "exportData": "Eksport danych",
       "deleteAccount": "Usuń konto",
-      "comingSoon": "Funkcja w przygotowaniu."
+      "comingSoon": "Funkcja w przygotowaniu.",
+      "importData": "Przywróć kopię",
+      "backupHint": "Kopia zawiera Twoje prywatne dane jawnym tekstem. Przechowuj ją w bezpiecznym miejscu. Hasła i ustawienia API nie są eksportowane.",
+      "exportSuccess": "Kopia zapasowa pobrana.",
+      "backupError": "Nie udało się wyeksportować lub przywrócić kopii. Sprawdź plik i spróbuj ponownie.",
+      "importTitle": "Zastąpić lokalne dane?",
+      "importMessage": "Kopia zawiera {count} rekordów. Przywrócenie zastąpi lokalne dane bieżącego konta. Najpierw pobierz kopię obecnych danych. Hasła i bieżące ustawienia API zostaną zachowane. Aplikacja uruchomi się ponownie.",
+      "importConfirm": "Zastąp i przywróć"
     }
   },
   "lifeAreas": {

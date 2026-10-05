@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type {
@@ -9,6 +10,7 @@ import { ifsUnblendingDexieRepository } from '@/repositories/exercisesDexieRepos
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useIFSUnblendingStore = defineStore('ifsUnblending', () => {
+  const sessionScope = createStoreSessionScope()
   const sessions = ref<IFSUnblendingSession[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
@@ -23,49 +25,67 @@ export const useIFSUnblendingStore = defineStore('ifsUnblending', () => {
 
   const getSessionById = computed(() => {
     return (id: string): IFSUnblendingSession | undefined => {
-      return sessions.value.find((s) => s.id === id)
+      return sessions.value.find(s => s.id === id)
     }
   })
 
   async function loadSessions(): Promise<void> {
-    isLoading.value = true
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      sessions.value = await ifsUnblendingDexieRepository.getAll()
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load unblending sessions'
-      console.error('Error loading unblending sessions:', err)
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+      try {
+        sessions.value = await operation.wait(ifsUnblendingDexieRepository.getAll())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to load unblending sessions'
+        console.error('Error loading unblending sessions:', err)
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function createSession(data: CreateIFSUnblendingPayload): Promise<IFSUnblendingSession> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const session = await ifsUnblendingDexieRepository.create(data)
+      const session = await operation.wait(ifsUnblendingDexieRepository.create(data))
       void useExerciseCompletionsStore()
         .record('unblending', session.id)
-        .catch((err) => console.error('Failed to record exercise completion:', err))
+        .catch(err => console.error('Failed to record exercise completion:', err))
       sessions.value.push(session)
       return session
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to create unblending session'
       console.error('Error creating unblending session:', err)
       throw err
     }
   }
 
-  async function updateSession(id: string, data: UpdateIFSUnblendingPayload): Promise<IFSUnblendingSession> {
+  async function updateSession(
+    id: string,
+    data: UpdateIFSUnblendingPayload
+  ): Promise<IFSUnblendingSession> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const updated = await ifsUnblendingDexieRepository.update(id, data)
-      const index = sessions.value.findIndex((s) => s.id === id)
+      const updated = await operation.wait(ifsUnblendingDexieRepository.update(id, data))
+      const index = sessions.value.findIndex(s => s.id === id)
       if (index !== -1) {
         sessions.value[index] = updated
       }
       return updated
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to update unblending session'
       console.error('Error updating unblending session:', err)
       throw err
@@ -73,14 +93,21 @@ export const useIFSUnblendingStore = defineStore('ifsUnblending', () => {
   }
 
   async function deleteSession(id: string): Promise<void> {
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await ifsUnblendingDexieRepository.delete(id)
-      sessions.value = sessions.value.filter((s) => s.id !== id)
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete unblending session'
-      console.error('Error deleting unblending session:', err)
-      throw err
+      error.value = null
+      try {
+        await operation.wait(ifsUnblendingDexieRepository.delete(id))
+        sessions.value = sessions.value.filter(s => s.id !== id)
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to delete unblending session'
+        console.error('Error deleting unblending session:', err)
+        throw err
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -90,6 +117,7 @@ export const useIFSUnblendingStore = defineStore('ifsUnblending', () => {
    * data before the next `load*()` re-fetches from the new database.
    */
   function reset(): void {
+    sessionScope.reset()
     sessions.value = []
     isLoading.value = false
     error.value = null

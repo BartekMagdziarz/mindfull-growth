@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 /**
  * Values Discovery Store
  *
@@ -15,6 +16,7 @@ import { valuesDiscoveryDexieRepository } from '@/repositories/exercisesDexieRep
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useValuesDiscoveryStore = defineStore('valuesDiscovery', () => {
+  const sessionScope = createStoreSessionScope()
   const discoveries = ref<ValuesDiscovery[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
@@ -29,33 +31,45 @@ export const useValuesDiscoveryStore = defineStore('valuesDiscovery', () => {
 
   const getDiscoveryById = computed(() => {
     return (id: string): ValuesDiscovery | undefined => {
-      return discoveries.value.find((d) => d.id === id)
+      return discoveries.value.find(d => d.id === id)
     }
   })
 
   async function loadDiscoveries(): Promise<void> {
-    isLoading.value = true
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      discoveries.value = await valuesDiscoveryDexieRepository.getAll()
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load values discoveries'
-      console.error('Error loading values discoveries:', err)
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+      try {
+        discoveries.value = await operation.wait(valuesDiscoveryDexieRepository.getAll())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to load values discoveries'
+        console.error('Error loading values discoveries:', err)
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function createDiscovery(data: CreateValuesDiscoveryPayload): Promise<ValuesDiscovery> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const discovery = await valuesDiscoveryDexieRepository.create(data)
+      const discovery = await operation.wait(valuesDiscoveryDexieRepository.create(data))
       void useExerciseCompletionsStore()
         .record('values', discovery.id)
-        .catch((err) => console.error('Failed to record exercise completion:', err))
+        .catch(err => console.error('Failed to record exercise completion:', err))
       discoveries.value.push(discovery)
       return discovery
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to create values discovery'
       console.error('Error creating values discovery:', err)
       throw err
@@ -64,17 +78,20 @@ export const useValuesDiscoveryStore = defineStore('valuesDiscovery', () => {
 
   async function updateDiscovery(
     id: string,
-    data: UpdateValuesDiscoveryPayload,
+    data: UpdateValuesDiscoveryPayload
   ): Promise<ValuesDiscovery> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const updated = await valuesDiscoveryDexieRepository.update(id, data)
-      const index = discoveries.value.findIndex((d) => d.id === id)
+      const updated = await operation.wait(valuesDiscoveryDexieRepository.update(id, data))
+      const index = discoveries.value.findIndex(d => d.id === id)
       if (index !== -1) {
         discoveries.value[index] = updated
       }
       return updated
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to update values discovery'
       console.error('Error updating values discovery:', err)
       throw err
@@ -82,14 +99,21 @@ export const useValuesDiscoveryStore = defineStore('valuesDiscovery', () => {
   }
 
   async function deleteDiscovery(id: string): Promise<void> {
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await valuesDiscoveryDexieRepository.delete(id)
-      discoveries.value = discoveries.value.filter((d) => d.id !== id)
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete values discovery'
-      console.error('Error deleting values discovery:', err)
-      throw err
+      error.value = null
+      try {
+        await operation.wait(valuesDiscoveryDexieRepository.delete(id))
+        discoveries.value = discoveries.value.filter(d => d.id !== id)
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to delete values discovery'
+        console.error('Error deleting values discovery:', err)
+        throw err
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -99,6 +123,7 @@ export const useValuesDiscoveryStore = defineStore('valuesDiscovery', () => {
    * data before the next `load*()` re-fetches from the new database.
    */
   function reset(): void {
+    sessionScope.reset()
     discoveries.value = []
     isLoading.value = false
     error.value = null

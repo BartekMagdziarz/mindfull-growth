@@ -27,7 +27,7 @@ import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieReposit
 import { priorityDexieRepository } from '@/repositories/priorityDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
 import { weeklyIntentionDexieRepository } from '@/repositories/weeklyIntentionDexieRepository'
-import { clearDraftFromDB, loadDraftFromDB, saveDraftToDB } from '@/services/draftStorage'
+import { createScopedDraftStorage } from '@/services/scopedDraftStorage'
 import { setMonthTopPriorities } from '@/services/monthlyPriorityService'
 import {
   createPriorityFromRitual,
@@ -38,7 +38,14 @@ import { getPeriodRefsForDate } from '@/utils/periods'
 
 export const PRIORITY_CREATOR_DRAFT_KEY = 'priority-creator-ritual'
 
-export const RITUAL_STEPS = ['meaning', 'boundaries', 'signals', 'support', 'relations', 'review'] as const
+export const RITUAL_STEPS = [
+  'meaning',
+  'boundaries',
+  'signals',
+  'support',
+  'relations',
+  'review',
+] as const
 export type RitualStepId = (typeof RITUAL_STEPS)[number]
 
 export interface RitualProposalDraft {
@@ -103,6 +110,7 @@ function emptyForm(): RitualFormState {
 const AUTOSAVE_DEBOUNCE_MS = 800
 
 export function usePriorityCreatorRitual() {
+  const { loadDraftFromDB, saveDraftToDB, clearDraftFromDB } = createScopedDraftStorage()
   const stepIndex = ref(0)
   const form = reactive<RitualFormState>(emptyForm())
   const progressSignals = ref<string[]>([])
@@ -144,8 +152,12 @@ export function usePriorityCreatorRitual() {
   const monthFocusAvailable = computed(() => !willCreateAsDraft.value && !monthFocusFull.value)
 
   const selectedProposals = computed(() => proposals.value.filter(item => item.selected))
-  const selectedNewCount = computed(() => selectedProposals.value.filter(item => item.kind === 'new').length)
-  const selectedExistingCount = computed(() => selectedProposals.value.filter(item => item.kind === 'existing').length)
+  const selectedNewCount = computed(
+    () => selectedProposals.value.filter(item => item.kind === 'new').length
+  )
+  const selectedExistingCount = computed(
+    () => selectedProposals.value.filter(item => item.kind === 'existing').length
+  )
 
   /** Only the meaning step is hard-required; everything else can be finished later. */
   const canFinish = computed(() => form.title.trim().length > 0 && form.direction.trim().length > 0)
@@ -193,12 +205,17 @@ export function usePriorityCreatorRitual() {
     riskSignals.value = cleanList(blob.riskSignals)
     for (const kind of Object.keys(boundaryLists) as BoundaryKind[]) {
       // Legacy drafts kept boundaries as free text on the form — split into bullets.
-      const legacy = typeof blob.form?.[kind] === 'string'
-        ? blob.form[kind]!.split('\n').map(s => s.trim()).filter(Boolean)
-        : []
+      const legacy =
+        typeof blob.form?.[kind] === 'string'
+          ? blob.form[kind]!.split('\n')
+              .map(s => s.trim())
+              .filter(Boolean)
+          : []
       boundaryLists[kind].value = blob.boundaries ? cleanList(blob.boundaries[kind]) : legacy
     }
-    proposals.value = Array.isArray(blob.proposals) ? blob.proposals.filter(p => p && typeof p.id === 'string') : []
+    proposals.value = Array.isArray(blob.proposals)
+      ? blob.proposals.filter(p => p && typeof p.id === 'string')
+      : []
     draftSavedAt.value = typeof blob.savedAt === 'string' ? blob.savedAt : null
   }
 
@@ -213,9 +230,18 @@ export function usePriorityCreatorRitual() {
   }
 
   watch(
-    [form, progressSignals, riskSignals, influenceItems, notControlledItems, tradeoffItems, proposals, stepIndex],
+    [
+      form,
+      progressSignals,
+      riskSignals,
+      influenceItems,
+      notControlledItems,
+      tradeoffItems,
+      proposals,
+      stepIndex,
+    ],
     scheduleAutosave,
-    { deep: true },
+    { deep: true }
   )
 
   if (getCurrentInstance()) {
@@ -272,10 +298,11 @@ export function usePriorityCreatorRitual() {
       weeklyIntentionDexieRepository.listAll(),
     ])
 
-    const open = <T extends { status: string }>(items: T[]) => items.filter(item => item.status === 'open')
+    const open = <T extends { status: string }>(items: T[]) =>
+      items.filter(item => item.status === 'open')
     const candidate = (
       subjectType: PriorityLinkSubjectRef['subjectType'],
-      item: Goal | Habit | Tracker | WeeklyIntention,
+      item: Goal | Habit | Tracker | WeeklyIntention
     ): LibraryLinkCandidate => ({
       subjectRef: { subjectType, subjectId: item.id },
       title: item.title,
@@ -324,13 +351,15 @@ export function usePriorityCreatorRitual() {
   function goNext(): void {
     if (!canGoNext.value) return
     stepIndex.value += 1
-    if (stepIndex.value === relationsIndex && skipsRelations.value && canGoNext.value) stepIndex.value += 1
+    if (stepIndex.value === relationsIndex && skipsRelations.value && canGoNext.value)
+      stepIndex.value += 1
   }
 
   function goBack(): void {
     if (!canGoBack.value) return
     stepIndex.value -= 1
-    if (stepIndex.value === relationsIndex && skipsRelations.value && canGoBack.value) stepIndex.value -= 1
+    if (stepIndex.value === relationsIndex && skipsRelations.value && canGoBack.value)
+      stepIndex.value -= 1
   }
 
   function goToStep(index: number): void {
@@ -383,49 +412,57 @@ export function usePriorityCreatorRitual() {
   function addNewProposal(objectType: PriorityLinkProposalObjectType, title: string): void {
     const trimmed = title.trim()
     if (!trimmed) return
-    proposals.value = [...proposals.value, {
-      id: crypto.randomUUID(),
-      kind: 'new',
-      objectType,
-      title: trimmed,
-      contribution: '',
-      expectedSignal: '',
-      selected: true,
-    }]
+    proposals.value = [
+      ...proposals.value,
+      {
+        id: crypto.randomUUID(),
+        kind: 'new',
+        objectType,
+        title: trimmed,
+        contribution: '',
+        expectedSignal: '',
+        selected: true,
+      },
+    ]
   }
 
   function isLinkedCandidate(subjectRef: PriorityLinkSubjectRef): boolean {
-    return proposals.value.some(item =>
-      item.kind === 'existing' &&
-      item.subjectRef?.subjectType === subjectRef.subjectType &&
-      item.subjectRef?.subjectId === subjectRef.subjectId,
+    return proposals.value.some(
+      item =>
+        item.kind === 'existing' &&
+        item.subjectRef?.subjectType === subjectRef.subjectType &&
+        item.subjectRef?.subjectId === subjectRef.subjectId
     )
   }
 
   function toggleExistingCandidate(candidate: LibraryLinkCandidate): void {
-    const existing = proposals.value.find(item =>
-      item.kind === 'existing' &&
-      item.subjectRef?.subjectType === candidate.subjectRef.subjectType &&
-      item.subjectRef?.subjectId === candidate.subjectRef.subjectId,
+    const existing = proposals.value.find(
+      item =>
+        item.kind === 'existing' &&
+        item.subjectRef?.subjectType === candidate.subjectRef.subjectType &&
+        item.subjectRef?.subjectId === candidate.subjectRef.subjectId
     )
     if (existing) {
       proposals.value = proposals.value.filter(item => item.id !== existing.id)
       return
     }
-    proposals.value = [...proposals.value, {
-      id: crypto.randomUUID(),
-      kind: 'existing',
-      subjectRef: { ...candidate.subjectRef },
-      title: candidate.title,
-      contribution: '',
-      expectedSignal: '',
-      selected: true,
-    }]
+    proposals.value = [
+      ...proposals.value,
+      {
+        id: crypto.randomUUID(),
+        kind: 'existing',
+        subjectRef: { ...candidate.subjectRef },
+        title: candidate.title,
+        contribution: '',
+        expectedSignal: '',
+        selected: true,
+      },
+    ]
   }
 
   function toggleProposalSelected(id: string): void {
     proposals.value = proposals.value.map(item =>
-      item.id === id ? { ...item, selected: !item.selected } : item,
+      item.id === id ? { ...item, selected: !item.selected } : item
     )
   }
 
@@ -436,10 +473,10 @@ export function usePriorityCreatorRitual() {
   function updateProposalField(
     id: string,
     field: 'contribution' | 'expectedSignal' | 'title',
-    value: string,
+    value: string
   ): void {
     proposals.value = proposals.value.map(item =>
-      item.id === id ? { ...item, [field]: value } : item,
+      item.id === id ? { ...item, [field]: value } : item
     )
   }
 
@@ -453,7 +490,7 @@ export function usePriorityCreatorRitual() {
   // ── Finale ───────────────────────────────────────────────────────────────
 
   function buildLinks(): RitualLinkInput[] {
-    return selectedProposals.value.map((item) => {
+    return selectedProposals.value.map(item => {
       if (item.kind === 'existing' && item.subjectRef) {
         return {
           subjectRef: { ...item.subjectRef },

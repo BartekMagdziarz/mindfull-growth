@@ -33,6 +33,10 @@ export interface ExercisePlanItem {
    * Absent on items created before practices existed — read as 'step'.
    */
   programRole?: 'step' | 'practice'
+  /** Index in the enrollment's content version, retained after completion. */
+  programStepIndex?: number
+  /** Unique only while a program delivery is pending. */
+  pendingProgramKey?: string
   /** Id of the completing exercise's result record, set on auto-complete. */
   recordId?: string
   note?: string
@@ -47,6 +51,7 @@ export interface CreateExercisePlanItemPayload {
   source: ExercisePlanSource
   sourceRef?: string
   programRole?: 'step' | 'practice'
+  programStepIndex?: number
   note?: string
 }
 
@@ -55,4 +60,15 @@ export interface UpdateExercisePlanItemPayload {
   status?: ExercisePlanStatus
   recordId?: string
   note?: string
+}
+
+export function pendingProgramPlanKey(
+  item: Pick<ExercisePlanItem, 'source' | 'sourceRef' | 'programRole' | 'exerciseSlug' | 'status'>
+): string | undefined {
+  if (item.source !== 'program' || !item.sourceRef || item.status !== 'pending') return undefined
+  return JSON.stringify(
+    item.programRole === 'practice'
+      ? [item.sourceRef, 'practice', item.exerciseSlug]
+      : [item.sourceRef, 'step']
+  )
 }

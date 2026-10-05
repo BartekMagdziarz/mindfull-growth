@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 /**
  * Dereflection Practice Store
  *
@@ -16,6 +17,7 @@ import { dereflectionDexieRepository } from '@/repositories/exercisesDexieReposi
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useDereflectionStore = defineStore('dereflection', () => {
+  const sessionScope = createStoreSessionScope()
   const practices = ref<DereflectionPractice[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
@@ -30,33 +32,45 @@ export const useDereflectionStore = defineStore('dereflection', () => {
 
   const getPracticeById = computed(() => {
     return (id: string): DereflectionPractice | undefined => {
-      return practices.value.find((p) => p.id === id)
+      return practices.value.find(p => p.id === id)
     }
   })
 
   async function loadPractices(): Promise<void> {
-    isLoading.value = true
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      practices.value = await dereflectionDexieRepository.getAll()
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load dereflection practices'
-      console.error('Error loading dereflection practices:', err)
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+      try {
+        practices.value = await operation.wait(dereflectionDexieRepository.getAll())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to load dereflection practices'
+        console.error('Error loading dereflection practices:', err)
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function createPractice(data: CreateDereflectionPayload): Promise<DereflectionPractice> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const practice = await dereflectionDexieRepository.create(data)
+      const practice = await operation.wait(dereflectionDexieRepository.create(data))
       void useExerciseCompletionsStore()
         .record('dereflection', practice.id)
-        .catch((err) => console.error('Failed to record exercise completion:', err))
+        .catch(err => console.error('Failed to record exercise completion:', err))
       practices.value.push(practice)
       return practice
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to create dereflection practice'
       console.error('Error creating dereflection practice:', err)
       throw err
@@ -65,17 +79,20 @@ export const useDereflectionStore = defineStore('dereflection', () => {
 
   async function updatePractice(
     id: string,
-    data: UpdateDereflectionPayload,
+    data: UpdateDereflectionPayload
   ): Promise<DereflectionPractice> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const updated = await dereflectionDexieRepository.update(id, data)
-      const index = practices.value.findIndex((p) => p.id === id)
+      const updated = await operation.wait(dereflectionDexieRepository.update(id, data))
+      const index = practices.value.findIndex(p => p.id === id)
       if (index !== -1) {
         practices.value[index] = updated
       }
       return updated
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to update dereflection practice'
       console.error('Error updating dereflection practice:', err)
       throw err
@@ -83,14 +100,21 @@ export const useDereflectionStore = defineStore('dereflection', () => {
   }
 
   async function deletePractice(id: string): Promise<void> {
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await dereflectionDexieRepository.delete(id)
-      practices.value = practices.value.filter((p) => p.id !== id)
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete dereflection practice'
-      console.error('Error deleting dereflection practice:', err)
-      throw err
+      error.value = null
+      try {
+        await operation.wait(dereflectionDexieRepository.delete(id))
+        practices.value = practices.value.filter(p => p.id !== id)
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to delete dereflection practice'
+        console.error('Error deleting dereflection practice:', err)
+        throw err
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -100,6 +124,7 @@ export const useDereflectionStore = defineStore('dereflection', () => {
    * data before the next `load*()` re-fetches from the new database.
    */
   function reset(): void {
+    sessionScope.reset()
     practices.value = []
     isLoading.value = false
     error.value = null

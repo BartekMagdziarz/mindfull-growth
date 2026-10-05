@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 /**
  * Exercise Completions Store
  *
@@ -18,6 +19,7 @@ import { useExercisePlanStore } from '@/stores/exercisePlan.store'
 import { useProgramEnrollmentStore } from '@/stores/programEnrollment.store'
 
 export const useExerciseCompletionsStore = defineStore('exerciseCompletions', () => {
+  const sessionScope = createStoreSessionScope()
   const completions = ref<ExerciseCompletion[]>([])
   const isLoaded = ref(false)
   const isLoading = ref(false)
@@ -37,20 +39,29 @@ export const useExerciseCompletionsStore = defineStore('exerciseCompletions', ()
 
   const completionsForDay = computed(() => {
     return (dayRef: DayRef): ExerciseCompletion[] =>
-      completions.value.filter((c) => c.dayRef === dayRef)
+      completions.value.filter(c => c.dayRef === dayRef)
   })
 
   async function loadCompletions(): Promise<void> {
-    isLoading.value = true
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      completions.value = await exerciseCompletionDexieRepository.listAll()
-      isLoaded.value = true
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load exercise completions'
-      console.error('Error loading exercise completions:', err)
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+      try {
+        completions.value = await operation.wait(exerciseCompletionDexieRepository.listAll())
+        isLoaded.value = true
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to load exercise completions'
+        console.error('Error loading exercise completions:', err)
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -59,8 +70,14 @@ export const useExerciseCompletionsStore = defineStore('exerciseCompletions', ()
    * `isLoaded` stays false, so the next caller retries.
    */
   async function ensureLoaded(): Promise<void> {
-    if (isLoaded.value || isLoading.value) return
-    await loadCompletions()
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    try {
+      if (isLoaded.value || isLoading.value) return
+      await operation.wait(loadCompletions())
+    } catch (error) {
+      if (operation.isCurrent()) throw error
+    }
   }
 
   /**
@@ -68,10 +85,21 @@ export const useExerciseCompletionsStore = defineStore('exerciseCompletions', ()
    * the log as auxiliary: fire-and-forget with a `.catch`, so a log
    * failure never breaks the exercise save itself.
    */
-  async function record(slug: string, recordId?: string): Promise<ExerciseCompletion> {
+  async function record(
+    slug: string,
+    recordId?: string,
+    eventId?: string
+  ): Promise<ExerciseCompletion> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     const { completion, completedPlan, programAdvancement, practiceReconciliation } =
-      await recordCompletion(slug, recordId)
-    completions.value.push(completion)
+      await operation.wait(
+        eventId === undefined
+          ? recordCompletion(slug, recordId)
+          : recordCompletion(slug, recordId, eventId)
+      )
+    if (!completions.value.some(existing => existing.id === completion.id))
+      completions.value.push(completion)
     // Mirror an auto-completed plan into its store so the Today tile
     // reacts without a reload (design §4.4).
     if (completedPlan) useExercisePlanStore().applyUpdate(completedPlan)
@@ -100,6 +128,7 @@ export const useExerciseCompletionsStore = defineStore('exerciseCompletions', ()
    * data before the next `load*()` re-fetches from the new database.
    */
   function reset(): void {
+    sessionScope.reset()
     completions.value = []
     isLoaded.value = false
     isLoading.value = false

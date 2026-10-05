@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, onScopeDispose } from 'vue'
 import type { User, AuthenticatedUser } from '@/domain/user'
 import { authDexieRepository } from '@/repositories/authDexieRepository'
 import { hashPassword, verifyPassword } from '@/services/crypto.service'
@@ -16,14 +16,31 @@ export const useAuthStore = defineStore('auth', () => {
   const error = ref<string | null>(null)
   const loginAttempts = ref(0)
   const lockoutUntil = ref<number | null>(null)
+  const now = ref(Date.now())
+  let authRevision = 0
+  let countdown: ReturnType<typeof setInterval> | undefined
+  let initialization: Promise<void> | null = null
+
+  function clearLockout(): void {
+    loginAttempts.value = 0
+    lockoutUntil.value = null
+    clearInterval(countdown)
+    countdown = undefined
+  }
+  function updateClock(): void {
+    now.value = Date.now()
+    if (lockoutUntil.value !== null && now.value >= lockoutUntil.value) clearLockout()
+  }
+  onScopeDispose(() => clearInterval(countdown))
+  function assertAuthCurrent(revision: number): void {
+    if (revision !== authRevision) throw new Error('Authentication operation cancelled')
+  }
 
   const isAuthenticated = computed(() => user.value !== null)
-  const isLockedOut = computed(
-    () => lockoutUntil.value !== null && Date.now() < lockoutUntil.value
-  )
+  const isLockedOut = computed(() => lockoutUntil.value !== null && now.value < lockoutUntil.value)
   const lockoutRemainingSeconds = computed(() => {
     if (!lockoutUntil.value) return 0
-    return Math.ceil((lockoutUntil.value - Date.now()) / 1000)
+    return Math.max(0, Math.ceil((lockoutUntil.value - now.value) / 1000))
   })
 
   /**
@@ -32,16 +49,34 @@ export const useAuthStore = defineStore('auth', () => {
    */
   async function initialize(): Promise<void> {
     if (isInitialized.value) return
+    if (initialization) return initialization
+    initialization = initializeSession()
+    try {
+      await initialization
+    } finally {
+      initialization = null
+    }
+  }
+
+  async function initializeSession(): Promise<void> {
+    const revision = ++authRevision
+    isLoading.value = true
 
     try {
       // Dev bypass: auto-login via VITE_DEV_AUTO_LOGIN_USER_ID env variable
-      if (import.meta.env.DEV) {
+      if (import.meta.env.DEV && import.meta.env.MODE !== 'ai-demo') {
         const devUserId = import.meta.env.VITE_DEV_AUTO_LOGIN_USER_ID as string | undefined
         if (devUserId) {
           const devUser = await authDexieRepository.getUserById(devUserId)
+          assertAuthCurrent(revision)
           if (devUser) {
-            user.value = { id: devUser.id, username: devUser.username, displayName: devUser.displayName }
             await connectUserDatabase(devUser.id)
+            assertAuthCurrent(revision)
+            user.value = {
+              id: devUser.id,
+              username: devUser.username,
+              displayName: devUser.displayName,
+            }
             isInitialized.value = true
             return
           }
@@ -52,23 +87,31 @@ export const useAuthStore = defineStore('auth', () => {
       if (session) {
         // Verify user still exists
         const existingUser = await authDexieRepository.getUserById(session.userId)
+        assertAuthCurrent(revision)
         if (existingUser) {
+          await connectUserDatabase(existingUser.id)
+          assertAuthCurrent(revision)
           user.value = {
-            id: session.userId,
-            username: session.username,
-            displayName: session.displayName,
+            id: existingUser.id,
+            username: existingUser.username,
+            displayName: existingUser.displayName,
           }
-          await connectUserDatabase(session.userId)
         } else {
           // User no longer exists, clear session
           clearSession()
         }
       }
     } catch (err) {
+      if (revision !== authRevision) return
       console.error('Failed to initialize auth:', err)
+      user.value = null
       clearSession()
+      await disconnectUserDatabase()
     } finally {
-      isInitialized.value = true
+      if (revision === authRevision) {
+        isInitialized.value = true
+        isLoading.value = false
+      }
     }
   }
 
@@ -80,6 +123,8 @@ export const useAuthStore = defineStore('auth', () => {
     password: string,
     displayName?: string
   ): Promise<boolean> {
+    if (isLoading.value) return false
+    const revision = ++authRevision
     error.value = null
     isLoading.value = true
 
@@ -87,7 +132,9 @@ export const useAuthStore = defineStore('auth', () => {
       const normalizedUsername = username.toLowerCase().trim()
 
       // Check username uniqueness
-      if (await authDexieRepository.usernameExists(normalizedUsername)) {
+      const exists = await authDexieRepository.usernameExists(normalizedUsername)
+      assertAuthCurrent(revision)
+      if (exists) {
         error.value = 'Username already exists'
         return false
       }
@@ -104,6 +151,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       // Hash password
       const passwordHash = await hashPassword(password)
+      assertAuthCurrent(revision)
 
       // Create user
       const now = new Date().toISOString()
@@ -117,9 +165,11 @@ export const useAuthStore = defineStore('auth', () => {
       }
 
       await authDexieRepository.createUser(newUser)
+      assertAuthCurrent(revision)
 
       // Connect to user's database (creates it if doesn't exist)
       await connectUserDatabase(newUser.id)
+      assertAuthCurrent(revision)
 
       // Set session
       const authenticatedUser: AuthenticatedUser = {
@@ -132,11 +182,15 @@ export const useAuthStore = defineStore('auth', () => {
 
       return true
     } catch (err) {
+      if (revision !== authRevision) return false
+      user.value = null
+      clearSession()
+      await disconnectUserDatabase()
       console.error('Signup failed:', err)
       error.value = 'Failed to create account. Please try again.'
       return false
     } finally {
-      isLoading.value = false
+      if (revision === authRevision) isLoading.value = false
     }
   }
 
@@ -144,6 +198,9 @@ export const useAuthStore = defineStore('auth', () => {
    * Log in an existing user
    */
   async function login(username: string, password: string): Promise<boolean> {
+    if (isLoading.value) return false
+    updateClock()
+    const revision = ++authRevision
     error.value = null
 
     // Check lockout
@@ -159,6 +216,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       // Find user
       const existingUser = await authDexieRepository.getUserByUsername(normalizedUsername)
+      assertAuthCurrent(revision)
       if (!existingUser) {
         handleFailedLogin()
         error.value = 'Invalid username or password'
@@ -167,6 +225,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       // Verify password
       const isValid = await verifyPassword(password, existingUser.passwordHash)
+      assertAuthCurrent(revision)
       if (!isValid) {
         handleFailedLogin()
         error.value = 'Invalid username or password'
@@ -174,8 +233,7 @@ export const useAuthStore = defineStore('auth', () => {
       }
 
       // Reset login attempts on success
-      loginAttempts.value = 0
-      lockoutUntil.value = null
+      clearLockout()
 
       // Update last login
       const updatedUser: User = {
@@ -183,9 +241,11 @@ export const useAuthStore = defineStore('auth', () => {
         lastLoginAt: new Date().toISOString(),
       }
       await authDexieRepository.updateUser(updatedUser)
+      assertAuthCurrent(revision)
 
       // Connect to user's database
       await connectUserDatabase(existingUser.id)
+      assertAuthCurrent(revision)
 
       // Set session
       const authenticatedUser: AuthenticatedUser = {
@@ -198,11 +258,15 @@ export const useAuthStore = defineStore('auth', () => {
 
       return true
     } catch (err) {
+      if (revision !== authRevision) return false
+      user.value = null
+      clearSession()
+      await disconnectUserDatabase()
       console.error('Login failed:', err)
       error.value = 'Login failed. Please try again.'
       return false
     } finally {
-      isLoading.value = false
+      if (revision === authRevision) isLoading.value = false
     }
   }
 
@@ -212,7 +276,10 @@ export const useAuthStore = defineStore('auth', () => {
   function handleFailedLogin(): void {
     loginAttempts.value++
     if (loginAttempts.value >= MAX_LOGIN_ATTEMPTS) {
-      lockoutUntil.value = Date.now() + LOCKOUT_DURATION_MS
+      now.value = Date.now()
+      lockoutUntil.value = now.value + LOCKOUT_DURATION_MS
+      clearInterval(countdown)
+      countdown = setInterval(updateClock, 250)
     }
   }
 
@@ -220,15 +287,17 @@ export const useAuthStore = defineStore('auth', () => {
    * Log out the current user
    */
   async function logout(): Promise<void> {
+    authRevision++
+    user.value = null
+    isLoading.value = false
+    clearLockout()
+    clearSession()
+    error.value = null
     try {
       await disconnectUserDatabase()
     } catch (err) {
       console.error('Error disconnecting database:', err)
     }
-
-    clearSession()
-    user.value = null
-    error.value = null
   }
 
   /**

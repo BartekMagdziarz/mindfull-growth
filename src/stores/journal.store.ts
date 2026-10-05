@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { JournalEntry } from '@/domain/journal'
@@ -5,6 +6,7 @@ import type { EmotionGroupSelection as EmotionSelection } from '@/domain/emotion
 import { journalDexieRepository } from '@/repositories/journalDexieRepository'
 
 export const useJournalStore = defineStore('journal', () => {
+  const sessionScope = createStoreSessionScope()
   // State
   const entries = ref<JournalEntry[]>([])
   const isLoading = ref(false)
@@ -30,19 +32,27 @@ export const useJournalStore = defineStore('journal', () => {
   }
 
   async function loadEntries() {
-    isLoading.value = true
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      const loadedEntries = await journalDexieRepository.getAll()
-      entries.value = loadedEntries.map(withDefaults)
-      isLoaded.value = true
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'Failed to load journal entries'
-      error.value = errorMessage
-      console.error('Error loading journal entries:', err)
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+      try {
+        const loadedEntries = await operation.wait(journalDexieRepository.getAll())
+        entries.value = loadedEntries.map(withDefaults)
+        isLoaded.value = true
+      } catch (err) {
+        operation.assertCurrent()
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load journal entries'
+        error.value = errorMessage
+        console.error('Error loading journal entries:', err)
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -54,11 +64,18 @@ export const useJournalStore = defineStore('journal', () => {
    * the next caller retries.
    */
   async function ensureLoaded() {
-    if (isLoaded.value || isLoading.value) return
-    await loadEntries()
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    try {
+      if (isLoaded.value || isLoading.value) return
+      await operation.wait(loadEntries())
+    } catch (error) {
+      if (operation.isCurrent()) throw error
+    }
   }
 
   async function createEntry(payload: {
+    companionConversationId?: string
     title?: string
     body: string
     emotionIds?: string[]
@@ -68,6 +85,8 @@ export const useJournalStore = defineStore('journal', () => {
     contextTagIds?: string[]
     createdAt?: string
   }) {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
       const entryData = {
@@ -76,12 +95,12 @@ export const useJournalStore = defineStore('journal', () => {
         peopleTagIds: payload.peopleTagIds ?? [],
         contextTagIds: payload.contextTagIds ?? [],
       }
-      const newEntry = withDefaults(await journalDexieRepository.create(entryData))
+      const newEntry = withDefaults(await operation.wait(journalDexieRepository.create(entryData)))
       entries.value.push(newEntry)
       return newEntry
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'Failed to create journal entry'
+      operation.assertCurrent()
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create journal entry'
       error.value = errorMessage
       console.error('Error creating journal entry:', err)
       throw err
@@ -89,17 +108,19 @@ export const useJournalStore = defineStore('journal', () => {
   }
 
   async function updateEntry(entry: JournalEntry) {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const updatedEntry = withDefaults(await journalDexieRepository.update(entry))
-      const index = entries.value.findIndex((e) => e.id === entry.id)
+      const updatedEntry = withDefaults(await operation.wait(journalDexieRepository.update(entry)))
+      const index = entries.value.findIndex(e => e.id === entry.id)
       if (index !== -1) {
         entries.value[index] = updatedEntry
       }
       return updatedEntry
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'Failed to update journal entry'
+      operation.assertCurrent()
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update journal entry'
       error.value = errorMessage
       console.error('Error updating journal entry:', err)
       throw err
@@ -107,40 +128,47 @@ export const useJournalStore = defineStore('journal', () => {
   }
 
   async function deleteEntry(id: string) {
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await journalDexieRepository.delete(id)
-      entries.value = entries.value.filter((e) => e.id !== id)
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'Failed to delete journal entry'
-      error.value = errorMessage
-      console.error('Error deleting journal entry:', err)
-      throw err
+      error.value = null
+      try {
+        await operation.wait(journalDexieRepository.delete(id))
+        entries.value = entries.value.filter(e => e.id !== id)
+      } catch (err) {
+        operation.assertCurrent()
+        const errorMessage = err instanceof Error ? err.message : 'Failed to delete journal entry'
+        error.value = errorMessage
+        console.error('Error deleting journal entry:', err)
+        throw err
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function getEntryById(id: string): Promise<JournalEntry | undefined> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
       // Check in-memory entries first
-      const inMemoryEntry = entries.value.find((e) => e.id === id)
+      const inMemoryEntry = entries.value.find(e => e.id === id)
       if (inMemoryEntry) {
         return withDefaults(inMemoryEntry)
       }
 
       // Fall back to repository if not found in memory
-      const entry = await journalDexieRepository.getById(id)
+      const entry = await operation.wait(journalDexieRepository.getById(id))
       if (entry) {
         return withDefaults(entry)
       }
 
       return undefined
     } catch (err) {
+      operation.assertCurrent()
       const errorMessage =
-        err instanceof Error
-          ? err.message
-          : `Failed to retrieve journal entry with id ${id}`
+        err instanceof Error ? err.message : `Failed to retrieve journal entry with id ${id}`
       error.value = errorMessage
       console.error(`Error retrieving journal entry with id ${id}:`, err)
       throw err
@@ -153,6 +181,7 @@ export const useJournalStore = defineStore('journal', () => {
    * data before the next `load*()` re-fetches from the new database.
    */
   function reset(): void {
+    sessionScope.reset()
     entries.value = []
     isLoading.value = false
     isLoaded.value = false
@@ -177,4 +206,3 @@ export const useJournalStore = defineStore('journal', () => {
     reset,
   }
 })
-

@@ -17,7 +17,7 @@ import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieReposit
 import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'
 import { getPeriodBounds, getPeriodRefsForDate } from '@/utils/periods'
 import { useStructuredReflectionStore } from '@/stores/structuredReflection.store'
-import { loadDraftFromDB, saveDraftToDB, clearDraftFromDB } from '@/services/draftStorage'
+import { createScopedDraftStorage } from '@/services/scopedDraftStorage'
 import type { CreateMonthlyReflectionPayload } from '@/domain/reflection'
 
 // The month ritual is one wizard: planning steps ("Zaplanuj miesiąc" — pick the month's top
@@ -32,7 +32,12 @@ export type MonthlyReflectionStep =
   | 'journal'
 
 const PLANNING_STEPS: MonthlyReflectionStep[] = ['plan', 'weeks']
-const REFLECTION_STEPS: MonthlyReflectionStep[] = ['priorities-review', 'ratings', 'anchors', 'journal']
+const REFLECTION_STEPS: MonthlyReflectionStep[] = [
+  'priorities-review',
+  'ratings',
+  'anchors',
+  'journal',
+]
 const STEP_ORDER: MonthlyReflectionStep[] = [...PLANNING_STEPS, ...REFLECTION_STEPS]
 
 /** Soft cap on the month's top priorities (exceedable with a gentle warning). */
@@ -65,7 +70,13 @@ export interface PriorityAssessment {
 }
 
 function emptyAssessment(): PriorityAssessment {
-  return { effort: null, verdict: null, note: '', observedProgressSignals: [], observedRiskSignals: [] }
+  return {
+    effort: null,
+    verdict: null,
+    note: '',
+    observedProgressSignals: [],
+    observedRiskSignals: [],
+  }
 }
 
 function getDraftKey(monthRef: MonthRef): string {
@@ -88,6 +99,7 @@ export function isMonthlyReflectionUnlocked(monthRef: MonthRef, todayDayRef: Day
 }
 
 export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
+  const { loadDraftFromDB, saveDraftToDB, clearDraftFromDB } = createScopedDraftStorage()
   const store = useStructuredReflectionStore()
 
   // Step management — start on planning; reflection unlocks late in the month.
@@ -95,7 +107,7 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
   const stepIndex = computed(() => STEP_ORDER.indexOf(currentStep.value))
 
   const reflectionUnlocked = computed(() =>
-    isMonthlyReflectionUnlocked(monthRef.value, getPeriodRefsForDate(new Date()).day),
+    isMonthlyReflectionUnlocked(monthRef.value, getPeriodRefsForDate(new Date()).day)
   )
 
   function isStepLocked(step: MonthlyReflectionStep): boolean {
@@ -198,9 +210,7 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
       set.add(priorityId)
     }
     // Keep the order stable (follows the active-priority order).
-    selectedPriorityIds.value = activePriorities.value
-      .map((p) => p.id)
-      .filter((id) => set.has(id))
+    selectedPriorityIds.value = activePriorities.value.map(p => p.id).filter(id => set.has(id))
     await setMonthTopPriorities(monthRef.value, selectedPriorityIds.value)
   }
 
@@ -216,13 +226,15 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
   }
 
   /** Toggle a signal string in the priority's "noticed this month" list. */
-  function toggleObservedSignal(priorityId: string, kind: 'progress' | 'risk', signal: string): void {
+  function toggleObservedSignal(
+    priorityId: string,
+    kind: 'progress' | 'risk',
+    signal: string
+  ): void {
     const current = assessmentFor(priorityId)
     const key = kind === 'progress' ? 'observedProgressSignals' : 'observedRiskSignals'
     const list = current[key]
-    const next = list.includes(signal)
-      ? list.filter((item) => item !== signal)
-      : [...list, signal]
+    const next = list.includes(signal) ? list.filter(item => item !== signal) : [...list, signal]
     updateAssessment(priorityId, { [key]: next })
   }
 
@@ -289,8 +301,12 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
             effort: value.effort ?? null,
             verdict: value.verdict ?? null,
             note: value.note ?? '',
-            observedProgressSignals: Array.isArray(value.observedProgressSignals) ? value.observedProgressSignals : [],
-            observedRiskSignals: Array.isArray(value.observedRiskSignals) ? value.observedRiskSignals : [],
+            observedProgressSignals: Array.isArray(value.observedProgressSignals)
+              ? value.observedProgressSignals
+              : [],
+            observedRiskSignals: Array.isArray(value.observedRiskSignals)
+              ? value.observedRiskSignals
+              : [],
           }
         }
         priorityAssessments.value = normalized
@@ -302,7 +318,8 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
       if (data.coherenceRating != null) coherenceRating.value = data.coherenceRating as number
       if (data.agencyRating != null) agencyRating.value = data.agencyRating as number
 
-      if (data.promptResponses) promptResponses.value = data.promptResponses as Record<string, string>
+      if (data.promptResponses)
+        promptResponses.value = data.promptResponses as Record<string, string>
       if (data.freeformReflection) freeformReflection.value = data.freeformReflection as string
       if (typeof data.aiSummary === 'string') aiSummary.value = data.aiSummary
     } catch {
@@ -332,7 +349,7 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
       priorityAssessments,
     ],
     scheduleDraftSave,
-    { deep: true },
+    { deep: true }
   )
 
   // Initialization
@@ -348,8 +365,8 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
       dataBundle.value = bundle
       activePriorities.value = priorities
 
-      const activeIds = new Set(priorities.map((p) => p.id))
-      selectedPriorityIds.value = (monthPlan?.topPriorityIds ?? []).filter((id) => activeIds.has(id))
+      const activeIds = new Set(priorities.map(p => p.id))
+      selectedPriorityIds.value = (monthPlan?.topPriorityIds ?? []).filter(id => activeIds.has(id))
 
       const existing: Record<string, PriorityAssessment> = {}
       for (const reflection of allObjectReflections) {
@@ -372,7 +389,7 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
 
       focusConfrontation.value = await getMonthlyFocusConfrontation(
         monthRef.value,
-        priorities.map((p) => p.id),
+        priorities.map(p => p.id)
       )
     } catch (err) {
       console.error('Error loading monthly reflection data bundle:', err)
@@ -441,9 +458,13 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
       ...Object.keys(priorityAssessments.value),
     ])
     await Promise.all(
-      [...ids].map((id) =>
-        setMonthlyPriorityAssessment(monthRef.value, id, priorityAssessments.value[id] ?? emptyAssessment()),
-      ),
+      [...ids].map(id =>
+        setMonthlyPriorityAssessment(
+          monthRef.value,
+          id,
+          priorityAssessments.value[id] ?? emptyAssessment()
+        )
+      )
     )
     initialAssessments = { ...priorityAssessments.value }
   }

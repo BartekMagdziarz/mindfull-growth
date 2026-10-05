@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 /**
  * Micro Exercise Entry Store
  *
@@ -8,14 +9,12 @@
 
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type {
-  CreateMicroExerciseEntryPayload,
-  MicroExerciseEntry,
-} from '@/domain/microExercises'
+import type { CreateMicroExerciseEntryPayload, MicroExerciseEntry } from '@/domain/microExercises'
 import { microExerciseEntryDexieRepository } from '@/repositories/microExerciseEntryDexieRepository'
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useMicroExerciseEntryStore = defineStore('microExerciseEntry', () => {
+  const sessionScope = createStoreSessionScope()
   const entries = ref<MicroExerciseEntry[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
@@ -26,19 +25,28 @@ export const useMicroExerciseEntryStore = defineStore('microExerciseEntry', () =
 
   const entriesBySlug = computed(() => {
     return (exerciseSlug: string): MicroExerciseEntry[] =>
-      sortedEntries.value.filter((entry) => entry.exerciseSlug === exerciseSlug)
+      sortedEntries.value.filter(entry => entry.exerciseSlug === exerciseSlug)
   })
 
   async function loadEntries(): Promise<void> {
-    isLoading.value = true
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      entries.value = await microExerciseEntryDexieRepository.getAll()
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load micro exercise entries'
-      console.error('Error loading micro exercise entries:', err)
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+      try {
+        entries.value = await operation.wait(microExerciseEntryDexieRepository.getAll())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to load micro exercise entries'
+        console.error('Error loading micro exercise entries:', err)
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -49,17 +57,20 @@ export const useMicroExerciseEntryStore = defineStore('microExerciseEntry', () =
    */
   async function createEntry(
     data: CreateMicroExerciseEntryPayload,
-    completionSlug: string = data.exerciseSlug,
+    completionSlug: string = data.exerciseSlug
   ): Promise<MicroExerciseEntry> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const entry = await microExerciseEntryDexieRepository.create(data)
+      const entry = await operation.wait(microExerciseEntryDexieRepository.create(data))
       void useExerciseCompletionsStore()
         .record(completionSlug, entry.id)
-        .catch((err) => console.error('Failed to record exercise completion:', err))
+        .catch(err => console.error('Failed to record exercise completion:', err))
       entries.value.push(entry)
       return entry
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to create micro exercise entry'
       console.error('Error creating micro exercise entry:', err)
       throw err
@@ -67,14 +78,21 @@ export const useMicroExerciseEntryStore = defineStore('microExerciseEntry', () =
   }
 
   async function deleteEntry(id: string): Promise<void> {
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await microExerciseEntryDexieRepository.delete(id)
-      entries.value = entries.value.filter((entry) => entry.id !== id)
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete micro exercise entry'
-      console.error('Error deleting micro exercise entry:', err)
-      throw err
+      error.value = null
+      try {
+        await operation.wait(microExerciseEntryDexieRepository.delete(id))
+        entries.value = entries.value.filter(entry => entry.id !== id)
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to delete micro exercise entry'
+        console.error('Error deleting micro exercise entry:', err)
+        throw err
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -84,6 +102,7 @@ export const useMicroExerciseEntryStore = defineStore('microExerciseEntry', () =
    * data before the next `load*()` re-fetches from the new database.
    */
   function reset(): void {
+    sessionScope.reset()
     entries.value = []
     isLoading.value = false
     error.value = null

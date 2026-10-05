@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 /**
  * Socratic Self-Dialogue Store
  *
@@ -15,6 +16,7 @@ import { socraticDialogueDexieRepository } from '@/repositories/exercisesDexieRe
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useSocraticDialogueStore = defineStore('socraticDialogue', () => {
+  const sessionScope = createStoreSessionScope()
   const dialogues = ref<SocraticSelfDialogue[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
@@ -29,33 +31,47 @@ export const useSocraticDialogueStore = defineStore('socraticDialogue', () => {
 
   const getDialogueById = computed(() => {
     return (id: string): SocraticSelfDialogue | undefined => {
-      return dialogues.value.find((item) => item.id === id)
+      return dialogues.value.find(item => item.id === id)
     }
   })
 
   async function loadDialogues(): Promise<void> {
-    isLoading.value = true
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      dialogues.value = await socraticDialogueDexieRepository.getAll()
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load dialogues'
-      console.error('Error loading dialogues:', err)
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+      try {
+        dialogues.value = await operation.wait(socraticDialogueDexieRepository.getAll())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to load dialogues'
+        console.error('Error loading dialogues:', err)
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
-  async function createDialogue(data: CreateSocraticDialoguePayload): Promise<SocraticSelfDialogue> {
+  async function createDialogue(
+    data: CreateSocraticDialoguePayload
+  ): Promise<SocraticSelfDialogue> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const item = await socraticDialogueDexieRepository.create(data)
+      const item = await operation.wait(socraticDialogueDexieRepository.create(data))
       void useExerciseCompletionsStore()
         .record('socratic-dialogue', item.id)
-        .catch((err) => console.error('Failed to record exercise completion:', err))
+        .catch(err => console.error('Failed to record exercise completion:', err))
       dialogues.value.push(item)
       return item
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to create dialogue'
       console.error('Error creating dialogue:', err)
       throw err
@@ -64,17 +80,20 @@ export const useSocraticDialogueStore = defineStore('socraticDialogue', () => {
 
   async function updateDialogue(
     id: string,
-    data: UpdateSocraticDialoguePayload,
+    data: UpdateSocraticDialoguePayload
   ): Promise<SocraticSelfDialogue> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const updated = await socraticDialogueDexieRepository.update(id, data)
-      const index = dialogues.value.findIndex((item) => item.id === id)
+      const updated = await operation.wait(socraticDialogueDexieRepository.update(id, data))
+      const index = dialogues.value.findIndex(item => item.id === id)
       if (index !== -1) {
         dialogues.value[index] = updated
       }
       return updated
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to update dialogue'
       console.error('Error updating dialogue:', err)
       throw err
@@ -82,14 +101,21 @@ export const useSocraticDialogueStore = defineStore('socraticDialogue', () => {
   }
 
   async function deleteDialogue(id: string): Promise<void> {
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await socraticDialogueDexieRepository.delete(id)
-      dialogues.value = dialogues.value.filter((item) => item.id !== id)
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete dialogue'
-      console.error('Error deleting dialogue:', err)
-      throw err
+      error.value = null
+      try {
+        await operation.wait(socraticDialogueDexieRepository.delete(id))
+        dialogues.value = dialogues.value.filter(item => item.id !== id)
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to delete dialogue'
+        console.error('Error deleting dialogue:', err)
+        throw err
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -99,6 +125,7 @@ export const useSocraticDialogueStore = defineStore('socraticDialogue', () => {
    * data before the next `load*()` re-fetches from the new database.
    */
   function reset(): void {
+    sessionScope.reset()
     dialogues.value = []
     isLoading.value = false
     error.value = null

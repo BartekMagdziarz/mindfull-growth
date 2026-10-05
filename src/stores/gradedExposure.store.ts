@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 /**
  * Graded Exposure Hierarchy Store
  *
@@ -16,6 +17,7 @@ import { gradedExposureHierarchyDexieRepository } from '@/repositories/exercises
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useGradedExposureStore = defineStore('gradedExposure', () => {
+  const sessionScope = createStoreSessionScope()
   const hierarchies = ref<GradedExposureHierarchy[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
@@ -30,33 +32,47 @@ export const useGradedExposureStore = defineStore('gradedExposure', () => {
 
   const getHierarchyById = computed(() => {
     return (id: string): GradedExposureHierarchy | undefined => {
-      return hierarchies.value.find((h) => h.id === id)
+      return hierarchies.value.find(h => h.id === id)
     }
   })
 
   async function loadHierarchies(): Promise<void> {
-    isLoading.value = true
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      hierarchies.value = await gradedExposureHierarchyDexieRepository.getAll()
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load exposure hierarchies'
-      console.error('Error loading exposure hierarchies:', err)
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+      try {
+        hierarchies.value = await operation.wait(gradedExposureHierarchyDexieRepository.getAll())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to load exposure hierarchies'
+        console.error('Error loading exposure hierarchies:', err)
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
-  async function createHierarchy(data: CreateGradedExposureHierarchyPayload): Promise<GradedExposureHierarchy> {
+  async function createHierarchy(
+    data: CreateGradedExposureHierarchyPayload
+  ): Promise<GradedExposureHierarchy> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const hierarchy = await gradedExposureHierarchyDexieRepository.create(data)
+      const hierarchy = await operation.wait(gradedExposureHierarchyDexieRepository.create(data))
       void useExerciseCompletionsStore()
         .record('graded-exposure', hierarchy.id)
-        .catch((err) => console.error('Failed to record exercise completion:', err))
+        .catch(err => console.error('Failed to record exercise completion:', err))
       hierarchies.value.push(hierarchy)
       return hierarchy
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to create exposure hierarchy'
       console.error('Error creating exposure hierarchy:', err)
       throw err
@@ -65,17 +81,20 @@ export const useGradedExposureStore = defineStore('gradedExposure', () => {
 
   async function updateHierarchy(
     id: string,
-    data: UpdateGradedExposureHierarchyPayload,
+    data: UpdateGradedExposureHierarchyPayload
   ): Promise<GradedExposureHierarchy> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     error.value = null
     try {
-      const updated = await gradedExposureHierarchyDexieRepository.update(id, data)
-      const index = hierarchies.value.findIndex((h) => h.id === id)
+      const updated = await operation.wait(gradedExposureHierarchyDexieRepository.update(id, data))
+      const index = hierarchies.value.findIndex(h => h.id === id)
       if (index !== -1) {
         hierarchies.value[index] = updated
       }
       return updated
     } catch (err) {
+      operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to update exposure hierarchy'
       console.error('Error updating exposure hierarchy:', err)
       throw err
@@ -83,14 +102,21 @@ export const useGradedExposureStore = defineStore('gradedExposure', () => {
   }
 
   async function deleteHierarchy(id: string): Promise<void> {
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      await gradedExposureHierarchyDexieRepository.delete(id)
-      hierarchies.value = hierarchies.value.filter((h) => h.id !== id)
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete exposure hierarchy'
-      console.error('Error deleting exposure hierarchy:', err)
-      throw err
+      error.value = null
+      try {
+        await operation.wait(gradedExposureHierarchyDexieRepository.delete(id))
+        hierarchies.value = hierarchies.value.filter(h => h.id !== id)
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to delete exposure hierarchy'
+        console.error('Error deleting exposure hierarchy:', err)
+        throw err
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -100,6 +126,7 @@ export const useGradedExposureStore = defineStore('gradedExposure', () => {
    * data before the next `load*()` re-fetches from the new database.
    */
   function reset(): void {
+    sessionScope.reset()
     hierarchies.value = []
     isLoading.value = false
     error.value = null
