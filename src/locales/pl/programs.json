@@ -808,5 +808,33 @@
     "lead": "Każda dostanie następny termin ({rhythm}), a po wykonaniu zaproponuje kolejny — jak każda powtórka.",
     "cta": "Zaplanuj",
     "done": "Zaplanowane. Pierwszy termin: {date}."
+  },
+  "dose": {
+    "title": "Czy nie za dużo?",
+    "leadTooMuch": {
+      "m": "Napisałeś, że praktyk jest za dużo. Rzadziej też działa — liczy się regularność, nie ilość.",
+      "f": "Napisałaś, że praktyk jest za dużo. Rzadziej też działa — liczy się regularność, nie ilość."
+    },
+    "leadNone": {
+      "m": "Napisałeś, że ich nie robisz. To nie wyrzut. Zostawmy samo to, co najmniejsze: oddech. Reszta raz w tygodniu, aż wróci miejsce.",
+      "f": "Napisałaś, że ich nie robisz. To nie wyrzut. Zostawmy samo to, co najmniejsze: oddech. Reszta raz w tygodniu, aż wróci miejsce."
+    },
+    "cardHint": "Warto przeczytać kartę „{card}”.",
+    "applyTooMuch": "Rzadziej",
+    "applyNone": "Zostaw tylko oddech",
+    "keep": "Zostaw jak jest",
+    "followUp": "Propozycja spokojniejszego rytmu czeka w widoku ścieżki. Jedno kliknięcie.",
+    "open": "Otwórz ścieżkę"
+  },
+  "followUp": {
+    "reenrollTitle": "Zacząć ścieżkę jeszcze raz?",
+    "reenrollDescription": "Druga runda bywa inna niż pierwsza: znasz już kroki, więc więcej uwagi zostaje na to, co się dzieje. Można też po prostu zostać przy tym, co pomaga.",
+    "reenrollCta": "Otwórz ścieżkę"
+  },
+  "pattern": {
+    "cta": "Zaproponuj wzorzec tygodnia",
+    "loading": "Chwila…",
+    "label": "Propozycja",
+    "error": "Nie udało się przygotować zdania. Spróbuj później."
   }
 }

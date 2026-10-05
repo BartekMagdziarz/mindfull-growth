@@ -27,6 +27,7 @@ import {
   runProgramScheduler,
   skipOptionalStep as skipOptionalStepService,
 } from '@/services/programSchedulerService'
+import { setPracticeOverrides as setPracticeOverridesService } from '@/services/programFollowUpService'
 import { useExercisePlanStore } from '@/stores/exercisePlan.store'
 
 export const useProgramEnrollmentStore = defineStore('programEnrollment', () => {
@@ -194,6 +195,15 @@ export const useProgramEnrollmentStore = defineStore('programEnrollment', () => 
     return enrollment
   }
 
+  /** Dose check decided: rhythm overrides written, practice items reconciled and mirrored. */
+  async function applyPracticeOverrides(id: string, overrides: Record<string, { everyDays: number }>): Promise<void> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    const { enrollment, practices } = await operation.wait(setPracticeOverridesService(id, overrides))
+    applyUpdate(enrollment)
+    mirrorPractices(practices)
+  }
+
   /** Knowledge card opened and closed with "Przeczytane" — a marker, never a gate. */
   async function markCardRead(id: string, cardKey: string): Promise<void> {
     const operation = sessionScope.capture()
@@ -257,6 +267,7 @@ export const useProgramEnrollmentStore = defineStore('programEnrollment', () => 
     abandon,
     skipStep,
     markCardRead,
+    applyPracticeOverrides,
     runScheduler,
     reset,
   }

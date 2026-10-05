@@ -33,7 +33,8 @@ export function useDayWellness(dayRef: Ref<DayRef>) {
   )
   const exerciseDayCompletions = computed(() => exerciseCompletionsStore.completionsForDay(dayRef.value))
   const duePlanItems = computed(() => (isToday.value ? exercisePlanStore.dueItems(dayRef.value) : []))
-  const activeEnrollments = computed(() => (isToday.value ? programEnrollmentStore.activeEnrollments : []))
+  // Active paths plus closed ones with a follow-up step ahead ("Powrót"), so the return shows up on its day.
+  const activeEnrollments = computed(() => (isToday.value ? programEnrollmentStore.deliveringEnrollments : []))
   const todayEmotionLogs = computed<EmotionDonutLog[]>(() =>
     emotionLogStore.logs
       .filter(log => log.createdAt.slice(0, 10) === dayRef.value)

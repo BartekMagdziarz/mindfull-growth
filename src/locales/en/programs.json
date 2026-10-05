@@ -808,5 +808,33 @@
     "lead": "Each gets a next date ({rhythm}) and offers the next one once done, like every repeat.",
     "cta": "Plan",
     "done": "Planned. First date: {date}."
+  },
+  "dose": {
+    "title": "Is it too much?",
+    "leadTooMuch": {
+      "m": "You wrote that the practices are too much. Less often works too — regularity counts, not quantity.",
+      "f": "You wrote that the practices are too much. Less often works too — regularity counts, not quantity."
+    },
+    "leadNone": {
+      "m": "You wrote that you are not doing them. No reproach. Let us keep only the smallest thing: the breath. The rest once a week, until there is room again.",
+      "f": "You wrote that you are not doing them. No reproach. Let us keep only the smallest thing: the breath. The rest once a week, until there is room again."
+    },
+    "cardHint": "The card “{card}” is worth a read.",
+    "applyTooMuch": "Less often",
+    "applyNone": "Keep only the breath",
+    "keep": "Leave as is",
+    "followUp": "A calmer rhythm is proposed in the path view. One click.",
+    "open": "Open the path"
+  },
+  "followUp": {
+    "reenrollTitle": "Start the path again?",
+    "reenrollDescription": "A second round tends to differ from the first: you know the steps, so more attention goes to what happens. Staying with what helps is fine too.",
+    "reenrollCta": "Open the path"
+  },
+  "pattern": {
+    "cta": "Propose this week’s pattern",
+    "loading": "A moment…",
+    "label": "Proposal",
+    "error": "Could not prepare the sentence. Try again later."
   }
 }

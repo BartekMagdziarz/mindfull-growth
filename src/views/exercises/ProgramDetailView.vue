@@ -94,6 +94,8 @@
           @enroll="handleEnroll"
         />
 
+        <PathDoseCard v-if="dose" :proposal="dose" :busy="busy" @apply="applyDose" @keep="keepDose" />
+
         <section
           v-if="enrollment && (showGlance || hasOutcomes)"
           class="mg-v2-surface mg-v2-surface--raised-sm pp-card"
@@ -146,6 +148,7 @@ import { getCatalogEntry } from '@/data/exerciseCatalog'
 import { getProgramDefinition } from '@/data/programCatalog'
 import type { MicroExerciseEntry } from '@/domain/microExercises'
 import { momentsProgress, weekRefsEndingAt } from '@/domain/momentsProgress'
+import { doseProposal, futureLetterDue, keepRhythmOverrides } from '@/domain/programFollowUp'
 import type { DayRef, WeekRef } from '@/domain/period'
 import type { ProgramStep } from '@/domain/program'
 import type { WeeklyReflection } from '@/domain/reflection'
@@ -155,6 +158,7 @@ import PathMeasureTracks from '@/features/program-path/PathMeasureTracks.vue'
 import PathMomentsGlance from '@/features/program-path/PathMomentsGlance.vue'
 import PathNowCard, { type PathNowMode } from '@/features/program-path/PathNowCard.vue'
 import PathSentencesCard from '@/features/program-path/PathSentencesCard.vue'
+import PathDoseCard from '@/features/program-path/PathDoseCard.vue'
 import MomentPickerDialog from '@/features/program-path/MomentPickerDialog.vue'
 import { useStepLauncher } from '@/features/program-path/useStepLauncher'
 import { currentGroupIndex, pathGroups, weekCount } from '@/features/program-path/pathModel'
@@ -295,12 +299,38 @@ const momentStats = computed(() =>
 const responseEntry = computed(() =>
   program.value?.momentKind === 'shame' ? pathEntries.value.find((entry) => entry.exerciseSlug === 'shame-response') : undefined,
 )
+/** The letter to a future self: on the return, or from its own day (`futureLetter.showAt`) on. */
 const letter = computed(() => {
-  if (enrollment.value?.status !== 'completed') return ''
-  const entry = pathEntries.value.find((item) => item.exerciseSlug === 'letter-to-future-self')
+  if (!enrollment.value) return ''
+  if (enrollment.value.status !== 'completed' && !futureLetterDue(enrollment.value, todayRef.value)) return ''
+  const byId = enrollment.value.futureLetter
+    ? pathEntries.value.find((item) => item.id === enrollment.value!.futureLetter!.entryId)
+    : undefined
+  const entry = byId ?? pathEntries.value.find((item) => item.exerciseSlug === 'letter-to-future-self')
   const value = entry?.responses.letter
   return typeof value === 'string' ? value.trim() : ''
 })
+
+// ── Czy nie za dużo? → a calmer rhythm proposed once, decided with one click ──
+const dose = computed(() =>
+  program.value && openEnrollment.value?.status === 'active' ? doseProposal(program.value, openEnrollment.value, pathEntries.value) : null,
+)
+async function applyDose(): Promise<void> {
+  const target = openEnrollment.value
+  const proposal = dose.value
+  if (!target || !proposal) return
+  await run(() =>
+    enrollmentStore.applyPracticeOverrides(
+      target.id,
+      Object.fromEntries(proposal.items.map((item) => [item.slug, { everyDays: item.to }])),
+    ),
+  )
+}
+async function keepDose(): Promise<void> {
+  const target = openEnrollment.value
+  if (!target || !program.value) return
+  await run(() => enrollmentStore.applyPracticeOverrides(target.id, keepRhythmOverrides(program.value!, target)))
+}
 
 // ── Closed ──
 const maintenanceIndex = computed(() => program.value?.steps.findIndex((step) => step.closesPath) ?? -1)

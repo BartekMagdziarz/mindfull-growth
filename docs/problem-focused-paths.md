@@ -162,8 +162,24 @@ boi" from the part card and adds a `body-check` step after the part's answer
 Already in place from P1: "Jeszcze nie" in Świadkowanie, `?frame=demand` in the positive data
 log, `labelsFromParts` in Momenty.
 
-**Still to come (plan phase P4):** Powrót surfacing in Today, the letter from the future self
-resurfacing, the dose-check rhythm proposal (`practiceOverrides`) and the AI week-pattern line.
+**P4 (2026-10-05) — after the steps.** Today lists `deliveringEnrollments`, so the closed
+path's Powrót step shows up on its day with the context "Powrót". The letter to a future
+self is recorded on its enrollment when saved (`programFollowUpService.recordFutureLetter`
+→ `futureLetter { entryId, showAt }`, `returnIn` w4/w8/w12 → +28/56/84 days); from `showAt`
+on the path view's Teraz offers "List od Ciebie", and Today shows a "List od ciebie" row for
+a week. "Czy nie za dużo?" with "za dużo" or "nie robię ich" makes the path view propose a
+calmer rhythm (`domain/programFollowUp.ts` `doseProposal`: faster-than-every-third-day
+practices → every 3 days; "none" → everything but the breath weekly; `PathDoseCard` with
+"Rzadziej / Zostaw tylko oddech" and "Zostaw jak jest" = `keepRhythmOverrides`); one click
+writes `practiceOverrides` (`programEnrollmentStore.applyPracticeOverrides`) and the
+scheduler re-reads them through `effectivePractice`. Never "do more". The dose-check saved
+screen links to the proposal. After Powrót the kept practices can run on as weekly repeats
+and the path can be opened to start again. The weekly reflection's shame block has
+"Zaproponuj wzorzec tygodnia": `pathLLMAssists.describeWeekPattern` with the new
+`PATH_WEEK_PATTERN` prompt (pl/en, `prompts/path.*.ts`) turns the week's
+`MomentsWeekStats` (+ previous week, up to three kind sentences) into one descriptive
+sentence, shown as "Propozycja", never judging or consoling; the path's records stay out of
+the companion's history. With P4 the v3 plan is complete.
 
 ## New building blocks (2026-09-23)
 

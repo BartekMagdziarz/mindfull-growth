@@ -102,6 +102,20 @@
             </span>
             <em>{{ action.dateLabel }}</em>
           </button>
+          <button
+            v-if="group.letter"
+            type="button"
+            class="next-day-exercises__row next-day-exercises__main next-day-exercises__row--child"
+            :aria-label="t('planning.today.wellness.programLetter')"
+            data-testid="today-path-letter"
+            @click="router.push({ name: 'program-detail', params: { slug: group.slug } })"
+          >
+            <span class="next-day-exercises__icon"><AppIcon name="mg-exercise-letter-to-future-self" /></span>
+            <span class="next-day-exercises__copy">
+              <strong>{{ t('planning.today.wellness.programLetter') }}</strong>
+              <span class="next-day-exercises__context">{{ t('planning.today.wellness.programLetterContext') }}</span>
+            </span>
+          </button>
           <!-- At most two quick actions per path (Lab round 2, D3): a moment and the plan. -->
           <div v-if="group.quick.length" class="next-day-exercises__quick">
             <RouterLink v-for="quick in group.quick" :key="quick.id" :to="quick.route" class="pp-chip">
@@ -129,6 +143,7 @@ import type { DayRef } from '@/domain/period'
 import { DsSurface } from '@/design-system/components'
 import { isPracticeItem } from '@/services/programSchedulerService'
 import { pathGroups, weekCount } from '@/features/program-path/pathModel'
+import { futureLetterFresh } from '@/domain/programFollowUp'
 import MomentPickerDialog from '@/features/program-path/MomentPickerDialog.vue'
 import { useStepLauncher } from '@/features/program-path/useStepLauncher'
 import { useMicroExerciseEntryStore } from '@/stores/microExerciseEntry.store'
@@ -192,7 +207,11 @@ function openAction(programSlug: string, action: { route: string; stepIndex?: nu
 }
 
 /** "tydzień 4 z 8" for paths whose phases are weeks, else "krok n z m". */
-function progressLabel(program: NonNullable<ReturnType<typeof getProgramDefinition>>, enrollment: { currentStepIndex: number }): string {
+function progressLabel(
+  program: NonNullable<ReturnType<typeof getProgramDefinition>>,
+  enrollment: { currentStepIndex: number; status: string },
+): string {
+  if (enrollment.status === 'completed') return t('programs.ui.statusReturn')
   const groups = pathGroups(program)
   const weeks = weekCount(groups)
   const current = groups.find(
@@ -218,6 +237,8 @@ const programGroups = computed(() =>
     )
     const step = own.find((item) => !isPracticeItem(item))
     const context = program ? progressLabel(program, enrollment) : ''
+    // The letter to a future self waits in Today for a week from its day.
+    const letter = futureLetterFresh(enrollment, props.dayRef)
     const listed = own
       .filter((item) => item.dayRef <= props.dayRef || item === step)
       .sort((a, b) => Number(isPracticeItem(a)) - Number(isPracticeItem(b)))
@@ -261,6 +282,7 @@ const programGroups = computed(() =>
                 : formatDay(item.dayRef),
       })),
       quick,
+      letter,
     }
   }),
 )

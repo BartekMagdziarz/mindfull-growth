@@ -489,7 +489,9 @@
       "plannedOverdueSince": "overdue since {date}",
       "programPractice": "practice",
       "programStepLabel": "step {n}",
-      "programWeekProgress": "week {current} of {total}"
+      "programWeekProgress": "week {current} of {total}",
+      "programLetter": "A letter from you",
+      "programLetterContext": "written earlier for a worse day"
     },
     "stage": {
       "tomorrow": "Tomorrow",

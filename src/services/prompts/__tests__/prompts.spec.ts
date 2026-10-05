@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getCbtPrompts, getLogotherapyPrompts, getIfsPrompts, getChatPrompts } from '../index'
+import { getCbtPrompts, getLogotherapyPrompts, getIfsPrompts, getChatPrompts, getPathPrompts } from '../index'
 import type { CbtPromptModule, LogotherapyPromptModule, IfsPromptModule, ChatPromptModule } from '../types'
 
 describe('prompt modules', () => {
@@ -216,6 +216,20 @@ describe('prompt modules', () => {
       const prompts = getChatPrompts('xx' as never)
       const enPrompts = getChatPrompts('en')
       expect(prompts).toBe(enPrompts)
+    })
+  })
+
+  describe('getPathPrompts', () => {
+    it('returns the week-pattern prompt with labels in both locales and falls back to English', () => {
+      for (const locale of ['pl', 'en'] as const) {
+        const prompts = getPathPrompts(locale)
+        expect(prompts.PATH_WEEK_PATTERN).toBeTruthy()
+        expect(prompts.labels.noticing.during).toBeTruthy()
+        expect(prompts.labels.nonePart).toBeTruthy()
+      }
+      expect(getPathPrompts('pl').PATH_WEEK_PATTERN).toContain('po polsku')
+      expect(getPathPrompts('en').PATH_WEEK_PATTERN).not.toContain('po polsku')
+      expect(getPathPrompts('xx' as never)).toBe(getPathPrompts('en'))
     })
   })
 })

@@ -489,7 +489,9 @@
       "plannedOverdueSince": "zaległe od {date}",
       "programPractice": "praktyka",
       "programStepLabel": "krok {n}",
-      "programWeekProgress": "tydzień {current} z {total}"
+      "programWeekProgress": "tydzień {current} z {total}",
+      "programLetter": "List od ciebie",
+      "programLetterContext": "napisany wcześniej na gorszy dzień"
     },
     "stage": {
       "tomorrow": "Jutro",

@@ -238,3 +238,25 @@ export interface ChatPromptModule {
     none: string
   }
 }
+
+// ============================================================================
+// Paths (programs)
+// ============================================================================
+
+export interface PathPromptModule {
+  /** One descriptive sentence about a week of Momenty (shame path) — a proposal, never a judgement. */
+  PATH_WEEK_PATTERN: string
+
+  labels: {
+    thisWeek: string
+    previousWeek: string
+    moments: string
+    unlogged: string
+    parts: string
+    noticed: string
+    responded: string
+    kindVoices: string
+    noticing: Record<'during' | 'soon' | 'hours' | 'later' | 'unknown', string>
+    nonePart: string
+  }
+}

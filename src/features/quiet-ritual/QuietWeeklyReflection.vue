@@ -220,6 +220,23 @@
              moments you did not log — the estimate the glance draws as an outline (plan v3 §P2). -->
         <template v-if="block.program.momentKind === 'shame'">
           <PathMomentsGlance :stats="glanceStats(block)" :first-week="glanceFirstWeek(block)" compact />
+          <div class="qr-path-pattern">
+            <button
+              type="button"
+              class="qr-path-block__toggle"
+              :disabled="patternLoading[block.enrollment.id]"
+              data-testid="path-week-pattern"
+              @click="requestPattern(block)"
+            >
+              <AppIcon name="auto_awesome" />
+              {{ patternLoading[block.enrollment.id] ? t('programs.pattern.loading') : t('programs.pattern.cta') }}
+            </button>
+            <p v-if="patterns[block.enrollment.id]" class="qr-path-pattern__text">
+              <small>{{ t('programs.pattern.label') }}</small>
+              {{ patterns[block.enrollment.id] }}
+            </p>
+            <p v-else-if="patternErrors[block.enrollment.id]" class="qr-path-pattern__text qr-path-pattern__text--error">{{ patternErrors[block.enrollment.id] }}</p>
+          </div>
           <div class="qr-path-block__unlogged">
             <span>{{ tg('programs.week.unloggedQuestion') }}</span>
             <div class="qr-path-chips" role="group" :aria-label="tg('programs.week.unloggedQuestion')">
@@ -798,6 +815,43 @@ function weekMoments(block: ReflectionPathBlock): MicroExerciseEntry[] {
 
 function toggleMoments(block: ReflectionPathBlock): void {
   momentsOpen[block.enrollment.id] = !momentsOpen[block.enrollment.id]
+}
+
+// ── Week pattern (AI): one descriptive sentence, on demand, marked as a proposal ──
+const patterns = reactive<Record<string, string>>({})
+const patternErrors = reactive<Record<string, string>>({})
+const patternLoading = reactive<Record<string, boolean>>({})
+
+async function requestPattern(block: ReflectionPathBlock): Promise<void> {
+  const id = block.enrollment.id
+  patternLoading[id] = true
+  patternErrors[id] = ''
+  try {
+    const { describeWeekPattern } = await import('@/services/pathLLMAssists')
+    const stats = glanceStats(block)
+    const week = stats[stats.length - 1]!
+    const previous = stats.length > 1 ? stats[0] : undefined
+    const kindVoices = weekMoments(block)
+      .map(moment => moment.responses.kindVoice)
+      .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
+      .slice(0, 3)
+    patterns[id] = await describeWeekPattern({
+      week,
+      previous,
+      partLabels: {
+        withdraw: tg('exerciseWizards.micro.moments.compass.options.withdraw'),
+        attackSelf: tg('exerciseWizards.micro.moments.compass.options.attackSelf'),
+        attackOthers: tg('exerciseWizards.micro.moments.compass.options.attackOthers'),
+        avoid: tg('exerciseWizards.micro.moments.compass.options.avoid'),
+      },
+      kindVoices,
+      locale: locale.value,
+    })
+  } catch (err) {
+    patternErrors[id] = err instanceof Error ? err.message : t('programs.pattern.error')
+  } finally {
+    patternLoading[id] = false
+  }
 }
 
 // ── Shame path glance + "moments you did not log" ──

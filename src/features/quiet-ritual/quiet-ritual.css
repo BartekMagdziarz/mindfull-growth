@@ -2626,3 +2626,11 @@
 .qr-path-chips button { min-height: 36px; padding: 0 14px; border-radius: 12px; background: var(--qr-inner); color: var(--qr-ink); font-size: 13px; font-weight: 600; }
 .qr-path-chips button:hover { background: var(--qr-card); }
 .qr-path-chips button[aria-pressed='true'] { background: var(--qr-accent-strong); color: var(--qr-on-accent); }
+
+/* Shame path block: the week pattern (AI) — a quiet toggle-like button, the sentence under it marked as a proposal. */
+.qr-path-pattern { display: grid; gap: 6px; }
+.qr-path-pattern .qr-path-block__toggle { gap: 8px; }
+.qr-path-pattern .material-symbols-outlined { font-size: 18px; }
+.qr-path-pattern__text { display: grid; gap: 2px; margin: 0; padding: 10px 14px; border-radius: 12px 15px 11px 14px; background: var(--qr-inner); color: var(--qr-ink); font-size: 14px; line-height: 1.5; }
+.qr-path-pattern__text small { color: var(--qr-muted); font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.qr-path-pattern__text--error { color: var(--qr-muted); }

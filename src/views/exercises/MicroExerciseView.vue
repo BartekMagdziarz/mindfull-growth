@@ -23,6 +23,34 @@
       <ExerciseSavedPanel :exercise-slug="slug" @again="saved = false" />
       <!-- The maintenance plan closes the path: the kept practices become repeat plans. -->
       <MaintenanceRepeatsPanel v-if="slug === 'maintenance-plan' && lastResponses" :responses="lastResponses" />
+      <!-- Powrót: what stayed can run on as repeats; the path can start again. -->
+      <template v-if="slug === 'path-return' && lastResponses">
+        <MaintenanceRepeatsPanel :responses="{ keep: lastResponses.kept ?? [], rhythm: 'weekly' }" />
+        <AppCard padding="lg" class="micro-follow-up mt-4" data-testid="return-reenroll">
+          <div class="micro-follow-up__copy">
+            <h2 class="text-base font-semibold text-on-surface">{{ t('programs.followUp.reenrollTitle') }}</h2>
+            <p class="text-sm text-on-surface-variant">{{ t('programs.followUp.reenrollDescription') }}</p>
+          </div>
+          <AppButton v-if="returnProgramSlug" variant="tonal" @click="router.push({ name: 'program-detail', params: { slug: returnProgramSlug } })">
+            {{ t('programs.followUp.reenrollCta') }}
+          </AppButton>
+        </AppCard>
+      </template>
+      <!-- Dose check: the proposal (less often · only the breath) waits in the path view. -->
+      <AppCard
+        v-if="slug === 'dose-check' && doseProgramSlug && (lastResponses?.load === 'tooMuch' || lastResponses?.load === 'none')"
+        padding="lg"
+        class="micro-follow-up mt-4"
+        data-testid="dose-follow-up"
+      >
+        <div class="micro-follow-up__copy">
+          <h2 class="text-base font-semibold text-on-surface">{{ t('programs.dose.title') }}</h2>
+          <p class="text-sm text-on-surface-variant">{{ t('programs.dose.followUp') }}</p>
+        </div>
+        <AppButton variant="tonal" @click="router.push({ name: 'program-detail', params: { slug: doseProgramSlug } })">
+          {{ t('programs.dose.open') }}
+        </AppButton>
+      </AppCard>
       <AppCard v-if="definition.afterSave && lastResponses" padding="lg" class="micro-follow-up mt-4">
         <div class="micro-follow-up__copy">
           <h2 class="text-base font-semibold text-on-surface">
@@ -79,6 +107,10 @@ import ExercisePage from '@/components/exercises/ExercisePage.vue'
 import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import MicroExerciseRunner from '@/components/exercises/MicroExerciseRunner.vue'
 import MaintenanceRepeatsPanel from '@/features/program-path/MaintenanceRepeatsPanel.vue'
+import { FUTURE_LETTER_SLUG } from '@/domain/programFollowUp'
+import { recordFutureLetter } from '@/services/programFollowUpService'
+import { useProgramEnrollmentStore } from '@/stores/programEnrollment.store'
+import { PROGRAM_CATALOG } from '@/data/programCatalog'
 import { useT } from '@/composables/useT'
 import { definitionSlugFor, getCatalogEntry } from '@/data/exerciseCatalog'
 import { getMicroExercise } from '@/data/microExercises'
@@ -111,6 +143,12 @@ const preset = computed<MicroPreset>(() => catalogEntry.value?.variantOf?.preset
 const prefill = computed<MicroPrefill>(() => decodeMicroPrefill(route.query.prefill))
 const saved = ref(false)
 const leftTooMuch = ref(false)
+/** The path that owns a follow-up micro (Powrót, dose check): the first program with that step. */
+function programWithStep(stepSlug: string): string | undefined {
+  return PROGRAM_CATALOG.find((program) => program.steps.some((step) => step.exerciseSlug === stepSlug))?.slug
+}
+const returnProgramSlug = computed(() => programWithStep('path-return'))
+const doseProgramSlug = computed(() => programWithStep('dose-check'))
 const lastResponses = ref<Record<string, MicroStepValue> | null>(null)
 
 /** Past entries of this run's shape: the definition's, narrowed by the preset answers. */
@@ -140,7 +178,7 @@ watch(slug, () => {
 })
 
 async function handleSaved(payload: { responses: Record<string, MicroStepValue> }) {
-  await entryStore.createEntry(
+  const entry = await entryStore.createEntry(
     {
       exerciseSlug: definition.value!.slug,
       responses: payload.responses,
@@ -148,6 +186,12 @@ async function handleSaved(payload: { responses: Record<string, MicroStepValue> 
     slug.value,
   )
   lastResponses.value = payload.responses
+  // The letter to a future self is pinned to its path with the day it comes back.
+  if (slug.value === FUTURE_LETTER_SLUG) {
+    void recordFutureLetter(entry.id, payload.responses)
+      .then((updated) => updated && useProgramEnrollmentStore().applyUpdate(updated))
+      .catch((err) => console.error('Failed to record the future letter:', err))
+  }
   // "Za dużo na dziś": the entry counts, the breath takes over.
   if (leftTooMuch.value && slug.value !== 'paced-breathing') {
     leftTooMuch.value = false
