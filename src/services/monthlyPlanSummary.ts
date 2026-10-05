@@ -4,6 +4,7 @@ import type { Habit, KeyResult, WeeklyIntention } from '@/domain/planning'
 import type { MonthObjectItem } from '@/services/reflectionDataQueries'
 import { applyMeasurementTargetOverride, buildMeasurementSummary } from '@/services/measurementProgress'
 import { getChildPeriods, getPeriodBounds } from '@/utils/periods'
+import { classifyWeek, tallyWeekStates } from '@/domain/weeklyCadence'
 
 export interface MonthPlanRowSummary {
   total: number
@@ -21,15 +22,16 @@ export interface MonthPlanSummary {
  * evaluations of monthly-cadence objects into a Plan-vs-Execution summary for
  * a calendar month.
  *
- * For weekly-cadence KRs/habits each scheduled week of the month counts as one
- * unit toward `total`; a met evaluation in that week counts toward `met`. For
- * monthly-cadence objects the month-level evaluation contributes a single unit.
+ * Weekly-cadence KRs/habits are counted week by week through domain/weeklyCadence:
+ * each week the object was assigned to counts once it is decided (past, or the
+ * current week once met), with the week's cascaded target and whole-week
+ * entries. For monthly-cadence objects the month-level evaluation contributes
+ * a single unit.
  * Weekly intentions (passed separately — they are week-scoped and never part
  * of the month bundle) contribute one unit per intention in their own week.
  *
  * Future weeks (whose start falls after `todayDayRef`) are excluded so the
- * "planned" denominator only reflects weeks that have actually started. The
- * current week is clipped to `todayDayRef` for evaluation purposes.
+ * "planned" denominator only reflects weeks that have actually started.
  */
 export function buildMonthlyPlanSummary(
   items: MonthObjectItem[],
@@ -61,12 +63,23 @@ export function buildMonthlyPlanSummary(
       continue
     }
 
+    if (item.weekEvaluations) {
+      const tally = tallyWeekStates(
+        item.weekEvaluations.map((week) =>
+          classifyWeek(week.weekRef, week.planned, week.measurement.evaluationStatus, todayDayRef),
+        ),
+      )
+      row.total += tally.planned
+      row.met += tally.met
+      continue
+    }
+
+    // Without the month bundle's week evaluations, fall back to the started
+    // weeks with their week sub-targets.
     for (const weekRef of startedWeeks) {
       row.total += 1
       const weekEnd = getPeriodBounds(weekRef).end as DayRef
       const clipRef = (todayDayRef < weekEnd ? todayDayRef : weekEnd) as DayRef
-      // Honor an explicit week sub-target — a vacation week with a lowered
-      // target no longer counts as missed against the base weekly target.
       const weekSubject = applyMeasurementTargetOverride(
         subject,
         item.weekTargetOverrides?.[weekRef]

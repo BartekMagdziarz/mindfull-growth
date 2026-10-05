@@ -36,7 +36,7 @@
     <section v-else class="next-ritual__review">
       <header :class="{ warning: uncoveredPriorityCount > 0 }"><span><AppIcon :name="uncoveredPriorityCount ? 'link_off' : 'task_alt'" /></span><div><small>PRZED ZAPISEM</small><h2>{{ uncoveredPriorityCount ? `${uncoveredPriorityCount} kierunek nie ma wsparcia` : 'Każdy kierunek ma konkretne wsparcie' }}</h2><p>{{ uncoveredPriorityCount ? 'Dobierz obiekt albo wróć do wyboru kierunków.' : 'Targety i rytm tygodni są gotowe do zapisu.' }}</p></div><button type="button" @click="current = uncoveredPriorityCount ? 1 : 2"><AppIcon :name="uncoveredPriorityCount ? 'add_link' : 'calendar_view_week'" />{{ uncoveredPriorityCount ? 'Dobierz wsparcie' : 'Popraw tygodnie' }}</button></header>
       <div class="next-ritual__review-layout">
-        <section><header><span>Kierunki i wsparcie</span><small>{{ activeSupportCount }} obiekty</small></header><article v-for="(priority, index) in selectedPriorities" :key="priority.id"><span><AppIcon :name="priority.icon || priorityIcon(index)" /></span><div><strong>{{ priority.title }}</strong><small>{{ supportFor(priority.id).map(item => item.title).join(' · ') || 'Brak wybranego wsparcia' }}</small></div><p><i>{{ supportFor(priority.id).reduce((sum, item) => sum + item.weekCount, 0) }} tyg.</i><em v-if="!supportFor(priority.id).length">do uzupełnienia</em></p></article></section>
+        <section><header><span>Kierunki i wsparcie</span><small>{{ activeSupportCount }} obiekty</small></header><article v-for="(priority, index) in selectedPriorities" :key="priority.id"><span><AppIcon :name="priority.icon || priorityIcon(index)" /></span><div><strong>{{ priority.title }}</strong><small>{{ supportFor(priority.id).map(item => item.title).join(' · ') || 'Brak wybranego wsparcia' }}</small></div><p><i>{{ priorityWeekCount(priority.id) }} tyg.</i><em v-if="!supportFor(priority.id).length">do uzupełnienia</em></p></article></section>
         <section class="next-ritual__load"><header><span>Rytm miesiąca</span><small>obiekty w tygodniach</small></header><div><span v-for="week in weekLoad" :key="week.label"><strong>{{ week.count }}</strong><i><b :style="{ height: `${Math.max(8, week.count * 20)}%` }" /></i><small>{{ week.label }}</small></span></div></section>
       </div>
     </section>
@@ -45,7 +45,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, toRef, watch } from 'vue'
-import type { MonthRef } from '@/domain/period'
+import type { MonthRef, WeekRef } from '@/domain/period'
 import type { MeasurementSubjectType } from '@/domain/planningState'
 import type { Priority } from '@/domain/planning'
 import type { MonthMeasurementPlanningItem } from '@/services/planningStateQueries'
@@ -66,7 +66,6 @@ interface SupportItem {
   active: boolean
   priorityIds: string[]
   priorityMatch: boolean
-  weekCount: number
   source: MonthMeasurementPlanningItem
 }
 
@@ -87,10 +86,16 @@ const selectedPriorities = computed<Priority[]>(() => activePriorities.value.fil
 const supportCandidates = computed(() => supportItems.value.slice().sort((left, right) => Number(right.priorityMatch) - Number(left.priorityMatch)))
 const activeSupportCount = computed(() => supportItems.value.filter(item => item.active).length)
 const uncoveredPriorityCount = computed(() => selectedPriorityIds.value.filter(id => !supportItems.value.some(item => item.active && item.priorityIds.includes(id))).length)
-const weekLoad = computed(() => getChildPeriods(props.monthRef).map((weekRef, index) => ({
+// Week load = objects actually placed in each week (plannedWeekRefs), not a
+// count of week states laid out from the first week.
+const weekLoad = computed(() => (getChildPeriods(props.monthRef) as WeekRef[]).map(weekRef => ({
   label: `T${weekRef.split('-W')[1]}`,
-  count: supportItems.value.filter(item => item.active && item.weekCount > index).length,
+  count: supportItems.value.filter(item => item.active && item.source.plannedWeekRefs.includes(weekRef)).length,
 })))
+/** Distinct weeks of the month in which any support of the priority is placed. */
+function priorityWeekCount(priorityId: string): number {
+  return new Set(supportFor(priorityId).flatMap(item => item.source.plannedWeekRefs)).size
+}
 
 onMounted(() => void loadSupport())
 watch(() => props.monthRef, () => void loadSupport())
@@ -100,7 +105,7 @@ async function loadSupport() {
   const bundle = await getMonthPlanningBundle(props.monthRef)
   supportItems.value = bundle.measurementItems.filter(item => item.subjectType !== 'tracker').map(item => {
     const priorityIds = 'priorityIds' in item.subject ? item.subject.priorityIds : []
-    return { key: `${item.subjectType}:${item.subject.id}`, subjectType: item.subjectType, subjectId: item.subject.id, title: item.subject.title, active: item.planning.activityState === 'active', priorityIds, priorityMatch: priorityIds.some(id => selectedPriorityIds.value.includes(id)), weekCount: item.relatedWeekCount, source: item }
+    return { key: `${item.subjectType}:${item.subject.id}`, subjectType: item.subjectType, subjectId: item.subject.id, title: item.subject.title, active: item.planning.activityState === 'active', priorityIds, priorityMatch: priorityIds.some(id => selectedPriorityIds.value.includes(id)), source: item }
   })
 }
 async function toggleSupport(item: SupportItem) {

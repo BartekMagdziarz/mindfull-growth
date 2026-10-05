@@ -4,7 +4,8 @@ import type { DailyMeasurementEntry, MeasurementSubjectType, PeriodObjectReflect
 import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'
-import { buildMeasurementSummary } from '@/services/measurementProgress'
+import { applyMeasurementTargetCascade, applyMeasurementTargetOverride, buildMeasurementSummary } from '@/services/measurementProgress'
+import { classifyWeek, tallyWeekStates } from '@/domain/weeklyCadence'
 import { loadPlanningCoreObjects } from '@/services/planningObjectCollections'
 import { loadPlanningCached } from '@/services/planningQueryCache'
 import type {
@@ -12,6 +13,7 @@ import type {
   MonthMeasurementPlanningItem,
   MonthPlanningBundle,
 } from '@/services/planningStateQueries'
+import { resolvePlannedWeekRefs } from '@/services/planningStateQueries'
 import { getChildPeriods, getPeriodBounds, getPeriodRefsForDate, getWeekOverlappingMonths } from '@/utils/periods'
 
 type MeasureableSubject = KeyResult | Habit | Tracker | WeeklyIntention
@@ -21,6 +23,7 @@ export interface YearMonthPillData {
   title: string
   cadence: 'weekly' | 'monthly'
   monthlyStatus?: 'met' | 'missed' | 'no-data'
+  /** Weekly cadence: assigned weeks met / assigned weeks decided so far (domain/weeklyCadence). */
   weeksMet?: number
   weeksTotal?: number
 }
@@ -154,6 +157,8 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
       initiativePlanStates,
       objects,
       allEntries,
+      measurementWeekStates,
+      measurementDayAssignments,
     ] = await Promise.all([
       periodPlanDexieRepository.listMonthPlans(),
       reflectionDexieRepository.listPeriodReflections(),
@@ -162,7 +167,12 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
       planningStateDexieRepository.listInitiativePlanStates(),
       loadPlanningCoreObjects(),
       planningStateDexieRepository.listDailyMeasurementEntriesForDayRange(entryStart, entryEnd),
+      planningStateDexieRepository.listMeasurementWeekStatesForWeeks(
+        [...new Set(monthRefs.flatMap((monthRef) => getChildPeriods(monthRef) as WeekRef[]))],
+      ),
+      planningStateDexieRepository.listMeasurementDayAssignmentsForDayRange(entryStart, entryEnd),
     ])
+    const todayRef = getPeriodRefsForDate(new Date()).day
 
     const monthPlanRefs = new Set(monthPlans.map((item) => item.monthRef))
     const monthReflectionRefs = new Set(
@@ -202,14 +212,28 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
     const visibleHabits = objects.habits.filter((habit) => habit.isActive)
     const visibleHabitMap = new Map(visibleHabits.map((h) => [h.id, h]))
 
+    /**
+     * Monthly cadence: the month summary under the month's target. Weekly
+     * cadence: week by week like the week plan (assigned weeks only, target
+     * cascade month → week, whole-week entries), counted by domain/weeklyCadence
+     * — a boundary week is judged on all seven days, future weeks never count.
+     */
     function buildPillData(
       subject: MeasureableSubject,
+      subjectType: MeasurementSubjectType,
       entries: DailyMeasurementEntry[],
       monthRef: MonthRef,
       weekRefs: WeekRef[],
     ): YearMonthPillData {
+      const monthState = measurementMonthStates.find(
+        (state) => state.monthRef === monthRef && state.subjectType === subjectType && state.subjectId === subject.id,
+      )
       if (subject.cadence === 'monthly') {
-        const summary = buildMeasurementSummary(subject, entries, monthRef)
+        const summary = buildMeasurementSummary(
+          applyMeasurementTargetOverride(subject, monthState?.targetOverride),
+          entries,
+          monthRef,
+        )
         return {
           id: subject.id,
           title: subject.title,
@@ -218,22 +242,29 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
         }
       }
 
-      let weeksMet = 0
-      let weeksTotal = 0
-      for (const weekRef of weekRefs) {
-        const summary = buildMeasurementSummary(subject, entries, weekRef)
-        weeksTotal++
-        if (summary.evaluationStatus === 'met') {
-          weeksMet++
-        }
-      }
+      const isSubject = (state: { subjectType: MeasurementSubjectType; subjectId: string }) =>
+        state.subjectType === subjectType && state.subjectId === subject.id
+      const weekStates = measurementWeekStates.filter(isSubject)
+      const planned = new Set(
+        resolvePlannedWeekRefs(monthRef, monthState?.scheduleScope, weekStates, measurementDayAssignments.filter(isSubject), 'weekly'),
+      )
+      const tally = tallyWeekStates(
+        weekRefs.map((weekRef) => {
+          const effective = applyMeasurementTargetCascade(subject, weekRef, {
+            monthOverride: monthState?.targetOverride,
+            weekOverride: weekStates.find((state) => state.weekRef === weekRef && !state.sourceMonthRef)?.targetOverride,
+          })
+          const summary = buildMeasurementSummary(effective, entries, weekRef)
+          return classifyWeek(weekRef, planned.has(weekRef), summary.evaluationStatus, todayRef)
+        }),
+      )
 
       return {
         id: subject.id,
         title: subject.title,
         cadence: 'weekly',
-        weeksMet,
-        weeksTotal,
+        weeksMet: tally.met,
+        weeksTotal: tally.planned,
       }
     }
 
@@ -280,7 +311,7 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
         return {
           goalId,
           goalIcon: goal?.icon,
-          pills: krs.map((kr) => buildPillData(kr, krEntries, monthRef, weekRefs)),
+          pills: krs.map((kr) => buildPillData(kr, 'keyResult', krEntries, monthRef, weekRefs)),
         }
       })
     }
@@ -306,7 +337,7 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
         return [{
           habitId,
           habitIcon: habit.icon,
-          pill: buildPillData(habit, habitEntries, monthRef, weekRefs),
+          pill: buildPillData(habit, 'habit', habitEntries, monthRef, weekRefs),
         }]
       })
     }

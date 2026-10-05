@@ -8,7 +8,10 @@
  * trackers → weekly intentions).
  */
 import { buildMeasurementSummary } from '@/services/measurementProgress'
+import type { DayRef } from '@/domain/period'
 import type { WeeklyIntention } from '@/domain/planning'
+import { classifyWeek, statusFromWeekTally, tallyWeekStates } from '@/domain/weeklyCadence'
+import { getPeriodRefsForDate } from '@/utils/periods'
 import type {
   MonthPlanningBundle,
   WeekMeasurementReflectionItem,
@@ -99,11 +102,36 @@ export function extractWeekIntentions(reflection: WeekReflectionBundle): WeeklyI
 }
 
 /**
+ * Month measurement of a cadenced object. Weekly-cadence objects are read week
+ * by week (domain/weeklyCadence): their status comes from the assigned weeks
+ * and `weekReadout` carries „met / planned weeks”.
+ */
+function monthMeasurement(
+  item: MonthCadencedPlanningItem,
+  bundle: MonthPlanningBundle,
+  today: DayRef,
+): Pick<MonthObjectItem, 'measurement' | 'weekReadout' | 'weekEvaluations'> {
+  const measurement = item.measurement ?? buildMeasurementSummary(item.subject, bundle.rawEntries, bundle.monthRef)
+  if (!item.weekEvaluations) return { measurement }
+  const tally = tallyWeekStates(
+    item.weekEvaluations.map((week) => classifyWeek(week.weekRef, week.planned, week.measurement.evaluationStatus, today)),
+  )
+  return {
+    measurement: { ...measurement, evaluationStatus: statusFromWeekTally(tally) },
+    weekReadout: { met: tally.met, planned: tally.planned },
+    weekEvaluations: item.weekEvaluations,
+  }
+}
+
+/**
  * Flat list of every object active during the reflection month. Mirrors
  * {@link buildWeekObjectItems}, but per-object measurement is built against the
  * month period (falling back to the bundle's raw entries when not pre-computed).
  */
-export function buildMonthObjectItems(bundle: MonthPlanningBundle): MonthObjectItem[] {
+export function buildMonthObjectItems(
+  bundle: MonthPlanningBundle,
+  today: DayRef = getPeriodRefsForDate(new Date()).day,
+): MonthObjectItem[] {
   const items: MonthObjectItem[] = []
   const goalMap = new Map(bundle.goalItems.map((item) => [item.goal.id, item.goal]))
 
@@ -129,8 +157,7 @@ export function buildMonthObjectItems(bundle: MonthPlanningBundle): MonthObjectI
         subjectType: 'keyResult',
         subject: kr.subject,
         planning: kr.planning,
-        measurement:
-          kr.measurement ?? buildMeasurementSummary(kr.subject, bundle.rawEntries, bundle.monthRef),
+        ...monthMeasurement(kr, bundle, today),
         weekTargetOverrides: kr.weekTargetOverrides,
         parentGoalId: goal?.id,
         parentGoalIcon: goal?.icon,
@@ -147,8 +174,7 @@ export function buildMonthObjectItems(bundle: MonthPlanningBundle): MonthObjectI
       subjectType: 'habit',
       subject: habit.subject,
       planning: habit.planning,
-      measurement:
-        habit.measurement ?? buildMeasurementSummary(habit.subject, bundle.rawEntries, bundle.monthRef),
+      ...monthMeasurement(habit, bundle, today),
       weekTargetOverrides: habit.weekTargetOverrides,
       sortOrder: 100_000 + i,
     })

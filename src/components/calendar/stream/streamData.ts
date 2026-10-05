@@ -19,6 +19,7 @@ import { getQuadrant } from '@/domain/emotion'
 import type { MonthlyReflection, WeeklyReflection } from '@/domain/reflection'
 import { getChildPeriods, getPeriodBounds, getPeriodRefsForDate } from '@/utils/periods'
 import {
+  applyMeasurementTargetOverride,
   buildMeasurementSummary,
   type MeasurementPeriodRef,
   type MeasureableSubject,
@@ -28,7 +29,8 @@ import {
   type CalendarYearMonthSummary,
   type YearMonthPillData,
 } from '@/services/calendarViewQueries'
-import { getMonthPlanningBundle, getWeekPlanningBundle } from '@/services/planningStateQueries'
+import { getMonthPlanningBundle, getWeekPlanningBundle, type MonthCadencedPlanningItem } from '@/services/planningStateQueries'
+import { classifyWeek, type WeekState } from '@/domain/weeklyCadence'
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
 import { weeklyIntentionDexieRepository } from '@/repositories/weeklyIntentionDexieRepository'
 import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
@@ -227,6 +229,50 @@ export function ringsForPeriod(
   ]
 }
 
+/**
+ * Rings of one week card inside a month. Goals/habits come from the month plan,
+ * judged per week: weekly-cadence objects only in the weeks they were assigned
+ * to (domain/weeklyCadence — whole-week entries, cascaded target, the current
+ * week once met); monthly-cadence objects only where the plan gave the week a
+ * sub-target (a month target is never judged on one week). Intentions are
+ * week-scoped and keep {@link ringsForPeriod}.
+ */
+export function monthWeekRings(
+  items: MonthCadencedPlanningItem[],
+  intentions: ActiveSubject[],
+  entries: DailyMeasurementEntry[],
+  weekRef: WeekRef,
+  timeState: PeriodTimeState,
+  today: DayRef,
+): StreamRingVM[] {
+  const rings = ringsForPeriod(intentions, entries, weekRef, timeState, today)
+  if (timeState === 'future') return rings
+
+  const counts = { keyResult: { met: 0, den: 0 }, habit: { met: 0, den: 0 } }
+  for (const item of items) {
+    let state: WeekState | undefined
+    if (item.weekEvaluations) {
+      const week = item.weekEvaluations.find((candidate) => candidate.weekRef === weekRef)
+      if (week) state = classifyWeek(weekRef, week.planned, week.measurement.evaluationStatus, today)
+    } else {
+      const override = item.weekTargetOverrides?.[weekRef]
+      if (override) {
+        const summary = buildMeasurementSummary(applyMeasurementTargetOverride(item.subject, override), entries, weekRef, today)
+        state = classifyWeek(weekRef, true, summary.evaluationStatus, today)
+      }
+    }
+    if (state !== 'met' && state !== 'missed' && state !== 'no-data') continue
+    const count = counts[item.subjectType]
+    count.den++
+    if (state === 'met') count.met++
+  }
+
+  return rings.map((ring) => {
+    const count = ring.key === 'goals' ? counts.keyResult : ring.key === 'habits' ? counts.habit : null
+    return count ? { ...ring, pct: pct(count.met, count.den), num: count.met, den: count.den } : ring
+  })
+}
+
 /** Per-day goal/habit rings = engagement (objects with an entry that day). */
 export function dayRings(
   krIds: Set<string>,
@@ -277,7 +323,8 @@ const YEAR_RING_DEFS: { key: StreamRingVM['key']; icon: string }[] = [
 export function yearMonthRings(
   monthSummary: CalendarYearMonthSummary,
   timeState: PeriodTimeState,
-  elapsedWeeks: number,
+  /** Cap on the weekly denominator; the pills already count only decided weeks. */
+  elapsedWeeks?: number,
 ): StreamRingVM[] {
   if (timeState === 'future') {
     return YEAR_RING_DEFS.map((d) => ({ key: d.key, icon: d.icon, pct: null, planOnly: true }))
@@ -346,11 +393,6 @@ export function monthPriorities(
   return slots
 }
 
-/** Number of the month's weeks that have already ended by `today`. */
-function elapsedWeeksInMonth(monthRef: MonthRef, today: DayRef): number {
-  return getChildPeriods(monthRef).filter((weekRef) => getPeriodBounds(weekRef).end <= today).length
-}
-
 // --- async loaders -----------------------------------------------------------
 
 export async function loadStreamYear(yearRef: YearRef): Promise<StreamMonthVM[]> {
@@ -376,14 +418,13 @@ export async function loadStreamYear(yearRef: YearRef): Promise<StreamMonthVM[]>
 
   return summary.months.map((monthSummary, monthIndex) => {
     const timeState = monthTimeState(monthSummary.monthRef, todayMonthRef)
-    const elapsedWeeks = elapsedWeeksInMonth(monthSummary.monthRef, today)
     return {
       monthRef: monthSummary.monthRef,
       monthIndex,
       timeState,
       isCurrent: timeState === 'current',
       areas: monthlyDimensionBars(reflectionByMonth.get(monthSummary.monthRef), timeState),
-      rings: yearMonthRings(monthSummary, timeState, elapsedWeeks),
+      rings: yearMonthRings(monthSummary, timeState),
       priorities: monthPriorities(
         planByMonth.get(monthSummary.monthRef)?.topPriorityIds,
         prioritiesById,
@@ -405,20 +446,13 @@ export async function loadStreamMonth(monthRef: MonthRef): Promise<StreamWeekVM[
   ])
 
   const reflectionByWeek = new Map(weeklyReflections.map((r) => [r.weekRef, r]))
-  const monthSubjects: ActiveSubject[] = bundle.cadencedItems.map((i) => ({
-    subjectType: i.subjectType,
-    subject: i.subject,
-  }))
 
   return weekRefs.map((weekRef, weekIndex) => {
     const bounds = getPeriodBounds(weekRef)
     const timeState = spanTimeState(bounds.start, bounds.end, today)
-    const subjects: ActiveSubject[] = [
-      ...monthSubjects,
-      ...intentionsPerWeek[weekIndex]
-        .filter((subject) => subject.isActive)
-        .map((subject) => ({ subjectType: 'weeklyIntention' as const, subject })),
-    ]
+    const intentions: ActiveSubject[] = intentionsPerWeek[weekIndex]
+      .filter((subject) => subject.isActive)
+      .map((subject) => ({ subjectType: 'weeklyIntention' as const, subject }))
     return {
       weekRef,
       weekNumber: Number(weekRef.slice(-2)),
@@ -427,7 +461,7 @@ export async function loadStreamMonth(monthRef: MonthRef): Promise<StreamWeekVM[
       timeState,
       isCurrent: timeState === 'current',
       matrix: matrixFromReflection(reflectionByWeek.get(weekRef)),
-      rings: ringsForPeriod(subjects, bundle.rawEntries, weekRef, timeState, today),
+      rings: monthWeekRings(bundle.cadencedItems, intentions, bundle.rawEntries, weekRef, timeState, today),
     }
   })
 }

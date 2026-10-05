@@ -13,7 +13,8 @@ import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useJournalStore } from '@/stores/journal.store'
 import { useTagStore } from '@/stores/tag.store'
-import { getChildPeriods, getPeriodBounds } from '@/utils/periods'
+import { getChildPeriods, getPeriodBounds, getPeriodRefsForDate } from '@/utils/periods'
+import { classifyWeek, statusFromWeekTally, tallyWeekStates, type WeekState } from '@/domain/weeklyCadence'
 import { getUserDatabase } from '@/services/userDatabase.service'
 import {
   getWeekRelevantObjects,
@@ -21,13 +22,15 @@ import {
 } from '@/services/planningStateQueries'
 import type {
   MeasurementPlanningSummary,
+  MonthMeasurementPlanningItem,
+  MonthWeekEvaluation,
   WeekCadencedReflectionItem,
   WeekMeasurementReflectionItem,
   WeekTrackerReflectionItem,
 } from '@/services/planningStateQueries'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { loadPlanningCoreObjects } from '@/services/planningObjectCollections'
-import { applyMeasurementTargetOverride, buildMeasurementSummary } from '@/services/measurementProgress'
+import { buildMeasurementSummary } from '@/services/measurementProgress'
 import type { MeasureableSubject, MeasurementSummary } from '@/services/measurementProgress'
 import type { MeasurementSubjectType } from '@/domain/planningState'
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
@@ -71,6 +74,20 @@ export interface KRWeeklyBreakdown {
   weekRef: WeekRef
   evaluationStatus: MeasurementEvaluationStatus
   actualValue?: number
+  /** The month plan asked for this object in this week. */
+  planned?: boolean
+  /** How the week counts (domain/weeklyCadence). */
+  state?: WeekState
+}
+
+/**
+ * Month read-out for a weekly-cadence object: weeks met vs assigned weeks
+ * already decided (past ones, plus the current one once met). The raw month
+ * aggregate compares a month's entries with a week's target — nonsense.
+ */
+export interface WeekReadout {
+  met: number
+  planned: number
 }
 
 export interface GoalReflectionSummary {
@@ -84,6 +101,7 @@ export interface GoalReflectionSummary {
     actualValue?: number
     target?: MeasurementTarget
     weeklyBreakdown?: KRWeeklyBreakdown[]
+    weekReadout?: WeekReadout
   }[]
 }
 
@@ -97,6 +115,7 @@ export interface HabitReflectionDetail {
   actualValue?: number
   target?: MeasurementTarget
   weeklyBreakdown?: KRWeeklyBreakdown[]
+  weekReadout?: WeekReadout
 }
 
 export interface TrackerReflectionDetail {
@@ -209,6 +228,14 @@ export interface MonthObjectItem {
   measurement: MeasurementSummary
   /** Explicit per-week target overrides within the month (week sub-targets). */
   weekTargetOverrides?: Partial<Record<WeekRef, MeasurementTarget>>
+  /**
+   * Weekly-cadence objects: weeks met / assigned weeks decided so far. Read this,
+   * not `measurement`'s value and target — those compare a month total with a
+   * week's target. `measurement.evaluationStatus` already follows the weeks.
+   */
+  weekReadout?: WeekReadout
+  /** Weekly-cadence objects: each week of the month, judged as its week plan judges it. */
+  weekEvaluations?: MonthWeekEvaluation[]
   parentGoalId?: string
   parentGoalIcon?: string
   parentGoalTitle?: string
@@ -294,6 +321,8 @@ export interface ReflectionEmotionLogDetail {
   id: string
   createdAt: string
   emotions: string[]
+  /** Wheel quadrant of each resolved emotion (same order as `emotions`), for per-week/day colour stacks. */
+  quadrants?: Quadrant[]
   note: string
   people: string[]
   contexts: string[]
@@ -330,6 +359,11 @@ export async function getReflectionEntrySources(
     (ids ?? [])
       .map((id) => emotionStore.getEmotionById(id)?.name)
       .filter((n): n is string => typeof n === 'string')
+  const resolveQuadrants = (ids: string[] | undefined): Quadrant[] =>
+    (ids ?? [])
+      .map((id) => emotionStore.getEmotionById(id))
+      .filter((e): e is NonNullable<typeof e> => !!e)
+      .map((e) => getQuadrant(e))
   const resolvePeople = (ids: string[] | undefined): string[] =>
     (ids ?? [])
       .map((id) => tagStore.getPeopleTagById(id)?.name)
@@ -363,6 +397,7 @@ export async function getReflectionEntrySources(
       id: l.id,
       createdAt: l.createdAt,
       emotions: resolveEmotions(l.emotionIds),
+      quadrants: resolveQuadrants(l.emotionIds),
       note: l.note ?? '',
       people: resolvePeople(l.peopleTagIds),
       contexts: resolveContexts(l.contextTagIds),
@@ -817,11 +852,11 @@ export async function getWeeklyReflectionDataBundle(
   const startDate = bounds.start + 'T00:00:00.000Z'
   const endDate = bounds.end + 'T23:59:59.999Z'
 
-  const emotionSummary = buildEmotionSummary(startDate, endDate)
   const journalSummary = buildJournalSummary(startDate, endDate)
 
   // Full journal entries + emotion logs (with notes/tags) for the AI summary.
   const { journalEntries, emotionLogs } = await getReflectionEntrySources(startDate, endDate)
+  const emotionSummary = buildEmotionSummary(startDate, endDate)
 
   // Exercises from database
   const exerciseEntries = await getExerciseEntriesForPeriod(startDate, endDate)
@@ -1038,6 +1073,32 @@ export async function loadDayAssignmentsForMonths(
 // Monthly bundle
 // ---------------------------------------------------------------------------
 
+/**
+ * Weekly-cadence objects in a month: week by week as the week's own plan
+ * judges them, counted by domain/weeklyCadence (assigned weeks only, the
+ * current week once met, future weeks never). The status replaces the month
+ * aggregate, which would compare a month's entries with a week's target.
+ */
+function buildWeeklyBreakdown(
+  item: MonthMeasurementPlanningItem,
+  today: DayRef,
+): { weeklyBreakdown?: KRWeeklyBreakdown[]; weekReadout?: WeekReadout; weekStatus?: MeasurementEvaluationStatus } {
+  if (!item.weekEvaluations) return {}
+  const weeklyBreakdown = item.weekEvaluations.map((week) => ({
+    weekRef: week.weekRef,
+    evaluationStatus: week.measurement.evaluationStatus ?? 'no-data',
+    actualValue: week.measurement.actualValue,
+    planned: week.planned,
+    state: classifyWeek(week.weekRef, week.planned, week.measurement.evaluationStatus, today),
+  }))
+  const tally = tallyWeekStates(weeklyBreakdown.map((week) => week.state))
+  return {
+    weeklyBreakdown,
+    weekReadout: { met: tally.met, planned: tally.planned },
+    weekStatus: statusFromWeekTally(tally),
+  }
+}
+
 export async function getMonthlyReflectionDataBundle(
   monthRef: MonthRef
 ): Promise<MonthlyReflectionDataBundle> {
@@ -1045,14 +1106,15 @@ export async function getMonthlyReflectionDataBundle(
   const startDate = bounds.start + 'T00:00:00.000Z'
   const endDate = bounds.end + 'T23:59:59.999Z'
 
-  const emotionSummary = buildEmotionSummary(startDate, endDate)
-
   // Emotion logs (with notes/tags) for the AI summary. Monthly leans on the
   // per-week reflection excerpts for narrative, so journal bodies are not
   // re-sent here — only the emotion logs, which carry standalone context.
+  // Loading the sources first also fills the emotion stores the summary reads
+  // synchronously (a cold-opened ritual would otherwise count zero logs).
   const { emotionLogs } = await getReflectionEntrySources(startDate, endDate)
+  const emotionSummary = buildEmotionSummary(startDate, endDate)
 
-  const monthWeekRefs = getChildPeriods(monthRef) as WeekRef[]
+  const today = getPeriodRefsForDate(new Date()).day
 
   // Habits, trackers, and goals from month planning bundle
   let goalSummaries: GoalReflectionSummary[] = []
@@ -1072,16 +1134,7 @@ export async function getMonthlyReflectionDataBundle(
       )
 
       const h = habit.subject as import('@/domain/planning').Habit
-      const weeklyBreakdown: KRWeeklyBreakdown[] = h.cadence === 'weekly'
-        ? monthWeekRefs.map((weekRef) => {
-            const ws = buildMeasurementSummary(
-              applyMeasurementTargetOverride(habit.subject, habit.weekTargetOverrides?.[weekRef]),
-              planningBundle.rawEntries,
-              weekRef
-            )
-            return { weekRef, evaluationStatus: ws.evaluationStatus ?? 'no-data', actualValue: ws.actualValue }
-          })
-        : []
+      const { weekStatus, ...weekly } = buildWeeklyBreakdown(habit, today)
 
       return {
         id: h.id,
@@ -1089,10 +1142,10 @@ export async function getMonthlyReflectionDataBundle(
         icon: h.icon,
         cadence: h.cadence,
         entryMode: h.entryMode,
-        evaluationStatus: monthSummary.evaluationStatus ?? 'no-data',
+        evaluationStatus: weekStatus ?? monthSummary.evaluationStatus ?? 'no-data',
         actualValue: monthSummary.actualValue,
         target: monthSummary.target,
-        weeklyBreakdown: weeklyBreakdown.length > 0 ? weeklyBreakdown : undefined,
+        ...weekly,
       }
     })
 
@@ -1135,26 +1188,17 @@ export async function getMonthlyReflectionDataBundle(
             monthRef
           )
           const krSubject = kr.subject as import('@/domain/planning').KeyResult
-          const weeklyBreakdown: KRWeeklyBreakdown[] = krSubject.cadence === 'weekly'
-            ? monthWeekRefs.map((weekRef) => {
-                const ws = buildMeasurementSummary(
-                  applyMeasurementTargetOverride(kr.subject, kr.weekTargetOverrides?.[weekRef]),
-                  planningBundle.rawEntries,
-                  weekRef
-                )
-                return { weekRef, evaluationStatus: ws.evaluationStatus ?? 'no-data', actualValue: ws.actualValue }
-              })
-            : []
+          const { weekStatus, ...weekly } = buildWeeklyBreakdown(kr, today)
 
           return {
             id: kr.subject.id,
             title: kr.subject.title,
             cadence: krSubject.cadence,
             entryMode: krSubject.entryMode,
-            evaluationStatus: summary.evaluationStatus ?? 'no-data',
+            evaluationStatus: weekStatus ?? summary.evaluationStatus ?? 'no-data',
             actualValue: summary.actualValue,
             target: summary.target,
-            weeklyBreakdown: weeklyBreakdown.length > 0 ? weeklyBreakdown : undefined,
+            ...weekly,
           }
         }),
       }

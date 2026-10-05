@@ -16,10 +16,11 @@
         v-if="viz.vizType.value === 'monthly-completion-bars'"
         :slots="viz.completionSlots.value"
       />
+      <!-- A weekly target is never judged against the month's total. -->
       <DailyBarsChart
         v-else-if="viz.vizType.value === 'daily-bars'"
         :slots="viz.barSlots.value"
-        :period-status="viz.aggregateData.value?.status"
+        :period-status="subject.cadence === 'monthly' ? viz.aggregateData.value?.status : undefined"
       />
       <ValueLineChart
         v-else-if="viz.vizType.value === 'value-line'"

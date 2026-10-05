@@ -295,6 +295,93 @@ describe('planningStateQueries', () => {
     expect(otherItem?.measurement.target).toEqual({ kind: 'count', operator: 'min', value: 5 })
   })
 
+  it('judges weekly-cadence items week by week in the month bundle, assigned weeks only', async () => {
+    const habit = await habitDexieRepository.create({
+      title: 'Gym',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      cadence: 'weekly',
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 3 },
+      status: 'open',
+    })
+    const monthRef = parsePeriodRef('2026-03') as MonthRef
+    const w10 = parsePeriodRef('2026-W10') as WeekRef
+    const w11 = parsePeriodRef('2026-W11') as WeekRef
+    // W13 = Mon 30 Mar … Sun 5 Apr: straddles March and April.
+    const w13 = parsePeriodRef('2026-W13') as WeekRef
+
+    await planningStateDexieRepository.upsertMeasurementMonthState({
+      monthRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      activityState: 'active',
+      scheduleScope: 'unassigned',
+      targetOverride: { kind: 'count', operator: 'min', value: 5 },
+    })
+    for (const weekRef of [w10, w13]) {
+      await toggleMeasurementWeekAssignment({ weekRef, subjectType: 'habit', subjectId: habit.id, cadence: 'weekly' })
+    }
+    await updateMeasurementWeekTargetOverride({
+      weekRef: w10,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      cadence: 'weekly',
+      targetOverride: { kind: 'count', operator: 'min', value: 2 },
+    })
+    const days = [
+      '2026-03-09', '2026-03-10', // W10
+      '2026-03-16', '2026-03-17', '2026-03-18', '2026-03-19', '2026-03-20', // W11, not assigned
+      '2026-03-30', '2026-03-31', '2026-04-01', '2026-04-02', '2026-04-03', // W13, three days in April
+    ]
+    for (const dayRef of days) {
+      await planningStateDexieRepository.upsertDailyMeasurementEntry({
+        subjectType: 'habit',
+        subjectId: habit.id,
+        dayRef: parsePeriodRef(dayRef) as DayRef,
+        value: null,
+      })
+    }
+
+    const bundle = await getMonthPlanningBundle(monthRef)
+    const item = bundle.measurementItems.find((m) => m.subject.id === habit.id)!
+    expect(item.plannedWeekRefs).toEqual([w10, w13])
+    const byWeek = new Map(item.weekEvaluations!.map((week) => [week.weekRef, week]))
+    // week sub-target 2 beats the month override 5
+    expect(byWeek.get(w10)).toMatchObject({ planned: true, measurement: { evaluationStatus: 'met', actualValue: 2 } })
+    expect(byWeek.get(w10)?.measurement.target?.value).toBe(2)
+    expect(byWeek.get(w11)).toMatchObject({ planned: false })
+    // the boundary week counts all seven days, also the April ones, under the month override
+    expect(byWeek.get(w13)).toMatchObject({ planned: true, measurement: { evaluationStatus: 'met', actualValue: 5 } })
+    expect(byWeek.get(w13)?.measurement.target?.value).toBe(5)
+  })
+
+  it('does not treat a weekly item that is only active in the month as assigned to its weeks', async () => {
+    const habit = await habitDexieRepository.create({
+      title: 'Reading',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      cadence: 'weekly',
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 1 },
+      status: 'open',
+    })
+    const monthRef = parsePeriodRef('2026-03') as MonthRef
+    await planningStateDexieRepository.upsertMeasurementMonthState({
+      monthRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      activityState: 'active',
+      scheduleScope: 'unassigned',
+    })
+    const bundle = await getMonthPlanningBundle(monthRef)
+    const item = bundle.measurementItems.find((m) => m.subject.id === habit.id)!
+    expect(item.plannedWeekRefs).toEqual([])
+    expect(item.weekEvaluations?.every((week) => !week.planned)).toBe(true)
+  })
+
   it('splits weekly planning into planned, assigned, and unassigned measurement work', async () => {
     const monthRef = parsePeriodRef('2026-03') as MonthRef
     const weekRef = parsePeriodRef('2026-W10') as WeekRef

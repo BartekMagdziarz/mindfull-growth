@@ -185,6 +185,8 @@ export interface MonthV2Row {
   homeWeekRef?: WeekRef
   /** Whole-month aggregate/evaluation (monthly cadence: THE month result). */
   monthSummary?: MeasurementSummary
+  /** Weekly-cadence objects: weeks met / assigned weeks decided so far (never a month total). */
+  weekReadout?: { met: number; planned: number }
   /** The bundle subject (month override already applied) — for chips/scales. */
   subject: MeasureableSubject
   series: MonthV2Series
@@ -290,6 +292,8 @@ export interface MonthV2FocusRow {
   targetValue?: number
   entryCount?: number
   status?: MeasurementSummary['evaluationStatus']
+  /** Weekly-cadence objects: read instead of monthValue / targetValue. */
+  weekReadout?: { met: number; planned: number }
   text?: string
   /** Existing measurement-series contract, reused by object focus sections. */
   series?: MonthV2Series
@@ -643,12 +647,15 @@ function buildSeriesWeeks(input: SeriesInput, columns: MonthV2WeekColumn[], toda
         column.weekRef,
         todayRef
       )
+      // A weekly target is judged on the whole week: a boundary week whose
+      // in-month days are over is still running until its Sunday has passed.
+      const weekPhase: MonthV2Phase = column.weekEnd < todayRef ? 'past' : column.phase === 'future' ? 'future' : 'current'
       datum = {
         weekRef: column.weekRef,
         phase: column.phase,
         actualValue: summary.actualValue,
         entryCount: summary.entryCount,
-        status: weekStatus(column.phase, false, summary, summary.evaluationStatus),
+        status: weekStatus(weekPhase, false, summary, summary.evaluationStatus),
         contributionOnly: false,
         targetValue: numericTargetValue(effectiveSubject),
         hasWeekOverride: weekOverride !== undefined,
@@ -789,6 +796,7 @@ function rowFromObjectItem(
     entryMode: subject.entryMode,
     editable: isEditable(subject),
     monthSummary: item.measurement,
+    weekReadout: item.weekReadout,
     subject,
     series: buildSeries(
       {
@@ -1049,6 +1057,7 @@ function focusRowFromObjectRow(
     targetValue: numericTargetValue(row.subject),
     entryCount: row.monthSummary?.entryCount,
     status: row.monthSummary?.evaluationStatus,
+    weekReadout: row.weekReadout,
     series: row.series,
   }
 }

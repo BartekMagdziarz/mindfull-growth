@@ -55,6 +55,7 @@ import {
   addDaysToDayRef,
   comparePeriodRefs,
   getNextPeriod,
+  getPeriodBounds,
   getPeriodRefsForDate,
 } from '@/utils/periods'
 import type { ExerciseSessionBundle } from '@/services/reflectionDataQueries'
@@ -322,6 +323,27 @@ function getCadencePeriodRefsInDayRange(
   return refs
 }
 
+/**
+ * Periods (in the subject's own cadence) that can be judged inside
+ * [startDayRef, today]: only periods that start inside the window (entries
+ * before it are not loaded, so a clipped first period would read as missed),
+ * past periods, and the current one only once met — an unfinished period is
+ * not a failure yet.
+ */
+function decidedPeriodRefsInWindow(
+  subject: Habit | KeyResult,
+  entries: DailyMeasurementEntry[],
+  startDayRef: DayRef,
+  today: DayRef,
+): MeasurementPeriodRef[] {
+  return getCadencePeriodRefsInDayRange(subject.cadence, startDayRef, today).filter((periodRef) => {
+    const { start, end } = getPeriodBounds(periodRef as PeriodRef)
+    if (start < startDayRef) return false
+    if (end < today) return true
+    return buildMeasurementSummary(subject, entries, periodRef).evaluationStatus === 'met'
+  })
+}
+
 function filterEntriesForPeriod(
   entries: DailyMeasurementEntry[],
   cadence: PlanningCadence,
@@ -340,7 +362,7 @@ function completionRateForWindow(
   const windowStart = addDaysToDayRef(today, -(days - 1))
   const createdAt = dateOnly(habit.createdAt) as DayRef
   const startDayRef = maxDayRef(windowStart, createdAt)
-  const periodRefs = getCadencePeriodRefsInDayRange(habit.cadence, startDayRef, today)
+  const periodRefs = decidedPeriodRefsInWindow(habit, entries, startDayRef, today)
   if (periodRefs.length === 0) return 0
 
   const metCount = periodRefs.filter((periodRef) => (
@@ -428,7 +450,7 @@ export function computeKRExecutionMetrics(
 ): KRExecutionMetrics {
   const sortedEntries = [...entries].sort(compareEntries)
   const today = getDayRefForDate(now)
-  const periodRefs = getCadencePeriodRefsInDayRange(kr.cadence, addDaysToDayRef(today, -89), today)
+  const periodRefs = decidedPeriodRefsInWindow(kr, sortedEntries, addDaysToDayRef(today, -89), today)
     .slice(-EXECUTION_METRICS_MAX_PERIODS)
   const currentPeriodRef = getCurrentMeasurementPeriodRef(kr.cadence, now)
   const currentSummary = buildMeasurementSummary(kr, sortedEntries, currentPeriodRef)

@@ -50,8 +50,28 @@ export interface MonthMeasurementPlanningItem {
   measurement?: MeasurementSummary
   sourceMonthRef?: MonthRef
   relatedWeekCount: number
+  /**
+   * Weeks of this month the plan actually asked for: every week under a
+   * whole-month scope, otherwise weeks with an active placement or a day
+   * assignment. Empty = the object was active but never placed.
+   */
+  plannedWeekRefs: WeekRef[]
   /** Explicit per-week target overrides within this month (week sub-targets). */
   weekTargetOverrides?: Partial<Record<WeekRef, MeasurementTarget>>
+  /**
+   * Weekly-cadence subjects only: every week overlapping the month, judged the
+   * way the week's own plan judges it (whole-week entries, target cascade
+   * month → week). Read it through domain/weeklyCadence — a weekly target is
+   * never compared with a month total.
+   */
+  weekEvaluations?: MonthWeekEvaluation[]
+}
+
+export interface MonthWeekEvaluation {
+  weekRef: WeekRef
+  /** The plan asked for the object in this week (same rule as the week bundle). */
+  planned: boolean
+  measurement: MeasurementSummary
 }
 
 export type MonthCadencedPlanningItem = MonthMeasurementPlanningItem & {
@@ -338,6 +358,44 @@ function buildPlanningSummary(
   }
 }
 
+/**
+ * Weeks the month plan asked for — see MonthMeasurementPlanningItem.plannedWeekRefs.
+ * Weekly-cadence subjects keep their week states without a source month (the
+ * repository forbids one), so they are read like the week bundle reads them.
+ */
+export function resolvePlannedWeekRefs(
+  monthRef: MonthRef,
+  monthScope: MeasurementMonthState['scheduleScope'] | undefined,
+  weekStates: MeasurementWeekState[],
+  dayAssignments: MeasurementDayAssignment[],
+  cadence: 'weekly' | 'monthly' = 'monthly',
+): WeekRef[] {
+  const monthWeeks = getChildPeriods(monthRef) as WeekRef[]
+  if (cadence === 'weekly') {
+    return monthWeeks.filter(weekRef => isWeeklySubjectPlannedInWeek(weekRef, monthScope, weekStates, dayAssignments))
+  }
+  if (monthScope === 'whole-month') return monthWeeks
+  return monthWeeks.filter(weekRef => hasExplicitPlacementInWeek(monthRef, weekRef, weekStates, dayAssignments))
+}
+
+/**
+ * Whether a weekly-cadence subject is assigned to a week: an active week state
+ * for it (assignment matrix or a period link), a day assignment in it, or a
+ * legacy whole-month scope. Being active in the month alone (the week lists it
+ * under „Pozostałe”) is not an assignment.
+ */
+function isWeeklySubjectPlannedInWeek(
+  weekRef: WeekRef,
+  monthScope: MeasurementMonthState['scheduleScope'] | undefined,
+  weekStates: MeasurementWeekState[],
+  dayAssignments: MeasurementDayAssignment[],
+): boolean {
+  const weekState = weekStates.find(state => state.weekRef === weekRef && !state.sourceMonthRef)
+  if (weekState) return weekState.activityState === 'active'
+  if (dayAssignments.some(assignment => getPeriodRefsForDate(assignment.dayRef).week === weekRef)) return true
+  return monthScope === 'whole-month'
+}
+
 function hasExplicitMonthPlacement(
   monthRef: MonthRef,
   weekStates: MeasurementWeekState[],
@@ -548,6 +606,7 @@ export async function getMonthPlanningBundle(monthRef: MonthRef): Promise<MonthP
     const monthStatesBySubject = groupBySubject(monthStates)
     const weekStatesBySubject = groupBySubject(weekStates)
     const dayAssignmentsBySubject = groupBySubject(dayAssignments)
+    const allDayAssignmentsBySubject = groupBySubject(deps.measurementDayAssignments)
     const entriesBySubject = groupBySubject(entries)
     const allEntriesBySubject = groupBySubject(deps.dailyMeasurementEntries)
     const subjectKeys = new Set<string>([
@@ -581,6 +640,11 @@ export async function getMonthPlanningBundle(monthRef: MonthRef): Promise<MonthP
         subjectEntries,
       )
       const subjectType = resolveSubjectType(effectiveSubject)
+      // Weekly subjects are placed per whole week, so a boundary week reads its
+      // day assignments from both months (the month filter would cut them).
+      const plannedWeekRefs = subject.cadence === 'weekly'
+        ? resolvePlannedWeekRefs(monthRef, monthState.scheduleScope, subjectWeekStates, allDayAssignmentsBySubject.get(key) ?? [], 'weekly')
+        : resolvePlannedWeekRefs(monthRef, monthState.scheduleScope, subjectWeekStates, subjectDayAssignments)
       const weekTargetOverrides: Partial<Record<WeekRef, MeasurementTarget>> = {}
       for (const state of subjectWeekStates) {
         if (state.targetOverride) {
@@ -605,7 +669,22 @@ export async function getMonthPlanningBundle(monthRef: MonthRef): Promise<MonthP
             )
           : undefined,
         relatedWeekCount: new Set(subjectWeekStates.map((state) => state.weekRef)).size,
+        plannedWeekRefs,
         weekTargetOverrides: Object.keys(weekTargetOverrides).length > 0 ? weekTargetOverrides : undefined,
+        weekEvaluations: subject.cadence === 'weekly'
+          ? (getChildPeriods(monthRef) as WeekRef[]).map((weekRef) => ({
+              weekRef,
+              planned: plannedWeekRefs.includes(weekRef),
+              measurement: buildMeasurementSummary(
+                applyMeasurementTargetCascade(subject, weekRef, {
+                  monthOverride: monthState.targetOverride,
+                  weekOverride: weekTargetOverrides[weekRef],
+                }),
+                allEntriesBySubject.get(key) ?? [],
+                weekRef,
+              ),
+            }))
+          : undefined,
       }
 
       if (subjectType === 'tracker') {

@@ -35,8 +35,8 @@
               :cadence="item.subject.cadence"
               :scale="scale === 'year' ? 'month' : scale"
               :points="periodChartPoints(item)"
-              :actual-value="item.measurement.actualValue"
-              :target-value="item.measurement.target?.value"
+              :actual-value="weekReadoutOf(item)?.met ?? item.measurement.actualValue"
+              :target-value="weekReadoutOf(item)?.planned ?? item.measurement.target?.value"
               :aggregate-status="item.measurement.evaluationStatus"
             />
           </button>
@@ -224,6 +224,20 @@ function periodChartPoints(item: ObjectItem): NextObjectChartPoint[] {
       assigned: data.assignments.some(assignment => assignment.dayRef === point.periodRef && assignment.subjectType === item.subjectType && assignment.subjectId === item.subject.id),
     }))
   }
+  if (data.scale === 'month' && 'weekEvaluations' in item && item.weekEvaluations) {
+    // Weekly-cadence object: each week with its own (cascaded) target; only
+    // assigned weeks are judged.
+    return item.weekEvaluations.map(week => ({
+      key: week.weekRef,
+      label: `T${week.weekRef.slice(-2)}`,
+      value: week.measurement.actualValue,
+      target: week.measurement.target?.value,
+      status: week.planned ? week.measurement.evaluationStatus ?? 'no-target' : 'no-data',
+      future: week.weekRef > currentRefs.week,
+      current: week.weekRef === currentRefs.week,
+      assigned: week.planned,
+    }))
+  }
   if (data.scale === 'month') {
     return buildMonthWeeklyChartPoints(
       item.subject,
@@ -247,7 +261,13 @@ function objectIcon(item: ObjectItem): string {
   return subject.icon || item.parentGoalIcon || iconForSubject(item.subjectType)
 }
 function iconForSubject(subjectType: MeasurementSubjectType): string { return subjectType === 'keyResult' ? 'mountain_flag' : subjectType === 'habit' ? 'change_circle' : subjectType === 'tracker' ? 'show_chart' : 'gps_fixed' }
+/** Weekly-cadence objects over a month read as weeks met / assigned weeks, never as a month total. */
+function weekReadoutOf(item: ObjectItem): { met: number; planned: number } | undefined {
+  return 'weekReadout' in item ? item.weekReadout : undefined
+}
 function measurementLabel(item: ObjectItem): string {
+  const weeks = weekReadoutOf(item)
+  if (weeks) return weeks.planned ? `${weeks.met} / ${weeks.planned} tyg.` : 'Brak przypisanych tygodni'
   const actual = item.measurement.actualValue
   const target = item.measurement.target?.value
   if (actual === undefined && target === undefined) return 'Brak wartości dla tego okresu'

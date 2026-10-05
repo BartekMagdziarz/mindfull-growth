@@ -563,6 +563,7 @@ function formatNumber(value: number): string {
 
 function rowMonthValue(row: MonthV2FocusRow): string {
   if (row.text) return row.text
+  if (row.weekReadout) return t('planning.calendar.monthV2.dashboard.weeksMet', row.weekReadout)
   if (row.monthValue !== undefined) {
     return row.targetValue !== undefined
       ? `${formatNumber(row.monthValue)} / ${formatNumber(row.targetValue)}`

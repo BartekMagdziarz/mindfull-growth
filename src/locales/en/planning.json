@@ -306,6 +306,7 @@
         "state": "State",
         "radarAxes": "Body ↑ · Emotions → · Tasks ↓ · Close ones ←",
         "weekRadar": "Week {number}. Requirements: {requirements}. State: {state}.",
+        "weeksMet": "{met} / {planned} wk",
         "noWeeklyReflection": "No reflection",
         "monthResult": "Month result",
         "linkedGoal": "Goal: {goal}",
