@@ -3249,6 +3249,7 @@
       "minLengthNote": "Worth writing a little more for this to work.",
       "noPractices": "No path practices to choose from.",
       "tooMuchToday": "Too much for today",
+      "optional": "optional",
       "saveNow": "Save now",
       "tooMuchNotice": "Good that you noticed. Leave it for today and come back to the breath. That is practice too.",
       "breath": {
@@ -4437,7 +4438,10 @@
     "pathReturn": {
       "letter": {
         "title": "A letter from you",
-        "description": "Eight weeks ago you wrote a letter for a worse day. Read it slowly.",
+        "description": {
+          "m": "Eight weeks ago you wrote a letter for a worse day. Read it slowly.",
+          "f": "Eight weeks ago you wrote a letter for a worse day. Read it slowly."
+        },
         "hintLabel": "Your letter"
       },
       "kept": {

@@ -110,9 +110,9 @@ describe('ProgramOutcomeSummary', () => {
     const scs = within(tables[0]!)
     expect(scs.getAllByRole('columnheader').map((h) => h.textContent?.trim())).toEqual([
       '',
-      expect.stringContaining('Rozpoznać'),
-      expect.stringContaining('Spojrzeć inaczej'),
-      expect.stringContaining('Utrwalić'),
+      expect.stringContaining('Rozpoznanie'),
+      expect.stringContaining('Inne spojrzenie'),
+      expect.stringContaining('Utrwalenie'),
     ])
   })
 
@@ -125,12 +125,13 @@ describe('ProgramOutcomeSummary', () => {
     expect(values).toEqual(['2.10', '2.80', '–'])
   })
 
-  it('shows one row per scale for a multi-scale instrument', () => {
+  it('shows one row per scale for a multi-scale instrument, named in the path’s plain words when it has them', () => {
     render(ProgramOutcomeSummary, { props: { program: PATH, enrollment } })
 
     const fscrs = within(screen.getAllByRole('table')[1]!)
     const rows = fscrs.getAllByRole('rowheader').map((h) => h.textContent?.trim())
-    expect(rows).toEqual(['Nieadekwatne ja', 'Znienawidzone ja', 'Uspokojone ja'])
+    // programs.shame-compassion.scaleLabels overrides the instrument's scale names
+    expect(rows).toEqual(['Czuję, że nie wystarczam', 'Niechęć do siebie', 'Uspokajam siebie'])
     const firstRowCells = fscrs.getAllByRole('cell').slice(0, 2).map((c) => c.textContent?.trim().split(/\s/)[0])
     expect(firstRowCells).toEqual(['3.10', '–'])
   })

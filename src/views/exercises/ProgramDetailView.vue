@@ -102,6 +102,7 @@
           :step-state="stepStates[index] ?? { state: 'locked' }"
           :planned-day="index === openEnrollment?.currentStepIndex ? pendingStepDay : undefined"
           :paused="openEnrollment?.status === 'paused'"
+          :program-i18n-key="program.i18nKey"
           @skip="handleSkip"
         />
       </template>

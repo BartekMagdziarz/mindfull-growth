@@ -28,6 +28,12 @@
         <AppCard padding="lg" class="space-y-4" :style="cardStyle">
           <h2 class="text-lg font-semibold text-on-surface">
             {{ tg(stepKey(currentStep, 'title')) }}
+            <small
+              v-if="isMicroStepOptional(currentStep, choiceAnswers)"
+              class="micro-optional"
+              data-testid="micro-optional"
+              >{{ t('exerciseWizards.micro.shared.optional') }}</small
+            >
           </h2>
           <p class="text-sm text-on-surface-variant">
             {{ tg(stepKey(currentStep, 'description')) }}
@@ -642,6 +648,15 @@ function leaveTooMuch(): void {
 </script>
 
 <style scoped>
+.micro-optional {
+  margin-left: 0.5rem;
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+}
+
 .micro-choice {
   display: flex;
   flex-wrap: wrap;

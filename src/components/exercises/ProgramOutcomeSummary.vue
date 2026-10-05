@@ -105,6 +105,13 @@ interface OutcomeSeries {
   rows: OutcomeRow[]
 }
 
+/** A path may name a scale in plain words (`<i18nKey>.scaleLabels.<scaleId>`); else the instrument's label. */
+function scaleLabel(scaleId: string, labelKey: string): string {
+  const key = `${props.program.i18nKey}.scaleLabels.${scaleId}`
+  const value = t(key)
+  return value === key ? t(labelKey) : value
+}
+
 /** Phase title of a step, or the legacy before/after labels for paths without phases. */
 function pointLabel(stepIndex: number, ordinal: number): string {
   const phases = props.program.phases ?? []
@@ -180,7 +187,7 @@ const series = computed<OutcomeSeries[]>(() =>
       : definition.scales
     const rows: OutcomeRow[] = scales.map((scale) => ({
       scaleId: scale.id,
-      label: t(scale.labelKey),
+      label: scaleLabel(scale.id, scale.labelKey),
       cells: points.map((point) => {
         const score = point.attempt?.computedScales?.find((candidate) => candidate.scaleId === scale.id)
         const described = describeScale(definition, score)

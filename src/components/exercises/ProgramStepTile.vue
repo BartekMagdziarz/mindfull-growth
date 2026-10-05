@@ -63,6 +63,7 @@ import type { DayRef } from '@/domain/period'
 import type { ProgramStep } from '@/domain/program'
 import type { ProgramStepState } from '@/services/programSchedulerService'
 import { getPeriodRefsForDate } from '@/utils/periods'
+import { programStepTitle } from '@/utils/programStepTitle'
 
 const props = defineProps<{
   index: number
@@ -71,6 +72,8 @@ const props = defineProps<{
   /** Pending plan item's day when materialized; falls back to eligibleDay. */
   plannedDay?: DayRef
   paused: boolean
+  /** The path's i18n key, so a step can carry its own label (see programStepTitle). */
+  programI18nKey?: string
 }>()
 
 const emit = defineEmits<{
@@ -83,7 +86,12 @@ const { t, tg, locale } = useT()
 const entry = computed(() => getCatalogEntry(props.step.exerciseSlug))
 const icon = computed(() => entry.value?.icon ?? 'flag')
 const title = computed(() =>
-  entry.value ? t(`exercises.cards.${entry.value.i18nKey}.title`) : props.step.exerciseSlug,
+  programStepTitle(
+    t,
+    props.programI18nKey,
+    props.index,
+    entry.value ? t(`exercises.cards.${entry.value.i18nKey}.title`) : props.step.exerciseSlug,
+  ),
 )
 
 const isLocked = computed(() => props.stepState.state === 'locked')

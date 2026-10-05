@@ -92,14 +92,14 @@ na innych lub ukryciem, i wracać do kontaktu" + the user's own "Mój znak" (`si
 
 | # | Step | Week |
 |---|---|---|
-| 1–4 | scs-sf · fscrs · shame-map (parts) · my-sign | w1 Rozpoznać |
-| 5–7 | safe-place (+ resistances) · compassionate-image (toOther first) · compassionate-self | w2 Współczująca strona |
+| 1–4 | scs-sf · fscrs · shame-map (parts) · my-sign | w1 Rozpoznanie |
+| 5–7 | safe-place (+ resistances) · compassionate-image (toOther first) · compassionate-self | w2 Oparcie |
 | 8–9 | shame-response (unblend, anchor, log-a-moment after save) · shame-or-guilt | w3 Odpowiedź |
-| 10–12 | thought-record (`startFrom: moment`) · scs-sf (połowa) · dose-check | w4 Spojrzeć inaczej |
-| 13–15 | trailhead (`startFrom: moment`) · protector-appreciation (`partTag` Krytyk) · direct-access (optional) | w5 Krytyk jako część |
-| 16–17 | compassionate-letter (`startFrom: moment`) · defender-voice | w6 Nowy głos |
-| 18–20 | core-beliefs (`startFrom: fairDemand`) · behavioral-experiment · exile-witnessing (optional) | w7 Wyjść z ukrycia |
-| 21–24 | scs-sf · fscrs · letter-to-future-self · maintenance-plan (**closesPath**) | w8 Utrwalić |
+| 10–12 | thought-record (`startFrom: moment`) · scs-sf (połowa) · dose-check | w4 Inne spojrzenie |
+| 13–15 | trailhead (`startFrom: moment`) · protector-appreciation (`partTag` Krytyk) · direct-access (optional) | w5 Krytyk |
+| 16–17 | compassionate-letter (`startFrom: moment`) · defender-voice | w6 Własny głos |
+| 18–20 | core-beliefs (`startFrom: fairDemand`) · behavioral-experiment · exile-witnessing (optional) | w7 Wyjście z ukrycia |
+| 21–24 | scs-sf · fscrs · letter-to-future-self · maintenance-plan (**closesPath**) | w8 Utrwalenie |
 | 25–27 | scs-sf (+56 d) · fscrs · path-return — `afterCompletion` | Powrót |
 
 Practices (never more than two at once): `paced-breathing` daily until step 7;
@@ -121,6 +121,8 @@ between micros), `minLength` (soft), `optionsFrom: 'programPractices'`, `labelsF
 **Content migration.** `contentVersion` 3; legacy lists v1 and v2 in `programCatalogLegacy.ts`;
 re-mapped by the scheduler safety net on the next Today load (open enrollments only — closed
 paths keep their history; no Dexie upgrade this time, the user restarts the path anyway). The detail view offers "Zacznij od nowa" (abandon + enroll).
+
+**P2 progress (2026-10-04).** P2a is committed (`f3b5c60`): Moments progress, own sentences, practice helpfulness and eleven PL/EN knowledge cards. The interactive Sky Mist concept is now available in UX Lab at `/concepts/shame-path` (dashboard / weekly reflection / Today panel; start / mid-path / quiet / paused / completed / return scenarios). It uses illustrative, isolated records with the real pure progress functions and knowledge copy. The local `neomorphism-frontend` skill now reflects Today, Calendar and Objects: lighter nested surfaces, subtle first-level shadows, organic shapes and minimal copy. The production port awaits the user's design review, as required by plan §8.
 
 **Still to come (plan phases P2–P4):** the week-card dashboard with the three Momenty
 progress images, knowledge cards, "Moje zdania", the reflection step's week glance and

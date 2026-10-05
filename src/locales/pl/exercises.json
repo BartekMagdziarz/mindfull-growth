@@ -241,9 +241,9 @@
       "description": "Poznaj 14 typowych pułapek myślenia i sprawdź, które z nich pojawiają się w Twoich własnych myślach."
     },
     "thoughtRecord": {
-      "title": "Rejestr myśli",
+      "title": "Zapis myśli",
       "subtitle": "Przeformułuj negatywne myśli",
-      "description": "Przejdź przez 7-kolumnowy rejestr myśli, aby zbadać dowody i wypracować zrównoważone myślenie."
+      "description": "Siedem kolumn: zbadaj dowody za gorącą myślą i przeciw niej, a potem znajdź bardziej wyważoną."
     },
     "coreBeliefs": {
       "title": "Przekonania kluczowe",
@@ -259,9 +259,9 @@
       }
     },
     "positiveDataLog": {
-      "title": "Dziennik pozytywnych danych",
+      "title": "Dowody na nowe przekonanie",
       "subtitle": "Zbieraj dowody przeciwko negatywnym przekonaniom",
-      "description": "Prowadź dziennik, w którym systematycznie podważasz kluczowe przekonanie, zapisując sprzeczne z nim dowody."
+      "description": "Dziennik, w którym zapisujesz dowody przeczące staremu przekonaniu o sobie."
     },
     "behavioralExperiment": {
       "title": "Eksperyment behawioralny",
@@ -407,9 +407,9 @@
       "description": "Zapisz jedną rzecz, która dziś wyszła, i co mówi o tobie."
     },
     "pacedBreathing": {
-      "title": "Oddech kojący",
+      "title": "Dłuższy wydech",
       "subtitle": "Wdech 4 s, wydech 6 s przez trzy minuty",
-      "description": "Dłuższy wydech niż wdech wycisza pobudzenie. Pomaga, zanim podejdziesz do czegoś trudnego."
+      "description": "Wydech dłuższy niż wdech wycisza pobudzenie. Pomaga, zanim podejdziesz do czegoś trudnego."
     },
     "angerMap": {
       "title": "Mapa złości",
@@ -442,9 +442,9 @@
       "description": "Krótki zapis dnia: czy pojawiła się złość, co ją wywołało, jaka myśl ją podkręciła i co pomogło."
     },
     "shameResponse": {
-      "title": "Odpowiedź na wstyd",
+      "title": "Plan na trudną chwilę",
       "subtitle": "Twój plan na chwilę wstydu",
-      "description": "Cztery ruchy na gorąco: sygnał, oddech, jedno pytanie, jedno zdanie i mały ruch w stronę kontaktu. Zbudujesz je zawczasu."
+      "description": "Pięć ruchów na gorąco: po czym poznasz wstyd, oddech, jedno pytanie, jedno zdanie i mały krok w stronę ludzi. Układasz je zawczasu."
     },
     "shameMap": {
       "title": "Mapa wstydu",
@@ -457,9 +457,9 @@
       "description": "Rozpoznaj, o czym jest wstyd: o czynie, o zdarzeniu czy o wymaganiu. Każda odpowiedź ma inną drogę: napraw, zadbaj, sprawdź."
     },
     "compassionateImage": {
-      "title": "Obraz współczujący",
+      "title": "Współczująca postać",
       "subtitle": "Twoja idealnie życzliwa postać",
-      "description": "Stwórz wyobrażenie kogoś mądrego, silnego, ciepłego i nieoceniającego. Możesz do niego wracać w trudnych chwilach."
+      "description": "Wyobraź sobie kogoś mądrego, silnego, ciepłego i nieoceniającego. Możesz do tej postaci wracać w trudnych chwilach."
     },
     "worryPostponement": {
       "title": "Pora na zmartwienia",
@@ -472,9 +472,9 @@
       "description": "Zbierz sytuacje, które budzą lęk, to, czego unikasz, i to, czym się zabezpieczasz. Z tej listy powstaje drabina ekspozycji."
     },
     "maintenancePlan": {
-      "title": "Plan podtrzymania",
+      "title": "Co zostaje ze mną",
       "subtitle": "Co zostaje na dłużej",
-      "description": "Zdecyduj, które praktyki zostają z tobą i po czym poznasz, że warto do nich wrócić."
+      "description": "Które praktyki zostają z tobą i po czym poznasz, że warto do nich wrócić."
     },
     "gad7": {
       "title": "Niepokój (GAD-7)",
@@ -482,9 +482,9 @@
       "description": "Krótki pomiar niepokoju i zamartwiania się. Powtarzany co kilka tygodni pokazuje, czy coś się zmienia."
     },
     "scsSf": {
-      "title": "Współczucie dla siebie (SCS-SF)",
+      "title": "Współczucie dla siebie",
       "subtitle": "12 pytań o to, jak traktujesz siebie",
-      "description": "Sprawdź, na ile w trudnych chwilach jesteś dla siebie życzliwym wsparciem, a na ile surowym krytykiem."
+      "description": "Jak traktujesz siebie w trudnych chwilach: życzliwie czy surowo. Skala SCS-SF."
     },
     "angerBarometer": {
       "title": "Barometr złości",
@@ -509,27 +509,27 @@
     "compassionateSelf": {
       "title": "Współczujące ja",
       "subtitle": "Energia Ja w ciele i w zdaniu",
-      "description": "Postawa, głos i osiem cech energii Ja. Na końcu zdanie do części, która się wstydzi."
+      "description": "Postawa, głos i spokojna wersja ciebie. Na końcu zdanie do części, która się wstydzi."
     },
     "defenderVoice": {
-      "title": "Głos obronny",
+      "title": "W swojej obronie",
       "subtitle": "Stanowcza strona współczucia",
-      "description": "Jak broniłby cię przyjaciel, jedno zdanie, którym bronisz siebie, i ciało, które je popiera."
+      "description": "Jak broniłby cię przyjaciel, jedno zdanie, którym bronisz siebie, i ciało, które za nim stoi."
     },
     "shameWriting": {
-      "title": "Pisanie po momencie",
+      "title": "Pisanie po trudnej chwili",
       "subtitle": "Trzy akapity ze współczuciem",
-      "description": "Fakty, wspólne człowieczeństwo, życzliwość do siebie i dystans. Po momencie wstydu, dwa, trzy razy w tygodniu."
+      "description": "Fakty, nie tylko ja, życzliwość do siebie i dystans. Po trudnej chwili, dwa, trzy razy w tygodniu."
     },
     "doseCheck": {
-      "title": "Czy dawka pasuje",
+      "title": "Czy nie za dużo?",
       "subtitle": "Punkt kontrolny w połowie",
       "description": "Jak idzie z praktykami i co pomaga najbardziej. Bez oceny wyniku."
     },
     "letterToFutureSelf": {
-      "title": "List do siebie na później",
+      "title": "List na gorszy dzień",
       "subtitle": "Na gorszy dzień",
-      "description": "List od współczującego ja do ciebie z przyszłości, który wróci w wybranym tygodniu."
+      "description": "List od współczującego ja do ciebie z przyszłości. Wróci w wybranym tygodniu."
     },
     "pathReturn": {
       "title": "Powrót",
@@ -537,9 +537,9 @@
       "description": "Co zostało, co wróciło i jeden mały ruch na najbliższy tydzień."
     },
     "fscrs": {
-      "title": "Jak traktuję siebie (FSCRS)",
+      "title": "Jak traktuję siebie",
       "subtitle": "22 pytania o trzy głosy wobec siebie",
-      "description": "Nieadekwatne ja, znienawidzone ja i uspokojone ja. Trzy średnie, które ścieżka wstydu mierzy na starcie, na końcu i przy Powrocie."
+      "description": "Trzy głosy, którymi odpowiadasz sobie, gdy coś nie wychodzi. Skala FSCRS; ścieżka wstydu mierzy je na starcie, na końcu i przy Powrocie."
     }
   }
 }

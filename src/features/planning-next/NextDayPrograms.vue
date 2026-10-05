@@ -114,6 +114,7 @@ import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import { getCatalogEntry } from '@/data/exerciseCatalog'
+import { programStepTitle } from '@/utils/programStepTitle'
 import { getProgramDefinition } from '@/data/programCatalog'
 import type { ExercisePlanItem } from '@/domain/exercisePlan'
 import type { DayRef } from '@/domain/period'
@@ -145,12 +146,13 @@ function dueLabel(item: ExercisePlanItem): string {
     : t('planning.today.wellness.plannedForToday')
 }
 
-function entryFor(slug: string) {
+function entryFor(slug: string, programI18nKey?: string, stepIndex?: number) {
   const entry = getCatalogEntry(slug)
+  const catalogTitle = entry ? t(`exercises.cards.${entry.i18nKey}.title`) : slug
   return {
     icon: entry?.icon ?? 'repeat',
     route: entry?.route ?? '/exercises',
-    title: entry ? t(`exercises.cards.${entry.i18nKey}.title`) : slug,
+    title: programStepTitle(t, programI18nKey, stepIndex, catalogTitle),
   }
 }
 
@@ -196,7 +198,11 @@ const programGroups = computed(() =>
       context,
       actions: due.map((item) => ({
         id: item.id,
-        ...entryFor(item.exerciseSlug),
+        ...entryFor(
+          item.exerciseSlug,
+          program?.i18nKey,
+          isPracticeItem(item) ? undefined : item.programStepIndex,
+        ),
         kind: isPracticeItem(item)
           ? t('planning.today.wellness.programPractice')
           : t('planning.today.wellness.programStepLabel', { n: enrollment.currentStepIndex + 1 }),

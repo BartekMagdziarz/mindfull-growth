@@ -26,52 +26,30 @@ export interface PathStep {
   optional?: boolean
   minutes: string
 }
-const step = (title: string, slug: string, minutes = '5–10 min', optional = false): PathStep => ({
-  title,
-  slug,
-  minutes,
-  optional,
-})
+const stepCopy = pathCopy.steps as Record<string, { intro: string; title?: string }>
+/** Catalog titles (PL) for steps without a path-specific label. */
+const catalogTitles: Record<string, string> = {
+  'shame-map': 'Mapa wstydu',
+  'safe-place': 'Bezpieczne miejsce',
+  'compassionate-self': 'Współczujące ja',
+  'shame-or-guilt': 'O czym jest ten wstyd?',
+}
+let ordinal = 0
+const step = (slug: string, minutes = '5–10 min', optional = false): PathStep => {
+  ordinal += 1
+  const title = stepCopy[`step${ordinal}`]?.title ?? catalogTitles[slug] ?? slug
+  return { title, slug, minutes, optional }
+}
 export const steps: PathStep[][] = [
-  [
-    step('Współczucie dla siebie', 'scs-sf', '3 min'),
-    step('Jak traktuję siebie', 'fscrs', '4 min'),
-    step('Mapa wstydu', 'shame-map', '10–15 min'),
-    step('Mój znak', 'my-sign', '5 min'),
-  ],
-  [
-    step('Bezpieczne miejsce', 'safe-place', '8 min'),
-    step('Obraz współczujący', 'compassionate-image', '10 min'),
-    step('Współczujące ja', 'compassionate-self', '8 min'),
-  ],
-  [step('Odpowiedź na wstyd', 'shame-response', '10 min'), step('O czym jest ten wstyd?', 'shame-or-guilt', '8 min')],
-  [
-    step('Rejestr myśli', 'thought-record', '10–15 min'),
-    step('Współczucie dla siebie · połowa', 'scs-sf', '3 min'),
-    step('Czy dawka pasuje', 'dose-check', '3 min'),
-  ],
-  [
-    step('Punkt wejścia', 'trailhead', '10 min'),
-    step('Docenienie protektora', 'protector-appreciation', '10 min'),
-    step('Rozmowa z częścią', 'direct-access', '15 min', true),
-  ],
-  [step('List współczucia', 'compassionate-letter', '15–20 min'), step('Głos obronny', 'defender-voice', '8 min')],
-  [
-    step('Przekonania kluczowe', 'core-beliefs', '15 min'),
-    step('Eksperyment behawioralny', 'behavioral-experiment', '10 min'),
-    step('Świadkowanie', 'exile-witnessing', '20 min', true),
-  ],
-  [
-    step('Współczucie dla siebie · koniec', 'scs-sf', '3 min'),
-    step('Jak traktuję siebie · koniec', 'fscrs', '4 min'),
-    step('List do siebie na później', 'letter-to-future-self', '10 min'),
-    step('Plan podtrzymania', 'maintenance-plan', '10 min'),
-  ],
-  [
-    step('Współczucie dla siebie · powrót', 'scs-sf', '3 min'),
-    step('Jak traktuję siebie · powrót', 'fscrs', '4 min'),
-    step('Co zostało, co wróciło', 'path-return', '8 min'),
-  ],
+  [step('scs-sf', '3 min'), step('fscrs', '4 min'), step('shame-map', '10–15 min'), step('my-sign', '5 min')],
+  [step('safe-place', '8 min'), step('compassionate-image', '10 min'), step('compassionate-self', '8 min')],
+  [step('shame-response', '10 min'), step('shame-or-guilt', '8 min')],
+  [step('thought-record', '10–15 min'), step('scs-sf', '3 min'), step('dose-check', '3 min')],
+  [step('trailhead', '10 min'), step('protector-appreciation', '10 min'), step('direct-access', '15 min', true)],
+  [step('compassionate-letter', '15–20 min'), step('defender-voice', '8 min')],
+  [step('core-beliefs', '15 min'), step('behavioral-experiment', '10 min'), step('exile-witnessing', '20 min', true)],
+  [step('scs-sf', '3 min'), step('fscrs', '4 min'), step('letter-to-future-self', '10 min'), step('maintenance-plan', '10 min')],
+  [step('scs-sf', '3 min'), step('fscrs', '4 min'), step('path-return', '8 min')],
 ]
 export const phaseKeys = ['w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'w7', 'w8', 'return'] as const
 export const weeks = phaseKeys.map((key, i) => ({
@@ -187,6 +165,7 @@ export interface SkillRow {
   points: [number | null, number | null, number | null, number | null]
 }
 export const skillColumns = ['Start', 'Połowa', 'Koniec', 'Powrót']
+const scaleLabels = (pathCopy as { scaleLabels?: Record<string, string> }).scaleLabels ?? {}
 export function skillsFor(sample: Sample): SkillRow[] {
   const closed = sample === 'completed' || sample === 'return'
   const mid = sample !== 'start'
@@ -198,9 +177,9 @@ export function skillsFor(sample: Sample): SkillRow[] {
     ret ? back : null,
   ]
   return [
-    { key: 'scs', name: 'Współczucie dla siebie', label: 'Współczucie dla siebie', instrument: 'SCS-SF', min: 1, max: 5, lessIsBetter: false, points: pick(2.2, 2.9, 3.4, 3.3) },
-    { key: 'reassured', name: 'Uspokajam siebie', label: 'Uspokajam siebie', instrument: 'FSCRS', min: 0, max: 4, lessIsBetter: false, points: pick(1.7, null, 2.8, 2.7) },
-    { key: 'inadequate', name: 'Nieadekwatne ja', label: 'Mniej „nieadekwatnego ja”', instrument: 'FSCRS', min: 0, max: 4, lessIsBetter: true, points: pick(3.1, null, 2.4, 2.5) },
-    { key: 'hated', name: 'Znienawidzone ja', label: 'Mniej „znienawidzonego ja”', instrument: 'FSCRS', min: 0, max: 4, lessIsBetter: true, points: pick(1.4, null, 0.8, 0.9) },
+    { key: 'scs', name: scaleLabels.total ?? 'Współczucie dla siebie', label: 'Współczucie dla siebie', instrument: 'SCS-SF', min: 1, max: 5, lessIsBetter: false, points: pick(2.2, 2.9, 3.4, 3.3) },
+    { key: 'reassured', name: scaleLabels.reassuredSelf ?? 'Uspokajam siebie', label: 'Uspokajam siebie', instrument: 'FSCRS', min: 0, max: 4, lessIsBetter: false, points: pick(1.7, null, 2.8, 2.7) },
+    { key: 'inadequate', name: scaleLabels.inadequateSelf ?? 'Nieadekwatne ja', label: 'Mniej „nieadekwatnego ja”', instrument: 'FSCRS', min: 0, max: 4, lessIsBetter: true, points: pick(3.1, null, 2.4, 2.5) },
+    { key: 'hated', name: scaleLabels.hatedSelf ?? 'Znienawidzone ja', label: 'Mniej „znienawidzonego ja”', instrument: 'FSCRS', min: 0, max: 4, lessIsBetter: true, points: pick(1.4, null, 0.8, 0.9) },
   ]
 }

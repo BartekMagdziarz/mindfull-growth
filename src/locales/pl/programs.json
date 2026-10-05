@@ -34,8 +34,8 @@
       "few": "~{n} tygodnie",
       "many": "~{n} tygodni"
     },
-    "completedTitle": "Ścieżka ukończona!",
-    "completedMessage": "Wszystkie kroki za Tobą. Możesz zacząć ścieżkę ponownie, kiedy zechcesz.",
+    "completedTitle": "Ścieżka ukończona.",
+    "completedMessage": "Wszystkie kroki za tobą. Możesz zacząć ścieżkę ponownie, kiedy zechcesz.",
     "pausedNote": "Ścieżka jest wstrzymana — wznów ją, aby kontynuować.",
     "practicesTitle": "Praktyki obok kroków",
     "practicesLead": "Krótkie ćwiczenia, które powtarzasz regularnie przez część ścieżki. Kolejne wystąpienie planuje się samo po zapisie.",
@@ -349,181 +349,207 @@
   },
   "shame-compassion": {
     "title": "Ze wstydu do współczucia",
-    "description": "Osiem tygodni pracy ze wstydem, oparte na terapii skoncentrowanej na współczuciu i na języku części (IFS). Cel: zauważać wstyd szybciej, odpowiadać na niego ciepłem zamiast atakiem na siebie, atakiem na innych lub ukryciem, i wracać do kontaktu. Najpierw rozpoznajesz, które części przejmują ster, i budujesz miejsce, do którego da się wrócić. Potem współczującą stronę siebie, plan na gorącą chwilę i pytanie, o czym jest ten wstyd. Dalej poznajesz krytyka jako część, piszesz list i uczysz się głosu, który staje po twojej stronie, a w ostatnich tygodniach wychodzisz z ukrycia w małych, bezpiecznych krokach. Obok kroków: oddech, Momenty i krótkie praktyki, co tydzień jedno zadanie w życiu, w połowie sprawdzenie dawki, a osiem tygodni po zakończeniu Powrót. Ta ścieżka nie zastąpi terapii, jeśli wstyd wiąże się z przemocą, wykorzystaniem albo silnym kryzysem.",
+    "description": "Osiem tygodni pracy ze wstydem. Cel: zauważać go szybciej, odpowiadać ciepłem zamiast atakiem na siebie, atakiem na innych albo ukryciem, i wracać do kontaktu. Najpierw rozpoznajesz, które części przejmują ster, i budujesz oparcie. Potem układasz plan na trudną chwilę, poznajesz Krytyka, znajdujesz własny głos i w małych krokach wychodzisz z ukrycia. Obok kroków: oddech, Momenty, co tydzień jedno zadanie w życiu, w połowie pytanie, czy nie za dużo, a osiem tygodni po zakończeniu Powrót. Ta ścieżka nie zastąpi terapii, jeśli wstyd wiąże się z przemocą, wykorzystaniem albo kryzysem.",
     "reflection": {
       "severity": "Jak bardzo wstyd wpływał na ten tydzień?"
     },
     "phases": {
       "w1": {
-        "title": "Rozpoznać",
-        "why": "Nazwać wstyd i jego części, zanim zaczniemy odpowiadać.",
-        "question": "W jakich sytuacjach wstyd pojawiał się najczęściej i która część przejmowała ster?"
+        "title": "Rozpoznanie",
+        "why": "Nazywasz wstyd i części, które się nim zajmują.",
+        "question": "Kiedy wstyd pojawiał się najczęściej i która część wtedy przejmowała ster?"
       },
       "w2": {
-        "title": "Współczująca strona",
-        "why": "Miejsce, obraz i ja, do których da się wrócić.",
+        "title": "Oparcie",
+        "why": "Budujesz miejsce, postać i spokojniejszą wersję siebie, do których da się wracać.",
         "question": {
           "m": "Jak zareagowało twoje ciało, gdy zwróciłeś się do siebie z ciepłem? Co mówił opór?",
           "f": "Jak zareagowało twoje ciało, gdy zwróciłaś się do siebie z ciepłem? Co mówił opór?"
         }
       },
       "w3": {
-        "title": "Odpowiedź",
-        "why": "Plan na gorącą chwilę i pytanie, o czym jest ten wstyd.",
+        "title": "Plan na trudną chwilę",
+        "why": "Układasz, co robisz, gdy wstyd uderza, i pytasz, o czym on właściwie jest.",
         "question": {
-          "m": "Kiedy użyłeś swojej odpowiedzi na wstyd, a kiedy część zdążyła pierwsza?",
-          "f": "Kiedy użyłaś swojej odpowiedzi na wstyd, a kiedy część zdążyła pierwsza?"
+          "m": "Kiedy zdążyłeś ze swoim planem, a kiedy część była pierwsza?",
+          "f": "Kiedy zdążyłaś ze swoim planem, a kiedy część była pierwsza?"
         }
       },
       "w4": {
-        "title": "Spojrzeć inaczej",
-        "why": "Dowody oczami bliskiej osoby. Połowa drogi: sprawdzamy dawkę, nie wynik.",
-        "question": "Które momenty tygodnia okazały się wymaganiem, a nie czynem?"
+        "title": "Inne spojrzenie",
+        "why": "Patrzysz na siebie oczami kogoś bliskiego. W połowie drogi sprawdzasz, czy praktyk nie jest za dużo.",
+        "question": {
+          "m": "Który z tych momentów był o wymaganiu wobec siebie, a nie o tym, co zrobiłeś?",
+          "f": "Który z tych momentów był o wymaganiu wobec siebie, a nie o tym, co zrobiłaś?"
+        }
       },
       "w5": {
-        "title": "Krytyk jako część",
-        "why": "Poznać, przed czym chroni, i przejąć od niego ster.",
-        "question": "Co krytyk próbował ochronić w tym tygodniu?"
+        "title": "Krytyk",
+        "why": "Poznajesz Krytyka jako część: przed czym chroni i jak przejąć od niego ster.",
+        "question": "Przed czym Krytyk próbował cię w tym tygodniu ochronić?"
       },
       "w6": {
-        "title": "Nowy głos",
-        "why": "List do siebie i zdanie, którym bronię siebie.",
-        "question": "Kiedy odezwał się twój głos obronny, a kiedy zabrakło go najbardziej?"
+        "title": "Własny głos",
+        "why": "Piszesz do siebie list i znajdujesz zdanie, którym stajesz w swojej obronie.",
+        "question": "Kiedy odezwał się twój głos w swojej obronie, a kiedy go zabrakło?"
       },
       "w7": {
-        "title": "Wyjść z ukrycia",
-        "why": "Sprawdzić w życiu, co się stanie, gdy mnie zobaczą.",
+        "title": "Wyjście z ukrycia",
+        "why": "Sprawdzasz w życiu, co się dzieje, gdy dajesz się zobaczyć.",
         "question": {
-          "m": "Co się wydarzyło, gdy pokazałeś się taki, jaki jesteś?",
-          "f": "Co się wydarzyło, gdy pokazałaś się taka, jaka jesteś?"
+          "m": "Co się stało, gdy pokazałeś się taki, jaki jesteś?",
+          "f": "Co się stało, gdy pokazałaś się taka, jaka jesteś?"
         }
       },
       "w8": {
-        "title": "Utrwalić",
-        "why": "Co zostaje ze mną i list na gorszy dzień.",
-        "question": "Po czym poznasz, że wstyd znowu przejmuje ster, i co wtedy zrobisz?"
+        "title": "Utrwalenie",
+        "why": "Wybierasz, co zostaje z tobą, i piszesz list na gorszy dzień.",
+        "question": "Po czym poznasz, że wstyd znów przejmuje ster, i co wtedy zrobisz?"
       },
       "return": {
         "title": "Powrót",
-        "why": "Osiem tygodni po zakończeniu: co zostało, co wróciło.",
-        "question": "Co z tej ścieżki zostało z tobą na co dzień?"
+        "why": "Osiem tygodni później: co zostało, co wróciło.",
+        "question": "Co z tej ścieżki jest z tobą na co dzień?"
       }
     },
     "steps": {
       "step1": {
-        "intro": "Zacznij od pomiaru współczucia dla siebie. Ta sama skala wróci w połowie, na końcu i przy Powrocie."
+        "intro": "Zacznij od pomiaru: jak traktujesz siebie w trudnych chwilach. Wrócisz do niego w połowie drogi, na końcu i przy Powrocie.",
+        "title": "Współczucie dla siebie — pomiar"
       },
       "step2": {
-        "intro": "Drugi pomiar: trzy głosy, którymi odpowiadasz sobie, gdy coś nie wychodzi. Wróci na końcu i przy Powrocie."
+        "intro": "Zmierz trzy głosy, którymi odpowiadasz sobie, gdy coś nie wychodzi. Wrócisz do nich na końcu i przy Powrocie.",
+        "title": "Trzy głosy — pomiar"
       },
       "step3": {
-        "intro": "Sprawdź, gdzie wstyd odzywa się najczęściej, jak na niego reagujesz i jakie wymaganie wobec siebie za nim stoi. Reakcje staną się częściami w twoim rejestrze."
+        "intro": "Sprawdź, gdzie wstyd odzywa się najczęściej, jak na niego reagujesz i jakie wymaganie wobec siebie za nim stoi. Każda reakcja stanie się częścią w twoim rejestrze."
       },
       "step4": {
-        "intro": "Powiedz własnymi słowami, co najbardziej chcesz zmienić i po czym poznasz, że działa. To zdanie zostanie na górze ścieżki."
+        "intro": "Powiedz własnymi słowami, co najbardziej chcesz zmienić i po czym poznasz, że działa. To zdanie zostanie na górze ścieżki.",
+        "title": "Po czym poznam zmianę"
       },
       "step5": {
-        "intro": "Zanim zwrócisz się do siebie z ciepłem, zbuduj miejsce, do którego wrócisz, gdy będzie za dużo, i nazwij, co mówi twój opór."
+        "intro": "Zanim zwrócisz się do siebie z ciepłem, zbuduj miejsce, do którego wrócisz, gdy będzie za dużo. Nazwij też, co mówi twój opór."
       },
       "step6": {
-        "intro": "Stwórz obraz współczującej postaci, zaczynając od kogoś, komu łatwo ci współczuć. Jej zdanie będzie wracać w kolejnych krokach."
+        "intro": "Stwórz w wyobraźni współczującą postać. Zacznij od kogoś, komu łatwo ci współczuć. Jej zdanie będzie wracać w kolejnych krokach.",
+        "title": "Współczująca postać"
       },
       "step7": {
-        "intro": "Teraz ty jesteś współczuciem. Postawa, głos, osiem cech energii Ja i zdanie do części, która się wstydzi."
+        "intro": "Teraz ty jesteś współczuciem. Postawa, głos i zdanie do części, która się wstydzi."
       },
       "step8": {
-        "intro": "Zbuduj osobisty plan na chwilę wstydu: sygnał, oddech, zdanie odmieszania, jedno pytanie, jedno zdanie i mały ruch w stronę kontaktu. Od teraz ćwiczysz go w życiu."
+        "intro": "Ułóż swój plan na trudną chwilę: po czym poznasz wstyd, oddech, zdanie, które oddziela cię od części, jedno pytanie, jedno zdanie i mały krok w stronę ludzi. Od teraz ćwiczysz go w życiu.",
+        "title": "Plan na trudną chwilę"
       },
       "step9": {
         "intro": "Weź jeden moment z Momentów i zapytaj, o czym jest ten wstyd. Czyn da się naprawić, zdarzenie potrzebuje opieki, a wymaganie trzeba sprawdzić."
       },
       "step10": {
-        "intro": "Wybierz moment i rozłóż gorącą myśl „jestem…”. Szukaj dowodów oczami bliskiej osoby, nie prokuratora."
+        "intro": "Wybierz moment i rozłóż gorącą myśl „jestem…”. Szukaj dowodów oczami bliskiej osoby, nie prokuratora.",
+        "title": "Zapis myśli"
       },
       "step11": {
-        "intro": "Połowa drogi: powtórz skalę współczucia dla siebie. To obraz zmiany, nie ocena."
+        "intro": "Połowa drogi. Powtórz pomiar współczucia dla siebie — to obraz zmiany, nie ocena.",
+        "title": "Współczucie dla siebie — w połowie drogi"
       },
       "step12": {
-        "intro": "Sprawdźmy dawkę, nie wynik. Jeśli praktyk jest za dużo, zostanie mniej; jeśli nie robisz ich wcale, zostanie to, co najmniejsze."
+        "intro": "Sprawdź, czy praktyk nie jest za dużo. Jeśli tak, zostanie mniej. Jeśli nie robisz ich wcale, zostanie to, co najmniejsze.",
+        "title": "Czy nie za dużo?"
       },
       "step13": {
-        "intro": "Wybierz moment, w którym krytyk się odezwał, i potraktuj go jako punkt wejścia do części. Wchodź z pozycji współczującego ja."
+        "intro": "Wybierz moment, w którym odezwał się Krytyk, i potraktuj go jako punkt wejścia do części. Wchodź z pozycji współczującego ja.",
+        "title": "Punkt wejścia"
       },
       "step14": {
-        "intro": "Poznaj Krytyka jako protektora: czego się boi, że się stanie, gdy przestanie? Na końcu zapisz zdanie, którym przejmiesz od niego ster."
+        "intro": "Poznaj Krytyka jako część, która chroni: czego się boi, że się stanie, gdy przestanie? Na końcu zapisz zdanie, którym przejmiesz od niego ster.",
+        "title": "Czego pilnuje Krytyk"
       },
       "step15": {
-        "intro": "Krok opcjonalny. Porozmawiaj z Krytykiem wprost: asystent zagra jego głos, a ty odpowiesz z pozycji Ja."
+        "intro": "Krok opcjonalny. Porozmawiaj z Krytykiem wprost: asystent zagra jego głos, a ty odpowiesz z pozycji współczującego ja.",
+        "title": "Rozmowa z Krytykiem"
       },
       "step16": {
-        "intro": "Wybierz moment i napisz do siebie list głosem współczującego ja. Na końcu sprawdzisz, czy w liście jest wsparcie, a nie rady."
+        "intro": "Wybierz moment i napisz do siebie list głosem współczującego ja. Na końcu sprawdzisz, czy jest w nim wsparcie, a nie rady.",
+        "title": "List do siebie"
       },
       "step17": {
-        "intro": "Stanowcza strona współczucia: jak broniłby cię przyjaciel i jakim zdaniem bronisz siebie, bez „przepraszam” i bez „ale”."
+        "intro": "Stanowcza strona współczucia: jak broniłby cię przyjaciel i jakim zdaniem bronisz siebie — bez „przepraszam” i bez „ale”.",
+        "title": "W swojej obronie"
       },
       "step18": {
-        "intro": "Zejdź od wymagania do przekonania o sobie. Uczciwe wymaganie z kroku „O czym jest ten wstyd?” staje się przekonaniem alternatywnym, na które od teraz zbierasz dowody."
+        "intro": "Zejdź od wymagania do przekonania o sobie. Rozsądne wymaganie z kroku „O czym jest ten wstyd?” staje się nowym przekonaniem, na które od teraz zbierasz dowody.",
+        "title": "Co myślę o sobie"
       },
       "step19": {
-        "intro": "Sprawdź w życiu przewidywanie „jeśli zobaczą prawdziwego mnie, odrzucą”. Mała, bezpieczna sytuacja, zapisane przewidywanie, potem wynik."
+        "intro": "Sprawdź w życiu przewidywanie „jeśli zobaczą prawdziwego mnie, odrzucą”. Mała, bezpieczna sytuacja, zapisane przewidywanie, potem wynik.",
+        "title": "Sprawdzam w życiu"
       },
       "step20": {
-        "intro": "Krok opcjonalny, tylko jeśli protektorzy się zgadzają. Bądź przez chwilę przy młodszej części, bez naprawiania. „Jeszcze nie” też jest dobrą odpowiedzią i zalicza krok."
+        "intro": "Krok opcjonalny, tylko jeśli części, które chronią, się zgadzają. Bądź przez chwilę przy młodszej części, bez naprawiania. „Jeszcze nie” też jest dobrą odpowiedzią i zalicza krok.",
+        "title": "Przy młodszej części"
       },
       "step21": {
-        "intro": "Powtórz skalę współczucia dla siebie. Zobaczysz serię: start, połowa, koniec."
+        "intro": "Powtórz pomiar współczucia dla siebie. Zobaczysz trzy punkty: start, połowa, koniec.",
+        "title": "Współczucie dla siebie — na koniec"
       },
       "step22": {
-        "intro": "Powtórz skalę trzech głosów. Uspokojone ja rośnie, nieadekwatne i znienawidzone słabną: to jest mięsień, który ćwiczysz."
+        "intro": "Powtórz pomiar trzech głosów. Uspokajanie rośnie, surowość i niechęć słabną — to mięsień, który ćwiczysz.",
+        "title": "Trzy głosy — na koniec"
       },
       "step23": {
-        "intro": "Napisz list do siebie na gorszy dzień, głosem współczującego ja. Wróci w wybranym tygodniu."
+        "intro": "Napisz list do siebie na gorszy dzień, głosem współczującego ja. Wróci w wybranym tygodniu.",
+        "title": "List na gorszy dzień"
       },
       "step24": {
-        "intro": "Zdecyduj, które praktyki zostają z tobą i w jakim rytmie. Ten krok zamyka ścieżkę; Powrót przyjdzie za osiem tygodni."
+        "intro": "Zdecyduj, które praktyki zostają z tobą i w jakim rytmie. Ten krok zamyka ścieżkę. Powrót przyjdzie za osiem tygodni.",
+        "title": "Co zostaje ze mną"
       },
       "step25": {
-        "intro": "Powrót po ośmiu tygodniach: skala współczucia dla siebie po raz czwarty."
+        "intro": "Powrót po ośmiu tygodniach: pomiar współczucia dla siebie po raz czwarty.",
+        "title": "Współczucie dla siebie — po ośmiu tygodniach"
       },
       "step26": {
-        "intro": "Powrót: trzy głosy po raz trzeci."
+        "intro": "Powrót: trzy głosy po raz trzeci.",
+        "title": "Trzy głosy — po ośmiu tygodniach"
       },
       "step27": {
-        "intro": "Przeczytaj list od siebie. Co zostało, co wróciło, jeden mały ruch na najbliższy tydzień."
+        "intro": "Przeczytaj list od siebie. Co zostało, co wróciło, jeden mały ruch na najbliższy tydzień.",
+        "title": "Co zostało, co wróciło"
       }
     },
     "practices": {
       "paced-breathing": {
-        "intro": "Codziennie przez pierwsze dwa tygodnie, od pierwszego dnia. Dwie, trzy minuty wydechu dłuższego niż wdech. To fundament pod wszystko, co dalej; po współczującym ja zastąpi go przerwa na współczucie."
+        "intro": "Codziennie przez pierwsze dwa tygodnie. Dwie, trzy minuty z wydechem dłuższym niż wdech. Fundament pod wszystko, co dalej; po współczującym ja zastąpi go przerwa na współczucie."
       },
       "moment-shame": {
-        "intro": "Co drugi dzień od Mapy wstydu do końca pracy z krytykiem. Pięć dotknięć: która część przejęła ster, kiedy to zauważyłeś, co zrobiłeś zamiast, jak mocno. Reszta opcjonalna. Potem Momenty zostają na żądanie."
+        "intro": "Co drugi dzień od mapy wstydu do końca pracy z Krytykiem. Pięć dotknięć: która część przejęła ster, kiedy to zauważasz, co robisz zamiast, jak mocno. Potem Momenty zostają na żądanie."
       },
       "self-compassion-break": {
-        "intro": "Co drugi dzień, od współczującego ja do końca ścieżki. Dwadzieścia sekund oddechu i trzy kroki: uważność, wspólne człowieczeństwo, życzliwość."
+        "intro": "Co drugi dzień, od współczującego ja do końca ścieżki. Dwadzieścia sekund oddechu i trzy kroki: co boli, nie tylko ja, co chcę sobie powiedzieć."
       },
       "shame-writing": {
-        "intro": "Co drugi dzień w tygodniu nowego głosu. Po momencie wstydu trzy akapity: wspólne człowieczeństwo, życzliwość do siebie, dystans. Z badań: to pisanie zmniejsza podatność na wstyd, jeśli jest dłuższe niż notka."
+        "intro": "Co drugi dzień w tygodniu własnego głosu. Po trudnej chwili trzy akapity: nie tylko ja, życzliwość do siebie, dystans. Działa, jeśli to więcej niż notka."
       },
       "positive-data-log": {
-        "intro": "Co drugi dzień od kroku o przekonaniach. Dopisujesz dowody na uczciwe wymaganie wobec siebie."
+        "intro": "Co drugi dzień od kroku o przekonaniach. Dopisujesz dowody na rozsądne wymaganie wobec siebie."
       }
     },
     "tasks": {
       "nameShame": {
         "title": "Nazwij wstyd w chwili, gdy się pojawia",
-        "why": "Nazwanie emocji zmniejsza jej siłę."
+        "why": "Nazwany wstyd traci część siły."
       },
       "catchBody": {
         "title": "Złap wstyd po sygnale z ciała, zanim nazwie go myśl",
         "why": "Ciało jest szybsze niż krytyk. Wczesny sygnał daje czas na odpowiedź."
       },
       "soothingGesture": {
-        "title": "W chwili wstydu połóż dłoń na sercu lub brzuchu i zrób dwa spokojne oddechy",
+        "title": "Gdy przyjdzie wstyd, połóż dłoń na sercu i zrób dwa spokojne oddechy",
         "why": "Ciepły dotyk i dłuższy wydech uspokajają układ zagrożenia szybciej niż myśli."
       },
       "receiveKindness": {
-        "title": "Przyjmij życzliwość od kogoś bez odbijania jej",
+        "title": "Przyjmij od kogoś życzliwość i nie odbijaj jej",
         "why": "Współczucie od innych to łatwiejszy strumień niż do siebie. Przyjęte, uczy ciało, że ciepło jest bezpieczne."
       },
       "kindAct": {
@@ -531,10 +557,10 @@
           "m": "Po trudnym momencie zrób dla siebie to, co zrobiłbyś dla przyjaciela",
           "f": "Po trudnym momencie zrób dla siebie to, co zrobiłabyś dla przyjaciela"
         },
-        "why": "Współczucie ćwiczy się działaniem, nie tylko słowami."
+        "why": "Ciepło do siebie łatwiej zrobić niż powiedzieć."
       },
       "useResponse": {
-        "title": "Użyj swojej odpowiedzi na wstyd, gdy się pojawi",
+        "title": "Użyj planu na trudną chwilę, gdy wstyd się pojawi",
         "why": "Plan działa dopiero wtedy, gdy go użyjesz na gorąco. Liczy się każda próba, także spóźniona."
       },
       "unblendSay": {
@@ -542,7 +568,7 @@
         "why": "Odmieszanie zostawia w tobie kogoś, kto może wysłuchać części i nie odejść."
       },
       "friendTest": {
-        "title": "Przy jednym momencie wstydu zadaj pytanie: czy bliska osoba na moim miejscu powinna się tego wstydzić?",
+        "title": "Przy jednym momencie wstydu zapytaj: czy ktoś bliski na moim miejscu też powinien się wstydzić?",
         "why": "Jeśli nie, to cudze wymaganie. Pytanie odbiera mu władzę."
       },
       "stayLonger": {
@@ -554,28 +580,28 @@
         "why": "Wina domyka się przez naprawę, a wstyd przez ukrycie. Wybierz naprawę."
       },
       "noticeCritic": {
-        "title": "Zauważ głos krytyka i nazwij go jego imieniem",
-        "why": "Nazwany krytyk to część, a nie prawda o tobie."
+        "title": "Zauważ Krytyka i nazwij go po imieniu",
+        "why": "Nazwany Krytyk to część, a nie prawda o tobie."
       },
       "handOver": {
-        "title": "Podziękuj krytykowi i powiedz mu, że przejmujesz ster",
+        "title": "Podziękuj Krytykowi i powiedz, że przejmujesz ster",
         "why": "Krytyk chroni. Podziękowanie zdejmuje z niego wartę bez walki."
       },
       "sayNo": {
         "title": "Powiedz jedno „nie” bez tłumaczenia się",
-        "why": "Stanowcza strona współczucia: granica postawiona bez przeprosin mówi ciału, że masz prawo zajmować miejsce."
+        "why": "Stanowcza strona współczucia: granica bez przeprosin mówi ciału, że masz prawo tu być."
       },
       "readAloud": {
         "title": "Powiedz na głos jedno zdanie z listu do siebie",
         "why": "Zdanie wypowiedziane na głos słyszy też ciało. Czytane po cichu zostaje w głowie."
       },
       "defendSelf": {
-        "title": "Użyj zdania obronnego, gdy krytyk atakuje",
-        "why": "Znienawidzone ja nie słabnie od samego ciepła. Potrzebuje też kogoś, kto powie „dość”."
+        "title": "Gdy Krytyk atakuje, powiedz zdanie w swojej obronie",
+        "why": "Samo ciepło nie wystarczy. Czasem ktoś musi powiedzieć Krytykowi „dość”."
       },
       "collectEvidence": {
-        "title": "Wyłap w życiu dowody na uczciwe wymaganie",
-        "why": "Zadanie polega na zauważaniu. Zapis trafia do dziennika pozytywnych danych."
+        "title": "Zauważ w ciągu dnia dowód na rozsądne wymaganie",
+        "why": "Zadanie polega na zauważaniu. Zapis trafia do dowodów na nowe przekonanie."
       },
       "breakDemand": {
         "title": "Zrób jedną rzecz, której zabrania cudze wymaganie",
@@ -594,7 +620,7 @@
         "why": "Niewiedza to najczęstsze cudze wymaganie. Pytanie łamie je w dziesięć sekund."
       },
       "keepResponse": {
-        "title": "Użyj odpowiedzi na wstyd bez przypomnienia z aplikacji",
+        "title": "Użyj planu na trudną chwilę bez przypomnienia z aplikacji",
         "why": "Nawyk jest wtedy, gdy plan przychodzi sam."
       },
       "askSupport": {
@@ -604,6 +630,12 @@
         },
         "why": "Wstyd izoluje. Prośba o pomoc to ruch w przeciwną stronę."
       }
+    },
+    "scaleLabels": {
+      "inadequateSelf": "Czuję, że nie wystarczam",
+      "hatedSelf": "Niechęć do siebie",
+      "reassuredSelf": "Uspokajam siebie",
+      "total": "Współczucie dla siebie"
     }
   },
   "ifs-parts": {

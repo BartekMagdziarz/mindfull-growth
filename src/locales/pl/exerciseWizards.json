@@ -3249,6 +3249,7 @@
       "minLengthNote": "Warto napisać trochę więcej, żeby to zadziałało.",
       "noPractices": "Brak praktyk ścieżki do wyboru.",
       "tooMuchToday": "Za dużo na dziś",
+      "optional": "opcjonalnie",
       "saveNow": "Zapisz teraz",
       "tooMuchNotice": "Dobrze, że to zauważasz. Zostaw to na dziś i wróć do oddechu. To też jest praktyka.",
       "breath": {
@@ -3298,7 +3299,7 @@
       },
       "why": {
         "title": "Dlaczego akurat to ma dziś znaczenie?",
-        "description": "Wybierz jedną rzecz z listy i napisz, dlaczego jest dla ciebie ważna. (Opcjonalnie.)",
+        "description": "Wybierz jedną rzecz z listy i napisz, dlaczego jest dla ciebie ważna.",
         "why": "Zastanowienie się, dlaczego coś cieszy, pogłębia wdzięczność i łączy ją z tym, na czym ci zależy.",
         "placeholder": "To ważne, bo…"
       }
@@ -3329,26 +3330,26 @@
         "description": "Trzy kroki: zauważ, że jest trudno; przypomnij sobie, że nie tylko ty tak masz; powiedz sobie coś życzliwego. Nie musisz niczego naprawiać."
       },
       "mindfulness": {
-        "title": "Uważność: co teraz boli?",
+        "title": "Co teraz boli?",
         "description": "Nazwij w jednym, dwóch zdaniach, co jest teraz trudne. Bez oceniania siebie ani sytuacji.",
         "why": "Nazwanie trudności słowami zwykle nieco zmniejsza napięcie. Żeby zaopiekować się sobą, najpierw trzeba zauważyć, że jest ci ciężko.",
         "placeholder": "Teraz jest mi trudno, bo…"
       },
       "humanity": {
-        "title": "Wspólne człowieczeństwo: kto jeszcze to zna?",
+        "title": "Nie tylko ja: kto jeszcze to zna?",
         "description": "Napisz, kto jeszcze mógłby czuć się podobnie w takiej sytuacji. Trudności są częścią bycia człowiekiem.",
         "why": "Trudność podsuwa myśl, że tylko z tobą jest coś nie tak. Przypomnienie, że inni przeżywają to samo, zmniejsza poczucie osamotnienia.",
         "placeholder": "Nie tylko ja…"
       },
       "kindness": {
-        "title": "Życzliwe słowa do siebie",
+        "title": "Co chcesz sobie powiedzieć?",
         "description": "Napisz do siebie jedno zdanie, takie, jakie powiedziałaby ci osoba, która naprawdę ci sprzyja.",
         "why": "Ton, jakim mówisz do siebie, wpływa na to, jak się czujesz. Życzliwe słowa łagodzą podobnie jak wsparcie bliskiej osoby.",
         "placeholder": "Chcę sobie powiedzieć, że…"
       },
       "breath": {
         "title": "Dwadzieścia sekund oddechu",
-        "description": "Wydech dłuższy niż wdech. (Opcjonalnie.)",
+        "description": "Wydech dłuższy niż wdech.",
         "why": "Ciało przed słowami: życzliwe zdanie łatwiej usłyszeć, gdy układ zagrożenia zdąży trochę opaść."
       },
       "helpful": {
@@ -3465,7 +3466,7 @@
       },
       "protects": {
         "title": "Przed czym chroni cię złość?",
-        "description": "Złość często broni czegoś ważnego: granic, poczucia sprawiedliwości. Bywa też osłoną przed bezradnością albo wstydem. (Opcjonalnie.)",
+        "description": "Złość często broni czegoś ważnego: granic, poczucia sprawiedliwości. Bywa też osłoną przed bezradnością albo wstydem.",
         "why": "Gdy wiesz, czego broni złość, możesz zadbać o to wprost, bez wybuchu.",
         "placeholder": "Może chroni mnie przed…"
       }
@@ -3538,7 +3539,7 @@
       },
       "needNote": {
         "title": "Coś jeszcze o tej potrzebie?",
-        "description": "Jeśli żadna nazwa nie pasuje, opisz potrzebę własnymi słowami. (Opcjonalnie.)",
+        "description": "Jeśli żadna nazwa nie pasuje, opisz potrzebę własnymi słowami.",
         "placeholder": "Potrzebuję…"
       },
       "request": {
@@ -3550,7 +3551,7 @@
     },
     "moments": {
       "kind": {
-        "title": "Co to za moment?",
+        "title": "Jaki to moment?",
         "description": "Wybierz, o jaką emocję chodzi. Ścieżki ustawiają to same.",
         "options": {
           "shame": "Wstyd",
@@ -3570,7 +3571,7 @@
       },
       "quietDay": {
         "title": "Co dziś pomogło?",
-        "description": "Chwila, w której było spokojnie albo swobodnie. (Opcjonalnie.)",
+        "description": "Chwila, w której było spokojnie albo swobodnie.",
         "placeholder": "Dziś pomogło mi…"
       },
       "situation": {
@@ -3581,7 +3582,7 @@
       },
       "about": {
         "title": "O czym jest ten wstyd?",
-        "description": "Trzy odpowiedzi i trzy drogi: napraw, zadbaj, sprawdź. Jeśli nie wiesz, zaznacz to. (Opcjonalnie.)",
+        "description": "Trzy odpowiedzi i trzy drogi: napraw, zadbaj, sprawdź. Jeśli nie wiesz, zaznacz to.",
         "why": "To samo pytanie, które zadajesz sobie w chwili wstydu. Tu masz na nie spokojną minutę.",
         "options": {
           "act": {
@@ -3603,7 +3604,7 @@
       },
       "compass": {
         "title": "Która część przejęła ster?",
-        "description": "Każda z czterech reakcji na wstyd to część ciebie, która chroni. Wybierz tę, która była najbliżej, albo zaznacz, że żadna nie przejęła steru.",
+        "description": "Wybierz część, która była najbliżej steru, albo zaznacz, że żadna go nie przejęła.",
         "why": "Gdy reakcja ma imię, staje się częścią, a nie tobą. Łatwiej ją przyłapać następnym razem i zobaczyć w rozkładzie tygodni, która słabnie.",
         "options": {
           "withdraw": "Ukrywający",
@@ -3624,20 +3625,20 @@
       },
       "response": {
         "title": {
-          "m": "Co zrobiłeś zamiast albo po pierwszej reakcji?",
-          "f": "Co zrobiłaś zamiast albo po pierwszej reakcji?"
+          "m": "Co zrobiłeś — zamiast albo zaraz po?",
+          "f": "Co zrobiłaś — zamiast albo zaraz po?"
         },
         "description": "Zaznacz wszystko, co się wydarzyło, nawet po godzinie.",
         "why": "Liczy się każda próba, także spóźniona. Z czasem widać, które ruchy naprawdę działają.",
-        "hintLabel": "Z twojej odpowiedzi na wstyd",
+        "hintLabel": "Z twojego planu na trudną chwilę",
         "options": {
           "breath": "Oddech",
           "named": "Nazwanie wstydu",
           "question": "Pytanie „o czym jest?”",
-          "sentence": "Zdanie od obrazu",
+          "sentence": "Zdanie od współczującej postaci",
           "contact": "Ruch w stronę kontaktu",
           "repair": "Naprawa",
-          "test": "Test bliskiej osoby",
+          "test": "Pytanie o bliską osobę",
           "nothing": "Nic, tym razem",
           "unblend": "„To część, nie ja”",
           "defend": "Zdanie obronne"
@@ -3651,14 +3652,14 @@
       },
       "body": {
         "title": "Co działo się w ciele?",
-        "description": "Pierwszy sygnał: gorąco na twarzy, napięta szczęka, spuszczony wzrok, ścisk w brzuchu. (Opcjonalnie.)",
+        "description": "Pierwszy sygnał: gorąco na twarzy, napięta szczęka, spuszczony wzrok, ścisk w brzuchu.",
         "why": "Ciało zdradza emocję szybciej niż myśli. Znając swoje sygnały, wcześniej zauważysz, że się zaczyna.",
         "hintLabel": "Z twojej mapy wstydu",
         "placeholder": "Zrobiło mi się gorąco…"
       },
       "criticSaid": {
-        "title": "Co mówił krytyk?",
-        "description": "Jego słowa dosłownie, nawet jeśli są ostre. (Opcjonalnie.)",
+        "title": "Co mówił Krytyk?",
+        "description": "Jego słowa dosłownie, nawet jeśli są ostre.",
         "why": "Zapisane słowa krytyka widać z dystansu. Łatwiej wtedy zauważyć, jak są surowe, i odpowiedzieć na nie w następnym kroku.",
         "placeholder": "Jesteś…"
       },
@@ -3671,13 +3672,13 @@
       },
       "nextTime": {
         "title": "Co zrobisz następnym razem?",
-        "description": "Jeden ruch, który spróbujesz wcześniej. (Opcjonalnie.)",
+        "description": "Jeden ruch, który spróbujesz wcześniej.",
         "why": "Plan z gorącej chwili zapisany na zimno jest łatwiejszy do przywołania.",
         "placeholder": "Następnym razem spróbuję…"
       },
       "thought": {
         "title": "Jaka myśl to podkręciła?",
-        "description": "Często brzmi jak „nie powinien tak robić”, „na pewno się nie uda” albo „zawsze tak jest”. (Opcjonalnie.)",
+        "description": "Często brzmi jak „nie powinien tak robić”, „na pewno się nie uda” albo „zawsze tak jest”.",
         "why": "Emocja rośnie nie tylko od sytuacji, ale też od tego, jak ją sobie tłumaczysz. Zapisaną myśl można potem sprawdzić.",
         "placeholder": {
           "m": "Pomyślałem, że…",
@@ -3697,7 +3698,7 @@
       },
       "helped": {
         "title": "Co pomogło albo co pomogłoby następnym razem?",
-        "description": "Pauza, oddech, inna myśl, rozmowa później. (Opcjonalnie.)",
+        "description": "Pauza, oddech, inna myśl, rozmowa później.",
         "placeholder": "Pomogło mi…"
       },
       "noticed": {
@@ -3705,7 +3706,7 @@
           "m": "Kiedy to zauważyłeś?",
           "f": "Kiedy to zauważyłaś?"
         },
-        "description": "Chodzi o moment, w którym wstyd dostał nazwę, nie o to, czy udało się coś zrobić.",
+        "description": "Chodzi o chwilę, w której wstyd dostał nazwę, nie o to, co było potem.",
         "why": "„Szybciej” to pierwsza część celu ścieżki. Odpowiedź ma szansę zadziałać tylko wtedy, gdy wstyd zostanie zauważony w porę.",
         "options": {
           "during": "W trakcie",
@@ -3724,7 +3725,7 @@
     "shameResponse": {
       "intro": {
         "title": "Wstyd trwa chwilę. Ten plan jest na tę chwilę.",
-        "description": "Cztery ruchy: rozpoznaj, oddech, jedno pytanie, jedno zdanie i jeden mały ruch w stronę kontaktu. Zbudujesz je teraz, żeby nie wymyślać ich, gdy będzie gorąco."
+        "description": "Pięć ruchów: poznać, że to wstyd, oddech, jedno pytanie, jedno zdanie i mały krok w stronę ludzi. Układasz je teraz, żeby nie wymyślać ich, gdy będzie gorąco."
       },
       "signals": {
         "title": "Po czym poznasz, że to wstyd?",
@@ -3734,8 +3735,8 @@
         "placeholder": "Gorąco na twarzy…"
       },
       "breath": {
-        "title": "Spróbuj rytmu kojącego",
-        "description": "Cztery sekundy wdechu, sześć wydechu, przez minutę. Wydech dłuższy niż wdech. (Opcjonalnie.)",
+        "title": "Oddech z dłuższym wydechem",
+        "description": "Cztery sekundy wdechu, sześć wydechu, przez minutę. Wydech dłuższy niż wdech.",
         "why": "Dłuższy wydech uspokaja układ zagrożenia, w którym siedzi wstyd. Dwa takie oddechy da się zrobić w każdej sytuacji."
       },
       "name": {
@@ -3747,20 +3748,20 @@
       "question": {
         "title": "Jedno pytanie na gorąco: o czym jest ten wstyd?",
         "description": {
-          "m": "O tym, co zrobiłem → napraw. O tym, co mnie spotkało → zadbaj. O tym, jaki powinienem być → sprawdź, czy postawiłbyś to wymaganie komuś, kogo lubisz.",
-          "f": "O tym, co zrobiłam → napraw. O tym, co mnie spotkało → zadbaj. O tym, jaka powinnam być → sprawdź, czy postawiłabyś to wymaganie komuś, kogo lubisz."
+          "m": "Jeśli o tym, co zrobiłem — napraw. Jeśli o tym, co mnie spotkało — zadbaj o siebie. Jeśli o tym, jaki powinienem być — sprawdź, czy postawiłbyś to wymaganie komuś, kogo lubisz.",
+          "f": "Jeśli o tym, co zrobiłam — napraw. Jeśli o tym, co mnie spotkało — zadbaj o siebie. Jeśli o tym, jaka powinnam być — sprawdź, czy postawiłabyś to wymaganie komuś, kogo lubisz."
         },
         "why": "Pytanie przesuwa uwagę z „jaki jestem” na „co tu jest”. Odpowiedź nie musi być od razu pewna."
       },
       "sentence": {
-        "title": "Zdanie, które usłyszysz od swojego współczującego ja",
+        "title": "Zdanie od twojej współczującej postaci",
         "description": "To, co powiedziałaby ci twoja współczująca postać, gdyby patrzyła na ciebie w tej chwili.",
         "why": "Gotowe zdanie przychodzi szybciej niż wymyślanie życzliwości na gorąco.",
         "hintLabel": "Od twojego współczującego ja",
         "placeholder": "Jesteś człowiekiem i to boli. Jestem z tobą."
       },
       "move": {
-        "title": "Twój ruch w stronę kontaktu zamiast ukrycia",
+        "title": "Mały krok w stronę ludzi zamiast ukrycia",
         "description": "Wybierz jeden lub dwa, które są dla ciebie wykonalne.",
         "why": "Wstyd każe zniknąć. Każdy z tych ruchów jest przeciwny i pokazuje, że nic złego się nie dzieje.",
         "options": {
@@ -3774,7 +3775,7 @@
       },
       "moveNote": {
         "title": "Coś jeszcze, co działa na ciebie?",
-        "description": "Twój własny ruch, jeśli masz. (Opcjonalnie.)",
+        "description": "Twój własny ruch, jeśli masz.",
         "placeholder": "Pomaga mi, gdy…"
       },
       "unblend": {
@@ -3796,14 +3797,14 @@
         }
       },
       "unblendSentence": {
-        "title": "Zdanie odmieszania",
-        "description": "Jedno zdanie, którym oddzielisz siebie od części w gorącej chwili.",
+        "title": "Zdanie, które oddziela cię od części",
+        "description": "Jedno zdanie na gorącą chwilę.",
         "why": "Zdanie przygotowane na zimno przychodzi szybciej niż wymyślanie go, gdy wstyd już steruje.",
         "placeholder": "To mój Krytyk mówi, nie ja. Mogę go wysłuchać i zostać."
       },
       "anchor": {
-        "title": "Kiedy ćwiczysz plan na sucho?",
-        "description": "Krótka próba w spokojnej chwili, raz dziennie. (Opcjonalnie.)",
+        "title": "Kiedy przećwiczysz plan na spokojnie?",
+        "description": "Krótka próba w spokojnej chwili, raz dziennie.",
         "why": "Plan ćwiczony na spokojnie przychodzi sam w gorącej chwili. Stała pora robi z niego nawyk.",
         "options": {
           "coffee": "Przy porannej kawie",
@@ -3813,8 +3814,8 @@
         }
       },
       "afterSave": {
-        "title": "Masz już odpowiedź. Zapisz moment, w którym jej użyjesz.",
-        "description": "Następnym razem, gdy wstyd się odezwie, zapisz go w Momentach. Twoje ruchy będą już zaznaczone.",
+        "title": "Masz plan. Następnym razem zapisz moment, w którym go użyjesz.",
+        "description": "Gdy wstyd się odezwie, zapisz go w Momentach. Twoje ruchy będą już zaznaczone.",
         "cta": "Zapisz moment"
       }
     },
@@ -3847,7 +3848,7 @@
       },
       "compass": {
         "title": "Jak zwykle reagujesz na wstyd?",
-        "description": "Kompas wstydu (Nathanson) opisuje cztery reakcje. W języku części każda z nich to protektor. Wybierz te, które znasz u siebie.",
+        "description": "Są cztery typowe reakcje na wstyd. Każda z nich to część, która chroni. Wybierz te, które znasz u siebie.",
         "why": "Gdy znasz swoje typowe reakcje, łatwiej przyłapać je w trakcie i zamiast nich zadbać o siebie.",
         "options": {
           "withdraw": "Ukrywający",
@@ -3872,7 +3873,7 @@
         }
       },
       "standard": {
-        "title": "Jakie wymaganie wobec siebie stoi za twoim wstydem?",
+        "title": "Jakie wymaganie wobec siebie kryje się za tym wstydem?",
         "description": {
           "m": "Zapisz je jednym zdaniem od „Powinienem…”. Na przykład: „Powinienem zawsze sobie radzić”, „Powinienem wszystko wiedzieć w pracy”.",
           "f": "Zapisz je jednym zdaniem od „Powinnam…”. Na przykład: „Powinnam zawsze sobie radzić”, „Powinnam wszystko wiedzieć w pracy”."
@@ -3987,7 +3988,7 @@
         "placeholder": "Chyba od…"
       },
       "fairDemand": {
-        "title": "Jakie wymaganie byłoby uczciwe?",
+        "title": "Jakie wymaganie byłoby rozsądne?",
         "description": {
           "m": "Takie, które postawiłbyś komuś, kogo lubisz.",
           "f": "Takie, które postawiłabyś komuś, kogo lubisz."
@@ -3999,14 +4000,14 @@
         "title": "Co powiedziałby ktoś życzliwy?",
         "description": "Co powiedziałby ci ktoś, kto cię zna i jest po twojej stronie? Zapisz jego słowa.",
         "why": "Wstyd nie mija od karania siebie. Słabnie, gdy doświadczasz życzliwości, także własnej.",
-        "hintLabel": "Z twojego obrazu współczującego",
+        "hintLabel": "Od twojej współczującej postaci",
         "placeholder": "Powiedziałby…"
       }
     },
     "compassionateImage": {
       "intro": {
-        "title": "Twój obraz współczucia",
-        "description": "W terapii skoncentrowanej na współczuciu tworzy się wyobrażenie idealnie życzliwej postaci. Może to być osoba, zwierzę, światło albo miejsce. Nie musi przypominać nikogo prawdziwego. Ważne, jak się przy niej czujesz."
+        "title": "Twoja współczująca postać",
+        "description": "Wyobraź sobie kogoś idealnie życzliwego: osobę, zwierzę, światło albo miejsce. Nie musi przypominać nikogo prawdziwego."
       },
       "wisdom": {
         "title": "Mądrość: co ta postać rozumie?",
@@ -4068,7 +4069,7 @@
       },
       "pick": {
         "title": "Czy któreś wymaga działania?",
-        "description": "Jeśli któreś dotyczy realnego problemu, na który masz wpływ, zapisz, co trzeba zrobić. (Opcjonalnie.)",
+        "description": "Jeśli któreś dotyczy realnego problemu, na który masz wpływ, zapisz, co trzeba zrobić.",
         "placeholder": "Muszę…"
       },
       "followUp": {
@@ -4114,7 +4115,7 @@
           "m": "Co robiłbyś, gdyby lęk był mniejszy?",
           "f": "Co robiłabyś, gdyby lęk był mniejszy?"
         },
-        "description": "Jedna, dwie rzeczy, do których chcesz wrócić albo które chcesz zacząć. (Opcjonalnie.)",
+        "description": "Jedna, dwie rzeczy, do których chcesz wrócić albo które chcesz zacząć.",
         "why": "To, czego lęk nie pozwala ci dziś robić, wskazuje kierunek dalszej pracy. Łatwiej zmierzyć się z lękiem, gdy wiesz, po co to robisz.",
         "placeholder": {
           "m": "Zacząłbym…",
@@ -4139,7 +4140,7 @@
       },
       "support": {
         "title": "Kto albo co może ci w tym pomóc?",
-        "description": "Osoba, przypomnienie, stała pora. (Opcjonalnie.)",
+        "description": "Osoba, przypomnienie, stała pora.",
         "placeholder": "Pomoże mi…"
       },
       "rhythm": {
@@ -4157,11 +4158,11 @@
     "mySign": {
       "intro": {
         "title": "Dokąd prowadzi ta ścieżka",
-        "description": "Zauważać wstyd szybciej, odpowiadać na niego ciepłem zamiast atakiem na siebie, atakiem na innych lub ukryciem, i wracać do kontaktu. Ta ścieżka nie usuwa wstydu. Uczy, co robić, gdy przychodzi."
+        "description": "Zauważać wstyd szybciej, odpowiadać ciepłem zamiast atakiem albo ukryciem, wracać do kontaktu. Ta ścieżka nie usuwa wstydu. Uczy, co robić, gdy przychodzi."
       },
       "mainTarget": {
         "title": "Co najbardziej chcesz zmienić?",
-        "description": "Z czterech części wybierz tę, której ster najbardziej ci ciąży.",
+        "description": "Która z czterech części najczęściej przejmuje ster i najbardziej ci to przeszkadza?",
         "why": "To twój główny kierunek. Ścieżka pokaże go osobno w postępie, żebyś widział, czy słabnie.",
         "hintLabel": "Z twojej mapy wstydu",
         "options": {
@@ -4188,7 +4189,7 @@
           "m": "Komu mógłbyś kiedyś o tym powiedzieć?",
           "f": "Komu mogłabyś kiedyś o tym powiedzieć?"
         },
-        "description": "Jedna osoba, przy której bywasz sobą. Nie musisz jej nic mówić teraz. (Opcjonalnie.)",
+        "description": "Jedna osoba, przy której bywasz sobą. Nie musisz jej nic mówić teraz.",
         "why": "Wstyd izoluje. Samo nazwanie osoby to pierwszy ruch w stronę kontaktu; wróci jako podpowiedź w siódmym tygodniu.",
         "placeholder": "Może…"
       }
@@ -4199,8 +4200,8 @@
         "description": "Zanim zwrócisz się do siebie z ciepłem, potrzebujesz miejsca, do którego wrócisz, gdy będzie za dużo. Przy każdej praktyce do wewnątrz znajdziesz przycisk „Za dużo na dziś”. Prowadzi tutaj. Więcej w karcie „Gdy ciepło boli”."
       },
       "breath": {
-        "title": "Rytm kojący",
-        "description": "Cztery sekundy wdechu, sześć wydechu, przez półtorej minuty. (Opcjonalnie.)",
+        "title": "Oddech z dłuższym wydechem",
+        "description": "Cztery sekundy wdechu, sześć wydechu, przez półtorej minuty.",
         "why": "Dłuższy wydech uspokaja układ zagrożenia. To fundament pod wszystko, co dalej."
       },
       "place": {
@@ -4234,7 +4235,7 @@
           "m": "Co odpowiedziałby temu oporowi ktoś życzliwy?",
           "f": "Co odpowiedziałby temu oporowi ktoś życzliwy?"
         },
-        "description": "Jedno, dwa zdania. (Opcjonalnie.)",
+        "description": "Jedno, dwa zdania.",
         "placeholder": "Powiedziałby, że…"
       },
       "helpful": {
@@ -4247,11 +4248,11 @@
     "compassionateSelf": {
       "intro": {
         "title": "Teraz ty jesteś współczuciem",
-        "description": "Obraz dawał ci współczucie z zewnątrz. Współczujące ja to ty w najlepszej, spokojnej wersji. W IFS nazywa się to energią Ja: spokój, ciekawość, jasność, współczucie, pewność, odwaga, twórczość, kontakt."
+        "description": "Postać dawała ci ciepło z zewnątrz. Współczujące ja to ty w najspokojniejszej wersji: spokój, ciekawość, jasność, współczucie, pewność, odwaga, twórczość, kontakt."
       },
       "breath": {
         "title": "Minuta oddechu",
-        "description": "Wydech dłuższy niż wdech. (Opcjonalnie.)",
+        "description": "Wydech dłuższy niż wdech.",
         "why": "Współczujące ja łatwiej przywołać z ciała, które się uspokoiło."
       },
       "posture": {
@@ -4279,7 +4280,7 @@
         "title": "Co mówi twoje współczujące ja do części, która się wstydzi?",
         "description": "Jedno, dwa zdania, tak jak powiedziałby to ktoś, kto jest po twojej stronie i się nie boi.",
         "why": "To zdanie wróci w twojej odpowiedzi na wstyd i w Momentach. Jest twoje, nie pożyczone.",
-        "hintLabel": "Z twojego obrazu współczującego",
+        "hintLabel": "Od twojej współczującej postaci",
         "placeholder": "Widzę cię. Nie musisz tego teraz naprawiać."
       },
       "helpful": {
@@ -4292,15 +4293,15 @@
     "defenderVoice": {
       "intro": {
         "title": "Głos, który staje po twojej stronie",
-        "description": "Współczucie ma dwie strony: łagodną i stanowczą. Dziś ta druga. Nie chodzi o agresję, tylko o kogoś, kto cię broni, gdy krytyk atakuje."
+        "description": "Współczucie ma dwie strony: łagodną i stanowczą. Dziś ta druga. Nie chodzi o agresję, tylko o kogoś, kto cię broni, gdy Krytyk atakuje."
       },
       "episode": {
         "title": "Wybierz moment",
-        "description": "Moment z Momentami, w którym krytyk coś powiedział. Albo opisz nową sytuację.",
-        "empty": "Nie ma jeszcze zapisanych słów krytyka. Opisz sytuację w następnym kroku."
+        "description": "Wybierz moment, w którym odezwał się Krytyk, albo opisz nową sytuację.",
+        "empty": "Nie ma jeszcze zapisanych słów Krytyka. Opisz sytuację w następnym kroku."
       },
       "attack": {
-        "title": "Co powiedział krytyk albo ktoś, i co w tym bolało?",
+        "title": "Co powiedział Krytyk albo ktoś z zewnątrz i co w tym zabolało?",
         "description": "Dosłownie, bez łagodzenia.",
         "why": "Zdanie wypowiedziane wprost da się odeprzeć. Zdanie w tle działa bez końca.",
         "hintLabel": "Z wybranego momentu",
@@ -4325,7 +4326,7 @@
         }
       },
       "posture": {
-        "title": "Czym to zdanie zostanie poparte w ciele?",
+        "title": "Jak ciało stanie za tym zdaniem?",
         "description": "Działanie przeciwne do wstydu: zamiast kulić się, otworzyć.",
         "why": "Wstyd każe spuścić wzrok i ściszyć głos. Odwrócenie tych gestów zmienia też to, co czujesz.",
         "options": {
@@ -4362,7 +4363,7 @@
         "placeholder": "Pewnie wielu ludzi…"
       },
       "kindness": {
-        "title": "Napisz do siebie tak, jak napisałby ktoś, kto cię bezwarunkowo akceptuje",
+        "title": "Napisz do siebie tak, jak napisałby ktoś, kto cię lubi bez warunków",
         "description": "Kilka zdań. Ciepło nie oznacza zaprzeczania faktom.",
         "why": "Z badań: pisanie do siebie ze współczuciem po wstydzie zmniejsza podatność na wstyd po dwóch tygodniach. Krótka notka tego nie robi, akapit tak.",
         "hintLabel": "Od twojego współczującego ja",
@@ -4384,7 +4385,7 @@
     "doseCheck": {
       "intro": {
         "title": "Połowa drogi",
-        "description": "Nie oceniamy wyniku, sprawdzamy dawkę. Jeśli coś jest za dużo, zmniejszamy. Jeśli nic nie robisz, zostaje samo to, co najmniejsze."
+        "description": "Nie sprawdzamy wyniku, tylko ile tego jest. Za dużo — zmniejszamy. Nic — zostaje samo to, co najmniejsze."
       },
       "load": {
         "title": "Jak idzie z praktykami?",
@@ -4399,13 +4400,13 @@
       },
       "helpsMost": {
         "title": "Co pomaga najbardziej?",
-        "description": "Zaznacz jedną lub dwie. (Opcjonalnie.)",
+        "description": "Zaznacz jedną lub dwie.",
         "why": "Odczuwana pomoc przewiduje wynik lepiej niż liczba minut. To, co pomaga, zostaje; reszta może odejść.",
         "empty": "Brak praktyk ścieżki do wyboru."
       },
       "inTheWay": {
         "title": "Co staje na drodze?",
-        "description": "Czas, miejsce, wstyd przed samym ćwiczeniem. (Opcjonalnie.)",
+        "description": "Czas, miejsce, wstyd przed samym ćwiczeniem.",
         "placeholder": "Najtrudniej jest, gdy…"
       }
     },
@@ -4416,7 +4417,7 @@
       },
       "letter": {
         "title": "Napisz list",
-        "description": "Co już umiesz. Co pomagało. Co zrobić w pierwszej minucie. Komu powiedzieć. Co najmniej akapit.",
+        "description": "Napisz, co już umiesz, co pomagało, co zrobić w pierwszej minucie i komu powiedzieć. Przynajmniej akapit.",
         "why": "List czytany po tygodniach działa jak głos kogoś, kto cię zna i jest po twojej stronie. Krótka notka tego nie udźwignie.",
         "hintLabel": "Od twojego współczującego ja",
         "placeholder": {
@@ -4437,12 +4438,15 @@
     "pathReturn": {
       "letter": {
         "title": "List od ciebie",
-        "description": "Osiem tygodni temu napisałeś list na gorszy dzień. Przeczytaj go powoli.",
+        "description": {
+          "m": "Osiem tygodni temu napisałeś list na gorszy dzień. Przeczytaj go powoli.",
+          "f": "Osiem tygodni temu napisałaś list na gorszy dzień. Przeczytaj go powoli."
+        },
         "hintLabel": "Twój list"
       },
       "kept": {
         "title": "Co zostało ze mną?",
-        "description": "Praktyki, plan na trudną chwilę, własne zdania. (Opcjonalnie.)",
+        "description": "Praktyki, plan na trudną chwilę, własne zdania.",
         "why": "To, co zostało, jest ważniejsze od tego, co odpadło. Nawyk mierzy się po tygodniach, nie po dniach.",
         "options": {
           "response": "Mój plan na trudną chwilę",
@@ -4470,7 +4474,7 @@
       },
       "next": {
         "title": "Jeden mały ruch na najbliższy tydzień",
-        "description": "Wznowić praktykę, wrócić do zdania obronnego, powiedzieć komuś. (Opcjonalnie.)",
+        "description": "Wznowić praktykę, wrócić do zdania obronnego, powiedzieć komuś.",
         "placeholder": "W tym tygodniu…"
       }
     }

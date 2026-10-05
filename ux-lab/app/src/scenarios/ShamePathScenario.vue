@@ -140,7 +140,7 @@ const decisions = [
   { id: 'D3', title: 'Pomiar jako cztery ciche tory', body: 'Współczucie dla siebie, Uspokajam siebie, Nieadekwatne ja, Znienawidzone ja: tor skali, pusty punkt = start, pełny = ostatni pomiar, nic więcej. Hover podaje wartości; „Szczegóły” rozwija siatkę Start · Połowa · Koniec · Powrót i jedno zdanie, co mierzą SCS-SF i FSCRS. Bez odwracania osi.' },
   { id: 'D4', title: 'Nagłówek: cel i znak, akcje w ⋯', body: 'Eyebrow „ŚCIEŻKI · Tydzień 4 z 8”, tytuł, jedno zdanie celu, Mój znak jako kursywa. Wstrzymaj i Od nowa schowane pod jednym ⋯.' },
   { id: 'D5', title: 'Otwarty tydzień: zdanie „po co”, kroki, dwa zwijane wiersze', body: 'Praktyki (nazwy i „dziś/jutro”, w rozwinięciu Otwórz i wstęga dni) oraz W świecie (zadanie i studnie, w rozwinięciu wybór zadania). Przycisk tylko przy bieżącym kroku.' },
-  { id: 'D6', title: 'Prawa kolumna: cztery karty bez powtórzeń', body: 'TERAZ (krok + Rozpocznij, praktyka na dziś, dwie akcje), POSTĘP (słupki części + Szczegóły, tory pomiaru + Szczegóły), MOJE ZDANIA (dwa cytaty), ZROZUMIEĆ (dwa tytuły). „Zapisz moment” tylko raz, w TERAZ.' },
+  { id: 'D6', title: 'Prawa kolumna: cztery karty bez powtórzeń', body: 'TERAZ (krok + Rozpocznij, praktyka na dziś, dwie akcje), POSTĘP (słupki części + Szczegóły, tory pomiaru + Szczegóły), MOJE ZDANIA (dwa cytaty), WARTO WIEDZIEĆ (dwa tytuły). „Zapisz moment” tylko raz, w TERAZ.' },
 ]
 </script>
 
@@ -309,7 +309,7 @@ const decisions = [
               </div>
               <div class="chips">
                 <button type="button" class="chip" @click="simulate('Zapisz moment')"><AppIcon name="add" />Zapisz moment</button>
-                <button v-if="sample !== 'start'" type="button" class="chip" :class="{ 'is-active': responseOpen }" :aria-expanded="responseOpen" @click="responseOpen = !responseOpen"><AppIcon name="mg-exercise-shame-response" />Moja odpowiedź</button>
+                <button v-if="sample !== 'start'" type="button" class="chip" :class="{ 'is-active': responseOpen }" :aria-expanded="responseOpen" @click="responseOpen = !responseOpen"><AppIcon name="mg-exercise-shame-response" />Mój plan</button>
                 <button v-if="sample === 'return'" type="button" class="chip" :class="{ 'is-active': futureLetterOpen }" @click="futureLetterOpen = !futureLetterOpen"><AppIcon name="mg-exercise-letter-to-future-self" />List od Ciebie</button>
               </div>
               <div v-if="responseOpen" class="quote">
@@ -361,7 +361,7 @@ const decisions = [
 
             <section class="card">
               <header class="card__head">
-                <span>Zrozumieć</span>
+                <span>Warto wiedzieć</span>
                 <button type="button" class="card__link" :aria-expanded="showAllCards" @click="showAllCards = !showAllCards">{{ showAllCards ? 'Mniej' : 'Wszystkie' }}</button>
               </header>
               <ul class="kn">
@@ -436,7 +436,7 @@ const decisions = [
         </div>
         <div class="td__actions">
           <button type="button" class="chip" @click="simulate('Zapisz moment')"><AppIcon name="add" />Zapisz moment</button>
-          <button v-if="sample !== 'start'" type="button" class="chip" @click="openResponse"><AppIcon name="mg-exercise-shame-response" />Moja odpowiedź</button>
+          <button v-if="sample !== 'start'" type="button" class="chip" @click="openResponse"><AppIcon name="mg-exercise-shame-response" />Mój plan</button>
         </div>
       </section>
     </div>
@@ -462,7 +462,7 @@ const decisions = [
     <dialog ref="drawerElement" class="drawer mg-design-v2" aria-labelledby="knowledge-title" @cancel="drawerKey = null" @click="$event.target === drawerElement && (drawerKey = null)">
       <template v-if="drawer">
         <header class="drawer__head">
-          <span class="card__head"><span>Zrozumieć</span></span>
+          <span class="card__head"><span>Warto wiedzieć</span></span>
           <button type="button" class="chip chip--ghost" aria-label="Zamknij kartę wiedzy" @click="drawerKey = null"><AppIcon name="close" /></button>
         </header>
         <h2 id="knowledge-title">{{ drawer.title }}</h2>
