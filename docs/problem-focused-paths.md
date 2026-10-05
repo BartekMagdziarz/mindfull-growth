@@ -122,13 +122,32 @@ between micros), `minLength` (soft), `optionsFrom: 'programPractices'`, `labelsF
 re-mapped by the scheduler safety net on the next Today load (open enrollments only — closed
 paths keep their history; no Dexie upgrade this time, the user restarts the path anyway). The detail view offers "Zacznij od nowa" (abandon + enroll).
 
-**P2 progress (2026-10-04).** P2a is committed (`f3b5c60`): Moments progress, own sentences, practice helpfulness and eleven PL/EN knowledge cards. The interactive Sky Mist concept is now available in UX Lab at `/concepts/shame-path` (dashboard / weekly reflection / Today panel; start / mid-path / quiet / paused / completed / return scenarios). It uses illustrative, isolated records with the real pure progress functions and knowledge copy. The local `neomorphism-frontend` skill now reflects Today, Calendar and Objects: lighter nested surfaces, subtle first-level shadows, organic shapes and minimal copy. The production port awaits the user's design review, as required by plan §8.
+**P2 (2026-10-05) — the path view, the reflection block and the Today card are in the product.**
+`ProgramDetailView` is the Lab's round-5 concept (`/concepts/shame-path`) on `PageContainer`
+"wide": header with the goal sentence (`programs.<slug>.goal`, else the description), the
+user's "Mój znak" and a ⋯ menu (pause / resume / restart / abandon); left `PathJourney`
+("Twoja droga": one row per phase with a well, the title and one mark per step; the current
+phase open with its `why`, the steps — a filled chip only on the current one — and two
+collapsible rows `PathPracticesRow` and `PathWorldRow`); right `PathNowCard` (current step +
+intro + Rozpocznij, the due practice, chips Zapisz moment · Mój plan · List od Ciebie),
+Postęp = `PathMomentsGlance` (parts × weeks small multiples, tone = strength 1–5, response
+discs / noticing bars / numbers table behind "Szczegóły") + `PathMeasureTracks` (one track
+per scale, first and latest measurement as discs, grids behind "Szczegóły";
+`features/program-path/outcomeSeries.ts`), `PathSentencesCard` and `PathKnowledgeCard`
+(two titles, side drawer, `readCards` via `programEnrollmentStore.markCardRead`). Components
+live in `src/features/program-path/` with `program-path.css` as the shared vocabulary;
+`ProgramStepTile`, `ProgramPracticeRail`, `ProgramWeekPanel`, `ProgramMomentsRow` and
+`ProgramOutcomeSummary` are gone. The weekly reflection's "Ścieżka" block shows the compact
+glance (this week next to the previous one) and asks "Były momenty, których nie zapisałeś?"
+(`program.<id>.unlogged`, buckets from `UNLOGGED_BUCKETS`; `unloggedSeries` feeds the path
+view). The Today "Ścieżki" card shows "tydzień n z m" for week-phased paths, the next step
+even when it is not due yet, and up to two chips (Zapisz moment · Mój plan). E2E:
+`e2e/verification-shame-v3.spec.ts` (v2 spec removed) and `verification-problem-paths.spec.ts`.
 
-**Still to come (plan phases P2–P4):** the week-card dashboard with the three Momenty
-progress images, knowledge cards, "Moje zdania", the reflection step's week glance and
-"unlogged" question, the wizard bridges (`startFrom`, letter checklist, `partTag`
-preselection, maintenance plan → repeat plans), Powrót surfacing in Today, the dose-check
-rhythm proposal and the AI week-pattern line.
+**Still to come (plan phases P3–P4):** the wizard bridges (`startFrom` moment picker, letter
+checklist, `partTag` preselection, protector fears / body check, maintenance plan → repeat
+plans), Powrót surfacing in Today, the dose-check rhythm proposal (`practiceOverrides`) and
+the AI week-pattern line.
 
 ## New building blocks (2026-09-23)
 

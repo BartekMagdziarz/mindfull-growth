@@ -72,21 +72,24 @@ test.describe('problem paths', () => {
     await expect(page.getByText('Otwórz drzewo zmartwień')).toBeVisible()
 
     await page.goto('/exercises/programs/anxiety-approach')
-    await expect(page.locator('.practice-rail__row', { hasText: 'Pora na zmartwienia' })).toContainText('następny raz')
+    // The practices row of the open phase names the practice with its next day.
+    await expect(page.getByTestId('path-practices')).toContainText('Pora na zmartwienia')
     expectNoAppErrors(consoleErrors)
   })
 
-  test('path detail: outcome baseline, practices, phases and the week history', async ({ page }) => {
+  test('path view: phases as rows, the measure behind Szczegóły, two practices and this week\'s proposal', async ({ page }) => {
     test.setTimeout(120_000)
     const consoleErrors = await bootFreshSeed(page)
 
     await page.goto('/exercises/programs/anxiety-approach')
-    await expect(page.getByText('krok 7 z 15')).toBeVisible()
-    await expect(page.locator('.outcome__cell', { hasText: 'Na początku' })).toContainText('13 z 21')
-    await expect(page.locator('.practice-rail__row')).toHaveCount(2)
-    await expect(page.locator('.program-phase-head')).toHaveCount(7)
-    await expect(page.locator('.week-panel__history li')).toHaveCount(2)
-    await expect(page.getByRole('button', { name: 'Dodaj do tego tygodnia' })).toBeVisible()
+    const journey = page.getByTestId('path-journey')
+    await expect(journey.locator('[data-test-path-week]')).toHaveCount(7)
+    await expect(journey.locator('[data-test-program-step="6"]')).toContainText('Rozpocznij')
+    const measure = page.getByTestId('path-measure')
+    await measure.getByRole('button', { name: 'Szczegóły' }).click()
+    await expect(measure.getByRole('table')).toContainText('13 z 21')
+    await expect(page.getByTestId('path-practices').locator('.pp-pr')).toHaveCount(2)
+    await expect(page.getByTestId('path-world').getByRole('button', { name: 'Dodaj do tego tygodnia' })).toBeVisible()
     expectNoAppErrors(consoleErrors)
   })
 
@@ -101,7 +104,7 @@ test.describe('problem paths', () => {
     await expect(card).toHaveCount(0)
 
     await page.goto('/exercises/programs/anxiety-approach')
-    await expect(page.locator('.week-panel__history li').first()).toContainText('odłożone')
+    await expect(page.getByTestId('path-world')).toContainText('odłożone')
     expectNoAppErrors(consoleErrors)
   })
 
@@ -111,8 +114,9 @@ test.describe('problem paths', () => {
 
     await page.goto(`/calendar/week/${prevWeek}?action=reflect`)
     await page.getByRole('button', { name: /\. Ścieżka$/ }).click()
-    const block = page.locator('.qr-path-block')
-    await expect(block).toContainText('Lęk: podejść zamiast unikać')
+    // Two paths with a weekly reflection are enrolled; this test reads the anxiety block.
+    const block = page.locator('.qr-path-block', { hasText: 'Lęk: podejść zamiast unikać' })
+    await expect(block).toBeVisible()
     await expect(block.locator('textarea').first()).toHaveValue(/Przewidywałem katastrofę/)
     await expect(block).toContainText('2 z 2')
     expectNoAppErrors(consoleErrors)

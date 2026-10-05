@@ -194,6 +194,18 @@ export const useProgramEnrollmentStore = defineStore('programEnrollment', () => 
     return enrollment
   }
 
+  /** Knowledge card opened and closed with "Przeczytane" — a marker, never a gate. */
+  async function markCardRead(id: string, cardKey: string): Promise<void> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    const current = enrollments.value.find(enrollment => enrollment.id === id)
+    if (!current || current.readCards?.includes(cardKey)) return
+    const updated = await operation.wait(
+      programEnrollmentDexieRepository.update(id, { readCards: [...(current.readCards ?? []), cardKey] })
+    )
+    applyUpdate(updated)
+  }
+
   /**
    * Today-load reconciler (design D2's safety net). Never throws — a
    * scheduler failure must not break the Today view; materialized
@@ -244,6 +256,7 @@ export const useProgramEnrollmentStore = defineStore('programEnrollment', () => 
     resume,
     abandon,
     skipStep,
+    markCardRead,
     runScheduler,
     reset,
   }

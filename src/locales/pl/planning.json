@@ -488,7 +488,8 @@
       "ariaProgramOpen": "Otwórz szczegóły ścieżki",
       "plannedOverdueSince": "zaległe od {date}",
       "programPractice": "praktyka",
-      "programStepLabel": "krok {n}"
+      "programStepLabel": "krok {n}",
+      "programWeekProgress": "tydzień {current} z {total}"
     },
     "stage": {
       "tomorrow": "Jutro",

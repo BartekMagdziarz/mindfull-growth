@@ -66,7 +66,39 @@
       "many": "{n} moments in the last 7 days"
     },
     "momentsNone": "No moments in the last 7 days yet",
-    "logMoment": "Log a moment"
+    "logMoment": "Log a moment",
+    "journeyTitle": "Your path",
+    "nowTitle": "Now",
+    "nowPaused": "When you return",
+    "nowReturn": "Return",
+    "progressTitle": "Progress",
+    "measureTitle": "Measure",
+    "measureNote": "The empty dot is the first measurement, the filled one the latest. A picture of change over time, not a clinical judgement.",
+    "sentencesTitle": "My sentences",
+    "knowledgeTitle": "Worth knowing",
+    "details": "Details",
+    "less": "Less",
+    "all": "All",
+    "weekOf": "Week {n} of {total}",
+    "statusReturn": "Return",
+    "statusClosed": "Completed",
+    "practicesRow": "Practices",
+    "open": "Open",
+    "today": "today",
+    "tomorrow": "tomorrow",
+    "minutes": "{n} min",
+    "practiceDays": "Days with a practice this week",
+    "practiceDone": "practice",
+    "practiceNone": "no entry",
+    "myPlan": "My plan",
+    "letterFromYou": "A letter from you",
+    "saveAsMoment": "Save as a moment",
+    "waitingForReturn": "waiting for your return",
+    "closedTitle": "What helps stays with you",
+    "markRead": "Read",
+    "sources": "Sources",
+    "more": "More",
+    "mySign": "My sign"
   },
   "foundation": {
     "title": "Foundation of self-knowledge",
@@ -636,7 +668,8 @@
       "hatedSelf": "Dislike of myself",
       "reassuredSelf": "Reassuring myself",
       "total": "Self-compassion"
-    }
+    },
+    "goal": "Notice shame sooner. Answer with warmth, to yourself and to others, instead of attack or hiding. Return to contact."
   },
   "ifs-parts": {
     "title": "Meet your parts",
@@ -726,6 +759,40 @@
     "thisWeek": "For this week",
     "emptyHistory": "The task history appears after the first week.",
     "momentsThisWeek": "This week's moments ({n})",
-    "hideMoments": "Hide moments"
+    "hideMoments": "Hide moments",
+    "unloggedQuestion": {
+      "m": "Were there moments you did not log?",
+      "f": "Were there moments you did not log?"
+    },
+    "unloggedOptions": {
+      "none": "none",
+      "few": "1–2",
+      "several": "3–5",
+      "many": "more"
+    }
+  },
+  "glance": {
+    "whoTakesWheel": "Who takes the wheel, week by week",
+    "quietWeek": "A quiet week.",
+    "quietWeekShort": "quiet week",
+    "noMoments": "No moments yet.",
+    "responseInstead": "A response instead of a reaction",
+    "whenNotice": "When I notice",
+    "earlyShare": "during or soon after {pct}",
+    "hideNumbers": "Hide numbers",
+    "numbers": "Numbers",
+    "week": "Week",
+    "nonePart": "No part",
+    "noneShort": "None",
+    "unloggedShort": "Unlogged ≈",
+    "response": "Response",
+    "early": "Right away",
+    "voices": "Voices c·k",
+    "total": "Total",
+    "strength": "strength",
+    "outOf": "{a} of {b}",
+    "soFar": "So far",
+    "beginning": "Beginning",
+    "lately": "Lately"
   }
 }

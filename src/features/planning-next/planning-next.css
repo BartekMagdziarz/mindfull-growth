@@ -3070,3 +3070,7 @@ main:has(> .planning-next--today) { min-width:0; }
   opacity: 0;
   pointer-events: none;
 }
+
+/* Paths card: a step not due yet reads quieter; quick actions sit as chips under the group. */
+.next-day-exercises__row--child.is-upcoming .next-day-exercises__copy strong { color: var(--mg-color-muted); font-weight: 600; }
+.next-day-exercises__quick { display: flex; flex-wrap: wrap; gap: 6px; padding: var(--mg-space-1) var(--mg-space-1) var(--mg-space-2) var(--mg-space-6); }

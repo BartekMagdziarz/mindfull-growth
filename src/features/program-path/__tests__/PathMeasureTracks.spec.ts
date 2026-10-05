@@ -1,15 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { render, screen, within } from '@testing-library/vue'
+import { fireEvent, render, screen, within } from '@testing-library/vue'
 import { createPinia, setActivePinia } from 'pinia'
-import ProgramOutcomeSummary from '@/components/exercises/ProgramOutcomeSummary.vue'
+import PathMeasureTracks from '@/features/program-path/PathMeasureTracks.vue'
 import type { AssessmentAttempt, AssessmentId } from '@/domain/assessments'
 import type { ProgramDefinition, ProgramEnrollment } from '@/domain/program'
 import { useAssessmentStore } from '@/stores/assessment.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 
+// The component loads attempts on mount; the mock serves the same fixtures the store is patched with.
+const ATTEMPTS: Record<string, AssessmentAttempt[]> = {}
 vi.mock('@/repositories/assessmentsDexieRepository', () => ({
   assessmentsDexieRepository: {
-    getAttemptsByAssessment: vi.fn(async () => [] as AssessmentAttempt[]),
+    getAttemptsByAssessment: vi.fn(async (id: string) => ATTEMPTS[id] ?? []),
   },
 }))
 
@@ -81,8 +83,7 @@ beforeEach(() => {
   setActivePinia(createPinia())
   useUserPreferencesStore().$patch({ locale: 'pl' })
   const store = useAssessmentStore()
-  store.$patch({
-    attemptsByAssessment: {
+  Object.assign(ATTEMPTS, {
       'scs-sf': [
         attempt('scs-start', 'scs-sf', '2026-09-01T11:00:00.000Z', { total: 2.1 }),
         // a standalone retake outside the steps — must not appear
@@ -96,54 +97,75 @@ beforeEach(() => {
           reassuredSelf: 1.4,
         }),
       ],
-    },
-  })
+    })
+  store.$patch({ attemptsByAssessment: { ...ATTEMPTS } })
 })
 
-describe('ProgramOutcomeSummary', () => {
-  it('renders one series per instrument with a column per measuring step, labelled by phase', () => {
-    render(ProgramOutcomeSummary, { props: { program: PATH, enrollment } })
+/** The grids sit behind "Szczegóły"; the tracks themselves carry no text. */
+async function openDetails(): Promise<void> {
+  await fireEvent.click(screen.getByRole('button', { name: 'Szczegóły' }))
+}
+
+describe('PathMeasureTracks', () => {
+  it('draws one track per scale with the first and the latest measurement as discs', () => {
+    render(PathMeasureTracks, { props: { program: PATH, enrollment } })
+
+    // SCS-SF total + three FSCRS scales; the SCS track has start and latest, FSCRS only the start.
+    const tracks = document.querySelectorAll('.sk')
+    expect(tracks).toHaveLength(4)
+    expect(tracks[0]!.querySelectorAll('.sk__start')).toHaveLength(1)
+    expect(tracks[0]!.querySelectorAll('.sk__now')).toHaveLength(1)
+    expect(tracks[1]!.querySelectorAll('.sk__now')).toHaveLength(0)
+    expect(screen.queryAllByRole('table')).toHaveLength(0)
+  })
+
+  it('renders one series per instrument with a column per measuring step, labelled by phase', async () => {
+    render(PathMeasureTracks, { props: { program: PATH, enrollment } })
+    await openDetails()
 
     const tables = screen.getAllByRole('table')
     expect(tables).toHaveLength(2)
 
     const scs = within(tables[0]!)
     expect(scs.getAllByRole('columnheader').map((h) => h.textContent?.trim())).toEqual([
-      '',
+      expect.any(String),
       expect.stringContaining('Rozpoznanie'),
       expect.stringContaining('Inne spojrzenie'),
       expect.stringContaining('Utrwalenie'),
     ])
   })
 
-  it('fills columns only from the steps’ own attempts (by id, else by day) and leaves future ones empty', () => {
-    render(ProgramOutcomeSummary, { props: { program: PATH, enrollment } })
+  it('fills columns only from the steps’ own attempts (by id, else by day) and leaves future ones empty', async () => {
+    render(PathMeasureTracks, { props: { program: PATH, enrollment } })
+    await openDetails()
 
     const scs = within(screen.getAllByRole('table')[0]!)
     const values = scs.getAllByRole('cell').map((cell) => cell.textContent?.trim().split(/\s/)[0])
     // start by record id, mid by same local day (the stray 4.9 retake is ignored), end pending
-    expect(values).toEqual(['2.10', '2.80', '–'])
+    expect(values).toEqual(['2,10', '2,80', '–'])
   })
 
-  it('shows one row per scale for a multi-scale instrument, named in the path’s plain words when it has them', () => {
-    render(ProgramOutcomeSummary, { props: { program: PATH, enrollment } })
+  it('shows one row per scale for a multi-scale instrument, named in the path’s plain words when it has them', async () => {
+    render(PathMeasureTracks, { props: { program: PATH, enrollment } })
+    await openDetails()
 
     const fscrs = within(screen.getAllByRole('table')[1]!)
     const rows = fscrs.getAllByRole('rowheader').map((h) => h.textContent?.trim())
     // programs.shame-compassion.scaleLabels overrides the instrument's scale names
     expect(rows).toEqual(['Czuję, że nie wystarczam', 'Niechęć do siebie', 'Uspokajam siebie'])
     const firstRowCells = fscrs.getAllByRole('cell').slice(0, 2).map((c) => c.textContent?.trim().split(/\s/)[0])
-    expect(firstRowCells).toEqual(['3.10', '–'])
+    expect(firstRowCells).toEqual(['3,10', '–'])
   })
 
-  it('falls back to the legacy before/after labels and the single outcomeSlug for paths without phases', () => {
+  it('falls back to the legacy before/after labels and the single outcomeSlug for paths without phases', async () => {
     const legacy: ProgramDefinition = {
       ...PATH,
       phases: undefined,
       outcomeSlugs: undefined,
       outcomeSlug: 'scs-sf',
     }
-    render(ProgramOutcomeSummary, { props: { program: legacy, enrollment } })
+    render(PathMeasureTracks, { props: { program: legacy, enrollment } })
+    await openDetails()
 
     expect(screen.getAllByRole('table')).toHaveLength(1)
     const headers = screen.getAllByRole('columnheader').map((h) => h.textContent?.trim())

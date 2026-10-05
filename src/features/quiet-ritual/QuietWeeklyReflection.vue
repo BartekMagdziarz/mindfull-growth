@@ -216,6 +216,26 @@
           <span v-else class="qr-path-block__task-muted">{{ t('programs.week.noTaskThisWeek') }}</span>
         </div>
 
+        <!-- Shame path: this week next to the previous one (who took the wheel), then the
+             moments you did not log — the estimate the glance draws as an outline (plan v3 §P2). -->
+        <template v-if="block.program.momentKind === 'shame'">
+          <PathMomentsGlance :stats="glanceStats(block)" :first-week="glanceFirstWeek(block)" compact />
+          <div class="qr-path-block__unlogged">
+            <span>{{ tg('programs.week.unloggedQuestion') }}</span>
+            <div class="qr-path-chips" role="group" :aria-label="tg('programs.week.unloggedQuestion')">
+              <button
+                v-for="option in UNLOGGED_OPTIONS"
+                :key="option"
+                type="button"
+                :aria-pressed="unloggedValue(block) === option"
+                @click="setUnlogged(block, option)"
+              >
+                {{ t(`programs.week.unloggedOptions.${option}`) }}
+              </button>
+            </div>
+          </div>
+        </template>
+
         <!-- The week's moments of this path's kind: context for the phase question (plan v2 §6). -->
         <div v-if="weekMoments(block).length" class="qr-path-moments">
           <button type="button" class="qr-path-block__toggle" :aria-controls="`path-moments-${block.enrollment.id}`" :aria-expanded="momentsOpen[block.enrollment.id] ?? false" @click="toggleMoments(block)">
@@ -468,6 +488,9 @@ import type { WeeklyReflection } from '@/domain/reflection'
 import { getPeriodBounds, getPeriodRefsForDate } from '@/utils/periods'
 import type { MicroExerciseEntry } from '@/domain/microExercises'
 import { hadMoment, momentDayRef, momentsInWeek } from '@/domain/moments'
+import { momentsProgress, UNLOGGED_BUCKETS, weekRefsEndingAt } from '@/domain/momentsProgress'
+import PathMomentsGlance from '@/features/program-path/PathMomentsGlance.vue'
+import { getPreviousPeriod } from '@/utils/periods'
 import { useMicroExerciseEntryStore } from '@/stores/microExerciseEntry.store'
 import QuietEmotionStack from './QuietEmotionStack.vue'
 import ProfileProposalNotice from '@/features/ai-profile/ProfileProposalNotice.vue'
@@ -775,6 +798,43 @@ function weekMoments(block: ReflectionPathBlock): MicroExerciseEntry[] {
 
 function toggleMoments(block: ReflectionPathBlock): void {
   momentsOpen[block.enrollment.id] = !momentsOpen[block.enrollment.id]
+}
+
+// ── Shame path glance + "moments you did not log" ──
+const UNLOGGED_OPTIONS = Object.keys(UNLOGGED_BUCKETS)
+
+function unloggedValue(block: ReflectionPathBlock): string | null {
+  const raw = promptResponses.value[pathKeys(block).unlogged]
+  return typeof raw === 'string' && raw in UNLOGGED_BUCKETS ? raw : null
+}
+function setUnlogged(block: ReflectionPathBlock, option: string) {
+  const key = pathKeys(block).unlogged
+  const next = { ...promptResponses.value }
+  if (unloggedValue(block) === option) delete next[key]
+  else next[key] = option
+  promptResponses.value = next
+  saved.value = false
+}
+/** This week and the one before, but never a week before the path started. */
+function glanceWeeks(block: ReflectionPathBlock): WeekRef[] {
+  const startWeek = getPeriodRefsForDate(new Date(block.enrollment.startedAt)).week
+  const previous = getPreviousPeriod(props.weekRef) as WeekRef
+  return previous >= startWeek ? [previous, props.weekRef] : [props.weekRef]
+}
+function glanceFirstWeek(block: ReflectionPathBlock): number {
+  const startWeek = getPeriodRefsForDate(new Date(block.enrollment.startedAt)).week
+  const first = glanceWeeks(block)[0]!
+  const trail = weekRefsEndingAt(first, 12)
+  const index = trail.indexOf(startWeek)
+  return index >= 0 ? trail.length - index : 1
+}
+function glanceStats(block: ReflectionPathBlock) {
+  const bucket = unloggedValue(block)
+  return momentsProgress(
+    microEntryStore.entries,
+    glanceWeeks(block),
+    bucket ? { [props.weekRef]: UNLOGGED_BUCKETS[bucket] } : {}
+  )
 }
 
 function momentDayLabel(moment: MicroExerciseEntry): string {

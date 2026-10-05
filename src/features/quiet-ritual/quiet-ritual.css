@@ -2618,3 +2618,11 @@
 .qr-path-moments .qr-path-block__toggle { display: inline-flex; align-items: center; gap: 6px; width: fit-content; max-width: 100%; min-height: 40px; padding: 6px 10px; border-radius: 12px; background: transparent; color: var(--qr-muted); font-size: 13px; }
 .qr-path-block__toggle:hover { background: var(--qr-inner); color: var(--qr-ink); }
 @media (max-width: 640px) { .qr-axis--row { grid-template-columns: minmax(0, 1fr); } }
+
+/* Shame path block: the question about unlogged moments as a row of small
+   chips (the week scale's look, natural width), under the compact glance. */
+.qr-path-block__unlogged { display: grid; gap: 8px; font-size: 13px; color: var(--qr-muted); }
+.qr-path-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.qr-path-chips button { min-height: 36px; padding: 0 14px; border-radius: 12px; background: var(--qr-inner); color: var(--qr-ink); font-size: 13px; font-weight: 600; }
+.qr-path-chips button:hover { background: var(--qr-card); }
+.qr-path-chips button[aria-pressed='true'] { background: var(--qr-accent-strong); color: var(--qr-on-accent); }

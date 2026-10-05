@@ -488,7 +488,8 @@
       "ariaProgramOpen": "Open path details",
       "plannedOverdueSince": "overdue since {date}",
       "programPractice": "practice",
-      "programStepLabel": "step {n}"
+      "programStepLabel": "step {n}",
+      "programWeekProgress": "week {current} of {total}"
     },
     "stage": {
       "tomorrow": "Tomorrow",

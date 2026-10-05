@@ -1567,7 +1567,7 @@ export async function seedVerificationData(): Promise<void> {
     programRole: 'practice',
   })
 
-  // Baseline GAD-7 (13/21, moderate) so the path shows "Na początku".
+  // Baseline GAD-7 (13/21, moderate), linked to step 1 below so the path view shows it under "Mapa lęku".
   const gadEntry = getAssessmentRegistryEntry('gad-7')
   const gadAttempt = await assessmentsDexieRepository.startAttempt({
     assessmentId: 'gad-7',
@@ -1595,9 +1595,11 @@ export async function seedVerificationData(): Promise<void> {
 
   await programEnrollmentDexieRepository.update(anxietyEnrollment.id, {
     currentStepIndex: 6,
+    // The baseline attempt is the first step's record, so the path view's measure finds it.
     completedSteps: anxietyStepSlugs.map((_, index) => ({
       stepIndex: index,
       completedAt: `${addDaysToDayRef(todayRef, -anxietyStepDays[index]!)}T12:00:00.000Z`,
+      ...(index === 0 ? { recordId: gadAttempt.id } : {}),
     })),
   })
 

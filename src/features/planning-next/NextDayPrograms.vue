@@ -91,7 +91,7 @@
             :key="action.id"
             type="button"
             class="next-day-exercises__row next-day-exercises__main next-day-exercises__row--child"
-            :class="{ 'is-overdue': action.overdue }"
+            :class="{ 'is-overdue': action.overdue, 'is-upcoming': action.upcoming }"
             :aria-label="`${action.kind}: ${action.title}`"
             @click="router.push(action.route)"
           >
@@ -102,6 +102,12 @@
             </span>
             <em>{{ action.dateLabel }}</em>
           </button>
+          <!-- At most two quick actions per path (Lab round 2, D3): a moment and the plan. -->
+          <div v-if="group.quick.length" class="next-day-exercises__quick">
+            <RouterLink v-for="quick in group.quick" :key="quick.id" :to="quick.route" class="pp-chip">
+              <AppIcon :name="quick.icon" />{{ quick.label }}
+            </RouterLink>
+          </div>
         </div>
       </div>
     </DsSurface>
@@ -110,7 +116,8 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, toRef } from 'vue'
-import { useRouter } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
+import '@/features/program-path/program-path.css'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import { getCatalogEntry } from '@/data/exerciseCatalog'
@@ -120,6 +127,8 @@ import type { ExercisePlanItem } from '@/domain/exercisePlan'
 import type { DayRef } from '@/domain/period'
 import { DsSurface } from '@/design-system/components'
 import { isPracticeItem } from '@/services/programSchedulerService'
+import { pathGroups, weekCount } from '@/features/program-path/pathModel'
+import { useMicroExerciseEntryStore } from '@/stores/microExerciseEntry.store'
 import { useExercisePlanStore } from '@/stores/exercisePlan.store'
 import { addDaysToDayRef } from '@/utils/periods'
 import { useDayWellness } from './useDayWellness'
@@ -168,7 +177,28 @@ const repeatRows = computed(() =>
     })),
 )
 
-/** One group per active path: the path row, then today's due step and practices. */
+const entryStore = useMicroExerciseEntryStore()
+onMounted(() => void entryStore.loadEntries())
+
+/** "tydzień 4 z 8" for paths whose phases are weeks, else "krok n z m". */
+function progressLabel(program: NonNullable<ReturnType<typeof getProgramDefinition>>, enrollment: { currentStepIndex: number }): string {
+  const groups = pathGroups(program)
+  const weeks = weekCount(groups)
+  const current = groups.find(
+    (group) => group.stepIndices.includes(enrollment.currentStepIndex) && group.week !== undefined,
+  )
+  if (weeks && current?.week) return t('planning.today.wellness.programWeekProgress', { current: current.week, total: weeks })
+  return t('planning.today.wellness.programStepProgress', {
+    current: Math.min(enrollment.currentStepIndex + 1, program.steps.length),
+    total: program.steps.length,
+  })
+}
+
+/**
+ * One group per active path: the path row (week or step progress), the next
+ * step always (due today, overdue, or with its day), the practices due today,
+ * then up to two quick actions.
+ */
 const programGroups = computed(() =>
   activeEnrollments.value.map((enrollment) => {
     const program = getProgramDefinition(enrollment.programSlug)
@@ -176,27 +206,28 @@ const programGroups = computed(() =>
       (item) => item.source === 'program' && item.sourceRef === enrollment.id,
     )
     const step = own.find((item) => !isPracticeItem(item))
-    const stepDue = Boolean(step && step.dayRef <= props.dayRef)
-    const total = program?.steps.length ?? 0
-    const context = [
-      t('planning.today.wellness.programStepProgress', {
-        current: Math.min(enrollment.currentStepIndex + 1, total),
-        total,
-      }),
-      step && !stepDue ? t('planning.today.wellness.programFrom', { date: formatDay(step.dayRef) }) : '',
-    ]
-      .filter(Boolean)
-      .join(' · ')
-    const due = own
-      .filter((item) => item.dayRef <= props.dayRef)
+    const context = program ? progressLabel(program, enrollment) : ''
+    const listed = own
+      .filter((item) => item.dayRef <= props.dayRef || item === step)
       .sort((a, b) => Number(isPracticeItem(a)) - Number(isPracticeItem(b)))
+    const hasResponse =
+      program?.momentKind === 'shame' &&
+      entryStore.entries.some((entry) => entry.exerciseSlug === 'shame-response' && entry.createdAt >= enrollment.startedAt)
+    const quick = [
+      ...(program?.momentKind
+        ? [{ id: 'moment', icon: 'add', label: t('programs.ui.logMoment'), route: `/exercises/micro/moment-${program.momentKind}` }]
+        : []),
+      ...(hasResponse
+        ? [{ id: 'plan', icon: 'mg-exercise-shame-response', label: t('programs.ui.myPlan'), route: { name: 'program-detail', params: { slug: enrollment.programSlug } } }]
+        : []),
+    ]
     return {
       id: enrollment.id,
       slug: enrollment.programSlug,
       icon: program?.icon ?? 'route',
       title: program ? t(`${program.i18nKey}.title`) : enrollment.programSlug,
       context,
-      actions: due.map((item) => ({
+      actions: listed.map((item) => ({
         id: item.id,
         ...entryFor(
           item.exerciseSlug,
@@ -207,8 +238,17 @@ const programGroups = computed(() =>
           ? t('planning.today.wellness.programPractice')
           : t('planning.today.wellness.programStepLabel', { n: enrollment.currentStepIndex + 1 }),
         overdue: item.dayRef < props.dayRef,
-        dateLabel: item.dayRef < props.dayRef ? formatDay(item.dayRef) : t('planning.today.wellness.plannedForToday'),
+        upcoming: item.dayRef > props.dayRef,
+        dateLabel:
+          item.dayRef < props.dayRef
+            ? formatDay(item.dayRef)
+            : item.dayRef === props.dayRef
+              ? t('planning.today.wellness.plannedForToday')
+              : item.dayRef === addDaysToDayRef(props.dayRef, 1)
+                ? t('programs.ui.tomorrow')
+                : formatDay(item.dayRef),
       })),
+      quick,
     }
   }),
 )

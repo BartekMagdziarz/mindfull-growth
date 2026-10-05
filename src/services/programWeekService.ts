@@ -26,6 +26,7 @@ import type {
 } from '@/domain/program'
 import type { WeeklyReflection } from '@/domain/reflection'
 import { getProgramDefinition } from '@/data/programCatalog'
+import { UNLOGGED_BUCKETS } from '@/domain/momentsProgress'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { programEnrollmentDexieRepository } from '@/repositories/programEnrollmentDexieRepository'
 import { createWeeklyIntention, listWeeklyIntentions } from '@/services/weeklyIntentionService'
@@ -229,7 +230,26 @@ export function programReflectionKeys(enrollmentId: string) {
     outcome: `program.${enrollmentId}.outcome`,
     severity: `program.${enrollmentId}.severity`,
     phase: `program.${enrollmentId}.phase`,
+    unlogged: `program.${enrollmentId}.unlogged`,
   }
+}
+
+/**
+ * The reflection's "moments you did not log" answers for one enrollment,
+ * as the representative counts `momentsProgress` draws (bucket keys from
+ * `UNLOGGED_BUCKETS`; weeks without an answer are absent).
+ */
+export function unloggedSeries(
+  enrollmentId: string,
+  reflections: readonly WeeklyReflection[],
+): Partial<Record<WeekRef, number>> {
+  const key = programReflectionKeys(enrollmentId).unlogged
+  const series: Partial<Record<WeekRef, number>> = {}
+  for (const reflection of reflections) {
+    const bucket = reflection.promptResponses?.[key]
+    if (typeof bucket === 'string' && bucket in UNLOGGED_BUCKETS) series[reflection.weekRef] = UNLOGGED_BUCKETS[bucket]
+  }
+  return series
 }
 
 export interface SeverityPoint {
@@ -252,6 +272,49 @@ export function severitySeries(
       const raw = Number(reflection.promptResponses?.[key])
       return { weekRef: reflection.weekRef, value: Number.isInteger(raw) && raw >= 1 && raw <= 5 ? raw : null }
     })
+}
+
+/** This week's task of one enrollment as the path view and the reflection read it. */
+export interface WeekTaskState {
+  entry?: ProgramWeekEntry
+  task?: ProgramWeeklyTask
+  /** The accepted task's intention (null when declined or deleted). */
+  intention: WeeklyIntention | null
+  /** Days with an entry for the intention this week. */
+  doneCount: number
+}
+
+/**
+ * The task decision of `weekRef` with its intention and how many days it
+ * already has (`entries` = the week's daily measurement entries, loaded
+ * once by callers that read several enrollments).
+ */
+export async function weekTaskState(
+  program: ProgramDefinition,
+  enrollment: ProgramEnrollment,
+  weekRef: WeekRef,
+  entries?: readonly { subjectType: string; subjectId: string; dayRef: DayRef }[],
+): Promise<WeekTaskState> {
+  const weekTask = await weekTaskForEnrollment(enrollment, weekRef)
+  const intention = weekTask?.intention ?? null
+  let doneCount = 0
+  if (intention) {
+    const { start, end } = getPeriodBounds(weekRef)
+    const list =
+      entries ?? (await planningStateDexieRepository.listDailyMeasurementEntriesForDayRange(start as DayRef, end as DayRef))
+    doneCount = new Set(
+      list
+        .filter((entry) => entry.subjectType === 'weeklyIntention' && entry.subjectId === intention.id)
+        .map((entry) => entry.dayRef),
+    ).size
+  }
+  const task = weekTask ? program.weeklyTasks?.find((candidate) => candidate.key === weekTask.entry.taskKey) : undefined
+  return {
+    ...(weekTask ? { entry: weekTask.entry } : {}),
+    ...(task ? { task } : {}),
+    intention,
+    doneCount,
+  }
 }
 
 /** One program's block in the weekly reflection's "Ścieżka" step. */
@@ -292,29 +355,12 @@ export async function loadReflectionPathBlocks(weekRef: WeekRef): Promise<Reflec
   const blocks: ReflectionPathBlock[] = []
   for (const enrollment of relevant) {
     const program = getProgramDefinition(enrollment.programSlug)!
-    const weekTask = await weekTaskForEnrollment(enrollment, weekRef)
-    const intention = weekTask?.intention ?? null
-    const doneCount = intention
-      ? new Set(
-          entries
-            .filter((entry) => entry.subjectType === 'weeklyIntention' && entry.subjectId === intention.id)
-            .map((entry) => entry.dayRef),
-        ).size
-      : 0
-    const task = weekTask ? program.weeklyTasks?.find((candidate) => candidate.key === weekTask.entry.taskKey) : undefined
+    const state = await weekTaskState(program, enrollment, weekRef, entries)
     // A past week is read in the phase of the task it had, not today's phase.
-    const phase = task
-      ? (program.phases?.find((candidate) => candidate.key === task.phaseKey) ?? currentPhase(program, enrollment))
+    const phase = state.task
+      ? (program.phases?.find((candidate) => candidate.key === state.task!.phaseKey) ?? currentPhase(program, enrollment))
       : currentPhase(program, enrollment)
-    blocks.push({
-      enrollment,
-      program,
-      phase,
-      ...(weekTask ? { entry: weekTask.entry } : {}),
-      ...(task ? { task } : {}),
-      intention,
-      doneCount,
-    })
+    blocks.push({ enrollment, program, phase, ...state })
   }
   return blocks
 }
