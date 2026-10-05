@@ -231,17 +231,64 @@ describe('NextDayItemRow — stage, tray and highlight (inline-stage port)', () 
     expect(scheduled.find('input[type="date"]').exists()).toBe(false)
   })
 
-  it('staged: renders the expansion slot, hides the tray, keeps the entry control', () => {
+  it('staged: labelled actions replace the tray, the entry control stays, no strip without history', () => {
     const wrapper = mount(NextDayItemRow, {
       props: { item: makeItem('completion'), todayDayRef: TODAY, rawEntries: [], allDayAssignments: [], staged: true },
-      slots: { expansion: '<div class="probe-expansion">wykres</div>' },
     })
 
     expect(wrapper.classes()).toContain('ndi--staged')
-    expect(wrapper.find('.probe-expansion').exists()).toBe(true)
+    expect(wrapper.classes()).not.toContain('ndi--history')
+    expect(wrapper.findAll('.ndi__actions button').map(button => button.text())).toEqual(['Jutro', 'Dzień', 'Ukryj', 'Otwórz'])
+    expect(wrapper.findAll('.ndi__actions button').map(button => button.attributes('data-flip'))).toEqual(['tomorrow', 'day', 'hide', 'open'])
     expect(wrapper.find('.ndi__tray').exists()).toBe(false)
+    expect(wrapper.find('.ndi__strip').exists()).toBe(false)
     expect(wrapper.find('button.ndi__well--button').exists()).toBe(true)
     expect(wrapper.find('button.ndi__label').attributes('aria-pressed')).toBe('true')
+  })
+
+  it('staged with history: six past days end in the live disc, missed days are rose, readings fill', () => {
+    // Daily points from calendarChartData: an entry → value + 'no-target', none → 'no-data';
+    // "missed" is an assigned day without an entry.
+    const point = (key: string, status: 'no-target' | 'no-data' | 'missed', value?: number, target?: number, assigned = false) =>
+      ({ key, label: key, status, value, target, current: false, assigned })
+    const history = [
+      point('2026-03-06', 'no-target', 1),
+      point('2026-03-07', 'no-data', undefined, undefined, true),
+      point('2026-03-08', 'no-data'),
+      point('2026-03-09', 'no-target', 1),
+      point('2026-03-10', 'no-data', undefined, undefined, true),
+      point('2026-03-11', 'no-target', 1),
+      { ...point(TODAY, 'no-data'), current: true },
+    ]
+    const wrapper = mount(NextDayItemRow, {
+      props: { item: makeItem('completion'), todayDayRef: TODAY, rawEntries: [], allDayAssignments: [], staged: true, history },
+    })
+
+    expect(wrapper.classes()).toContain('ndi--history')
+    const days = wrapper.findAll('.ndi__day')
+    expect(days).toHaveLength(6)
+    expect(days.map(day => day.find('.ndi__dot').classes().find(cls => cls.startsWith('is-')))).toEqual(['is-done', 'is-missed', 'is-empty', 'is-done', 'is-missed', 'is-done'])
+    expect(days[0].find('.ndi__dot').classes()).toContain('mg-well--done')
+    expect(days.map(day => day.find('small').text())).toEqual(['p', 's', 'n', 'p', 'w', 'ś'])
+    expect(days[0].attributes('title')).toBe('piątek, 6 marca')
+    // The disc is the seventh cell: the same control, now with its own initial underneath.
+    expect(wrapper.find('.ndi__entry').attributes('data-flip')).toBe('disc')
+    expect(wrapper.find('.ndi__today').text()).toBe('c')
+    expect(wrapper.find('button.ndi__well--button').exists()).toBe(true)
+
+    const counter = mount(NextDayItemRow, {
+      props: { item: makeItem('counter'), todayDayRef: TODAY, rawEntries: [], allDayAssignments: [], staged: true, history: [
+        point('2026-03-06', 'no-target', 8, 8), point('2026-03-07', 'missed', 4, 8), point('2026-03-08', 'no-data'),
+        point('2026-03-09', 'no-target', 8, 8), point('2026-03-10', 'missed', 2, 8), point('2026-03-11', 'no-target', 8, 8), { ...point(TODAY, 'no-data'), current: true },
+      ] },
+    })
+    const dots = counter.findAll('.ndi__dot')
+    expect(dots[0].text()).toBe('8')
+    expect(dots[0].classes()).toContain('is-reading')
+    expect(dots[0].attributes('style')).toContain('--fill: 100%')
+    expect(dots[1].classes()).toContain('is-short')
+    expect(dots[1].attributes('style')).toContain('--fill: 50%')
+    expect(dots[2].classes()).toContain('is-empty')
   })
 
   it('maps lit and dim to modifier classes', () => {

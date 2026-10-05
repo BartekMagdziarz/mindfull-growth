@@ -54,6 +54,8 @@
           @drag-plan-end="endDrag"
           :lit="isRelatedToCompass(item, store.highlightKey)"
           :dim="store.highlightKey !== null && !isRelatedToCompass(item, store.highlightKey)"
+          :targeting="store.targetingItem?.key === item.key"
+          :history="historyFor(item)"
           @select="toggleStage(item.key)"
           @open-object="openObject(item)"
           @open-context="openPeriod(item.contextPeriodRef)"
@@ -66,40 +68,7 @@
           @pick-day="store.startTargeting(item)"
           @clear-schedule="handleClearSchedule(item)"
           @request-delete="promptDelete(item)"
-        >
-          <!-- Stage expansion: the product chart for this week + labelled actions.
-               Chart points come from the same raw entries the store patches, so the
-               today dot always agrees with the control on the row. -->
-          <template #expansion>
-            <div v-if="item.kind === 'measurement' && (!calendarContext || inlineCharts)" class="next-day-inline-history">
-            <small v-if="inlineCharts">{{ t('planning.today.recentHistory') }}</small>
-            <NextObjectChartCard
-              bare
-              scale="day"
-              :icon="''"
-              :title="item.subject.title"
-              :summary="''"
-              :entry-mode="item.subject.entryMode"
-              :cadence="item.subject.cadence"
-              :points="inlineCharts ? buildRecentDayChartPoints(item, dayRef, store.rawEntries, store.allDayAssignments, locale) : buildDayChartPoints(item, dayRef, store.rawEntries, store.allDayAssignments)"
-              :actual-value="item.measurement.actualValue"
-              :target-value="item.measurement.target?.value"
-              :aggregate-status="item.measurement.evaluationStatus"
-            />
-            </div>
-            <span v-else />
-            <div class="next-day-rail__stage-actions" role="group" :aria-label="t('planning.today.stage.actionsLabel', { title: itemTitle(item) })">
-              <template v-if="canReschedule(item)">
-                <button v-if="canMoveToTomorrow(item, dayRef)" type="button" @click="handleMoveTomorrow(item)"><AppIcon name="east" />{{ t('planning.today.stage.tomorrow') }}</button>
-                <button type="button" :class="{ 'is-active': store.targetingItem?.key === item.key }" :aria-pressed="store.targetingItem?.key === item.key" @click="store.startTargeting(item)"><AppIcon name="calendar_month" />{{ t('planning.today.stage.day') }}</button>
-              </template>
-              <button v-if="item.isScheduledToday" type="button" @click="handleClearSchedule(item)"><AppIcon name="event_busy" />{{ t('planning.today.stage.clearToday') }}</button>
-              <button v-else-if="item.canHide" type="button" @click="handleHide(item)"><AppIcon name="visibility_off" />{{ t('planning.today.stage.hide') }}</button>
-              <button v-if="canOpenObject(item)" type="button" @click="openObject(item)"><AppIcon name="open_in_new" />{{ t('planning.today.stage.open') }}</button>
-              <button v-else type="button" @click="openPeriod(item.contextPeriodRef)"><AppIcon name="event" />{{ t('planning.today.stage.context') }}</button>
-            </div>
-          </template>
-        </NextDayItemRow>
+        />
       </section>
 
       <button v-if="collapseCompleted && collapsedCount" type="button" class="next-day-rail__collapsed" @click="toggleCollapseCompleted">
@@ -143,9 +112,8 @@ import { getPeriodRefsForDate } from '@/utils/periods'
 import { DsButton, DsState, DsSurface } from '@/design-system/components'
 import NextDayAddMenu, { type AddMenuGroup } from './NextDayAddMenu.vue'
 import NextDayItemRow from './NextDayItemRow.vue'
-import NextObjectChartCard from './NextObjectChartCard.vue'
-import { buildDayChartPoints, buildRecentDayChartPoints } from './nextObjectChart'
-import { canMoveToTomorrow, canRescheduleItem, isRelatedToCompass } from './dayViewModels'
+import { buildRecentDayChartPoints, type NextObjectChartPoint } from './nextObjectChart'
+import { canRescheduleItem, isRelatedToCompass } from './dayViewModels'
 import AppDialog from '@/components/AppDialog.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
@@ -271,6 +239,12 @@ function canReschedule(item: TodayItem): item is TodayMeasurementItem {
 
 function canOpenObject(item: TodayItem): boolean {
   return item.kind === 'measurement' && item.panelType !== 'weeklyIntention'
+}
+
+/** Rolling seven-day evidence for the staged row; the legacy calendar draws its own week chart instead. */
+function historyFor(item: TodayItem): NextObjectChartPoint[] | undefined {
+  if (item.kind !== 'measurement' || (props.calendarContext && !props.inlineCharts)) return undefined
+  return buildRecentDayChartPoints(item, props.dayRef, store.rawEntries, store.allDayAssignments, locale.value)
 }
 
 function tomorrowOf(dayRef: DayRef): DayRef {

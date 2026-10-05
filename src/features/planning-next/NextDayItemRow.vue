@@ -2,12 +2,14 @@
   <article
     ref="rootRef"
     class="ndi"
-    :class="{ 'ndi--staged': staged, 'ndi--lit': lit, 'ndi--dim': dim }"
+    :class="{ 'ndi--staged': staged, 'ndi--history': staged && Boolean(history), 'ndi--settling': settling, 'ndi--lit': lit, 'ndi--dim': dim }"
     @click="emit('select')"
   >
     <!-- Row = one object for this day. Clicking the row (or its title) brings it onto
-         the stage: the staged row grows an expansion (chart + labelled actions) in place,
-         so there is never a second copy of the icon, title or control elsewhere. -->
+         the stage in one motion: the tray icons fly left and grow their labels under
+         the title, the entry disc drops onto the axis of the last seven days, and the
+         six history dots fan out of it. Nothing is ever drawn twice: the disc is the
+         same element in both states (grid area changes, FLIP animates the move). -->
     <div class="ndi__main">
       <span v-if="dragEnabled" class="ndi__drag" draggable="true" :title="t('planning.today.calendarPlan.drag')" @dragstart="emit('drag-plan-start', $event)" @dragend="emit('drag-plan-end')"><AppIcon name="drag_indicator" /></span>
       <span class="ndi__lead" :class="{ 'ndi__lead--active': hasTodayEntry }" aria-hidden="true">
@@ -42,27 +44,59 @@
           @keydown.esc.stop.prevent="leaveTray"
         >
         <template v-if="canReschedule">
-          <button v-if="canTomorrow" type="button" tabindex="-1" class="ndi__action" :title="t('planning.today.actions.moveToTomorrow')" :aria-label="`${t('planning.today.actions.moveToTomorrow')}: ${title}`" @click="emit('move-tomorrow')"><AppIcon name="east" /></button>
-          <button type="button" tabindex="-1" class="ndi__action" :title="t('planning.today.actions.moveToDay')" :aria-label="`${t('planning.today.actions.moveToDay')}: ${title}`" @click="emit('pick-day')"><AppIcon name="calendar_month" /></button>
+          <button v-if="canTomorrow" type="button" tabindex="-1" class="ndi__action" data-flip="tomorrow" :title="t('planning.today.actions.moveToTomorrow')" :aria-label="`${t('planning.today.actions.moveToTomorrow')}: ${title}`" @click="emit('move-tomorrow')"><AppIcon name="east" /></button>
+          <button type="button" tabindex="-1" class="ndi__action" data-flip="day" :title="t('planning.today.actions.moveToDay')" :aria-label="`${t('planning.today.actions.moveToDay')}: ${title}`" @click="emit('pick-day')"><AppIcon name="calendar_month" /></button>
         </template>
-        <button v-if="item.isScheduledToday" type="button" tabindex="-1" class="ndi__action" :title="t('planning.today.actions.clearToday')" :aria-label="`${t('planning.today.actions.clearToday')}: ${title}`" @click="emit('clear-schedule')"><AppIcon name="event_busy" /></button>
-        <button v-else-if="item.canHide" type="button" tabindex="-1" class="ndi__action" :title="t('planning.today.actions.hideForToday')" :aria-label="`${t('planning.today.actions.hideForToday')}: ${title}`" @click="emit('hide')"><AppIcon name="visibility_off" /></button>
+        <button v-if="item.isScheduledToday" type="button" tabindex="-1" class="ndi__action" data-flip="clear-today" :title="t('planning.today.actions.clearToday')" :aria-label="`${t('planning.today.actions.clearToday')}: ${title}`" @click="emit('clear-schedule')"><AppIcon name="event_busy" /></button>
+        <button v-else-if="item.canHide" type="button" tabindex="-1" class="ndi__action" data-flip="hide" :title="t('planning.today.actions.hideForToday')" :aria-label="`${t('planning.today.actions.hideForToday')}: ${title}`" @click="emit('hide')"><AppIcon name="visibility_off" /></button>
         <button v-if="item.kind === 'measurement' && item.todayEntry" type="button" tabindex="-1" class="ndi__action" :title="t('planning.today.actions.clearEntry')" :aria-label="`${t('planning.today.actions.clearEntry')}: ${title}`" @click="emit('clear-entry')"><AppIcon name="ink_eraser" /></button>
-        <button v-if="canOpenObject" type="button" tabindex="-1" class="ndi__action" :title="t('planning.objects.actions.open')" :aria-label="`${t('planning.objects.actions.open')}: ${title}`" @click="emit('open-object')"><AppIcon name="open_in_new" /></button>
-        <button v-else type="button" tabindex="-1" class="ndi__action" :title="t('planning.today.actions.openContext')" :aria-label="`${t('planning.today.actions.openContext')}: ${title}`" @click="emit('open-context')"><AppIcon name="event" /></button>
+        <button v-if="canOpenObject" type="button" tabindex="-1" class="ndi__action" data-flip="open" :title="t('planning.objects.actions.open')" :aria-label="`${t('planning.objects.actions.open')}: ${title}`" @click="emit('open-object')"><AppIcon name="open_in_new" /></button>
+        <button v-else type="button" tabindex="-1" class="ndi__action" data-flip="context" :title="t('planning.today.actions.openContext')" :aria-label="`${t('planning.today.actions.openContext')}: ${title}`" @click="emit('open-context')"><AppIcon name="event" /></button>
         <button v-if="item.isScheduledToday" type="button" tabindex="-1" class="ndi__action ndi__action--danger" :title="t('common.buttons.delete')" :aria-label="`${t('common.buttons.delete')}: ${title}`" @click="emit('request-delete')"><AppIcon name="delete" /></button>
         </span>
       </div>
 
+    </div>
+
+    <!-- Staged: the tray's actions as labelled buttons under the title. Same data-flip
+         keys as the tray icons, so each icon has a destination to fly to. -->
+    <div v-if="staged" class="ndi__actions" role="group" :aria-label="t('planning.today.stage.actionsLabel', { title })" @click.stop>
+      <template v-if="canReschedule">
+        <button v-if="canTomorrow" type="button" data-flip="tomorrow" @click="emit('move-tomorrow')"><AppIcon name="east" /><span>{{ t('planning.today.stage.tomorrow') }}</span></button>
+        <button type="button" data-flip="day" :class="{ 'is-active': targeting }" :aria-pressed="targeting" @click="emit('pick-day')"><AppIcon name="calendar_month" /><span>{{ t('planning.today.stage.day') }}</span></button>
+      </template>
+      <button v-if="item.isScheduledToday" type="button" data-flip="clear-today" @click="emit('clear-schedule')"><AppIcon name="event_busy" /><span>{{ t('planning.today.stage.clearToday') }}</span></button>
+      <button v-else-if="item.canHide" type="button" data-flip="hide" @click="emit('hide')"><AppIcon name="visibility_off" /><span>{{ t('planning.today.stage.hide') }}</span></button>
+      <button v-if="canOpenObject" type="button" data-flip="open" @click="emit('open-object')"><AppIcon name="open_in_new" /><span>{{ t('planning.today.stage.open') }}</span></button>
+      <button v-else type="button" data-flip="context" @click="emit('open-context')"><AppIcon name="event" /><span>{{ t('planning.today.stage.context') }}</span></button>
+    </div>
+
+    <!-- Six past days, ending in the live disc: done = filled blob, missed = rose,
+         numeric readings fill from the bottom. Weekday initials only; the full date
+         sits in the tooltip. -->
+    <Transition name="ndi-strip">
+      <div v-if="staged && history" class="ndi__strip" role="img" :aria-label="`${t('planning.today.recentHistory')}: ${title}`" @click.stop>
+        <span v-for="(day, index) in historyDays" :key="day.key" class="ndi__day" :style="{ '--idx': index }" :title="day.title">
+          <i
+            class="mg-well ndi__dot"
+            :class="[`is-${day.state}`, { 'mg-well--done': day.state === 'done', 'is-short': day.short, 'ndi__dot--b': index % 2 === 1 }]"
+            :style="day.fill !== undefined ? { '--fill': `${day.fill}%` } : undefined"
+          ><b v-if="day.reading">{{ day.reading }}</b></i>
+          <small aria-hidden="true">{{ day.initial }}</small>
+        </span>
+      </div>
+    </Transition>
+
       <!-- One disc for every entry mode: only what sits inside changes, so the
-           right edge of the rail stays a single straight column. -->
-      <div class="ndi__entry" @click.stop>
+           right edge of the rail stays a single straight column. Staged with history
+           it becomes the seventh, live point of the strip. -->
+      <div class="ndi__entry" data-flip="disc" @click.stop>
         <!-- Completion (and the dormant initiative kind): done fills the disc -->
         <button
           v-if="isCompletionToggle"
           type="button"
-          class="ndi__well ndi__well--button"
-          :class="{ 'ndi__well--done': completionDone }"
+          class="mg-well ndi__well ndi__well--button"
+          :class="{ 'mg-well--done': completionDone }"
           :disabled="isPending"
           :aria-pressed="completionDone"
           :aria-label="completionDone ? t('planning.today.actions.undoEntry') : t('planning.today.actions.recordEntry')"
@@ -86,7 +120,7 @@
           <button
             v-if="!multiOpen"
             type="button"
-            class="ndi__well ndi__well--button ndi__well--fraction"
+            class="mg-well ndi__well ndi__well--button ndi__well--fraction"
             :class="{ 'ndi__well--on': multiCheckedCount > 0, 'ndi__well--met': multiMet }"
             :disabled="isPending"
             aria-expanded="false"
@@ -102,7 +136,7 @@
               v-for="(multiItem, index) in multiActiveItems"
               :key="multiItem.id"
               type="button"
-              class="ndi__well ndi__well--dot ndi__well--button"
+              class="mg-well ndi__well ndi__well--dot ndi__well--button"
               :class="{ 'ndi__well--done': multiCheckedIds.has(multiItem.id) }"
               :style="{ '--ndi-i': multiActiveItems.length - 1 - index }"
               :disabled="isPending"
@@ -147,7 +181,7 @@
           </button>
 
           <span
-            class="ndi__well"
+            class="mg-well ndi__well"
             :class="{ 'ndi__well--on': hasNumericEntry, 'ndi__well--meter': isRating }"
             :style="isRating ? { '--ndi-fill': ratingFill } : undefined"
           >
@@ -162,7 +196,7 @@
              the placeholder of a field this narrow. -->
         <span
           v-else-if="viz.entryMode.value === 'value'"
-          class="ndi__well"
+          class="mg-well ndi__well"
           :class="{ 'ndi__well--on': hasNumericEntry }"
         >
           <input
@@ -183,12 +217,8 @@
           />
           <span v-if="!valueDraft" class="ndi__ghost" aria-hidden="true">0</span>
         </span>
+        <small v-if="staged && history" class="ndi__today" aria-hidden="true">{{ todayInitial }}</small>
       </div>
-    </div>
-
-    <div v-if="staged && $slots.expansion" class="ndi__expansion" @click.stop>
-      <slot name="expansion" />
-    </div>
   </article>
 </template>
 
@@ -197,10 +227,11 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRef, watch } fro
 import type { DayRef } from '@/domain/period'
 import type { DailyMeasurementEntry, MeasurementDayAssignment } from '@/domain/planningState'
 import type { TodayItem } from '@/services/todayViewQueries'
-import { multiCompletionDayMet } from '@/services/measurementProgress'
+import { multiCompletionDayMet, multiCompletionEffectiveThreshold } from '@/services/measurementProgress'
 import { useT } from '@/composables/useT'
 import { useTodayItemVisualization } from '@/composables/useTodayItemVisualization'
 import { canMoveToTomorrow, canRescheduleItem } from './dayViewModels'
+import type { NextObjectChartPoint } from './nextObjectChart'
 import AppIcon from '@/components/shared/AppIcon.vue'
 
 const props = withDefaults(defineProps<{
@@ -210,13 +241,17 @@ const props = withDefaults(defineProps<{
   allDayAssignments: MeasurementDayAssignment[]
   dragEnabled?: boolean
   isPending?: boolean
-  /** This row is the current stage: expansion slot shown, icon tray hidden. */
+  /** This row is the current stage: labelled actions + history strip shown, icon tray hidden. */
   staged?: boolean
+  /** The "Dzień" action is armed (calendar waits for a destination). */
+  targeting?: boolean
+  /** Rolling seven-day points (last = the viewed day); absent = no strip on stage. */
+  history?: NextObjectChartPoint[]
   /** Highlighted as related to the hovered/pinned compass tile. */
   lit?: boolean
   /** Muted because another row is highlighted. */
   dim?: boolean
-}>(), { isPending: false, staged: false, lit: false, dim: false })
+}>(), { isPending: false, staged: false, targeting: false, history: undefined, lit: false, dim: false })
 
 const emit = defineEmits<{
   'drag-plan-start': [event: DragEvent]
@@ -391,6 +426,117 @@ function clearTip(): void {
 }
 
 onBeforeUnmount(clearTip)
+
+// ---------------------------------------------------------------------------
+// Stage transition. Everything marked data-flip (the four actions, the disc) is
+// measured before the DOM changes and animated from its old box to its new one
+// once it has settled. Tray icon → labelled button are different nodes with the
+// same key; the disc is the same node changing grid area.
+const FLIP_MS = 300
+const FLIP_EASE = 'cubic-bezier(.2, .7, .2, 1)'
+const settling = ref(false)
+let settleTimer: ReturnType<typeof setTimeout> | null = null
+
+function motionAllowed(): boolean {
+  return typeof window !== 'undefined'
+    && typeof Element.prototype.animate === 'function'
+    && !(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false)
+}
+
+function snapshotFlip(root: HTMLElement): Map<string, DOMRect> {
+  const boxes = new Map<string, DOMRect>()
+  root.querySelectorAll<HTMLElement>('[data-flip]').forEach(el => boxes.set(el.dataset.flip!, el.getBoundingClientRect()))
+  return boxes
+}
+
+function playFlip(root: HTMLElement, before: Map<string, DOMRect>): void {
+  root.querySelectorAll<HTMLElement>('[data-flip]').forEach(el => {
+    const from = before.get(el.dataset.flip!)
+    if (!from) return
+    const to = el.getBoundingClientRect()
+    const dx = from.left - to.left
+    const dy = from.top - to.top
+    if (!dx && !dy) return
+    el.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'none' }], { duration: FLIP_MS, easing: FLIP_EASE })
+    // A label that appears mid-flight: the icon leads, the word follows.
+    const label = el.matches('.ndi__actions > button') ? el.querySelector<HTMLElement>(':scope > span') : null
+    label?.animate(
+      [{ opacity: 0, transform: 'translateX(-4px)' }, { opacity: 0, offset: 0.35 }, { opacity: 1, transform: 'none' }],
+      { duration: FLIP_MS + 80, easing: 'ease-out' },
+    )
+  })
+}
+
+// flush: 'pre' runs before this component re-renders, so the old boxes are still there.
+watch(() => props.staged, (next, previous) => {
+  if (next === previous) return
+  const root = rootRef.value
+  if (!root || !motionAllowed()) return
+  const before = snapshotFlip(root)
+  if (!next) {
+    // Folding: keep the tray visible while the labelled buttons fly back into it.
+    settling.value = true
+    if (settleTimer) clearTimeout(settleTimer)
+    settleTimer = setTimeout(() => { settling.value = false; settleTimer = null }, FLIP_MS + 120)
+  }
+  void nextTick(() => playFlip(root, before))
+}, { flush: 'pre' })
+
+onBeforeUnmount(() => { if (settleTimer) clearTimeout(settleTimer) })
+
+// ---------------------------------------------------------------------------
+// History strip: the six days before the viewed one, drawn in the row's own
+// entry language. A "short" reading is one below target (rose fill, number kept).
+interface HistoryDay {
+  key: string
+  initial: string
+  title: string
+  state: 'done' | 'missed' | 'empty' | 'reading'
+  short?: boolean
+  fill?: number
+  reading?: string
+}
+
+const initialFormatter = computed(() => new Intl.DateTimeFormat(locale.value, { weekday: 'narrow' }))
+const dayTitleFormatter = computed(() => new Intl.DateTimeFormat(locale.value, { weekday: 'long', day: 'numeric', month: 'long' }))
+function dayInitial(dayRef: string): string {
+  return initialFormatter.value.format(new Date(`${dayRef}T12:00:00`)).toLocaleLowerCase(locale.value)
+}
+const todayInitial = computed(() => dayInitial(props.todayDayRef))
+
+// Daily points carry no target of their own (status is 'no-target' whenever an
+// entry exists), so "done" means an entry, and "missed" means an assigned day
+// without one — the same reading the old dots chart used. Checklists compare
+// the day's points with the subject's daily threshold.
+const historyDays = computed<HistoryDay[]>(() => {
+  const points = (props.history ?? []).filter(point => !point.current).slice(-6)
+  if (!points.length) return []
+  const mode = viz.entryMode.value
+  const numericScale = isRating.value
+    ? viz.ratingScale.value
+    : Math.max(1, ...points.map(point => Math.max(point.target ?? 0, point.value ?? 0)))
+  const multiThreshold = props.item.kind === 'measurement' && mode === 'multi-completion'
+    ? multiCompletionEffectiveThreshold(props.item.subject)
+    : 0
+  return points.map(point => {
+    const base = { key: point.key, initial: dayInitial(point.key), title: dayTitleFormatter.value.format(new Date(`${point.key}T12:00:00`)) }
+    const hasEntry = point.value !== undefined || (point.status !== 'no-data' && point.status !== 'missed')
+    const missed = point.status === 'missed' || (!hasEntry && Boolean(point.assigned))
+    if (!hasEntry) return { ...base, state: missed ? 'missed' : 'empty' }
+    if (mode === 'completion') return { ...base, state: missed ? 'missed' : 'done' }
+    const value = point.value ?? 0
+    if (mode === 'multi-completion') {
+      if (multiThreshold > 0 && value >= multiThreshold) return { ...base, state: 'done' }
+      if (value <= 0) return { ...base, state: missed ? 'missed' : 'empty' }
+      const share = Math.min(100, Math.round((value / Math.max(multiThreshold, value)) * 100))
+      return { ...base, state: 'reading', short: missed, fill: share }
+    }
+    if (value === 0) return { ...base, state: missed ? 'missed' : 'empty' }
+    const fill = Math.max(8, Math.min(100, Math.round((value / numericScale) * 100)))
+    return { ...base, state: 'reading', short: missed, fill, reading: String(value) }
+  })
+})
+
 const stepperValue = computed(() => hasNumericEntry.value ? String(viz.currentValue.value ?? 0) : '0')
 // A 34px circle is a tight frame, so longer readings step down a size instead of
 // being clipped.
@@ -513,8 +659,12 @@ function submitValueDraft(event: Event): void {
 
 <style scoped>
 .ndi {
+  --ndi-cell: 3.2rem;
   position: relative;
   display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: 'main entry';
+  align-items: center;
   gap: var(--mg-space-2);
   padding: var(--mg-space-1) var(--mg-space-2);
   border-radius: var(--mg-radius-sm);
@@ -543,11 +693,195 @@ function submitValueDraft(event: Event): void {
 }
 
 .ndi__main {
+  grid-area: main;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: var(--mg-space-2);
   min-width: 0;
+  min-height: 2.1rem;
+}
+
+/* Staged: actions take a second row under the title. With history the strip
+   spans both rows on the right and the disc joins it as the last cell, so it
+   lands lower than in the collapsed row — the intended drop. */
+.ndi--staged {
+  grid-template-areas: 'main entry' 'actions actions';
+  row-gap: var(--mg-space-2);
+  padding-bottom: var(--mg-space-2);
+  cursor: default;
+}
+
+.ndi--history {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-areas: 'main strip entry' 'actions strip entry';
+  column-gap: var(--mg-space-1);
+}
+
+.ndi__actions {
+  grid-area: actions;
+  display: grid;
+  grid-template-columns: repeat(4, max-content);
+  gap: var(--mg-space-1);
+  justify-content: start;
+  padding-left: calc(1.85rem + var(--mg-space-2));
+}
+
+.ndi--history .ndi__actions {
+  padding-right: var(--mg-space-3);
+}
+
+.ndi__actions > button {
+  display: inline-flex;
+  gap: var(--mg-space-1);
+  align-items: center;
+  padding: 3px var(--mg-space-2);
+  border: 1px solid var(--mg-color-border);
+  border-radius: var(--mg-radius-organic-b);
+  color: var(--mg-color-muted);
+  background: var(--mg-color-paper);
+  font-size: var(--mg-font-size-xs);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.ndi__actions > button:hover,
+.ndi__actions > button.is-active {
+  color: var(--mg-color-primary-strong);
+  background: var(--mg-color-sky-well);
+}
+
+.ndi__actions .material-symbols-outlined {
+  font-size: var(--mg-font-size-sm);
+}
+
+/* The strip: fixed cells, never stretched with the row. */
+.ndi__strip {
+  grid-area: strip;
+  align-self: center;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: var(--ndi-cell);
+  gap: var(--mg-space-1);
+  align-items: end;
+}
+
+.ndi__day {
+  display: grid;
+  justify-items: center;
+  align-items: center;
+  gap: 3px;
+}
+
+.ndi__day small,
+.ndi__today {
+  color: var(--mg-color-muted);
+  font-size: 0.66rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.ndi__today {
+  color: var(--mg-color-primary-strong);
+}
+
+.ndi__dot {
+  overflow: hidden;
+  border-color: transparent;
+  background: var(--mg-color-border);
+  box-shadow: none;
+  font-style: normal;
+}
+
+.ndi__dot--b {
+  border-radius: var(--mg-radius-organic-b);
+}
+
+.ndi__dot.is-done {
+  box-shadow: var(--mg-shadow-inset-sm);
+}
+
+/* Missed days are rose — the same effort tone the week charts use. */
+.ndi__dot.is-missed {
+  background: var(--mg-color-effort-soft);
+}
+
+.ndi__dot.is-reading {
+  background: linear-gradient(to top, var(--mg-color-state-soft) var(--fill, 0%), var(--mg-color-border) var(--fill, 0%));
+  box-shadow: var(--mg-shadow-inset-sm);
+}
+
+.ndi__dot.is-reading.is-short {
+  background: linear-gradient(to top, var(--mg-color-effort-soft) var(--fill, 0%), var(--mg-color-border) var(--fill, 0%));
+}
+
+.ndi__dot b {
+  position: relative;
+  color: var(--mg-color-primary-strong);
+  font-size: var(--mg-font-size-xs);
+  font-weight: 800;
+}
+
+/* Fan: dots leave the disc to the left, nearest day first, in the same beat as
+   the FLIP of the buttons and the disc. Folding runs the same path back while
+   the strip is pinned to the collapsed disc line. */
+.ndi__day {
+  --dx: calc((6 - var(--idx, 0)) * (var(--ndi-cell) + var(--mg-space-1)));
+  animation: ndi-fan var(--mg-duration-base, 0.3s) var(--mg-ease-standard) both;
+  animation-delay: calc((5 - var(--idx, 0)) * 22ms);
+}
+
+@keyframes ndi-fan {
+  from {
+    opacity: 0;
+    transform: translateX(var(--dx)) scale(0.55);
+  }
+}
+
+@keyframes ndi-fold {
+  to {
+    opacity: 0;
+    transform: translateX(var(--dx)) scale(0.55);
+  }
+}
+
+@keyframes ndi-hold {
+  from { opacity: 1; }
+  to { opacity: 1; }
+}
+
+/* grid-area: auto matters — an absolutely positioned grid child keeps its named
+   area as containing block, and 'strip' no longer exists once the row folds. */
+.ndi-strip-leave-active {
+  position: absolute;
+  grid-area: auto;
+  top: var(--mg-space-1);
+  right: calc(var(--mg-space-2) + 2.1rem + var(--mg-space-1));
+  animation: ndi-hold 0.32s both;
+  pointer-events: none;
+}
+
+.ndi-strip-leave-active .ndi__day {
+  animation: ndi-fold 0.22s var(--mg-ease-standard) both;
+  animation-delay: calc(var(--idx, 0) * 24ms);
+}
+
+/* Folding in flight: the tray stays visible while the labelled buttons fly back. */
+.ndi--settling .ndi__tray {
+  opacity: 1;
+  pointer-events: auto;
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ndi__day,
+  .ndi-strip-leave-active .ndi__day {
+    animation: none;
+  }
+
+  .ndi-strip-leave-active {
+    display: none;
+  }
 }
 
 .ndi__lead {
@@ -601,6 +935,7 @@ function submitValueDraft(event: Event): void {
 }
 
 .ndi__entry {
+  grid-area: entry;
   position: relative;
   display: flex;
   align-items: center;
@@ -608,22 +943,48 @@ function submitValueDraft(event: Event): void {
   gap: var(--mg-space-1);
 }
 
-/* THE well: one circle for every entry mode — the same organic disc the
-   completion charts draw, so a done task reads identically in both places. */
-.ndi__well {
-  position: relative;
+/* As the strip's last cell the disc gets its initial underneath and the ± move
+   above and below it — the left side is taken by history. */
+.ndi--history .ndi__entry {
+  align-self: center;
   display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-  width: 2.1rem;
-  height: 2.1rem;
-  padding: 0;
+  justify-items: center;
+  gap: 3px;
+}
+
+.ndi--history .ndi__step {
+  right: auto;
+  left: 50%;
+  z-index: 2;
+  transform: translateX(-50%);
+}
+
+.ndi--history .ndi__step--plus {
+  top: auto;
+  bottom: calc(100% + 2px);
+}
+
+.ndi--history .ndi__step--minus {
+  top: calc(2.1rem + 2px);
+  bottom: auto;
+}
+
+.ndi--history .ndi__entry:hover .ndi__today,
+.ndi--history .ndi__entry:focus-within .ndi__today {
+  opacity: 0;
+}
+
+.ndi--history .ndi__multi {
+  position: relative;
+  z-index: 2;
+}
+
+/* THE well: one circle for every entry mode. The disc itself (and its done
+   state) is the shared .mg-well from the design system, so a done task reads
+   identically here and in the calendar's completion marks. */
+.ndi__well {
   overflow: hidden;
-  border: 1px solid var(--mg-color-border);
-  border-radius: var(--mg-radius-organic-a);
   color: var(--mg-color-muted);
-  background: var(--mg-color-canvas);
-  box-shadow: var(--mg-shadow-inset-sm);
   font-size: var(--mg-font-size-sm);
   font-weight: 800;
 }
@@ -637,21 +998,6 @@ function submitValueDraft(event: Event): void {
 .ndi__well--on {
   color: var(--mg-color-primary-strong);
   background: var(--mg-color-sky-field);
-}
-
-.ndi__well--done {
-  border-color: transparent;
-  background: var(--mg-color-sky-field);
-  box-shadow: var(--mg-shadow-inset-sm);
-}
-
-.ndi__well--done::after {
-  width: 62%;
-  aspect-ratio: 1;
-  border-radius: var(--mg-radius-organic-c);
-  background: var(--mg-color-state);
-  content: '';
-  transform: rotate(-2deg);
 }
 
 /* Rating: the disc fills to the recorded share of the scale. */
@@ -707,13 +1053,10 @@ function submitValueDraft(event: Event): void {
 /* A checked item's dot fills solid: the glyph inverts instead of hiding
    behind the completion blob. */
 .ndi__well--dot.ndi__well--done {
+  border-color: transparent;
   color: var(--mg-color-on-primary);
   background: var(--mg-color-state);
   box-shadow: none;
-}
-
-.ndi__well--dot.ndi__well--done::after {
-  content: none;
 }
 
 .ndi__well--dot:not(:disabled):hover {
@@ -881,15 +1224,6 @@ function submitValueDraft(event: Event): void {
 
 .ndi--lit .ndi__tray {
   background: linear-gradient(to right, transparent, var(--mg-color-sky-field) var(--mg-space-3));
-}
-
-.ndi__expansion {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: var(--mg-space-3);
-  align-items: center;
-  padding: 0 var(--mg-space-1) var(--mg-space-2) calc(1.85rem + var(--mg-space-2));
-  cursor: default;
 }
 
 .ndi__action {

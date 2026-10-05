@@ -17,11 +17,11 @@ describe('compact Today toolbar', () => {
     await wrapper.find('.next-day-toolbar__return').trigger('click')
     expect(wrapper.emitted('navigate')?.[0]).toEqual(['2026-09-22'])
   })
-  it('shows a single relative label under the date', () => {
+  it('shows the weekday and a single relative label under the date', () => {
     vi.useFakeTimers(); vi.setSystemTime(new Date('2026-09-22T12:00:00'))
     const yesterday = mount(NextDayToolbar, { props: { dayRef:'2026-09-21' as DayRef } })
     expect(yesterday.find('.next-day-toolbar__date-copy').text()).not.toMatch(/today|dziś|dzisiaj/i)
-    expect(yesterday.find('.next-day-toolbar__date-copy small').text()).toMatch(/yesterday|wczoraj/i)
+    expect(yesterday.find('.next-day-toolbar__date-copy small').text()).toMatch(/^(Monday|Poniedziałek) · (yesterday|wczoraj)$/)
     const current = mount(NextDayToolbar, { props: { dayRef:'2026-09-22' as DayRef } })
     expect(current.find('.next-day-toolbar__return').exists()).toBe(false)
   })

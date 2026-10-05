@@ -133,7 +133,7 @@ describe('NextDayRail — inline stage', () => {
 
     expect(wrapper.find('.next-day-add__button').exists()).toBe(true)
     await wrapper.findAll('.ndi').find(row => row.text().includes('Zaplanować budżet'))!.find('button.ndi__label').trigger('click')
-    expect(wrapper.findAll('.ndi--staged .next-day-rail__stage-actions button').map(labelOf)).toEqual(['Jutro', 'Dzień', 'Ukryj', 'Kontekst'])
+    expect(wrapper.findAll('.ndi--staged .ndi__actions button').map(labelOf)).toEqual(['Jutro', 'Dzień', 'Ukryj', 'Kontekst'])
     const scheduledRow = wrapper.findAll('.ndi').find(row => row.text().includes('Rozciąganie'))!
     expect(scheduledRow.findAll('.ndi__tray button').map(button => button.attributes('title'))).toEqual(['Przenieś na jutro', 'Przenieś na dzień', 'Usuń z dziś', 'Otwórz obiekt', 'Usuń'])
     expect(scheduledRow.find('button.ndi__well--button').exists()).toBe(true)
@@ -155,23 +155,23 @@ describe('NextDayRail — inline stage', () => {
 
     // Nothing is expanded by default — the list is a plain list until the user asks.
     expect(wrapper.findAll('.ndi--staged')).toHaveLength(0)
-    expect(wrapper.find('.ndi__expansion').exists()).toBe(false)
+    expect(wrapper.find('.ndi__actions').exists()).toBe(false)
 
     const intentionRow = wrapper.findAll('.ndi').find(row => row.text().includes('Zaplanować budżet'))!
     await intentionRow.find('button.ndi__label').trigger('click')
     const staged = wrapper.findAll('.ndi--staged')
     expect(staged).toHaveLength(1)
     expect(staged[0].text()).toContain('Zaplanować budżet')
-    expect(staged[0].find('.ndi__expansion').exists()).toBe(true)
-    expect(staged[0].find('.next-object-card--bare').exists()).toBe(true)
-    expect(staged[0].findAll('.next-day-rail__stage-actions button').map(labelOf)).toEqual(['Jutro', 'Dzień', 'Ukryj', 'Kontekst'])
+    expect(staged[0].find('.ndi__strip').exists()).toBe(true)
+    expect(staged[0].findAll('.ndi__day')).toHaveLength(6)
+    expect(staged[0].findAll('.ndi__actions button').map(labelOf)).toEqual(['Jutro', 'Dzień', 'Ukryj', 'Kontekst'])
 
     const habitRow = wrapper.findAll('.ndi').find(row => row.text().includes('Rozciąganie'))!
     await habitRow.find('button.ndi__label').trigger('click')
     const restaged = wrapper.findAll('.ndi--staged')
     expect(restaged).toHaveLength(1)
     expect(restaged[0].text()).toContain('Rozciąganie')
-    expect(restaged[0].findAll('.next-day-rail__stage-actions button').map(labelOf)).toEqual(['Jutro', 'Dzień', 'Usuń z dziś', 'Otwórz'])
+    expect(restaged[0].findAll('.ndi__actions button').map(labelOf)).toEqual(['Jutro', 'Dzień', 'Usuń z dziś', 'Otwórz'])
     expect(wrapper.find('.next-day-rail__filament').attributes('aria-label')).toBe('Wykonanie dnia: 2 z 4')
 
     // Clicking the expanded row again folds it — no row has to stay open.
@@ -202,7 +202,7 @@ describe('NextDayRail — inline stage', () => {
     const wrapper = await mountRail()
     await wrapper.findAll('.ndi').find(row => row.text().includes('Zaplanować budżet'))!.find('button.ndi__label').trigger('click')
 
-    await wrapper.findAll('.ndi--staged .next-day-rail__stage-actions button').find(button => labelOf(button) === 'Ukryj')!.trigger('click')
+    await wrapper.findAll('.ndi--staged .ndi__actions button').find(button => labelOf(button) === 'Ukryj')!.trigger('click')
     await flushPromises()
     expect(actions.hideTodayItem).toHaveBeenCalledWith(expect.objectContaining({ key: 'weeklyIntention:i1' }), DAY)
 
@@ -220,7 +220,7 @@ describe('NextDayRail — inline stage', () => {
     const habitRow = wrapper.findAll('.ndi').find(row => row.text().includes('Rozciąganie'))!
     await habitRow.find('button.ndi__label').trigger('click')
 
-    await wrapper.find('.ndi--staged .next-day-rail__stage-actions button').trigger('click')
+    await wrapper.find('.ndi--staged .ndi__actions button').trigger('click')
     await flushPromises()
     expect(actions.moveTodayMeasurementAssignment).toHaveBeenCalledWith(expect.objectContaining({ key: 'habit:h2' }), DAY, '2026-03-13')
   })
@@ -229,7 +229,7 @@ describe('NextDayRail — inline stage', () => {
     const wrapper = await mountRail()
     await wrapper.findAll('.ndi').find(row => row.text().includes('Zaplanować budżet'))!.find('button.ndi__label').trigger('click')
 
-    await wrapper.findAll('.ndi--staged .next-day-rail__stage-actions button').find(button => labelOf(button) === 'Jutro')!.trigger('click')
+    await wrapper.findAll('.ndi--staged .ndi__actions button').find(button => labelOf(button) === 'Jutro')!.trigger('click')
     await flushPromises()
     expect(actions.rescheduleContextItem).toHaveBeenCalledWith(expect.objectContaining({ key: 'weeklyIntention:i1' }), DAY, '2026-03-13')
     expect(actions.moveTodayMeasurementAssignment).not.toHaveBeenCalled()
@@ -294,7 +294,7 @@ describe('Today calendar integration', () => {
     await rail.find('.ndi__label').trigger('click')
     const store = useTodayStore()
     expect(store.selectedItemKey).toBe(openHabit.key)
-    expect(rail.find('.next-object-card').exists()).toBe(false)
+    expect(rail.find('.ndi__strip').exists()).toBe(false)
     const calendar = mount(NextDayPlanCalendar,{props:{dayRef:DAY,expanded:false}})
     expect(calendar.find('.day-plan-calendar__selection').text()).toContain('Rozciąganie')
     expect(calendar.find('.next-object-card').exists()).toBe(true)
