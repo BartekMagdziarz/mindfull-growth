@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { evaluateClosingMonths, goalHasStartMirror, suggestGoalOutcome } from '@/domain/goalClosing'
-import type { CreateGoalPayload, GoalClosingReflection } from '@/domain/planning'
+import type { CreateGoalPayload, GoalClosingMonthState, GoalClosingReflection } from '@/domain/planning'
 import { goalStatusForOutcome, normalizeGoalPayload } from '@/domain/planning'
 
-const month = (state: 'met' | 'missed' | 'no-data' | 'unplanned') => ({ state })
+const month = (state: GoalClosingMonthState) => ({ state })
 
 describe('evaluateClosingMonths', () => {
   it('ignores unplanned months and reports no-data without any decided month', () => {
@@ -26,6 +26,18 @@ describe('evaluateClosingMonths', () => {
     expect(
       evaluateClosingMonths([month('missed'), month('missed'), month('missed'), month('met'), month('no-data')]),
     ).toMatchObject({ evaluation: 'met', monthsMet: 1, monthsPlanned: 5 })
+  })
+
+  it('neither counts nor decides on an ongoing period', () => {
+    expect(evaluateClosingMonths([month('met'), month('met'), month('ongoing')])).toEqual({
+      evaluation: 'met',
+      monthsMet: 2,
+      monthsPlanned: 2,
+    })
+    expect(evaluateClosingMonths([month('missed'), month('ongoing')])).toMatchObject({
+      evaluation: 'missed',
+      monthsPlanned: 1,
+    })
   })
 
   it('is missed when neither route holds', () => {
@@ -102,6 +114,37 @@ describe('normalizeGoalPayload · closingReflection', () => {
       window: { weeksPlanned: 29 },
     })
     expect(normalized.closingReflection?.keyResults[0]).toMatchObject({ evaluation: 'met', monthsMet: 6 })
+    // frozen before weeks were tracked: no week fields appear
+    expect(normalized.closingReflection?.keyResults[0]).not.toHaveProperty('weeks')
+  })
+
+  it('keeps the week-by-week states of a weekly key result', () => {
+    const weekly = {
+      ...reflection,
+      keyResults: [
+        {
+          ...reflection.keyResults[0],
+          monthsMet: 0,
+          monthsPlanned: 0,
+          months: [],
+          weeksMet: 1,
+          weeksPlanned: 1,
+          weeks: [
+            { weekRef: '2026-W38', state: 'met' as const },
+            { weekRef: '2026-W39', state: 'ongoing' as const },
+          ],
+        },
+      ],
+    }
+    const normalized = normalizeGoalPayload({ ...base, status: 'completed', closingReflection: weekly })
+    expect(normalized.closingReflection?.keyResults[0]).toMatchObject({
+      weeksMet: 1,
+      weeksPlanned: 1,
+      weeks: [
+        { weekRef: '2026-W38', state: 'met' },
+        { weekRef: '2026-W39', state: 'ongoing' },
+      ],
+    })
   })
 
   it('refuses a status that contradicts the outcome', () => {

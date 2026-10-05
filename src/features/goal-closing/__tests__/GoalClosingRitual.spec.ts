@@ -50,12 +50,17 @@ const keyResult: KeyResult = {
   target: { kind: 'count', operator: 'min', value: 3 },
 }
 
+// Weeks 36–39 of 2026 (Mon 7 Sep … Sun 4 Oct; weeks count from the year's first Monday):
+// week 39 straddles September and October.
+const WEEKS = ['2026-W36', '2026-W37', '2026-W38', '2026-W39'] as GoalClosingSnapshot['weeks']
+
 function snapshotFixture(goal: Goal, withKeyResults = true): GoalClosingSnapshot {
   return {
     goal,
     keyResults: withKeyResults ? [keyResult] : [],
     months: ['2026-07', '2026-08', '2026-09'] as GoalClosingSnapshot['months'],
-    weeksPlanned: 13,
+    weeks: WEEKS,
+    weeksPlanned: 4,
     keyResultSnapshots: withKeyResults
       ? [
           {
@@ -64,14 +69,18 @@ function snapshotFixture(goal: Goal, withKeyResults = true): GoalClosingSnapshot
             entryMode: 'completion',
             cadence: 'weekly',
             evaluation: 'met',
-            monthsMet: 2,
-            monthsPlanned: 3,
-            months: [
-              { monthRef: '2026-07', state: 'met' },
-              { monthRef: '2026-08', state: 'missed' },
-              { monthRef: '2026-09', state: 'met' },
+            monthsMet: 0,
+            monthsPlanned: 0,
+            months: [],
+            weeksMet: 2,
+            weeksPlanned: 3,
+            weeks: [
+              { weekRef: WEEKS[0], state: 'met' },
+              { weekRef: WEEKS[1], state: 'missed' },
+              { weekRef: WEEKS[2], state: 'met' },
+              { weekRef: WEEKS[3], state: 'ongoing' },
             ],
-            lastReadout: '9/13 tyg.',
+            lastReadout: '2/3 tyg.',
           },
           {
             id: 'kr-2',
@@ -80,11 +89,15 @@ function snapshotFixture(goal: Goal, withKeyResults = true): GoalClosingSnapshot
             cadence: 'weekly',
             evaluation: 'missed',
             monthsMet: 0,
-            monthsPlanned: 3,
-            months: [
-              { monthRef: '2026-07', state: 'missed' },
-              { monthRef: '2026-08', state: 'missed' },
-              { monthRef: '2026-09', state: 'no-data' },
+            monthsPlanned: 0,
+            months: [],
+            weeksMet: 0,
+            weeksPlanned: 3,
+            weeks: [
+              { weekRef: WEEKS[0], state: 'missed' },
+              { weekRef: WEEKS[1], state: 'unplanned' },
+              { weekRef: WEEKS[2], state: 'no-data' },
+              { weekRef: WEEKS[3], state: 'missed' },
             ],
           },
         ]
@@ -124,10 +137,71 @@ describe('GoalClosingRitual', () => {
     const selected = wrapper.find('.qr-choice.selected')
     expect(selected.text()).toContain('Częściowo')
     expect(selected.text()).toContain('podpowiedź')
-    // month grid: 3 months + Σ
+    // weekly key results: one table on the week axis, never collapsed into months
+    expect(wrapper.findAll('.gc-table')).toHaveLength(1)
+    expect(wrapper.find('.gc-table--weekly').exists()).toBe(true)
     expect(wrapper.findAll('.gc-table-row')).toHaveLength(2)
-    expect(wrapper.findAll('.gc-table-row').at(0)!.findAll('.gc-dot')).toHaveLength(3)
-    expect(wrapper.text()).toContain('9/13 tyg.')
+    const dots = wrapper.findAll('.gc-table-row').at(0)!.findAll('.gc-dot')
+    expect(dots.map((dot) => dot.classes().find((name) => name.startsWith('gc-dot--')))).toEqual([
+      'gc-dot--met', 'gc-dot--missed', 'gc-dot--met', 'gc-dot--ongoing',
+    ])
+    // month label only where a month starts (by the week's Monday)
+    const headers = wrapper.findAll('.gc-table-head [role="columnheader"]').map((cell) => cell.text())
+    expect(headers.slice(1, -1)).toEqual(['wrz', '', '', ''])
+    expect(wrapper.find('.gc-table-head [role="columnheader"]:nth-child(5)').attributes('title')).toContain('Tydzień 39')
+    expect(wrapper.text()).toContain('2/3 tyg.')
+    // the second key result was not assigned to week 37: an empty cell in the same column
+    const second = wrapper.findAll('.gc-table-row').at(1)!.findAll('.gc-cell')
+    expect(second.map((cell) => cell.find('.gc-dot').exists())).toEqual([true, false, true, true])
+    wrapper.unmount()
+  })
+
+  it('drops weeks no key result was assigned to from the shared axis', async () => {
+    const goal = goalFixture()
+    const snapshot = snapshotFixture(goal)
+    snapshot.keyResultSnapshots[0].weeks![1] = { weekRef: WEEKS[1], state: 'unplanned' }
+    buildGoalClosingSnapshot.mockResolvedValue(snapshot)
+    const wrapper = mount(GoalClosingRitual, { props: { goalId: goal.id }, attachTo: document.body })
+    await flushPromises()
+    const titles = wrapper.findAll('.gc-table-head [role="columnheader"]').slice(1, -1).map((cell) => cell.attributes('title'))
+    expect(titles).toHaveLength(3)
+    expect(titles.join(' ')).not.toContain('Tydzień 37')
+    for (const row of wrapper.findAll('.gc-table-row')) {
+      expect(row.findAll('.gc-cell')).toHaveLength(3)
+    }
+    wrapper.unmount()
+  })
+
+  it('splits mixed cadences into a weekly and a monthly table', async () => {
+    const goal = goalFixture()
+    const snapshot = snapshotFixture(goal)
+    snapshot.keyResultSnapshots[1] = {
+      id: 'kr-2',
+      title: 'Waga',
+      entryMode: 'value',
+      cadence: 'monthly',
+      evaluation: 'met',
+      monthsMet: 2,
+      monthsPlanned: 3,
+      months: [
+        { monthRef: '2026-07', state: 'met' },
+        { monthRef: '2026-08', state: 'missed' },
+        { monthRef: '2026-09', state: 'met' },
+      ],
+      lastReadout: '78',
+    }
+    buildGoalClosingSnapshot.mockResolvedValue(snapshot)
+    const wrapper = mount(GoalClosingRitual, { props: { goalId: goal.id }, attachTo: document.body })
+    await flushPromises()
+    const weekly = wrapper.find('.gc-table--weekly')
+    const monthly = wrapper.find('.gc-table--monthly')
+    expect(weekly.text()).toContain('Rezultat tygodniowy')
+    expect(weekly.findAll('.gc-table-row .gc-dot')).toHaveLength(4)
+    expect(monthly.text()).toContain('Rezultat miesięczny')
+    expect(monthly.findAll('.gc-table-row .gc-dot')).toHaveLength(3)
+    expect(monthly.findAll('.gc-table-head [role="columnheader"]').map((cell) => cell.text()).slice(1, -1)).toEqual([
+      'lip', 'sie', 'wrz',
+    ])
     wrapper.unmount()
   })
 

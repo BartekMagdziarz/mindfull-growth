@@ -9,9 +9,10 @@
   align-content: start;
 }
 
-/* ── Facts: key results × months ─────────────────────────────────────────── */
+/* ── Facts: key results × periods (weeks or months, per cadence) ─────────── */
 .gc-table {
-  --gc-month-col: 34px;
+  --gc-col: 34px;
+  --gc-col-gap: 6px;
   display: grid;
   gap: 2px;
   padding: 10px 14px;
@@ -22,9 +23,23 @@
 .gc-table-head,
 .gc-table-row {
   display: grid;
-  grid-template-columns: minmax(140px, 1.5fr) repeat(var(--gc-month-count, 1), var(--gc-month-col)) minmax(72px, auto);
-  gap: 6px;
+  grid-template-columns: minmax(140px, 1.5fr) repeat(var(--gc-col-count, 1), var(--gc-col)) minmax(72px, auto);
+  gap: var(--gc-col-gap);
   align-items: center;
+}
+.gc-table--weekly {
+  --gc-col: 18px;
+  --gc-col-gap: 4px;
+}
+/* Week columns carry a month label only where a month starts; it may run over
+   the next, unlabeled columns. */
+.gc-table--weekly .gc-table-head > span:not(:first-child):not(:last-child) {
+  overflow: visible;
+  white-space: nowrap;
+  text-align: left;
+}
+.gc-table + .gc-table {
+  margin-top: -6px;
 }
 .gc-table-head {
   padding: 2px 0 8px;
@@ -89,11 +104,8 @@
 .gc-dot--no-data {
   border: 1.5px solid var(--qr-line-mid);
 }
-.gc-dot--unplanned {
-  width: 10px;
-  height: 2px;
-  border-radius: 1px;
-  background: var(--qr-line);
+.gc-dot--ongoing {
+  border: 1.5px dashed var(--qr-line-mid);
 }
 .gc-result {
   display: grid;

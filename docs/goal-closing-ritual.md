@@ -15,9 +15,13 @@ z uzasadnieniem, przewidywane przeszkody i zasoby — rytuał zamknięcia jest
 Trasa `/objects/goals/:goalId/close` (`src/features/goal-closing/`), na powłoce
 `QuietRitualShell` (skala tygodnia). Cztery kroki, każdy z jednym pytaniem:
 
-1. **Werdykt** — rezultaty kluczowe miesiąc po miesiącu w oknie celu (kropka =
-   miesiąc: pełna osiągnięty, różowy obrys nieosiągnięty, niebieski obrys bez
-   zapisów, kreska poza planem), wynik `achieved | partial | missed | abandoned`
+1. **Werdykt** — rezultaty kluczowe okres po okresie w ich własnym rytmie:
+   tygodniowe tydzień po tygodniu, miesięczne miesiąc po miesiącu (przy mieszanych
+   rytmach dwie tabele, każda na swojej osi). Kolumny = okresy, do których
+   przypisany był choć jeden rezultat (ten sam tydzień zawsze w tej samej
+   kolumnie); wiersz ma kropkę tylko tam, gdzie jego rezultat był przypisany,
+   reszta pusta. Kropka: pełna osiągnięty, różowy obrys nieosiągnięty, niebieski
+   obrys bez zapisów, przerywany obrys w toku (nie liczy się). Wynik `achieved | partial | missed | abandoned`
    z podpowiedzią, oraz wyjście boczne „Przesuń termin” (`moveGoalTargetDate`,
    bez refleksji).
 2. **Lustro startu** — definicja sukcesu („Czy to się wydarzyło?” tak/częściowo/nie),
@@ -36,17 +40,28 @@ migawka). Nagłówek pokazuje „Szkic”, nie „Zapis na bieżąco”.
 `Goal.closingReflection: GoalClosingReflection` (`src/domain/planning.ts`):
 `closedAt`, `outcome`, odpowiedzi lustra, trzy pola wniosków, `followUp`
 (`kind`, `note`, `createdHabitIds`), zamrożona migawka `keyResults[]`
-(`evaluation`, `monthsMet/monthsPlanned`, `months[]`, `lastReadout`) i `window`.
+(`evaluation`, `lastReadout`; miesięczne: `monthsMet/monthsPlanned`, `months[]`;
+tygodniowe: `weeksMet/weeksPlanned`, `weeks[]` — migawki sprzed tej zmiany mają
+tylko `months[]`) i `window`.
 `Goal.closingDeferredUntil` = „Później” z zaproszenia.
 
 Reguły (`normalizeGoalPayload`): refleksja tylko przy `status ≠ open`; powrót do
 `open` ją usuwa; `abandoned ⇔ dropped`, pozostałe wyniki ⇔ `completed`
 (`goalStatusForOutcome`). Bez nowej wersji Dexie.
 
-Ocena rezultatu za okno (`src/domain/goalClosing.ts`): rezultat tygodniowy liczony
-tygodniami w zaplanowanych tygodniach miesiąca, miesięczny — podsumowaniem miesiąca;
-miesiąc/okno = `met`, gdy udział ≥ ⅔ (`GOAL_CLOSING_MET_SHARE`) albo ostatni
-rozstrzygnięty miesiąc był `met`. Podpowiedź wyniku: wszystkie met → osiągnięty,
+Ocena rezultatu za okno (`src/domain/goalClosing.ts`): rezultat tygodniowy oceniany
+tydzień po tygodniu z paczki tygodnia (`getWeekPlanningBundle` — ten sam element co
+plan i refleksja tygodnia: czy był w planie, kaskada celu miesiąc→tydzień, wpisy
+z całego tygodnia), każdy tydzień raz, także na przełomie miesięcy; miesięczny —
+podsumowaniem miesiąca. Liczą się tylko okresy, które już się zaczęły; okres
+jeszcze trwający i nieosiągnięty = `ongoing` (widoczny, poza licznikiem).
+Okno = `met`, gdy udział ≥ ⅔ (`GOAL_CLOSING_MET_SHARE`) zaplanowanych okresów albo
+ostatni rozstrzygnięty okres był `met`. „N tygodni w planie” = tygodnie, w których
+choć jeden rezultat był zaplanowany. „Przypisany” = `plannedWeekRefs` z paczki
+miesiąca: aktywny stan tygodnia (macierz albo link okresu), dzień w tym tygodniu
+albo dawny zakres „cały miesiąc” — samo „aktywny w miesiącu” (sekcja „Pozostałe”)
+to nie przypisanie. Ta sama reguła liczenia tygodni (`src/domain/weeklyCadence.ts`)
+działa w refleksji miesiąca, widokach miesiąca/roku i strumieniu. Podpowiedź wyniku: wszystkie met → osiągnięty,
 żaden → nieosiągnięty, inaczej częściowo; bez danych — brak podpowiedzi.
 
 Serwis `src/services/goalClosingService.ts`: `buildGoalClosingSnapshot`,

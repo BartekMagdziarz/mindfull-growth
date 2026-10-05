@@ -102,7 +102,12 @@ export interface PriorityClosingReflection {
 export type GoalOutcome = 'achieved' | 'partial' | 'missed' | 'abandoned'
 export type GoalFollowUpKind = 'none' | 'habit' | 'new-goal' | 'revisit'
 export type GoalSuccessMet = 'yes' | 'partly' | 'no'
-export type GoalClosingMonthState = 'met' | 'missed' | 'no-data' | 'unplanned'
+/**
+ * State of one period (month or week) of a key result in the closing snapshot.
+ * 'ongoing' = the period has not ended yet and is not met so far; it is shown
+ * but never counted against the key result.
+ */
+export type GoalClosingMonthState = 'met' | 'missed' | 'no-data' | 'unplanned' | 'ongoing'
 export type GoalClosingEvaluation = 'met' | 'missed' | 'no-data'
 
 /** One key result as it stood when the goal was closed: frozen, cheap to render. */
@@ -113,11 +118,20 @@ export interface GoalClosingKeyResultSnapshot {
   cadence: PlanningCadence
   /** Whole-window verdict (rule in domain/goalClosing.ts). */
   evaluation: GoalClosingEvaluation
+  /** Monthly cadence: met / planned months. Weekly cadence (new snapshots): 0. */
   monthsMet: number
   monthsPlanned: number
-  /** Month by month across the goal window, oldest first. */
+  /** Monthly cadence: month by month across the goal window, oldest first. */
   months: { monthRef: string; state: GoalClosingMonthState }[]
-  /** Short human read-out, e.g. „6/7 mies.” or „105”. */
+  /** Weekly cadence: met / planned weeks (each week counted once, only weeks that ended or were met). */
+  weeksMet?: number
+  weeksPlanned?: number
+  /**
+   * Weekly cadence: week by week across the goal window, oldest first. Absent on
+   * snapshots frozen before weeks were tracked — those fall back to `months`.
+   */
+  weeks?: { weekRef: string; state: GoalClosingMonthState }[]
+  /** Short human read-out, e.g. „6/7 mies.”, „6/9 tyg.” or „105”. */
   lastReadout?: string
 }
 
@@ -207,6 +221,8 @@ export interface KeyResult extends PlanningObjectBase {
 }
 
 export interface Habit extends PlanningObjectBase {
+  /** Available indefinitely; period links still come only from actual planning. */
+  isPermanent?: boolean
   icon?: string
   priorityIds: string[]
   lifeAreaIds: string[]
@@ -388,7 +404,7 @@ export const GOAL_OUTCOMES = ['achieved', 'partial', 'missed', 'abandoned'] as c
 const GOAL_FOLLOW_UP_KINDS = ['none', 'habit', 'new-goal', 'revisit'] as const
 const GOAL_SUCCESS_MET = ['yes', 'partly', 'no'] as const
 const GOAL_CLOSING_EVALUATIONS = ['met', 'missed', 'no-data'] as const
-const GOAL_CLOSING_MONTH_STATES = ['met', 'missed', 'no-data', 'unplanned'] as const
+const GOAL_CLOSING_MONTH_STATES = ['met', 'missed', 'no-data', 'unplanned', 'ongoing'] as const
 const HABIT_STATUSES = ['open', 'retired', 'dropped'] as const
 const TRACKER_STATUSES = ['open', 'retired', 'dropped'] as const
 const WEEKLY_INTENTION_STATUSES = ['open', 'retired', 'dropped'] as const
@@ -691,6 +707,19 @@ function normalizeGoalClosingKeyResultSnapshot(
       state: normalizeEnum(month.state, `${field}.months[${monthIndex}].state`, GOAL_CLOSING_MONTH_STATES, 'unplanned'),
     }
   })
+  const weeksSource = value.weeks
+  if (weeksSource !== undefined && !Array.isArray(weeksSource)) {
+    throw new Error(`${field}.weeks must be an array`)
+  }
+  const weeks = weeksSource?.map((week, weekIndex) => {
+    if (!isPlainObject(week)) {
+      throw new Error(`${field}.weeks[${weekIndex}] must be an object`)
+    }
+    return {
+      weekRef: normalizeRequiredText(week.weekRef, `${field}.weeks[${weekIndex}].weekRef`),
+      state: normalizeEnum(week.state, `${field}.weeks[${weekIndex}].state`, GOAL_CLOSING_MONTH_STATES, 'unplanned'),
+    }
+  })
   return {
     id: normalizeRequiredText(value.id, `${field}.id`),
     title: normalizeRequiredText(value.title, `${field}.title`),
@@ -700,6 +729,13 @@ function normalizeGoalClosingKeyResultSnapshot(
     monthsMet: normalizeNonNegativeInteger(value.monthsMet, `${field}.monthsMet`, 0),
     monthsPlanned: normalizeNonNegativeInteger(value.monthsPlanned, `${field}.monthsPlanned`, 0),
     months,
+    ...(weeks
+      ? {
+          weeksMet: normalizeNonNegativeInteger(value.weeksMet, `${field}.weeksMet`, 0),
+          weeksPlanned: normalizeNonNegativeInteger(value.weeksPlanned, `${field}.weeksPlanned`, 0),
+          weeks,
+        }
+      : {}),
     lastReadout: normalizeOptionalText(value.lastReadout, `${field}.lastReadout`),
   }
 }
@@ -1139,6 +1175,7 @@ export function normalizeHabitPayload(
 
   return {
     ...base,
+    isPermanent: normalizeBoolean(data.isPermanent, 'isPermanent', existing?.isPermanent ?? false),
     icon: normalizeOptionalText(data.icon, 'icon', existing?.icon),
     priorityIds: normalizeIdArray(data.priorityIds, 'priorityIds', existing?.priorityIds),
     lifeAreaIds: normalizeIdArray(data.lifeAreaIds, 'lifeAreaIds', existing?.lifeAreaIds),

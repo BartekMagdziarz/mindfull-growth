@@ -10,12 +10,13 @@ import type {
  * Pure rules of the goal closing ritual
  * (ideas/html-plans/2026-10-04-goal-closing-ritual.html, D1/D5).
  *
- * The facts step shows every key result month by month across the goal window.
- * A whole-window verdict per key result is a heuristic on top of those months;
- * the share below is the single constant behind it.
+ * The facts step shows every key result period by period across the goal window,
+ * in its own cadence: weekly key results week by week, monthly ones month by
+ * month. A whole-window verdict per key result is a heuristic on top of those
+ * periods; the share below is the single constant behind it.
  */
 
-/** A key result counts as met over its window when at least this share of planned months were met. */
+/** A key result counts as met over its window when at least this share of planned periods were met. */
 export const GOAL_CLOSING_MET_SHARE = 2 / 3
 
 export interface GoalClosingMonthsVerdict {
@@ -25,16 +26,17 @@ export interface GoalClosingMonthsVerdict {
 }
 
 /**
- * Whole-window verdict from month states (oldest first).
- * - unplanned months are ignored;
- * - no planned month with data → 'no-data';
- * - met when the last planned month with data was met, or when the met share
- *   over all planned months reaches GOAL_CLOSING_MET_SHARE.
+ * Whole-window verdict from period states (months or weeks, oldest first).
+ * - unplanned and ongoing periods are ignored (an unfinished, not-yet-met
+ *   period is neither a success nor a failure);
+ * - no planned period with data → 'no-data';
+ * - met when the last planned period with data was met, or when the met share
+ *   over all planned periods reaches GOAL_CLOSING_MET_SHARE.
  */
 export function evaluateClosingMonths(
   months: readonly { state: GoalClosingMonthState }[],
 ): GoalClosingMonthsVerdict {
-  const planned = months.filter((month) => month.state !== 'unplanned')
+  const planned = months.filter((month) => month.state !== 'unplanned' && month.state !== 'ongoing')
   const monthsPlanned = planned.length
   const monthsMet = planned.filter((month) => month.state === 'met').length
   const decided = planned.filter((month) => month.state !== 'no-data')

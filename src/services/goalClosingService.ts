@@ -10,15 +10,15 @@ import type {
   KeyResult,
 } from '@/domain/planning'
 import { goalStatusForOutcome } from '@/domain/planning'
-import { GOAL_CLOSING_MET_SHARE, evaluateClosingMonths } from '@/domain/goalClosing'
+import { evaluateClosingMonths } from '@/domain/goalClosing'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { habitDexieRepository } from '@/repositories/habitDexieRepository'
 import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
-import { applyMeasurementTargetOverride, buildMeasurementSummary } from '@/services/measurementProgress'
-import { getMonthPlanningBundle } from '@/services/planningStateQueries'
-import { addDaysToDayRef, getChildPeriods, getPeriodRefsForDate } from '@/utils/periods'
+import type { MeasurementEvaluationStatus } from '@/services/measurementProgress'
+import { getMonthPlanningBundle, getWeekPlanningBundle } from '@/services/planningStateQueries'
+import { addDaysToDayRef, getChildPeriods, getPeriodBounds, getPeriodRefsForDate } from '@/utils/periods'
 import { periodsInDateRange } from '@/utils/periodSchedule'
 
 /**
@@ -47,8 +47,11 @@ export interface GoalClosingDraft {
 export interface GoalClosingSnapshot {
   goal: Goal
   keyResults: KeyResult[]
-  /** Goal window months, oldest first (active months; else start→target). */
+  /** Goal window months that have started by today, oldest first (active months; else start→target). */
   months: MonthRef[]
+  /** Distinct weeks overlapping `months` that have started by today, oldest first. */
+  weeks: WeekRef[]
+  /** Weeks at least one key result was planned in, each counted once. */
   weeksPlanned: number
   keyResultSnapshots: GoalClosingKeyResultSnapshot[]
 }
@@ -69,21 +72,96 @@ function formatReadoutNumber(value: number): string {
   return Number.isInteger(value) ? String(value) : value.toFixed(1).replace('.', ',')
 }
 
+interface ClosingWindow {
+  /** Goal window months that have started by today, oldest first. */
+  months: MonthRef[]
+  /** Distinct weeks overlapping those months that have started by today, oldest first. */
+  weeks: WeekRef[]
+  today: DayRef
+}
+
 /**
- * Month-by-month state of one key result. Weekly-cadence objects are judged by
- * their planned weeks inside the month (a month aggregate against a weekly
- * target reads as nonsense); monthly-cadence objects by the month summary.
+ * State of one period from its evaluation. A period that has not ended yet
+ * (today included) and is not met so far is 'ongoing' — shown, never counted.
+ */
+function closingPeriodState(
+  status: MeasurementEvaluationStatus,
+  periodEnd: DayRef,
+  today: DayRef,
+): GoalClosingMonthState {
+  if (status === 'met') return 'met'
+  return periodEnd >= today ? 'ongoing' : status
+}
+
+/**
+ * Period-by-period state of one key result, in its own cadence.
+ *
+ * Weekly key results are judged week by week from the week planning bundle —
+ * the same item (target cascade month→week, entries of the whole week) the
+ * weekly plan and reflection show; only weeks the key result was assigned to
+ * (MonthMeasurementPlanningItem.plannedWeekRefs) count. Each week is evaluated once,
+ * even when it straddles two months. Monthly key results are judged by the
+ * month bundle's month summary.
  */
 async function snapshotKeyResult(
   keyResult: KeyResult,
-  months: MonthRef[],
+  window: ClosingWindow,
 ): Promise<GoalClosingKeyResultSnapshot> {
-  const monthStates: { monthRef: MonthRef; state: GoalClosingMonthState }[] = []
-  let weeksMet = 0
-  let weeksPlanned = 0
   let lastValue: number | undefined
 
-  for (const monthRef of months) {
+  if (keyResult.cadence === 'weekly') {
+    // Assigned weeks come from the month plans (week states, day assignments);
+    // a boundary week is assigned once even when both months list it.
+    const assigned = new Set<WeekRef>()
+    for (const monthRef of window.months) {
+      const bundle = await getMonthPlanningBundle(monthRef)
+      const item = bundle.measurementItems.find(
+        (candidate) => candidate.subjectType === 'keyResult' && candidate.subject.id === keyResult.id,
+      )
+      item?.plannedWeekRefs.forEach((weekRef) => assigned.add(weekRef))
+    }
+
+    const weekStates: { weekRef: WeekRef; state: GoalClosingMonthState }[] = []
+    for (const weekRef of window.weeks) {
+      const item = assigned.has(weekRef)
+        ? (await getWeekPlanningBundle(weekRef, window.today)).relevant.cadencedItems.find(
+            (candidate) => candidate.subjectType === 'keyResult' && candidate.subject.id === keyResult.id,
+          )
+        : undefined
+      if (!item) {
+        weekStates.push({ weekRef, state: 'unplanned' })
+        continue
+      }
+      if (item.measurement.actualValue !== undefined) lastValue = item.measurement.actualValue
+      weekStates.push({
+        weekRef,
+        state: closingPeriodState(item.measurement.evaluationStatus ?? 'no-data', getPeriodBounds(weekRef).end, window.today),
+      })
+    }
+
+    const verdict = evaluateClosingMonths(weekStates)
+    const lastReadout = keyResult.entryMode === 'value' || keyResult.entryMode === 'rating'
+      ? lastValue === undefined ? undefined : formatReadoutNumber(lastValue)
+      : verdict.monthsPlanned > 0 ? `${verdict.monthsMet}/${verdict.monthsPlanned} tyg.` : undefined
+
+    return {
+      id: keyResult.id,
+      title: keyResult.title,
+      entryMode: keyResult.entryMode,
+      cadence: keyResult.cadence,
+      evaluation: verdict.evaluation,
+      monthsMet: 0,
+      monthsPlanned: 0,
+      months: [],
+      weeksMet: verdict.monthsMet,
+      weeksPlanned: verdict.monthsPlanned,
+      weeks: weekStates,
+      lastReadout,
+    }
+  }
+
+  const monthStates: { monthRef: MonthRef; state: GoalClosingMonthState }[] = []
+  for (const monthRef of window.months) {
     const bundle = await getMonthPlanningBundle(monthRef)
     const item = bundle.measurementItems.find(
       (candidate) => candidate.subjectType === 'keyResult' && candidate.subject.id === keyResult.id,
@@ -92,39 +170,17 @@ async function snapshotKeyResult(
       monthStates.push({ monthRef, state: 'unplanned' })
       continue
     }
-
-    if (keyResult.cadence === 'weekly') {
-      const monthWeeks = getChildPeriods(monthRef) as WeekRef[]
-      const weeks = item.plannedWeekRefs.length ? item.plannedWeekRefs : monthWeeks
-      const statuses = weeks.map((weekRef) => {
-        const subject = applyMeasurementTargetOverride(keyResult, item.weekTargetOverrides?.[weekRef])
-        const summary = buildMeasurementSummary(subject, bundle.rawEntries, weekRef)
-        if (summary.actualValue !== undefined) lastValue = summary.actualValue
-        return summary.evaluationStatus ?? 'no-data'
-      })
-      const decided = statuses.filter((status) => status !== 'no-data')
-      const met = statuses.filter((status) => status === 'met').length
-      weeksMet += met
-      weeksPlanned += weeks.length
-      if (decided.length === 0) {
-        monthStates.push({ monthRef, state: 'no-data' })
-      } else {
-        monthStates.push({ monthRef, state: met / weeks.length >= GOAL_CLOSING_MET_SHARE ? 'met' : 'missed' })
-      }
-      continue
-    }
-
-    const status = item.measurement?.evaluationStatus ?? 'no-data'
     if (item.measurement?.actualValue !== undefined) lastValue = item.measurement.actualValue
-    monthStates.push({ monthRef, state: status })
+    monthStates.push({
+      monthRef,
+      state: closingPeriodState(item.measurement?.evaluationStatus ?? 'no-data', getPeriodBounds(monthRef).end, window.today),
+    })
   }
 
   const verdict = evaluateClosingMonths(monthStates)
   let lastReadout: string | undefined
   if (keyResult.entryMode === 'value' || keyResult.entryMode === 'rating') {
     lastReadout = lastValue === undefined ? undefined : formatReadoutNumber(lastValue)
-  } else if (keyResult.cadence === 'weekly' && weeksPlanned > 0) {
-    lastReadout = `${weeksMet}/${weeksPlanned} tyg.`
   } else if (verdict.monthsPlanned > 0) {
     lastReadout = `${verdict.monthsMet}/${verdict.monthsPlanned} mies.`
   }
@@ -140,6 +196,36 @@ async function snapshotKeyResult(
     months: monthStates,
     lastReadout,
   }
+}
+
+/**
+ * Weeks any key result was planned in: weekly ones from their week states,
+ * monthly ones from the weeks their month plan placed them in. Each week once.
+ */
+async function countPlannedWeeks(
+  snapshots: GoalClosingKeyResultSnapshot[],
+  window: ClosingWindow,
+): Promise<number> {
+  const started = new Set(window.weeks)
+  const planned = new Set<string>()
+  for (const snapshot of snapshots) {
+    for (const week of snapshot.weeks ?? []) {
+      if (week.state !== 'unplanned') planned.add(week.weekRef)
+    }
+  }
+  const monthlyIds = new Set(snapshots.filter((item) => item.cadence === 'monthly').map((item) => item.id))
+  if (monthlyIds.size) {
+    for (const monthRef of window.months) {
+      const bundle = await getMonthPlanningBundle(monthRef)
+      for (const item of bundle.measurementItems) {
+        if (item.subjectType !== 'keyResult' || !monthlyIds.has(item.subject.id)) continue
+        for (const weekRef of item.plannedWeekRefs) {
+          if (started.has(weekRef)) planned.add(weekRef)
+        }
+      }
+    }
+  }
+  return planned.size
 }
 
 /** Months of the goal window: its active months, else the start→target span. */
@@ -163,16 +249,22 @@ export async function buildGoalClosingSnapshot(goalId: string): Promise<GoalClos
   const keyResults = (await keyResultDexieRepository.listAll()).filter(
     (item) => item.goalId === goalId && item.isActive,
   )
-  const months = await resolveGoalMonths(goal)
-  const weeks = new Set<WeekRef>()
+  const today = todayRef()
+  // Only what has happened: months and weeks that started by today.
+  const months = (await resolveGoalMonths(goal)).filter((monthRef) => getPeriodBounds(monthRef).start <= today)
+  const weekSet = new Set<WeekRef>()
   for (const monthRef of months) {
-    for (const weekRef of getChildPeriods(monthRef) as WeekRef[]) weeks.add(weekRef)
+    for (const weekRef of getChildPeriods(monthRef) as WeekRef[]) {
+      if (getPeriodBounds(weekRef).start <= today) weekSet.add(weekRef)
+    }
   }
+  const window: ClosingWindow = { months, weeks: [...weekSet].sort(), today }
   const keyResultSnapshots: GoalClosingKeyResultSnapshot[] = []
   for (const keyResult of keyResults) {
-    keyResultSnapshots.push(await snapshotKeyResult(keyResult, months))
+    keyResultSnapshots.push(await snapshotKeyResult(keyResult, window))
   }
-  return { goal, keyResults, months, weeksPlanned: weeks.size, keyResultSnapshots }
+  const weeksPlanned = await countPlannedWeeks(keyResultSnapshots, window)
+  return { goal, keyResults, months, weeks: window.weeks, weeksPlanned, keyResultSnapshots }
 }
 
 function habitPayloadFromKeyResult(keyResult: KeyResult, goal: Goal) {
