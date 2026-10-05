@@ -176,6 +176,8 @@ export const sentenceSources = {
  */
 export interface SkillRow {
   key: string
+  /** Short surface name (nominative); `label` keeps the longer sense. */
+  name: string
   label: string
   instrument: 'SCS-SF' | 'FSCRS'
   min: number
@@ -196,9 +198,9 @@ export function skillsFor(sample: Sample): SkillRow[] {
     ret ? back : null,
   ]
   return [
-    { key: 'scs', label: 'Współczucie dla siebie', instrument: 'SCS-SF', min: 1, max: 5, lessIsBetter: false, points: pick(2.2, 2.9, 3.4, 3.3) },
-    { key: 'reassured', label: 'Uspokajam siebie', instrument: 'FSCRS', min: 0, max: 4, lessIsBetter: false, points: pick(1.7, null, 2.8, 2.7) },
-    { key: 'inadequate', label: 'Mniej „nieadekwatnego ja”', instrument: 'FSCRS', min: 0, max: 4, lessIsBetter: true, points: pick(3.1, null, 2.4, 2.5) },
-    { key: 'hated', label: 'Mniej „znienawidzonego ja”', instrument: 'FSCRS', min: 0, max: 4, lessIsBetter: true, points: pick(1.4, null, 0.8, 0.9) },
+    { key: 'scs', name: 'Współczucie dla siebie', label: 'Współczucie dla siebie', instrument: 'SCS-SF', min: 1, max: 5, lessIsBetter: false, points: pick(2.2, 2.9, 3.4, 3.3) },
+    { key: 'reassured', name: 'Uspokajam siebie', label: 'Uspokajam siebie', instrument: 'FSCRS', min: 0, max: 4, lessIsBetter: false, points: pick(1.7, null, 2.8, 2.7) },
+    { key: 'inadequate', name: 'Nieadekwatne ja', label: 'Mniej „nieadekwatnego ja”', instrument: 'FSCRS', min: 0, max: 4, lessIsBetter: true, points: pick(3.1, null, 2.4, 2.5) },
+    { key: 'hated', name: 'Znienawidzone ja', label: 'Mniej „znienawidzonego ja”', instrument: 'FSCRS', min: 0, max: 4, lessIsBetter: true, points: pick(1.4, null, 0.8, 0.9) },
   ]
 }

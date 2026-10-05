@@ -135,7 +135,7 @@ export const navGroups: LabNavGroup[] = [
     label: 'Dzisiaj',
     items: [
       { id: 'today-row-expansion', label: 'Rozwinięty wiersz planu dnia', kicker: 'Eksperyment · dysk „dziś” kończy wstęgę 7 dni · jedno przejście z tacki do akcji', icon: 'unfold_more', path: '/concepts/today-row-expansion', kind: 'concept' },
-      { id: 'shame-path', label: 'Ze wstydu do współczucia', kicker: 'P2 · runda 4 · spokojny widok ścieżki · jedno zdjęcie postępu · refleksja · pole w Dzisiaj', icon: 'route', path: '/concepts/shame-path', kind: 'concept' },
+      { id: 'shame-path', label: 'Ze wstydu do współczucia', kicker: 'P2 · runda 5 · tylko niezbędne: droga, krok, słupki, tory · refleksja · pole w Dzisiaj', icon: 'route', path: '/concepts/shame-path', kind: 'concept' },
       { id: 'today-path-panel', label: 'Pole „Ścieżki”', kicker: 'Eksperyment · małe pole w Dzisiaj + dashboard widoku ścieżki · runda 2', icon: 'route', path: '/concepts/today-path-panel', kind: 'concept' },
     ],
   },
