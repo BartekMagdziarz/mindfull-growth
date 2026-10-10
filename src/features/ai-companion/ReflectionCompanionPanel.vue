@@ -1,7 +1,11 @@
 <template>
   <aside
     class="companion-panel"
-    :class="{ 'companion-panel--conversation': hasConversation && !showTopics && !showOptions }"
+    :class="{
+      'companion-panel--conversation': hasConversation && !showTopics && !showOptions,
+      'companion-panel--nested': nested,
+      'mg-v2-surface mg-v2-surface--raised-sm': !nested,
+    }"
     :aria-label="panelLabel"
   >
     <header>
@@ -9,7 +13,7 @@
       <button
         type="button"
         ref="settingsButton"
-        class="companion-settings-button"
+        class="mg-v2-button mg-v2-button--quiet mg-v2-button--icon mg-v2-button--icon-sm companion-settings-button"
         aria-label="Opcje rozmowy"
         title="Opcje rozmowy"
         :aria-expanded="showOptions"
@@ -168,9 +172,9 @@
             :key="message.id"
             :class="`companion-message companion-message--${message.role}`"
           >
-            <strong>{{
+            <span class="companion-author">{{
               message.role === 'user' ? 'Ty' : message.role === 'assistant' ? 'AI' : 'Rozmowa'
-            }}</strong>
+            }}</span>
             <h3 v-if="message.topicTitle">{{ message.topicTitle }}</h3>
             <p>{{ message.text }}</p>
             <div class="companion-message-toolbar">
@@ -205,6 +209,7 @@
           label="Sprawdzam propozycje do profilu…"
           @cancel="suggestionController?.abort()"
         />
+        <hr v-if="hasConversation && showTopics" class="mg-v2-hairline companion-hairline" />
         <button
           v-if="hasConversation"
           type="button"
@@ -272,9 +277,9 @@
             Te wiadomości pozostają do wglądu. AI nie uwzględnia ich w obecnej rozmowie.
           </p>
           <article v-for="entry in archivedMessages" :key="entry.id" class="companion-message">
-            <strong>{{
+            <span class="companion-author">{{
               entry.role === 'user' ? 'Ty' : entry.role === 'assistant' ? 'AI' : 'Rozmowa'
-            }}</strong>
+            }}</span>
             <p>{{ entry.text }}</p>
           </article>
         </details>
@@ -345,7 +350,7 @@
       />
       <button
         type="submit"
-        class="qr-primary companion-send"
+        class="mg-v2-button mg-v2-button--primary mg-v2-button--icon companion-send"
         aria-label="Wyślij"
         title="Wyślij"
         :disabled="busy || !message.trim()"
@@ -387,8 +392,10 @@ const props = withDefaults(
     surface?: CompanionConversation['surface']
     conversationId?: string
     journalEntryId?: string
+    /** Hosted inside another surface card (rituals): field tone, no shadow. */
+    nested?: boolean
   }>(),
-  { surface: 'weekly-reflection' }
+  { surface: 'weekly-reflection', nested: false }
 )
 const panelLabel = computed(() =>
   props.surface === 'journal'
@@ -777,12 +784,20 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+/* Tonal ladder (tokens.css): the panel is a sibling of the entry card, so the
+   shell is the surface step and everything inside climbs one step per level:
+   --cp-shell (card) → --cp-field (fields, bubbles, blocks) → --cp-inner
+   (open/hover). The nested variant (rituals, inside .qr-card) starts one
+   step higher and drops the shadow — only the surface level carries one. */
 .companion-panel {
+  --cp-shell: var(--mg-color-surface);
+  --cp-field: var(--mg-color-mist);
+  --cp-inner: var(--mg-color-paper);
+  --cp-line: var(--mg-color-field-border);
   min-width: 0;
-  padding: var(--mg-space-4, 1rem);
-  border: none;
+  padding: var(--mg-space-5) var(--mg-space-5) var(--mg-space-4);
   border-radius: var(--mg-radius-lg);
-  background: var(--mg-color-paper);
+  background: var(--cp-shell);
   display: flex;
   flex-direction: column;
   height: auto;
@@ -790,43 +805,42 @@ onBeforeUnmount(() => {
   gap: 0.7rem;
   overflow: hidden;
 }
-.companion-settings-button {
-  display: inline-flex;
+.companion-panel--nested {
+  --cp-shell: var(--mg-color-mist);
+  --cp-field: var(--mg-color-paper);
+  --cp-inner: var(--mg-color-paper);
+  --cp-line: color-mix(in srgb, var(--mg-color-primary) 26%, transparent);
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 14px 18px 15px 17px;
+  box-shadow: none;
+}
+.companion-panel--conversation {
+  height: min(55dvh, 42rem);
+  min-height: 22rem;
+}
+.companion-panel--conversation .companion-scroll {
+  overflow-y: auto;
+}
+
+/* Header */
+.companion-panel header {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  flex: none;
-  width: 2.5rem;
-  height: 2.5rem;
-  border: none;
-  border-radius: 50%;
-  background: var(--mg-color-paper);
-  color: var(--mg-color-ink);
-  box-shadow: var(--mg-shadow-raised-sm);
-  cursor: pointer;
-  transition: box-shadow 180ms ease;
+  justify-content: space-between;
+  gap: 0.5rem;
 }
-.companion-settings-button:hover,
-.companion-settings-button[aria-expanded='true'] {
-  color: var(--mg-color-primary-strong);
-  box-shadow: var(--mg-shadow-inset-sm);
-}
-.companion-options {
-  flex: none;
-  display: grid;
-  gap: 1rem;
-  padding: 1rem;
-  border-radius: var(--mg-radius-md);
-  background: var(--mg-color-paper);
-  box-shadow: var(--mg-shadow-inset-sm);
-}
-.companion-options h3 {
+.companion-panel h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
   margin: 0;
-  font-size: 0.9rem;
 }
-.companion-profile {
-  display: grid;
-  gap: 0.6rem;
+.companion-panel .companion-settings-button[aria-expanded='true'] {
+  background: var(--cp-field);
+  box-shadow: none;
 }
+
+/* Scroll area */
 .companion-scroll {
   flex: 1;
   min-height: 0;
@@ -837,50 +851,55 @@ onBeforeUnmount(() => {
   gap: 0.85rem;
   padding: 0.15rem 0.35rem 0.5rem 0;
 }
-.companion-form {
-  flex: none;
-  border-top: 1px solid var(--mg-color-border);
-  padding-top: 0.6rem;
-  background: var(--mg-color-paper);
+
+/* Text */
+.companion-panel p {
+  margin: 0;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
-.companion-form textarea {
-  max-height: 8rem;
+.companion-muted {
+  font-size: 0.78rem;
+  color: var(--mg-color-muted);
+}
+.companion-introduction {
+  font-size: 0.87rem;
+}
+.companion-eyebrow {
+  margin: 0.35rem 0 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.7rem;
+  color: var(--mg-color-primary-strong);
 }
 .companion-options,
 .companion-archive,
 .companion-message-sources,
-.companion-message-actions {
+.companion-access {
   font-size: 0.8rem;
 }
 summary {
   cursor: pointer;
   padding: 0.45rem 0.15rem;
 }
-.companion-topic > p,
-.companion-topic > div,
-.companion-topic > button {
-  margin-top: 0.6rem;
+
+/* Blocks (options, insert, source, error): field tone, no inset, no shadow. */
+.companion-options {
+  flex: none;
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: var(--mg-radius-md);
+  background: var(--cp-field);
 }
-.companion-topic summary {
-  font-weight: 600;
-}
-.companion-message h3 {
-  font-size: 0.9rem;
-  margin: 0.3rem 0;
-}
-.companion-panel header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-.companion-panel h2 {
-  font-size: 1rem;
-  font-weight: 650;
+.companion-options h3 {
   margin: 0;
+  font-size: 0.9rem;
 }
-.companion-access {
-  font-size: 0.8rem;
+.companion-profile {
+  display: grid;
+  gap: 0.6rem;
 }
 .companion-access label {
   display: flex;
@@ -888,23 +907,86 @@ summary {
   gap: 0.5rem;
   margin-top: 0.4rem;
 }
-.companion-panel header span,
-.companion-muted {
-  font-size: 0.78rem;
+.companion-insert,
+.companion-source {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.8rem 0.9rem;
+  border-radius: var(--mg-radius-md);
+  background: var(--cp-field);
+  font-size: 0.85rem;
+}
+.companion-source {
+  max-height: 28rem;
+  overflow: auto;
+}
+.companion-source article {
+  font-size: 0.8rem;
+}
+.companion-status,
+.companion-error {
+  font-size: 0.85rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: var(--mg-radius-md);
+  background: var(--cp-field);
+}
+.companion-error {
+  color: var(--mg-color-rose);
+  background: var(--mg-color-rose-soft);
+}
+
+/* Messages: AI sits on the card itself, the user gets an indented field bubble. */
+.companion-messages {
+  display: grid;
+  gap: 1rem;
+}
+.companion-message {
+  font-size: 0.87rem;
+  padding: 0;
+}
+.companion-author {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.68rem;
+  font-weight: 750;
   color: var(--mg-color-muted);
 }
-.companion-panel p {
-  margin: 0;
-  line-height: 1.6;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
+.companion-message h3 {
+  font-size: 0.9rem;
+  margin: 0.3rem 0;
 }
-.companion-actions,
-.companion-sources {
+.companion-message--user {
+  margin-left: 1.75rem;
+  padding: 0.7rem 0.9rem;
+  background: var(--cp-field);
+  border-radius: var(--mg-radius-lg);
+}
+.companion-message--notice {
+  color: var(--mg-color-muted);
+  font-size: 0.78rem;
+}
+.companion-message-toolbar {
   display: flex;
-  gap: 0.5rem;
+  align-items: baseline;
   flex-wrap: wrap;
+  gap: 0.85rem;
 }
+.companion-text-action {
+  border: 0;
+  padding: 0.45rem 0;
+  background: transparent;
+  color: var(--mg-color-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.companion-text-action:hover {
+  color: var(--mg-color-ink);
+}
+.companion-hairline {
+  margin: 0.2rem 0 0;
+}
+
+/* Topics */
 .companion-topic-picker {
   flex: none;
   min-width: 0;
@@ -912,7 +994,7 @@ summary {
 .companion-topics {
   list-style: none;
   margin: 0.75rem 0 0.5rem;
-  padding: 0.2rem;
+  padding: 0;
   display: grid;
   gap: 0.55rem;
 }
@@ -922,10 +1004,17 @@ summary {
 .companion-topic {
   display: block;
   text-align: left;
-  background: var(--mg-color-paper);
+  background: var(--cp-field);
+  border: 1px solid transparent;
   border-radius: var(--mg-radius-md, 16px);
-  box-shadow: var(--mg-shadow-raised-sm);
-  transition: box-shadow 180ms ease;
+  transition: background 180ms ease;
+}
+.companion-topic[open] {
+  background: var(--cp-inner);
+  padding-bottom: 0.8rem;
+}
+.companion-topic[data-active='true'] {
+  border-color: var(--mg-color-primary, #568ac5);
 }
 .companion-topic > summary {
   display: flex;
@@ -942,6 +1031,9 @@ summary {
 }
 .companion-topic > summary::-webkit-details-marker {
   display: none;
+}
+.companion-topic > summary:hover {
+  color: var(--mg-color-primary);
 }
 .companion-topic-title {
   flex: 1;
@@ -960,10 +1052,6 @@ summary {
 .companion-topic[open] > summary .companion-topic-chevron {
   transform: rotate(180deg);
 }
-.companion-topic[open] {
-  box-shadow: var(--mg-shadow-inset-sm);
-  padding-bottom: 0.8rem;
-}
 .companion-topic > p,
 .companion-topic > div,
 .companion-topic > button,
@@ -973,76 +1061,48 @@ summary {
 .companion-topic > p {
   font-size: 0.84rem;
 }
-.companion-topic[data-active='true'] {
-  outline: 2px solid var(--mg-color-primary, #568ac5);
-  outline-offset: 2px;
-}
-.companion-topic > summary:hover {
-  color: var(--mg-color-primary);
-}
-.companion-panel summary:focus-visible {
-  outline: 2px solid var(--mg-color-primary, #568ac5);
-  outline-offset: 3px;
-}
-@media (prefers-reduced-motion: reduce) {
-  .companion-topic,
-  .companion-topic-chevron {
-    transition: none;
-  }
-}
-.companion-status,
-.companion-error {
-  font-size: 0.85rem;
-  padding: 0.7rem;
-  background: var(--mg-color-surface);
-  border-radius: var(--mg-radius-md);
-}
-.companion-messages {
-  display: grid;
-  gap: 1rem;
-}
-.companion-message {
-  font-size: 0.87rem;
-  padding: 0.6rem;
-  border-left: 2px solid var(--mg-color-border);
-}
-.companion-message--user {
-  background: var(--mg-color-surface);
-  border-radius: var(--mg-radius-md);
-}
-.companion-message--notice {
-  color: var(--mg-color-muted);
-  font-size: 0.78rem;
-}
-.companion-form,
-.companion-insert,
-.companion-source {
-  display: grid;
-  gap: 0.65rem;
+
+/* Composer: a field like the entry canvas, no divider line. */
+.companion-form {
+  position: relative;
+  display: block;
+  flex: none;
+  padding-top: 0.2rem;
   font-size: 0.85rem;
 }
 .companion-panel textarea {
   width: 100%;
   min-width: 0;
   resize: vertical;
-  padding: 0.7rem;
-  border: none;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--cp-line);
   border-radius: var(--mg-radius-md);
-  background: var(--mg-color-surface);
+  background: var(--cp-field);
+  color: var(--mg-color-ink);
 }
-.companion-source {
-  max-height: 28rem;
-  overflow: auto;
-  padding: 0.7rem;
-  border: none;
+.companion-panel textarea::placeholder {
+  color: var(--mg-color-muted);
 }
-.companion-source article {
-  font-size: 0.8rem;
+.companion-form textarea {
+  display: block;
+  padding-right: 3.5rem;
+  min-height: 3.5rem;
+  max-height: 8rem;
 }
-.companion-panel button:focus-visible,
-.companion-panel textarea:focus-visible {
-  outline: 2px solid var(--mg-color-accent, #627568);
-  outline-offset: 3px;
+.companion-form .companion-send {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  min-height: 2.25rem;
+}
+
+/* Buttons: quiet = bare text that gains the field tone on hover,
+   primary = filled product accent. Class names stay for the e2e specs. */
+.companion-actions,
+.companion-sources {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 .companion-panel .qr-primary,
 .companion-panel .qr-quiet {
@@ -1050,80 +1110,57 @@ summary {
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
-  padding: 0.6rem 0.8rem;
-  border-radius: var(--mg-radius-md, 12px);
   border: none;
   font-size: 0.82rem;
+  cursor: pointer;
 }
 .companion-panel .qr-primary {
+  padding: 0.6rem 0.95rem;
+  border-radius: var(--mg-radius-md, 12px);
   background: var(--mg-color-primary-fill);
   color: var(--mg-color-on-primary);
 }
+.companion-panel .qr-primary:not(:disabled):hover {
+  background: var(--mg-color-primary-fill-hover);
+}
 .companion-panel .qr-quiet {
-  background: var(--mg-color-surface);
+  padding: 0.45rem 0.7rem;
+  border-radius: var(--mg-radius-sm, 10px);
+  background: transparent;
+  color: var(--mg-color-muted);
+}
+.companion-panel .qr-quiet:not(:disabled):hover {
+  background: var(--cp-field);
+  color: var(--mg-color-ink);
+}
+/* Direct children of the column must not stretch into centred full-width rows. */
+.companion-scroll > .qr-quiet,
+.companion-scroll > .qr-primary {
+  align-self: flex-start;
+}
+.companion-profile > .qr-quiet,
+.companion-options > .qr-quiet {
+  justify-self: start;
 }
 .companion-panel button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
-</style>
 
-<style scoped>
-.companion-panel--conversation {
-  height: min(55dvh, 42rem);
-  min-height: 22rem;
+/* Focus: the product ring, never an outline in a foreign colour. */
+.companion-panel :is(button, textarea, summary, a, input):focus-visible {
+  outline: none;
+  box-shadow: var(--mg-focus-ring);
 }
-.companion-panel--conversation .companion-scroll {
-  overflow-y: auto;
-}
-.companion-form {
-  position: relative;
-  display: block;
-}
-.companion-form textarea {
-  display: block;
-  padding-right: 3.5rem;
-  min-height: 3.5rem;
-}
-.companion-form .companion-send {
-  position: absolute;
-  right: 0.5rem;
-  bottom: 0.5rem;
-  width: 2.25rem;
-  height: 2.25rem;
-  padding: 0.5rem;
-  border-radius: 50%;
-}
-.companion-message-toolbar {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 0.85rem;
-}
-.companion-text-action {
-  border: 0;
-  padding: 0.45rem 0;
-  background: transparent;
-  color: var(--mg-color-muted);
-  font-size: 0.8rem;
-  cursor: pointer;
-}
-.companion-eyebrow {
-  margin: 0.35rem 0 0;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 0.7rem;
-  color: var(--mg-color-primary-strong);
-}
-.companion-introduction {
-  font-size: 0.87rem;
-}
-.companion-topic {
+.companion-panel textarea:focus-visible {
+  border-color: var(--mg-color-primary);
   box-shadow: none;
-  background: var(--mg-color-mist);
 }
-.companion-topic[open] {
-  box-shadow: none;
-  background: var(--mg-color-surface);
+
+@media (prefers-reduced-motion: reduce) {
+  .companion-topic,
+  .companion-topic-chevron {
+    transition: none;
+  }
 }
 </style>

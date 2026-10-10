@@ -42,49 +42,51 @@ const emit = defineEmits<{ cancel: [] }>()
   gap: 10px;
 }
 .ai-activity__dot {
-  width: 8px;
-  height: 8px;
-  flex: 0 0 8px;
+  width: 6px;
+  height: 6px;
+  flex: 0 0 6px;
   border-radius: 50%;
   background: var(--mg-color-primary, #598fcc);
-  animation: ai-breathe 1.6s ease-in-out infinite;
+  animation: ai-breathe 2.4s ease-in-out infinite;
 }
+/* Quiet text action: no pill, no shadow — the status row is not a toolbar. */
 .ai-activity .ai-activity__cancel {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  min-height: 40px;
-  padding: 8px 14px;
+  gap: 7px;
+  min-height: 32px;
+  padding: 6px 2px;
   border: 0;
-  border-radius: 999px;
-  background: var(--mg-color-paper, #f8fbff);
-  color: var(--mg-color-ink, #193454);
+  border-radius: var(--mg-radius-sm, 10px);
+  background: transparent;
+  color: var(--mg-color-muted, #4c6a8b);
   font: inherit;
+  font-size: 12px;
   cursor: pointer;
 }
 .ai-activity__cancel:hover {
-  background: var(--mg-color-mist, #e6f0fc);
+  color: var(--mg-color-ink, #193454);
 }
 .ai-activity__cancel:focus-visible {
-  outline: 2px solid var(--mg-color-primary, #598fcc);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: var(--mg-focus-ring, 0 0 0 3px rgb(89 143 204 / 0.42));
 }
 .ai-activity__stop {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 2px;
   background: currentColor;
 }
 @keyframes ai-breathe {
   0%,
   100% {
-    opacity: 0.5;
-    transform: scale(0.85);
+    opacity: 0.45;
+    transform: scale(0.9);
   }
   50% {
     opacity: 1;
-    transform: scale(1.15);
+    transform: scale(1.08);
   }
 }
 @media (prefers-reduced-motion: reduce) {

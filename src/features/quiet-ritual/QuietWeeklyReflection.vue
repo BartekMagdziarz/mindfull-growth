@@ -371,6 +371,7 @@
       </div>
       <ReflectionCompanionPanel
         v-if="aiOpen"
+        nested
         :key="weekRef"
         :period-ref="weekRef"
         :draft="freeformReflection"

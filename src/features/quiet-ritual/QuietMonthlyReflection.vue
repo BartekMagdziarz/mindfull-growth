@@ -182,6 +182,7 @@
 
         <ReflectionCompanionPanel
           v-if="aiOpen"
+          nested
           :key="monthRef"
           surface="monthly-reflection"
           :period-ref="monthRef"
