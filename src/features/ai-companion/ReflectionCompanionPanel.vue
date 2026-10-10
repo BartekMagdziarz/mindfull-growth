@@ -935,14 +935,17 @@ summary {
   background: var(--mg-color-rose-soft);
 }
 
-/* Messages: AI sits on the card itself, the user gets an indented field bubble. */
+/* Messages: both sides are field bubbles. AI = field tone, flush left;
+   the user = one step whiter with a thin line, indented from the left. */
 .companion-messages {
   display: grid;
-  gap: 1rem;
+  gap: 0.85rem;
 }
 .companion-message {
   font-size: 0.87rem;
-  padding: 0;
+  padding: 0.7rem 0.9rem;
+  border-radius: var(--mg-radius-lg);
+  background: var(--cp-field);
 }
 .companion-author {
   display: block;
@@ -955,13 +958,17 @@ summary {
   font-size: 0.9rem;
   margin: 0.3rem 0;
 }
+.companion-message--assistant {
+  margin-right: 1.75rem;
+}
 .companion-message--user {
   margin-left: 1.75rem;
-  padding: 0.7rem 0.9rem;
-  background: var(--cp-field);
-  border-radius: var(--mg-radius-lg);
+  border: 1px solid var(--cp-line);
+  background: var(--cp-inner);
 }
 .companion-message--notice {
+  padding: 0 0.2rem;
+  background: transparent;
   color: var(--mg-color-muted);
   font-size: 0.78rem;
 }
@@ -970,6 +977,7 @@ summary {
   align-items: baseline;
   flex-wrap: wrap;
   gap: 0.85rem;
+  margin-top: 0.2rem;
 }
 .companion-text-action {
   border: 0;

@@ -49,23 +49,25 @@ const emit = defineEmits<{ cancel: [] }>()
   background: var(--mg-color-primary, #598fcc);
   animation: ai-breathe 2.4s ease-in-out infinite;
 }
-/* Quiet text action: no pill, no shadow — the status row is not a toolbar. */
+/* Quiet pill in the field tone of its host (the companion panel exposes
+   --cp-field); no shadow, no fill colour. */
 .ai-activity .ai-activity__cancel {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 7px;
   min-height: 32px;
-  padding: 6px 2px;
+  padding: 6px 12px;
   border: 0;
   border-radius: var(--mg-radius-sm, 10px);
-  background: transparent;
+  background: var(--cp-field, var(--mg-color-mist, #e6f0fc));
   color: var(--mg-color-muted, #4c6a8b);
   font: inherit;
   font-size: 12px;
   cursor: pointer;
 }
 .ai-activity__cancel:hover {
+  background: var(--cp-inner, var(--mg-color-paper, #f8fbff));
   color: var(--mg-color-ink, #193454);
 }
 .ai-activity__cancel:focus-visible {
