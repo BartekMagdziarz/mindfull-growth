@@ -23,7 +23,7 @@ async function bootSeededApp(page: Page): Promise<void> {
 }
 
 test.describe('shame path v3', () => {
-  test('path view: nine week rows, the current week open as tiles, Praktyki, Postęp, own sentences and knowledge', async ({ page }) => {
+  test('path view: nine week rows, the current week open, Teraz, Postęp, own sentences and knowledge', async ({ page }) => {
     test.setTimeout(120_000)
     await bootSeededApp(page)
     await page.goto('/exercises/programs/shame-compassion')
@@ -31,7 +31,7 @@ test.describe('shame path v3', () => {
     await expect(page.locator('.mg-v2-page-head__eyebrow')).toContainText('Tydzień 4 z 8')
     await expect(page.locator('.path-view__sign')).toContainText('zostanę w rozmowie')
 
-    // Twoja droga: weeks as nouns, the return apart; week 4 is open with its steps as tiles, the current one lit.
+    // Twoja droga: weeks as nouns, the return apart; week 4 is open with its current step.
     const journey = page.getByTestId('path-journey')
     await expect(journey.locator('.wk__title')).toHaveText([
       'Rozpoznanie',
@@ -47,31 +47,21 @@ test.describe('shame path v3', () => {
     const week4 = journey.locator('[data-test-path-week="w4"]')
     await expect(week4.locator('.wk__row')).toHaveAttribute('aria-expanded', 'true')
     await expect(week4.locator('[data-test-program-step="9"]')).toContainText('Zapis myśli')
-    const currentTile = week4.locator('[data-test-program-step="9"]')
-    await expect(currentTile).toHaveClass(/pp-tile--current/)
-    await expect(currentTile).toContainText('Po co:')
-    await expect(currentTile.getByRole('button', { name: 'Rozpocznij' })).toBeVisible()
-    await expect(week4.locator('.pp-tile')).toHaveCount(3)
-    // The week row: the number well on the left, one state disc on the right reading done/total.
-    await expect(week4.locator('.pp-disc--meter')).toHaveAttribute('aria-label', /z 3 kroków/)
-    // Praktyki: the practices, Momenty and the week's task as tiles.
-    const practices = page.getByTestId('path-practices')
-    await expect(practices).toContainText('Przerwa na współczucie')
+    await expect(week4.locator('[data-test-program-step="9"]').getByRole('button', { name: 'Rozpocznij' })).toBeVisible()
+    await expect(page.getByTestId('path-practices')).toContainText('Przerwa na współczucie')
     await expect(page.getByTestId('path-world')).toContainText('Użyj swojej odpowiedzi na wstyd')
-    await expect(page.getByTestId('path-moment-tile').getByRole('button', { name: 'Zapisz' })).toBeVisible()
-    // "Od nowa" is a link in the journey head with an inline confirm; no "Teraz" card any more.
-    await journey.getByTestId('path-restart').click()
-    await expect(journey.getByRole('button', { name: 'Zacznij od nowa' })).toBeVisible()
-    await journey.getByRole('button', { name: 'Zostaw' }).click()
-    await expect(page.getByTestId('path-now')).toHaveCount(0)
     // Other weeks stay closed; opening one shows its steps.
     const week1 = journey.locator('[data-test-path-week="w1"]')
     await expect(week1.locator('.wk__row')).toHaveAttribute('aria-expanded', 'false')
     await week1.locator('.wk__row').click()
     await expect(week1).toContainText('Po czym poznam zmianę')
 
+    // Teraz: the current step with its intro, the due practice, two chips, the plan quote.
+    const now = page.getByTestId('path-now')
+    await expect(now).toContainText('Zapis myśli')
+    await expect(now.getByRole('button', { name: 'Rozpocznij' })).toBeVisible()
     // Zapis myśli starts from a moment: the picker lists the path's moments, a pick prefills the record.
-    await currentTile.getByRole('button', { name: 'Rozpocznij' }).click()
+    await now.getByRole('button', { name: 'Rozpocznij' }).click()
     const picker = page.getByTestId('moment-picker')
     await expect(picker).toBeVisible()
     await expect(picker.locator('li')).toHaveCount(8)
@@ -80,14 +70,21 @@ test.describe('shame path v3', () => {
     await page.getByRole('button', { name: 'Rozpocznij', exact: true }).click()
     await expect(page.locator('textarea').first()).toHaveValue(/Zadałem „głupie” pytanie/)
     await page.goto('/exercises/programs/shame-compassion')
-    await expect(currentTile.getByRole('button', { name: 'Rozpocznij' })).toBeVisible()
-    await practices.getByRole('button', { name: 'Mój plan' }).click()
+    await expect(now.getByRole('button', { name: 'Rozpocznij' })).toBeVisible()
+    await expect(now).toContainText('Przerwa na współczucie')
+    await expect(now.getByRole('link', { name: 'Zapisz moment' })).toHaveAttribute('href', '/exercises/micro/moment-shame')
+    await now.getByRole('button', { name: 'Mój plan' }).click()
     await expect(page.getByTestId('path-response')).toContainText('Widzę cię. Nie musisz tego teraz naprawiać.')
 
-    // Postęp: the parts chart (columns per week, the legend on the left, numbers only on hover and in the table) and four measure tracks.
+    // Postęp: the parts glance (one row per part, numbers only in the table) and four measure tracks.
     const glance = page.getByTestId('path-moments-glance')
-    await expect(glance.locator('.pc__legend-name')).toHaveText(['Agresor', 'Krytyk', 'Ukrywający', 'Odwracający uwagę', 'Ja'])
-    await expect(glance.locator('.pc__week:not(.is-slot)')).toHaveCount(4)
+    await expect(glance.locator('.smg__label').filter({ hasText: /./ })).toHaveText([
+      'Ukrywający',
+      'Krytyk',
+      'Oskarżyciel',
+      'Odwracający uwagę',
+      'Żadna część',
+    ])
     await glance.locator('summary').click()
     await glance.getByRole('button', { name: 'Liczby' }).click()
     await expect(glance.getByRole('table')).toContainText('Razem')
@@ -99,7 +96,7 @@ test.describe('shame path v3', () => {
     await sentences.getByRole('button', { name: 'Wszystkie' }).click()
     await expect(sentences).toContainText('Jesteś człowiekiem i to boli')
     const knowledge = page.getByRole('region', { name: 'Warto wiedzieć' })
-    await expect(knowledge.locator('.kn button')).toHaveCount(2)
+    await expect(knowledge.locator('.kn li')).toHaveCount(2)
     await knowledge.locator('.kn button').first().click()
     const drawer = page.locator('dialog.drawer')
     await expect(drawer).toBeVisible()
@@ -157,29 +154,16 @@ test.describe('shame path v3', () => {
     const block = page.locator('.qr-path-block', { hasText: 'Ze wstydu do współczucia' })
     await expect(block).toBeVisible()
     await expect(block).toContainText('Użyj swojej odpowiedzi na wstyd')
-    // The task tile: one disc reading done/target; the counted days only on hover.
-    await expect(block.locator('.qr-path-task__disc')).toHaveText(`${seededDays + 1}/3`)
-    const axis = await block.locator('.pc__axis small').filter({ hasText: /./ }).allTextContents()
+    await expect(block).toContainText(`${seededDays + 1} z 3`)
+    const glance = block.getByTestId('path-moments-glance')
+    const axis = await glance.locator('.smg__cells--axis small').filter({ hasText: /./ }).allTextContents()
     expect(axis).toHaveLength(2)
     expect(Number(axis[1]!.slice(1))).toBe(Number(axis[0]!.slice(1)) + 1)
-    // The estimate sits behind "więcej, bez szczegółów"; "Dopisz" writes a Moment on a chosen day.
-    await block.getByRole('button', { name: 'więcej, bez szczegółów' }).click()
     await block.getByRole('button', { name: '1–2' }).click()
     await expect(block.getByRole('button', { name: '1–2' })).toHaveAttribute('aria-pressed', 'true')
     await expect(block.locator('.qr-scale--row button')).toHaveText(['1', '2', '3', '4', '5'])
-    await block.getByRole('button', { name: 'Szczegóły' }).click()
+    await block.getByRole('button', { name: /Momenty z tego tygodnia/ }).click()
     await expect(block.locator('.qr-path-moments__list li').first()).toContainText('Na stand-upie')
-    await block.getByTestId('path-backfill-open').click()
-    const form = block.getByTestId('path-backfill-form')
-    await form.getByRole('radio').first().click()
-    await form.getByRole('radio', { name: 'Krytyk' }).click()
-    await form.getByRole('button', { name: 'Oddech' }).click()
-    await form.getByRole('button', { name: 'Dopisz', exact: true }).click()
-    await expect(block.locator('.qr-path-added li')).toHaveCount(1)
-    await expect(block.locator('.qr-path-added li')).toContainText('Krytyk')
-    await expect(block.locator('.pc__seg.is-later')).toHaveCount(1)
-    await block.locator('.qr-path-added__remove').click()
-    await expect(block.locator('.qr-path-added li')).toHaveCount(0)
   })
 
   test('"O czym jest ten wstyd?" starts from a picked moment and quotes it', async ({ page }) => {
@@ -195,21 +179,17 @@ test.describe('shame path v3', () => {
     await expect(page.getByTestId('micro-hint')).toContainText('Zadałem „głupie” pytanie')
   })
 
-  test('Today: the day plan lists the step and the practice; the paths card shows the week and opens to two quick chips', async ({ page }) => {
+  test('Today: the paths card shows the week, the next step, the due practice and two quick chips', async ({ page }) => {
     test.setTimeout(120_000)
     await bootSeededApp(page)
     await page.goto('/today')
     const card = page.getByRole('region', { name: 'Ścieżki' })
     await expect(card).toContainText('Ze wstydu do współczucia')
     await expect(card).toContainText('tydzień 4 z 8')
-    const practices = page.getByTestId('today-practices')
-    await expect(practices.locator('.ndp', { hasText: 'Zapis myśli' })).toBeVisible()
-    await expect(practices.locator('.ndp', { hasText: 'Przerwa na współczucie' })).toBeVisible()
-    const tile = card.locator('.next-day-paths__path', { hasText: 'Ze wstydu do współczucia' })
-    await expect(tile.locator('.pp-mark')).toHaveCount(8)
-    await expect(tile.locator('.next-day-paths__step')).toContainText('Zapis myśli')
-    await expect(tile.getByRole('link', { name: 'Zapisz moment' })).toHaveAttribute('href', '/exercises/micro/moment-shame')
-    await tile.getByRole('link', { name: 'Mój plan' }).click()
+    await expect(card.locator('.next-day-exercises__row--child', { hasText: 'Zapis myśli' })).toBeVisible()
+    await expect(card.locator('.next-day-exercises__row--child', { hasText: 'Przerwa na współczucie' })).toBeVisible()
+    await expect(card.getByRole('link', { name: 'Zapisz moment' })).toHaveAttribute('href', '/exercises/micro/moment-shame')
+    await card.getByRole('link', { name: 'Mój plan' }).click()
     await expect(page).toHaveURL(/\/exercises\/programs\/shame-compassion$/)
   })
 })
