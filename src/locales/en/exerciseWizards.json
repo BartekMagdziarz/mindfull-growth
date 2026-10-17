@@ -3314,6 +3314,7 @@
       "tooMuchToday": "Too much for today",
       "optional": "optional",
       "saveNow": "Save now",
+      "steps": "Steps",
       "tooMuchNotice": "Good that you noticed. Leave it for today and come back to the breath. That is practice too.",
       "breath": {
         "start": "Start",
@@ -3624,8 +3625,8 @@
         }
       },
       "hadMoment": {
-        "title": "Was there such a moment recently?",
-        "description": "Mild ones count too: irritation, embarrassment, unease. A note without a moment counts as well.",
+        "title": "Has there been such a moment since your last entry?",
+        "description": "Mild, barely noticeable ones count too. A day without one is worth noting as well.",
         "why": "Logging a calm day matters as much as logging a hard one: it shows what helps and gives a true picture of how often the emotion shows up.",
         "options": {
           "none": "No",
@@ -3633,19 +3634,19 @@
         }
       },
       "quietDay": {
-        "title": "What helped today?",
-        "description": "A moment that was calm or at ease. (Optional.)",
+        "title": "What helped you stay with yourself today?",
+        "description": "One sentence is enough.",
         "placeholder": "Today it helped that…"
       },
       "situation": {
         "title": "What happened?",
-        "description": "Briefly, the way a camera would record it: who, what, where. For shame you can skip this.",
+        "description": "Briefly, the way a camera would record it: who, what, where.",
         "why": "A camera-style account separates facts from interpretation. It becomes easier to see what happened and what a thought added.",
         "placeholder": "In a meeting…"
       },
       "about": {
         "title": "What is this shame about?",
-        "description": "Three answers and three ways forward: repair, care, check. If you don't know yet, say so. (Optional.)",
+        "description": "One answer. Under each is the move it leads to.",
         "why": "The same question you ask yourself in the moment of shame. Here you have a calm minute for it.",
         "options": {
           "act": {
@@ -3667,7 +3668,7 @@
       },
       "compass": {
         "title": "Which part took the wheel?",
-        "description": "Each of the four reactions to shame is a part of you that protects. Pick the closest one, or mark that none took over.",
+        "description": "One answer. When in doubt, the closest one.",
         "why": "Once the reaction has a name it becomes a part, not you. It's easier to catch next time and to see, week by week, which one is weakening.",
         "options": {
           "withdraw": "The Hider",
@@ -3688,10 +3689,10 @@
       },
       "response": {
         "title": {
-          "m": "What did you do instead, or after the first reaction?",
-          "f": "What did you do instead, or after the first reaction?"
+          "m": "How did you answer the shame?",
+          "f": "How did you answer the shame?"
         },
-        "description": "Tick everything that happened, even an hour later.",
+        "description": "Tick every move, even a late one. If none — “Nothing, this time”.",
         "why": "Every attempt counts, even a late one. Over time you see which moves really work.",
         "hintLabel": "From your shame response",
         "options": {
@@ -3701,10 +3702,10 @@
           "sentence": "The sentence from my image",
           "contact": "A move towards contact",
           "repair": "Repair",
-          "test": "The close-person test",
+          "test": "The “what if it were someone close?” question",
           "nothing": "Nothing, this time",
           "unblend": "\"That's a part, not me\"",
-          "defend": "My defending sentence"
+          "defend": "A sentence in my own defence"
         }
       },
       "intensity": {
@@ -3779,8 +3780,8 @@
         }
       },
       "strength": {
-        "title": "How strong?",
-        "description": "1 is barely there, 5 is very strong.",
+        "title": "How strong was the shame?",
+        "description": "At its strongest. Then you can save, or add details.",
         "minLabel": "Barely",
         "maxLabel": "Very"
       }

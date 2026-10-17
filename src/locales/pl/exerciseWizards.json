@@ -3314,6 +3314,7 @@
       "tooMuchToday": "Za dużo na dziś",
       "optional": "opcjonalnie",
       "saveNow": "Zapisz teraz",
+      "steps": "Kroki",
       "tooMuchNotice": "Dobrze, że to zauważasz. Zostaw to na dziś i wróć do oddechu. To też jest praktyka.",
       "breath": {
         "start": "Zacznij",
@@ -3624,28 +3625,28 @@
         }
       },
       "hadMoment": {
-        "title": "Czy był ostatnio taki moment?",
-        "description": "Także lekki: irytacja, zażenowanie, niepokój. Zapis bez momentu też się liczy.",
+        "title": "Czy od ostatniego wpisu był taki moment?",
+        "description": "Liczy się też lekki, ledwie zauważalny. Bez momentu też warto zapisać.",
         "why": "Zapis w spokojny dzień jest tak samo ważny jak w trudny: pokazuje, co pomaga, i daje prawdziwy obraz tego, jak często emocja się pojawia.",
         "options": {
-          "none": "Nie było",
+          "none": "Nie",
           "yes": "Tak"
         }
       },
       "quietDay": {
-        "title": "Co dziś pomogło?",
-        "description": "Chwila, w której było spokojnie albo swobodnie.",
+        "title": "Co dziś pomogło zostać przy sobie?",
+        "description": "Jedno zdanie wystarczy.",
         "placeholder": "Dziś pomogło mi…"
       },
       "situation": {
         "title": "Co się wydarzyło?",
-        "description": "Krótko, jak nagrałaby to kamera: kto, co, gdzie. Przy wstydzie możesz pominąć.",
+        "description": "Krótko, jak nagrałaby to kamera: kto, co, gdzie.",
         "why": "Opis jak z kamery oddziela fakty od interpretacji. Łatwiej wtedy zobaczyć, co się stało, a co dopowiedziała myśl.",
         "placeholder": "Na spotkaniu…"
       },
       "about": {
         "title": "O czym jest ten wstyd?",
-        "description": "Trzy odpowiedzi i trzy drogi: napraw, zadbaj, sprawdź. Jeśli nie wiesz, zaznacz to.",
+        "description": "Jedna odpowiedź. Pod każdą jest ruch, do którego prowadzi.",
         "why": "To samo pytanie, które zadajesz sobie w chwili wstydu. Tu masz na nie spokojną minutę.",
         "options": {
           "act": {
@@ -3667,7 +3668,7 @@
       },
       "compass": {
         "title": "Która część przejęła ster?",
-        "description": "Wybierz część, która była najbliżej steru, albo zaznacz, że żadna go nie przejęła.",
+        "description": "Jedna odpowiedź. W razie wątpliwości ta najbliższa.",
         "why": "Gdy reakcja ma imię, staje się częścią, a nie tobą. Łatwiej ją przyłapać następnym razem i zobaczyć w rozkładzie tygodni, która słabnie.",
         "options": {
           "withdraw": "Ukrywający",
@@ -3688,10 +3689,10 @@
       },
       "response": {
         "title": {
-          "m": "Co zrobiłeś — zamiast albo zaraz po?",
-          "f": "Co zrobiłaś — zamiast albo zaraz po?"
+          "m": "Jak odpowiedziałeś na wstyd?",
+          "f": "Jak odpowiedziałaś na wstyd?"
         },
-        "description": "Zaznacz wszystko, co się wydarzyło, nawet po godzinie.",
+        "description": "Zaznacz wszystkie ruchy, także spóźnione. Jeśli żaden — „Nic, tym razem”.",
         "why": "Liczy się każda próba, także spóźniona. Z czasem widać, które ruchy naprawdę działają.",
         "hintLabel": "Z twojego planu na trudną chwilę",
         "options": {
@@ -3701,10 +3702,10 @@
           "sentence": "Zdanie od współczującej postaci",
           "contact": "Ruch w stronę kontaktu",
           "repair": "Naprawa",
-          "test": "Pytanie o bliską osobę",
+          "test": "Pytanie „a gdyby to był ktoś bliski?”",
           "nothing": "Nic, tym razem",
           "unblend": "„To część, nie ja”",
-          "defend": "Zdanie obronne"
+          "defend": "Zdanie w swojej obronie"
         }
       },
       "intensity": {
@@ -3779,8 +3780,8 @@
         }
       },
       "strength": {
-        "title": "Jak mocno?",
-        "description": "1 to ledwie wyczuwalne, 5 to bardzo mocno.",
+        "title": "Jak silny był wstyd?",
+        "description": "W najmocniejszej chwili. Potem możesz zapisać albo dodać szczegóły.",
         "minLabel": "Ledwie",
         "maxLabel": "Bardzo"
       }

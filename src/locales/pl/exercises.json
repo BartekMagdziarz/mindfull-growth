@@ -7,6 +7,7 @@
     "pastRecords": "Poprzednie wpisy",
     "pastSessions": "Poprzednie sesje",
     "pastEntries": "Poprzednie wpisy",
+    "showAllEntries": "Pokaż wszystkie ({n})",
     "pastExplorations": "Poprzednie eksploracje",
     "pastDialogues": "Poprzednie dialogi",
     "pastLabs": "Poprzednie laboratoria",
@@ -151,10 +152,10 @@
     "programPlanned": "Ścieżka zaplanowała kolejny raz na {date}"
   },
   "savedPanel": {
-    "title": "Zapisane!",
+    "title": "Zapisano",
     "description": {
-      "m": "Ukończyłeś ćwiczenie. Dobra robota.",
-      "f": "Ukończyłaś ćwiczenie. Dobra robota."
+      "m": "Wpis jest zapisany.",
+      "f": "Wpis jest zapisany."
     },
     "doAgain": "Jeszcze raz",
     "backToExercises": "Wróć do ćwiczeń"
