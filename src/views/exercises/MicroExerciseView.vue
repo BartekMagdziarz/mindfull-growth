@@ -3,6 +3,7 @@
     v-if="definition && catalogEntry"
     :title="t(`exercises.cards.${catalogEntry.i18nKey}.title`)"
     :subtitle="t(`exercises.cards.${catalogEntry.i18nKey}.subtitle`)"
+    width="focus"
   >
     <!-- Arrived here from an inner practice that was too much today. -->
     <AppCard v-if="route.query.notice === 'tooMuch'" padding="md" class="micro-notice mb-4">

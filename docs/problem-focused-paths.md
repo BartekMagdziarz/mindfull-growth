@@ -198,6 +198,16 @@ the companion's history. With P4 the v3 plan is complete.
   the latest entry of another micro, or from the entry picked in this run),
   `entryPick` step (choose a recent entry, e.g. a moment to work on), `optionHints`
   copy (a verb under a choice pill), presets.
+- **Micro runner layout (2026-10-17)**: the step card is two zones — head (question
+  at `xl`, note at `md`, context quote as plain text, the step's *why* as a round
+  "?" disc at the row's end with a floating note: `ExerciseStepWhy variant="disc"`)
+  and body (the answer on the zone's full width), 24 px apart; `MicroExerciseView`
+  uses the `focus` page width (896 px). Choice cells share each row equally by
+  option count (2 → a pair ≤ 9 rem, 3–5 → n columns, 6–9 → 3, ≥ 10 → 2), discrete
+  scales are a grid of N tiles with the end labels under the first and last one,
+  textareas set their minimum in lines (global `field-sizing: content` ignores
+  `rows`), progress dots stay hidden while only one step is known. Plan and audit:
+  `ideas/html-plans/2026-10-17-moments-wizard-layout-pass.html`.
 - **Instruments**: `gad-7`, `anger-barometer`, `ius-12` (sum scoring with named bands,
   `sumScoring`) and `scs-sf` (mean). Polish wording is a working translation — swap for
   validated versions once permissions are sorted (see instrument licensing notes).

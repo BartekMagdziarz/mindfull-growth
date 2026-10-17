@@ -1,8 +1,9 @@
 <template>
   <Transition mode="out-in" enter-active-class="transition-opacity duration-200" enter-from-class="opacity-0">
     <AppCard :key="currentStep.key" padding="lg" class="micro-card" :style="cardStyle">
-      <!-- Progress: quiet accent dots, the current one drawn out; done dots lead back. -->
-      <nav class="micro-steps" :aria-label="t('exerciseWizards.micro.shared.steps')">
+      <!-- Progress: quiet accent dots, the current one drawn out; done dots lead back.
+           Hidden until the first answer reveals the branch (a lone pill reads as loading). -->
+      <nav v-if="steps.length > 1" class="micro-steps" :aria-label="t('exerciseWizards.micro.shared.steps')">
         <ol>
           <li v-for="(step, idx) in steps" :key="step.key">
             <button
@@ -17,36 +18,42 @@
             </button>
           </li>
         </ol>
-        <!-- The count waits until the first answer reveals the branch. -->
-        <small v-if="steps.length > 1">{{ stepIndex + 1 }}/{{ steps.length }}</small>
+        <small>{{ stepIndex + 1 }}/{{ steps.length }}</small>
       </nav>
 
-      <h2 class="micro-title">
-        {{ tg(stepKey(currentStep, 'title')) }}
-        <small
-          v-if="isMicroStepOptional(currentStep, choiceAnswers)"
-          class="micro-optional"
-          data-testid="micro-optional"
-          >{{ t('exerciseWizards.micro.shared.optional') }}</small
-        >
-      </h2>
-      <p class="micro-desc">
-        {{ tg(stepKey(currentStep, 'description')) }}
-      </p>
-      <ExerciseStepWhy :text="optionalText(stepKey(currentStep, 'why'))" />
+      <!-- Head: the question, its short note and the context from earlier entries.
+           The "why" is a disc at the row's end, so the answer below never moves. -->
+      <header class="micro-head">
+        <h2 class="micro-title">
+          {{ tg(stepKey(currentStep, 'title')) }}
+          <small
+            v-if="isMicroStepOptional(currentStep, choiceAnswers)"
+            class="micro-optional"
+            data-testid="micro-optional"
+            >{{ t('exerciseWizards.micro.shared.optional') }}</small
+          >
+        </h2>
+        <ExerciseStepWhy variant="disc" class="micro-why" :text="optionalText(stepKey(currentStep, 'why'))" />
+        <p class="micro-desc">
+          {{ tg(stepKey(currentStep, 'description')) }}
+        </p>
 
-      <!-- A quiet quote from an earlier entry (hintFrom); never fills the field. -->
-      <blockquote v-if="hint" class="micro-hint" data-testid="micro-hint">
-        <span class="micro-hint__label">{{ hint.label }}</span>
-        <span class="micro-hint__text">„{{ hint.text }}”</span>
-      </blockquote>
+        <!-- A quiet quote from an earlier entry (hintFrom); never fills the field. -->
+        <blockquote v-if="hint" class="micro-hint" data-testid="micro-hint">
+          <span class="micro-hint__label">{{ hint.label }}</span>
+          <span class="micro-hint__text">„{{ hint.text }}”</span>
+        </blockquote>
+      </header>
 
+      <!-- Body: the answer, always on the zone's full width (info steps have none). -->
+      <div v-if="currentStep.type !== 'info'" class="micro-body">
       <div v-if="currentStep.type === 'textarea'" class="micro-text">
         <textarea
           v-model="textValues[currentStep.key]"
-          :rows="currentStep.minLength ? 7 : 4"
+          :rows="currentStep.minLength ? 7 : 5"
           :placeholder="tg(stepKey(currentStep, 'placeholder'))"
           class="micro-field"
+          :class="{ 'micro-field--long': currentStep.minLength }"
         />
         <!-- Soft minimum: a counter and a gentle note, never a block. -->
         <p v-if="currentStep.minLength" class="micro-minlength" data-testid="micro-minlength">
@@ -101,6 +108,8 @@
       <div
         v-else-if="currentStep.type === 'choice'"
         class="micro-choice"
+        :class="{ 'micro-choice--pair': choiceOptions(currentStep).length <= 2 }"
+        :style="{ '--micro-cols': choiceColumns(choiceOptions(currentStep).length) }"
         :role="currentStep.multiple ? 'group' : 'radiogroup'"
         :aria-label="tg(stepKey(currentStep, 'title'))"
       >
@@ -164,6 +173,7 @@
         @progress="breathStates[currentStep.key]!.elapsed = $event"
         @done="Object.assign(breathStates[currentStep.key]!, { done: true, elapsed: $event })"
       />
+      </div>
 
       <!-- Actions right after the content, inside the card. -->
       <footer class="micro-footer">
@@ -266,6 +276,18 @@ function stepKey(step: MicroExerciseStep, field: string): string {
 function optionalText(key: string): string {
   const value = tg(key)
   return value === key ? '' : value
+}
+
+/**
+ * Equal cells per row, by option count: a pair stays a pair, up to five
+ * share one row, 6–9 go in threes, longer lists read as two columns.
+ * Momenty's steps (2, 4, 5, 14) never leave an orphan row.
+ */
+function choiceColumns(count: number): number {
+  if (count <= 2) return 2
+  if (count <= 5) return count
+  if (count <= 9) return 3
+  return 2
 }
 
 // Working state per step type, keyed by step key. The host remounts the
@@ -658,7 +680,27 @@ function leaveTooMuch(): void {
 <style scoped>
 .micro-card {
   display: grid;
-  gap: var(--mg-space-3);
+  gap: var(--mg-space-6);
+  padding: var(--mg-space-8);
+}
+
+/* Head: question + "?" disc in one row, note and context below on the full width. */
+.micro-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--mg-space-3);
+  row-gap: var(--mg-space-2);
+  align-items: start;
+}
+
+.micro-why {
+  grid-column: 2;
+  grid-row: 1;
+  margin-top: 2px;
+}
+
+.micro-body {
+  display: grid;
 }
 
 /* Progress: the ritual's dots — accent at a fifth, done at half, current drawn out. */
@@ -667,7 +709,7 @@ function leaveTooMuch(): void {
   align-items: center;
   justify-content: center;
   gap: var(--mg-space-2);
-  margin-bottom: var(--mg-space-1);
+  margin-bottom: calc(-1 * var(--mg-space-2));
 }
 
 .micro-steps ol {
@@ -731,12 +773,14 @@ function leaveTooMuch(): void {
 }
 
 .micro-title {
+  grid-column: 1;
+  grid-row: 1;
   margin: 0;
   color: var(--mg-color-ink);
-  font-size: var(--mg-font-size-lg);
+  font-size: var(--mg-font-size-xl);
   font-weight: 800;
   letter-spacing: -0.01em;
-  line-height: 1.3;
+  line-height: 1.25;
 }
 
 .micro-optional {
@@ -744,23 +788,24 @@ function leaveTooMuch(): void {
   color: var(--mg-color-muted);
   font-size: var(--mg-font-size-xs);
   font-weight: 600;
+  letter-spacing: 0;
 }
 
 .micro-desc {
+  grid-column: 1 / -1;
   margin: 0;
   color: var(--mg-color-muted);
-  font-size: var(--mg-font-size-sm);
-  line-height: 1.55;
+  font-size: var(--mg-font-size-md);
+  line-height: 1.5;
 }
 
-/* Quote from an earlier entry: one tone lighter than the card, no rule, no italics. */
+/* Quote from an earlier entry: context of the question, so plain text — no box
+   (a box would sit whiter than the field below and invert the tonal ladder). */
 .micro-hint {
+  grid-column: 1 / -1;
   display: grid;
   gap: 2px;
   margin: 0;
-  padding: var(--mg-space-2) var(--mg-space-3);
-  border-radius: var(--mg-radius-md);
-  background: var(--mg-color-paper);
 }
 
 .micro-hint__label {
@@ -773,7 +818,7 @@ function leaveTooMuch(): void {
 
 .micro-hint__text {
   color: var(--mg-color-ink);
-  font-size: var(--mg-font-size-sm);
+  font-size: var(--mg-font-size-md);
 }
 
 /* Fields keep the field tone on focus; the ring carries the state. */
@@ -785,15 +830,24 @@ function leaveTooMuch(): void {
 
 .micro-field {
   width: 100%;
-  padding: var(--mg-space-3);
+  padding: var(--mg-space-3) var(--mg-space-4);
   border: 1px solid var(--mg-color-field-border);
   border-radius: var(--mg-radius-md);
   background: var(--mg-color-mist);
   color: var(--mg-color-ink);
   font: inherit;
-  font-size: var(--mg-font-size-sm);
+  font-size: var(--mg-font-size-md);
   line-height: 1.6;
   resize: none;
+}
+
+/* Global `field-sizing: content` ignores `rows`; the minimum is set in lines here. */
+textarea.micro-field {
+  min-height: calc(5 * 1.6em + 2 * var(--mg-space-3) + 2px);
+}
+
+textarea.micro-field--long {
+  min-height: calc(7 * 1.6em + 2 * var(--mg-space-3) + 2px);
 }
 
 .micro-field::placeholder {
@@ -824,7 +878,7 @@ function leaveTooMuch(): void {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: var(--mg-font-size-xs);
+  font-size: var(--mg-font-size-sm);
   color: var(--mg-color-muted);
 }
 
@@ -835,9 +889,24 @@ function leaveTooMuch(): void {
 }
 
 .micro-choice {
+  --micro-cols: 2;
   display: flex;
   flex-wrap: wrap;
   gap: var(--mg-space-2);
+}
+
+/* Equal cells: every row full, labels wrap inside, rows share one height. */
+.micro-choice__option {
+  flex: 0 0 calc((100% - (var(--micro-cols) - 1) * var(--mg-space-2)) / var(--micro-cols));
+  min-height: 2.5rem;
+  padding: var(--mg-space-2) var(--mg-space-4);
+  font-size: var(--mg-font-size-md);
+  white-space: normal;
+}
+
+/* A pair (yes/no) stays a pair of light tiles, not two slabs. */
+.micro-choice--pair .micro-choice__option {
+  flex-basis: 9rem;
 }
 
 .micro-footer {
@@ -845,7 +914,6 @@ function leaveTooMuch(): void {
   align-items: center;
   justify-content: space-between;
   gap: var(--mg-space-3);
-  margin-top: var(--mg-space-2);
 }
 
 .micro-footer__group {

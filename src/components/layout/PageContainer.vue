@@ -10,10 +10,11 @@ import { computed } from 'vue'
 /**
  * Standard page widths:
  * - reading: long-form text (exercise wizards, editors) — 768px
+ * - focus: one step at a time (the micro exercise runner) — 896px
  * - default: lists/grids of cards — 1152px
  * - wide: dashboard-like multi-zone views — 1600px
  */
-export type PageContainerWidth = 'reading' | 'default' | 'wide'
+export type PageContainerWidth = 'reading' | 'focus' | 'default' | 'wide'
 
 const props = withDefaults(defineProps<{ width?: PageContainerWidth }>(), {
   width: 'default',
@@ -23,6 +24,8 @@ const widthClass = computed(() => {
   switch (props.width) {
     case 'reading':
       return 'max-w-3xl'
+    case 'focus':
+      return 'max-w-[896px]'
     case 'wide':
       return 'max-w-[1600px]'
     default:

@@ -1,5 +1,5 @@
 <template>
-  <div class="exercise-scale">
+  <div class="exercise-scale" :style="{ '--scale-n': values.length }">
     <div
       class="exercise-scale__row"
       role="radiogroup"
@@ -34,9 +34,11 @@
 import { computed } from 'vue'
 
 /**
- * Discrete scale (1–5, 0–10) as a row of numbered buttons, the picked one
+ * Discrete scale (1–5, 0–10) as a row of numbered tiles, the picked one
  * filled in the accent — the week reflection's scale row, not a slider.
- * Arrow keys move the value; the ends carry the min/max labels.
+ * The tiles share the answer zone's full width (a grid of N columns), so
+ * the end labels sit under the first and the last tile.
+ * Arrow keys move the value.
  */
 const props = withDefaults(
   defineProps<{
@@ -64,25 +66,25 @@ function shift(delta: number): void {
 <style scoped>
 .exercise-scale {
   display: grid;
-  gap: var(--mg-space-1);
-}
-
-.exercise-scale__row {
-  display: flex;
-  flex-wrap: wrap;
   gap: var(--mg-space-2);
 }
 
+.exercise-scale__row {
+  display: grid;
+  grid-template-columns: repeat(var(--scale-n, 5), minmax(0, 1fr));
+  gap: var(--mg-space-2);
+}
+
+/* Tiles one tone lighter than the card; the picked one is the only filled shape. */
 .exercise-scale__row button {
-  width: 2.5rem;
-  height: 2.25rem;
+  height: 2.75rem;
   padding: 0;
   border: 0;
   border-radius: 12px;
   background: var(--mg-color-paper);
   color: var(--mg-color-ink);
   font: inherit;
-  font-size: var(--mg-font-size-sm);
+  font-size: var(--mg-font-size-md);
   font-weight: 600;
   cursor: pointer;
   transition:
@@ -110,7 +112,8 @@ function shift(delta: number): void {
   display: flex;
   justify-content: space-between;
   gap: var(--mg-space-2);
-  font-size: var(--mg-font-size-xs);
+  padding-inline: var(--mg-space-1);
+  font-size: var(--mg-font-size-sm);
   color: var(--mg-color-muted);
 }
 </style>

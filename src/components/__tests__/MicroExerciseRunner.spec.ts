@@ -403,6 +403,26 @@ describe('MicroExerciseRunner v3 features', () => {
     expect(emitted().saved?.[0]).toEqual([expect.objectContaining({ responses: expect.objectContaining({ strength: 5 }) })])
   })
 
+  it('lays choice cells out by option count and hides progress while only one step is known', async () => {
+    const { container } = renderMicro('moments', { kind: 'shame' })
+    // Only hadMoment is visible until it is answered: no lone progress pill.
+    expect(container.querySelector('.micro-steps')).toBeNull()
+    const pair = container.querySelector<HTMLElement>('.micro-choice')!
+    expect(pair.classList.contains('micro-choice--pair')).toBe(true)
+    expect(pair.style.getPropertyValue('--micro-cols')).toBe('2')
+    await fireEvent.click(screen.getByRole('radio', { name: 'Yes' }))
+    expect(container.querySelector('.micro-steps small')?.textContent).toBe('1/11')
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → compass (5)
+    expect(container.querySelector<HTMLElement>('.micro-choice')!.style.getPropertyValue('--micro-cols')).toBe('5')
+    await fireEvent.click(screen.getByRole('radio', { name: /The Hider/ }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → noticed (4)
+    expect(container.querySelector<HTMLElement>('.micro-choice')!.style.getPropertyValue('--micro-cols')).toBe('4')
+    expect(container.querySelector('.micro-choice--pair')).toBeNull()
+    await fireEvent.click(screen.getByRole('radio', { name: 'Hours later' }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → response (14)
+    expect(container.querySelector<HTMLElement>('.micro-choice')!.style.getPropertyValue('--micro-cols')).toBe('2')
+  })
+
   it('done progress dots lead back to their step; current and future dots are inert', async () => {
     const { container } = renderMicro('moments', { kind: 'shame' })
     await fireEvent.click(screen.getByRole('radio', { name: 'Yes' }))
