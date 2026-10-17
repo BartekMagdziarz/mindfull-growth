@@ -75,22 +75,37 @@
         />
       </div>
 
-      <!-- Short scales are a row of numbers; wide ones (0–100) keep the range. -->
-      <ExerciseScaleRow
-        v-else-if="currentStep.type === 'slider' && isDiscreteScale(currentStep)"
+      <!-- Up to five steps: the reflection's cloud stack, empty until rated.
+           Up to eleven: a row of numbered tiles. Wider (0–100): the range. -->
+      <ExerciseRatingStack
+        v-else-if="currentStep.type === 'slider' && isStackScale(currentStep)"
         v-model="sliderValues[currentStep.key]!"
         :min="currentStep.min"
         :max="currentStep.max"
         :min-label="tg(stepKey(currentStep, 'minLabel'))"
         :max-label="tg(stepKey(currentStep, 'maxLabel'))"
         :aria-label="tg(stepKey(currentStep, 'title'))"
+        :empty-label="t('exerciseWizards.micro.shared.unrated')"
+        :decrease-label="t('exerciseWizards.micro.shared.breath.less')"
+        :increase-label="t('exerciseWizards.micro.shared.breath.more')"
+      />
+      <ExerciseScaleRow
+        v-else-if="currentStep.type === 'slider' && isDiscreteScale(currentStep)"
+        :model-value="sliderValues[currentStep.key] ?? currentStep.min"
+        :min="currentStep.min"
+        :max="currentStep.max"
+        :min-label="tg(stepKey(currentStep, 'minLabel'))"
+        :max-label="tg(stepKey(currentStep, 'maxLabel'))"
+        :aria-label="tg(stepKey(currentStep, 'title'))"
+        @update:model-value="sliderValues[currentStep.key] = $event"
       />
       <div v-else-if="currentStep.type === 'slider'" class="micro-range">
         <ExerciseRangeInput
-          v-model="sliderValues[currentStep.key]!"
+          :model-value="sliderValues[currentStep.key] ?? currentStep.min"
           :min="currentStep.min"
           :max="currentStep.max"
           :step="currentStep.step ?? 1"
+          @update:model-value="sliderValues[currentStep.key] = $event"
         />
         <div class="micro-range__ends">
           <span>{{ tg(stepKey(currentStep, 'minLabel')) }}</span>
@@ -210,6 +225,7 @@ import AppButton from '@/components/AppButton.vue'
 import AppCard from '@/components/AppCard.vue'
 import EmotionGroupPicker from '@/components/emotion/EmotionGroupPicker.vue'
 import ExerciseRangeInput from '@/components/exercises/ExerciseRangeInput.vue'
+import ExerciseRatingStack from '@/components/exercises/ExerciseRatingStack.vue'
 import ExerciseScaleRow from '@/components/exercises/ExerciseScaleRow.vue'
 import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import MicroBreathTimer from '@/components/exercises/MicroBreathTimer.vue'
@@ -294,7 +310,8 @@ function choiceColumns(count: number): number {
 // runner per exercise (`:key="definition.slug"`), so init runs once.
 const textValues = reactive<Record<string, string>>({})
 const listValues = reactive<Record<string, string[]>>({})
-const sliderValues = reactive<Record<string, number>>({})
+/** Scales: `null` = not rated yet (stack scales start empty; wider ones start mid-way). */
+const sliderValues = reactive<Record<string, number | null>>({})
 // Group picker as in the emotion log: group slug + optional 1–5 intensity.
 const emotionStates = reactive<
   Record<string, { selections: EmotionGroupSelection[]; quadrant: Quadrant | null }>
@@ -329,7 +346,8 @@ for (const step of props.definition.steps) {
       break
     }
     case 'slider':
-      sliderValues[step.key] = typeof given === 'number' ? given : Math.round((step.min + step.max) / 2)
+      sliderValues[step.key] =
+        typeof given === 'number' ? given : isStackScale(step) ? null : Math.round((step.min + step.max) / 2)
       break
     case 'emotionPick':
       emotionStates[step.key] = { selections: [], quadrant: null }
@@ -476,6 +494,11 @@ function isDiscreteScale(step: Extract<MicroExerciseStep, { type: 'slider' }>): 
   return step.max - step.min <= 10 && (step.step ?? 1) === 1
 }
 
+/** Up to five whole steps are the cloud stack (1–5 strength, "did it help"). */
+function isStackScale(step: Extract<MicroExerciseStep, { type: 'slider' }>): boolean {
+  return step.max - step.min <= 4 && (step.step ?? 1) === 1
+}
+
 /**
  * A response of another definition as display text: choice ids become
  * their labels, lists join, prose passes through. Undefined = nothing
@@ -557,8 +580,9 @@ const canAdvance = computed(() => {
   if (isMicroStepOptional(step, choiceAnswers.value)) return true
   switch (step.type) {
     case 'info':
-    case 'slider':
       return true
+    case 'slider':
+      return sliderValues[step.key] != null
     case 'textarea':
       return (textValues[step.key] ?? '').trim().length > 0
     case 'textList':
@@ -601,9 +625,12 @@ function buildResponses(): Record<string, MicroStepValue> {
         if (items.length > 0) responses[step.key] = items
         break
       }
-      case 'slider':
-        responses[step.key] = sliderValues[step.key] ?? step.min
+      case 'slider': {
+        // An unrated optional scale leaves no value behind.
+        const value = sliderValues[step.key]
+        if (typeof value === 'number') responses[step.key] = value
         break
+      }
       case 'emotionPick': {
         const state = emotionStates[step.key]
         if (state && state.selections.length > 0) {

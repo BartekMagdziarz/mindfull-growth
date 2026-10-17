@@ -134,6 +134,9 @@ describe('MicroExerciseRunner: shame branch, hints and entry picks', () => {
     await fireEvent.click(screen.getByRole('button', { name: "\"That's a part, not me\"" }))
     expect(screen.queryByRole('button', { name: 'Save now' })).toBeNull()
     await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → strength: everything ahead is optional
+    // The stack starts empty, so "Save now" waits for the rating too.
+    expect(screen.queryByRole('button', { name: 'Save now' })).toBeNull()
+    await fireEvent.click(screen.getByRole('radio', { name: '3' }))
     expect(screen.getByRole('button', { name: 'Save now' })).toBeTruthy()
     await fireEvent.click(screen.getByRole('button', { name: 'Save now' }))
     expect(emitted().saved?.[0]).toEqual([
@@ -393,10 +396,12 @@ describe('MicroExerciseRunner v3 features', () => {
     await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → response
     await fireEvent.click(screen.getByRole('button', { name: 'Breath' }))
     await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → strength
+    // The cloud stack starts empty: nothing is checked and the step waits for a tap.
     const scale = screen.getByRole('radiogroup', { name: 'How strong was the shame?' })
-    const numbers = Array.from(scale.querySelectorAll('button')).map((b) => b.textContent?.trim())
-    expect(numbers).toEqual(['1', '2', '3', '4', '5'])
-    expect(screen.getByRole('radio', { name: '3' }).getAttribute('aria-checked')).toBe('true')
+    expect(scale.querySelectorAll('[role="radio"]')).toHaveLength(5)
+    expect(scale.querySelectorAll('[aria-checked="true"]')).toHaveLength(0)
+    expect((screen.getByRole('button', { name: 'Next' }) as HTMLButtonElement).disabled).toBe(true)
+    expect(screen.queryByRole('button', { name: 'Save now' })).toBeNull()
     await fireEvent.click(screen.getByRole('radio', { name: '5' }))
     expect(screen.getByRole('radio', { name: '5' }).getAttribute('aria-checked')).toBe('true')
     await fireEvent.click(screen.getByRole('button', { name: 'Save now' }))

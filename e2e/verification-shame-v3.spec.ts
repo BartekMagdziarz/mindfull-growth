@@ -130,6 +130,9 @@ test.describe('shame path v3', () => {
     await expect(hint).toContainText('Zostań w sytuacji minutę dłużej')
     await page.getByRole('button', { name: 'Oddech' }).click()
     await step(/Jak odpowiedział/)
+    // The strength stack starts empty: Dalej waits for a tap.
+    await expect(page.getByRole('button', { name: 'Dalej', exact: true })).toBeDisabled()
+    await page.getByRole('radiogroup', { name: 'Jak silny był wstyd?' }).getByRole('radio', { name: '3' }).click()
     await step('Jak silny był wstyd?')
     await page.locator('textarea').fill('Na stand-upie nie wiedziałem, o co chodzi, i nie zapytałem.')
     await step('Co się wydarzyło?')
