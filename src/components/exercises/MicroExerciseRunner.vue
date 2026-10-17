@@ -1,195 +1,197 @@
 <template>
-  <div class="space-y-6">
-    <!-- Step indicator dots -->
-    <div class="flex items-center justify-center gap-2 mb-2">
-      <span
-        v-for="(step, idx) in steps"
-        :key="step.key"
-        class="w-2.5 h-2.5 rounded-full transition-all duration-200"
-        :class="
-          idx < stepIndex
-            ? 'neo-step-completed'
-            : idx === stepIndex
-              ? 'neo-step-active w-6'
-              : 'neo-step-future'
-        "
-        :title="tg(stepKey(step, 'title'))"
+  <Transition mode="out-in" enter-active-class="transition-opacity duration-200" enter-from-class="opacity-0">
+    <AppCard :key="currentStep.key" padding="lg" class="micro-card" :style="cardStyle">
+      <!-- Progress: quiet accent dots, the current one drawn out; done dots lead back. -->
+      <nav class="micro-steps" :aria-label="t('exerciseWizards.micro.shared.steps')">
+        <ol>
+          <li v-for="(step, idx) in steps" :key="step.key">
+            <button
+              type="button"
+              :class="{ 'is-done': idx < stepIndex, 'is-current': idx === stepIndex }"
+              :aria-current="idx === stepIndex ? 'step' : undefined"
+              :disabled="idx >= stepIndex"
+              :title="tg(stepKey(step, 'title'))"
+              @click="stepIndex = idx"
+            >
+              <i />
+            </button>
+          </li>
+        </ol>
+        <!-- The count waits until the first answer reveals the branch. -->
+        <small v-if="steps.length > 1">{{ stepIndex + 1 }}/{{ steps.length }}</small>
+      </nav>
+
+      <h2 class="micro-title">
+        {{ tg(stepKey(currentStep, 'title')) }}
+        <small
+          v-if="isMicroStepOptional(currentStep, choiceAnswers)"
+          class="micro-optional"
+          data-testid="micro-optional"
+          >{{ t('exerciseWizards.micro.shared.optional') }}</small
+        >
+      </h2>
+      <p class="micro-desc">
+        {{ tg(stepKey(currentStep, 'description')) }}
+      </p>
+      <ExerciseStepWhy :text="optionalText(stepKey(currentStep, 'why'))" />
+
+      <!-- A quiet quote from an earlier entry (hintFrom); never fills the field. -->
+      <blockquote v-if="hint" class="micro-hint" data-testid="micro-hint">
+        <span class="micro-hint__label">{{ hint.label }}</span>
+        <span class="micro-hint__text">„{{ hint.text }}”</span>
+      </blockquote>
+
+      <div v-if="currentStep.type === 'textarea'" class="micro-text">
+        <textarea
+          v-model="textValues[currentStep.key]"
+          :rows="currentStep.minLength ? 7 : 4"
+          :placeholder="tg(stepKey(currentStep, 'placeholder'))"
+          class="micro-field"
+        />
+        <!-- Soft minimum: a counter and a gentle note, never a block. -->
+        <p v-if="currentStep.minLength" class="micro-minlength" data-testid="micro-minlength">
+          <span>{{ (textValues[currentStep.key] ?? '').trim().length }} / {{ currentStep.minLength }}</span>
+          <span v-if="(textValues[currentStep.key] ?? '').trim().length < currentStep.minLength">
+            {{ t('exerciseWizards.micro.shared.minLengthNote') }}
+          </span>
+        </p>
+      </div>
+
+      <div v-else-if="currentStep.type === 'textList'" class="micro-list">
+        <input
+          v-for="(_, index) in listValues[currentStep.key]"
+          :key="index"
+          v-model="listValues[currentStep.key]![index]"
+          type="text"
+          :placeholder="tg(stepKey(currentStep, 'placeholder'))"
+          class="micro-field"
+        />
+      </div>
+
+      <!-- Short scales are a row of numbers; wide ones (0–100) keep the range. -->
+      <ExerciseScaleRow
+        v-else-if="currentStep.type === 'slider' && isDiscreteScale(currentStep)"
+        v-model="sliderValues[currentStep.key]!"
+        :min="currentStep.min"
+        :max="currentStep.max"
+        :min-label="tg(stepKey(currentStep, 'minLabel'))"
+        :max-label="tg(stepKey(currentStep, 'maxLabel'))"
+        :aria-label="tg(stepKey(currentStep, 'title'))"
       />
-    </div>
-
-    <Transition
-      mode="out-in"
-      enter-active-class="transition-opacity duration-200"
-      leave-active-class="transition-opacity duration-150"
-      enter-from-class="opacity-0"
-      leave-to-class="opacity-0"
-    >
-      <div :key="currentStep.key" class="space-y-4">
-        <AppCard padding="lg" class="space-y-4" :style="cardStyle">
-          <h2 class="text-lg font-semibold text-on-surface">
-            {{ tg(stepKey(currentStep, 'title')) }}
-            <small
-              v-if="isMicroStepOptional(currentStep, choiceAnswers)"
-              class="micro-optional"
-              data-testid="micro-optional"
-              >{{ t('exerciseWizards.micro.shared.optional') }}</small
-            >
-          </h2>
-          <p class="text-sm text-on-surface-variant">
-            {{ tg(stepKey(currentStep, 'description')) }}
-          </p>
-          <ExerciseStepWhy :text="optionalText(stepKey(currentStep, 'why'))" />
-
-          <!-- A quiet quote from an earlier entry (hintFrom); never fills the field. -->
-          <blockquote v-if="hint" class="micro-hint" data-testid="micro-hint">
-            <span class="micro-hint__label">{{ hint.label }}</span>
-            <span class="micro-hint__text">{{ hint.text }}</span>
-          </blockquote>
-
-          <div v-if="currentStep.type === 'textarea'" class="space-y-1">
-            <textarea
-              v-model="textValues[currentStep.key]"
-              :rows="currentStep.minLength ? 7 : 4"
-              :placeholder="tg(stepKey(currentStep, 'placeholder'))"
-              class="neo-input neo-focus w-full p-3 text-sm resize-none"
-            />
-            <!-- Soft minimum: a counter and a gentle note, never a block. -->
-            <p v-if="currentStep.minLength" class="micro-minlength" data-testid="micro-minlength">
-              <span>{{ (textValues[currentStep.key] ?? '').trim().length }} / {{ currentStep.minLength }}</span>
-              <span v-if="(textValues[currentStep.key] ?? '').trim().length < currentStep.minLength">
-                {{ t('exerciseWizards.micro.shared.minLengthNote') }}
-              </span>
-            </p>
-          </div>
-
-          <div v-else-if="currentStep.type === 'textList'" class="space-y-2">
-            <input
-              v-for="(_, index) in listValues[currentStep.key]"
-              :key="index"
-              v-model="listValues[currentStep.key]![index]"
-              type="text"
-              :placeholder="tg(stepKey(currentStep, 'placeholder'))"
-              class="neo-input neo-focus w-full p-3 text-sm"
-            />
-          </div>
-
-          <div v-else-if="currentStep.type === 'slider'" class="space-y-2">
-            <ExerciseRangeInput
-              v-model="sliderValues[currentStep.key]!"
-              :min="currentStep.min"
-              :max="currentStep.max"
-              :step="currentStep.step ?? 1"
-            />
-            <div class="flex items-center justify-between text-xs text-on-surface-variant">
-              <span>{{ tg(stepKey(currentStep, 'minLabel')) }}</span>
-              <span class="text-sm font-medium text-on-surface">
-                {{ sliderValues[currentStep.key] }}
-              </span>
-              <span>{{ tg(stepKey(currentStep, 'maxLabel')) }}</span>
-            </div>
-          </div>
-
-          <EmotionGroupPicker
-            v-else-if="currentStep.type === 'emotionPick'"
-            v-model="emotionStates[currentStep.key]!.selections"
-            v-model:quadrant="emotionStates[currentStep.key]!.quadrant"
-          />
-
-          <div
-            v-else-if="currentStep.type === 'choice'"
-            class="micro-choice"
-            :role="currentStep.multiple ? 'group' : 'radiogroup'"
-            :aria-label="tg(stepKey(currentStep, 'title'))"
-          >
-            <p v-if="choiceOptions(currentStep).length === 0" class="micro-pick__empty">
-              {{ optionalText(stepKey(currentStep, 'empty')) || t('exerciseWizards.micro.shared.noPractices') }}
-            </p>
-            <button
-              v-for="option in choiceOptions(currentStep)"
-              :key="option.id"
-              type="button"
-              class="mg-v2-pill micro-choice__option"
-              :class="{ 'mg-v2-pill--primary mg-v2-pill--selected': isChosen(currentStep.key, option.id) }"
-              :role="currentStep.multiple ? undefined : 'radio'"
-              :aria-pressed="currentStep.multiple ? isChosen(currentStep.key, option.id) : undefined"
-              :aria-checked="currentStep.multiple ? undefined : isChosen(currentStep.key, option.id)"
-              @click="toggleChoice(currentStep, option.id)"
-            >
-              <span>{{ option.label }}</span>
-              <small v-if="option.hint" class="micro-choice__hint">{{ option.hint }}</small>
-            </button>
-          </div>
-
-          <!-- Pick one recent entry of another micro (e.g. a moment to work on). -->
-          <div
-            v-else-if="currentStep.type === 'entryPick'"
-            class="micro-pick"
-            role="radiogroup"
-            :aria-label="tg(stepKey(currentStep, 'title'))"
-          >
-            <p v-if="pickable.length === 0" class="micro-pick__empty">
-              {{ tg(stepKey(currentStep, 'empty')) }}
-            </p>
-            <button
-              v-for="entry in pickable"
-              :key="entry.id"
-              type="button"
-              class="micro-pick__card"
-              :class="{ 'is-selected': pickValues[currentStep.key] === entry.id }"
-              role="radio"
-              :aria-checked="pickValues[currentStep.key] === entry.id"
-              @click="togglePick(currentStep.key, entry.id)"
-            >
-              <span class="micro-pick__date">{{ formatEntryDate(entry.createdAt) }}</span>
-              <span
-                v-for="line in pickCardLines(currentStep, entry)"
-                :key="line.key"
-                class="micro-pick__line"
-                :class="{ 'micro-pick__line--meta': line.meta }"
-              >
-                {{ line.text }}
-              </span>
-            </button>
-          </div>
-
-          <MicroBreathTimer
-            v-else-if="currentStep.type === 'breathTimer'"
-            :phase-seconds="currentStep.phaseSeconds"
-            :total-seconds="currentStep.totalSeconds"
-            :storage-key="`${definition.slug}:${currentStep.key}`"
-            @started="Object.assign(breathStates[currentStep.key]!, $event)"
-            @progress="breathStates[currentStep.key]!.elapsed = $event"
-            @done="Object.assign(breathStates[currentStep.key]!, { done: true, elapsed: $event })"
-          />
-        </AppCard>
-
-        <div class="flex items-center justify-between gap-3">
-          <div class="flex items-center gap-2">
-            <AppButton v-if="stepIndex > 0" variant="text" @click="stepIndex--">
-              {{ t('common.buttons.back') }}
-            </AppButton>
-            <!-- Inner practice: a quiet exit that still counts (backdraft rule). -->
-            <AppButton
-              v-if="definition.innerPractice"
-              variant="text"
-              class="micro-too-much"
-              @click="leaveTooMuch()"
-            >
-              {{ t('exerciseWizards.micro.shared.tooMuchToday') }}
-            </AppButton>
-          </div>
-          <div class="flex items-center gap-2">
-            <AppButton v-if="canFinishNow" variant="tonal" @click="finishEarly()">
-              {{ t('exerciseWizards.micro.shared.saveNow') }}
-            </AppButton>
-            <AppButton variant="filled" :disabled="!canAdvance" @click="advance()">
-              {{ isLastStep ? t('common.buttons.save') : t('common.buttons.next') }}
-            </AppButton>
-          </div>
+      <div v-else-if="currentStep.type === 'slider'" class="micro-range">
+        <ExerciseRangeInput
+          v-model="sliderValues[currentStep.key]!"
+          :min="currentStep.min"
+          :max="currentStep.max"
+          :step="currentStep.step ?? 1"
+        />
+        <div class="micro-range__ends">
+          <span>{{ tg(stepKey(currentStep, 'minLabel')) }}</span>
+          <strong>{{ sliderValues[currentStep.key] }}</strong>
+          <span>{{ tg(stepKey(currentStep, 'maxLabel')) }}</span>
         </div>
       </div>
-    </Transition>
-  </div>
+
+      <EmotionGroupPicker
+        v-else-if="currentStep.type === 'emotionPick'"
+        v-model="emotionStates[currentStep.key]!.selections"
+        v-model:quadrant="emotionStates[currentStep.key]!.quadrant"
+      />
+
+      <div
+        v-else-if="currentStep.type === 'choice'"
+        class="micro-choice"
+        :role="currentStep.multiple ? 'group' : 'radiogroup'"
+        :aria-label="tg(stepKey(currentStep, 'title'))"
+      >
+        <p v-if="choiceOptions(currentStep).length === 0" class="micro-pick__empty">
+          {{ optionalText(stepKey(currentStep, 'empty')) || t('exerciseWizards.micro.shared.noPractices') }}
+        </p>
+        <button
+          v-for="option in choiceOptions(currentStep)"
+          :key="option.id"
+          type="button"
+          class="exercise-chip micro-choice__option"
+          :class="{ 'is-on': isChosen(currentStep.key, option.id) }"
+          :role="currentStep.multiple ? undefined : 'radio'"
+          :aria-pressed="currentStep.multiple ? isChosen(currentStep.key, option.id) : undefined"
+          :aria-checked="currentStep.multiple ? undefined : isChosen(currentStep.key, option.id)"
+          @click="toggleChoice(currentStep, option.id)"
+        >
+          <span>{{ option.label }}</span>
+          <small v-if="option.hint" class="exercise-chip__hint micro-choice__hint">{{ option.hint }}</small>
+        </button>
+      </div>
+
+      <!-- Pick one recent entry of another micro (e.g. a moment to work on). -->
+      <div
+        v-else-if="currentStep.type === 'entryPick'"
+        class="micro-pick"
+        role="radiogroup"
+        :aria-label="tg(stepKey(currentStep, 'title'))"
+      >
+        <p v-if="pickable.length === 0" class="micro-pick__empty">
+          {{ tg(stepKey(currentStep, 'empty')) }}
+        </p>
+        <button
+          v-for="entry in pickable"
+          :key="entry.id"
+          type="button"
+          class="micro-pick__card"
+          :class="{ 'is-selected': pickValues[currentStep.key] === entry.id }"
+          role="radio"
+          :aria-checked="pickValues[currentStep.key] === entry.id"
+          @click="togglePick(currentStep.key, entry.id)"
+        >
+          <span class="micro-pick__date">{{ formatEntryDate(entry.createdAt) }}</span>
+          <span
+            v-for="line in pickCardLines(currentStep, entry)"
+            :key="line.key"
+            class="micro-pick__line"
+            :class="{ 'micro-pick__line--meta': line.meta }"
+          >
+            {{ line.text }}
+          </span>
+        </button>
+      </div>
+
+      <MicroBreathTimer
+        v-else-if="currentStep.type === 'breathTimer'"
+        :phase-seconds="currentStep.phaseSeconds"
+        :total-seconds="currentStep.totalSeconds"
+        :storage-key="`${definition.slug}:${currentStep.key}`"
+        @started="Object.assign(breathStates[currentStep.key]!, $event)"
+        @progress="breathStates[currentStep.key]!.elapsed = $event"
+        @done="Object.assign(breathStates[currentStep.key]!, { done: true, elapsed: $event })"
+      />
+
+      <!-- Actions right after the content, inside the card. -->
+      <footer class="micro-footer">
+        <div class="micro-footer__group">
+          <AppButton v-if="stepIndex > 0" variant="text" @click="stepIndex--">
+            {{ t('common.buttons.back') }}
+          </AppButton>
+          <!-- Inner practice: a quiet exit that still counts (backdraft rule). -->
+          <AppButton
+            v-if="definition.innerPractice"
+            variant="text"
+            class="micro-too-much"
+            @click="leaveTooMuch()"
+          >
+            {{ t('exerciseWizards.micro.shared.tooMuchToday') }}
+          </AppButton>
+        </div>
+        <div class="micro-footer__group">
+          <AppButton v-if="canFinishNow" variant="tonal" @click="finishEarly()">
+            {{ t('exerciseWizards.micro.shared.saveNow') }}
+          </AppButton>
+          <AppButton variant="filled" :disabled="!canAdvance" @click="advance()">
+            {{ isLastStep ? t('common.buttons.save') : t('common.buttons.next') }}
+          </AppButton>
+        </div>
+      </footer>
+    </AppCard>
+  </Transition>
 </template>
 
 <script setup lang="ts">
@@ -198,6 +200,7 @@ import AppButton from '@/components/AppButton.vue'
 import AppCard from '@/components/AppCard.vue'
 import EmotionGroupPicker from '@/components/emotion/EmotionGroupPicker.vue'
 import ExerciseRangeInput from '@/components/exercises/ExerciseRangeInput.vue'
+import ExerciseScaleRow from '@/components/exercises/ExerciseScaleRow.vue'
 import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import MicroBreathTimer from '@/components/exercises/MicroBreathTimer.vue'
 import { useT } from '@/composables/useT'
@@ -248,7 +251,7 @@ const emit = defineEmits<{
   tooMuch: []
 }>()
 
-const { t, tg } = useT()
+const { t, tg, locale } = useT()
 const entryStore = useMicroExerciseEntryStore()
 const enrollmentStore = useProgramEnrollmentStore()
 const partStore = useIFSPartStore()
@@ -443,7 +446,12 @@ const pickable = computed(() => {
 })
 
 function formatEntryDate(iso: string): string {
-  return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
+  return new Date(iso).toLocaleDateString(locale.value, { day: 'numeric', month: 'long' })
+}
+
+/** Up to eleven whole steps read as a row of numbers; wider scales keep the range input. */
+function isDiscreteScale(step: Extract<MicroExerciseStep, { type: 'slider' }>): boolean {
+  return step.max - step.min <= 10 && (step.step ?? 1) === 1
 }
 
 /**
@@ -648,49 +656,154 @@ function leaveTooMuch(): void {
 </script>
 
 <style scoped>
-.micro-optional {
-  margin-left: 0.5rem;
-  color: var(--mg-color-muted);
-  font-size: var(--mg-font-size-xs);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: lowercase;
+.micro-card {
+  display: grid;
+  gap: var(--mg-space-3);
 }
 
-.micro-choice {
+/* Progress: the ritual's dots — accent at a fifth, done at half, current drawn out. */
+.micro-steps {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
   gap: var(--mg-space-2);
+  margin-bottom: var(--mg-space-1);
 }
 
-/* Answer chips are the product pill, one size up so a whole answer reads well. */
-.micro-choice__option {
-  min-height: 2.25rem;
-  padding: 0 var(--mg-space-4);
-  font-size: var(--mg-font-size-sm);
+.micro-steps ol {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.micro-steps button {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: default;
+}
+
+.micro-steps button:not(:disabled) {
   cursor: pointer;
 }
 
-.micro-choice__option:not(.mg-v2-pill--selected) {
-  color: var(--mg-color-ink);
+.micro-steps button:focus-visible {
+  outline: 2px solid var(--mg-color-focus);
+  outline-offset: 0;
 }
 
-/* A verb under the answer ("napraw · zadbaj · sprawdź"): the way forward, not a second label. */
-.micro-choice__option {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  line-height: 1.2;
+.micro-steps i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mg-color-primary);
+  opacity: 0.2;
+  transition:
+    width var(--mg-duration-fast) ease,
+    opacity var(--mg-duration-fast) ease;
 }
 
-.micro-choice__hint {
+.micro-steps .is-done i {
+  opacity: 0.55;
+}
+
+.micro-steps .is-done:hover i {
+  opacity: 0.85;
+}
+
+.micro-steps .is-current i {
+  width: 18px;
+  border-radius: 8px;
+  opacity: 1;
+}
+
+.micro-steps small {
+  color: var(--mg-color-muted);
   font-size: var(--mg-font-size-xs);
-  opacity: 0.75;
+  font-weight: 700;
 }
 
-.micro-choice__option:not(.mg-v2-pill--selected):hover {
+.micro-title {
+  margin: 0;
+  color: var(--mg-color-ink);
+  font-size: var(--mg-font-size-lg);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.micro-optional {
+  margin-left: var(--mg-space-2);
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-xs);
+  font-weight: 600;
+}
+
+.micro-desc {
+  margin: 0;
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-sm);
+  line-height: 1.55;
+}
+
+/* Quote from an earlier entry: one tone lighter than the card, no rule, no italics. */
+.micro-hint {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: var(--mg-space-2) var(--mg-space-3);
+  border-radius: var(--mg-radius-md);
   background: var(--mg-color-paper);
+}
+
+.micro-hint__label {
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-xs);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.micro-hint__text {
+  color: var(--mg-color-ink);
+  font-size: var(--mg-font-size-sm);
+}
+
+/* Fields keep the field tone on focus; the ring carries the state. */
+.micro-text,
+.micro-list {
+  display: grid;
+  gap: var(--mg-space-2);
+}
+
+.micro-field {
+  width: 100%;
+  padding: var(--mg-space-3);
+  border: 1px solid var(--mg-color-field-border);
+  border-radius: var(--mg-radius-md);
+  background: var(--mg-color-mist);
+  color: var(--mg-color-ink);
+  font: inherit;
+  font-size: var(--mg-font-size-sm);
+  line-height: 1.6;
+  resize: none;
+}
+
+.micro-field::placeholder {
+  color: var(--mg-color-muted);
+}
+
+.micro-field:focus-visible {
+  outline: none;
+  border-color: rgb(var(--sky-400) / 0.5);
+  box-shadow: var(--mg-focus-ring);
 }
 
 .micro-minlength {
@@ -702,42 +815,62 @@ function leaveTooMuch(): void {
   color: var(--mg-color-muted);
 }
 
+.micro-range {
+  display: grid;
+  gap: var(--mg-space-2);
+}
+
+.micro-range__ends {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--mg-font-size-xs);
+  color: var(--mg-color-muted);
+}
+
+.micro-range__ends strong {
+  color: var(--mg-color-ink);
+  font-size: var(--mg-font-size-sm);
+  font-weight: 700;
+}
+
+.micro-choice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mg-space-2);
+}
+
+.micro-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mg-space-3);
+  margin-top: var(--mg-space-2);
+}
+
+.micro-footer__group {
+  display: flex;
+  align-items: center;
+  gap: var(--mg-space-2);
+}
+
+/* The quiet "Wstecz" starts on the content edge, not a padding in. */
+.micro-footer__group:first-child > :first-child.mg-v2-button--quiet {
+  margin-left: calc(-1 * var(--mg-space-4));
+}
+
 .micro-too-much {
   color: var(--mg-color-muted);
 }
 
-/* Quote from an earlier entry: quiet, one tone deeper than the card. */
-.micro-hint {
-  display: grid;
-  gap: var(--mg-space-1);
-  margin: 0;
-  padding: var(--mg-space-2) var(--mg-space-3);
-  border-left: 2px solid var(--mg-color-border);
-  background: var(--mg-color-paper);
-  border-radius: 0 var(--mg-radius-md) var(--mg-radius-md) 0;
-}
-
-.micro-hint__label {
-  font-size: var(--mg-font-size-xs);
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--mg-color-muted);
-}
-
-.micro-hint__text {
-  font-size: var(--mg-font-size-sm);
-  color: var(--mg-color-ink);
-  font-style: italic;
-}
-
-/* Entry cards to pick from. */
+/* Entry cards to pick from: the chip's tones, one card per entry. */
 .micro-pick {
   display: grid;
   gap: var(--mg-space-2);
 }
 
 .micro-pick__empty {
+  margin: 0;
   font-size: var(--mg-font-size-sm);
   color: var(--mg-color-muted);
 }
@@ -749,18 +882,25 @@ function leaveTooMuch(): void {
   padding: var(--mg-space-2) var(--mg-space-3);
   border: 1px solid var(--mg-color-border);
   border-radius: var(--mg-radius-md);
-  background: var(--mg-color-paper);
+  background: var(--mg-color-mist);
   color: var(--mg-color-ink);
+  font: inherit;
   cursor: pointer;
+  transition: background var(--mg-duration-fast) ease;
 }
 
 .micro-pick__card:hover {
-  border-color: var(--mg-color-muted);
+  background: var(--mg-color-sky-well);
 }
 
 .micro-pick__card.is-selected {
   border-color: var(--mg-color-primary);
   box-shadow: inset 0 0 0 1px var(--mg-color-primary);
+}
+
+.micro-pick__card:focus-visible {
+  outline: 2px solid var(--mg-color-focus);
+  outline-offset: 2px;
 }
 
 .micro-pick__date {

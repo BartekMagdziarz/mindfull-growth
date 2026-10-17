@@ -382,4 +382,39 @@ describe('MicroExerciseRunner v3 features', () => {
     const hint = container.querySelector('[data-testid="micro-hint"]')!
     expect(hint.textContent).toContain(long)
   })
+
+  it('a 1–5 scale is a row of numbers with the middle preselected; a tap changes the saved value', async () => {
+    const { emitted } = renderMicro('moments', { kind: 'shame' })
+    await fireEvent.click(screen.getByRole('radio', { name: 'Yes' }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → compass
+    await fireEvent.click(screen.getByRole('radio', { name: /The Hider/ }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → noticed
+    await fireEvent.click(screen.getByRole('radio', { name: 'As it happened' }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → response
+    await fireEvent.click(screen.getByRole('button', { name: 'Breath' }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → strength
+    const scale = screen.getByRole('radiogroup', { name: 'How strong was the shame?' })
+    const numbers = Array.from(scale.querySelectorAll('button')).map((b) => b.textContent?.trim())
+    expect(numbers).toEqual(['1', '2', '3', '4', '5'])
+    expect(screen.getByRole('radio', { name: '3' }).getAttribute('aria-checked')).toBe('true')
+    await fireEvent.click(screen.getByRole('radio', { name: '5' }))
+    expect(screen.getByRole('radio', { name: '5' }).getAttribute('aria-checked')).toBe('true')
+    await fireEvent.click(screen.getByRole('button', { name: 'Save now' }))
+    expect(emitted().saved?.[0]).toEqual([expect.objectContaining({ responses: expect.objectContaining({ strength: 5 }) })])
+  })
+
+  it('done progress dots lead back to their step; current and future dots are inert', async () => {
+    const { container } = renderMicro('moments', { kind: 'shame' })
+    await fireEvent.click(screen.getByRole('radio', { name: 'Yes' }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → compass
+    await fireEvent.click(screen.getByRole('radio', { name: /The Hider/ }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → noticed
+    const dots = Array.from(container.querySelectorAll<HTMLButtonElement>('.micro-steps button'))
+    expect(dots.map((d) => d.disabled)).toEqual([false, false, ...Array(9).fill(true)])
+    expect(dots[2]!.getAttribute('aria-current')).toBe('step')
+    expect(container.querySelector('.micro-steps small')?.textContent).toBe('3/11')
+    await fireEvent.click(dots[0]!)
+    expect(screen.getByRole('radio', { name: 'Yes' }).getAttribute('aria-checked')).toBe('true')
+    expect(container.querySelector('.micro-steps small')?.textContent).toBe('1/11')
+  })
 })

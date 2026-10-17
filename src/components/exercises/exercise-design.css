@@ -81,3 +81,81 @@ button.exercise-pill:hover:not(:disabled) {
 .exercise-page .mg-v2-stepper__dot:disabled {
   cursor: default;
 }
+
+/* Answer chips (micro runner, repeat planning): the Today chip — px radius,
+   mist, no lift; the picked one filled in the accent as in the week
+   reflection's "Dopisz" form. */
+.exercise-chip {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1px;
+  min-height: 1.95rem;
+  padding: 3px var(--mg-space-3);
+  border: 1px solid var(--mg-color-border);
+  border-radius: var(--mg-radius-sm);
+  background: var(--mg-color-mist);
+  color: var(--mg-color-ink);
+  box-shadow: none;
+  font: inherit;
+  font-size: var(--mg-font-size-sm);
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background var(--mg-duration-fast) ease,
+    color var(--mg-duration-fast) ease;
+}
+
+.exercise-chip:hover:not(:disabled) {
+  background: var(--mg-color-sky-well);
+  color: var(--mg-color-primary-strong);
+}
+
+.exercise-chip.is-on,
+.exercise-chip.is-on:hover:not(:disabled) {
+  border-color: transparent;
+  background: var(--mg-color-primary-fill);
+  color: var(--mg-color-on-primary);
+}
+
+.exercise-chip:focus-visible {
+  outline: 2px solid var(--mg-color-focus);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+.exercise-chip:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* One tone lighter: a suggested answer that is not yet picked. */
+.exercise-chip--soft {
+  background: var(--mg-color-paper);
+}
+
+.exercise-chip--ghost {
+  border-color: transparent;
+  background: transparent;
+  color: var(--mg-color-muted);
+}
+
+.exercise-chip--ghost:hover:not(:disabled) {
+  background: var(--mg-color-mist);
+  color: var(--mg-color-ink);
+}
+
+/* A verb under the answer ("napraw"): the way forward, not a second label. */
+.exercise-chip__hint {
+  font-size: var(--mg-font-size-xs);
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+/* Footer actions inside the step card sit flat; only the primary one is filled. */
+.micro-footer .mg-v2-button:not(.mg-v2-button--primary) {
+  box-shadow: none;
+}
