@@ -1,24 +1,24 @@
 <template>
-  <p v-if="programItem" class="text-sm font-medium text-on-surface">
+  <p v-if="programItem" class="repeat-prompt__title">
     {{ t('exercises.repeatPrompt.programPlanned', { date: plannedDateLabel }) }}
   </p>
-  <div v-else class="space-y-2">
-    <p class="text-sm font-medium text-on-surface">
+  <div v-else class="repeat-prompt">
+    <p class="repeat-prompt__title">
       <template v-if="activeItem">
         {{ t('exercises.repeatPrompt.plannedFor', { date: plannedDateLabel }) }}
       </template>
       <template v-else>{{ t('exercises.repeatPrompt.title') }}</template>
     </p>
 
-    <div class="flex flex-wrap items-center justify-center gap-2">
+    <div class="repeat-prompt__chips">
       <button
         v-for="option in chipOptions"
         :key="option.days"
         type="button"
-        class="exercise-pill neo-focus px-3 py-1.5 text-xs font-medium transition-opacity hover:opacity-80"
+        class="exercise-chip"
         :class="{
-          'exercise-pill--primary': isSelected(option.days),
-          'repeat-chip--suggested': option.suggested && !activeItem,
+          'is-on': isSelected(option.days),
+          'exercise-chip--soft': option.suggested && !activeItem,
         }"
         :title="option.suggested ? t('exercises.repeatPrompt.suggested') : undefined"
         @click="pickDays(option.days)"
@@ -28,19 +28,14 @@
 
       <button
         type="button"
-        class="exercise-pill neo-focus px-3 py-1.5 text-xs font-medium transition-opacity hover:opacity-80"
-        :class="{ 'exercise-pill--primary': customSelected }"
+        class="exercise-chip"
+        :class="{ 'is-on': customSelected }"
         @click="openDatePicker"
       >
         {{ customSelected ? plannedDateLabel : t('exercises.repeatPrompt.chips.customDate') }}
       </button>
 
-      <button
-        v-if="activeItem"
-        type="button"
-        class="neo-focus px-2 py-1 text-xs font-medium text-on-surface-variant transition-colors hover:text-on-surface"
-        @click="undo"
-      >
+      <button v-if="activeItem" type="button" class="exercise-chip exercise-chip--ghost" @click="undo">
         {{ t('exercises.repeatPrompt.undo') }}
       </button>
     </div>
@@ -201,8 +196,22 @@ async function undo(): Promise<void> {
 </script>
 
 <style scoped>
-.repeat-chip--suggested {
-  border-color: rgb(var(--color-primary) / 0.55);
-  border-style: dashed;
+.repeat-prompt {
+  display: grid;
+  gap: var(--mg-space-2);
+}
+
+.repeat-prompt__title {
+  margin: 0;
+  color: var(--mg-color-ink);
+  font-size: var(--mg-font-size-sm);
+  font-weight: 600;
+}
+
+.repeat-prompt__chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mg-space-2);
 }
 </style>

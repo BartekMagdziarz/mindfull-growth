@@ -1,11 +1,13 @@
 <template>
-  <section class="mg-v2-surface mg-v2-surface--raised-sm mg-v2-surface--sheet exercise-saved">
-    <span class="mg-v2-icon-board mg-v2-icon-board--lg" aria-hidden="true">
-      <AppIcon class="material-symbols-outlined" name="check" />
-    </span>
-    <h2 class="exercise-saved__title">
-      {{ t('exercises.savedPanel.title') }}
-    </h2>
+  <AppCard padding="lg" class="exercise-saved">
+    <header class="exercise-saved__head">
+      <span class="exercise-saved__mark" aria-hidden="true">
+        <AppIcon class="material-symbols-outlined" name="check" />
+      </span>
+      <h2 class="exercise-saved__title">
+        {{ t('exercises.savedPanel.title') }}
+      </h2>
+    </header>
     <p class="exercise-saved__lead">
       {{ tg('exercises.savedPanel.description') }}
     </p>
@@ -20,17 +22,22 @@
         {{ t('exercises.savedPanel.backToExercises') }}
       </AppButton>
     </div>
-  </section>
+  </AppCard>
 </template>
 
 <script setup lang="ts">
-import AppIcon from '@/components/shared/AppIcon.vue'
-
 import { useRouter } from 'vue-router'
 import AppButton from '@/components/AppButton.vue'
+import AppCard from '@/components/AppCard.vue'
 import RepeatPlanPrompt from '@/components/exercises/RepeatPlanPrompt.vue'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 
+/**
+ * After a save: a quiet confirmation in the card's own voice — a small
+ * check, "Zapisano", the repeat planning, then the two ways on. No
+ * celebration; the entry is the point.
+ */
 defineProps<{
   exerciseSlug: string
   /** Forwarded to RepeatPlanPrompt (assessment retake prefill). */
@@ -46,28 +53,56 @@ const { t, tg } = useT()
 <style scoped>
 .exercise-saved {
   display: grid;
-  justify-items: center;
   gap: var(--mg-space-3);
-  padding: var(--mg-space-6);
-  text-align: center;
+}
+
+.exercise-saved__head {
+  display: flex;
+  align-items: center;
+  gap: var(--mg-space-2);
+}
+
+.exercise-saved__mark {
+  display: inline-grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--mg-radius-icon-field-a);
+  background: var(--mg-color-paper);
+  color: var(--mg-color-primary);
+}
+
+.exercise-saved__mark .material-symbols-outlined {
+  font-size: 1.1rem;
 }
 
 .exercise-saved__title {
   margin: 0;
+  color: var(--mg-color-ink);
   font-size: var(--mg-font-size-lg);
   font-weight: 800;
+  letter-spacing: -0.01em;
 }
 
 .exercise-saved__lead {
   margin: 0;
-  max-width: 44ch;
+  max-width: 56ch;
   color: var(--mg-color-muted);
   font-size: var(--mg-font-size-sm);
 }
 
 .exercise-saved__actions {
   display: flex;
-  justify-content: center;
-  gap: var(--mg-space-3);
+  align-items: center;
+  gap: var(--mg-space-2);
+  margin-top: var(--mg-space-1);
+}
+
+.exercise-saved__actions .mg-v2-button:not(.mg-v2-button--primary) {
+  box-shadow: none;
+}
+
+.exercise-saved__actions > :first-child.mg-v2-button--quiet {
+  margin-left: calc(-1 * var(--mg-space-4));
 }
 </style>
