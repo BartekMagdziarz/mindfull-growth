@@ -79,22 +79,24 @@
       </AppCard>
     </template>
 
-    <!-- Past entries section -->
-    <div v-if="pastEntries.length > 0" class="mt-8">
-      <div class="mg-v2-section-head"><h2>
-        {{ t('exercises.views.pastEntries') }}
-      </h2></div>
-      <div class="space-y-3">
-        <AppCard v-for="entry in pastEntries" :key="entry.id" padding="md">
-          <p class="text-sm font-medium text-on-surface line-clamp-2">
-            {{ entrySnippet(entry) }}
-          </p>
-          <p class="text-xs text-on-surface-variant mt-1">
-            {{ formatDate(entry.createdAt) }}
-          </p>
-        </AppCard>
-      </div>
-    </div>
+    <!-- Past entries: quiet rows under an eyebrow, the latest eight by default. -->
+    <section v-if="pastEntries.length > 0" class="micro-past">
+      <h2 class="micro-past__head">{{ t('exercises.views.pastEntries') }}</h2>
+      <ul class="micro-past__list">
+        <li v-for="entry in shownEntries" :key="entry.id" class="micro-past__row">
+          <span class="micro-past__text">{{ entrySnippet(entry) }}</span>
+          <time class="micro-past__date" :datetime="entry.createdAt">{{ formatDate(entry.createdAt) }}</time>
+        </li>
+      </ul>
+      <button
+        v-if="pastEntries.length > PAST_PREVIEW && !showAllPast"
+        type="button"
+        class="exercise-chip exercise-chip--ghost"
+        @click="showAllPast = true"
+      >
+        {{ t('exercises.views.showAllEntries', { n: pastEntries.length }) }}
+      </button>
+    </section>
   </ExercisePage>
 </template>
 
@@ -128,7 +130,7 @@ const TOO_MUCH_ROUTE = '/exercises/micro/paced-breathing'
 
 const route = useRoute()
 const router = useRouter()
-const { t, tg } = useT()
+const { t, tg, locale } = useT()
 const entryStore = useMicroExerciseEntryStore()
 
 // The route slug may be a catalog variant (`moment-shame`): it runs the
@@ -150,6 +152,9 @@ function programWithStep(stepSlug: string): string | undefined {
 const returnProgramSlug = computed(() => programWithStep('path-return'))
 const doseProgramSlug = computed(() => programWithStep('dose-check'))
 const lastResponses = ref<Record<string, MicroStepValue> | null>(null)
+/** How many past entries show before "Pokaż wszystkie". */
+const PAST_PREVIEW = 8
+const showAllPast = ref(false)
 
 /** Past entries of this run's shape: the definition's, narrowed by the preset answers. */
 const pastEntries = computed(() => {
@@ -161,6 +166,10 @@ const pastEntries = computed(() => {
   return entryStore.entriesBySlug(target.slug).filter((entry) => entryMatches(entry, conditions))
 })
 
+const shownEntries = computed(() =>
+  showAllPast.value ? pastEntries.value : pastEntries.value.slice(0, PAST_PREVIEW),
+)
+
 onMounted(() => {
   if (!definition.value) {
     void router.replace('/exercises')
@@ -171,6 +180,7 @@ onMounted(() => {
 
 watch(slug, () => {
   saved.value = false
+  showAllPast.value = false
   lastResponses.value = null
   if (route.name === 'micro-exercise' && !definition.value) {
     void router.replace('/exercises')
@@ -214,13 +224,13 @@ function openAfterSave() {
 }
 
 /**
- * First text-ish response makes a readable one-line summary. Choice
- * answers are option ids, not prose, so they never become the snippet.
+ * One readable line per entry: the first prose answer; without prose, the
+ * chip answers in step order as their labels ("Ukrywający · Po chwili ·
+ * Oddech, Nazwanie wstydu · 3"); the exercise title only as a last resort.
  */
 function entrySnippet(entry: MicroExerciseEntry): string {
-  const choiceKeys = new Set(
-    (definition.value?.steps ?? []).filter((step) => step.type === 'choice').map((step) => step.key),
-  )
+  const steps = definition.value?.steps ?? []
+  const choiceKeys = new Set(steps.filter((step) => step.type === 'choice').map((step) => step.key))
   for (const [key, value] of Object.entries(entry.responses)) {
     if (choiceKeys.has(key)) continue
     if (typeof value === 'string' && value.length > 0) return value
@@ -228,19 +238,84 @@ function entrySnippet(entry: MicroExerciseEntry): string {
       return (value as string[]).join(' · ')
     }
   }
-  return t(`exercises.cards.${catalogEntry.value?.i18nKey}.title`)
+  const parts: string[] = []
+  for (const step of steps) {
+    if (step.key in preset.value) continue
+    const value = entry.responses[step.key]
+    if (step.type === 'choice') {
+      const picked = Array.isArray(value) ? value : typeof value === 'string' ? [value] : []
+      const labels = picked
+        .filter((option): option is string => typeof option === 'string')
+        .map((option) => tg(`exerciseWizards.micro.${definition.value!.i18nKey}.${step.key}.options.${option}`))
+      if (labels.length) parts.push(labels.join(', '))
+    } else if (step.type === 'slider' && typeof value === 'number') {
+      parts.push(String(value))
+    }
+  }
+  return parts.length ? parts.join(' · ') : t(`exercises.cards.${catalogEntry.value?.i18nKey}.title`)
 }
 
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year: undefined,
-  })
+  return new Date(iso).toLocaleDateString(locale.value, { day: 'numeric', month: 'long' })
 }
 </script>
 
 <style scoped>
+.micro-past {
+  display: grid;
+  gap: var(--mg-space-2);
+  margin-top: var(--mg-space-6);
+}
+
+.micro-past__head {
+  margin: 0;
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-xs);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.micro-past__list {
+  display: grid;
+  gap: var(--mg-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.micro-past__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--mg-space-3);
+  padding: var(--mg-space-2) var(--mg-space-3);
+  border: 1px solid var(--mg-color-border);
+  border-radius: var(--mg-radius-md);
+  background: var(--mg-color-mist);
+}
+
+.micro-past__text {
+  display: -webkit-box;
+  overflow: hidden;
+  min-width: 0;
+  color: var(--mg-color-ink);
+  font-size: var(--mg-font-size-sm);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.micro-past__date {
+  flex-shrink: 0;
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-xs);
+  white-space: nowrap;
+}
+
+.micro-past > .exercise-chip {
+  justify-self: start;
+}
+
 .micro-follow-up {
   display: flex;
   align-items: center;
