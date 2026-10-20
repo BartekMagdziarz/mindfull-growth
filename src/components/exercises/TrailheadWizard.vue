@@ -14,7 +14,9 @@
       <template v-if="currentStep === 'trigger'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-lg font-bold text-on-surface">{{ t('exerciseWizards.trailhead.trigger.title') }}</h2>
+            <h2 class="text-lg font-bold text-on-surface">
+              {{ t('exerciseWizards.trailhead.trigger.title') }}
+            </h2>
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.trailhead.trigger.subtitle') }}
             </p>
@@ -27,7 +29,9 @@
             <ExerciseStepWhy :text="tg('exerciseWizards.trailhead.trigger.why')" />
 
             <div class="space-y-1">
-              <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.trailhead.trigger.questionLabel') }}</label>
+              <label class="text-xs font-medium text-on-surface-variant">{{
+                t('exerciseWizards.trailhead.trigger.questionLabel')
+              }}</label>
               <textarea
                 v-model="triggerDescription"
                 rows="3"
@@ -78,7 +82,9 @@
           <AppCard padding="lg" class="space-y-4">
             <div class="flex items-center gap-2">
               <AppIcon name="chat_bubble" class="text-xl text-on-surface-variant" />
-              <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.trailhead.thoughts.title') }}</h2>
+              <h2 class="text-base font-semibold text-on-surface">
+                {{ t('exerciseWizards.trailhead.thoughts.title') }}
+              </h2>
             </div>
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.trailhead.thoughts.description') }}
@@ -97,7 +103,9 @@
 
           <div class="flex justify-between">
             <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
-            <AppButton variant="filled" :disabled="!canAdvance" @click="nextStep()">{{ t('common.buttons.next') }}</AppButton>
+            <AppButton variant="filled" :disabled="!canAdvance" @click="nextStep()">{{
+              t('common.buttons.next')
+            }}</AppButton>
           </div>
         </div>
       </template>
@@ -108,7 +116,9 @@
           <AppCard padding="lg" class="space-y-4">
             <div class="flex items-center gap-2">
               <AppIcon name="pan_tool" class="text-xl text-on-surface-variant" />
-              <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.trailhead.sensations.title') }}</h2>
+              <h2 class="text-base font-semibold text-on-surface">
+                {{ t('exerciseWizards.trailhead.sensations.title') }}
+              </h2>
             </div>
             <p class="text-sm text-on-surface-variant">
               {{ tg('exerciseWizards.trailhead.sensations.description') }}
@@ -126,7 +136,9 @@
 
           <div class="flex justify-between">
             <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
-            <AppButton variant="filled" :disabled="!canAdvance" @click="nextStep()">{{ t('common.buttons.next') }}</AppButton>
+            <AppButton variant="filled" :disabled="!canAdvance" @click="nextStep()">{{
+              t('common.buttons.next')
+            }}</AppButton>
           </div>
         </div>
       </template>
@@ -137,7 +149,9 @@
           <AppCard padding="lg" class="space-y-4">
             <div class="flex items-center gap-2">
               <AppIcon name="image" class="text-xl text-on-surface-variant" />
-              <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.trailhead.images.title') }}</h2>
+              <h2 class="text-base font-semibold text-on-surface">
+                {{ t('exerciseWizards.trailhead.images.title') }}
+              </h2>
             </div>
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.trailhead.images.description') }}
@@ -157,7 +171,9 @@
 
           <div class="flex justify-between">
             <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
-            <AppButton variant="filled" @click="nextStep()">{{ t('common.buttons.next') }}</AppButton>
+            <AppButton variant="filled" @click="nextStep()">{{
+              t('common.buttons.next')
+            }}</AppButton>
           </div>
         </div>
       </template>
@@ -168,7 +184,9 @@
           <AppCard padding="lg" class="space-y-4">
             <div class="flex items-center gap-2">
               <AppIcon name="bolt" class="text-xl text-on-surface-variant" />
-              <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.trailhead.behaviors.title') }}</h2>
+              <h2 class="text-base font-semibold text-on-surface">
+                {{ t('exerciseWizards.trailhead.behaviors.title') }}
+              </h2>
             </div>
             <p class="text-sm text-on-surface-variant">
               {{ tg('exerciseWizards.trailhead.behaviors.description') }}
@@ -186,7 +204,9 @@
 
           <div class="flex justify-between">
             <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
-            <AppButton variant="filled" :disabled="!canAdvance" @click="nextStep()">{{ t('common.buttons.next') }}</AppButton>
+            <AppButton variant="filled" :disabled="!canAdvance" @click="nextStep()">{{
+              t('common.buttons.next')
+            }}</AppButton>
           </div>
         </div>
       </template>
@@ -197,7 +217,9 @@
           <AppCard padding="lg" class="space-y-4">
             <div class="flex items-center gap-2">
               <AppIcon name="visibility" class="text-xl text-on-surface-variant" />
-              <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.trailhead.perception.title') }}</h2>
+              <h2 class="text-base font-semibold text-on-surface">
+                {{ t('exerciseWizards.trailhead.perception.title') }}
+              </h2>
             </div>
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.trailhead.perception.description') }}
@@ -220,7 +242,9 @@
 
           <div class="flex justify-between">
             <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
-            <AppButton variant="filled" @click="nextStep()">{{ t('common.buttons.next') }}</AppButton>
+            <AppButton variant="filled" @click="nextStep()">{{
+              t('common.buttons.next')
+            }}</AppButton>
           </div>
         </div>
       </template>
@@ -229,7 +253,9 @@
       <template v-else-if="currentStep === 'part-link'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.trailhead.partLink.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.trailhead.partLink.title') }}
+            </h2>
             <p class="text-sm text-on-surface-variant">
               {{ tg('exerciseWizards.trailhead.partLink.description') }}
             </p>
@@ -249,7 +275,9 @@
 
           <div class="flex justify-between">
             <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
-            <AppButton variant="filled" @click="nextStep()">{{ t('common.buttons.next') }}</AppButton>
+            <AppButton variant="filled" @click="nextStep()">{{
+              t('common.buttons.next')
+            }}</AppButton>
           </div>
         </div>
       </template>
@@ -258,22 +286,32 @@
       <template v-else-if="currentStep === 'reflection'">
         <div class="space-y-6">
           <AppCard variant="raised" padding="lg" class="space-y-5">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.trailhead.reflection.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.trailhead.reflection.title') }}
+            </h2>
 
             <!-- Summary -->
             <div class="neo-surface p-4 rounded-xl space-y-3">
               <div class="space-y-1">
-                <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('exerciseWizards.trailhead.reflection.sections.trigger') }}</p>
+                <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+                  {{ t('exerciseWizards.trailhead.reflection.sections.trigger') }}
+                </p>
                 <p class="text-sm text-on-surface">{{ triggerDescription }}</p>
               </div>
               <div class="flex items-center gap-4">
                 <div>
-                  <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.trailhead.reflection.sections.intensity') }}</p>
+                  <p class="text-xs text-on-surface-variant">
+                    {{ t('exerciseWizards.trailhead.reflection.sections.intensity') }}
+                  </p>
                   <p class="text-sm font-semibold text-primary">{{ intensity }}/10</p>
                 </div>
                 <div v-if="bodyLocations.length">
-                  <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.trailhead.reflection.sections.body') }}</p>
-                  <p class="text-sm text-on-surface">{{ bodyLocations.map(formatLocation).join(', ') }}</p>
+                  <p class="text-xs text-on-surface-variant">
+                    {{ t('exerciseWizards.trailhead.reflection.sections.body') }}
+                  </p>
+                  <p class="text-sm text-on-surface">
+                    {{ bodyLocations.map(formatLocation).join(', ') }}
+                  </p>
                 </div>
               </div>
               <div v-if="emotionIds.length" class="flex flex-wrap gap-1">
@@ -286,15 +324,24 @@
                 </span>
               </div>
               <div v-if="linkedPartId" class="flex items-center gap-2">
-                <span class="text-xs text-on-surface-variant">{{ t('exerciseWizards.trailhead.reflection.linkedPart') }}</span>
-                <span class="text-xs font-medium text-on-surface">{{ getPartName(linkedPartId) }}</span>
-                <PartRoleBadge v-if="getPartRole(linkedPartId)" :role="getPartRole(linkedPartId)!" />
+                <span class="text-xs text-on-surface-variant">{{
+                  t('exerciseWizards.trailhead.reflection.linkedPart')
+                }}</span>
+                <span class="text-xs font-medium text-on-surface">{{
+                  getPartName(linkedPartId)
+                }}</span>
+                <PartRoleBadge
+                  v-if="getPartRole(linkedPartId)"
+                  :role="getPartRole(linkedPartId)!"
+                />
               </div>
             </div>
 
             <!-- Reflection textarea -->
             <div class="space-y-1">
-              <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.trailhead.reflection.reflectionLabel') }}</label>
+              <label class="text-xs font-medium text-on-surface-variant">{{
+                t('exerciseWizards.trailhead.reflection.reflectionLabel')
+              }}</label>
               <textarea
                 v-model="reflection"
                 rows="3"
@@ -312,7 +359,11 @@
                   @click="requestPatternAnalysis({ useProfile: useProfileAnalysis })"
                 >
                   <AppIcon name="auto_awesome" class="text-base mr-1" />
-                  {{ isLoadingAnalysis ? t('exerciseWizards.trailhead.reflection.analyzingPatterns') : t('exerciseWizards.trailhead.reflection.analyzeButton') }}
+                  {{
+                    isLoadingAnalysis
+                      ? t('exerciseWizards.trailhead.reflection.analyzingPatterns')
+                      : t('exerciseWizards.trailhead.reflection.analyzeButton')
+                  }}
                 </AppButton>
                 <ProfileContextToggle v-model="useProfileAnalysis" />
               </div>
@@ -325,12 +376,21 @@
               </div>
             </div>
             <p v-else class="text-xs text-on-surface-variant">
-              {{ tp(3 - trailheadStore.entries.length, 'exerciseWizards.trailhead.reflection.unlockAnalysis.one', 'exerciseWizards.trailhead.reflection.unlockAnalysis.few', 'exerciseWizards.trailhead.reflection.unlockAnalysis.many') }}
+              {{
+                tp(
+                  3 - trailheadStore.entries.length,
+                  'exerciseWizards.trailhead.reflection.unlockAnalysis.one',
+                  'exerciseWizards.trailhead.reflection.unlockAnalysis.few',
+                  'exerciseWizards.trailhead.reflection.unlockAnalysis.many'
+                )
+              }}
             </p>
 
             <!-- Notes -->
             <div class="space-y-1">
-              <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.trailhead.reflection.notesLabel') }}</label>
+              <label class="text-xs font-medium text-on-surface-variant">{{
+                t('exerciseWizards.trailhead.reflection.notesLabel')
+              }}</label>
               <textarea
                 v-model="notes"
                 rows="2"
@@ -343,7 +403,11 @@
           <div class="flex justify-between">
             <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
             <AppButton variant="filled" :disabled="isSaving" @click="handleSave">
-              {{ isSaving ? t('exerciseWizards.trailhead.reflection.saving') : t('exerciseWizards.trailhead.reflection.saveButton') }}
+              {{
+                isSaving
+                  ? t('exerciseWizards.trailhead.reflection.saving')
+                  : t('exerciseWizards.trailhead.reflection.saveButton')
+              }}
             </AppButton>
           </div>
         </div>
@@ -400,8 +464,14 @@ const useProfileAnalysis = ref(userPreferencesStore.profileContextDefault)
 const activeEmotionQuadrant = ref<Quadrant | null>(null)
 
 const STEPS: TrailheadStep[] = [
-  'trigger', 'thoughts', 'sensations', 'images',
-  'behaviors', 'perception', 'part-link', 'reflection',
+  'trigger',
+  'thoughts',
+  'sensations',
+  'images',
+  'behaviors',
+  'perception',
+  'part-link',
+  'reflection',
 ]
 
 const stepLabels = [
@@ -459,7 +529,7 @@ watch(
       if (part) linkedPartId.value = part.id
     }
   },
-  { immediate: true },
+  { immediate: true }
 )
 
 function getEmotionName(id: string): string {
@@ -473,7 +543,6 @@ function getPartName(id: string): string {
 function getPartRole(id: string) {
   return partStore.getPartById(id)?.role ?? null
 }
-
 
 async function handleSave() {
   await save()

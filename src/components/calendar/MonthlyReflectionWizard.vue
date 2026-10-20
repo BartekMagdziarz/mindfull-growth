@@ -15,10 +15,7 @@
     <!-- Step Content. Enter-only fade: an interruptible leave (out-in) could
          strand the incoming step at opacity-0 when autosave re-renders land
          mid-transition. -->
-    <Transition
-      enter-active-class="transition-opacity duration-200"
-      enter-from-class="opacity-0"
-    >
+    <Transition enter-active-class="transition-opacity duration-200" enter-from-class="opacity-0">
       <!-- Step: Plan (pick the month's top priorities) -->
       <div v-if="currentStep === 'plan'" key="plan" class="space-y-4">
         <header class="space-y-1">
@@ -41,13 +38,19 @@
             <button
               type="button"
               class="neo-card neo-raised flex w-full items-center gap-2 border p-3 text-left text-sm transition"
-              :class="selectedPriorityIds.includes(priority.id)
-                ? 'border-primary/50 bg-primary/5 font-semibold text-primary-strong'
-                : 'border-neu-border/30 text-on-surface'"
+              :class="
+                selectedPriorityIds.includes(priority.id)
+                  ? 'border-primary/50 bg-primary/5 font-semibold text-primary-strong'
+                  : 'border-neu-border/30 text-on-surface'
+              "
               @click="toggleTopPriority(priority.id)"
             >
               <AppIcon
-                :name="selectedPriorityIds.includes(priority.id) ? 'check_circle' : 'radio_button_unchecked'"
+                :name="
+                  selectedPriorityIds.includes(priority.id)
+                    ? 'check_circle'
+                    : 'radio_button_unchecked'
+                "
                 class="text-lg"
               />
               <span class="min-w-0 flex-1 truncate">{{ priority.title }}</span>
@@ -64,7 +67,11 @@
           v-if="selectedPriorityIds.length > MONTH_TOP_PRIORITY_SOFT_LIMIT"
           class="text-xs font-medium text-amber-600"
         >
-          {{ t('planning.monthlyPlanning.priorities.softLimitWarning', { n: MONTH_TOP_PRIORITY_SOFT_LIMIT }) }}
+          {{
+            t('planning.monthlyPlanning.priorities.softLimitWarning', {
+              n: MONTH_TOP_PRIORITY_SOFT_LIMIT,
+            })
+          }}
         </p>
       </div>
 
@@ -82,14 +89,15 @@
           </p>
         </header>
 
-        <MonthlyPlanner
-          :month-ref="monthRef"
-          @updated="emit('updated')"
-        />
+        <MonthlyPlanner :month-ref="monthRef" @updated="emit('updated')" />
       </div>
 
       <!-- Step: Priorities review (effort + verdict per active priority) -->
-      <div v-else-if="currentStep === 'priorities-review'" key="priorities-review" class="space-y-4">
+      <div
+        v-else-if="currentStep === 'priorities-review'"
+        key="priorities-review"
+        class="space-y-4"
+      >
         <header class="space-y-1">
           <h3 class="text-base font-bold text-on-surface">
             {{ t('planning.reflection.monthly.prioritiesReview.title') }}
@@ -102,10 +110,7 @@
         <p v-if="activePriorities.length === 0" class="text-sm text-on-surface-variant">
           {{ t('planning.reflection.monthly.prioritiesReview.empty') }}
         </p>
-        <div
-          v-else
-          class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
-        >
+        <div v-else class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <div
             v-for="priority in activePriorities"
             :key="priority.id"
@@ -128,7 +133,9 @@
 
             <!-- effort 1–5 -->
             <div>
-              <span class="block text-[10px] font-semibold uppercase tracking-wide text-on-surface-variant">
+              <span
+                class="block text-[10px] font-semibold uppercase tracking-wide text-on-surface-variant"
+              >
                 {{ t('planning.reflection.monthly.prioritiesReview.effortLabel') }}
               </span>
               <div class="mt-1 flex gap-1">
@@ -137,9 +144,11 @@
                   :key="n"
                   type="button"
                   class="h-6 flex-1 rounded text-xs font-semibold transition"
-                  :class="assessmentFor(priority.id).effort === n
-                    ? 'bg-primary text-on-primary'
-                    : 'bg-surface text-on-surface-variant hover:bg-primary/10'"
+                  :class="
+                    assessmentFor(priority.id).effort === n
+                      ? 'bg-primary text-on-primary'
+                      : 'bg-surface text-on-surface-variant hover:bg-primary/10'
+                  "
                   @click="setEffort(priority.id, n)"
                 >
                   {{ n }}
@@ -149,7 +158,9 @@
 
             <!-- verdict (compact select) -->
             <div>
-              <span class="block text-[10px] font-semibold uppercase tracking-wide text-on-surface-variant">
+              <span
+                class="block text-[10px] font-semibold uppercase tracking-wide text-on-surface-variant"
+              >
                 {{ t('planning.reflection.monthly.prioritiesReview.verdictLabel') }}
               </span>
               <select
@@ -174,7 +185,9 @@
             <!-- M4: weekly focus rolled up to this priority -->
             <div class="mt-0.5 border-t border-outline/15 pt-2">
               <div class="flex items-center gap-1.5">
-                <span class="text-[10px] font-semibold uppercase tracking-wide text-on-surface-variant">
+                <span
+                  class="text-[10px] font-semibold uppercase tracking-wide text-on-surface-variant"
+                >
                   {{ t('planning.reflection.monthly.prioritiesReview.focusLabel') }}
                 </span>
                 <span class="flex items-center gap-0.5">
@@ -182,7 +195,9 @@
                     v-for="i in weeksInMonth"
                     :key="i"
                     class="h-1.5 w-1.5 rounded-full"
-                    :class="i <= focusCount(priority.id) ? 'bg-primary' : 'bg-on-surface-variant/25'"
+                    :class="
+                      i <= focusCount(priority.id) ? 'bg-primary' : 'bg-on-surface-variant/25'
+                    "
                   />
                 </span>
                 <span class="text-[10px] font-semibold tabular-nums text-on-surface-variant">
@@ -217,7 +232,9 @@
               >
                 ({{ t('planning.reflection.monthly.prioritiesReview.intentionTag') }})
               </span>
-              <span class="text-[10px] tabular-nums text-on-surface-variant/60">{{ d.weekRefs.length }}×</span>
+              <span class="text-[10px] tabular-nums text-on-surface-variant/60"
+                >{{ d.weekRefs.length }}×</span
+              >
             </li>
           </ul>
         </div>
@@ -225,10 +242,7 @@
 
       <!-- Step: Ratings -->
       <div v-else-if="currentStep === 'ratings'" key="ratings" class="space-y-4">
-        <ReflectionDimensionRatings
-          :groups="monthlyGroups"
-          @update:rating="handleRatingUpdate"
-        />
+        <ReflectionDimensionRatings :groups="monthlyGroups" @update:rating="handleRatingUpdate" />
       </div>
 
       <!-- Step: Anchors (optional) -->
@@ -269,11 +283,7 @@
       >
         {{ isSaving ? t('planning.reflection.saving') : t('planning.reflection.save') }}
       </AppButton>
-      <AppButton
-        v-else-if="isLastStep"
-        variant="filled"
-        @click="emit('close')"
-      >
+      <AppButton v-else-if="isLastStep" variant="filled" @click="emit('close')">
         {{ t('planning.monthlyPlanning.finishPlanning') }}
       </AppButton>
       <AppButton
@@ -328,7 +338,14 @@ const emit = defineEmits<{
   updated: []
 }>()
 
-const STEPS: MonthlyReflectionStep[] = ['plan', 'weeks', 'priorities-review', 'ratings', 'anchors', 'journal']
+const STEPS: MonthlyReflectionStep[] = [
+  'plan',
+  'weeks',
+  'priorities-review',
+  'ratings',
+  'anchors',
+  'journal',
+]
 
 const stepLabels = computed(() => [
   t('planning.reflection.steps.plan'),
@@ -341,21 +358,30 @@ const stepLabels = computed(() => [
 
 const stepSubtitle = computed(() => {
   switch (currentStep.value) {
-    case 'plan': return t('planning.monthlyPlanning.priorities.subtitle')
-    case 'weeks': return t('planning.monthlyPlanning.weeks.subtitle')
-    case 'priorities-review': return t('planning.reflection.monthly.prioritiesReview.subtitle')
-    case 'ratings': return t('planning.reflection.monthly.groups.ratings.subtitle')
-    default: return ''
+    case 'plan':
+      return t('planning.monthlyPlanning.priorities.subtitle')
+    case 'weeks':
+      return t('planning.monthlyPlanning.weeks.subtitle')
+    case 'priorities-review':
+      return t('planning.reflection.monthly.prioritiesReview.subtitle')
+    case 'ratings':
+      return t('planning.reflection.monthly.groups.ratings.subtitle')
+    default:
+      return ''
   }
 })
 
-const lockedSteps = computed(() => STEPS.map((step) => isStepLocked(step)))
+const lockedSteps = computed(() => STEPS.map(step => isStepLocked(step)))
 
 // Slimmed to 3 anchors (was 6) — mirrors the weekly slim; the month review summary card
 // still renders any historical 6-anchor reflections (it filters empty categories).
 const monthlyAnchorCategories = computed(() => [
   { key: 'proudOf', label: t('planning.reflection.monthly.anchors.proudOf'), icon: 'emoji_events' },
-  { key: 'challenges', label: t('planning.reflection.monthly.anchors.challenges'), icon: 'warning' },
+  {
+    key: 'challenges',
+    label: t('planning.reflection.monthly.anchors.challenges'),
+    icon: 'warning',
+  },
   { key: 'growth', label: t('planning.reflection.monthly.anchors.growth'), icon: 'trending_up' },
 ])
 
@@ -399,7 +425,7 @@ const {
 // straight onto this step.
 watch(
   currentStep,
-  async (step) => {
+  async step => {
     if (step !== 'weeks') return
     const existing = await periodPlanDexieRepository.getMonthPlan(props.monthRef)
     if (!existing) {
@@ -407,7 +433,7 @@ watch(
       emit('updated')
     }
   },
-  { immediate: true },
+  { immediate: true }
 )
 
 // Toggling effort/verdict on a value that's already selected clears it.
@@ -426,7 +452,7 @@ function setNote(priorityId: string, note: string) {
 
 // M4 — weekly focus rolled up by priority (read-only).
 const focusByPriority = computed(
-  () => new Map((focusConfrontation.value?.perPriority ?? []).map((p) => [p.priorityId, p])),
+  () => new Map((focusConfrontation.value?.perPriority ?? []).map(p => [p.priorityId, p]))
 )
 const weeksInMonth = computed(() => focusConfrontation.value?.weekRefs.length ?? 0)
 const driftPicks = computed(() => focusConfrontation.value?.drift ?? [])
@@ -434,7 +460,7 @@ function focusCount(priorityId: string): number {
   return focusByPriority.value.get(priorityId)?.focusWeekRefs.length ?? 0
 }
 function focusObjects(priorityId: string): string[] {
-  return (focusByPriority.value.get(priorityId)?.objects ?? []).map((o) => o.title)
+  return (focusByPriority.value.get(priorityId)?.objects ?? []).map(o => o.title)
 }
 
 // ---------------------------------------------------------------------------
@@ -447,7 +473,21 @@ function formatWeekLabel(weekRef: WeekRef): string {
   const endDay = bounds.end.slice(8, 10).replace(/^0/, '')
   const startMonth = parseInt(bounds.start.slice(5, 7), 10)
   const endMonth = parseInt(bounds.end.slice(5, 7), 10)
-  const months = ['', 'sty', 'lut', 'mar', 'kwi', 'maj', 'cze', 'lip', 'sie', 'wrz', 'paź', 'lis', 'gru']
+  const months = [
+    '',
+    'sty',
+    'lut',
+    'mar',
+    'kwi',
+    'maj',
+    'cze',
+    'lip',
+    'sie',
+    'wrz',
+    'paź',
+    'lis',
+    'gru',
+  ]
   if (startMonth === endMonth) {
     return `${startDay}–${endDay} ${months[startMonth]}`
   }
@@ -456,11 +496,41 @@ function formatWeekLabel(weekRef: WeekRef): string {
 
 // Icon sets for monthly dimensions
 const ICONS = {
-  balance: ['landslide', 'falling', 'tune', 'balance', 'all_inclusive'] as [string, string, string, string, string],
-  purpose: ['search', 'question_mark', 'lightbulb', 'auto_awesome', 'moon_stars'] as [string, string, string, string, string],
-  growth: ['park', 'potted_plant', 'forest', 'nature', 'landscape'] as [string, string, string, string, string],
-  coherence: ['call_split', 'conversion_path', 'timeline', 'adjust', 'gps_fixed'] as [string, string, string, string, string],
-  agency: ['anchor', 'explore', 'navigation', 'sailing', 'flight'] as [string, string, string, string, string],
+  balance: ['landslide', 'falling', 'tune', 'balance', 'all_inclusive'] as [
+    string,
+    string,
+    string,
+    string,
+    string,
+  ],
+  purpose: ['search', 'question_mark', 'lightbulb', 'auto_awesome', 'moon_stars'] as [
+    string,
+    string,
+    string,
+    string,
+    string,
+  ],
+  growth: ['park', 'potted_plant', 'forest', 'nature', 'landscape'] as [
+    string,
+    string,
+    string,
+    string,
+    string,
+  ],
+  coherence: ['call_split', 'conversion_path', 'timeline', 'adjust', 'gps_fixed'] as [
+    string,
+    string,
+    string,
+    string,
+    string,
+  ],
+  agency: ['anchor', 'explore', 'navigation', 'sailing', 'flight'] as [
+    string,
+    string,
+    string,
+    string,
+    string,
+  ],
 }
 
 const monthlyGroups = computed<RatingGroup[]>(() => [
@@ -513,11 +583,21 @@ const monthlyGroups = computed<RatingGroup[]>(() => [
 
 function handleRatingUpdate(key: string, value: number) {
   switch (key) {
-    case 'balance': balanceRating.value = value; break
-    case 'purpose': purposeRating.value = value; break
-    case 'growth': growthRating.value = value; break
-    case 'coherence': coherenceRating.value = value; break
-    case 'agency': agencyRating.value = value; break
+    case 'balance':
+      balanceRating.value = value
+      break
+    case 'purpose':
+      purposeRating.value = value
+      break
+    case 'growth':
+      growthRating.value = value
+      break
+    case 'coherence':
+      coherenceRating.value = value
+      break
+    case 'agency':
+      agencyRating.value = value
+      break
   }
 }
 
@@ -528,7 +608,10 @@ const monthlyRatingSummary = computed<SidebarRatingGroup[]>(() => [
       { label: t('planning.reflection.monthly.dimensions.balance'), value: balanceRating.value },
       { label: t('planning.reflection.monthly.dimensions.purpose'), value: purposeRating.value },
       { label: t('planning.reflection.monthly.dimensions.growth'), value: growthRating.value },
-      { label: t('planning.reflection.monthly.dimensions.coherence'), value: coherenceRating.value },
+      {
+        label: t('planning.reflection.monthly.dimensions.coherence'),
+        value: coherenceRating.value,
+      },
       { label: t('planning.reflection.monthly.dimensions.agency'), value: agencyRating.value },
     ],
   },
@@ -548,14 +631,24 @@ const summaryPeriodLabel = computed(() => {
 // Active priorities that are top-3 OR carry an assessment → fed to the AI as [PRIORYTETY].
 const summaryPriorities = computed<ReflectionPriorityLine[]>(() =>
   activePriorities.value
-    .filter((p) => {
+    .filter(p => {
       const a = assessmentFor(p.id)
-      return selectedPriorityIds.value.includes(p.id) || a.effort != null || a.verdict != null || a.note.trim().length > 0
+      return (
+        selectedPriorityIds.value.includes(p.id) ||
+        a.effort != null ||
+        a.verdict != null ||
+        a.note.trim().length > 0
+      )
     })
-    .map((p) => {
+    .map(p => {
       const a = assessmentFor(p.id)
-      return { title: p.title, effort: a.effort, verdict: a.verdict, comment: a.note.trim() || undefined }
-    }),
+      return {
+        title: p.title,
+        effort: a.effort,
+        verdict: a.verdict,
+        comment: a.note.trim() || undefined,
+      }
+    })
 )
 
 // Localized, kind-agnostic payload the AI summary/questions are built from.
@@ -564,15 +657,15 @@ const summaryContext = computed<ReflectionSummaryContext>(() => {
   return {
     kind: 'monthly',
     periodLabel: summaryPeriodLabel.value,
-    ratings: monthlyRatingSummary.value.flatMap((g) => g.items),
+    ratings: monthlyRatingSummary.value.flatMap(g => g.items),
     priorities: summaryPriorities.value,
     anchors: monthlyAnchorCategories.value
-      .map((c) => ({ label: c.label, text: (promptResponses.value[c.key] ?? '').trim() }))
-      .filter((a) => a.text.length > 0),
+      .map(c => ({ label: c.label, text: (promptResponses.value[c.key] ?? '').trim() }))
+      .filter(a => a.text.length > 0),
     freeform: freeformReflection.value,
     emotionLogs: bundle?.emotionLogs ?? [],
     emotions: bundle ? emotionContextFromSummary(bundle.emotionSummary) : undefined,
-    weeklyTrends: (bundle?.weeklyRatingTrends ?? []).map((tr) => ({
+    weeklyTrends: (bundle?.weeklyRatingTrends ?? []).map(tr => ({
       weekLabel: formatWeekLabel(tr.weekRef),
       mood: tr.moodRating,
       energy: tr.energyRating,
@@ -580,18 +673,18 @@ const summaryContext = computed<ReflectionSummaryContext>(() => {
       connection: tr.connectionRating,
     })),
     weeklyExcerpts: (bundle?.weeklyReflectionDetails ?? [])
-      .map((d) => ({ weekLabel: formatWeekLabel(d.weekRef), text: d.freeformReflection }))
-      .filter((w) => w.text.trim().length > 0),
-    goals: (bundle?.goalSummaries ?? []).map((g) => ({
+      .map(d => ({ weekLabel: formatWeekLabel(d.weekRef), text: d.freeformReflection }))
+      .filter(w => w.text.trim().length > 0),
+    goals: (bundle?.goalSummaries ?? []).map(g => ({
       title: g.goal.title,
-      metKRs: g.keyResults.filter((k) => k.evaluationStatus === 'met').length,
+      metKRs: g.keyResults.filter(k => k.evaluationStatus === 'met').length,
       totalKRs: g.keyResults.length,
     })),
-    habits: (bundle?.habitDetails ?? []).map((h) => ({
+    habits: (bundle?.habitDetails ?? []).map(h => ({
       title: h.title,
       status: h.evaluationStatus,
     })),
-    trackers: (bundle?.trackerDetails ?? []).map((tr) => ({
+    trackers: (bundle?.trackerDetails ?? []).map(tr => ({
       title: tr.title,
       latest: tr.latestValue ?? null,
     })),

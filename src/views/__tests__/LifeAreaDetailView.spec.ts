@@ -98,7 +98,7 @@ describe('LifeAreaDetailView', () => {
 
     expect(screen.queryByText('Delete this area permanently')).not.toBeInTheDocument()
     expect(
-      screen.getByText('This area has assessment history and can only be archived.'),
+      screen.getByText('This area has assessment history and can only be archived.')
     ).toBeInTheDocument()
   })
 })

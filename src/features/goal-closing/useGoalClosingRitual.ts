@@ -54,11 +54,13 @@ function text(value: string): string | undefined {
 
 export function daysAfterDeadline(targetDate: string | undefined, today: DayRef): number | null {
   if (!targetDate) return null
-  const ms = Date.UTC(
-    Number(today.slice(0, 4)), Number(today.slice(5, 7)) - 1, Number(today.slice(8, 10)),
-  ) - Date.UTC(
-    Number(targetDate.slice(0, 4)), Number(targetDate.slice(5, 7)) - 1, Number(targetDate.slice(8, 10)),
-  )
+  const ms =
+    Date.UTC(Number(today.slice(0, 4)), Number(today.slice(5, 7)) - 1, Number(today.slice(8, 10))) -
+    Date.UTC(
+      Number(targetDate.slice(0, 4)),
+      Number(targetDate.slice(5, 7)) - 1,
+      Number(targetDate.slice(8, 10))
+    )
   return Math.round(ms / 86_400_000)
 }
 
@@ -69,7 +71,11 @@ export function daysAfterDeadline(targetDate: string | undefined, today: DayRef)
  */
 export function useGoalClosingRitual(
   goalId: Ref<string>,
-  options: { presetOutcome?: Ref<GoalOutcome | null>; masculine?: Ref<boolean>; openDeadline?: Ref<boolean> } = {},
+  options: {
+    presetOutcome?: Ref<GoalOutcome | null>
+    masculine?: Ref<boolean>
+    openDeadline?: Ref<boolean>
+  } = {}
 ) {
   const snapshot = ref<GoalClosingSnapshot | null>(null)
   const loading = ref(false)
@@ -87,7 +93,7 @@ export function useGoalClosingRitual(
   const goal = computed(() => snapshot.value?.goal ?? null)
   const editing = computed(() => Boolean(goal.value?.closingReflection))
   const suggestion = computed<GoalOutcome | null>(() =>
-    snapshot.value ? suggestGoalOutcome(snapshot.value.keyResultSnapshots) : null,
+    snapshot.value ? suggestGoalOutcome(snapshot.value.keyResultSnapshots) : null
   )
   const mirrorAvailable = computed(() => (goal.value ? goalHasStartMirror(goal.value) : false))
   const masculine = computed(() => options.masculine?.value ?? true)
@@ -100,16 +106,20 @@ export function useGoalClosingRitual(
       list.push({
         id: 'mirror',
         label: 'Lustro',
-        question: masculine.value ? 'Co powiedziałeś sobie na starcie?' : 'Co powiedziałaś sobie na starcie?',
+        question: masculine.value
+          ? 'Co powiedziałeś sobie na starcie?'
+          : 'Co powiedziałaś sobie na starcie?',
       })
     }
     list.push(
       { id: 'lessons', label: 'Wnioski', question: 'Co z tego zostaje?' },
-      { id: 'next', label: 'Dalej', question: 'Co dalej z tym tematem?' },
+      { id: 'next', label: 'Dalej', question: 'Co dalej z tym tematem?' }
     )
     return list
   })
-  const currentStepId = computed<GoalClosingStepId>(() => steps.value[current.value]?.id ?? 'verdict')
+  const currentStepId = computed<GoalClosingStepId>(
+    () => steps.value[current.value]?.id ?? 'verdict'
+  )
 
   const months = computed<MonthRef[]>(() => snapshot.value?.months ?? [])
   const overdueDays = computed(() => daysAfterDeadline(goal.value?.targetDate, todayRef))
@@ -146,7 +156,10 @@ export function useGoalClosingRitual(
       }
       deadlineOpen.value = Boolean(options.openDeadline?.value) && !editing.value
       const target = snapshot.value.goal.targetDate
-      deadlineDate.value = addDaysToDayRef(target && target > todayRef ? (target as DayRef) : todayRef, 28)
+      deadlineDate.value = addDaysToDayRef(
+        target && target > todayRef ? (target as DayRef) : todayRef,
+        28
+      )
     } catch (error) {
       loadError.value = error instanceof Error ? error.message : String(error)
       snapshot.value = null
@@ -161,7 +174,7 @@ export function useGoalClosingRitual(
 
   function toggleHabitKeyResult(keyResultId: string): void {
     draft.habitKeyResultIds = draft.habitKeyResultIds.includes(keyResultId)
-      ? draft.habitKeyResultIds.filter((id) => id !== keyResultId)
+      ? draft.habitKeyResultIds.filter(id => id !== keyResultId)
       : [...draft.habitKeyResultIds, keyResultId]
   }
 
@@ -178,7 +191,9 @@ export function useGoalClosingRitual(
       workedWell: text(draft.workedWell),
       wasDifficult: text(draft.wasDifficult),
       learned: text(draft.learned),
-      followUp: draft.followUpKind ? { kind: draft.followUpKind, note: text(draft.followUpNote) } : undefined,
+      followUp: draft.followUpKind
+        ? { kind: draft.followUpKind, note: text(draft.followUpNote) }
+        : undefined,
       habitFromKeyResultIds: draft.followUpKind === 'habit' ? [...draft.habitKeyResultIds] : [],
     }
   }

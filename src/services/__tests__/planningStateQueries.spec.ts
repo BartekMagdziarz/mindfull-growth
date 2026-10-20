@@ -223,7 +223,7 @@ describe('planningStateQueries', () => {
 
     // Week bundle W10: month-to-date measurement unchanged + real week-period verdict.
     const weekBundle = await getWeekPlanningBundle(weekRef)
-    const weekItem = weekBundle.relevant.measurementItems.find((m) => m.subject.id === habit.id)
+    const weekItem = weekBundle.relevant.measurementItems.find(m => m.subject.id === habit.id)
     expect(weekItem?.measurement.target).toEqual({ kind: 'count', operator: 'min', value: 10 })
     expect(weekItem?.measurement.periodRef).toBe(monthRef)
     expect(weekItem?.weekMeasurement?.target).toEqual({ kind: 'count', operator: 'min', value: 3 })
@@ -233,7 +233,7 @@ describe('planningStateQueries', () => {
 
     // Week bundle W11: no sub-target → no weekMeasurement.
     const otherBundle = await getWeekPlanningBundle(otherWeekRef)
-    const otherItem = otherBundle.relevant.measurementItems.find((m) => m.subject.id === habit.id)
+    const otherItem = otherBundle.relevant.measurementItems.find(m => m.subject.id === habit.id)
     expect(otherItem).toBeTruthy()
     expect(otherItem?.weekMeasurement).toBeUndefined()
   })
@@ -285,13 +285,13 @@ describe('planningStateQueries', () => {
 
     // W10: week override wins over the month override and flips the verdict to met.
     const weekBundle = await getWeekPlanningBundle(weekRef)
-    const weekItem = weekBundle.relevant.measurementItems.find((m) => m.subject.id === habit.id)
+    const weekItem = weekBundle.relevant.measurementItems.find(m => m.subject.id === habit.id)
     expect(weekItem?.measurement.target).toEqual({ kind: 'count', operator: 'min', value: 2 })
     expect(weekItem?.measurement.evaluationStatus).toBe('met')
 
     // W11 (no week override): the month override applies.
     const otherBundle = await getWeekPlanningBundle(otherWeekRef)
-    const otherItem = otherBundle.relevant.measurementItems.find((m) => m.subject.id === habit.id)
+    const otherItem = otherBundle.relevant.measurementItems.find(m => m.subject.id === habit.id)
     expect(otherItem?.measurement.target).toEqual({ kind: 'count', operator: 'min', value: 5 })
   })
 
@@ -321,7 +321,12 @@ describe('planningStateQueries', () => {
       targetOverride: { kind: 'count', operator: 'min', value: 5 },
     })
     for (const weekRef of [w10, w13]) {
-      await toggleMeasurementWeekAssignment({ weekRef, subjectType: 'habit', subjectId: habit.id, cadence: 'weekly' })
+      await toggleMeasurementWeekAssignment({
+        weekRef,
+        subjectType: 'habit',
+        subjectId: habit.id,
+        cadence: 'weekly',
+      })
     }
     await updateMeasurementWeekTargetOverride({
       weekRef: w10,
@@ -331,9 +336,18 @@ describe('planningStateQueries', () => {
       targetOverride: { kind: 'count', operator: 'min', value: 2 },
     })
     const days = [
-      '2026-03-09', '2026-03-10', // W10
-      '2026-03-16', '2026-03-17', '2026-03-18', '2026-03-19', '2026-03-20', // W11, not assigned
-      '2026-03-30', '2026-03-31', '2026-04-01', '2026-04-02', '2026-04-03', // W13, three days in April
+      '2026-03-09',
+      '2026-03-10', // W10
+      '2026-03-16',
+      '2026-03-17',
+      '2026-03-18',
+      '2026-03-19',
+      '2026-03-20', // W11, not assigned
+      '2026-03-30',
+      '2026-03-31',
+      '2026-04-01',
+      '2026-04-02',
+      '2026-04-03', // W13, three days in April
     ]
     for (const dayRef of days) {
       await planningStateDexieRepository.upsertDailyMeasurementEntry({
@@ -345,15 +359,21 @@ describe('planningStateQueries', () => {
     }
 
     const bundle = await getMonthPlanningBundle(monthRef)
-    const item = bundle.measurementItems.find((m) => m.subject.id === habit.id)!
+    const item = bundle.measurementItems.find(m => m.subject.id === habit.id)!
     expect(item.plannedWeekRefs).toEqual([w10, w13])
-    const byWeek = new Map(item.weekEvaluations!.map((week) => [week.weekRef, week]))
+    const byWeek = new Map(item.weekEvaluations!.map(week => [week.weekRef, week]))
     // week sub-target 2 beats the month override 5
-    expect(byWeek.get(w10)).toMatchObject({ planned: true, measurement: { evaluationStatus: 'met', actualValue: 2 } })
+    expect(byWeek.get(w10)).toMatchObject({
+      planned: true,
+      measurement: { evaluationStatus: 'met', actualValue: 2 },
+    })
     expect(byWeek.get(w10)?.measurement.target?.value).toBe(2)
     expect(byWeek.get(w11)).toMatchObject({ planned: false })
     // the boundary week counts all seven days, also the April ones, under the month override
-    expect(byWeek.get(w13)).toMatchObject({ planned: true, measurement: { evaluationStatus: 'met', actualValue: 5 } })
+    expect(byWeek.get(w13)).toMatchObject({
+      planned: true,
+      measurement: { evaluationStatus: 'met', actualValue: 5 },
+    })
     expect(byWeek.get(w13)?.measurement.target?.value).toBe(5)
   })
 
@@ -377,9 +397,9 @@ describe('planningStateQueries', () => {
       scheduleScope: 'unassigned',
     })
     const bundle = await getMonthPlanningBundle(monthRef)
-    const item = bundle.measurementItems.find((m) => m.subject.id === habit.id)!
+    const item = bundle.measurementItems.find(m => m.subject.id === habit.id)!
     expect(item.plannedWeekRefs).toEqual([])
-    expect(item.weekEvaluations?.every((week) => !week.planned)).toBe(true)
+    expect(item.weekEvaluations?.every(week => !week.planned)).toBe(true)
   })
 
   it('splits weekly planning into planned, assigned, and unassigned measurement work', async () => {
@@ -484,15 +504,21 @@ describe('planningStateQueries', () => {
     const planningBundle = await getWeekPlanningBundle(weekRef)
     const reflectionBundle = await getWeekReflectionBundle(weekRef)
 
-    expect(relevant.planning.measurementItems.map((item) => item.placement)).toEqual(
-      expect.arrayContaining(['assigned', 'unassigned']),
+    expect(relevant.planning.measurementItems.map(item => item.placement)).toEqual(
+      expect.arrayContaining(['assigned', 'unassigned'])
     )
     expect(relevant.planning.cadencedItems).toHaveLength(2)
-    expect(relevant.planning.cadencedItems.find((item) => item.subject.id === habit.id)?.planning.scheduledDayRefs).toEqual([dayRef])
+    expect(
+      relevant.planning.cadencedItems.find(item => item.subject.id === habit.id)?.planning
+        .scheduledDayRefs
+    ).toEqual([dayRef])
     expect(planningBundle.relevant.initiativeItems).toHaveLength(1)
     expect(reflectionBundle.periodReflection?.note).toBe('Strong execution week')
     expect(reflectionBundle.relevant.goalItems).toHaveLength(1)
-    expect(reflectionBundle.relevant.measurementItems.find((item) => item.subject.id === habit.id)?.hasEntries).toBe(true)
+    expect(
+      reflectionBundle.relevant.measurementItems.find(item => item.subject.id === habit.id)
+        ?.hasEntries
+    ).toBe(true)
   })
 
   it('ignores orphaned week state records that no longer have valid month context', async () => {
@@ -680,8 +706,12 @@ describe('planningStateQueries', () => {
     const firstWeek = await getWeekRelevantObjects(firstWeekRef, firstWeekEnd)
     const secondWeek = await getWeekRelevantObjects(secondWeekRef, secondWeekEnd)
 
-    const firstItem = firstWeek.reflection.measurementItems.find(item => item.subject.id === habit.id)
-    const secondItem = secondWeek.reflection.measurementItems.find(item => item.subject.id === habit.id)
+    const firstItem = firstWeek.reflection.measurementItems.find(
+      item => item.subject.id === habit.id
+    )
+    const secondItem = secondWeek.reflection.measurementItems.find(
+      item => item.subject.id === habit.id
+    )
 
     expect(firstItem?.measurement.actualValue).toBe(4)
     expect(firstItem?.measurement.entryCount).toBe(1)

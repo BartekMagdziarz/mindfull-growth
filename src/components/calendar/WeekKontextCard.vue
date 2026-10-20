@@ -35,10 +35,7 @@
             <span class="kontekst-ai__label">
               {{ t('planning.reflection.review.kontekstAiSummaryTitle') }}
             </span>
-            <AppIcon
-              :name="aiSummaryOpen ? 'expand_less' : 'expand_more'"
-              class="text-xs"
-            />
+            <AppIcon :name="aiSummaryOpen ? 'expand_less' : 'expand_more'" class="text-xs" />
           </button>
           <p v-if="aiSummaryOpen" class="kontekst-ai__body">
             {{ aiSummary }}
@@ -47,28 +44,25 @@
 
         <!-- Rating groups — 3 sections × 4 dimensions, rendered as
              top-level sections so each one gets its own separator. -->
-        <div
-          v-for="group in ratingGroups"
-          :key="group.key"
-          class="kontekst-section kontekst-group"
-        >
+        <div v-for="group in ratingGroups" :key="group.key" class="kontekst-section kontekst-group">
           <div class="kontekst-group__title">{{ group.label }}</div>
           <div class="kontekst-group__items">
-            <div
-              v-for="item in group.items"
-              :key="item.key"
-              class="kontekst-dim"
-            >
+            <div v-for="item in group.items" :key="item.key" class="kontekst-dim">
               <span class="kontekst-dim__label">{{ item.label }}</span>
               <div class="kontekst-dim__bar">
                 <div
                   v-if="item.value !== null"
                   class="kontekst-dim__fill"
-                  :style="{ width: valuePercent(item.value) + '%', background: item.color ?? undefined }"
+                  :style="{
+                    width: valuePercent(item.value) + '%',
+                    background: item.color ?? undefined,
+                  }"
                 />
               </div>
               <span class="kontekst-dim__value">
-                <template v-if="item.value !== null">{{ item.value }}<span class="kontekst-dim__max">/5</span></template>
+                <template v-if="item.value !== null"
+                  >{{ item.value }}<span class="kontekst-dim__max">/5</span></template
+                >
                 <template v-else>—</template>
               </span>
             </div>
@@ -80,11 +74,7 @@
           <div class="kontekst-anchors__title">
             {{ t('planning.reflection.review.kontekstAnchorsTitle') }}
           </div>
-          <div
-            v-for="cat in visibleAnchorCategories"
-            :key="cat.key"
-            class="kontekst-anchor"
-          >
+          <div v-for="cat in visibleAnchorCategories" :key="cat.key" class="kontekst-anchor">
             <button
               type="button"
               class="kontekst-anchor__head neo-focus"
@@ -143,7 +133,7 @@ const props = withDefaults(
     /** When false, hides create/edit buttons (e.g. inside the reflection wizard). */
     showActions?: boolean
   }>(),
-  { showActions: true },
+  { showActions: true }
 )
 
 defineEmits<{
@@ -167,8 +157,8 @@ onMounted(() => {
   }
 })
 
-const reflection = computed<WeeklyReflection | undefined>(
-  () => reflectionStore.getWeeklyByRef(props.weekRef),
+const reflection = computed<WeeklyReflection | undefined>(() =>
+  reflectionStore.getWeeklyByRef(props.weekRef)
 )
 
 const hasReflection = computed(() => reflection.value !== undefined)
@@ -177,7 +167,7 @@ const planHasObjects = computed(
   () =>
     props.planSummary.keyResults.total > 0 ||
     props.planSummary.habits.total > 0 ||
-    props.planSummary.intentions.total > 0,
+    props.planSummary.intentions.total > 0
 )
 
 const planRings = computed<PlanExecutionRing[]>(() => [
@@ -235,10 +225,10 @@ const AXES: LoadStateAxis[] = ['load', 'state']
 // Two axes per life area (D10): load = matrix demands field (ink by level),
 // state = matrix state field (colour of the load/state quadrant).
 const ratingGroups = computed<DimensionGroup[]>(() =>
-  AXES.map((axis) => ({
+  AXES.map(axis => ({
     key: axis,
     label: t(KONTEKST_GROUP_LABEL_KEYS[axis]),
-    items: REFLECTION_MATRIX_AREAS.map((area) => {
+    items: REFLECTION_MATRIX_AREAS.map(area => {
       const key = area.fields[axis === 'load' ? 'demands' : 'state']
       const value = valueFor(key)
       const load = toRating(valueFor(area.fields.demands))
@@ -250,7 +240,7 @@ const ratingGroups = computed<DimensionGroup[]>(() =>
         color: axis === 'load' ? loadInkCss(load) : state == null ? null : pairColor(load, state),
       }
     }),
-  })),
+  }))
 )
 
 // Anchor categories — kept in sync with WeeklyReflectionWizard.weeklyAnchorCategories (D2: 3-anchor core)
@@ -264,12 +254,12 @@ function getAnchorLines(key: string): string[] {
   const text = reflection.value?.promptResponses?.[key] ?? ''
   return text
     .split('\n')
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0)
+    .map(line => line.trim())
+    .filter(line => line.length > 0)
 }
 
 const visibleAnchorCategories = computed(() =>
-  anchorCategories.value.filter((cat) => getAnchorLines(cat.key).length > 0),
+  anchorCategories.value.filter(cat => getAnchorLines(cat.key).length > 0)
 )
 
 const anchorOpen = reactive<Record<string, boolean>>({})
@@ -320,12 +310,7 @@ function handleHostClick(_event: MouseEvent) {
   left: 1px;
   right: 1px;
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgb(var(--neo-border) / 0.45),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgb(var(--neo-border) / 0.45), transparent);
   pointer-events: none;
 }
 
@@ -341,7 +326,10 @@ function handleHostClick(_event: MouseEvent) {
   color: rgb(var(--neo-muted));
   cursor: pointer;
   opacity: 0;
-  transition: opacity 150ms ease, color 150ms ease, transform 150ms ease;
+  transition:
+    opacity 150ms ease,
+    color 150ms ease,
+    transform 150ms ease;
   box-shadow:
     -1px -1px 2px rgb(var(--neo-shadow-light) / 0.8),
     1px 1px 2px rgb(var(--neo-shadow-dark) / 0.25);
@@ -517,7 +505,9 @@ function handleHostClick(_event: MouseEvent) {
   box-shadow:
     -1px -1px 2px rgb(var(--neo-shadow-light) / 0.8),
     1px 1px 2px rgb(var(--neo-shadow-dark) / 0.25);
-  transition: transform 150ms ease, box-shadow 150ms ease;
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease;
 }
 
 .kontekst-anchor__head:hover {

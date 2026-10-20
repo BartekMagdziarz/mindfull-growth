@@ -62,7 +62,7 @@ describe('userProfileDexieRepository', () => {
       const created = await userProfileDexieRepository.create(makePayload())
 
       // wait briefly so updatedAt ISO differs
-      await new Promise((r) => setTimeout(r, 5))
+      await new Promise(r => setTimeout(r, 5))
 
       const updated = await userProfileDexieRepository.update(created.id, { note: 'edited' })
 
@@ -74,7 +74,7 @@ describe('userProfileDexieRepository', () => {
 
     it('merges partial payloads without clobbering untouched fields', async () => {
       const created = await userProfileDexieRepository.create(
-        makePayload({ note: 'initial', model: 'gpt-a' }),
+        makePayload({ note: 'initial', model: 'gpt-a' })
       )
 
       const updated = await userProfileDexieRepository.update(created.id, { note: 'changed' })
@@ -86,7 +86,7 @@ describe('userProfileDexieRepository', () => {
 
     it('throws when updating a non-existent profile', async () => {
       await expect(
-        userProfileDexieRepository.update('does-not-exist', { note: 'x' }),
+        userProfileDexieRepository.update('does-not-exist', { note: 'x' })
       ).rejects.toThrow(/not found/)
     })
   })
@@ -94,14 +94,14 @@ describe('userProfileDexieRepository', () => {
   describe('list', () => {
     it('returns profiles in reverse-chronological order by createdAt', async () => {
       const first = await userProfileDexieRepository.create(makePayload({ note: 'first' }))
-      await new Promise((r) => setTimeout(r, 10))
+      await new Promise(r => setTimeout(r, 10))
       const second = await userProfileDexieRepository.create(makePayload({ note: 'second' }))
-      await new Promise((r) => setTimeout(r, 10))
+      await new Promise(r => setTimeout(r, 10))
       const third = await userProfileDexieRepository.create(makePayload({ note: 'third' }))
 
       const list = await userProfileDexieRepository.list()
 
-      expect(list.map((p) => p.id)).toEqual([third.id, second.id, first.id])
+      expect(list.map(p => p.id)).toEqual([third.id, second.id, first.id])
     })
   })
 

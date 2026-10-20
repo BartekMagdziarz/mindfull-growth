@@ -46,6 +46,8 @@ function shutdown(exitCode = 0) {
 process.on('SIGINT', () => shutdown(0))
 process.on('SIGTERM', () => shutdown(0))
 
-console.log('[dev:lab] Starting verify at http://127.0.0.1:5199 and UX Lab at http://127.0.0.1:5201')
+console.log(
+  '[dev:lab] Starting verify at http://127.0.0.1:5199 and UX Lab at http://127.0.0.1:5201'
+)
 start('verify', ['run', 'dev:verify'])
 start('UX Lab', ['--prefix', 'ux-lab/app', 'run', 'dev'])

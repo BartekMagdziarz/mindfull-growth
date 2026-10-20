@@ -295,9 +295,7 @@ describe('useJournalStore', () => {
       const store = useJournalStore()
       const errorMessage = 'Database error'
 
-      vi.mocked(journalDexieRepository.getAll).mockRejectedValue(
-        new Error(errorMessage)
-      )
+      vi.mocked(journalDexieRepository.getAll).mockRejectedValue(new Error(errorMessage))
 
       await store.loadEntries()
 
@@ -312,7 +310,7 @@ describe('useJournalStore', () => {
 
       // Create a promise that we can control
       let resolvePromise: (value: JournalEntry[]) => void
-      const controlledPromise = new Promise<JournalEntry[]>((resolve) => {
+      const controlledPromise = new Promise<JournalEntry[]>(resolve => {
         resolvePromise = resolve
       })
 
@@ -346,9 +344,7 @@ describe('useJournalStore', () => {
 
     it('retries on the next call when the initial load failed', async () => {
       const store = useJournalStore()
-      vi.mocked(journalDexieRepository.getAll).mockRejectedValueOnce(
-        new Error('Database error')
-      )
+      vi.mocked(journalDexieRepository.getAll).mockRejectedValueOnce(new Error('Database error'))
 
       await store.ensureLoaded()
 
@@ -512,9 +508,7 @@ describe('useJournalStore', () => {
 
       store.entries = [entry]
 
-      vi.mocked(journalDexieRepository.delete).mockRejectedValue(
-        new Error('Delete failed')
-      )
+      vi.mocked(journalDexieRepository.delete).mockRejectedValue(new Error('Delete failed'))
 
       // Expect the error to be thrown
       await expect(store.deleteEntry('entry-1')).rejects.toThrow('Delete failed')
@@ -633,4 +627,3 @@ describe('useJournalStore', () => {
     })
   })
 })
-

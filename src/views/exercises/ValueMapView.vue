@@ -1,7 +1,8 @@
 <template>
   <ExercisePage
     :title="t('exercises.cards.valueMap.title')"
-    :subtitle="t('exercises.cards.valueMap.subtitle')" width="wide"
+    :subtitle="t('exercises.cards.valueMap.subtitle')"
+    width="wide"
   >
     <ValueMapWizard v-if="!saved" @saved="handleSaved" />
     <ExerciseSavedPanel v-else exercise-slug="value-map" @again="saved = false" />

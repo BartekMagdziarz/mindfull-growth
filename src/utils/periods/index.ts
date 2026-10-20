@@ -198,7 +198,7 @@ export function getNextPeriod(periodRef: PeriodRef): PeriodRef {
 export function zoomPeriod(
   periodRef: PeriodRef,
   targetType: PeriodType,
-  anchorDay?: DayRef,
+  anchorDay?: DayRef
 ): PeriodRef {
   if (getPeriodType(periodRef) === targetType) {
     return periodRef
@@ -294,7 +294,7 @@ export function getAssignmentBounds(assignment: PeriodAssignment): PeriodBounds 
 
 export function isAssignmentRelevantToPeriod(
   assignment: PeriodAssignment,
-  targetPeriod: PeriodRef,
+  targetPeriod: PeriodRef
 ): boolean {
   const assignmentBounds = getAssignmentBounds(assignment)
   const targetBounds = getPeriodBounds(targetPeriod)
@@ -308,9 +308,9 @@ export function isAssignmentRelevantToPeriod(
 export function filterItemsByPeriod<T>(
   items: T[],
   targetPeriod: PeriodRef,
-  resolvePeriod: (item: T) => ResolvedPeriod,
+  resolvePeriod: (item: T) => ResolvedPeriod
 ): T[] {
-  return items.filter((item) => {
+  return items.filter(item => {
     const resolved = resolvePeriod(item)
     if (!resolved) return false
 
@@ -322,7 +322,7 @@ export function filterItemsByPeriod<T>(
 
 export function groupItemsByPeriod<T>(
   items: T[],
-  resolvePeriod: (item: T) => ResolvedPeriod,
+  resolvePeriod: (item: T) => ResolvedPeriod
 ): PeriodGroup<T>[] {
   const groups = new Map<PeriodRef, T[]>()
 
@@ -343,7 +343,7 @@ export function groupItemsByPeriod<T>(
 
 export function countItemsByPeriod<T>(
   items: T[],
-  resolvePeriod: (item: T) => ResolvedPeriod,
+  resolvePeriod: (item: T) => ResolvedPeriod
 ): PeriodCount[] {
   return groupItemsByPeriod(items, resolvePeriod).map(({ periodRef, items: groupedItems }) => ({
     periodRef,
@@ -516,7 +516,7 @@ function shiftMonthRef(monthRef: MonthRef, amount: number): MonthRef {
 
   const totalMonths = parts.year * 12 + (parts.month - 1) + amount
   const nextYear = Math.floor(totalMonths / 12)
-  const nextMonth = ((totalMonths % 12) + 12) % 12 + 1
+  const nextMonth = (((totalMonths % 12) + 12) % 12) + 1
 
   return formatMonthRef(assertYearInRange(nextYear), nextMonth)
 }

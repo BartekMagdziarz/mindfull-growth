@@ -79,8 +79,7 @@ const isActive = (path: string): boolean => {
     -5px -5px 11px rgb(var(--neo-shadow-light) / 0.7),
     5px 5px 11px rgb(var(--neo-shadow-dark) / 0.16);
   --dock-shadow-sm:
-    -2px -2px 5px rgb(var(--neo-shadow-light) / 0.6),
-    2px 2px 5px rgb(var(--neo-shadow-dark) / 0.13);
+    -2px -2px 5px rgb(var(--neo-shadow-light) / 0.6), 2px 2px 5px rgb(var(--neo-shadow-dark) / 0.13);
   position: fixed;
   inset: 0 auto 0 0;
   z-index: 40;

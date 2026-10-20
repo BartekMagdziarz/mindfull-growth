@@ -38,7 +38,13 @@ function enrollment(overrides: Partial<ProgramEnrollment> = {}): ProgramEnrollme
 }
 
 function check(load: string, createdAt = '2026-10-01T10:00:00.000Z'): MicroExerciseEntry {
-  return { id: 'dc', exerciseSlug: 'dose-check', createdAt, updatedAt: createdAt, responses: { load } }
+  return {
+    id: 'dc',
+    exerciseSlug: 'dose-check',
+    createdAt,
+    updatedAt: createdAt,
+    responses: { load },
+  }
 }
 
 describe('future letter', () => {
@@ -77,7 +83,9 @@ describe('doseProposal', () => {
 
   it('is silent for "w sam raz", for checks before this enrollment and once the user decided', () => {
     expect(doseProposal(program, enrollment(), [check('right')])).toBeNull()
-    expect(doseProposal(program, enrollment(), [check('tooMuch', '2026-08-01T10:00:00.000Z')])).toBeNull()
+    expect(
+      doseProposal(program, enrollment(), [check('tooMuch', '2026-08-01T10:00:00.000Z')])
+    ).toBeNull()
     const decided = enrollment({
       practiceOverrides: { 'moment-shame': { everyDays: 3 } },
       updatedAt: '2026-10-02T10:00:00.000Z',
@@ -85,12 +93,14 @@ describe('doseProposal', () => {
     expect(doseProposal(program, decided, [check('tooMuch')])).toBeNull()
   })
 
-  it('reads the user\'s current rhythm when an older override exists', () => {
+  it("reads the user's current rhythm when an older override exists", () => {
     const slowed = enrollment({
       practiceOverrides: { 'moment-shame': { everyDays: 4 } },
       updatedAt: '2026-09-20T10:00:00.000Z',
     })
-    expect(doseProposal(program, slowed, [check('tooMuch')])?.items).toEqual([{ slug: 'self-compassion-break', from: 2, to: 3 }])
+    expect(doseProposal(program, slowed, [check('tooMuch')])?.items).toEqual([
+      { slug: 'self-compassion-break', from: 2, to: 3 },
+    ])
   })
 
   it('"zostaw jak jest" records every open practice at its current rhythm', () => {

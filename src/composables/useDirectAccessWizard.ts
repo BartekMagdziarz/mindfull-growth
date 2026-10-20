@@ -12,20 +12,9 @@ import { directAccessDialogueTurn } from '@/services/ifsLLMAssists'
 import { useT } from '@/composables/useT'
 import { enrichPartFromDiscoveries } from '@/services/ifsPartEnrichment'
 
-export type DirectAccessStep =
-  | 'part-select'
-  | 'self-check'
-  | 'dialogue'
-  | 'summary'
-  | 'save'
+export type DirectAccessStep = 'part-select' | 'self-check' | 'dialogue' | 'summary' | 'save'
 
-const STEP_ORDER: DirectAccessStep[] = [
-  'part-select',
-  'self-check',
-  'dialogue',
-  'summary',
-  'save',
-]
+const STEP_ORDER: DirectAccessStep[] = ['part-select', 'self-check', 'dialogue', 'summary', 'save']
 
 export function useDirectAccessWizard() {
   const store = useIFSDirectAccessStore()
@@ -58,7 +47,7 @@ export function useDirectAccessWizard() {
     () =>
       partJobDiscovered.value.trim().length > 0 ||
       partFearDiscovered.value.trim().length > 0 ||
-      partNeedDiscovered.value.trim().length > 0,
+      partNeedDiscovered.value.trim().length > 0
   )
   const notes = ref('')
 
@@ -100,7 +89,11 @@ export function useDirectAccessWizard() {
   }
 
   // Dialogue methods
-  async function sendMessage(content: string, part: IFSPart, options: { useProfile?: boolean } = {}) {
+  async function sendMessage(
+    content: string,
+    part: IFSPart,
+    options: { useProfile?: boolean } = {}
+  ) {
     const userMsg: IFSDialogueMessage = {
       role: 'user',
       content,
@@ -145,7 +138,7 @@ export function useDirectAccessWizard() {
   }
 
   function removeInsight(id: string) {
-    insights.value = insights.value.filter((i) => i.id !== id)
+    insights.value = insights.value.filter(i => i.id !== id)
   }
 
   // Save
@@ -161,7 +154,7 @@ export function useDirectAccessWizard() {
         partJobDiscovered: partJobDiscovered.value.trim() || undefined,
         partFearDiscovered: partFearDiscovered.value.trim() || undefined,
         partNeedDiscovered: partNeedDiscovered.value.trim() || undefined,
-        llmAssistUsed: messages.value.some((m) => m.role === 'assistant'),
+        llmAssistUsed: messages.value.some(m => m.role === 'assistant'),
         notes: notes.value.trim() || undefined,
       }
       await store.createSession(payload)

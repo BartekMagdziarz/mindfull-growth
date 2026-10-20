@@ -8,7 +8,9 @@
 
     <!-- Past Sessions -->
     <div class="mt-10 space-y-4">
-      <div class="mg-v2-section-head"><h2>{{ t('exercises.views.pastSessions') }}</h2></div>
+      <div class="mg-v2-section-head">
+        <h2>{{ t('exercises.views.pastSessions') }}</h2>
+      </div>
 
       <template v-if="sortedSessions.length">
         <AppCard
@@ -19,17 +21,33 @@
           class="space-y-2"
         >
           <div class="flex items-center justify-between">
-            <span class="text-sm font-medium text-on-surface">{{ formatDate(session.createdAt) }}</span>
-            <span class="exercise-pill text-xs px-2 py-0.5 bg-primary/10 text-primary font-semibold">
-              {{ tp(session.messages.length, 'exercises.views.messagesCount.one', 'exercises.views.messagesCount.few', 'exercises.views.messagesCount.many') }}
+            <span class="text-sm font-medium text-on-surface">{{
+              formatDate(session.createdAt)
+            }}</span>
+            <span
+              class="exercise-pill text-xs px-2 py-0.5 bg-primary/10 text-primary font-semibold"
+            >
+              {{
+                tp(
+                  session.messages.length,
+                  'exercises.views.messagesCount.one',
+                  'exercises.views.messagesCount.few',
+                  'exercises.views.messagesCount.many'
+                )
+              }}
             </span>
           </div>
 
           <!-- Linked part -->
           <div class="flex items-center gap-2">
             <span class="text-xs text-on-surface-variant">{{ t('exercises.views.part') }}</span>
-            <span class="text-xs font-medium text-on-surface">{{ getPartName(session.partId) }}</span>
-            <PartRoleBadge v-if="getPartRole(session.partId)" :role="getPartRole(session.partId)!" />
+            <span class="text-xs font-medium text-on-surface">{{
+              getPartName(session.partId)
+            }}</span>
+            <PartRoleBadge
+              v-if="getPartRole(session.partId)"
+              :role="getPartRole(session.partId)!"
+            />
           </div>
 
           <!-- Insights -->
@@ -47,15 +65,23 @@
           </div>
 
           <!-- Discoveries -->
-          <div v-if="session.partJobDiscovered || session.partFearDiscovered || session.partNeedDiscovered" class="space-y-0.5">
+          <div
+            v-if="
+              session.partJobDiscovered || session.partFearDiscovered || session.partNeedDiscovered
+            "
+            class="space-y-0.5"
+          >
             <p v-if="session.partJobDiscovered" class="text-xs text-on-surface-variant">
-              <span class="font-medium">{{ t('exercises.views.job') }}</span> {{ session.partJobDiscovered }}
+              <span class="font-medium">{{ t('exercises.views.job') }}</span>
+              {{ session.partJobDiscovered }}
             </p>
             <p v-if="session.partFearDiscovered" class="text-xs text-on-surface-variant">
-              <span class="font-medium">{{ t('exercises.views.fear') }}</span> {{ session.partFearDiscovered }}
+              <span class="font-medium">{{ t('exercises.views.fear') }}</span>
+              {{ session.partFearDiscovered }}
             </p>
             <p v-if="session.partNeedDiscovered" class="text-xs text-on-surface-variant">
-              <span class="font-medium">{{ t('exercises.views.need') }}</span> {{ session.partNeedDiscovered }}
+              <span class="font-medium">{{ t('exercises.views.need') }}</span>
+              {{ session.partNeedDiscovered }}
             </p>
           </div>
 
@@ -88,7 +114,9 @@ import { formatExerciseDate } from '@/utils/exerciseDate'
 const { t, tp, locale } = useT()
 const route = useRoute()
 /** A path step names the part to talk with (`?partTag=shame-compass:attackSelf`). */
-const partTag = computed(() => (typeof route.query.partTag === 'string' ? route.query.partTag : undefined))
+const partTag = computed(() =>
+  typeof route.query.partTag === 'string' ? route.query.partTag : undefined
+)
 const directAccessStore = useIFSDirectAccessStore()
 const partStore = useIFSPartStore()
 const saved = ref(false)

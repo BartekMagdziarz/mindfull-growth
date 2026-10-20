@@ -69,8 +69,10 @@ export function markerTitle(
   todayRef?: DayRef
 ): string {
   if (marker.kind === 'deadline') return marker.goal.title
-  if (marker.kind === 'letter') return `${t('planning.today.upcoming.letter')} · ${t(marker.programTitleKey)}`
-  if (marker.kind === 'return') return `${t('planning.today.upcoming.return')} · ${t(marker.programTitleKey)}`
+  if (marker.kind === 'letter')
+    return `${t('planning.today.upcoming.letter')} · ${t(marker.programTitleKey)}`
+  if (marker.kind === 'return')
+    return `${t('planning.today.upcoming.return')} · ${t(marker.programTitleKey)}`
   if (marker.ritual === 'week') {
     const current = todayRef ? getPeriodRefsForDate(todayRef).week : undefined
     const relation = !current

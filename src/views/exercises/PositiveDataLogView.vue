@@ -11,18 +11,16 @@
 
     <!-- No logs exist: show setup wizard -->
     <template v-else-if="positiveDataLogStore.sortedLogs.length === 0 && !selectedLogId">
-      <PositiveDataLogWizard
-        mode="setup"
-        :frame="frame"
-        @created="handleCreated"
-      />
+      <PositiveDataLogWizard mode="setup" :frame="frame" @created="handleCreated" />
     </template>
 
     <!-- Logs exist but none selected: show log list -->
     <template v-else-if="!selectedLogId">
       <div class="space-y-4">
         <div class="flex items-center justify-between">
-          <div class="mg-v2-section-head"><h2>{{ t('exercises.views.yourLogs') }}</h2></div>
+          <div class="mg-v2-section-head">
+            <h2>{{ t('exercises.views.yourLogs') }}</h2>
+          </div>
           <AppButton variant="tonal" @click="showSetupWizard = true">
             <AppIcon name="add" class="text-base" />
             {{ t('exercises.views.newLog') }}
@@ -31,11 +29,7 @@
 
         <!-- New log wizard inline -->
         <div v-if="showSetupWizard" class="space-y-4">
-          <PositiveDataLogWizard
-            mode="setup"
-            :frame="frame"
-            @created="handleCreated"
-          />
+          <PositiveDataLogWizard mode="setup" :frame="frame" @created="handleCreated" />
           <div class="flex justify-start">
             <AppButton variant="text" @click="showSetupWizard = false">Cancel</AppButton>
           </div>
@@ -56,23 +50,39 @@
                   "{{ log.targetBelief }}"
                 </p>
                 <div class="flex items-center gap-3 text-xs text-on-surface-variant">
-                  <span>{{ log.entries.length }} {{ log.entries.length === 1 ? 'entry' : 'entries' }}</span>
+                  <span
+                    >{{ log.entries.length }}
+                    {{ log.entries.length === 1 ? 'entry' : 'entries' }}</span
+                  >
                   <span>&middot;</span>
                   <span>{{ formatDate(log.updatedAt) }}</span>
                 </div>
                 <div class="flex items-center gap-2 mt-1">
                   <span class="text-xs text-on-surface-variant">Believability:</span>
-                  <span class="text-xs font-semibold text-on-surface">{{ log.believabilityInitial }}%</span>
-                  <AppIcon name="arrow_forward" class="text-xs text-on-surface-variant flex-shrink-0" />
+                  <span class="text-xs font-semibold text-on-surface"
+                    >{{ log.believabilityInitial }}%</span
+                  >
+                  <AppIcon
+                    name="arrow_forward"
+                    class="text-xs text-on-surface-variant flex-shrink-0"
+                  />
                   <span
                     class="text-xs font-semibold"
-                    :class="(log.believabilityLatest ?? log.believabilityInitial) < log.believabilityInitial ? 'text-success' : 'text-on-surface'"
+                    :class="
+                      (log.believabilityLatest ?? log.believabilityInitial) <
+                      log.believabilityInitial
+                        ? 'text-success'
+                        : 'text-on-surface'
+                    "
                   >
                     {{ log.believabilityLatest ?? log.believabilityInitial }}%
                   </span>
                 </div>
               </div>
-              <AppIcon name="chevron_right" class="text-xl text-on-surface-variant flex-shrink-0 mt-1" />
+              <AppIcon
+                name="chevron_right"
+                class="text-xl text-on-surface-variant flex-shrink-0 mt-1"
+              />
             </div>
           </AppCard>
         </div>
@@ -115,10 +125,7 @@ import PositiveDataLogWizard from '@/components/exercises/PositiveDataLogWizard.
 import RepeatPlanPrompt from '@/components/exercises/RepeatPlanPrompt.vue'
 import { usePositiveDataLogStore } from '@/stores/positiveDataLog.store'
 import { useProgramEnrollmentStore } from '@/stores/programEnrollment.store'
-import type {
-  CreatePositiveDataLogPayload,
-  PositiveDataEntry,
-} from '@/domain/exercises'
+import type { CreatePositiveDataLogPayload, PositiveDataEntry } from '@/domain/exercises'
 import { useT } from '@/composables/useT'
 import { formatExerciseDate } from '@/utils/exerciseDate'
 
@@ -185,7 +192,7 @@ async function handleEntryAdded(entry: PositiveDataEntry) {
 
 async function handleEntryRemoved(entryId: string) {
   if (!selectedLogId.value || !selectedLog.value) return
-  const updatedEntries = selectedLog.value.entries.filter((e) => e.id !== entryId)
+  const updatedEntries = selectedLog.value.entries.filter(e => e.id !== entryId)
   await positiveDataLogStore.updateLog(selectedLogId.value, { entries: updatedEntries })
   await positiveDataLogStore.loadLogs()
 }

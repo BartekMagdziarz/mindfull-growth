@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import type { CreateHabitPayload, Habit, MultiCompletionItem } from '@/domain/planning'
-import { MULTI_COMPLETION_MAX_ACTIVE_ITEMS, normalizeHabitPayload, normalizeTrackerPayload } from '@/domain/planning'
+import {
+  MULTI_COMPLETION_MAX_ACTIVE_ITEMS,
+  normalizeHabitPayload,
+  normalizeTrackerPayload,
+} from '@/domain/planning'
 import { normalizeDailyMeasurementEntryPayload } from '@/domain/planningState'
 import type { DayRef } from '@/domain/period'
 
@@ -33,7 +37,7 @@ describe('normalize multi-completion object payloads', () => {
           { id: 'a', label: ' A ' } as MultiCompletionItem,
           { id: 'b', label: 'B', weight: 3, archived: false },
         ],
-      }),
+      })
     )
 
     expect(result.multiItems).toEqual([
@@ -44,24 +48,28 @@ describe('normalize multi-completion object payloads', () => {
 
   it('requires multiItems for the multi-completion entry mode', () => {
     expect(() => normalizeHabitPayload(multiHabitPayload({ multiItems: undefined }))).toThrow(
-      'multiItems must be an array',
+      'multiItems must be an array'
     )
   })
 
   it('rejects duplicate ids, empty labels and invalid weights', () => {
     expect(() =>
       normalizeHabitPayload(
-        multiHabitPayload({ multiItems: [items[0], { ...items[1], id: 'wake' }] }),
-      ),
+        multiHabitPayload({ multiItems: [items[0], { ...items[1], id: 'wake' }] })
+      )
     ).toThrow('duplicated')
     expect(() =>
-      normalizeHabitPayload(multiHabitPayload({ multiItems: [{ id: 'a', label: '  ', weight: 1 }] })),
+      normalizeHabitPayload(
+        multiHabitPayload({ multiItems: [{ id: 'a', label: '  ', weight: 1 }] })
+      )
     ).toThrow('label')
     expect(() =>
-      normalizeHabitPayload(multiHabitPayload({ multiItems: [{ id: 'a', label: 'A', weight: 0 }] })),
+      normalizeHabitPayload(multiHabitPayload({ multiItems: [{ id: 'a', label: 'A', weight: 0 }] }))
     ).toThrow('weight')
     expect(() =>
-      normalizeHabitPayload(multiHabitPayload({ multiItems: [{ id: 'a', label: 'A', weight: 1.5 }] })),
+      normalizeHabitPayload(
+        multiHabitPayload({ multiItems: [{ id: 'a', label: 'A', weight: 1.5 }] })
+      )
     ).toThrow('weight')
   })
 
@@ -70,8 +78,8 @@ describe('normalize multi-completion object payloads', () => {
       normalizeHabitPayload(
         multiHabitPayload({
           multiItems: [{ id: 'a', label: 'A', weight: 1, archived: true }],
-        }),
-      ),
+        })
+      )
     ).toThrow('at least one non-archived item')
 
     const tooMany = Array.from({ length: MULTI_COMPLETION_MAX_ACTIVE_ITEMS + 1 }, (_, index) => ({
@@ -80,7 +88,7 @@ describe('normalize multi-completion object payloads', () => {
       weight: 1,
     }))
     expect(() => normalizeHabitPayload(multiHabitPayload({ multiItems: tooMany }))).toThrow(
-      `at most ${MULTI_COMPLETION_MAX_ACTIVE_ITEMS}`,
+      `at most ${MULTI_COMPLETION_MAX_ACTIVE_ITEMS}`
     )
 
     const maxActivePlusArchived = [
@@ -88,27 +96,29 @@ describe('normalize multi-completion object payloads', () => {
       { id: 'old', label: 'Old', weight: 1, archived: true },
     ]
     expect(
-      normalizeHabitPayload(multiHabitPayload({ multiItems: maxActivePlusArchived })).multiItems,
+      normalizeHabitPayload(multiHabitPayload({ multiItems: maxActivePlusArchived })).multiItems
     ).toHaveLength(MULTI_COMPLETION_MAX_ACTIVE_ITEMS + 1)
   })
 
   it('validates the daily threshold and treats null as a reset to the all-items default', () => {
-    expect(normalizeHabitPayload(multiHabitPayload({ multiDailyThreshold: 3 })).multiDailyThreshold).toBe(3)
+    expect(
+      normalizeHabitPayload(multiHabitPayload({ multiDailyThreshold: 3 })).multiDailyThreshold
+    ).toBe(3)
     expect(
       normalizeHabitPayload(multiHabitPayload({ multiDailyThreshold: null as unknown as number }))
-        .multiDailyThreshold,
+        .multiDailyThreshold
     ).toBeUndefined()
     expect(() => normalizeHabitPayload(multiHabitPayload({ multiDailyThreshold: 0 }))).toThrow(
-      'multiDailyThreshold',
+      'multiDailyThreshold'
     )
     expect(() => normalizeHabitPayload(multiHabitPayload({ multiDailyThreshold: 2.5 }))).toThrow(
-      'multiDailyThreshold',
+      'multiDailyThreshold'
     )
   })
 
   it('strips multi fields for other entry modes', () => {
     const result = normalizeHabitPayload(
-      multiHabitPayload({ entryMode: 'completion', multiDailyThreshold: 3 }),
+      multiHabitPayload({ entryMode: 'completion', multiDailyThreshold: 3 })
     )
     expect(result.multiItems).toBeUndefined()
     expect(result.multiDailyThreshold).toBeUndefined()
@@ -117,8 +127,13 @@ describe('normalize multi-completion object payloads', () => {
   it('keeps the entryDays condition on multi-completion count targets', () => {
     const result = normalizeHabitPayload(
       multiHabitPayload({
-        target: { kind: 'count', operator: 'min', value: 3, entryDays: { operator: 'min', value: 5 } },
-      }),
+        target: {
+          kind: 'count',
+          operator: 'min',
+          value: 3,
+          entryDays: { operator: 'min', value: 5 },
+        },
+      })
     )
     expect(result.target).toEqual({
       kind: 'count',
@@ -192,13 +207,13 @@ describe('normalizeDailyMeasurementEntryPayload checkedItemIds', () => {
 
   it('rejects empty arrays, duplicates and non-string ids', () => {
     expect(() => normalizeDailyMeasurementEntryPayload({ ...base, checkedItemIds: [] })).toThrow(
-      'non-empty array',
+      'non-empty array'
     )
     expect(() =>
-      normalizeDailyMeasurementEntryPayload({ ...base, checkedItemIds: ['a', 'a'] }),
+      normalizeDailyMeasurementEntryPayload({ ...base, checkedItemIds: ['a', 'a'] })
     ).toThrow('duplicate')
-    expect(() =>
-      normalizeDailyMeasurementEntryPayload({ ...base, checkedItemIds: [' '] }),
-    ).toThrow('non-empty strings')
+    expect(() => normalizeDailyMeasurementEntryPayload({ ...base, checkedItemIds: [' '] })).toThrow(
+      'non-empty strings'
+    )
   })
 })

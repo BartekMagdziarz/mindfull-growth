@@ -3,7 +3,9 @@
     <div class="flex gap-3">
       <AppIcon name="security" class="exercise-note__icon" />
       <div class="space-y-2">
-        <h3 class="exercise-note__title">{{ t('exerciseWizards.shared.ifs.safetyBanner.heading') }}</h3>
+        <h3 class="exercise-note__title">
+          {{ t('exerciseWizards.shared.ifs.safetyBanner.heading') }}
+        </h3>
         <p class="exercise-note__text">
           {{ t('exerciseWizards.shared.ifs.safetyBanner.warningText') }}
         </p>

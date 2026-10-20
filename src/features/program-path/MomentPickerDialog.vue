@@ -11,21 +11,38 @@
       <li v-for="moment in moments" :key="moment.id">
         <button type="button" class="moment-picker__card" @click="pick(moment.id)">
           <span class="moment-picker__date">{{ formatDate(moment.createdAt) }}</span>
-          <strong v-if="seedOf(moment).situation" class="moment-picker__text">{{ seedOf(moment).situation }}</strong>
+          <strong v-if="seedOf(moment).situation" class="moment-picker__text">{{
+            seedOf(moment).situation
+          }}</strong>
           <span v-if="moment.responses.kind === 'shame'" class="moment-picker__meta">
-            <template v-if="seedOf(moment).reaction">{{ partLabel(seedOf(moment).reaction!) }}</template>
+            <template v-if="seedOf(moment).reaction">{{
+              partLabel(seedOf(moment).reaction!)
+            }}</template>
             <template v-else>{{ t('programs.glance.nonePart') }}</template>
-            <template v-if="seedOf(moment).about && seedOf(moment).about !== 'unsure'"> · {{ tg(`exerciseWizards.micro.moments.about.options.${seedOf(moment).about}`) }}</template>
+            <template v-if="seedOf(moment).about && seedOf(moment).about !== 'unsure'">
+              ·
+              {{
+                tg(`exerciseWizards.micro.moments.about.options.${seedOf(moment).about}`)
+              }}</template
+            >
           </span>
-          <em v-if="seedOf(moment).criticThought" class="moment-picker__critic">„{{ seedOf(moment).criticThought }}”</em>
+          <em v-if="seedOf(moment).criticThought" class="moment-picker__critic"
+            >„{{ seedOf(moment).criticThought }}”</em
+          >
         </button>
       </li>
     </ul>
     <div class="moment-picker__actions">
-      <button type="button" class="mg-v2-button mg-v2-button--quiet" @click="emit('update:modelValue', false)">
+      <button
+        type="button"
+        class="mg-v2-button mg-v2-button--quiet"
+        @click="emit('update:modelValue', false)"
+      >
         {{ t('common.buttons.cancel') }}
       </button>
-      <button type="button" class="mg-v2-button" @click="pick(null)">{{ t('programs.momentPicker.without') }}</button>
+      <button type="button" class="mg-v2-button" @click="pick(null)">
+        {{ t('programs.momentPicker.without') }}
+      </button>
     </div>
   </AppDialog>
 </template>
@@ -51,8 +68,10 @@ const emit = defineEmits<{ 'update:modelValue': [open: boolean]; pick: [entryId:
 
 const { t, tg, locale } = useT()
 const seedOf = momentSeedFrom
-const partLabel = (reaction: ShameReaction) => tg(`exerciseWizards.micro.moments.compass.options.${reaction}`)
-const formatDate = (iso: string) => new Date(iso).toLocaleDateString(locale.value, { day: 'numeric', month: 'short' })
+const partLabel = (reaction: ShameReaction) =>
+  tg(`exerciseWizards.micro.moments.compass.options.${reaction}`)
+const formatDate = (iso: string) =>
+  new Date(iso).toLocaleDateString(locale.value, { day: 'numeric', month: 'short' })
 
 function pick(entryId: string | null) {
   emit('pick', entryId)

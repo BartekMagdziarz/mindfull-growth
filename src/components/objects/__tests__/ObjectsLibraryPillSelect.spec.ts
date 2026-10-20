@@ -48,9 +48,7 @@ describe('ObjectsLibraryPillSelect', () => {
     await fireEvent.click(screen.getByRole('button', { name: 'Add' }))
     await fireEvent.click(screen.getByRole('checkbox', { name: 'Career & Work' }))
 
-    expect(emitted()['update:modelValue']).toEqual([
-      [['la-1', 'la-2']],
-    ])
+    expect(emitted()['update:modelValue']).toEqual([[['la-1', 'la-2']]])
   })
 
   it('emits update when unchecking an option in the dropdown', async () => {
@@ -59,9 +57,7 @@ describe('ObjectsLibraryPillSelect', () => {
     await fireEvent.click(screen.getByRole('button', { name: 'Add' }))
     await fireEvent.click(screen.getByRole('checkbox', { name: 'Health & Fitness' }))
 
-    expect(emitted()['update:modelValue']).toEqual([
-      [['la-2']],
-    ])
+    expect(emitted()['update:modelValue']).toEqual([[['la-2']]])
   })
 
   it('emits update when removing a pill via X button', async () => {
@@ -71,9 +67,7 @@ describe('ObjectsLibraryPillSelect', () => {
     const removeButton = pills.querySelector('button')!
     await fireEvent.click(removeButton)
 
-    expect(emitted()['update:modelValue']).toEqual([
-      [['la-3']],
-    ])
+    expect(emitted()['update:modelValue']).toEqual([[['la-3']]])
   })
 
   it('clears all selections when clear button is clicked', async () => {
@@ -82,8 +76,6 @@ describe('ObjectsLibraryPillSelect', () => {
     await fireEvent.click(screen.getByRole('button', { name: 'Add' }))
     await fireEvent.click(screen.getByRole('button', { name: 'Clear' }))
 
-    expect(emitted()['update:modelValue']).toEqual([
-      [[]],
-    ])
+    expect(emitted()['update:modelValue']).toEqual([[[]]])
   })
 })

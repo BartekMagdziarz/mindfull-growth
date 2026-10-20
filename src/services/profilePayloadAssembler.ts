@@ -39,10 +39,7 @@ import {
 } from '@/services/reflectionDataQueries'
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
 import { getAIProviderSettings, computeMaxPromptTokens } from '@/services/llmService'
-import {
-  buildSummarizedHistory,
-  rawTierCutoffIso,
-} from '@/services/profilePeriodSummary.service'
+import { buildSummarizedHistory, rawTierCutoffIso } from '@/services/profilePeriodSummary.service'
 import { loadFoundationSourceData } from '@/services/foundationCompleteness'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
@@ -65,10 +62,10 @@ import {
 export class ProfilePayloadTooLargeError extends Error {
   constructor(
     public readonly mandatoryTokens: number,
-    public readonly budget: number,
+    public readonly budget: number
   ) {
     super(
-      `Mandatory profile blocks (~${mandatoryTokens} tok) exceed the model budget (~${budget} tok).`,
+      `Mandatory profile blocks (~${mandatoryTokens} tok) exceed the model budget (~${budget} tok).`
     )
     this.name = 'ProfilePayloadTooLargeError'
   }
@@ -110,7 +107,7 @@ async function resolveBudget(): Promise<number | null> {
     return computeMaxPromptTokens(
       settings.provider,
       settings.reasoningEffort ?? 'low',
-      PROFILE_MAX_TOKENS,
+      PROFILE_MAX_TOKENS
     )
   } catch {
     return null
@@ -132,9 +129,7 @@ async function resolveBudget(): Promise<number | null> {
  * loader (`loadFoundationSourceData`) is its own canonical batch.
  * (reflections/exercises read Dexie directly and need no hydration.)
  */
-export async function ensureProfileStoresLoaded(
-  enabled: Set<ProfileDataType>,
-): Promise<void> {
+export async function ensureProfileStoresLoaded(enabled: Set<ProfileDataType>): Promise<void> {
   const tasks: Array<Promise<unknown>> = []
 
   if (enabled.has('journal') || enabled.has('emotionLogs')) {
@@ -151,11 +146,7 @@ export async function ensureProfileStoresLoaded(
 
   // Life areas: resolve entry names (journal/emotion) AND back the `[LIFE AREAS]`
   // block (planning) — `buildLifeAreasSnapshot` reads this same lazy store.
-  if (
-    enabled.has('journal') ||
-    enabled.has('emotionLogs') ||
-    enabled.has('planning')
-  ) {
+  if (enabled.has('journal') || enabled.has('emotionLogs') || enabled.has('planning')) {
     const lifeAreaStore = useLifeAreaStore()
     if (lifeAreaStore.lifeAreas.length === 0) tasks.push(lifeAreaStore.loadLifeAreas())
   }
@@ -174,7 +165,7 @@ export async function ensureProfileStoresLoaded(
  */
 export async function assembleProfilePayload(
   scope: ProfileAssemblyScope,
-  nowMs: number = Date.now(),
+  nowMs: number = Date.now()
 ): Promise<AssembledProfilePayload> {
   const { dataTypes, start, end, dateRange, includedObjectIds, locale } = scope
   const included = includedObjectIds ?? {}
@@ -193,33 +184,26 @@ export async function assembleProfilePayload(
     const lifeAreaStore = useLifeAreaStore()
     const ids = new Set(included.journal ?? [])
     journalEntries = journalStore.sortedEntries
-      .filter(
-        (e) =>
-          e.createdAt >= start &&
-          e.createdAt <= end &&
-          (ids.size === 0 || ids.has(e.id)),
-      )
-      .map((e) => ({
+      .filter(e => e.createdAt >= start && e.createdAt <= end && (ids.size === 0 || ids.has(e.id)))
+      .map(e => ({
         id: e.id,
         createdAt: e.createdAt,
         title: e.title,
         body: e.body ?? '',
         emotionNames: (e.emotionIds ?? [])
-          .map((id) => emotionStore.getEmotionById(id)?.name)
+          .map(id => emotionStore.getEmotionById(id)?.name)
           .filter((n): n is string => typeof n === 'string'),
         peopleNames: (e.peopleTagIds ?? [])
-          .map((id) => tagStore.getPeopleTagById(id)?.name)
+          .map(id => tagStore.getPeopleTagById(id)?.name)
           .filter((n): n is string => typeof n === 'string'),
         contextNames: (e.contextTagIds ?? [])
-          .map((id) => tagStore.getContextTagById(id)?.name)
+          .map(id => tagStore.getContextTagById(id)?.name)
           .filter((n): n is string => typeof n === 'string'),
         // JournalEntry doesn't store lifeAreaIds directly; derived link
         // resolution happens client-side in the UI. Left empty for now.
-        lifeAreaNames: Array.isArray(
-          (e as unknown as { lifeAreaIds?: string[] }).lifeAreaIds,
-        )
+        lifeAreaNames: Array.isArray((e as unknown as { lifeAreaIds?: string[] }).lifeAreaIds)
           ? ((e as unknown as { lifeAreaIds?: string[] }).lifeAreaIds ?? [])
-              .map((id) => lifeAreaStore.getLifeAreaById(id)?.name)
+              .map(id => lifeAreaStore.getLifeAreaById(id)?.name)
               .filter((n): n is string => typeof n === 'string')
           : [],
       }))
@@ -233,24 +217,19 @@ export async function assembleProfilePayload(
     const tagStore = useTagStore()
     const ids = new Set(included.emotionLogs ?? [])
     emotionLogs = emotionLogStore.sortedLogs
-      .filter(
-        (l) =>
-          l.createdAt >= start &&
-          l.createdAt <= end &&
-          (ids.size === 0 || ids.has(l.id)),
-      )
-      .map((l) => ({
+      .filter(l => l.createdAt >= start && l.createdAt <= end && (ids.size === 0 || ids.has(l.id)))
+      .map(l => ({
         id: l.id,
         createdAt: l.createdAt,
         emotionNames: l.emotionIds
-          .map((id) => emotionStore.getEmotionById(id)?.name)
+          .map(id => emotionStore.getEmotionById(id)?.name)
           .filter((n): n is string => typeof n === 'string'),
         note: l.note ?? '',
         peopleNames: (l.peopleTagIds ?? [])
-          .map((id) => tagStore.getPeopleTagById(id)?.name)
+          .map(id => tagStore.getPeopleTagById(id)?.name)
           .filter((n): n is string => typeof n === 'string'),
         contextNames: (l.contextTagIds ?? [])
-          .map((id) => tagStore.getContextTagById(id)?.name)
+          .map(id => tagStore.getContextTagById(id)?.name)
           .filter((n): n is string => typeof n === 'string'),
       }))
   }
@@ -264,8 +243,8 @@ export async function assembleProfilePayload(
     allExerciseBundles = await getExerciseSessionBundlesForPeriod(start, end)
     const ids = new Set(included.exerciseSessions ?? [])
     exerciseSessions = allExerciseBundles
-      .filter((b) => ids.size === 0 || ids.has(b.id))
-      .map((b) => ({
+      .filter(b => ids.size === 0 || ids.has(b.id))
+      .map(b => ({
         id: b.id,
         type: b.type,
         createdAt: b.createdAt,
@@ -279,13 +258,8 @@ export async function assembleProfilePayload(
     const all = await structuredReflectionDexieRepository.listWeekly()
     const ids = new Set(included.weeklyReflections ?? [])
     weeklyReflections = all
-      .filter(
-        (r) =>
-          r.createdAt >= start &&
-          r.createdAt <= end &&
-          (ids.size === 0 || ids.has(r.id)),
-      )
-      .map((r) => ({
+      .filter(r => r.createdAt >= start && r.createdAt <= end && (ids.size === 0 || ids.has(r.id)))
+      .map(r => ({
         weekRef: r.weekRef,
         ratings: extractWeeklyRatings(r),
         promptResponses: r.promptResponses,
@@ -300,13 +274,8 @@ export async function assembleProfilePayload(
     const all = await structuredReflectionDexieRepository.listMonthly()
     const ids = new Set(included.monthlyReflections ?? [])
     monthlyReflections = all
-      .filter(
-        (r) =>
-          r.createdAt >= start &&
-          r.createdAt <= end &&
-          (ids.size === 0 || ids.has(r.id)),
-      )
-      .map((r) => ({
+      .filter(r => r.createdAt >= start && r.createdAt <= end && (ids.size === 0 || ids.has(r.id)))
+      .map(r => ({
         monthRef: r.monthRef,
         ratings: extractMonthlyRatings(r),
         promptResponses: r.promptResponses,
@@ -354,8 +323,7 @@ export async function assembleProfilePayload(
 
   // Resolve the prompt budget. `undefined` → from settings (preview == build);
   // `null` → no budgeting (hosted / unconfigured); a number → explicit (tests).
-  const budget =
-    scope.maxPromptTokens === undefined ? await resolveBudget() : scope.maxPromptTokens
+  const budget = scope.maxPromptTokens === undefined ? await resolveBudget() : scope.maxPromptTokens
 
   // Assemble raw first. With no budget, or when the full raw payload already
   // fits, send it raw — full content, no tiering/summarization (cheaper and more
@@ -368,9 +336,9 @@ export async function assembleProfilePayload(
   // Over budget → keep the last ~8 weeks raw, replace older diary records with
   // deterministic per-period digests, then fill-to-budget.
   const rawCutoff = rawTierCutoffIso(nowMs)
-  input.journalEntries = input.journalEntries?.filter((e) => e.createdAt >= rawCutoff)
-  input.emotionLogs = input.emotionLogs?.filter((l) => l.createdAt >= rawCutoff)
-  input.exerciseSessions = input.exerciseSessions?.filter((s) => s.createdAt >= rawCutoff)
+  input.journalEntries = input.journalEntries?.filter(e => e.createdAt >= rawCutoff)
+  input.emotionLogs = input.emotionLogs?.filter(l => l.createdAt >= rawCutoff)
+  input.exerciseSessions = input.exerciseSessions?.filter(s => s.createdAt >= rawCutoff)
   input.summarizedHistory = await buildSummarizedHistory({
     scopeStartIso: start,
     scopeEndIso: end,

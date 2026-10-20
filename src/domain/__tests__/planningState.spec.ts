@@ -37,7 +37,9 @@ describe('planningState domain normalization', () => {
 
     const weekState = normalizeMeasurementWeekStatePayload({
       weekRef: parsePeriodRef('2026-W10') as CreateMeasurementWeekStatePayload['weekRef'],
-      sourceMonthRef: parsePeriodRef('2026-03') as CreateMeasurementWeekStatePayload['sourceMonthRef'],
+      sourceMonthRef: parsePeriodRef(
+        '2026-03'
+      ) as CreateMeasurementWeekStatePayload['sourceMonthRef'],
       subjectType: 'tracker',
       subjectId: 'tracker-1',
       activityState: 'paused',
@@ -77,7 +79,7 @@ describe('planningState domain normalization', () => {
         createdAt: '2026-03-01T00:00:00.000Z',
         updatedAt: '2026-03-01T00:00:00.000Z',
         ...created,
-      },
+      }
     )
 
     expect(cleared.targetOverride).toBeUndefined()
@@ -115,7 +117,7 @@ describe('planningState domain normalization', () => {
       {
         scheduleScope: 'specific-days',
       },
-      existing,
+      existing
     )
     expect(preserved.targetOverride).toEqual({
       kind: 'count',
@@ -128,7 +130,7 @@ describe('planningState domain normalization', () => {
       {
         targetOverride: undefined,
       },
-      existing,
+      existing
     )
     expect(cleared.targetOverride).toBeUndefined()
   })
@@ -154,7 +156,7 @@ describe('planningState domain normalization', () => {
       {
         targetOverride: { value: 4 },
       } as never,
-      existing,
+      existing
     )
 
     expect(updated.targetOverride).toEqual({
@@ -173,7 +175,7 @@ describe('planningState domain normalization', () => {
         subjectId: 'kr-1',
         activityState: 'active',
         scheduleScope: 'whole-week',
-      } as CreateMeasurementWeekStatePayload),
+      } as CreateMeasurementWeekStatePayload)
     ).toThrow('sourceMonthRef must overlap MeasurementWeekState.weekRef')
   })
 
@@ -193,7 +195,7 @@ describe('planningState domain normalization', () => {
         subjectId: 'tracker-1',
         dayRef: '2026-03-12',
         value: Number.NaN,
-      } as CreateDailyMeasurementEntryPayload),
+      } as CreateDailyMeasurementEntryPayload)
     ).toThrow('DailyMeasurementEntry.value must be a finite number or null')
   })
 
@@ -204,7 +206,7 @@ describe('planningState domain normalization', () => {
         monthRef: '2026-03',
         weekRef: '2026-W10',
         dayRef: '2026-04-01',
-      } as CreateInitiativePlanStatePayload),
+      } as CreateInitiativePlanStatePayload)
     ).toThrow('dayRef must belong to weekRef')
   })
 

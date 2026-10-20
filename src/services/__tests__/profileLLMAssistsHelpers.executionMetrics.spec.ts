@@ -15,7 +15,7 @@ function makeEntry(
   subjectType: MeasurementSubjectType,
   subjectId: string,
   dayRef: string,
-  value: number | null = 1,
+  value: number | null = 1
 ): DailyMeasurementEntry {
   return {
     id: `${subjectType}-${subjectId}-${dayRef}`,
@@ -79,7 +79,11 @@ function makeTracker(overrides: Partial<Tracker> = {}): Tracker {
   }
 }
 
-function weeklyEntries(subjectType: MeasurementSubjectType, subjectId: string, metWeeks: number): DailyMeasurementEntry[] {
+function weeklyEntries(
+  subjectType: MeasurementSubjectType,
+  subjectId: string,
+  metWeeks: number
+): DailyMeasurementEntry[] {
   const currentWeekMondays = [
     '2026-03-16',
     '2026-03-09',
@@ -96,55 +100,65 @@ function weeklyEntries(subjectType: MeasurementSubjectType, subjectId: string, m
   ]
   return currentWeekMondays
     .slice(0, metWeeks)
-    .map((dayRef) => makeEntry(subjectType, subjectId, dayRef))
+    .map(dayRef => makeEntry(subjectType, subjectId, dayRef))
 }
 
 function trackerEntries(recentValues: number[], baselineValues: number[]): DailyMeasurementEntry[] {
-  const recent = recentValues.map((value, index) => (
+  const recent = recentValues.map((value, index) =>
     makeEntry('tracker', 'tracker-1', addDaysToDayRef('2026-03-20' as DayRef, -index), value)
-  ))
-  const baseline = baselineValues.map((value, index) => (
+  )
+  const baseline = baselineValues.map((value, index) =>
     makeEntry('tracker', 'tracker-1', addDaysToDayRef('2026-02-18' as DayRef, -index), value)
-  ))
+  )
   return [...recent, ...baseline]
 }
 
 describe('execution metric helpers', () => {
   it('counts a weekly habit streak from the previous week when the current week is not met', () => {
     const habit = makeHabit()
-    const metrics = computeHabitExecutionMetrics(habit, [
-      makeEntry('habit', habit.id, '2026-03-09'),
-    ], NOW)
+    const metrics = computeHabitExecutionMetrics(
+      habit,
+      [makeEntry('habit', habit.id, '2026-03-09')],
+      NOW
+    )
 
     expect(metrics.currentStreak).toBe(1)
   })
 
   it('counts a weekly habit streak through the current week when it is met', () => {
     const habit = makeHabit()
-    const metrics = computeHabitExecutionMetrics(habit, [
-      makeEntry('habit', habit.id, '2026-03-16'),
-      makeEntry('habit', habit.id, '2026-03-09'),
-      makeEntry('habit', habit.id, '2026-03-02'),
-      makeEntry('habit', habit.id, '2026-02-23'),
-    ], NOW)
+    const metrics = computeHabitExecutionMetrics(
+      habit,
+      [
+        makeEntry('habit', habit.id, '2026-03-16'),
+        makeEntry('habit', habit.id, '2026-03-09'),
+        makeEntry('habit', habit.id, '2026-03-02'),
+        makeEntry('habit', habit.id, '2026-02-23'),
+      ],
+      NOW
+    )
 
     expect(metrics.currentStreak).toBe(4)
   })
 
   it('breaks a weekly habit streak when the chain to today is missing', () => {
     const habit = makeHabit()
-    const metrics = computeHabitExecutionMetrics(habit, [
-      makeEntry('habit', habit.id, '2026-02-02'),
-    ], NOW)
+    const metrics = computeHabitExecutionMetrics(
+      habit,
+      [makeEntry('habit', habit.id, '2026-02-02')],
+      NOW
+    )
 
     expect(metrics.currentStreak).toBe(0)
   })
 
   it('counts a monthly habit entry on the first day of the new month', () => {
     const habit = makeHabit({ cadence: 'monthly' })
-    const metrics = computeHabitExecutionMetrics(habit, [
-      makeEntry('habit', habit.id, '2026-04-01'),
-    ], new Date('2026-04-01T12:00:00.000Z'))
+    const metrics = computeHabitExecutionMetrics(
+      habit,
+      [makeEntry('habit', habit.id, '2026-04-01')],
+      new Date('2026-04-01T12:00:00.000Z')
+    )
 
     expect(metrics.currentStreak).toBe(1)
     expect(metrics.lastCompletedAt).toBe('2026-04-01')
@@ -152,11 +166,15 @@ describe('execution metric helpers', () => {
 
   it('does not penalize habit completion rate for periods before the habit was created', () => {
     const habit = makeHabit({ createdAt: '2026-03-03T00:00:00.000Z' })
-    const metrics = computeHabitExecutionMetrics(habit, [
-      makeEntry('habit', habit.id, '2026-03-03'),
-      makeEntry('habit', habit.id, '2026-03-09'),
-      makeEntry('habit', habit.id, '2026-03-16'),
-    ], NOW)
+    const metrics = computeHabitExecutionMetrics(
+      habit,
+      [
+        makeEntry('habit', habit.id, '2026-03-03'),
+        makeEntry('habit', habit.id, '2026-03-09'),
+        makeEntry('habit', habit.id, '2026-03-16'),
+      ],
+      NOW
+    )
 
     expect(metrics.completionRate30d).toBe(1)
   })
@@ -166,9 +184,11 @@ describe('execution metric helpers', () => {
       entryMode: 'value',
       target: { kind: 'value', aggregation: 'sum', operator: 'gte', value: 42 },
     })
-    const metrics = computeKRExecutionMetrics(kr, [
-      makeEntry('keyResult', kr.id, '2026-03-18', 28),
-    ], NOW)
+    const metrics = computeKRExecutionMetrics(
+      kr,
+      [makeEntry('keyResult', kr.id, '2026-03-18', 28)],
+      NOW
+    )
 
     expect(metrics.currentValue).toBe(28)
     expect(metrics.targetValue).toBe(42)
@@ -176,17 +196,31 @@ describe('execution metric helpers', () => {
   })
 
   it('omits progress fraction for non-value KRs', () => {
-    expect(computeKRExecutionMetrics(makeKR({ entryMode: 'completion' }), [], NOW).progressFraction).toBeUndefined()
-    expect(computeKRExecutionMetrics(makeKR({
-      entryMode: 'counter',
-      target: { kind: 'count', operator: 'min', value: 12 },
-    }), [], NOW).progressFraction).toBeUndefined()
+    expect(
+      computeKRExecutionMetrics(makeKR({ entryMode: 'completion' }), [], NOW).progressFraction
+    ).toBeUndefined()
+    expect(
+      computeKRExecutionMetrics(
+        makeKR({
+          entryMode: 'counter',
+          target: { kind: 'count', operator: 'min', value: 12 },
+        }),
+        [],
+        NOW
+      ).progressFraction
+    ).toBeUndefined()
   })
 
   it('classifies KR on-track bands', () => {
-    expect(computeKRExecutionMetrics(makeKR(), weeklyEntries('keyResult', 'kr-1', 9), NOW).onTrack).toBe('ahead')
-    expect(computeKRExecutionMetrics(makeKR(), weeklyEntries('keyResult', 'kr-1', 6), NOW).onTrack).toBe('on-track')
-    expect(computeKRExecutionMetrics(makeKR(), weeklyEntries('keyResult', 'kr-1', 4), NOW).onTrack).toBe('behind')
+    expect(
+      computeKRExecutionMetrics(makeKR(), weeklyEntries('keyResult', 'kr-1', 9), NOW).onTrack
+    ).toBe('ahead')
+    expect(
+      computeKRExecutionMetrics(makeKR(), weeklyEntries('keyResult', 'kr-1', 6), NOW).onTrack
+    ).toBe('on-track')
+    expect(
+      computeKRExecutionMetrics(makeKR(), weeklyEntries('keyResult', 'kr-1', 4), NOW).onTrack
+    ).toBe('behind')
   })
 
   it('returns no-data for KRs without recent entries', () => {
@@ -197,7 +231,7 @@ describe('execution metric helpers', () => {
     const metrics = computeTrackerExecutionMetrics(
       makeTracker(),
       trackerEntries(Array(30).fill(6), Array(60).fill(6.75)),
-      NOW,
+      NOW
     )
 
     expect(metrics.avg30d).toBe(6)
@@ -209,7 +243,7 @@ describe('execution metric helpers', () => {
     const metrics = computeTrackerExecutionMetrics(
       makeTracker(),
       trackerEntries(Array(30).fill(6.05), Array(60).fill(5.975)),
-      NOW,
+      NOW
     )
 
     expect(metrics.trend).toBe('flat')
@@ -219,7 +253,7 @@ describe('execution metric helpers', () => {
     const metrics = computeTrackerExecutionMetrics(
       makeTracker(),
       trackerEntries([7, 7, 7, 7, 7], []),
-      NOW,
+      NOW
     )
 
     expect(metrics.avg30d).toBe(7)
@@ -230,7 +264,7 @@ describe('execution metric helpers', () => {
     const metrics = computeTrackerExecutionMetrics(
       makeTracker(),
       trackerEntries(Array(30).fill(7), Array(60).fill(5.5)),
-      NOW,
+      NOW
     )
 
     expect(metrics.trend).toBe('rising')

@@ -40,7 +40,9 @@ describe('currentPhase', () => {
   it('maps the current step to its phase, the last step once walked', () => {
     expect(currentPhase(ANGER, enrollment({ currentStepIndex: 0 }))?.key).toBe('w1')
     expect(currentPhase(ANGER, enrollment({ currentStepIndex: 4 }))?.key).toBe('w2')
-    expect(currentPhase(ANGER, enrollment({ currentStepIndex: ANGER.steps.length }))?.key).toBe('return')
+    expect(currentPhase(ANGER, enrollment({ currentStepIndex: ANGER.steps.length }))?.key).toBe(
+      'return'
+    )
   })
 })
 
@@ -53,17 +55,27 @@ describe('proposeWeeklyTask', () => {
   })
 
   it('stays silent once the week has a decision (accepted or declined)', () => {
-    const declined = enrollment({ weekLog: [entry({ weekRef: week('2026-W36'), decision: 'declined' })] })
+    const declined = enrollment({
+      weekLog: [entry({ weekRef: week('2026-W36'), decision: 'declined' })],
+    })
     expect(proposeWeeklyTask(ANGER, declined, week('2026-W36'))).toBeNull()
   })
 
   it('moves to the next task of a phase with several tasks', () => {
-    const e = enrollment({ currentStepIndex: 11, weekLog: [entry({ weekRef: week('2026-W40'), taskKey: 'applySolution' })] })
+    const e = enrollment({
+      currentStepIndex: 11,
+      weekLog: [entry({ weekRef: week('2026-W40'), taskKey: 'applySolution' })],
+    })
     expect(proposeWeeklyTask(ANGER, e, week('2026-W41'))?.task.key).toBe('calmRequest')
   })
 
   it('repeats the phase task when every task of the phase was accepted', () => {
-    const e = enrollment({ weekLog: [entry({ weekRef: week('2026-W35') }), entry({ weekRef: week('2026-W36'), taskKey: 'noticeCost' })] })
+    const e = enrollment({
+      weekLog: [
+        entry({ weekRef: week('2026-W35') }),
+        entry({ weekRef: week('2026-W36'), taskKey: 'noticeCost' }),
+      ],
+    })
     expect(proposeWeeklyTask(ANGER, e, week('2026-W37'))).toEqual({
       task: expect.objectContaining({ key: 'noticeCost' }),
       repeat: true,
@@ -81,7 +93,9 @@ describe('proposeWeeklyTask', () => {
   it('"stay next week" repeats the previous task even after the phase moved on', () => {
     const e = enrollment({
       currentStepIndex: 3,
-      weekLog: [entry({ weekRef: week('2026-W37'), taskKey: 'pauseInConversation', stayNextWeek: true })],
+      weekLog: [
+        entry({ weekRef: week('2026-W37'), taskKey: 'pauseInConversation', stayNextWeek: true }),
+      ],
     })
     expect(proposeWeeklyTask(ANGER, e, week('2026-W38'))).toEqual({
       task: expect.objectContaining({ key: 'pauseInConversation' }),
@@ -106,7 +120,9 @@ describe('proposeWeeklyTask', () => {
 
   it('never proposes for paused or completed enrollments', () => {
     expect(proposeWeeklyTask(ANGER, enrollment({ status: 'paused' }), week('2026-W36'))).toBeNull()
-    expect(proposeWeeklyTask(ANGER, enrollment({ status: 'completed' }), week('2026-W36'))).toBeNull()
+    expect(
+      proposeWeeklyTask(ANGER, enrollment({ status: 'completed' }), week('2026-W36'))
+    ).toBeNull()
   })
 })
 
@@ -114,11 +130,19 @@ describe('severitySeries', () => {
   it('reads 1–5 answers per week from the reflection prompt responses, gaps as null', () => {
     const key = programReflectionKeys('enr-1').severity
     const reflection = (weekRef: string, value?: string) =>
-      ({ weekRef: week(weekRef), promptResponses: value === undefined ? {} : { [key]: value } }) as unknown as WeeklyReflection
+      ({
+        weekRef: week(weekRef),
+        promptResponses: value === undefined ? {} : { [key]: value },
+      }) as unknown as WeeklyReflection
     const series = severitySeries(
       'enr-1',
-      [reflection('2026-W38', '3'), reflection('2026-W35', '5'), reflection('2026-W36', '4'), reflection('2026-W37')],
-      week('2026-W36'),
+      [
+        reflection('2026-W38', '3'),
+        reflection('2026-W35', '5'),
+        reflection('2026-W36', '4'),
+        reflection('2026-W37'),
+      ],
+      week('2026-W36')
     )
     expect(series).toEqual([
       { weekRef: '2026-W36', value: 4 },
@@ -129,8 +153,9 @@ describe('severitySeries', () => {
 })
 
 describe('proposeWeeklyTaskOptions', () => {
-  const shame = (overrides: Partial<ProgramEnrollment> = {}) => enrollment({ programSlug: 'shame-compassion', ...overrides })
-  const keys = (tasks: { key: string }[]) => tasks.map((task) => task.key)
+  const shame = (overrides: Partial<ProgramEnrollment> = {}) =>
+    enrollment({ programSlug: 'shame-compassion', ...overrides })
+  const keys = (tasks: { key: string }[]) => tasks.map(task => task.key)
 
   it('first phase: the phase tasks, nothing earlier, the first one suggested', () => {
     const options = proposeWeeklyTaskOptions(SHAME, shame(), week('2026-W36'))!
@@ -144,8 +169,11 @@ describe('proposeWeeklyTaskOptions', () => {
     // step 10 (thought record, index 9) → week 4 "Spojrzeć inaczej"
     const options = proposeWeeklyTaskOptions(
       SHAME,
-      shame({ currentStepIndex: 9, weekLog: [entry({ weekRef: week('2026-W36'), taskKey: 'nameShame' })] }),
-      week('2026-W38'),
+      shame({
+        currentStepIndex: 9,
+        weekLog: [entry({ weekRef: week('2026-W36'), taskKey: 'nameShame' })],
+      }),
+      week('2026-W38')
     )!
     expect(keys(options.current)).toEqual(['stayLonger', 'repairGuilt'])
     expect(keys(options.earlier)).toEqual([
@@ -168,7 +196,10 @@ describe('proposeWeeklyTaskOptions', () => {
       suggested: { key: 'repairGuilt' },
       repeat: false,
     })
-    const all = shame({ currentStepIndex: 9, weekLog: [...accepted, entry({ weekRef: week('2026-W40'), taskKey: 'repairGuilt' })] })
+    const all = shame({
+      currentStepIndex: 9,
+      weekLog: [...accepted, entry({ weekRef: week('2026-W40'), taskKey: 'repairGuilt' })],
+    })
     expect(proposeWeeklyTaskOptions(SHAME, all, week('2026-W41'))).toMatchObject({
       suggested: { key: 'repairGuilt' },
       repeat: true,
@@ -188,7 +219,10 @@ describe('proposeWeeklyTaskOptions', () => {
   })
 
   it('a phase without tasks offers the earlier ones with the last accepted task preselected', () => {
-    const e = shame({ currentStepIndex: 24, weekLog: [entry({ weekRef: week('2026-W44'), taskKey: 'askQuestion' })] })
+    const e = shame({
+      currentStepIndex: 24,
+      weekLog: [entry({ weekRef: week('2026-W44'), taskKey: 'askQuestion' })],
+    })
     const options = proposeWeeklyTaskOptions(SHAME, e, week('2026-W45'))!
     expect(options.current).toEqual([])
     expect(keys(options.earlier)).toContain('askQuestion')
@@ -197,7 +231,9 @@ describe('proposeWeeklyTaskOptions', () => {
   })
 
   it('stays silent once the week has a decision', () => {
-    const e = shame({ weekLog: [entry({ weekRef: week('2026-W36'), taskKey: 'nameShame', decision: 'declined' })] })
+    const e = shame({
+      weekLog: [entry({ weekRef: week('2026-W36'), taskKey: 'nameShame', decision: 'declined' })],
+    })
     expect(proposeWeeklyTaskOptions(SHAME, e, week('2026-W36'))).toBeNull()
   })
 })

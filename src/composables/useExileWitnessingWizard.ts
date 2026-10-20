@@ -85,7 +85,11 @@ export function useExileWitnessingWizard() {
       case 'protector-check':
         return protectorPermission.value !== null && protectorPermission.value !== 'blocking'
       case 'approach':
-        return exilePartId.value !== null && bodyLocation.value !== null && (emotionIds.value.length > 0 || emotionFamilyIds.value.length > 0)
+        return (
+          exilePartId.value !== null &&
+          bodyLocation.value !== null &&
+          (emotionIds.value.length > 0 || emotionFamilyIds.value.length > 0)
+        )
       case 'self-check':
         return selfCheckPassed.value === true
       case 'witnessing':
@@ -108,7 +112,7 @@ export function useExileWitnessingWizard() {
     () =>
       ['approach', 'self-check', 'witnessing', 'compassion'].includes(currentStep.value) &&
       exilePartId.value !== null &&
-      bodyLocation.value !== null,
+      bodyLocation.value !== null
   )
 
   /** Ground, then jump to closing so the session can still be honoured and saved. */
@@ -184,7 +188,10 @@ export function useExileWitnessingWizard() {
       const payload: CreateIFSExileWitnessingPayload = {
         exilePartId: exilePartId.value,
         protectorPartIds: [...protectorPartIds.value],
-        protectorPermission: protectorPermission.value as 'okay' | 'nervous-but-willing' | 'blocking',
+        protectorPermission: protectorPermission.value as
+          | 'okay'
+          | 'nervous-but-willing'
+          | 'blocking',
         bodyLocation: bodyLocation.value,
         feltAge: feltAge.value ?? undefined,
         emotionIds: [...emotionIds.value],

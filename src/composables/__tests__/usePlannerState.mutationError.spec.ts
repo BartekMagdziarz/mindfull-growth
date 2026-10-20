@@ -47,7 +47,7 @@ describe('usePlannerState mutation hardening', () => {
   it('captures a failed mutation in mutationError instead of rejecting, and clears savingKey', async () => {
     const habitId = await createPlannedHabit()
     const planner = await loadedPlanner()
-    const row = planner.habitRows.value.find((item) => item.id === habitId)!
+    const row = planner.habitRows.value.find(item => item.id === habitId)!
 
     vi.spyOn(planningMutations, 'updateMeasurementTargetOverride').mockRejectedValueOnce(
       new Error('boom')
@@ -57,17 +57,17 @@ describe('usePlannerState mutation hardening', () => {
     expect(planner.mutationError.value).toBe('boom')
     expect(planner.savingKey.value).toBe('')
     // The matrix was reloaded back to the persisted truth (rows still present).
-    expect(planner.habitRows.value.some((item) => item.id === habitId)).toBe(true)
+    expect(planner.habitRows.value.some(item => item.id === habitId)).toBe(true)
   })
 
   it('drops clicks that land while a save is already in flight', async () => {
     const habitId = await createPlannedHabit()
     const planner = await loadedPlanner()
-    const row = planner.habitRows.value.find((item) => item.id === habitId)!
+    const row = planner.habitRows.value.find(item => item.id === habitId)!
     const weekRefs = getChildPeriods(MONTH) as WeekRef[]
 
     let resolveFirst: () => void = () => {}
-    const firstCall = new Promise<void>((resolve) => {
+    const firstCall = new Promise<void>(resolve => {
       resolveFirst = resolve
     })
     // A whole-month row's first cell click goes through the materialize path.

@@ -29,26 +29,16 @@
       <div class="space-y-2">
         <label class="space-y-1">
           <span class="text-xs font-semibold text-on-surface">{{ labels.title }}</span>
-          <input
-            v-model="draft.title"
-            type="text"
-            class="mg-v2-field w-full text-sm"
-          />
+          <input v-model="draft.title" type="text" class="mg-v2-field w-full text-sm" />
         </label>
 
         <label class="space-y-1">
           <span class="text-xs font-semibold text-on-surface">{{ labels.description }}</span>
-          <textarea
-            v-model="draft.description"
-            class="mg-v2-field w-full resize-y text-sm"
-          />
+          <textarea v-model="draft.description" class="mg-v2-field w-full resize-y text-sm" />
         </label>
 
         <div class="grid gap-4 md:grid-cols-2">
-          <label
-            v-if="panelType === 'keyResult' && !hideGoalSelect"
-            class="space-y-1"
-          >
+          <label v-if="panelType === 'keyResult' && !hideGoalSelect" class="space-y-1">
             <span class="text-xs font-semibold text-on-surface">{{ labels.goal }}</span>
             <select v-model="draft.goalId" class="mg-v2-field w-full text-sm">
               <option value="">{{ noneLabel }}</option>
@@ -57,7 +47,6 @@
               </option>
             </select>
           </label>
-
         </div>
 
         <div
@@ -131,7 +120,9 @@
       </div>
     </div>
 
-    <div class="inline-editor-divider mt-3 flex flex-wrap items-center justify-between gap-2 border-t pt-3">
+    <div
+      class="inline-editor-divider mt-3 flex flex-wrap items-center justify-between gap-2 border-t pt-3"
+    >
       <button
         v-if="showDelete"
         type="button"
@@ -155,7 +146,10 @@ import { computed } from 'vue'
 import AppButton from '@/components/AppButton.vue'
 import ObjectsLibraryPillSelect from '@/components/objects/ObjectsLibraryPillSelect.vue'
 import MeasurementTargetSentence from '@/components/objects/MeasurementTargetSentence.vue'
-import type { ObjectsLibraryFilterOption, ObjectsLibraryPanelType } from '@/services/objectsLibraryQueries'
+import type {
+  ObjectsLibraryFilterOption,
+  ObjectsLibraryPanelType,
+} from '@/services/objectsLibraryQueries'
 import MultiItemsEditor from '@/components/objects/MultiItemsEditor.vue'
 import type {
   MeasurementEntryDaysCondition,
@@ -278,7 +272,10 @@ const sentenceEntryMode = computed<MeasurementEntryMode>(() => {
   return 'completion'
 })
 
-function onMultiConfig(config: { items: MultiCompletionItem[]; threshold: number | undefined }): void {
+function onMultiConfig(config: {
+  items: MultiCompletionItem[]
+  threshold: number | undefined
+}): void {
   draft.value.multiItems = config.items
   draft.value.multiDailyThreshold = config.threshold
 }
@@ -287,10 +284,21 @@ const sentenceTarget = computed<MeasurementTarget>(() => {
   const d = draft.value.target
   const entryDays = d.entryDays ? { entryDays: d.entryDays } : {}
   if (d.kind === 'count') {
-    return { kind: 'count', operator: d.operator === 'max' ? 'max' : 'min', value: d.value, ...entryDays }
+    return {
+      kind: 'count',
+      operator: d.operator === 'max' ? 'max' : 'min',
+      value: d.value,
+      ...entryDays,
+    }
   }
   if (d.kind === 'rating') {
-    return { kind: 'rating', aggregation: 'average', operator: d.operator === 'lte' ? 'lte' : 'gte', value: d.value, ...entryDays }
+    return {
+      kind: 'rating',
+      aggregation: 'average',
+      operator: d.operator === 'lte' ? 'lte' : 'gte',
+      value: d.value,
+      ...entryDays,
+    }
   }
   return {
     kind: 'value',
@@ -311,7 +319,8 @@ function onTargetMeasurement(measurement: {
   target.kind = next.kind
   target.operator = next.operator
   target.value = next.value
-  target.aggregation = next.kind === 'value' || next.kind === 'rating' ? next.aggregation : undefined
+  target.aggregation =
+    next.kind === 'value' || next.kind === 'rating' ? next.aggregation : undefined
   target.entryDays = next.entryDays
 }
 

@@ -1,7 +1,9 @@
 <template>
   <div class="space-y-4">
     <div>
-      <h3 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.wheelOfLife.timeline.title') }}</h3>
+      <h3 class="text-base font-semibold text-on-surface">
+        {{ t('exerciseWizards.wheelOfLife.timeline.title') }}
+      </h3>
     </div>
 
     <div v-if="assessments.length === 0" class="text-sm text-on-surface-variant">
@@ -19,7 +21,10 @@
             <div class="truncate text-xs font-semibold text-on-surface">
               {{ formatDate(assessment.createdAt) }}
             </div>
-            <p v-if="assessment.scope === 'partial'" class="mt-0.5 text-[11px] leading-tight text-on-surface-variant">
+            <p
+              v-if="assessment.scope === 'partial'"
+              class="mt-0.5 text-[11px] leading-tight text-on-surface-variant"
+            >
               {{ t('exerciseWizards.wheelOfLife.timeline.partialHint') }}
             </p>
           </div>
@@ -73,14 +78,14 @@ defineEmits<{
 }>()
 
 const assessmentCards = computed(() =>
-  props.assessments.map((assessment) => ({
+  props.assessments.map(assessment => ({
     ...assessment,
-    areas: assessment.items.map<WheelChartArea>((item) => ({
-        id: item.lifeAreaId,
-        name: item.lifeAreaNameSnapshot,
-        rating: item.score,
-      })),
-  })),
+    areas: assessment.items.map<WheelChartArea>(item => ({
+      id: item.lifeAreaId,
+      name: item.lifeAreaNameSnapshot,
+      rating: item.score,
+    })),
+  }))
 )
 
 function formatDate(iso: string): string {

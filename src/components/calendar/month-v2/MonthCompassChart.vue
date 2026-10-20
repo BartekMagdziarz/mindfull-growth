@@ -114,8 +114,8 @@ function normalizedValue(axis: MonthV2CompassAxis): number {
   return Math.max(0, Math.min(1, axis.value / axis.max))
 }
 
-const hasCompleteValues = computed(
-  () => (compass.value?.axes ?? []).every((axis) => axis.value !== null)
+const hasCompleteValues = computed(() =>
+  (compass.value?.axes ?? []).every(axis => axis.value !== null)
 )
 
 const valuePoints = computed(() =>
@@ -148,7 +148,7 @@ function axisLabel(key: MonthlyRatingKey): string {
 
 const ariaDescription = computed(() =>
   (compass.value?.axes ?? [])
-    .map((axis) => `${axisLabel(axis.key)} ${axis.value ?? '—'} / ${axis.max}`)
+    .map(axis => `${axisLabel(axis.key)} ${axis.value ?? '—'} / ${axis.max}`)
     .join(', ')
 )
 </script>

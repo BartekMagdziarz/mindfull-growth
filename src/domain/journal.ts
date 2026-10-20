@@ -28,4 +28,3 @@ export function getDisplayTitle(entry: { title?: string; body?: string }): strin
   const snippet = words.slice(0, 8).join(' ')
   return (snippet.length > 60 ? snippet.slice(0, 57) : snippet) + '…'
 }
-

@@ -30,7 +30,7 @@ describe('useEditableField', () => {
     const { result } = withScope(() =>
       useEditableField({
         source: () => source.value,
-      }),
+      })
     )
 
     expect(result.value.value).toBe('hello')
@@ -41,7 +41,7 @@ describe('useEditableField', () => {
     const { result } = withScope(() =>
       useEditableField({
         source: () => source.value,
-      }),
+      })
     )
 
     expect(result.value.value).toBe('')
@@ -52,7 +52,7 @@ describe('useEditableField', () => {
     const { result } = withScope(() =>
       useEditableField({
         source: () => source.value,
-      }),
+      })
     )
 
     source.value = 'updated'
@@ -66,7 +66,7 @@ describe('useEditableField', () => {
     const { result } = withScope(() =>
       useEditableField({
         source: () => source.value,
-      }),
+      })
     )
 
     const input = mountInputAndFocus()
@@ -86,7 +86,7 @@ describe('useEditableField', () => {
         source: () => source.value,
         commit,
         delay: 400,
-      }),
+      })
     )
 
     // User edits — pending commit
@@ -113,7 +113,7 @@ describe('useEditableField', () => {
         source: () => source.value,
         commit,
         delay: 300,
-      }),
+      })
     )
 
     result.value.value = 'a'
@@ -134,7 +134,7 @@ describe('useEditableField', () => {
         source: () => source.value,
         commit,
         delay: 200,
-      }),
+      })
     )
 
     result.value.value = 'a'
@@ -159,7 +159,7 @@ describe('useEditableField', () => {
         source: () => source.value,
         commit,
         delay: 500,
-      }),
+      })
     )
 
     result.value.value = 'flushed'
@@ -181,7 +181,7 @@ describe('useEditableField', () => {
         source: () => source.value,
         commit,
         delay: 100,
-      }),
+      })
     )
 
     result.flush()
@@ -196,7 +196,7 @@ describe('useEditableField', () => {
         source: () => source.value,
         commit,
         delay: 300,
-      }),
+      })
     )
 
     result.value.value = 'temp'
@@ -216,7 +216,7 @@ describe('useEditableField', () => {
         source: () => source.value,
         commit,
         delay: 400,
-      }),
+      })
     )
 
     result.value.value = 'before unmount'
@@ -232,8 +232,8 @@ describe('useEditableField', () => {
     const { result } = withScope(() =>
       useEditableField<number | null, string>({
         source: () => source.value,
-        format: (v) => (v == null ? '' : String(v)),
-      }),
+        format: v => (v == null ? '' : String(v)),
+      })
     )
 
     expect(result.value.value).toBe('42')
@@ -249,10 +249,10 @@ describe('useEditableField', () => {
     const { result } = withScope(() =>
       useEditableField<number | null, string>({
         source: () => source.value,
-        format: (v) => (v == null ? '' : String(v)),
+        format: v => (v == null ? '' : String(v)),
         commit,
         delay: 200,
-      }),
+      })
     )
 
     // edit to a different value
@@ -273,7 +273,7 @@ describe('useEditableField', () => {
       useEditableField({
         source: () => source.value,
         isFocused: () => externallyFocused,
-      }),
+      })
     )
 
     source.value = 'external'
@@ -294,7 +294,7 @@ describe('useEditableField', () => {
         source: () => source.value,
         commit,
         // no delay -> manual mode
-      }),
+      })
     )
 
     result.value.value = 'manual draft'
@@ -315,7 +315,7 @@ describe('useEditableField', () => {
         source: () => source.value,
         commit,
         delay: 100,
-      }),
+      })
     )
 
     source.value = 'b'

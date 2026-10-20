@@ -11,7 +11,7 @@
           class="mt-0.5 neo-checkbox"
           :checked="modelValue"
           @change="handleToggle"
-        >
+        />
         <span>{{ body }}</span>
       </label>
     </AppCard>

@@ -35,7 +35,7 @@ const props = withDefaults(
     bare: false,
     showCadence: false,
     disabled: false,
-  },
+  }
 )
 
 // A single atomic event carrying the full {entryMode, target} pair on every change.
@@ -65,7 +65,11 @@ const entryModeOptions = computed(() => [
 // Operator labels are now words ("co najmniej / co najwyżej") for every kind, so the
 // sentence reads naturally instead of exposing >= / <= notation.
 const operatorOptions = computed(() => {
-  if (props.entryMode === 'completion' || props.entryMode === 'counter' || props.entryMode === 'multi-completion') {
+  if (
+    props.entryMode === 'completion' ||
+    props.entryMode === 'counter' ||
+    props.entryMode === 'multi-completion'
+  ) {
     return [
       { value: 'min', label: t('planning.objects.targetOperators.min') },
       { value: 'max', label: t('planning.objects.targetOperators.max') },
@@ -96,7 +100,12 @@ const aggregationValue = computed(() => {
 const valueAttrs = computed(() => {
   if (props.target.kind === 'count') return { min: 1, step: 1, inputmode: 'numeric' as const }
   if (props.target.kind === 'rating') {
-    return { min: props.ratingScaleMin, max: props.ratingScale, step: 'any', inputmode: 'decimal' as const }
+    return {
+      min: props.ratingScaleMin,
+      max: props.ratingScale,
+      step: 'any',
+      inputmode: 'decimal' as const,
+    }
   }
   return { step: 'any', inputmode: 'decimal' as const }
 })
@@ -104,7 +113,7 @@ const valueAttrs = computed(() => {
 const periodText = computed(() =>
   props.cadence === 'monthly'
     ? t('planning.objects.targetSentence.perMonth')
-    : t('planning.objects.targetSentence.perWeek'),
+    : t('planning.objects.targetSentence.perWeek')
 )
 
 const cadenceOptions = computed(() => [
@@ -158,9 +167,9 @@ function onAggregation(value: string): void {
 const localValue = ref(String(props.target.value))
 watch(
   () => props.target.value,
-  (value) => {
+  value => {
     localValue.value = String(value)
-  },
+  }
 )
 
 function commitValue(): void {
@@ -187,8 +196,10 @@ const entryDaysOperatorOptions = computed(() => [
   { value: 'max', label: t('planning.objects.targetOperators.max') },
 ])
 
-const localEntryDaysValue = ref<string | number>(entryDays.value ? String(entryDays.value.value) : '')
-watch(entryDays, (condition) => {
+const localEntryDaysValue = ref<string | number>(
+  entryDays.value ? String(entryDays.value.value) : ''
+)
+watch(entryDays, condition => {
   localEntryDaysValue.value = condition ? String(condition.value) : ''
 })
 
@@ -231,7 +242,10 @@ function commitEntryDaysValue(): void {
 <template>
   <div
     class="flex flex-wrap items-center gap-x-1.5 gap-y-2 text-sm text-on-surface"
-    :class="[bare ? '' : 'neo-surface rounded-xl px-3 py-2', disabled ? 'pointer-events-none opacity-60' : '']"
+    :class="[
+      bare ? '' : 'neo-surface rounded-xl px-3 py-2',
+      disabled ? 'pointer-events-none opacity-60' : '',
+    ]"
   >
     <KrPillDropdown
       v-if="showMode"

@@ -20,7 +20,12 @@ const label = computed(() => {
   const n = count.value
   const tens = n % 100
   const ones = n % 10
-  const word = n === 1 ? 'propozycja' : ones >= 2 && ones <= 4 && (tens < 12 || tens > 14) ? 'propozycje' : 'propozycji'
+  const word =
+    n === 1
+      ? 'propozycja'
+      : ones >= 2 && ones <= 4 && (tens < 12 || tens > 14)
+        ? 'propozycje'
+        : 'propozycji'
   return `${n} ${word} do profilu`
 })
 let subscription: { unsubscribe(): void } | undefined
@@ -68,7 +73,9 @@ onBeforeUnmount(() => {
   font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
-  transition: background 0.18s, color 0.18s;
+  transition:
+    background 0.18s,
+    color 0.18s;
 }
 .profile-proposal-notice:hover,
 .profile-proposal-notice:focus-visible {

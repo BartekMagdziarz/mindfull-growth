@@ -29,14 +29,11 @@ export interface InvalidMeasurementRecord {
 export function auditMeasurementRecords(
   habits: Habit[],
   keyResults: KeyResult[],
-  trackers: Tracker[],
+  trackers: Tracker[]
 ): InvalidMeasurementRecord[] {
   const invalid: InvalidMeasurementRecord[] = []
 
-  function auditTargeted(
-    subjectType: 'habit' | 'keyResult',
-    subject: Habit | KeyResult,
-  ): void {
+  function auditTargeted(subjectType: 'habit' | 'keyResult', subject: Habit | KeyResult): void {
     if (subject.entryMode === 'completion' && subject.target.kind !== 'count') {
       invalid.push({
         subjectType,
@@ -63,7 +60,7 @@ export function auditMeasurementRecords(
     }
     if (
       subject.entryMode === 'multi-completion' &&
-      !subject.multiItems?.some((item) => !item.archived)
+      !subject.multiItems?.some(item => !item.archived)
     ) {
       invalid.push({
         subjectType,
@@ -86,7 +83,7 @@ export function auditMeasurementRecords(
   for (const tracker of trackers) {
     if (
       tracker.entryMode === 'multi-completion' &&
-      !tracker.multiItems?.some((item) => !item.archived)
+      !tracker.multiItems?.some(item => !item.archived)
     ) {
       invalid.push({
         subjectType: 'tracker',

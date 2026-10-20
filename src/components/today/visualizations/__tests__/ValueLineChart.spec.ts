@@ -18,7 +18,7 @@ const SparklineStub = {
 function makeSlot(
   dayRef: string,
   value: number | undefined,
-  overrides: Partial<TodayDaySlot> = {},
+  overrides: Partial<TodayDaySlot> = {}
 ): TodayDaySlot {
   return {
     dayRef: dayRef as DayRef,
@@ -55,7 +55,11 @@ describe('ValueLineChart', () => {
     ]
     renderWithStub(slots)
 
-    const points = capturedProps!.points as Array<{ periodRef: string; actualValue: number | undefined; status: string }>
+    const points = capturedProps!.points as Array<{
+      periodRef: string
+      actualValue: number | undefined
+      status: string
+    }>
     expect(points).toHaveLength(7)
     expect(points.every(p => p.status === 'no-target')).toBe(true)
     expect(points[0].periodRef).toBe('2026-03-09')
@@ -72,7 +76,10 @@ describe('ValueLineChart', () => {
     ]
     renderWithStub(slots)
 
-    const points = capturedProps!.points as Array<{ status: string; actualValue: number | undefined }>
+    const points = capturedProps!.points as Array<{
+      status: string
+      actualValue: number | undefined
+    }>
     expect(points[0].status).toBe('no-target')
     expect(points[1].status).toBe('no-data')
     expect(points[1].actualValue).toBeUndefined()
@@ -80,10 +87,7 @@ describe('ValueLineChart', () => {
   })
 
   it('passes targetValue to every chart point when provided', () => {
-    const slots = [
-      makeSlot('2026-03-09', 5),
-      makeSlot('2026-03-10', 8),
-    ]
+    const slots = [makeSlot('2026-03-09', 5), makeSlot('2026-03-10', 8)]
     renderWithStub(slots, 7)
 
     const points = capturedProps!.points as Array<{ targetValue: number | undefined }>

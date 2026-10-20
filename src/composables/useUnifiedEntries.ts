@@ -17,7 +17,7 @@ export function useUnifiedEntries() {
 
   // Convert journal entries to unified format
   const journalAsUnified = computed<UnifiedEntry[]>(() => {
-    return journalStore.entries.map((entry) => ({
+    return journalStore.entries.map(entry => ({
       id: entry.id,
       type: 'journal' as const,
       createdAt: entry.createdAt,
@@ -34,7 +34,7 @@ export function useUnifiedEntries() {
 
   // Convert emotion logs to unified format
   const emotionLogsAsUnified = computed<UnifiedEntry[]>(() => {
-    return emotionLogStore.logs.map((log) => ({
+    return emotionLogStore.logs.map(log => ({
       id: log.id,
       type: 'emotion-log' as const,
       createdAt: log.createdAt,
@@ -58,7 +58,7 @@ export function useUnifiedEntries() {
 
     // Type filter
     if (typeFilter.value !== 'all') {
-      entries = entries.filter((e) => e.type === typeFilter.value)
+      entries = entries.filter(e => e.type === typeFilter.value)
     }
 
     // Date range filter
@@ -83,7 +83,7 @@ export function useUnifiedEntries() {
           cutoffDate = new Date(0)
       }
 
-      entries = entries.filter((e) => new Date(e.createdAt) >= cutoffDate)
+      entries = entries.filter(e => new Date(e.createdAt) >= cutoffDate)
     }
 
     // Sort

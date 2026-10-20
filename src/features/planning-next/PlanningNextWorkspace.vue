@@ -21,7 +21,11 @@
       @open-scale="navigateScale"
       @open-ritual="openRitual"
     />
-    <div v-else class="planning-next__sheet" :class="{ 'planning-next__sheet--ritual': ritualAction }">
+    <div
+      v-else
+      class="planning-next__sheet"
+      :class="{ 'planning-next__sheet--ritual': ritualAction }"
+    >
       <aside v-if="!ritualAction" class="planning-next__rail-stack">
         <DsSurface class="planning-next__navigation">
           <DsPeriodNavigation
@@ -58,7 +62,9 @@
 
       <main
         class="planning-next__stage"
-        :class="ritualAction ? 'planning-next__stage--framed mg-v2-surface mg-v2-surface--raised' : ''"
+        :class="
+          ritualAction ? 'planning-next__stage--framed mg-v2-surface mg-v2-surface--raised' : ''
+        "
       >
         <DsState
           v-if="invalidRoute"
@@ -110,8 +116,20 @@ import { computed, ref, toRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { PeriodRef } from '@/domain/period'
 import type { CalendarScale, PlanningScale, PlanningUi } from '@/design-system/contracts'
-import { DsPeriodNavigation, DsSegmentedControl, DsState, DsSurface } from '@/design-system/components'
-import { getNextPeriod, getPreviousPeriod, getPeriodBounds, getPeriodType, parsePeriodRef, zoomPeriod } from '@/utils/periods'
+import {
+  DsPeriodNavigation,
+  DsSegmentedControl,
+  DsState,
+  DsSurface,
+} from '@/design-system/components'
+import {
+  getNextPeriod,
+  getPreviousPeriod,
+  getPeriodBounds,
+  getPeriodType,
+  parsePeriodRef,
+  zoomPeriod,
+} from '@/utils/periods'
 import { formatMonthTitle } from '@/utils/periodLabels'
 import { useT } from '@/composables/useT'
 import NextPeriodOverview from './NextPeriodOverview.vue'
@@ -138,7 +156,12 @@ const { locale } = useT()
 const monthPickerRef = ref<HTMLInputElement | null>(null)
 const scaleRef = toRef(props, 'scale')
 const periodRefRef = toRef(props, 'periodRef')
-const { data: periodData, error: periodError, load: reloadPeriod, state: periodState } = usePlanningPeriodData(scaleRef, periodRefRef)
+const {
+  data: periodData,
+  error: periodError,
+  load: reloadPeriod,
+  state: periodState,
+} = usePlanningPeriodData(scaleRef, periodRefRef)
 
 const invalidRoute = computed(() => {
   try {
@@ -148,23 +171,33 @@ const invalidRoute = computed(() => {
   }
 })
 /** `?ritual=classic` keeps the previous wizard chain available for comparison. */
-const ritualVariant = computed<'quiet' | 'classic'>(() => (route.query.ritual === 'classic' ? 'classic' : 'quiet'))
+const ritualVariant = computed<'quiet' | 'classic'>(() =>
+  route.query.ritual === 'classic' ? 'classic' : 'quiet'
+)
 const ritualAction = computed<'plan' | 'reflect' | null>(() => {
-  return route.query.action === 'plan' || route.query.action === 'reflect' ? route.query.action : null
+  return route.query.action === 'plan' || route.query.action === 'reflect'
+    ? route.query.action
+    : null
 })
 /** `?overview=classic` keeps the previous rail + tile overview available for comparison. */
-const overviewVariant = computed<'rhythm' | 'classic'>(() => (route.query.overview === 'classic' ? 'classic' : 'rhythm'))
+const overviewVariant = computed<'rhythm' | 'classic'>(() =>
+  route.query.overview === 'classic' ? 'classic' : 'rhythm'
+)
 /** The rhythm calendar owns week/month/year whenever no ritual is open. */
 const rhythmCalendar = computed(
   () =>
     !ritualAction.value &&
     !invalidRoute.value &&
     overviewVariant.value === 'rhythm' &&
-    (props.scale === 'week' || props.scale === 'month' || props.scale === 'year'),
+    (props.scale === 'week' || props.scale === 'month' || props.scale === 'year')
 )
 /** Week/month quiet rituals replace the whole workspace; the annual wizard keeps the framed stage. */
 const fullBleedRitual = computed(
-  () => Boolean(ritualAction.value) && ritualVariant.value === 'quiet' && !invalidRoute.value && (props.scale === 'week' || props.scale === 'month'),
+  () =>
+    Boolean(ritualAction.value) &&
+    ritualVariant.value === 'quiet' &&
+    !invalidRoute.value &&
+    (props.scale === 'week' || props.scale === 'month')
 )
 const scaleOptions = [
   { value: 'week' as const, label: 'Tydzień' },
@@ -188,14 +221,24 @@ function formatWeekRange(startDayRef: string, endDayRef: string): string {
   const start = new Date(`${startDayRef}T12:00:00`)
   const end = new Date(`${endDayRef}T12:00:00`)
   const sameMonth = start.getMonth() === end.getMonth()
-  const startText = new Intl.DateTimeFormat(locale.value, sameMonth ? { day: 'numeric' } : { day: 'numeric', month: 'short' }).format(start)
-  const endText = new Intl.DateTimeFormat(locale.value, { day: 'numeric', month: 'long' }).format(end)
+  const startText = new Intl.DateTimeFormat(
+    locale.value,
+    sameMonth ? { day: 'numeric' } : { day: 'numeric', month: 'short' }
+  ).format(start)
+  const endText = new Intl.DateTimeFormat(locale.value, { day: 'numeric', month: 'long' }).format(
+    end
+  )
   return `${startText}–${endText}`
 }
 
 /** Days open Dzisiaj; every other scale stays inside the calendar. */
 function routeFor(scale: PlanningScale, periodRef: string) {
-  const names = { day: 'today-day', week: 'calendar-week', month: 'calendar-month', year: 'calendar-year' } as const
+  const names = {
+    day: 'today-day',
+    week: 'calendar-week',
+    month: 'calendar-month',
+    year: 'calendar-year',
+  } as const
   const paramNames = { day: 'dayRef', week: 'weekRef', month: 'monthRef', year: 'yearRef' } as const
   return {
     name: names[scale],

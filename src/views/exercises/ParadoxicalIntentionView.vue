@@ -8,26 +8,21 @@
 
     <!-- Past labs -->
     <div v-if="paradoxicalStore.sortedLabs.length > 0" class="mt-8">
-      <div class="mg-v2-section-head"><h2>{{ t('exercises.views.pastLabs') }}</h2></div>
+      <div class="mg-v2-section-head">
+        <h2>{{ t('exercises.views.pastLabs') }}</h2>
+      </div>
       <div class="space-y-3">
-        <AppCard
-          v-for="lab in paradoxicalStore.sortedLabs"
-          :key="lab.id"
-          padding="md"
-        >
+        <AppCard v-for="lab in paradoxicalStore.sortedLabs" :key="lab.id" padding="md">
           <div>
             <p class="text-sm font-medium text-on-surface mb-1">
               {{ lab.fears.length }} fear{{ lab.fears.length > 1 ? 's' : '' }} worked on
             </p>
             <ul class="space-y-0.5">
-              <li
-                v-for="fear in lab.fears"
-                :key="fear.id"
-                class="text-xs text-on-surface-variant"
-              >
+              <li v-for="fear in lab.fears" :key="fear.id" class="text-xs text-on-surface-variant">
                 {{ fear.description }}
                 <span v-if="fear.paradoxicalIntention" class="text-primary italic">
-                  → {{ fear.paradoxicalIntention.slice(0, 50) }}{{ fear.paradoxicalIntention.length > 50 ? '...' : '' }}
+                  → {{ fear.paradoxicalIntention.slice(0, 50)
+                  }}{{ fear.paradoxicalIntention.length > 50 ? '...' : '' }}
                 </span>
               </li>
             </ul>

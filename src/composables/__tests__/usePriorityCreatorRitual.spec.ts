@@ -68,15 +68,28 @@ describe('usePriorityCreatorRitual', () => {
   })
 
   it('resumes from a persisted draft (step, form, boundaries, proposals)', async () => {
-    await saveDraftToDB(PRIORITY_CREATOR_DRAFT_KEY, JSON.stringify({
-      stepIndex: 3,
-      form: { title: 'Równowaga', direction: 'Spokój', whyNow: '' },
-      progressSignals: ['więcej spokoju'],
-      riskSignals: [],
-      boundaries: { influence: ['rytm dnia'], notControlled: [], tradeoffs: ['mniej zleceń'] },
-      proposals: [{ id: 'p1', kind: 'new', objectType: 'habit', title: 'Spacer', contribution: '', expectedSignal: '', selected: true }],
-      savedAt: '2026-07-20T10:00:00.000Z',
-    }))
+    await saveDraftToDB(
+      PRIORITY_CREATOR_DRAFT_KEY,
+      JSON.stringify({
+        stepIndex: 3,
+        form: { title: 'Równowaga', direction: 'Spokój', whyNow: '' },
+        progressSignals: ['więcej spokoju'],
+        riskSignals: [],
+        boundaries: { influence: ['rytm dnia'], notControlled: [], tradeoffs: ['mniej zleceń'] },
+        proposals: [
+          {
+            id: 'p1',
+            kind: 'new',
+            objectType: 'habit',
+            title: 'Spacer',
+            contribution: '',
+            expectedSignal: '',
+            selected: true,
+          },
+        ],
+        savedAt: '2026-07-20T10:00:00.000Z',
+      })
+    )
 
     const ritual = makeRitual()
     await ritual.initialize()
@@ -91,14 +104,26 @@ describe('usePriorityCreatorRitual', () => {
   })
 
   it('migrates a legacy draft with free-text boundaries into bullets', async () => {
-    await saveDraftToDB(PRIORITY_CREATOR_DRAFT_KEY, JSON.stringify({
-      stepIndex: 1,
-      form: { title: 'Równowaga', direction: 'Spokój', whyNow: '', influence: 'rytm dnia\nrozmowy', notControlled: '', tradeoffs: '', endingType: 'natural', endingDescription: 'Samo się zamknie' },
-      progressSignals: [],
-      riskSignals: [],
-      proposals: [],
-      savedAt: '2026-07-20T10:00:00.000Z',
-    }))
+    await saveDraftToDB(
+      PRIORITY_CREATOR_DRAFT_KEY,
+      JSON.stringify({
+        stepIndex: 1,
+        form: {
+          title: 'Równowaga',
+          direction: 'Spokój',
+          whyNow: '',
+          influence: 'rytm dnia\nrozmowy',
+          notControlled: '',
+          tradeoffs: '',
+          endingType: 'natural',
+          endingDescription: 'Samo się zamknie',
+        },
+        progressSignals: [],
+        riskSignals: [],
+        proposals: [],
+        savedAt: '2026-07-20T10:00:00.000Z',
+      })
+    )
 
     const ritual = makeRitual()
     await ritual.initialize()
@@ -172,7 +197,9 @@ describe('usePriorityCreatorRitual', () => {
     ritual.updateBoundaryItem('influence', 'rytm poranka', '   ')
     expect(ritual.influenceItems.value).toEqual([])
 
-    const candidate = ritual.libraryCandidates.value.find(item => item.subjectRef.subjectId === habit.id)
+    const candidate = ritual.libraryCandidates.value.find(
+      item => item.subjectRef.subjectId === habit.id
+    )
     expect(candidate).toBeTruthy()
     ritual.toggleExistingCandidate(candidate!)
     expect(ritual.isLinkedCandidate(candidate!.subjectRef)).toBe(true)
@@ -299,7 +326,11 @@ describe('usePriorityCreatorRitual', () => {
     full.form.direction = 'Zmiana'
     expect(await full.finish()).toBe(true)
     expect(full.monthFocusApplied.value).toBe(false)
-    expect((await periodPlanDexieRepository.getMonthPlan(monthRef))?.topPriorityIds).toEqual(['a', 'b', 'c'])
+    expect((await periodPlanDexieRepository.getMonthPlan(monthRef))?.topPriorityIds).toEqual([
+      'a',
+      'b',
+      'c',
+    ])
 
     await db.monthPlans.clear()
     const unchecked = makeRitual()

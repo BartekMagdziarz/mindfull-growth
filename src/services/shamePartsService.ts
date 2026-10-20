@@ -31,7 +31,12 @@ export const SHAME_PROGRAM_TAG = `program:${SHAME_PROGRAM_SLUG}`
 
 export type ShameReaction = 'withdraw' | 'attackSelf' | 'attackOthers' | 'avoid'
 
-export const SHAME_REACTIONS: readonly ShameReaction[] = ['withdraw', 'attackSelf', 'attackOthers', 'avoid']
+export const SHAME_REACTIONS: readonly ShameReaction[] = [
+  'withdraw',
+  'attackSelf',
+  'attackOthers',
+  'avoid',
+]
 
 export interface ShameCompassPart {
   reaction: ShameReaction
@@ -84,7 +89,9 @@ function isShameReaction(value: unknown): value is ShameReaction {
 }
 
 /** Reactions picked in a shame-map entry's `compass` step (unknown ids dropped). */
-export function reactionsFromShameMap(entry: Pick<MicroExerciseEntry, 'responses'>): ShameReaction[] {
+export function reactionsFromShameMap(
+  entry: Pick<MicroExerciseEntry, 'responses'>
+): ShameReaction[] {
   const raw = entry.responses.compass
   const list = Array.isArray(raw) ? raw : typeof raw === 'string' ? [raw] : []
   return list.filter(isShameReaction)
@@ -127,10 +134,15 @@ async function shameEnrollment() {
  * Returns the parts that now represent the picked reactions (existing or
  * created); dismissed reactions are left alone.
  */
-export async function ensureShameParts(entry: Pick<MicroExerciseEntry, 'responses'>): Promise<IFSPart[]> {
+export async function ensureShameParts(
+  entry: Pick<MicroExerciseEntry, 'responses'>
+): Promise<IFSPart[]> {
   const reactions = reactionsFromShameMap(entry)
   if (reactions.length === 0) return []
-  const [parts, enrollment] = await Promise.all([ifsPartDexieRepository.getAll(), shameEnrollment()])
+  const [parts, enrollment] = await Promise.all([
+    ifsPartDexieRepository.getAll(),
+    shameEnrollment(),
+  ])
   const dismissed = new Set(enrollment?.partsDismissed ?? [])
   const result: IFSPart[] = []
   for (const reaction of reactions) {

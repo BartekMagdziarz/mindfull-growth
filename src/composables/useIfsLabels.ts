@@ -76,7 +76,7 @@ export function useIfsLabels() {
 
   /** One-letter weekday labels, Monday first (P W Ś C P S N in Polish). */
   const weekdayInitials = computed(() =>
-    MONDAY_FIRST_DAY_INDEXES.map((d) => t(`common.days.${d}`).charAt(0).toUpperCase()),
+    MONDAY_FIRST_DAY_INDEXES.map(d => t(`common.days.${d}`).charAt(0).toUpperCase())
   )
 
   const unknownPartName = computed(() => t('exerciseWizards.shared.ifs.partSelector.unknownPart'))

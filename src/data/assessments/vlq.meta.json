@@ -202,91 +202,61 @@
     {
       "id": "family",
       "labelKey": "assessments.vlq.scales.family",
-      "itemIds": [
-        "vlq_family_importance",
-        "vlq_family_consistency"
-      ],
+      "itemIds": ["vlq_family_importance", "vlq_family_consistency"],
       "minAnswered": 2
     },
     {
       "id": "intimateRelationships",
       "labelKey": "assessments.vlq.scales.intimateRelationships",
-      "itemIds": [
-        "vlq_intimateRelationships_importance",
-        "vlq_intimateRelationships_consistency"
-      ],
+      "itemIds": ["vlq_intimateRelationships_importance", "vlq_intimateRelationships_consistency"],
       "minAnswered": 2
     },
     {
       "id": "parenting",
       "labelKey": "assessments.vlq.scales.parenting",
-      "itemIds": [
-        "vlq_parenting_importance",
-        "vlq_parenting_consistency"
-      ],
+      "itemIds": ["vlq_parenting_importance", "vlq_parenting_consistency"],
       "minAnswered": 2
     },
     {
       "id": "friendships",
       "labelKey": "assessments.vlq.scales.friendships",
-      "itemIds": [
-        "vlq_friendships_importance",
-        "vlq_friendships_consistency"
-      ],
+      "itemIds": ["vlq_friendships_importance", "vlq_friendships_consistency"],
       "minAnswered": 2
     },
     {
       "id": "work",
       "labelKey": "assessments.vlq.scales.work",
-      "itemIds": [
-        "vlq_work_importance",
-        "vlq_work_consistency"
-      ],
+      "itemIds": ["vlq_work_importance", "vlq_work_consistency"],
       "minAnswered": 2
     },
     {
       "id": "education",
       "labelKey": "assessments.vlq.scales.education",
-      "itemIds": [
-        "vlq_education_importance",
-        "vlq_education_consistency"
-      ],
+      "itemIds": ["vlq_education_importance", "vlq_education_consistency"],
       "minAnswered": 2
     },
     {
       "id": "recreation",
       "labelKey": "assessments.vlq.scales.recreation",
-      "itemIds": [
-        "vlq_recreation_importance",
-        "vlq_recreation_consistency"
-      ],
+      "itemIds": ["vlq_recreation_importance", "vlq_recreation_consistency"],
       "minAnswered": 2
     },
     {
       "id": "spirituality",
       "labelKey": "assessments.vlq.scales.spirituality",
-      "itemIds": [
-        "vlq_spirituality_importance",
-        "vlq_spirituality_consistency"
-      ],
+      "itemIds": ["vlq_spirituality_importance", "vlq_spirituality_consistency"],
       "minAnswered": 2
     },
     {
       "id": "citizenship",
       "labelKey": "assessments.vlq.scales.citizenship",
-      "itemIds": [
-        "vlq_citizenship_importance",
-        "vlq_citizenship_consistency"
-      ],
+      "itemIds": ["vlq_citizenship_importance", "vlq_citizenship_consistency"],
       "minAnswered": 2
     },
     {
       "id": "health",
       "labelKey": "assessments.vlq.scales.health",
-      "itemIds": [
-        "vlq_health_importance",
-        "vlq_health_consistency"
-      ],
+      "itemIds": ["vlq_health_importance", "vlq_health_consistency"],
       "minAnswered": 2
     }
   ],

@@ -38,9 +38,7 @@
 
       <!-- ContextTags -->
       <div class="flex flex-wrap items-center gap-2">
-        <span
-          class="text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant/70"
-        >
+        <span class="text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant/70">
           {{ t('planning.reflection.sidebar.contextTagsLabel') }}
         </span>
         <button
@@ -57,16 +55,15 @@
     </div>
 
     <!-- ======================= Side panel ======================= -->
-    <div
-      v-if="!collapsed"
-      class="flex min-h-0 w-full shrink-0 flex-col lg:w-[380px]"
-    >
+    <div v-if="!collapsed" class="flex min-h-0 w-full shrink-0 flex-col lg:w-[380px]">
       <div
         class="flex flex-1 flex-col gap-3.5 overflow-y-auto rounded-2xl bg-neu-top p-4 shadow-neu-raised-sm"
       >
         <!-- Header -->
         <div class="flex items-center justify-between">
-          <span class="text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant/80">
+          <span
+            class="text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant/80"
+          >
             {{ t('planning.reflection.sidebar.contextHeader') }}
           </span>
           <button
@@ -248,22 +245,22 @@
             <span class="text-xs font-semibold text-on-surface">{{ group.title }}</span>
           </div>
           <div class="flex flex-col gap-1.5">
-            <div
-              v-for="item in group.items"
-              :key="item.label"
-              class="flex items-center gap-2"
-            >
+            <div v-for="item in group.items" :key="item.label" class="flex items-center gap-2">
               <span class="min-w-0 flex-1 truncate text-[11px] text-on-surface-variant">
                 {{ item.label }}
               </span>
-              <div class="flex h-1.5 w-[100px] overflow-hidden rounded-full bg-neu-top shadow-neu-pressed-sm">
+              <div
+                class="flex h-1.5 w-[100px] overflow-hidden rounded-full bg-neu-top shadow-neu-pressed-sm"
+              >
                 <div
                   v-if="item.value !== null"
                   class="h-full rounded-full bg-primary"
                   :style="{ width: `${(item.value / 5) * 100}%` }"
                 />
               </div>
-              <span class="min-w-[28px] shrink-0 text-right text-[10px] font-semibold tabular-nums text-on-surface-variant">
+              <span
+                class="min-w-[28px] shrink-0 text-right text-[10px] font-semibold tabular-nums text-on-surface-variant"
+              >
                 <template v-if="item.value !== null">
                   {{ item.value }}<span class="text-on-surface-variant/60">/5</span>
                 </template>
@@ -280,7 +277,8 @@
               {{ t('planning.reflection.sidebar.emotionsTitle') }}
             </span>
             <span class="text-[10px] text-on-surface-variant/80">
-              {{ totalEmotionLogs }}× · {{ pleasantPct }}% {{ t('planning.reflection.sidebar.pleasant') }}
+              {{ totalEmotionLogs }}× · {{ pleasantPct }}%
+              {{ t('planning.reflection.sidebar.pleasant') }}
             </span>
           </div>
           <div class="mb-2 grid grid-cols-2 gap-1">
@@ -346,18 +344,13 @@
                   class="text-xs text-on-surface-variant"
                 />
               </button>
-              <ul
-                v-if="anchorCategoryOpen[cat.key] !== false"
-                class="mt-1.5 space-y-1 pl-7"
-              >
+              <ul v-if="anchorCategoryOpen[cat.key] !== false" class="mt-1.5 space-y-1 pl-7">
                 <li
                   v-for="(line, idx) in getAnchorLines(cat.key)"
                   :key="idx"
                   class="relative text-[11px] leading-snug text-on-surface-variant"
                 >
-                  <span
-                    class="absolute -left-3 top-1.5 h-1 w-1 rounded-full bg-primary"
-                  />
+                  <span class="absolute -left-3 top-1.5 h-1 w-1 rounded-full bg-primary" />
                   {{ line }}
                 </li>
               </ul>
@@ -442,7 +435,7 @@ const aiSummaryLoading = ref(false)
 const aiSummaryError = ref<'missingProvider' | 'generic' | null>(null)
 
 const hasAiSummary = computed(
-  () => typeof props.aiSummary === 'string' && props.aiSummary.trim().length > 0,
+  () => typeof props.aiSummary === 'string' && props.aiSummary.trim().length > 0
 )
 
 const aiPrompts = ref<string[]>([])
@@ -526,12 +519,15 @@ function insertPrompt(prompt: string) {
 // ---------------------------------------------------------------------------
 
 const visibleAnchorCategories = computed(() =>
-  props.anchorCategories.filter((cat) => (props.anchors[cat.key] ?? '').trim().length > 0),
+  props.anchorCategories.filter(cat => (props.anchors[cat.key] ?? '').trim().length > 0)
 )
 
 function getAnchorLines(key: string): string[] {
   const text = props.anchors[key] ?? ''
-  return text.split('\n').map((l) => l.trim()).filter((l) => l.length > 0)
+  return text
+    .split('\n')
+    .map(l => l.trim())
+    .filter(l => l.length > 0)
 }
 
 function toggleAnchorCategory(key: string) {
@@ -564,14 +560,11 @@ const pleasantPct = computed(() => {
     counts['low-energy-high-pleasantness'] +
     counts['low-energy-low-pleasantness']
   if (total === 0) return 0
-  const pleasant =
-    counts['high-energy-high-pleasantness'] + counts['low-energy-high-pleasantness']
+  const pleasant = counts['high-energy-high-pleasantness'] + counts['low-energy-high-pleasantness']
   return Math.round((pleasant / total) * 100)
 })
 
-const topEmotions = computed(() =>
-  (props.dataBundle?.emotionSummary.topEmotions ?? []).slice(0, 4),
-)
+const topEmotions = computed(() => (props.dataBundle?.emotionSummary.topEmotions ?? []).slice(0, 4))
 
 const quadrantTiles: { key: Quadrant; labelKey: string }[] = [
   {
@@ -610,7 +603,7 @@ async function generateAiSummary() {
     const text = await generateReflectionSummary(ctx, {
       locale: locale.value,
       gender: gender.value,
-      onToken: (full) => emit('update:aiSummary', full),
+      onToken: full => emit('update:aiSummary', full),
     })
     emit('update:aiSummary', text)
   } catch (err) {

@@ -20,12 +20,17 @@ import enGroups from '@/locales/en/emotionGroups.json'
 import plFamilies from '@/locales/pl/emotionFamilies.json'
 import enFamilies from '@/locales/en/emotionFamilies.json'
 
-const catalogIds = (emotionsMeta as { id: string }[]).map((e) => e.id)
-const groupSlugs = new Set(EMOTION_GROUPS.map((g) => g.slug))
+const catalogIds = (emotionsMeta as { id: string }[]).map(e => e.id)
+const groupSlugs = new Set(EMOTION_GROUPS.map(g => g.slug))
 // Produktywny: usunięty z katalogu; GROUP_OF_WORD mapuje go nadal (stare wpisy)
 const LEGACY_REMOVED_ID = 'e3m11-productive-015'
 // dawne slugi rodzin bez własnej grupy (spadkobiercy)
-const LEGACY_FAMILY_SLUGS = ['energia', 'przygnebienie', 'bezpieczenstwo', 'zazenowanie-i-upokorzenie']
+const LEGACY_FAMILY_SLUGS = [
+  'energia',
+  'przygnebienie',
+  'bezpieczenstwo',
+  'zazenowanie-i-upokorzenie',
+]
 
 describe('emotionGroups — struktura taksonomii v2', () => {
   it('ma 45 grup w układzie 12/11/12/10 na ćwiartkę, z unikalnymi slugami', () => {
@@ -38,9 +43,18 @@ describe('emotionGroups — struktura taksonomii v2', () => {
   })
 
   it('8 nowych grup ma flagę isNew i nowe slugi', () => {
-    const newSlugs = EMOTION_GROUPS.filter((g) => g.isNew).map((g) => g.slug)
+    const newSlugs = EMOTION_GROUPS.filter(g => g.isNew).map(g => g.slug)
     expect(newSlugs.sort()).toEqual(
-      ['podziw', 'pogarda', 'rozczarowanie', 'szok', 'upokorzenie', 'wina-i-zal', 'wzruszenie', 'zranienie'].sort(),
+      [
+        'podziw',
+        'pogarda',
+        'rozczarowanie',
+        'szok',
+        'upokorzenie',
+        'wina-i-zal',
+        'wzruszenie',
+        'zranienie',
+      ].sort()
     )
   })
 
@@ -74,13 +88,16 @@ describe('emotionGroups — struktura taksonomii v2', () => {
 
   it('każde słowo ma ćwiartkę zgodną z ćwiartką swojej grupy', () => {
     const meta = Object.fromEntries(
-      (emotionsMeta as { id: string; energy: number; pleasantness: number }[]).map((e) => [e.id, e]),
+      (emotionsMeta as { id: string; energy: number; pleasantness: number }[]).map(e => [e.id, e])
     )
     for (const g of EMOTION_GROUPS) {
       for (const id of g.wordIds) {
         const e = meta[id]
         const q =
-          (e.energy > 6 ? 'high' : 'low') + '-energy-' + (e.pleasantness > 6 ? 'high' : 'low') + '-pleasantness'
+          (e.energy > 6 ? 'high' : 'low') +
+          '-energy-' +
+          (e.pleasantness > 6 ? 'high' : 'low') +
+          '-pleasantness'
         expect(q, `${g.slug}: ${id}`).toBe(g.quadrant)
       }
     }
@@ -130,9 +147,9 @@ describe('legacyToGroupSelections — adapter odczytu historii', () => {
     expect(legacyToGroupSelections({ emotions: [{ emotionId: 'gniew', intensity: 4 }] })).toEqual([
       { emotionId: 'gniew', intensity: 4 },
     ])
-    expect(legacyToGroupSelections({ emotions: [{ emotionId: 'bezpieczenstwo', intensity: 2 }] })).toEqual([
-      { emotionId: 'spokoj-i-wyciszenie', intensity: 2 },
-    ])
+    expect(
+      legacyToGroupSelections({ emotions: [{ emotionId: 'bezpieczenstwo', intensity: 2 }] })
+    ).toEqual([{ emotionId: 'spokoj-i-wyciszenie', intensity: 2 }])
   })
 
   it('stare słowa odzyskują grupę i natężenie z dawnej drabinki', () => {
@@ -172,7 +189,7 @@ describe('legacyToGroupSelections — adapter odczytu historii', () => {
         { emotionId: 'radosc', intensity: 3 },
         { emotionId: 'radosc' },
         { emotionId: 'pustka' },
-      ]),
+      ])
     ).toEqual(['radosc', 'pustka'])
   })
 })
@@ -180,7 +197,9 @@ describe('legacyToGroupSelections — adapter odczytu historii', () => {
 describe('warstwa rodzin = grupy (emotionFamily po regeneracji)', () => {
   it('ALL_FAMILIES to dokładnie 45 grup z rep/tint/sub', () => {
     expect(ALL_FAMILIES).toHaveLength(45)
-    const plByName = new Set(Object.values(plEmotions as Record<string, { name: string }>).map((v) => v.name))
+    const plByName = new Set(
+      Object.values(plEmotions as Record<string, { name: string }>).map(v => v.name)
+    )
     for (const f of ALL_FAMILIES) {
       expect(groupSlugs.has(f.id), f.id).toBe(true)
       expect(f.tint).toMatch(/^#[0-9a-fA-F]{6}$/)

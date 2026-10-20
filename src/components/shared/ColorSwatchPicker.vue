@@ -14,11 +14,7 @@
         class="block h-5 w-5 rounded-full border border-white/40 shadow-inner"
         :style="{ backgroundColor: modelValue }"
       />
-      <AppIcon
-        v-else
-        name="palette"
-        class="text-base text-on-surface-variant"
-      />
+      <AppIcon v-else name="palette" class="text-base text-on-surface-variant" />
     </button>
 
     <Teleport to="body">
@@ -48,9 +44,11 @@
               :key="preset.hex"
               type="button"
               class="group relative flex h-9 w-9 items-center justify-center rounded-full transition-all duration-150 neo-focus"
-              :class="modelValue === preset.hex
-                ? 'scale-110 ring-2 ring-offset-2 ring-offset-neu-base ring-on-surface/60'
-                : 'hover:scale-105'"
+              :class="
+                modelValue === preset.hex
+                  ? 'scale-110 ring-2 ring-offset-2 ring-offset-neu-base ring-on-surface/60'
+                  : 'hover:scale-105'
+              "
               :style="{ backgroundColor: preset.hex }"
               :aria-label="preset.label"
               :aria-pressed="modelValue === preset.hex"
@@ -128,7 +126,7 @@ const menuStyle = ref<Record<string, string>>({})
 
 const selectedLabel = computed(() => {
   if (!props.modelValue) return undefined
-  return props.presets.find((p) => p.hex === props.modelValue)?.label
+  return props.presets.find(p => p.hex === props.modelValue)?.label
 })
 
 const triggerClass = computed(() => {

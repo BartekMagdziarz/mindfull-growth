@@ -300,7 +300,12 @@
 }
 
 /* Pills: colour variants keep their semantic tone; default = muted mist. */
-.mg-design-v2 :where(.neo-pill:not(.neo-pill--primary):not(.neo-pill--success):not(.neo-pill--warning):not(.neo-pill--danger)) {
+.mg-design-v2
+  :where(
+    .neo-pill:not(.neo-pill--primary):not(.neo-pill--success):not(.neo-pill--warning):not(
+        .neo-pill--danger
+      )
+  ) {
   color: var(--mg-color-muted);
   background: var(--mg-color-mist);
 }

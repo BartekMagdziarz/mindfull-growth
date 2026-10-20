@@ -14,10 +14,7 @@
  *     of what's currently active.
  */
 
-import type {
-  MonthlyReflection,
-  WeeklyReflection,
-} from '@/domain/reflection'
+import type { MonthlyReflection, WeeklyReflection } from '@/domain/reflection'
 import {
   MONTHLY_RATING_KEYS,
   WEEKLY_DEMANDS_KEYS,
@@ -70,11 +67,7 @@ import type {
   ValuesDiscovery,
 } from '@/domain/exercises'
 import type { LifeAreaAssessment } from '@/domain/lifeAreaAssessment'
-import type {
-  AssessmentAttempt,
-  AssessmentId,
-  ScaleScore,
-} from '@/domain/assessments'
+import type { AssessmentAttempt, AssessmentId, ScaleScore } from '@/domain/assessments'
 import type { FoundationItemId } from '@/services/foundationCompleteness'
 import { useValuesDiscoveryStore } from '@/stores/valuesDiscovery.store'
 import { useValueMapStore } from '@/stores/valueMap.store'
@@ -155,15 +148,9 @@ export function summariseExerciseSession(bundle: ExerciseSessionBundle): string 
  * rating fields for a weekly reflection. Keys preserve the domain names so
  * the LLM can interpret them (they're already descriptive).
  */
-export function extractWeeklyRatings(
-  reflection: WeeklyReflection,
-): Record<string, number | null> {
+export function extractWeeklyRatings(reflection: WeeklyReflection): Record<string, number | null> {
   const out: Record<string, number | null> = {}
-  for (const key of [
-    ...WEEKLY_DEMANDS_KEYS,
-    ...WEEKLY_ACTIONS_KEYS,
-    ...WEEKLY_STATE_KEYS,
-  ]) {
+  for (const key of [...WEEKLY_DEMANDS_KEYS, ...WEEKLY_ACTIONS_KEYS, ...WEEKLY_STATE_KEYS]) {
     out[key] = reflection[key]
   }
   return out
@@ -174,7 +161,7 @@ export function extractWeeklyRatings(
  * rating fields for a monthly reflection.
  */
 export function extractMonthlyRatings(
-  reflection: MonthlyReflection,
+  reflection: MonthlyReflection
 ): Record<string, number | null> {
   const out: Record<string, number | null> = {}
   for (const key of MONTHLY_RATING_KEYS) {
@@ -198,7 +185,12 @@ export interface PlanningSnapshot {
     closed: Priority[]
   }
   /** Goals closed through the closing ritual (most recent first, capped). */
-  closedGoals: Array<{ id: string; title: string; outcome: GoalClosingReflection['outcome']; closedAt: string }>
+  closedGoals: Array<{
+    id: string
+    title: string
+    outcome: GoalClosingReflection['outcome']
+    closedAt: string
+  }>
   /** Bulleted, human-readable summary suitable for dropping straight into a prompt. */
   snapshot: string
 }
@@ -210,10 +202,7 @@ export const CLOSED_GOAL_REFLECTIONS_LIMIT = 12
  * Safe wrapper around a repository `listAll()` call that returns an empty
  * array on error so planning snapshot failures never block profile builds.
  */
-async function safeListAll<T>(
-  label: string,
-  fn: () => Promise<T[]>,
-): Promise<T[]> {
+async function safeListAll<T>(label: string, fn: () => Promise<T[]>): Promise<T[]> {
   try {
     return await fn()
   } catch (err) {
@@ -224,12 +213,12 @@ async function safeListAll<T>(
 
 async function safeListMeasurementEntriesForDayRange(
   startDayRef: DayRef,
-  endDayRef: DayRef,
+  endDayRef: DayRef
 ): Promise<DailyMeasurementEntry[]> {
   try {
     return await planningStateDexieRepository.listDailyMeasurementEntriesForDayRange(
       startDayRef,
-      endDayRef,
+      endDayRef
     )
   } catch (err) {
     console.warn('buildPlanningSnapshot: failed to load measurement entries', err)
@@ -288,7 +277,11 @@ function maxDayRef(left: DayRef, right: DayRef): DayRef {
   return left.localeCompare(right) >= 0 ? left : right
 }
 
-function isWithinDayRange(entry: DailyMeasurementEntry, startDayRef: DayRef, endDayRef: DayRef): boolean {
+function isWithinDayRange(
+  entry: DailyMeasurementEntry,
+  startDayRef: DayRef,
+  endDayRef: DayRef
+): boolean {
   return entry.dayRef.localeCompare(startDayRef) >= 0 && entry.dayRef.localeCompare(endDayRef) <= 0
 }
 
@@ -297,17 +290,14 @@ function getMeasurementPeriodRef(dayRef: DayRef, cadence: PlanningCadence): Meas
   return cadence === 'monthly' ? refs.month : refs.week
 }
 
-function getCurrentMeasurementPeriodRef(
-  cadence: PlanningCadence,
-  now: Date,
-): MeasurementPeriodRef {
+function getCurrentMeasurementPeriodRef(cadence: PlanningCadence, now: Date): MeasurementPeriodRef {
   return getMeasurementPeriodRef(getDayRefForDate(now), cadence)
 }
 
 function getCadencePeriodRefsInDayRange(
   cadence: PlanningCadence,
   startDayRef: DayRef,
-  endDayRef: DayRef,
+  endDayRef: DayRef
 ): MeasurementPeriodRef[] {
   if (startDayRef.localeCompare(endDayRef) > 0) return []
 
@@ -334,9 +324,9 @@ function decidedPeriodRefsInWindow(
   subject: Habit | KeyResult,
   entries: DailyMeasurementEntry[],
   startDayRef: DayRef,
-  today: DayRef,
+  today: DayRef
 ): MeasurementPeriodRef[] {
-  return getCadencePeriodRefsInDayRange(subject.cadence, startDayRef, today).filter((periodRef) => {
+  return getCadencePeriodRefsInDayRange(subject.cadence, startDayRef, today).filter(periodRef => {
     const { start, end } = getPeriodBounds(periodRef as PeriodRef)
     if (start < startDayRef) return false
     if (end < today) return true
@@ -347,16 +337,16 @@ function decidedPeriodRefsInWindow(
 function filterEntriesForPeriod(
   entries: DailyMeasurementEntry[],
   cadence: PlanningCadence,
-  periodRef: MeasurementPeriodRef,
+  periodRef: MeasurementPeriodRef
 ): DailyMeasurementEntry[] {
-  return entries.filter((entry) => getMeasurementPeriodRef(entry.dayRef, cadence) === periodRef)
+  return entries.filter(entry => getMeasurementPeriodRef(entry.dayRef, cadence) === periodRef)
 }
 
 function completionRateForWindow(
   habit: Habit,
   entries: DailyMeasurementEntry[],
   now: Date,
-  days: number,
+  days: number
 ): number {
   const today = getDayRefForDate(now)
   const windowStart = addDaysToDayRef(today, -(days - 1))
@@ -365,9 +355,9 @@ function completionRateForWindow(
   const periodRefs = decidedPeriodRefsInWindow(habit, entries, startDayRef, today)
   if (periodRefs.length === 0) return 0
 
-  const metCount = periodRefs.filter((periodRef) => (
-    buildMeasurementSummary(habit, entries, periodRef).evaluationStatus === 'met'
-  )).length
+  const metCount = periodRefs.filter(
+    periodRef => buildMeasurementSummary(habit, entries, periodRef).evaluationStatus === 'met'
+  ).length
 
   return metCount / periodRefs.length
 }
@@ -375,14 +365,16 @@ function completionRateForWindow(
 function latestMetDayRef(
   subject: Habit,
   entries: DailyMeasurementEntry[],
-  periodRefs: MeasurementPeriodRef[],
+  periodRefs: MeasurementPeriodRef[]
 ): DayRef | undefined {
   let latest: DayRef | undefined
   for (const periodRef of periodRefs) {
     const summary = buildMeasurementSummary(subject, entries, periodRef)
     if (summary.evaluationStatus !== 'met') continue
 
-    const latestPeriodEntry = latestEntry(filterEntriesForPeriod(entries, subject.cadence, periodRef))
+    const latestPeriodEntry = latestEntry(
+      filterEntriesForPeriod(entries, subject.cadence, periodRef)
+    )
     if (latestPeriodEntry && (!latest || latestPeriodEntry.dayRef.localeCompare(latest) > 0)) {
       latest = latestPeriodEntry.dayRef
     }
@@ -390,18 +382,14 @@ function latestMetDayRef(
   return latest
 }
 
-function currentStreakForHabit(
-  habit: Habit,
-  entries: DailyMeasurementEntry[],
-  now: Date,
-): number {
+function currentStreakForHabit(habit: Habit, entries: DailyMeasurementEntry[], now: Date): number {
   const today = getDayRefForDate(now)
   const startDayRef = addDaysToDayRef(today, -89)
   const periodRefs = getCadencePeriodRefsInDayRange(habit.cadence, startDayRef, today)
   if (periodRefs.length === 0) return 0
 
   const currentPeriodRef = getCurrentMeasurementPeriodRef(habit.cadence, now)
-  let index = periodRefs.findIndex((periodRef) => periodRef === currentPeriodRef)
+  let index = periodRefs.findIndex(periodRef => periodRef === currentPeriodRef)
   if (index < 0) index = periodRefs.length - 1
 
   const currentSummary = buildMeasurementSummary(habit, entries, periodRefs[index])
@@ -421,11 +409,15 @@ function currentStreakForHabit(
 export function computeHabitExecutionMetrics(
   habit: Habit,
   entries: DailyMeasurementEntry[],
-  now: Date = new Date(),
+  now: Date = new Date()
 ): HabitExecutionMetrics {
   const sortedEntries = [...entries].sort(compareEntries)
   const today = getDayRefForDate(now)
-  const periodRefs90d = getCadencePeriodRefsInDayRange(habit.cadence, addDaysToDayRef(today, -89), today)
+  const periodRefs90d = getCadencePeriodRefsInDayRange(
+    habit.cadence,
+    addDaysToDayRef(today, -89),
+    today
+  )
 
   return {
     habitId: habit.id,
@@ -446,28 +438,36 @@ function onTrackStatusFromRatio(ratio: number): ExecutionOnTrackStatus {
 export function computeKRExecutionMetrics(
   kr: KeyResult,
   entries: DailyMeasurementEntry[],
-  now: Date = new Date(),
+  now: Date = new Date()
 ): KRExecutionMetrics {
   const sortedEntries = [...entries].sort(compareEntries)
   const today = getDayRefForDate(now)
-  const periodRefs = decidedPeriodRefsInWindow(kr, sortedEntries, addDaysToDayRef(today, -89), today)
-    .slice(-EXECUTION_METRICS_MAX_PERIODS)
+  const periodRefs = decidedPeriodRefsInWindow(
+    kr,
+    sortedEntries,
+    addDaysToDayRef(today, -89),
+    today
+  ).slice(-EXECUTION_METRICS_MAX_PERIODS)
   const currentPeriodRef = getCurrentMeasurementPeriodRef(kr.cadence, now)
   const currentSummary = buildMeasurementSummary(kr, sortedEntries, currentPeriodRef)
-  const targetValue = kr.entryMode === 'value' && kr.target.kind === 'value' ? kr.target.value : undefined
+  const targetValue =
+    kr.entryMode === 'value' && kr.target.kind === 'value' ? kr.target.value : undefined
   const currentValue = targetValue === undefined ? undefined : currentSummary.actualValue
   const progressFraction =
     targetValue !== undefined && targetValue !== 0 && currentValue !== undefined
       ? currentValue / targetValue
       : undefined
 
-  const hasEntriesInWindow = sortedEntries.some((entry) => isWithinDayRange(entry, addDaysToDayRef(today, -89), today))
-  const metCount = periodRefs.filter((periodRef) => (
-    buildMeasurementSummary(kr, sortedEntries, periodRef).evaluationStatus === 'met'
-  )).length
-  const onTrack = hasEntriesInWindow && periodRefs.length > 0
-    ? onTrackStatusFromRatio(metCount / periodRefs.length)
-    : 'no-data'
+  const hasEntriesInWindow = sortedEntries.some(entry =>
+    isWithinDayRange(entry, addDaysToDayRef(today, -89), today)
+  )
+  const metCount = periodRefs.filter(
+    periodRef => buildMeasurementSummary(kr, sortedEntries, periodRef).evaluationStatus === 'met'
+  ).length
+  const onTrack =
+    hasEntriesInWindow && periodRefs.length > 0
+      ? onTrackStatusFromRatio(metCount / periodRefs.length)
+      : 'no-data'
 
   return {
     keyResultId: kr.id,
@@ -486,7 +486,7 @@ export function computeKRExecutionMetrics(
  */
 function numericEntryValue(
   subject: MeasureableSubject,
-  entry: DailyMeasurementEntry,
+  entry: DailyMeasurementEntry
 ): number | undefined {
   if (subject.entryMode === 'multi-completion') {
     return multiCompletionDayPoints(subject, entry)
@@ -496,9 +496,9 @@ function numericEntryValue(
 
 function averageNumericEntries(
   subject: MeasureableSubject,
-  entries: DailyMeasurementEntry[],
+  entries: DailyMeasurementEntry[]
 ): number | undefined {
-  const values = entries.flatMap((entry) => {
+  const values = entries.flatMap(entry => {
     const value = numericEntryValue(subject, entry)
     return value === undefined ? [] : [value]
   })
@@ -507,7 +507,7 @@ function averageNumericEntries(
 }
 
 function numericEntryCount(subject: MeasureableSubject, entries: DailyMeasurementEntry[]): number {
-  return entries.filter((entry) => numericEntryValue(subject, entry) !== undefined).length
+  return entries.filter(entry => numericEntryValue(subject, entry) !== undefined).length
 }
 
 function trackerTypicalRange(tracker: Tracker): number {
@@ -525,17 +525,17 @@ function trackerTypicalRange(tracker: Tracker): number {
 export function computeTrackerExecutionMetrics(
   tracker: Tracker,
   entries: DailyMeasurementEntry[],
-  now: Date = new Date(),
+  now: Date = new Date()
 ): TrackerExecutionMetrics {
   const sortedEntries = [...entries].sort(compareEntries)
   const today = getDayRefForDate(now)
   const start30d = addDaysToDayRef(today, -29)
   const start90d = addDaysToDayRef(today, -89)
-  const entries30d = sortedEntries.filter((entry) => isWithinDayRange(entry, start30d, today))
-  const entries90d = sortedEntries.filter((entry) => isWithinDayRange(entry, start90d, today))
-  const baselineEntries = sortedEntries.filter((entry) => (
-    entry.dayRef.localeCompare(start90d) >= 0 && entry.dayRef.localeCompare(start30d) < 0
-  ))
+  const entries30d = sortedEntries.filter(entry => isWithinDayRange(entry, start30d, today))
+  const entries90d = sortedEntries.filter(entry => isWithinDayRange(entry, start90d, today))
+  const baselineEntries = sortedEntries.filter(
+    entry => entry.dayRef.localeCompare(start90d) >= 0 && entry.dayRef.localeCompare(start30d) < 0
+  )
   const avg30d = averageNumericEntries(tracker, entries30d)
   const avg90d = averageNumericEntries(tracker, entries90d)
   let trend: TrackerTrend = 'flat'
@@ -566,7 +566,7 @@ export function computeTrackerExecutionMetrics(
 function formatBulletSection(title: string, items: string[]): string {
   if (items.length === 0) return ''
   const header = `${title}:`
-  const lines = items.map((t) => `- ${t}`)
+  const lines = items.map(t => `- ${t}`)
   return [header, ...lines].join('\n')
 }
 
@@ -617,12 +617,13 @@ const GOAL_OUTCOME_LABEL: Record<GoalClosingReflection['outcome'], string> = {
   missed: 'not achieved',
   abandoned: 'abandoned',
 }
-const GOAL_FOLLOW_UP_LABEL: Record<NonNullable<GoalClosingReflection['followUp']>['kind'], string> = {
-  none: 'topic closed',
-  habit: 'continues as a habit',
-  'new-goal': 'a new goal follows',
-  revisit: 'will come back to it later',
-}
+const GOAL_FOLLOW_UP_LABEL: Record<NonNullable<GoalClosingReflection['followUp']>['kind'], string> =
+  {
+    none: 'topic closed',
+    habit: 'continues as a habit',
+    'new-goal': 'a new goal follows',
+    revisit: 'will come back to it later',
+  }
 const GOAL_SUCCESS_MET_LABEL: Record<NonNullable<GoalClosingReflection['successMet']>, string> = {
   yes: 'yes',
   partly: 'partly',
@@ -634,26 +635,31 @@ const GOAL_SUCCESS_MET_LABEL: Record<NonNullable<GoalClosingReflection['successM
  * what the facts say, and the lessons — the closing ritual's mirror, flattened.
  */
 function formatClosedGoal(goal: Goal, reflection: GoalClosingReflection): string {
-  const window = [reflection.window.startDate, reflection.window.targetDate].filter(Boolean).join(' → ')
+  const window = [reflection.window.startDate, reflection.window.targetDate]
+    .filter(Boolean)
+    .join(' → ')
   const head = `[${window ? `${window}, ` : ''}closed ${reflection.closedAt}] ${goal.title} — ${GOAL_OUTCOME_LABEL[reflection.outcome]}`
   const lines = [head]
 
   if (reflection.keyResults.length > 0) {
-    const items = reflection.keyResults.map((item) => {
+    const items = reflection.keyResults.map(item => {
       const verdict = item.evaluation === 'no-data' ? 'no data' : item.evaluation
       return `${item.title} — ${verdict}${item.lastReadout ? ` (${item.lastReadout})` : ''}`
     })
     lines.push(`  Key results: ${items.join('; ')}`)
   }
   if (goal.successDefinition?.trim()) {
-    const answer = reflection.successMet ? ` → ${GOAL_SUCCESS_MET_LABEL[reflection.successMet]}` : ''
+    const answer = reflection.successMet
+      ? ` → ${GOAL_SUCCESS_MET_LABEL[reflection.successMet]}`
+      : ''
     const note = reflection.successNote?.trim() ? ` ${reflection.successNote.trim()}` : ''
     lines.push(`  Success definition: "${goal.successDefinition.trim()}"${answer}.${note}`)
   }
   if (goal.confidenceRating !== undefined || reflection.confidenceInHindsight !== undefined) {
     const parts: string[] = []
     if (goal.confidenceRating !== undefined) parts.push(`${goal.confidenceRating}/10 at the start`)
-    if (reflection.confidenceInHindsight !== undefined) parts.push(`${reflection.confidenceInHindsight}/10 in hindsight`)
+    if (reflection.confidenceInHindsight !== undefined)
+      parts.push(`${reflection.confidenceInHindsight}/10 in hindsight`)
     const note = reflection.confidenceNote?.trim() ? ` ${reflection.confidenceNote.trim()}` : ''
     lines.push(`  Confidence: ${parts.join(', ')}.${note}`)
   }
@@ -699,7 +705,7 @@ function measurementEntryKey(subjectType: MeasurementSubjectType, subjectId: str
 }
 
 function groupMeasurementEntriesBySubject(
-  entries: DailyMeasurementEntry[],
+  entries: DailyMeasurementEntry[]
 ): Map<string, DailyMeasurementEntry[]> {
   const groups = new Map<string, DailyMeasurementEntry[]>()
   for (const entry of entries) {
@@ -756,7 +762,7 @@ function formatKRForSnapshot(kr: KeyResult, entries: DailyMeasurementEntry[]): s
     metrics.progressFraction !== undefined
   ) {
     fragments.push(
-      `Progress: ${formatProgressValue(metrics.currentValue)}/${formatProgressValue(metrics.targetValue)} (${formatPercent(metrics.progressFraction)})`,
+      `Progress: ${formatProgressValue(metrics.currentValue)}/${formatProgressValue(metrics.targetValue)} (${formatPercent(metrics.progressFraction)})`
     )
   }
   fragments.push(ON_TRACK_LABELS[metrics.onTrack])
@@ -807,83 +813,95 @@ export async function buildPlanningSnapshot(): Promise<PlanningSnapshot> {
   ])
 
   const activeGoals = goals
-    .filter((g) => g.status === 'open')
-    .map((g) => ({ id: g.id, title: g.title, status: g.status }))
+    .filter(g => g.status === 'open')
+    .map(g => ({ id: g.id, title: g.title, status: g.status }))
   const closedGoalSubjects = goals
-    .filter((g): g is Goal & { closingReflection: GoalClosingReflection } => Boolean(g.closingReflection))
+    .filter((g): g is Goal & { closingReflection: GoalClosingReflection } =>
+      Boolean(g.closingReflection)
+    )
     .sort(compareClosedGoals)
     .slice(0, CLOSED_GOAL_REFLECTIONS_LIMIT)
-  const closedGoals = closedGoalSubjects.map((g) => ({
+  const closedGoals = closedGoalSubjects.map(g => ({
     id: g.id,
     title: g.title,
     outcome: g.closingReflection.outcome,
     closedAt: g.closingReflection.closedAt,
   }))
 
-  const activeKeyResultSubjects = keyResults.filter((kr) => kr.status === 'open')
-  const activeKeyResults = activeKeyResultSubjects
-    .map((kr) => ({ id: kr.id, title: kr.title, goalId: kr.goalId, status: kr.status }))
+  const activeKeyResultSubjects = keyResults.filter(kr => kr.status === 'open')
+  const activeKeyResults = activeKeyResultSubjects.map(kr => ({
+    id: kr.id,
+    title: kr.title,
+    goalId: kr.goalId,
+    status: kr.status,
+  }))
 
-  const activeHabitSubjects = habits.filter((h) => h.status === 'open' && h.isActive !== false)
-  const activeHabits = activeHabitSubjects
-    .map((h) => ({ id: h.id, title: h.title, status: h.status, isActive: h.isActive }))
+  const activeHabitSubjects = habits.filter(h => h.status === 'open' && h.isActive !== false)
+  const activeHabits = activeHabitSubjects.map(h => ({
+    id: h.id,
+    title: h.title,
+    status: h.status,
+    isActive: h.isActive,
+  }))
 
-  const activeTrackerSubjects = trackers.filter((t) => t.status === 'open' && t.isActive !== false)
-  const activeTrackers = activeTrackerSubjects
-    .map((t) => ({ id: t.id, title: t.title, status: t.status, isActive: t.isActive }))
+  const activeTrackerSubjects = trackers.filter(t => t.status === 'open' && t.isActive !== false)
+  const activeTrackers = activeTrackerSubjects.map(t => ({
+    id: t.id,
+    title: t.title,
+    status: t.status,
+    isActive: t.isActive,
+  }))
 
   const priorityGroups = {
-    active: priorities.filter(priority => priority.status === 'active').sort(compareActivePriorities),
+    active: priorities
+      .filter(priority => priority.status === 'active')
+      .sort(compareActivePriorities),
     paused: priorities
       .filter(priority => priority.status === 'paused')
       .sort((left, right) => left.title.localeCompare(right.title)),
-    closed: priorities.filter(priority => priority.status === 'closed').sort(compareClosedPriorities),
+    closed: priorities
+      .filter(priority => priority.status === 'closed')
+      .sort(compareClosedPriorities),
   }
   const entriesBySubject = groupMeasurementEntriesBySubject(measurementEntries)
 
   const parts = [
-    formatBulletSection(
-      'Active priorities',
-      priorityGroups.active.map(formatPriority),
-    ),
-    formatBulletSection(
-      'Paused priorities',
-      priorityGroups.paused.map(formatPriority),
-    ),
+    formatBulletSection('Active priorities', priorityGroups.active.map(formatPriority)),
+    formatBulletSection('Paused priorities', priorityGroups.paused.map(formatPriority)),
     formatBulletSection(
       'Closed priority reflections',
-      priorityGroups.closed.map(formatClosedPriority),
+      priorityGroups.closed.map(formatClosedPriority)
     ),
     formatBulletSection(
       'Closed goal reflections',
-      closedGoalSubjects.map((g) => formatClosedGoal(g, g.closingReflection)),
+      closedGoalSubjects.map(g => formatClosedGoal(g, g.closingReflection))
     ),
     formatBulletSection(
       'Active goals',
-      activeGoals.map((g) => g.title),
+      activeGoals.map(g => g.title)
     ),
     formatBulletSection(
       'Active key results',
-      activeKeyResultSubjects.map((kr) => formatKRForSnapshot(
-        kr,
-        entriesBySubject.get(measurementEntryKey('keyResult', kr.id)) ?? [],
-      )),
+      activeKeyResultSubjects.map(kr =>
+        formatKRForSnapshot(kr, entriesBySubject.get(measurementEntryKey('keyResult', kr.id)) ?? [])
+      )
     ),
     formatBulletSection(
       'Active habits',
-      activeHabitSubjects.map((h) => formatHabitForSnapshot(
-        h,
-        entriesBySubject.get(measurementEntryKey('habit', h.id)) ?? [],
-      )),
+      activeHabitSubjects.map(h =>
+        formatHabitForSnapshot(h, entriesBySubject.get(measurementEntryKey('habit', h.id)) ?? [])
+      )
     ),
     formatBulletSection(
       'Active trackers',
-      activeTrackerSubjects.map((t) => formatTrackerForSnapshot(
-        t,
-        entriesBySubject.get(measurementEntryKey('tracker', t.id)) ?? [],
-      )),
+      activeTrackerSubjects.map(t =>
+        formatTrackerForSnapshot(
+          t,
+          entriesBySubject.get(measurementEntryKey('tracker', t.id)) ?? []
+        )
+      )
     ),
-  ].filter((part) => part.length > 0)
+  ].filter(part => part.length > 0)
 
   const snapshot = parts.join('\n\n')
 
@@ -923,10 +941,10 @@ interface ValueCatalogEntry {
 }
 
 const VALUE_LABELS_EN: Map<string, string> = new Map(
-  ((valueCatalog as { values: ValueCatalogEntry[] }).values ?? []).map((value) => [
+  ((valueCatalog as { values: ValueCatalogEntry[] }).values ?? []).map(value => [
     value.id,
     value.label.en,
-  ]),
+  ])
 )
 
 const ASSESSMENT_LABELS: Record<AssessmentId, string> = {
@@ -984,13 +1002,10 @@ function resolveScaleLabel(labelKey: string): string {
   return last.charAt(0).toUpperCase() + last.slice(1)
 }
 
-function resolveValueLabel(
-  valueId: string,
-  customValues: ValueMapCustomValue[] = [],
-): string {
+function resolveValueLabel(valueId: string, customValues: ValueMapCustomValue[] = []): string {
   const catalog = VALUE_LABELS_EN.get(valueId)
   if (catalog) return catalog
-  const custom = customValues.find((v) => v.id === valueId)
+  const custom = customValues.find(v => v.id === valueId)
   if (custom) return custom.label
   return valueId
 }
@@ -1003,13 +1018,11 @@ function formatValuesDiscovery(entry: ValuesDiscovery): FoundationSnapshotItem {
   const completedAt = entry.createdAt
   const date = dateOnly(completedAt)
   const figures = entry.admirablePeople
-    .map((person) => {
-      const qualities = person.qualities.filter((q) => q.trim().length > 0)
-      return qualities.length > 0
-        ? `${person.name} (${qualities.join(', ')})`
-        : person.name
+    .map(person => {
+      const qualities = person.qualities.filter(q => q.trim().length > 0)
+      return qualities.length > 0 ? `${person.name} (${qualities.join(', ')})` : person.name
     })
-    .filter((line) => line.trim().length > 0)
+    .filter(line => line.trim().length > 0)
   const lines = [
     `## Values discovery (${date})`,
     `Admired figures: ${figures.length > 0 ? figures.join('; ') : '-'}`,
@@ -1031,18 +1044,16 @@ function formatValueMap(entry: ValueMap): FoundationSnapshotItem {
 
   const ranked = [...entry.rankedValues].sort((a, b) => a.rank - b.rank).slice(0, 5)
   if (ranked.length > 0) {
-    const rankedLines = ranked.map((rv) => {
+    const rankedLines = ranked.map(rv => {
       const label = resolveValueLabel(rv.valueId, entry.customValues)
       const meaning = rv.personalMeaning?.trim()
-      return meaning
-        ? `${rv.rank}. ${label} - "${meaning}"`
-        : `${rv.rank}. ${label}`
+      return meaning ? `${rv.rank}. ${label} - "${meaning}"` : `${rv.rank}. ${label}`
     })
     sections.push(['Top values (ranked):', ...rankedLines].join('\n'))
   }
 
   if (entry.globalConflicts.length > 0) {
-    const conflictLines = entry.globalConflicts.map((c) => {
+    const conflictLines = entry.globalConflicts.map(c => {
       const a = resolveValueLabel(c.valueId, entry.customValues)
       const b = resolveValueLabel(c.conflictingValueId, entry.customValues)
       const note = c.note?.trim()
@@ -1055,8 +1066,8 @@ function formatValueMap(entry: ValueMap): FoundationSnapshotItem {
     // Life-area names are not snapshotted on ValueMap; Story 5 may inject a
     // lookup. For now use the lifeAreaId verbatim — the LLM can still see
     // structure even if the area name is opaque.
-    const assignmentLines = entry.lifeAreaAssignments.map((a) => {
-      const labels = a.valueIds.map((id) => resolveValueLabel(id, entry.customValues))
+    const assignmentLines = entry.lifeAreaAssignments.map(a => {
+      const labels = a.valueIds.map(id => resolveValueLabel(id, entry.customValues))
       return `${a.lifeAreaId} -> [${labels.join(', ')}]`
     })
     sections.push(['Life-area assignments:', ...assignmentLines].join('\n'))
@@ -1079,7 +1090,7 @@ function formatWheelOfLife(entry: LifeAreaAssessment): FoundationSnapshotItem {
     lines.push(
       note
         ? `${item.lifeAreaNameSnapshot}: ${item.score}/10 - "${note}"`
-        : `${item.lifeAreaNameSnapshot}: ${item.score}/10`,
+        : `${item.lifeAreaNameSnapshot}: ${item.score}/10`
     )
   }
   if (entry.notes?.trim()) {
@@ -1098,24 +1109,20 @@ function formatShadowBeliefs(entry: ShadowBeliefs): FoundationSnapshotItem {
   const date = dateOnly(completedAt)
   const sections: string[] = [`## Shadow beliefs (${date})`]
 
-  const namedBeliefs = entry.beliefs.filter((b) => b.belief.trim())
+  const namedBeliefs = entry.beliefs.filter(b => b.belief.trim())
   if (namedBeliefs.length > 0) {
-    sections.push(
-      ['Self-sabotaging:', ...namedBeliefs.map((b) => `- ${b.belief}`)].join('\n'),
-    )
+    sections.push(['Self-sabotaging:', ...namedBeliefs.map(b => `- ${b.belief}`)].join('\n'))
   }
-  const reframed = entry.beliefs.filter((b) => b.reframe?.trim())
+  const reframed = entry.beliefs.filter(b => b.reframe?.trim())
   if (reframed.length > 0) {
-    sections.push(
-      ['Reframes:', ...reframed.map((b) => `- ${b.reframe}`)].join('\n'),
-    )
+    sections.push(['Reframes:', ...reframed.map(b => `- ${b.reframe}`)].join('\n'))
   }
-  const advice = entry.adviceToOthers.filter((a) => a.advice.trim())
+  const advice = entry.adviceToOthers.filter(a => a.advice.trim())
   if (advice.length > 0) {
     sections.push(
       [
         'Advice to others:',
-        ...advice.map((a) => {
+        ...advice.map(a => {
           const follow =
             a.followsSelf === 'no'
               ? ' (does not follow it)'
@@ -1125,7 +1132,7 @@ function formatShadowBeliefs(entry: ShadowBeliefs): FoundationSnapshotItem {
           const blocker = a.blocker?.trim() ? ` — blocker: ${a.blocker.trim()}` : ''
           return `- ${a.advice}${follow}${blocker}`
         }),
-      ].join('\n'),
+      ].join('\n')
     )
   }
   if (entry.notes?.trim()) {
@@ -1140,9 +1147,7 @@ function formatShadowBeliefs(entry: ShadowBeliefs): FoundationSnapshotItem {
   }
 }
 
-function formatTransformativePurpose(
-  entry: TransformativePurpose,
-): FoundationSnapshotItem {
+function formatTransformativePurpose(entry: TransformativePurpose): FoundationSnapshotItem {
   const completedAt = entry.createdAt
   const date = dateOnly(completedAt)
   const lines = [
@@ -1166,13 +1171,13 @@ function formatThreePathways(entry: ThreePathwaysToMeaning): FoundationSnapshotI
   const sections: string[] = [`## Three pathways to meaning (${date})`]
 
   const pathway = (label: string, items: ThreePathwaysToMeaning['creativeValues']): void => {
-    const named = items.filter((i) => i.description.trim().length > 0)
+    const named = items.filter(i => i.description.trim().length > 0)
     if (named.length === 0) return
     sections.push(
       [
         `${label}:`,
-        ...named.map((i) => `- ${i.description.trim()} (engagement ${i.engagementRating}/5)`),
-      ].join('\n'),
+        ...named.map(i => `- ${i.description.trim()} (engagement ${i.engagementRating}/5)`),
+      ].join('\n')
     )
   }
   pathway('Creative (what I give)', entry.creativeValues)
@@ -1193,22 +1198,22 @@ function formatMountainRange(entry: MountainRangeOfMeaning): FoundationSnapshotI
   const date = dateOnly(completedAt)
   const sections: string[] = [`## Mountain range of meaning (${date})`]
 
-  const peaks = entry.events.filter((e) => e.type === 'peak' && e.description.trim().length > 0)
-  const valleys = entry.events.filter((e) => e.type === 'valley' && e.description.trim().length > 0)
+  const peaks = entry.events.filter(e => e.type === 'peak' && e.description.trim().length > 0)
+  const valleys = entry.events.filter(e => e.type === 'valley' && e.description.trim().length > 0)
   if (peaks.length > 0) {
     sections.push(
       [
         'Peaks (greatest meaning):',
-        ...peaks.map((e) => `- ${e.description.trim()} (${e.ageOrYear})`),
-      ].join('\n'),
+        ...peaks.map(e => `- ${e.description.trim()} (${e.ageOrYear})`),
+      ].join('\n')
     )
   }
   if (valleys.length > 0) {
     sections.push(
       [
         'Valleys (deepest struggle):',
-        ...valleys.map((e) => `- ${e.description.trim()} (${e.ageOrYear})`),
-      ].join('\n'),
+        ...valleys.map(e => `- ${e.description.trim()} (${e.ageOrYear})`),
+      ].join('\n')
     )
   }
   if (entry.peakPatterns?.trim()) sections.push(`Peak patterns: ${entry.peakPatterns.trim()}`)
@@ -1216,7 +1221,7 @@ function formatMountainRange(entry: MountainRangeOfMeaning): FoundationSnapshotI
   if (entry.valleyToPeakConnection?.trim()) {
     sections.push(`Valley-to-peak connection: ${entry.valleyToPeakConnection.trim()}`)
   }
-  const futurePeaks = (entry.futurePeaks ?? []).filter((p) => p.trim().length > 0)
+  const futurePeaks = (entry.futurePeaks ?? []).filter(p => p.trim().length > 0)
   if (futurePeaks.length > 0) sections.push(`Future peaks: ${formatList(futurePeaks)}`)
   if (entry.notes?.trim()) sections.push(`Notes: ${entry.notes.trim()}`)
 
@@ -1238,25 +1243,25 @@ const IFS_RELATIONSHIP_VERBS: Record<string, string> = {
 
 function formatIfsPartsMap(
   entry: IFSPartsMap,
-  resolveName: (id: string) => string,
+  resolveName: (id: string) => string
 ): FoundationSnapshotItem {
   const completedAt = entry.createdAt
   const date = dateOnly(completedAt)
   const sections: string[] = [`## Parts map (${date})`]
 
   if (entry.partIds.length > 0) {
-    sections.push(['Parts:', ...entry.partIds.map((id) => `- ${resolveName(id)}`)].join('\n'))
+    sections.push(['Parts:', ...entry.partIds.map(id => `- ${resolveName(id)}`)].join('\n'))
   }
   if (entry.relationships.length > 0) {
     sections.push(
       [
         'Relationships:',
-        ...entry.relationships.map((r) => {
+        ...entry.relationships.map(r => {
           const verb = IFS_RELATIONSHIP_VERBS[r.type] ?? r.type
           const note = r.notes?.trim() ? ` — ${r.notes.trim()}` : ''
           return `- ${resolveName(r.fromPartId)} ${verb} ${resolveName(r.toPartId)}${note}`
         }),
-      ].join('\n'),
+      ].join('\n')
     )
   }
   if (entry.trailheadSituation?.trim()) {
@@ -1281,13 +1286,13 @@ function formatScaleScoreLine(scale: ScaleScore): string {
 
 function formatGenericAssessment(
   id: AssessmentId,
-  attempt: AssessmentAttempt,
+  attempt: AssessmentAttempt
 ): FoundationSnapshotItem {
   const completedAt = attempt.completedAt ?? attempt.createdAt
   const date = dateOnly(completedAt)
   const label = ASSESSMENT_LABELS[id]
   const scales = (attempt.computedScales ?? []).filter(
-    (s) => s.normalizedMean !== null || s.rawMean !== null,
+    s => s.normalizedMean !== null || s.rawMean !== null
   )
   const lines = [`## ${label} (${date})`, ...scales.map(formatScaleScoreLine)]
   return { id, label, completedAt, body: lines.join('\n') }
@@ -1298,25 +1303,26 @@ function formatPvq40Assessment(attempt: AssessmentAttempt): FoundationSnapshotIt
   const date = dateOnly(completedAt)
   const label = ASSESSMENT_LABELS['pvq-40']
   const scales = attempt.computedScales ?? []
-  const scoredScales = scales.filter((s) => s.normalizedMean !== null)
+  const scoredScales = scales.filter(s => s.normalizedMean !== null)
 
-  const labelByScaleId = new Map(scales.map((s) => [s.scaleId, resolveScaleLabel(s.labelKey)]))
+  const labelByScaleId = new Map(scales.map(s => [s.scaleId, resolveScaleLabel(s.labelKey)]))
 
   const summaryTopValues = attempt.overallSummary?.topValues ?? []
-  const topThreeIds = summaryTopValues.length > 0
-    ? summaryTopValues.slice(0, 3).map((tv) => tv.scaleId)
-    : [...scoredScales]
-        .sort((a, b) => (b.normalizedMean ?? 0) - (a.normalizedMean ?? 0))
-        .slice(0, 3)
-        .map((s) => s.scaleId)
+  const topThreeIds =
+    summaryTopValues.length > 0
+      ? summaryTopValues.slice(0, 3).map(tv => tv.scaleId)
+      : [...scoredScales]
+          .sort((a, b) => (b.normalizedMean ?? 0) - (a.normalizedMean ?? 0))
+          .slice(0, 3)
+          .map(s => s.scaleId)
 
   const bottomThreeIds = [...scoredScales]
     .sort((a, b) => (a.normalizedMean ?? 0) - (b.normalizedMean ?? 0))
     .slice(0, 3)
-    .map((s) => s.scaleId)
+    .map(s => s.scaleId)
 
-  const topLabels = topThreeIds.map((id) => labelByScaleId.get(id) ?? id)
-  const bottomLabels = bottomThreeIds.map((id) => labelByScaleId.get(id) ?? id)
+  const topLabels = topThreeIds.map(id => labelByScaleId.get(id) ?? id)
+  const bottomLabels = bottomThreeIds.map(id => labelByScaleId.get(id) ?? id)
 
   const sections: string[] = [`## ${label} (${date})`]
   if (topLabels.length > 0) sections.push(`Top 3: ${topLabels.join(', ')}`)
@@ -1354,13 +1360,13 @@ function formatVlqAssessment(attempt: AssessmentAttempt): FoundationSnapshotItem
   }
   lines.sort((a, b) => b.gap - a.gap)
 
-  const body = [`## ${label} (${date})`, ...lines.map((entry) => entry.line)].join('\n')
+  const body = [`## ${label} (${date})`, ...lines.map(entry => entry.line)].join('\n')
   return { id: 'vlq', label, completedAt, body }
 }
 
 async function formatAssessment(
   id: AssessmentId,
-  attempt: AssessmentAttempt,
+  attempt: AssessmentAttempt
 ): Promise<FoundationSnapshotItem> {
   if (id === 'pvq-40') return formatPvq40Assessment(attempt)
   if (id === 'vlq') return formatVlqAssessment(attempt)
@@ -1416,8 +1422,7 @@ export async function buildFoundationSnapshot(): Promise<FoundationSnapshot> {
         /* names degrade gracefully */
       }
     }
-    const resolveName = (id: string): string =>
-      partStore.getPartById(id)?.name?.trim() || 'a part'
+    const resolveName = (id: string): string => partStore.getPartById(id)?.name?.trim() || 'a part'
     items.push(formatIfsPartsMap(partsMap, resolveName))
   }
 
@@ -1430,7 +1435,7 @@ export async function buildFoundationSnapshot(): Promise<FoundationSnapshot> {
   }
 
   items.sort((a, b) => a.completedAt.localeCompare(b.completedAt))
-  const snapshot = items.map((it) => it.body).join('\n\n')
+  const snapshot = items.map(it => it.body).join('\n\n')
   return { items, snapshot }
 }
 
@@ -1461,24 +1466,24 @@ export interface LifeAreasSnapshot {
  */
 export function buildLifeAreasSnapshot(): LifeAreasSnapshot {
   const lifeAreas = useLifeAreaStore()
-    .lifeAreas.filter((a) => a.isActive && a.name.trim().length > 0)
+    .lifeAreas.filter(a => a.isActive && a.name.trim().length > 0)
     .slice()
     .sort((a, b) => a.sortOrder - b.sortOrder)
 
-  const items: LifeAreaSnapshotItem[] = lifeAreas.map((area) => ({
+  const items: LifeAreaSnapshotItem[] = lifeAreas.map(area => ({
     id: area.id,
     name: area.name,
     body: formatLifeArea(area),
   }))
 
-  const snapshot = items.map((it) => it.body).join('\n\n')
+  const snapshot = items.map(it => it.body).join('\n\n')
   return { items, snapshot }
 }
 
 function formatLifeArea(a: LifeArea): string {
   const signalsBlock =
     a.reflectionSignals.length > 0
-      ? `  Reflection signals:\n${a.reflectionSignals.map((s) => `    - ${s}`).join('\n')}`
+      ? `  Reflection signals:\n${a.reflectionSignals.map(s => `    - ${s}`).join('\n')}`
       : ''
   const sections = [
     `- ${a.name}`,

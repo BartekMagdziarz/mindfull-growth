@@ -69,12 +69,7 @@ watch(
 )
 function allowed(date: DayRef) {
   const item = store.targetingItem
-  if (
-    !item ||
-    date === props.dayRef ||
-    store.isPending(item.key)
-  )
-    return false
+  if (!item || date === props.dayRef || store.isPending(item.key)) return false
   const lock = rescheduleWeekLock(item)
   if (lock && getPeriodRefsForDate(date).week !== lock) return false
   return (
@@ -91,7 +86,10 @@ function pick(date: DayRef) {
   } else emit('navigate', date)
 }
 function dragover(event: DragEvent, date: DayRef) {
-  if (!store.draggingItemKey || !allowed(date)) { dragMotion?.hover(null); return }
+  if (!store.draggingItemKey || !allowed(date)) {
+    dragMotion?.hover(null)
+    return
+  }
   event.preventDefault()
   dragMotion?.hover(event.currentTarget as HTMLElement)
   if (event.dataTransfer) event.dataTransfer.dropEffect = 'move'
@@ -159,10 +157,7 @@ async function expand(value: boolean) {
             {{ label(days[6], { day: 'numeric', month: 'short', year: 'numeric' }) }}</span
           ><button :aria-label="t('planning.today.calendar.nextPeriod')" @click="offset++">
             <AppIcon name="chevron_right" /></button
-          ><button
-            v-if="offset || dayRef !== today"
-            @click="jumpToToday"
-          >
+          ><button v-if="offset || dayRef !== today" @click="jumpToToday">
             {{ t('planning.today.calendar.today') }}
           </button>
         </div>

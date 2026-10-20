@@ -9,7 +9,11 @@
       @click.stop="show"
     >
       <AppIcon name="calendar_month" />
-      <span>{{ isPermanent ? t('planning.periodPicker.permanent') : label || t('planning.periodPicker.choose') }}</span>
+      <span>{{
+        isPermanent
+          ? t('planning.periodPicker.permanent')
+          : label || t('planning.periodPicker.choose')
+      }}</span>
       <span v-if="modelValue.length">({{ modelValue.length }})</span>
     </button>
     <Teleport to="body">

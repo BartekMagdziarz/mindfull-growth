@@ -44,7 +44,12 @@ describe('demo seed', () => {
     expect(tenK.closingReflection?.outcome).toBe('achieved')
     expect(tenK.closingReflection?.closedAt).toBe('2026-09-07')
     expect(tenK.closingReflection?.keyResults.length).toBe(2)
-    expect(goals.filter(goal => goal.status === 'open').map(goal => goal.title).sort()).toEqual(['Kończę pracę o 18:00', 'Półmaraton wiosną'])
+    expect(
+      goals
+        .filter(goal => goal.status === 'open')
+        .map(goal => goal.title)
+        .sort()
+    ).toEqual(['Kończę pracę o 18:00', 'Półmaraton wiosną'])
   })
 
   it('completes the shame path with measures and leaves the return step ahead', async () => {
@@ -57,10 +62,14 @@ describe('demo seed', () => {
     expect(shame.weekLog?.length).toBeGreaterThanOrEqual(10)
     expect(shame.futureLetter?.showAt).toBe('2026-10-17')
     const attempts = await db.assessmentAttempts.toArray()
-    const scs = attempts.filter(row => row.assessmentId === 'scs-sf').sort((a, b) => a.completedAt!.localeCompare(b.completedAt!))
+    const scs = attempts
+      .filter(row => row.assessmentId === 'scs-sf')
+      .sort((a, b) => a.completedAt!.localeCompare(b.completedAt!))
     expect(scs).toHaveLength(3)
     expect(scs[0].completedAt!.slice(0, 10)).toBe('2026-05-20')
-    const returnStep = (await db.exercisePlanItems.toArray()).find(item => item.sourceRef === shame.id && item.programStepIndex === 24)
+    const returnStep = (await db.exercisePlanItems.toArray()).find(
+      item => item.sourceRef === shame.id && item.programStepIndex === 24
+    )
     expect(returnStep?.dayRef).toBe('2026-10-20')
     const ifs = enrollments.find(row => row.programSlug === 'ifs-parts')!
     expect(ifs.status).toBe('active')

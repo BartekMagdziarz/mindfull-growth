@@ -21,20 +21,23 @@
 </template>
 
 <script setup lang="ts">
-withDefaults(defineProps<{
-  modelValue: string
-  label?: string
-  hint?: string
-  placeholder?: string
-  multiline?: boolean
-  rows?: number
-}>(), {
-  label: '',
-  hint: '',
-  placeholder: '',
-  multiline: false,
-  rows: 4,
-})
+withDefaults(
+  defineProps<{
+    modelValue: string
+    label?: string
+    hint?: string
+    placeholder?: string
+    multiline?: boolean
+    rows?: number
+  }>(),
+  {
+    label: '',
+    hint: '',
+    placeholder: '',
+    multiline: false,
+    rows: 4,
+  }
+)
 
 defineEmits<{ 'update:modelValue': [value: string] }>()
 </script>

@@ -51,7 +51,7 @@ function cellStyle(cell: StreamMatrixCellVM) {
 }
 
 function areaIconStyle(row: StreamMatrixRowVM) {
-  const hasData = row.cells.some((cell) => cell.rating !== null)
+  const hasData = row.cells.some(cell => cell.rating !== null)
   return {
     fontSize: '13px',
     color: hasData
@@ -59,7 +59,6 @@ function areaIconStyle(row: StreamMatrixRowVM) {
       : 'rgb(var(--stream-faint, 169 191 220))',
   }
 }
-
 </script>
 
 <template>
@@ -78,7 +77,12 @@ function areaIconStyle(row: StreamMatrixRowVM) {
          Load = ink by level, State = colour of the load/state quadrant (D10). -->
     <div class="stream-week__matrix">
       <template v-for="row in week.matrix" :key="row.areaKey">
-        <AppIcon class="material-symbols-outlined" :style="areaIconStyle(row)" aria-hidden="true" :name="row.icon" />
+        <AppIcon
+          class="material-symbols-outlined"
+          :style="areaIconStyle(row)"
+          aria-hidden="true"
+          :name="row.icon"
+        />
         <span
           v-for="cell in row.cells"
           :key="cell.section"
@@ -89,11 +93,7 @@ function areaIconStyle(row: StreamMatrixRowVM) {
       </template>
 
       <span />
-      <span
-        v-for="section in AXES"
-        :key="section"
-        class="stream-week__section-name"
-      >
+      <span v-for="section in AXES" :key="section" class="stream-week__section-name">
         {{ sectionLabels[section] }}
       </span>
     </div>

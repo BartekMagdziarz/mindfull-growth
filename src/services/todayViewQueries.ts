@@ -253,7 +253,10 @@ function buildMeasurementRecord(
     todayEntry,
     goalTitle: goal?.title,
     goalIcon: goal?.icon,
-    priorityIds: 'priorityIds' in item.subject ? [...item.subject.priorityIds] : [...(goal?.priorityIds ?? [])],
+    priorityIds:
+      'priorityIds' in item.subject
+        ? [...item.subject.priorityIds]
+        : [...(goal?.priorityIds ?? [])],
     contextPeriodRef: item.measurement.periodRef,
     sourceMonthRef: item.sourceMonthRef,
     sectionId,
@@ -300,7 +303,10 @@ export async function getTodayViewBundleForDay(dayRef: DayRef): Promise<TodayVie
       planningStateDexieRepository.listDailyMeasurementEntriesForDayRange(dayRef, dayRef),
       planningStateDexieRepository.listTodayHiddenStatesForDay(dayRef),
       loadPlanningCoreObjects(),
-      planningStateDexieRepository.listDailyMeasurementEntriesForDayRange(addDaysToDayRef(dayRef, -6), dayRef),
+      planningStateDexieRepository.listDailyMeasurementEntriesForDayRange(
+        addDaysToDayRef(dayRef, -6),
+        dayRef
+      ),
     ])
 
     // Load month-wide day assignments for visualizations
@@ -315,17 +321,22 @@ export async function getTodayViewBundleForDay(dayRef: DayRef): Promise<TodayVie
       }
     }
     const monthStart = monthBounds.map(b => b.start).sort()[0] ?? dayRef
-    const monthEnd = monthBounds.map(b => b.end).sort().at(-1) ?? dayRef
-    const allDayAssignments = await planningStateDexieRepository.listMeasurementDayAssignmentsForDayRange(
-      monthStart < addDaysToDayRef(dayRef, -6) ? monthStart : addDaysToDayRef(dayRef, -6),
-      monthEnd,
-    )
+    const monthEnd =
+      monthBounds
+        .map(b => b.end)
+        .sort()
+        .at(-1) ?? dayRef
+    const allDayAssignments =
+      await planningStateDexieRepository.listMeasurementDayAssignmentsForDayRange(
+        monthStart < addDaysToDayRef(dayRef, -6) ? monthStart : addDaysToDayRef(dayRef, -6),
+        monthEnd
+      )
 
     const goalMap = buildGoalMap(objects.goals)
     const todayEntries = buildTodayEntryMap(allEntries, dayRef)
     const hiddenKeys = buildHiddenKeySet(dayRef, hiddenStates)
-    const topPriorityKeys = (weekPlanning.weekPlan?.topPriorities ?? []).map((ref) =>
-      buildMeasurementKey(ref.subjectType, ref.subjectId),
+    const topPriorityKeys = (weekPlanning.weekPlan?.topPriorities ?? []).map(ref =>
+      buildMeasurementKey(ref.subjectType, ref.subjectId)
     )
     const measurementItems = new Map<string, TodayMeasurementItem>()
     const initiativeItems = new Map<string, TodayInitiativeItem>()
@@ -343,10 +354,16 @@ export async function getTodayViewBundleForDay(dayRef: DayRef): Promise<TodayVie
       }
 
       const key = buildMeasurementKey(item.subjectType, item.subject.id)
-      const record = buildMeasurementRecord(item, goalMap, todayEntries.get(key), sectionId, topPriorityKeys)
+      const record = buildMeasurementRecord(
+        item,
+        goalMap,
+        todayEntries.get(key),
+        sectionId,
+        topPriorityKeys
+      )
       measurementItems.set(
         key,
-        chooseMeasurementItem(measurementItems.get(key), record, refs.month),
+        chooseMeasurementItem(measurementItems.get(key), record, refs.month)
       )
     }
 
@@ -391,16 +408,29 @@ export async function getTodayViewBundleForDay(dayRef: DayRef): Promise<TodayVie
       })
     }
     const unplanned: Array<[MeasurementSubjectType, MeasureableSubject]> = [
-      ...objects.keyResults.map(subject => ['keyResult', subject] as [MeasurementSubjectType, MeasureableSubject]),
-      ...objects.habits.map(subject => ['habit', subject] as [MeasurementSubjectType, MeasureableSubject]),
-      ...objects.trackers.map(subject => ['tracker', subject] as [MeasurementSubjectType, MeasureableSubject]),
+      ...objects.keyResults.map(
+        subject => ['keyResult', subject] as [MeasurementSubjectType, MeasureableSubject]
+      ),
+      ...objects.habits.map(
+        subject => ['habit', subject] as [MeasurementSubjectType, MeasureableSubject]
+      ),
+      ...objects.trackers.map(
+        subject => ['tracker', subject] as [MeasurementSubjectType, MeasureableSubject]
+      ),
     ]
     for (const [subjectType, subject] of unplanned) {
       const key = buildMeasurementKey(subjectType, subject.id)
       if (relevantKeys.has(key) || !isMeasurementSubjectOpen(subject)) continue
       const goal = 'goalId' in subject ? goalMap.get(subject.goalId) : undefined
       if ('goalId' in subject && !(goal && goal.isActive && goal.status === 'open')) continue
-      addCandidates.push({ key, subjectType, subject, cadence: subject.cadence, goalTitle: goal?.title, goalIcon: goal?.icon })
+      addCandidates.push({
+        key,
+        subjectType,
+        subject,
+        cadence: subject.cadence,
+        goalTitle: goal?.title,
+        goalIcon: goal?.icon,
+      })
     }
     addCandidates.sort((left, right) => left.subject.title.localeCompare(right.subject.title))
 
@@ -422,7 +452,11 @@ export async function getTodayViewBundleForDay(dayRef: DayRef): Promise<TodayVie
         month: sortTodayItems(sections.month),
       },
       hiddenItems: sortTodayItems(hiddenItems),
-      rawEntries: [...new Map([...weekPlanning.rawEntries, ...recentEntries].map(entry => [entry.id, entry])).values()],
+      rawEntries: [
+        ...new Map(
+          [...weekPlanning.rawEntries, ...recentEntries].map(entry => [entry.id, entry])
+        ).values(),
+      ],
       allDayAssignments,
       topPriorityKeys,
       addCandidates,

@@ -1,11 +1,18 @@
 <template>
   <article class="next-object-card" :class="{ 'next-object-card--bare': bare }">
     <header v-if="!bare">
-      <span><AppIcon :name="icon" /><strong>{{ title }}</strong></span>
+      <span
+        ><AppIcon :name="icon" /><strong>{{ title }}</strong></span
+      >
       <em>{{ summary }}</em>
     </header>
 
-    <div v-if="chartKind === 'dots'" class="next-object-card__chart" role="img" :aria-label="chartAriaLabel">
+    <div
+      v-if="chartKind === 'dots'"
+      class="next-object-card__chart"
+      role="img"
+      :aria-label="chartAriaLabel"
+    >
       <div class="next-object-card__dots" :style="columnsStyle">
         <i v-for="point in points" :key="point.key" :class="dotState(point)" />
       </div>
@@ -14,7 +21,12 @@
       </div>
     </div>
 
-    <div v-else-if="chartKind === 'bars'" class="next-object-card__chart" role="img" :aria-label="chartAriaLabel">
+    <div
+      v-else-if="chartKind === 'bars'"
+      class="next-object-card__chart"
+      role="img"
+      :aria-label="chartAriaLabel"
+    >
       <div class="next-object-card__bars">
         <i
           v-for="point in points"
@@ -30,7 +42,14 @@
 
     <div v-else-if="chartKind === 'line'" class="next-object-card__chart">
       <svg viewBox="0 0 500 115" preserveAspectRatio="none" role="img" :aria-label="chartAriaLabel">
-        <line v-if="targetY !== null" x1="0" :y1="targetY" x2="500" :y2="targetY" class="next-object-card__target" />
+        <line
+          v-if="targetY !== null"
+          x1="0"
+          :y1="targetY"
+          x2="500"
+          :y2="targetY"
+          class="next-object-card__target"
+        />
         <path v-if="linePath" class="next-object-card__line-echo" :d="linePathWithOffset" />
         <path v-if="linePath" class="next-object-card__line" :d="linePath" />
         <circle v-if="lastPoint" :cx="lastPoint.x" :cy="lastPoint.y" r="5" />
@@ -76,9 +95,17 @@ const chartKind = computed<'dots' | 'bars' | 'line' | 'span'>(() => {
   if (props.entryMode === 'counter') return 'bars'
   return 'line'
 })
-const columnsStyle = computed(() => ({ gridTemplateColumns: `repeat(${Math.max(1, props.points.length)}, minmax(0, 1fr))` }))
-const maxValue = computed(() => Math.max(1, props.targetValue ?? 0, ...props.points.map(point => point.value ?? 0)))
-const valuesForLine = computed(() => props.points.flatMap((point, index) => point.value == null ? [] : [{ index, value: point.value }]))
+const columnsStyle = computed(() => ({
+  gridTemplateColumns: `repeat(${Math.max(1, props.points.length)}, minmax(0, 1fr))`,
+}))
+const maxValue = computed(() =>
+  Math.max(1, props.targetValue ?? 0, ...props.points.map(point => point.value ?? 0))
+)
+const valuesForLine = computed(() =>
+  props.points.flatMap((point, index) =>
+    point.value == null ? [] : [{ index, value: point.value }]
+  )
+)
 const lineRange = computed(() => {
   const values = valuesForLine.value.map(point => point.value)
   if (props.targetValue !== undefined) values.push(props.targetValue)
@@ -87,19 +114,27 @@ const lineRange = computed(() => {
   const max = Math.max(...values)
   return { min, max: max === min ? min + 1 : max }
 })
-const linePoints = computed(() => valuesForLine.value.map(point => ({
-  x: props.points.length <= 1 ? 250 : 5 + point.index * (490 / (props.points.length - 1)),
-  y: lineY(point.value),
-})))
+const linePoints = computed(() =>
+  valuesForLine.value.map(point => ({
+    x: props.points.length <= 1 ? 250 : 5 + point.index * (490 / (props.points.length - 1)),
+    y: lineY(point.value),
+  }))
+)
 const linePath = computed(() => pathFor(linePoints.value))
 const linePathWithOffset = computed(() => pathFor(linePoints.value, 3))
 const lastPoint = computed(() => linePoints.value.at(-1) ?? null)
-const targetY = computed(() => props.targetValue === undefined ? null : lineY(props.targetValue))
+const targetY = computed(() => (props.targetValue === undefined ? null : lineY(props.targetValue)))
 const spanFill = computed(() => {
   if (props.actualValue === undefined) return 4
-  return Math.max(6, Math.min(100, (props.actualValue / Math.max(1, props.targetValue ?? props.actualValue)) * 100))
+  return Math.max(
+    6,
+    Math.min(100, (props.actualValue / Math.max(1, props.targetValue ?? props.actualValue)) * 100)
+  )
 })
-const chartAriaLabel = computed(() => `${props.title}. ${props.summary} ${props.points.map(point => `${point.key}: ${point.value ?? '—'}`).join('; ')}`)
+const chartAriaLabel = computed(
+  () =>
+    `${props.title}. ${props.summary} ${props.points.map(point => `${point.key}: ${point.value ?? '—'}`).join('; ')}`
+)
 
 function barHeight(value: number): number {
   return Math.max(9, Math.min(96, (value / maxValue.value) * 92))
@@ -110,7 +145,12 @@ function dotState(point: NextObjectChartPoint): string {
   return point.assigned ? 'missed' : 'off'
 }
 function barState(point: NextObjectChartPoint): Record<string, boolean> {
-  return { empty: point.value == null, future: Boolean(point.future), current: Boolean(point.current), missed: point.status === 'missed' }
+  return {
+    empty: point.value == null,
+    future: Boolean(point.future),
+    current: Boolean(point.current),
+    missed: point.status === 'missed',
+  }
 }
 // Uses almost the whole 115-unit viewBox (was a 68-unit band): the same data
 // swings visibly further, which is the point of the chart.
@@ -119,7 +159,12 @@ function lineY(value: number): number {
   return 10 + ((max - value) / (max - min)) * 95
 }
 function pathFor(points: Array<{ x: number; y: number }>, offset = 0): string {
-  return points.map((point, index) => `${index ? 'L' : 'M'} ${point.x.toFixed(1)} ${(point.y + offset).toFixed(1)}`).join(' ')
+  return points
+    .map(
+      (point, index) =>
+        `${index ? 'L' : 'M'} ${point.x.toFixed(1)} ${(point.y + offset).toFixed(1)}`
+    )
+    .join(' ')
 }
 </script>
 
@@ -220,7 +265,9 @@ function pathFor(points: Array<{ x: number; y: number }>, offset = 0): string {
   font-weight: 800;
   opacity: 0;
   transform: translateY(-2px);
-  transition: opacity var(--mg-duration-fast) var(--mg-ease-standard), transform var(--mg-duration-fast) var(--mg-ease-standard);
+  transition:
+    opacity var(--mg-duration-fast) var(--mg-ease-standard),
+    transform var(--mg-duration-fast) var(--mg-ease-standard);
 }
 
 .next-object-card:hover > header em,
@@ -259,8 +306,13 @@ function pathFor(points: Array<{ x: number; y: number }>, offset = 0): string {
   background: var(--mg-color-border);
 }
 
-.next-object-card__dots i:nth-child(even) { border-radius: var(--mg-radius-organic-b); }
-.next-object-card__dots i.done { background: var(--mg-color-sky-field); box-shadow: var(--mg-shadow-inset-sm); }
+.next-object-card__dots i:nth-child(even) {
+  border-radius: var(--mg-radius-organic-b);
+}
+.next-object-card__dots i.done {
+  background: var(--mg-color-sky-field);
+  box-shadow: var(--mg-shadow-inset-sm);
+}
 .next-object-card__dots i.done::after {
   width: 70%;
   aspect-ratio: 1;
@@ -269,8 +321,13 @@ function pathFor(points: Array<{ x: number; y: number }>, offset = 0): string {
   content: '';
   transform: rotate(-2deg);
 }
-.next-object-card__dots i.missed { background: var(--mg-color-effort-soft); }
-.next-object-card__dots i.pending { border: 1px dashed var(--mg-color-state-soft); background: transparent; }
+.next-object-card__dots i.missed {
+  background: var(--mg-color-effort-soft);
+}
+.next-object-card__dots i.pending {
+  border: 1px dashed var(--mg-color-state-soft);
+  background: transparent;
+}
 
 .next-object-card__bars {
   display: flex;
@@ -288,11 +345,27 @@ function pathFor(points: Array<{ x: number; y: number }>, offset = 0): string {
   background: var(--mg-color-sky-field);
   transform: rotate(0.8deg);
 }
-.next-object-card__bars i:nth-child(even) { background: var(--mg-color-state-soft); transform: rotate(-1.2deg); }
-.next-object-card__bars i.current { background: var(--mg-color-state-soft); box-shadow: var(--mg-shadow-raised-sm); }
-.next-object-card__bars i.missed { background: var(--mg-color-effort-soft); }
-.next-object-card__bars i.empty { align-self: end; border-radius: var(--mg-radius-pill); background: var(--mg-color-border); }
-.next-object-card__bars i.future { border: 1px dashed var(--mg-color-state-soft); background: transparent; box-shadow: none; }
+.next-object-card__bars i:nth-child(even) {
+  background: var(--mg-color-state-soft);
+  transform: rotate(-1.2deg);
+}
+.next-object-card__bars i.current {
+  background: var(--mg-color-state-soft);
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+.next-object-card__bars i.missed {
+  background: var(--mg-color-effort-soft);
+}
+.next-object-card__bars i.empty {
+  align-self: end;
+  border-radius: var(--mg-radius-pill);
+  background: var(--mg-color-border);
+}
+.next-object-card__bars i.future {
+  border: 1px dashed var(--mg-color-state-soft);
+  background: transparent;
+  box-shadow: none;
+}
 
 .next-object-card__chart > svg {
   width: 100%;
@@ -304,11 +377,26 @@ function pathFor(points: Array<{ x: number; y: number }>, offset = 0): string {
 }
 .next-object-card__line,
 .next-object-card__line-echo,
-.next-object-card__target { stroke-linecap: round; stroke-linejoin: round; }
-.next-object-card__line { stroke: var(--mg-color-state); stroke-width: 3.5; }
-.next-object-card__line-echo { stroke: var(--mg-color-sky-field); stroke-width: 7; }
-.next-object-card__target { stroke: var(--mg-color-primary); stroke-width: 1; stroke-dasharray: 7 7; }
-.next-object-card__chart circle { fill: var(--mg-color-state); }
+.next-object-card__target {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.next-object-card__line {
+  stroke: var(--mg-color-state);
+  stroke-width: 3.5;
+}
+.next-object-card__line-echo {
+  stroke: var(--mg-color-sky-field);
+  stroke-width: 7;
+}
+.next-object-card__target {
+  stroke: var(--mg-color-primary);
+  stroke-width: 1;
+  stroke-dasharray: 7 7;
+}
+.next-object-card__chart circle {
+  fill: var(--mg-color-state);
+}
 
 .next-object-card__labels {
   display: grid;
@@ -342,13 +430,29 @@ function pathFor(points: Array<{ x: number; y: number }>, offset = 0): string {
   background: var(--mg-color-sky-well);
   box-shadow: var(--mg-shadow-inset-sm);
 }
-.next-object-card__span-track i { display: block; height: 100%; border-radius: inherit; background: var(--mg-color-state-soft); }
-.next-object-card__span-track i.status-missed { background: var(--mg-color-effort-soft); }
-.next-object-card__span-track i.status-no-data { background: var(--mg-color-border); }
-.next-object-card__chart--span small { color: var(--mg-color-muted); font-size: var(--mg-font-size-xs); }
+.next-object-card__span-track i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--mg-color-state-soft);
+}
+.next-object-card__span-track i.status-missed {
+  background: var(--mg-color-effort-soft);
+}
+.next-object-card__span-track i.status-no-data {
+  background: var(--mg-color-border);
+}
+.next-object-card__chart--span small {
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-xs);
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .next-object-card > header em { transition: none; }
-  .next-object-card__labels { transition: none; }
+  .next-object-card > header em {
+    transition: none;
+  }
+  .next-object-card__labels {
+    transition: none;
+  }
 }
 </style>

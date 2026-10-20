@@ -48,10 +48,7 @@ export interface WeeklyReflection extends ReflectionRecordBase {
   aiSummary: string
 }
 
-export type CreateWeeklyReflectionPayload = Omit<
-  WeeklyReflection,
-  'id' | 'createdAt' | 'updatedAt'
->
+export type CreateWeeklyReflectionPayload = Omit<WeeklyReflection, 'id' | 'createdAt' | 'updatedAt'>
 export type UpdateWeeklyReflectionPayload = Partial<
   Omit<WeeklyReflection, 'id' | 'createdAt' | 'updatedAt'>
 >
@@ -173,15 +170,30 @@ export function normalizeWeeklyReflectionPayload(
   return {
     weekRef,
     // Demands
-    physicalIntensityRating: clampRating(data.physicalIntensityRating, existing?.physicalIntensityRating ?? null),
-    emotionalIntensityRating: clampRating(data.emotionalIntensityRating, existing?.emotionalIntensityRating ?? null),
+    physicalIntensityRating: clampRating(
+      data.physicalIntensityRating,
+      existing?.physicalIntensityRating ?? null
+    ),
+    emotionalIntensityRating: clampRating(
+      data.emotionalIntensityRating,
+      existing?.emotionalIntensityRating ?? null
+    ),
     taskLoadRating: clampRating(data.taskLoadRating, existing?.taskLoadRating ?? null),
-    closeOnesNeedsRating: clampRating(data.closeOnesNeedsRating, existing?.closeOnesNeedsRating ?? null),
+    closeOnesNeedsRating: clampRating(
+      data.closeOnesNeedsRating,
+      existing?.closeOnesNeedsRating ?? null
+    ),
     // Actions
     physicalCareRating: clampRating(data.physicalCareRating, existing?.physicalCareRating ?? null),
-    emotionalProcessingRating: clampRating(data.emotionalProcessingRating, existing?.emotionalProcessingRating ?? null),
+    emotionalProcessingRating: clampRating(
+      data.emotionalProcessingRating,
+      existing?.emotionalProcessingRating ?? null
+    ),
     productivityRating: clampRating(data.productivityRating, existing?.productivityRating ?? null),
-    closeOnesSupportRating: clampRating(data.closeOnesSupportRating, existing?.closeOnesSupportRating ?? null),
+    closeOnesSupportRating: clampRating(
+      data.closeOnesSupportRating,
+      existing?.closeOnesSupportRating ?? null
+    ),
     // State
     moodRating: clampRating(data.moodRating, existing?.moodRating ?? null),
     energyRating: clampRating(data.energyRating, existing?.energyRating ?? null),

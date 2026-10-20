@@ -72,7 +72,7 @@ const safeDoneCount = computed(() => Math.max(0, props.doneCount))
 const safeTargetCount = computed(() => Math.max(1, props.targetCount))
 
 const fillRatio = computed(() =>
-  Math.min(1, safeDoneCount.value / Math.max(safeTargetCount.value, 1)),
+  Math.min(1, safeDoneCount.value / Math.max(safeTargetCount.value, 1))
 )
 
 const dashArray = computed(() => `${CIRCUMFERENCE * fillRatio.value} ${CIRCUMFERENCE}`)
@@ -80,6 +80,6 @@ const dashArray = computed(() => `${CIRCUMFERENCE * fillRatio.value} ${CIRCUMFER
 const progressStroke = computed(() => 'rgb(var(--neo-chart-primary-end))')
 
 const progressAriaLabel = computed(
-  () => `${safeDoneCount.value} of ${safeTargetCount.value} completed`,
+  () => `${safeDoneCount.value} of ${safeTargetCount.value} completed`
 )
 </script>

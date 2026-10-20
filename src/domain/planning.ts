@@ -13,7 +13,12 @@ export interface PlanningObjectBase {
 }
 
 export type PlanningCadence = 'weekly' | 'monthly'
-export type MeasurementEntryMode = 'completion' | 'counter' | 'value' | 'rating' | 'multi-completion'
+export type MeasurementEntryMode =
+  | 'completion'
+  | 'counter'
+  | 'value'
+  | 'rating'
+  | 'multi-completion'
 export type GoalStatus = 'open' | 'completed' | 'dropped'
 export type KeyResultStatus = GoalStatus
 export type HabitStatus = 'open' | 'retired' | 'dropped'
@@ -371,7 +376,9 @@ export type CreateTrackerPayload = Omit<Tracker, 'id' | 'createdAt' | 'updatedAt
 export type UpdateTrackerPayload = Partial<Omit<Tracker, 'id' | 'createdAt' | 'updatedAt'>>
 
 export type CreateWeeklyIntentionPayload = Omit<WeeklyIntention, 'id' | 'createdAt' | 'updatedAt'>
-export type UpdateWeeklyIntentionPayload = Partial<Omit<WeeklyIntention, 'id' | 'createdAt' | 'updatedAt'>>
+export type UpdateWeeklyIntentionPayload = Partial<
+  Omit<WeeklyIntention, 'id' | 'createdAt' | 'updatedAt'>
+>
 
 export type CreateInitiativePayload = Omit<Initiative, 'id' | 'createdAt' | 'updatedAt'>
 export type UpdateInitiativePayload = Partial<Omit<Initiative, 'id' | 'createdAt' | 'updatedAt'>>
@@ -414,11 +421,7 @@ const COUNT_TARGET_OPERATORS = ['min', 'max'] as const
 const COMPARISON_OPERATORS = ['gte', 'lte'] as const
 const VALUE_TARGET_AGGREGATIONS = ['sum', 'average', 'last'] as const
 
-function normalizeRequiredText(
-  value: unknown,
-  fieldName: string,
-  fallback?: string,
-): string {
+function normalizeRequiredText(value: unknown, fieldName: string, fallback?: string): string {
   const source = value ?? fallback
   if (typeof source !== 'string') {
     throw new Error(`${fieldName} must be a string`)
@@ -430,7 +433,7 @@ function normalizeRequiredText(
 function normalizeOptionalText(
   value: unknown,
   fieldName: string,
-  fallback?: string,
+  fallback?: string
 ): string | undefined {
   const source = value ?? fallback
   if (source === undefined) {
@@ -460,7 +463,7 @@ function normalizeIdArray(value: unknown, fieldName: string, fallback: string[] 
     throw new Error(`${fieldName} must be an array`)
   }
 
-  const normalized = source.map((id) => {
+  const normalized = source.map(id => {
     if (typeof id !== 'string') {
       throw new Error(`${fieldName} must contain only strings`)
     }
@@ -471,7 +474,11 @@ function normalizeIdArray(value: unknown, fieldName: string, fallback: string[] 
   return Array.from(new Set(normalized.filter(Boolean)))
 }
 
-function normalizeOptionalId(value: unknown, fieldName: string, fallback?: string): string | undefined {
+function normalizeOptionalId(
+  value: unknown,
+  fieldName: string,
+  fallback?: string
+): string | undefined {
   const source = value ?? fallback
   if (source === undefined) {
     return undefined
@@ -514,7 +521,7 @@ function normalizeYearRefs(value: unknown, fallback?: YearRef[]): YearRef[] {
     throw new Error('Priority.years must be an array')
   }
 
-  const normalized = source.map((year) => normalizeYearRef(year))
+  const normalized = source.map(year => normalizeYearRef(year))
   const unique = Array.from(new Set(normalized))
   unique.sort((left, right) => left.localeCompare(right))
 
@@ -529,7 +536,7 @@ function normalizeEnum<T extends string>(
   value: unknown,
   fieldName: string,
   allowedValues: readonly T[],
-  fallback: T,
+  fallback: T
 ): T {
   const source = value ?? fallback
   if (typeof source !== 'string' || !allowedValues.includes(source as T)) {
@@ -553,7 +560,7 @@ const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/
 function normalizeOptionalIsoDate(
   value: unknown,
   fieldName: string,
-  fallback?: string,
+  fallback?: string
 ): string | undefined {
   const source = value ?? fallback
   if (source === undefined) return undefined
@@ -575,7 +582,7 @@ function normalizeOptionalIsoDate(
 function normalizeOptionalRating1To10(
   value: unknown,
   fieldName: string,
-  fallback?: number,
+  fallback?: number
 ): number | undefined {
   const source = value ?? fallback
   if (source === undefined) return undefined
@@ -585,7 +592,11 @@ function normalizeOptionalRating1To10(
   return source
 }
 
-function normalizeOptionalPositiveInt(value: unknown, fieldName: string, fallback?: number): number | undefined {
+function normalizeOptionalPositiveInt(
+  value: unknown,
+  fieldName: string,
+  fallback?: number
+): number | undefined {
   const source = value ?? fallback
   if (source === undefined) return undefined
   if (typeof source !== 'number' || !Number.isInteger(source) || source < 0) {
@@ -609,7 +620,7 @@ function normalizeTextArray(value: unknown, fieldName: string, fallback: string[
     throw new Error(`${fieldName} must be an array`)
   }
 
-  const normalized = source.map((item) => {
+  const normalized = source.map(item => {
     if (typeof item !== 'string') {
       throw new Error(`${fieldName} must contain only strings`)
     }
@@ -642,7 +653,7 @@ function assertForbiddenKeys(data: object, keys: string[]): void {
 
 function normalizePlanningObjectBase(
   data: PlanningPayloadLike,
-  existing?: PlanningObjectBase,
+  existing?: PlanningObjectBase
 ): Omit<PlanningObjectBase, 'id' | 'createdAt' | 'updatedAt'> {
   return {
     title: normalizeRequiredText(data.title, 'title', existing?.title),
@@ -653,8 +664,24 @@ function normalizePlanningObjectBase(
 
 function normalizePriorityBase(
   data: PriorityPayloadLike,
-  existing?: Priority,
-): Omit<Priority, 'id' | 'createdAt' | 'updatedAt' | 'icon' | 'years' | 'status' | 'order' | 'lifeAreaIds' | 'whyNow' | 'desiredDirection' | 'tradeoffs' | 'progressSignals' | 'riskSignals' | 'closingReflection'> {
+  existing?: Priority
+): Omit<
+  Priority,
+  | 'id'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'icon'
+  | 'years'
+  | 'status'
+  | 'order'
+  | 'lifeAreaIds'
+  | 'whyNow'
+  | 'desiredDirection'
+  | 'tradeoffs'
+  | 'progressSignals'
+  | 'riskSignals'
+  | 'closingReflection'
+> {
   return {
     title: normalizeRequiredText(data.title, 'title', existing?.title),
     description: normalizeOptionalText(data.description, 'description', existing?.description),
@@ -663,7 +690,7 @@ function normalizePriorityBase(
 
 function normalizePriorityClosingReflection(
   value: unknown,
-  fallback?: PriorityClosingReflection,
+  fallback?: PriorityClosingReflection
 ): PriorityClosingReflection | undefined {
   const source = value ?? fallback
   if (source === undefined) return undefined
@@ -671,12 +698,24 @@ function normalizePriorityClosingReflection(
     throw new Error('Priority.closingReflection must be an object')
   }
 
-  const closedAt = normalizeRequiredText(source.closedAt, 'closingReflection.closedAt', fallback?.closedAt)
+  const closedAt = normalizeRequiredText(
+    source.closedAt,
+    'closingReflection.closedAt',
+    fallback?.closedAt
+  )
   return {
     closedAt,
     summary: normalizeOptionalText(source.summary, 'closingReflection.summary', fallback?.summary),
-    workedWell: normalizeOptionalText(source.workedWell, 'closingReflection.workedWell', fallback?.workedWell),
-    wasDifficult: normalizeOptionalText(source.wasDifficult, 'closingReflection.wasDifficult', fallback?.wasDifficult),
+    workedWell: normalizeOptionalText(
+      source.workedWell,
+      'closingReflection.workedWell',
+      fallback?.workedWell
+    ),
+    wasDifficult: normalizeOptionalText(
+      source.wasDifficult,
+      'closingReflection.wasDifficult',
+      fallback?.wasDifficult
+    ),
     learned: normalizeOptionalText(source.learned, 'closingReflection.learned', fallback?.learned),
   }
 }
@@ -688,7 +727,7 @@ export function goalStatusForOutcome(outcome: GoalOutcome): Exclude<GoalStatus, 
 
 function normalizeGoalClosingKeyResultSnapshot(
   value: unknown,
-  index: number,
+  index: number
 ): GoalClosingKeyResultSnapshot {
   const field = `closingReflection.keyResults[${index}]`
   if (!isPlainObject(value)) {
@@ -704,7 +743,12 @@ function normalizeGoalClosingKeyResultSnapshot(
     }
     return {
       monthRef: normalizeRequiredText(month.monthRef, `${field}.months[${monthIndex}].monthRef`),
-      state: normalizeEnum(month.state, `${field}.months[${monthIndex}].state`, GOAL_CLOSING_MONTH_STATES, 'unplanned'),
+      state: normalizeEnum(
+        month.state,
+        `${field}.months[${monthIndex}].state`,
+        GOAL_CLOSING_MONTH_STATES,
+        'unplanned'
+      ),
     }
   })
   const weeksSource = value.weeks
@@ -717,7 +761,12 @@ function normalizeGoalClosingKeyResultSnapshot(
     }
     return {
       weekRef: normalizeRequiredText(week.weekRef, `${field}.weeks[${weekIndex}].weekRef`),
-      state: normalizeEnum(week.state, `${field}.weeks[${weekIndex}].state`, GOAL_CLOSING_MONTH_STATES, 'unplanned'),
+      state: normalizeEnum(
+        week.state,
+        `${field}.weeks[${weekIndex}].state`,
+        GOAL_CLOSING_MONTH_STATES,
+        'unplanned'
+      ),
     }
   })
   return {
@@ -725,7 +774,12 @@ function normalizeGoalClosingKeyResultSnapshot(
     title: normalizeRequiredText(value.title, `${field}.title`),
     entryMode: normalizeEnum(value.entryMode, `${field}.entryMode`, ENTRY_MODES, 'completion'),
     cadence: normalizeEnum(value.cadence, `${field}.cadence`, CADENCES, 'weekly'),
-    evaluation: normalizeEnum(value.evaluation, `${field}.evaluation`, GOAL_CLOSING_EVALUATIONS, 'no-data'),
+    evaluation: normalizeEnum(
+      value.evaluation,
+      `${field}.evaluation`,
+      GOAL_CLOSING_EVALUATIONS,
+      'no-data'
+    ),
     monthsMet: normalizeNonNegativeInteger(value.monthsMet, `${field}.monthsMet`, 0),
     monthsPlanned: normalizeNonNegativeInteger(value.monthsPlanned, `${field}.monthsPlanned`, 0),
     months,
@@ -742,7 +796,7 @@ function normalizeGoalClosingKeyResultSnapshot(
 
 function normalizeGoalClosingReflection(
   value: unknown,
-  fallback?: GoalClosingReflection,
+  fallback?: GoalClosingReflection
 ): GoalClosingReflection | undefined {
   const source = value ?? fallback
   if (source === undefined) return undefined
@@ -765,42 +819,98 @@ function normalizeGoalClosingReflection(
       throw new Error('closingReflection.followUp must be an object')
     }
     followUp = {
-      kind: normalizeEnum(followUpSource.kind, 'closingReflection.followUp.kind', GOAL_FOLLOW_UP_KINDS, 'none'),
+      kind: normalizeEnum(
+        followUpSource.kind,
+        'closingReflection.followUp.kind',
+        GOAL_FOLLOW_UP_KINDS,
+        'none'
+      ),
       note: normalizeOptionalText(followUpSource.note, 'closingReflection.followUp.note'),
-      createdHabitIds: followUpSource.createdHabitIds === undefined
-        ? undefined
-        : normalizeIdArray(followUpSource.createdHabitIds, 'closingReflection.followUp.createdHabitIds'),
+      createdHabitIds:
+        followUpSource.createdHabitIds === undefined
+          ? undefined
+          : normalizeIdArray(
+              followUpSource.createdHabitIds,
+              'closingReflection.followUp.createdHabitIds'
+            ),
     }
   }
 
-  const closedAt = normalizeOptionalIsoDate(source.closedAt, 'closingReflection.closedAt', fallback?.closedAt)
+  const closedAt = normalizeOptionalIsoDate(
+    source.closedAt,
+    'closingReflection.closedAt',
+    fallback?.closedAt
+  )
   if (!closedAt) {
     throw new Error('closingReflection.closedAt is required')
   }
   const successMetSource = source.successMet ?? fallback?.successMet
   return {
     closedAt,
-    outcome: normalizeEnum(source.outcome, 'closingReflection.outcome', GOAL_OUTCOMES, fallback?.outcome ?? 'achieved'),
-    successMet: successMetSource === undefined
-      ? undefined
-      : normalizeEnum(successMetSource, 'closingReflection.successMet', GOAL_SUCCESS_MET, successMetSource as GoalSuccessMet),
-    successNote: normalizeOptionalText(source.successNote, 'closingReflection.successNote', fallback?.successNote),
+    outcome: normalizeEnum(
+      source.outcome,
+      'closingReflection.outcome',
+      GOAL_OUTCOMES,
+      fallback?.outcome ?? 'achieved'
+    ),
+    successMet:
+      successMetSource === undefined
+        ? undefined
+        : normalizeEnum(
+            successMetSource,
+            'closingReflection.successMet',
+            GOAL_SUCCESS_MET,
+            successMetSource as GoalSuccessMet
+          ),
+    successNote: normalizeOptionalText(
+      source.successNote,
+      'closingReflection.successNote',
+      fallback?.successNote
+    ),
     confidenceInHindsight: normalizeOptionalRating1To10(
       source.confidenceInHindsight,
       'closingReflection.confidenceInHindsight',
-      fallback?.confidenceInHindsight,
+      fallback?.confidenceInHindsight
     ),
-    confidenceNote: normalizeOptionalText(source.confidenceNote, 'closingReflection.confidenceNote', fallback?.confidenceNote),
-    obstaclesHit: normalizeOptionalText(source.obstaclesHit, 'closingReflection.obstaclesHit', fallback?.obstaclesHit),
-    workedWell: normalizeOptionalText(source.workedWell, 'closingReflection.workedWell', fallback?.workedWell),
-    wasDifficult: normalizeOptionalText(source.wasDifficult, 'closingReflection.wasDifficult', fallback?.wasDifficult),
+    confidenceNote: normalizeOptionalText(
+      source.confidenceNote,
+      'closingReflection.confidenceNote',
+      fallback?.confidenceNote
+    ),
+    obstaclesHit: normalizeOptionalText(
+      source.obstaclesHit,
+      'closingReflection.obstaclesHit',
+      fallback?.obstaclesHit
+    ),
+    workedWell: normalizeOptionalText(
+      source.workedWell,
+      'closingReflection.workedWell',
+      fallback?.workedWell
+    ),
+    wasDifficult: normalizeOptionalText(
+      source.wasDifficult,
+      'closingReflection.wasDifficult',
+      fallback?.wasDifficult
+    ),
     learned: normalizeOptionalText(source.learned, 'closingReflection.learned', fallback?.learned),
     followUp,
-    keyResults: keyResultsSource.map((item, index) => normalizeGoalClosingKeyResultSnapshot(item, index)),
+    keyResults: keyResultsSource.map((item, index) =>
+      normalizeGoalClosingKeyResultSnapshot(item, index)
+    ),
     window: {
-      startDate: normalizeOptionalIsoDate(windowSource.startDate, 'closingReflection.window.startDate'),
-      targetDate: normalizeOptionalIsoDate(windowSource.targetDate, 'closingReflection.window.targetDate'),
-      weeksPlanned: normalizeNonNegativeInteger(windowSource.weeksPlanned, 'closingReflection.window.weeksPlanned', 0),
+      startDate: normalizeOptionalIsoDate(
+        windowSource.startDate,
+        'closingReflection.window.startDate'
+      ),
+      targetDate: normalizeOptionalIsoDate(
+        windowSource.targetDate,
+        'closingReflection.window.targetDate'
+      ),
+      weeksPlanned: normalizeNonNegativeInteger(
+        windowSource.weeksPlanned,
+        'closingReflection.window.weeksPlanned',
+        0
+      ),
     },
   }
 }
@@ -808,7 +918,7 @@ function normalizeGoalClosingReflection(
 function normalizeEntryDaysCondition(
   entryMode: MeasurementEntryMode,
   value: unknown,
-  fieldName = 'target.entryDays',
+  fieldName = 'target.entryDays'
 ): MeasurementEntryDaysCondition | undefined {
   // For completion the condition is redundant (the primary metric already
   // counts entry days), so it is stripped instead of stored. Multi-completion
@@ -826,7 +936,7 @@ function normalizeEntryDaysCondition(
     value.operator,
     `${fieldName}.operator`,
     COUNT_TARGET_OPERATORS,
-    'min',
+    'min'
   )
   const days = value.value
   if (typeof days !== 'number' || !Number.isInteger(days) || days < 1) {
@@ -845,7 +955,7 @@ function normalizeEntryDaysCondition(
 function normalizeMultiCompletionItems(
   entryMode: MeasurementEntryMode,
   value: unknown,
-  existing?: MultiCompletionItem[],
+  existing?: MultiCompletionItem[]
 ): MultiCompletionItem[] | undefined {
   if (entryMode !== 'multi-completion') {
     return undefined
@@ -895,13 +1005,13 @@ function normalizeMultiCompletionItems(
     }
   })
 
-  const activeCount = items.filter((item) => !item.archived).length
+  const activeCount = items.filter(item => !item.archived).length
   if (activeCount < 1) {
     throw new Error('multiItems must contain at least one non-archived item')
   }
   if (activeCount > MULTI_COMPLETION_MAX_ACTIVE_ITEMS) {
     throw new Error(
-      `multiItems must contain at most ${MULTI_COMPLETION_MAX_ACTIVE_ITEMS} non-archived items`,
+      `multiItems must contain at most ${MULTI_COMPLETION_MAX_ACTIVE_ITEMS} non-archived items`
     )
   }
 
@@ -921,7 +1031,7 @@ function normalizeMultiCompletionItems(
 function normalizeMultiDailyThreshold(
   entryMode: MeasurementEntryMode,
   value: unknown,
-  existing?: number,
+  existing?: number
 ): number | undefined {
   if (entryMode !== 'multi-completion') {
     return undefined
@@ -942,7 +1052,7 @@ function normalizeMultiDailyThreshold(
 function normalizeMeasurementTarget(
   entryMode: MeasurementEntryMode,
   targetValue: unknown,
-  existing?: MeasurementTarget,
+  existing?: MeasurementTarget
 ): MeasurementTarget {
   const source = targetValue ?? existing
   if (!isPlainObject(source)) {
@@ -965,12 +1075,12 @@ function normalizeMeasurementTarget(
           source.operator,
           'target.operator',
           COUNT_TARGET_OPERATORS,
-          existing?.kind === 'count' ? existing.operator : 'min',
+          existing?.kind === 'count' ? existing.operator : 'min'
         ),
         value: normalizeNonNegativeInteger(
           source.value,
           'target.value',
-          existing?.kind === 'count' ? existing.value : undefined,
+          existing?.kind === 'count' ? existing.value : undefined
         ),
         ...(entryDays ? { entryDays } : {}),
       }
@@ -981,18 +1091,18 @@ function normalizeMeasurementTarget(
           source.aggregation,
           'target.aggregation',
           VALUE_TARGET_AGGREGATIONS,
-          existing?.kind === 'value' ? existing.aggregation : 'sum',
+          existing?.kind === 'value' ? existing.aggregation : 'sum'
         ),
         operator: normalizeEnum(
           source.operator,
           'target.operator',
           COMPARISON_OPERATORS,
-          existing?.kind === 'value' ? existing.operator : 'gte',
+          existing?.kind === 'value' ? existing.operator : 'gte'
         ),
         value: normalizeFiniteNumber(
           source.value,
           'target.value',
-          existing?.kind === 'value' ? existing.value : undefined,
+          existing?.kind === 'value' ? existing.value : undefined
         ),
         ...(entryDays ? { entryDays } : {}),
       }
@@ -1003,18 +1113,18 @@ function normalizeMeasurementTarget(
           source.aggregation,
           'target.aggregation',
           ['average'] as const,
-          'average',
+          'average'
         ),
         operator: normalizeEnum(
           source.operator,
           'target.operator',
           COMPARISON_OPERATORS,
-          existing?.kind === 'rating' ? existing.operator : 'gte',
+          existing?.kind === 'rating' ? existing.operator : 'gte'
         ),
         value: normalizeFiniteNumber(
           source.value,
           'target.value',
-          existing?.kind === 'rating' ? existing.value : undefined,
+          existing?.kind === 'rating' ? existing.value : undefined
         ),
         ...(entryDays ? { entryDays } : {}),
       }
@@ -1023,43 +1133,68 @@ function normalizeMeasurementTarget(
 
 export function normalizePriorityPayload(
   data: CreatePriorityPayload | UpdatePriorityPayload,
-  existing?: Priority,
+  existing?: Priority
 ): Omit<Priority, 'id' | 'createdAt' | 'updatedAt'> {
   assertForbiddenKeys(data as object, ['year', 'isActive'])
 
   const base = normalizePriorityBase(data, existing)
-  const status = normalizeEnum(data.status, 'status', PRIORITY_STATUSES, existing?.status ?? 'draft')
+  const status = normalizeEnum(
+    data.status,
+    'status',
+    PRIORITY_STATUSES,
+    existing?.status ?? 'draft'
+  )
 
   if (status !== 'closed' && data.closingReflection !== undefined) {
     throw new Error('Priority.closingReflection is only supported for closed priorities')
   }
-  const closingReflection = status === 'closed'
-    ? normalizePriorityClosingReflection(data.closingReflection, existing?.closingReflection)
-    : undefined
+  const closingReflection =
+    status === 'closed'
+      ? normalizePriorityClosingReflection(data.closingReflection, existing?.closingReflection)
+      : undefined
 
   const endingTypeSource = data.endingType ?? existing?.endingType
-  const endingType = endingTypeSource === undefined
-    ? undefined
-    : normalizeEnum(endingTypeSource, 'endingType', PRIORITY_ENDING_TYPES, endingTypeSource)
+  const endingType =
+    endingTypeSource === undefined
+      ? undefined
+      : normalizeEnum(endingTypeSource, 'endingType', PRIORITY_ENDING_TYPES, endingTypeSource)
 
   return {
     ...base,
     icon: normalizeOptionalText(data.icon, 'icon', existing?.icon),
     years: normalizeYearRefs(data.years, existing?.years),
     status,
-    order: status === 'active' ? normalizeOptionalPositiveOrder(data.order, existing?.order) : undefined,
+    order:
+      status === 'active' ? normalizeOptionalPositiveOrder(data.order, existing?.order) : undefined,
     lifeAreaIds: normalizeIdArray(data.lifeAreaIds, 'lifeAreaIds', existing?.lifeAreaIds),
     whyNow: normalizeOptionalText(data.whyNow, 'whyNow', existing?.whyNow),
-    desiredDirection: normalizeOptionalText(data.desiredDirection, 'desiredDirection', existing?.desiredDirection),
+    desiredDirection: normalizeOptionalText(
+      data.desiredDirection,
+      'desiredDirection',
+      existing?.desiredDirection
+    ),
     tradeoffs: normalizeOptionalText(data.tradeoffs, 'tradeoffs', existing?.tradeoffs),
     influence: normalizeOptionalText(data.influence, 'influence', existing?.influence),
-    notControlled: normalizeOptionalText(data.notControlled, 'notControlled', existing?.notControlled),
+    notControlled: normalizeOptionalText(
+      data.notControlled,
+      'notControlled',
+      existing?.notControlled
+    ),
     endingType,
     // The description only means anything next to a natural ending.
-    endingDescription: endingType === 'natural'
-      ? normalizeOptionalText(data.endingDescription, 'endingDescription', existing?.endingDescription)
-      : undefined,
-    progressSignals: normalizeTextArray(data.progressSignals, 'progressSignals', existing?.progressSignals),
+    endingDescription:
+      endingType === 'natural'
+        ? normalizeOptionalText(
+            data.endingDescription,
+            'endingDescription',
+            existing?.endingDescription
+          )
+        : undefined,
+    progressSignals: normalizeTextArray(
+      data.progressSignals,
+      'progressSignals',
+      existing?.progressSignals
+    ),
     riskSignals: normalizeTextArray(data.riskSignals, 'riskSignals', existing?.riskSignals),
     closingReflection: status === 'closed' ? closingReflection : undefined,
   }
@@ -1067,22 +1202,27 @@ export function normalizePriorityPayload(
 
 export function normalizeGoalPayload(
   data: CreateGoalPayload | UpdateGoalPayload,
-  existing?: Goal,
+  existing?: Goal
 ): Omit<Goal, 'id' | 'createdAt' | 'updatedAt'> {
   const base = normalizePlanningObjectBase(data, existing)
   const status = normalizeEnum(data.status, 'status', GOAL_STATUSES, existing?.status ?? 'open')
 
   // The closing reflection lives and dies with the closed status (as for priorities):
   // reopening a goal drops it, and an open goal cannot carry one.
-  if (status === 'open' && data.closingReflection !== undefined && data.closingReflection !== null) {
+  if (
+    status === 'open' &&
+    data.closingReflection !== undefined &&
+    data.closingReflection !== null
+  ) {
     throw new Error('Goal.closingReflection is only supported for closed goals')
   }
-  const closingReflection = status === 'open'
-    ? undefined
-    : normalizeGoalClosingReflection(data.closingReflection, existing?.closingReflection)
+  const closingReflection =
+    status === 'open'
+      ? undefined
+      : normalizeGoalClosingReflection(data.closingReflection, existing?.closingReflection)
   if (closingReflection && goalStatusForOutcome(closingReflection.outcome) !== status) {
     throw new Error(
-      `Goal status '${status}' does not match closing outcome '${closingReflection.outcome}'`,
+      `Goal status '${status}' does not match closing outcome '${closingReflection.outcome}'`
     )
   }
 
@@ -1094,16 +1234,38 @@ export function normalizeGoalPayload(
     status,
     closingReflection,
     // Only an open goal can be waiting for its closing; '' clears the deferral.
-    closingDeferredUntil: status === 'open'
-      ? normalizeOptionalIsoDate(data.closingDeferredUntil, 'closingDeferredUntil', existing?.closingDeferredUntil)
-      : undefined,
-    periodAssignmentMode: normalizeEnum(data.periodAssignmentMode, 'periodAssignmentMode', ['automatic', 'custom'] as const, existing?.periodAssignmentMode ?? 'custom'),
+    closingDeferredUntil:
+      status === 'open'
+        ? normalizeOptionalIsoDate(
+            data.closingDeferredUntil,
+            'closingDeferredUntil',
+            existing?.closingDeferredUntil
+          )
+        : undefined,
+    periodAssignmentMode: normalizeEnum(
+      data.periodAssignmentMode,
+      'periodAssignmentMode',
+      ['automatic', 'custom'] as const,
+      existing?.periodAssignmentMode ?? 'custom'
+    ),
     startDate: normalizeOptionalIsoDate(data.startDate, 'startDate', existing?.startDate),
     targetDate: normalizeOptionalIsoDate(data.targetDate, 'targetDate', existing?.targetDate),
-    successDefinition: normalizeOptionalText(data.successDefinition, 'successDefinition', existing?.successDefinition),
+    successDefinition: normalizeOptionalText(
+      data.successDefinition,
+      'successDefinition',
+      existing?.successDefinition
+    ),
     whyMatters: normalizeOptionalText(data.whyMatters, 'whyMatters', existing?.whyMatters),
-    confidenceRating: normalizeOptionalRating1To10(data.confidenceRating, 'confidenceRating', existing?.confidenceRating),
-    achievabilityRationale: normalizeOptionalText(data.achievabilityRationale, 'achievabilityRationale', existing?.achievabilityRationale),
+    confidenceRating: normalizeOptionalRating1To10(
+      data.confidenceRating,
+      'confidenceRating',
+      existing?.confidenceRating
+    ),
+    achievabilityRationale: normalizeOptionalText(
+      data.achievabilityRationale,
+      'achievabilityRationale',
+      existing?.achievabilityRationale
+    ),
     obstacles: normalizeOptionalText(data.obstacles, 'obstacles', existing?.obstacles),
     resources: normalizeOptionalText(data.resources, 'resources', existing?.resources),
   }
@@ -1111,7 +1273,7 @@ export function normalizeGoalPayload(
 
 export function normalizeKeyResultPayload(
   data: CreateKeyResultPayload | UpdateKeyResultPayload,
-  existing?: KeyResult,
+  existing?: KeyResult
 ): Omit<KeyResult, 'id' | 'createdAt' | 'updatedAt'> {
   assertForbiddenKeys(data as object, [
     'priorityIds',
@@ -1131,23 +1293,36 @@ export function normalizeKeyResultPayload(
     data.entryMode,
     'entryMode',
     ENTRY_MODES,
-    existing?.entryMode ?? 'completion',
+    existing?.entryMode ?? 'completion'
   )
 
   return {
     ...base,
-    periodAssignmentMode: normalizeEnum(data.periodAssignmentMode, 'periodAssignmentMode', ['automatic', 'custom'] as const, existing?.periodAssignmentMode ?? 'custom'),
+    periodAssignmentMode: normalizeEnum(
+      data.periodAssignmentMode,
+      'periodAssignmentMode',
+      ['automatic', 'custom'] as const,
+      existing?.periodAssignmentMode ?? 'custom'
+    ),
     goalId,
     entryMode,
     cadence: normalizeEnum(data.cadence, 'cadence', CADENCES, existing?.cadence ?? 'weekly'),
     target: normalizeMeasurementTarget(entryMode, data.target, existing?.target),
-    ratingScaleMin: normalizeOptionalPositiveInt(data.ratingScaleMin, 'ratingScaleMin', existing?.ratingScaleMin),
-    ratingScale: normalizeOptionalPositiveInt(data.ratingScale, 'ratingScale', existing?.ratingScale),
+    ratingScaleMin: normalizeOptionalPositiveInt(
+      data.ratingScaleMin,
+      'ratingScaleMin',
+      existing?.ratingScaleMin
+    ),
+    ratingScale: normalizeOptionalPositiveInt(
+      data.ratingScale,
+      'ratingScale',
+      existing?.ratingScale
+    ),
     multiItems: normalizeMultiCompletionItems(entryMode, data.multiItems, existing?.multiItems),
     multiDailyThreshold: normalizeMultiDailyThreshold(
       entryMode,
       data.multiDailyThreshold,
-      data.multiItems === undefined ? existing?.multiDailyThreshold : undefined,
+      data.multiItems === undefined ? existing?.multiDailyThreshold : undefined
     ),
     status: normalizeEnum(data.status, 'status', GOAL_STATUSES, existing?.status ?? 'open'),
   }
@@ -1155,22 +1330,16 @@ export function normalizeKeyResultPayload(
 
 export function normalizeHabitPayload(
   data: CreateHabitPayload | UpdateHabitPayload,
-  existing?: Habit,
+  existing?: Habit
 ): Omit<Habit, 'id' | 'createdAt' | 'updatedAt'> {
-  assertForbiddenKeys(data as object, [
-    'goalId',
-    'goalIds',
-    'analysisPeriod',
-    'kind',
-    'config',
-  ])
+  assertForbiddenKeys(data as object, ['goalId', 'goalIds', 'analysisPeriod', 'kind', 'config'])
 
   const base = normalizePlanningObjectBase(data, existing)
   const entryMode = normalizeEnum(
     data.entryMode,
     'entryMode',
     ENTRY_MODES,
-    existing?.entryMode ?? 'completion',
+    existing?.entryMode ?? 'completion'
   )
 
   return {
@@ -1182,13 +1351,21 @@ export function normalizeHabitPayload(
     entryMode,
     cadence: normalizeEnum(data.cadence, 'cadence', CADENCES, existing?.cadence ?? 'weekly'),
     target: normalizeMeasurementTarget(entryMode, data.target, existing?.target),
-    ratingScaleMin: normalizeOptionalPositiveInt(data.ratingScaleMin, 'ratingScaleMin', existing?.ratingScaleMin),
-    ratingScale: normalizeOptionalPositiveInt(data.ratingScale, 'ratingScale', existing?.ratingScale),
+    ratingScaleMin: normalizeOptionalPositiveInt(
+      data.ratingScaleMin,
+      'ratingScaleMin',
+      existing?.ratingScaleMin
+    ),
+    ratingScale: normalizeOptionalPositiveInt(
+      data.ratingScale,
+      'ratingScale',
+      existing?.ratingScale
+    ),
     multiItems: normalizeMultiCompletionItems(entryMode, data.multiItems, existing?.multiItems),
     multiDailyThreshold: normalizeMultiDailyThreshold(
       entryMode,
       data.multiDailyThreshold,
-      data.multiItems === undefined ? existing?.multiDailyThreshold : undefined,
+      data.multiItems === undefined ? existing?.multiDailyThreshold : undefined
     ),
     status: normalizeEnum(data.status, 'status', HABIT_STATUSES, existing?.status ?? 'open'),
   }
@@ -1196,7 +1373,7 @@ export function normalizeHabitPayload(
 
 function normalizeProgramLink(
   value: unknown,
-  fallback?: WeeklyIntentionProgramLink,
+  fallback?: WeeklyIntentionProgramLink
 ): WeeklyIntentionProgramLink | undefined {
   if (value === undefined) return fallback
   if (value === null) return undefined
@@ -1204,7 +1381,12 @@ function normalizeProgramLink(
     throw new Error('programLink must be an object')
   }
   const { enrollmentId, taskKey } = value as Record<string, unknown>
-  if (typeof enrollmentId !== 'string' || !enrollmentId.trim() || typeof taskKey !== 'string' || !taskKey.trim()) {
+  if (
+    typeof enrollmentId !== 'string' ||
+    !enrollmentId.trim() ||
+    typeof taskKey !== 'string' ||
+    !taskKey.trim()
+  ) {
     throw new Error('programLink requires enrollmentId and taskKey')
   }
   return { enrollmentId, taskKey }
@@ -1212,7 +1394,7 @@ function normalizeProgramLink(
 
 export function normalizeWeeklyIntentionPayload(
   data: CreateWeeklyIntentionPayload | UpdateWeeklyIntentionPayload,
-  existing?: WeeklyIntention,
+  existing?: WeeklyIntention
 ): Omit<WeeklyIntention, 'id' | 'createdAt' | 'updatedAt'> {
   assertForbiddenKeys(data as object, [
     'goalId',
@@ -1228,7 +1410,7 @@ export function normalizeWeeklyIntentionPayload(
     data.entryMode,
     'entryMode',
     ENTRY_MODES,
-    existing?.entryMode ?? 'completion',
+    existing?.entryMode ?? 'completion'
   )
 
   return {
@@ -1238,36 +1420,58 @@ export function normalizeWeeklyIntentionPayload(
     entryMode,
     cadence: 'weekly',
     target: normalizeMeasurementTarget(entryMode, data.target, existing?.target),
-    ratingScaleMin: normalizeOptionalPositiveInt(data.ratingScaleMin, 'ratingScaleMin', existing?.ratingScaleMin),
-    ratingScale: normalizeOptionalPositiveInt(data.ratingScale, 'ratingScale', existing?.ratingScale),
+    ratingScaleMin: normalizeOptionalPositiveInt(
+      data.ratingScaleMin,
+      'ratingScaleMin',
+      existing?.ratingScaleMin
+    ),
+    ratingScale: normalizeOptionalPositiveInt(
+      data.ratingScale,
+      'ratingScale',
+      existing?.ratingScale
+    ),
     multiItems: normalizeMultiCompletionItems(entryMode, data.multiItems, existing?.multiItems),
     multiDailyThreshold: normalizeMultiDailyThreshold(
       entryMode,
       data.multiDailyThreshold,
-      data.multiItems === undefined ? existing?.multiDailyThreshold : undefined,
+      data.multiItems === undefined ? existing?.multiDailyThreshold : undefined
     ),
-    status: normalizeEnum(data.status, 'status', WEEKLY_INTENTION_STATUSES, existing?.status ?? 'open'),
+    status: normalizeEnum(
+      data.status,
+      'status',
+      WEEKLY_INTENTION_STATUSES,
+      existing?.status ?? 'open'
+    ),
     priorityIds: normalizeIdArray(data.priorityIds, 'priorityIds', existing?.priorityIds),
     ...withProgramLink(normalizeProgramLink(data.programLink, existing?.programLink)),
   }
 }
 
-function withProgramLink(link: WeeklyIntentionProgramLink | undefined): { programLink?: WeeklyIntentionProgramLink } {
+function withProgramLink(link: WeeklyIntentionProgramLink | undefined): {
+  programLink?: WeeklyIntentionProgramLink
+} {
   return link ? { programLink: link } : {}
 }
 
 export function normalizeTrackerPayload(
   data: CreateTrackerPayload | UpdateTrackerPayload,
-  existing?: Tracker,
+  existing?: Tracker
 ): Omit<Tracker, 'id' | 'createdAt' | 'updatedAt'> {
-  assertForbiddenKeys(data as object, ['goalId', 'goalIds', 'analysisPeriod', 'kind', 'config', 'target'])
+  assertForbiddenKeys(data as object, [
+    'goalId',
+    'goalIds',
+    'analysisPeriod',
+    'kind',
+    'config',
+    'target',
+  ])
 
   const base = normalizePlanningObjectBase(data, existing)
   const entryMode = normalizeEnum(
     data.entryMode,
     'entryMode',
     ENTRY_MODES,
-    existing?.entryMode ?? 'completion',
+    existing?.entryMode ?? 'completion'
   )
 
   return {
@@ -1277,13 +1481,21 @@ export function normalizeTrackerPayload(
     lifeAreaIds: normalizeIdArray(data.lifeAreaIds, 'lifeAreaIds', existing?.lifeAreaIds),
     entryMode,
     cadence: normalizeEnum(data.cadence, 'cadence', CADENCES, existing?.cadence ?? 'weekly'),
-    ratingScaleMin: normalizeOptionalPositiveInt(data.ratingScaleMin, 'ratingScaleMin', existing?.ratingScaleMin),
-    ratingScale: normalizeOptionalPositiveInt(data.ratingScale, 'ratingScale', existing?.ratingScale),
+    ratingScaleMin: normalizeOptionalPositiveInt(
+      data.ratingScaleMin,
+      'ratingScaleMin',
+      existing?.ratingScaleMin
+    ),
+    ratingScale: normalizeOptionalPositiveInt(
+      data.ratingScale,
+      'ratingScale',
+      existing?.ratingScale
+    ),
     multiItems: normalizeMultiCompletionItems(entryMode, data.multiItems, existing?.multiItems),
     multiDailyThreshold: normalizeMultiDailyThreshold(
       entryMode,
       data.multiDailyThreshold,
-      data.multiItems === undefined ? existing?.multiDailyThreshold : undefined,
+      data.multiItems === undefined ? existing?.multiDailyThreshold : undefined
     ),
     status: normalizeEnum(data.status, 'status', TRACKER_STATUSES, existing?.status ?? 'open'),
   }
@@ -1291,7 +1503,7 @@ export function normalizeTrackerPayload(
 
 export function normalizeInitiativePayload(
   data: CreateInitiativePayload | UpdateInitiativePayload,
-  existing?: Initiative,
+  existing?: Initiative
 ): Omit<Initiative, 'id' | 'createdAt' | 'updatedAt'> {
   assertForbiddenKeys(data as object, ['goalIds', 'subtasks', 'checklist'])
 
@@ -1308,7 +1520,7 @@ export function normalizeInitiativePayload(
 
 function normalizePriorityLinkSubjectRef(
   value: unknown,
-  fallback?: PriorityLinkSubjectRef,
+  fallback?: PriorityLinkSubjectRef
 ): PriorityLinkSubjectRef | undefined {
   const source = value ?? fallback
   if (source === undefined) return undefined
@@ -1322,11 +1534,15 @@ function normalizePriorityLinkSubjectRef(
     !PRIORITY_LINK_SUBJECT_TYPES.includes(subjectType as PriorityLinkSubjectType)
   ) {
     throw new Error(
-      `PriorityLink.subjectRef.subjectType must be one of: ${PRIORITY_LINK_SUBJECT_TYPES.join(', ')}`,
+      `PriorityLink.subjectRef.subjectType must be one of: ${PRIORITY_LINK_SUBJECT_TYPES.join(', ')}`
     )
   }
 
-  const subjectId = normalizeRequiredText(source.subjectId, 'subjectRef.subjectId', fallback?.subjectId)
+  const subjectId = normalizeRequiredText(
+    source.subjectId,
+    'subjectRef.subjectId',
+    fallback?.subjectId
+  )
   if (!subjectId) {
     throw new Error('PriorityLink.subjectRef.subjectId must not be empty')
   }
@@ -1336,7 +1552,7 @@ function normalizePriorityLinkSubjectRef(
 
 function normalizePriorityLinkProposal(
   value: unknown,
-  fallback?: PriorityLinkProposal,
+  fallback?: PriorityLinkProposal
 ): PriorityLinkProposal | undefined {
   const source = value ?? fallback
   if (source === undefined) return undefined
@@ -1350,7 +1566,7 @@ function normalizePriorityLinkProposal(
     !PRIORITY_LINK_PROPOSAL_TYPES.includes(objectType as PriorityLinkProposalObjectType)
   ) {
     throw new Error(
-      `PriorityLink.proposal.objectType must be one of: ${PRIORITY_LINK_PROPOSAL_TYPES.join(', ')}`,
+      `PriorityLink.proposal.objectType must be one of: ${PRIORITY_LINK_PROPOSAL_TYPES.join(', ')}`
     )
   }
 
@@ -1370,9 +1586,14 @@ function normalizePriorityLinkProposal(
  */
 export function normalizePriorityLinkPayload(
   data: CreatePriorityLinkPayload | UpdatePriorityLinkPayload,
-  existing?: PriorityLink,
+  existing?: PriorityLink
 ): Omit<PriorityLink, 'id' | 'createdAt' | 'updatedAt'> {
-  const status = normalizeEnum(data.status, 'status', PRIORITY_LINK_STATUSES, existing?.status ?? 'proposed')
+  const status = normalizeEnum(
+    data.status,
+    'status',
+    PRIORITY_LINK_STATUSES,
+    existing?.status ?? 'proposed'
+  )
 
   const priorityId = normalizeRequiredText(data.priorityId, 'priorityId', existing?.priorityId)
   if (!priorityId) {
@@ -1391,8 +1612,10 @@ export function normalizePriorityLinkPayload(
 
   const shared = {
     priorityId,
-    contribution: normalizeOptionalText(data.contribution, 'contribution', existing?.contribution) ?? '',
-    expectedSignal: normalizeOptionalText(data.expectedSignal, 'expectedSignal', existing?.expectedSignal) ?? '',
+    contribution:
+      normalizeOptionalText(data.contribution, 'contribution', existing?.contribution) ?? '',
+    expectedSignal:
+      normalizeOptionalText(data.expectedSignal, 'expectedSignal', existing?.expectedSignal) ?? '',
     validFrom,
     needsEnrichment,
   }

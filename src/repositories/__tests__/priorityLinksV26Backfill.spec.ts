@@ -45,21 +45,88 @@ describe('priority links v26 backfill', () => {
 
     const stamp = { createdAt: '2026-01-05T08:00:00.000Z', updatedAt: '2026-01-05T08:00:00.000Z' }
     await v25.priorities.bulkAdd([
-      { id: 'prio-1', title: 'Równowaga', status: 'active', years: ['2026'], lifeAreaIds: [], progressSignals: [], riskSignals: [], ...stamp },
-      { id: 'prio-2', title: 'Rozwój', status: 'paused', years: ['2026'], lifeAreaIds: [], progressSignals: [], riskSignals: [], ...stamp },
+      {
+        id: 'prio-1',
+        title: 'Równowaga',
+        status: 'active',
+        years: ['2026'],
+        lifeAreaIds: [],
+        progressSignals: [],
+        riskSignals: [],
+        ...stamp,
+      },
+      {
+        id: 'prio-2',
+        title: 'Rozwój',
+        status: 'paused',
+        years: ['2026'],
+        lifeAreaIds: [],
+        progressSignals: [],
+        riskSignals: [],
+        ...stamp,
+      },
     ])
-    await v25.goals.add({ id: 'goal-1', title: 'Cel', priorityIds: ['prio-1', 'prio-2'], lifeAreaIds: [], status: 'open', isActive: true, ...stamp })
+    await v25.goals.add({
+      id: 'goal-1',
+      title: 'Cel',
+      priorityIds: ['prio-1', 'prio-2'],
+      lifeAreaIds: [],
+      status: 'open',
+      isActive: true,
+      ...stamp,
+    })
     await v25.habits.bulkAdd([
-      { id: 'habit-1', title: 'Nawyk', priorityIds: ['prio-1'], lifeAreaIds: [], status: 'open', isActive: true, ...stamp },
+      {
+        id: 'habit-1',
+        title: 'Nawyk',
+        priorityIds: ['prio-1'],
+        lifeAreaIds: [],
+        status: 'open',
+        isActive: true,
+        ...stamp,
+      },
       // Duplicated ids inside one array must yield one link.
-      { id: 'habit-2', title: 'Nawyk 2', priorityIds: ['prio-1', 'prio-1'], lifeAreaIds: [], status: 'open', isActive: true, ...stamp },
+      {
+        id: 'habit-2',
+        title: 'Nawyk 2',
+        priorityIds: ['prio-1', 'prio-1'],
+        lifeAreaIds: [],
+        status: 'open',
+        isActive: true,
+        ...stamp,
+      },
       // No links at all.
-      { id: 'habit-3', title: 'Nawyk 3', priorityIds: [], lifeAreaIds: [], status: 'open', isActive: true, ...stamp },
+      {
+        id: 'habit-3',
+        title: 'Nawyk 3',
+        priorityIds: [],
+        lifeAreaIds: [],
+        status: 'open',
+        isActive: true,
+        ...stamp,
+      },
     ])
     // Stale id (priority deleted long ago, weekly intentions were never unlinked).
-    await v25.weeklyIntentions.add({ id: 'wi-1', title: 'Intencja', weekRef: '2026-W03', priorityIds: ['prio-deleted', 'prio-2'], lifeAreaIds: [], status: 'open', isActive: true, entryMode: 'completion', ...stamp })
+    await v25.weeklyIntentions.add({
+      id: 'wi-1',
+      title: 'Intencja',
+      weekRef: '2026-W03',
+      priorityIds: ['prio-deleted', 'prio-2'],
+      lifeAreaIds: [],
+      status: 'open',
+      isActive: true,
+      entryMode: 'completion',
+      ...stamp,
+    })
     // Malformed record: must be skipped, not crash the upgrade.
-    await v25.trackers.add({ id: 'tr-broken', title: 'Bez tablicy', priorityIds: 'not-an-array', status: 'open', isActive: true, ...stamp })
+    await v25.trackers.add({
+      id: 'tr-broken',
+      title: 'Bez tablicy',
+      priorityIds: 'not-an-array',
+      status: 'open',
+      isActive: true,
+      ...stamp,
+    })
     v25.close()
 
     const upgraded = new UserDatabase(dbName)

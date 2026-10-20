@@ -161,7 +161,9 @@
                     v-for="item in field.items.value"
                     :key="item"
                     class="priority-boundary-row"
-                    :class="{ 'priority-boundary-row--editing': isEditingBoundary(field.kind, item) }"
+                    :class="{
+                      'priority-boundary-row--editing': isEditingBoundary(field.kind, item),
+                    }"
                   >
                     <span aria-hidden="true" class="priority-boundary-row__dot" />
                     <input
@@ -528,10 +530,15 @@
             <div class="grid gap-4 md:grid-cols-2">
               <!-- Identity: life areas -->
               <section class="mg-v2-surface mg-v2-surface--flat space-y-3 p-4">
-                <p class="text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
+                <p
+                  class="text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-variant"
+                >
                   {{ t('planning.priorityRitual.review.lifeAreasLabel') }}
                 </p>
-                <p v-if="ritual.lifeAreas.value.length === 0" class="text-sm text-on-surface-variant">
+                <p
+                  v-if="ritual.lifeAreas.value.length === 0"
+                  class="text-sm text-on-surface-variant"
+                >
                   {{ t('planning.priorityRitual.review.lifeAreasEmpty') }}
                 </p>
                 <div v-else class="flex flex-wrap gap-2">
@@ -541,7 +548,9 @@
                     type="button"
                     class="mg-v2-pill"
                     :class="{
-                      'mg-v2-pill--primary mg-v2-pill--selected': ritual.form.lifeAreaIds.includes(area.id),
+                      'mg-v2-pill--primary mg-v2-pill--selected': ritual.form.lifeAreaIds.includes(
+                        area.id
+                      ),
                     }"
                     :aria-pressed="ritual.form.lifeAreaIds.includes(area.id)"
                     @click="ritual.toggleLifeArea(area.id)"
@@ -554,7 +563,9 @@
 
               <!-- Rhythm: month focus + what comes back when -->
               <section class="mg-v2-surface mg-v2-surface--flat space-y-3 p-4">
-                <p class="text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
+                <p
+                  class="text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-variant"
+                >
                   {{ t('planning.priorityRitual.review.rhythmTitle') }}
                 </p>
                 <label
@@ -567,11 +578,15 @@
                     class="mg-v2-checkbox mt-0.5"
                     :checked="ritual.form.addToMonthFocus && ritual.monthFocusAvailable.value"
                     :disabled="!ritual.monthFocusAvailable.value"
-                    @change="ritual.form.addToMonthFocus = ($event.target as HTMLInputElement).checked"
+                    @change="
+                      ritual.form.addToMonthFocus = ($event.target as HTMLInputElement).checked
+                    "
                   />
                   <span>
                     <span class="block font-semibold">
-                      {{ t('planning.priorityRitual.review.monthFocusLabel', { month: monthLabel }) }}
+                      {{
+                        t('planning.priorityRitual.review.monthFocusLabel', { month: monthLabel })
+                      }}
                     </span>
                     <span class="block text-xs text-on-surface-variant">
                       {{
@@ -1053,12 +1068,4 @@ onMounted(() => {
   background: var(--mg-color-surface);
   box-shadow: var(--mg-shadow-raised-sm);
 }
-
-
-
-
-
-
-
-
 </style>

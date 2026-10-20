@@ -8,34 +8,38 @@
 
     <!-- Past Check-Ins -->
     <div class="mt-10 space-y-4">
-      <div class="mg-v2-section-head"><h2>{{ t('exercises.views.pastCheckIns') }}</h2></div>
+      <div class="mg-v2-section-head">
+        <h2>{{ t('exercises.views.pastCheckIns') }}</h2>
+      </div>
 
       <!-- Summary stats -->
       <template v-if="sortedCheckIns.length">
         <AppCard variant="raised" padding="md" class="space-y-4">
           <div class="flex items-center justify-between">
-            <span class="text-sm text-on-surface-variant">{{ t('exercises.views.totalCheckIns') }}</span>
+            <span class="text-sm text-on-surface-variant">{{
+              t('exercises.views.totalCheckIns')
+            }}</span>
             <span class="text-sm font-semibold text-primary">{{ sortedCheckIns.length }}</span>
           </div>
 
           <!-- Average wheel -->
           <div v-if="averageRatings" class="flex justify-center">
-            <SelfEnergyWheel
-              :ratings="averageRatings"
-              :interactive="false"
-              size="sm"
-            />
+            <SelfEnergyWheel :ratings="averageRatings" :interactive="false" size="sm" />
           </div>
 
           <!-- Strongest / Weakest -->
           <div v-if="averageRatings" class="flex gap-4 text-xs">
             <div>
               <span class="text-on-surface-variant">{{ t('exercises.views.strongest') }}</span>
-              <span class="ml-1 font-medium text-status-good-on">{{ strongestC ? formatQuality(strongestC) : '—' }}</span>
+              <span class="ml-1 font-medium text-status-good-on">{{
+                strongestC ? formatQuality(strongestC) : '—'
+              }}</span>
             </div>
             <div>
               <span class="text-on-surface-variant">{{ t('exercises.views.weakest') }}</span>
-              <span class="ml-1 font-medium text-status-warn-on">{{ weakestC ? formatQuality(weakestC) : '—' }}</span>
+              <span class="ml-1 font-medium text-status-warn-on">{{
+                weakestC ? formatQuality(weakestC) : '—'
+              }}</span>
             </div>
           </div>
         </AppCard>
@@ -50,18 +54,24 @@
             class="flex items-center justify-between"
           >
             <div class="space-y-0.5 min-w-0">
-              <span class="text-sm font-medium text-on-surface">{{ formatDate(checkIn.createdAt) }}</span>
+              <span class="text-sm font-medium text-on-surface">{{
+                formatDate(checkIn.createdAt)
+              }}</span>
               <div class="flex items-center gap-2">
                 <span class="text-xs text-on-surface-variant">
                   {{ t('exercises.views.lowest') }} {{ formatQuality(checkIn.lowestQuality) }}
                 </span>
-                <span class="exercise-pill text-xs px-1.5 py-0.5 bg-status-warn-soft text-status-warn-on">
+                <span
+                  class="exercise-pill text-xs px-1.5 py-0.5 bg-status-warn-soft text-status-warn-on"
+                >
                   {{ checkIn.ratings[checkIn.lowestQuality] }}/5
                 </span>
               </div>
               <div v-if="checkIn.identifiedPartId" class="flex items-center gap-1">
                 <span class="text-xs text-on-surface-variant">{{ t('exercises.views.part') }}</span>
-                <span class="text-xs font-medium text-on-surface">{{ getPartName(checkIn.identifiedPartId) }}</span>
+                <span class="text-xs font-medium text-on-surface">{{
+                  getPartName(checkIn.identifiedPartId)
+                }}</span>
               </div>
             </div>
           </AppCard>
@@ -108,8 +118,14 @@ const sortedCheckIns = computed(() => selfEnergyStore.sortedCheckIns)
 const averageRatings = computed(() => selfEnergyStore.averageRatings)
 
 const allQualities: SelfEnergyQuality[] = [
-  'calm', 'curiosity', 'compassion', 'clarity',
-  'courage', 'creativity', 'confidence', 'connection',
+  'calm',
+  'curiosity',
+  'compassion',
+  'clarity',
+  'courage',
+  'creativity',
+  'confidence',
+  'connection',
 ]
 
 const strongestC = computed<SelfEnergyQuality | null>(() => {

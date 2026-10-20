@@ -40,12 +40,20 @@ export default defineConfig({
     {
       name: 'chromium',
       testIgnore: [/verification-.*\.spec\.ts/, /ai-demo\.spec\.ts/],
-      use: { ...devices['Desktop Chrome'], ...CANONICAL_VIEWPORT, baseURL: 'http://127.0.0.1:5183' },
+      use: {
+        ...devices['Desktop Chrome'],
+        ...CANONICAL_VIEWPORT,
+        baseURL: 'http://127.0.0.1:5183',
+      },
     },
     {
       name: 'verification',
       testMatch: /verification-.*\.spec\.ts/,
-      use: { ...devices['Desktop Chrome'], ...CANONICAL_VIEWPORT, baseURL: 'http://127.0.0.1:5199' },
+      use: {
+        ...devices['Desktop Chrome'],
+        ...CANONICAL_VIEWPORT,
+        baseURL: 'http://127.0.0.1:5199',
+      },
     },
   ],
 

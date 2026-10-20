@@ -8,7 +8,9 @@
 
     <!-- Past explorations -->
     <div v-if="threePathwaysStore.sortedExplorations.length > 0" class="mt-8">
-      <div class="mg-v2-section-head"><h2>{{ t('exercises.views.pastExplorations') }}</h2></div>
+      <div class="mg-v2-section-head">
+        <h2>{{ t('exercises.views.pastExplorations') }}</h2>
+      </div>
       <div class="space-y-3">
         <AppCard
           v-for="exploration in threePathwaysStore.sortedExplorations"

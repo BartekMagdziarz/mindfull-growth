@@ -1,9 +1,5 @@
 <template>
-  <div
-    role="img"
-    :aria-label="ariaLabel"
-    class="flex flex-col gap-3"
-  >
+  <div role="img" :aria-label="ariaLabel" class="flex flex-col gap-3">
     <!-- Keystone: dim while locked, lit once every pillar clears its line. -->
     <div
       class="flex items-center justify-center gap-2 rounded-xl px-3 py-1.5 text-xs font-medium transition-all duration-500"
@@ -33,9 +29,7 @@
           <div
             class="absolute inset-x-0 bottom-0 rounded-b-xl bg-gradient-to-t transition-[height] duration-500 ease-out"
             :class="
-              pillar.satisfied
-                ? 'from-primary to-primary/70'
-                : 'from-primary/45 to-primary/25'
+              pillar.satisfied ? 'from-primary to-primary/70' : 'from-primary/45 to-primary/25'
             "
             :style="{ height: pillar.fillPct + '%' }"
           />
@@ -56,7 +50,9 @@
           </Transition>
         </div>
 
-        <p class="w-full truncate text-center text-[11px] font-medium leading-tight text-on-surface">
+        <p
+          class="w-full truncate text-center text-[11px] font-medium leading-tight text-on-surface"
+        >
           {{ groupLabel(pillar.group) }}
         </p>
         <p class="text-[11px] tabular-nums text-on-surface-variant">
@@ -71,10 +67,7 @@
 import { computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
-import type {
-  FoundationGroup,
-  FoundationGroupProgress,
-} from '@/services/foundationCompleteness'
+import type { FoundationGroup, FoundationGroupProgress } from '@/services/foundationCompleteness'
 
 const props = defineProps<{
   groups: FoundationGroupProgress[]
@@ -89,18 +82,18 @@ function clampPct(value: number): number {
 }
 
 const pillars = computed(() =>
-  props.groups.map((g) => ({
+  props.groups.map(g => ({
     ...g,
     fillPct: g.total > 0 ? clampPct((g.completed / g.total) * 100) : 0,
     linePct: g.total > 0 ? clampPct((g.minRequired / g.total) * 100) : 0,
-  })),
+  }))
 )
 
 function groupLabel(group: FoundationGroup): string {
   return t(`profile.psychologicalProfile.foundation.groups.${group}`)
 }
 
-const satisfiedCount = computed(() => props.groups.filter((g) => g.satisfied).length)
+const satisfiedCount = computed(() => props.groups.filter(g => g.satisfied).length)
 
 const keystoneLabel = computed(() =>
   props.unlocked
@@ -108,14 +101,14 @@ const keystoneLabel = computed(() =>
     : t('profile.psychologicalProfile.foundation.gauge.locked', {
         done: satisfiedCount.value,
         total: props.groups.length,
-      }),
+      })
 )
 
 const ariaLabel = computed(() =>
   t('profile.psychologicalProfile.foundation.gauge.aria', {
     done: satisfiedCount.value,
     total: props.groups.length,
-  }),
+  })
 )
 </script>
 

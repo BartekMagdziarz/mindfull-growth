@@ -1,11 +1,6 @@
 <template>
   <div class="flex w-full flex-col gap-1">
-    <svg
-      :viewBox="`0 0 ${VW} ${VH}`"
-      width="100%"
-      preserveAspectRatio="none"
-      aria-hidden="true"
-    >
+    <svg :viewBox="`0 0 ${VW} ${VH}`" width="100%" preserveAspectRatio="none" aria-hidden="true">
       <defs>
         <linearGradient :id="gradientIds.met" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stop-color="rgb(var(--neo-chart-primary-start))" />
@@ -45,9 +40,11 @@
           :height="barHeight(slot) + 2"
           rx="4"
           fill="none"
-          :stroke="slot.state === 'missed'
-            ? 'rgb(var(--color-error))'
-            : 'rgb(var(--neo-chart-primary-end))'"
+          :stroke="
+            slot.state === 'missed'
+              ? 'rgb(var(--color-error))'
+              : 'rgb(var(--neo-chart-primary-end))'
+          "
           stroke-width="1"
           stroke-opacity="0.4"
           vector-effect="non-scaling-stroke"
@@ -55,11 +52,7 @@
       </g>
     </svg>
     <div class="day-labels">
-      <span
-        v-for="(slot, i) in slots"
-        :key="slot.dayRef || i"
-        class="day-label"
-      >
+      <span v-for="(slot, i) in slots" :key="slot.dayRef || i" class="day-label">
         {{ slot.label }}
       </span>
     </div>
@@ -86,7 +79,7 @@ const CH = VH - PT - PB
 const GAP = 4
 
 const max = computed(() => {
-  const values = props.slots.map((s) => s.value ?? 0)
+  const values = props.slots.map(s => s.value ?? 0)
   return Math.max(...values, 1)
 })
 

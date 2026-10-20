@@ -14,8 +14,20 @@ function hierarchy(): GradedExposureHierarchy {
     ultimateGoal: 'Call without delay',
     safetyBehaviors: ['Script on paper'],
     items: [
-      { id: 'r-high', situation: 'Call the office', sudsRating: 75, completed: false, attempts: [] },
-      { id: 'r-low', situation: 'Call the pharmacy', sudsRating: 30, completed: false, attempts: [] },
+      {
+        id: 'r-high',
+        situation: 'Call the office',
+        sudsRating: 75,
+        completed: false,
+        attempts: [],
+      },
+      {
+        id: 'r-low',
+        situation: 'Call the pharmacy',
+        sudsRating: 30,
+        completed: false,
+        attempts: [],
+      },
     ],
   }
 }
@@ -23,7 +35,7 @@ function hierarchy(): GradedExposureHierarchy {
 describe('ExposureLadderLog', () => {
   it('lists rungs from the lowest SUDS up', () => {
     render(ExposureLadderLog, { props: { hierarchy: hierarchy() } })
-    const rungs = screen.getAllByText(/^Call the/).map((node) => node.textContent)
+    const rungs = screen.getAllByText(/^Call the/).map(node => node.textContent)
     expect(rungs).toEqual(['Call the pharmacy', 'Call the office'])
   })
 
@@ -41,11 +53,16 @@ describe('ExposureLadderLog', () => {
     expect(update).toHaveBeenCalledTimes(1)
     const [id, patch] = update.mock.calls[0]!
     expect(id).toBe('h1')
-    const low = patch.items!.find((item) => item.id === 'r-low')!
+    const low = patch.items!.find(item => item.id === 'r-low')!
     expect(low.completed).toBe(true)
     expect(low.attempts).toHaveLength(1)
-    expect(low.attempts[0]).toMatchObject({ anxietyBefore: 30, anxietyPeak: 30, anxietyAfter: 10, safetyBehaviorsUsed: ['Script on paper'] })
-    expect(patch.items!.find((item) => item.id === 'r-high')!.attempts).toHaveLength(0)
+    expect(low.attempts[0]).toMatchObject({
+      anxietyBefore: 30,
+      anxietyPeak: 30,
+      anxietyAfter: 10,
+      safetyBehaviorsUsed: ['Script on paper'],
+    })
+    expect(patch.items!.find(item => item.id === 'r-high')!.attempts).toHaveLength(0)
     expect(record).toHaveBeenCalledWith('graded-exposure', 'h1')
   })
 })

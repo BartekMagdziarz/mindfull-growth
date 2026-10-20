@@ -9,7 +9,9 @@
     class="ndt-card next-day-upcoming"
     :aria-label="t('planning.today.upcoming.title')"
   >
-    <header><span>{{ t('planning.today.upcoming.title') }}</span></header>
+    <header>
+      <span>{{ t('planning.today.upcoming.title') }}</span>
+    </header>
     <p v-if="!front.length" class="ndt-empty">{{ t('planning.today.upcoming.empty') }}</p>
     <div v-if="front.length || pastDone.length" class="next-day-upcoming__list">
       <article
@@ -24,10 +26,17 @@
         <button type="button" class="ndt__open" :aria-label="tileLabel(entry)" @click="open(entry)">
           <span
             class="next-day-upcoming__glyph"
-            :title="entry.state === 'done' ? markerDateLabel(entry, todayRef, t, locale) : undefined"
-          ><AppIcon :name="kindIcon(entry)" /></span>
+            :title="
+              entry.state === 'done' ? markerDateLabel(entry, todayRef, t, locale) : undefined
+            "
+            ><AppIcon :name="kindIcon(entry)"
+          /></span>
           <strong class="ndt__title">{{ markerTitle(entry, t, locale, todayRef) }}</strong>
-          <span v-if="entry.state !== 'done'" class="ndt__mark next-day-upcoming__mark" :class="{ 'is-rose': isOverdue(entry) }">
+          <span
+            v-if="entry.state !== 'done'"
+            class="ndt__mark next-day-upcoming__mark"
+            :class="{ 'is-rose': isOverdue(entry) }"
+          >
             {{ markerShortDate(entry, todayRef, t, locale) }}
           </span>
         </button>
@@ -35,15 +44,37 @@
       <!-- The rest of the list and the past: quiet tiles in the last slots, so the
            card never shows more than `limit` tiles (3 × 3). -->
       <article v-if="overflow" class="ndt next-day-upcoming__link-tile">
-        <button type="button" class="ndt__open next-day-upcoming__more" :aria-expanded="expanded" @click="expanded = !expanded">
-          <span class="next-day-upcoming__glyph"><AppIcon :name="expanded ? 'expand_less' : 'more_horiz'" /></span>
-          <strong class="ndt__title">{{ expanded ? t('planning.today.upcoming.less') : t('planning.today.upcoming.more', { n: hiddenCount }) }}</strong>
+        <button
+          type="button"
+          class="ndt__open next-day-upcoming__more"
+          :aria-expanded="expanded"
+          @click="expanded = !expanded"
+        >
+          <span class="next-day-upcoming__glyph"
+            ><AppIcon :name="expanded ? 'expand_less' : 'more_horiz'"
+          /></span>
+          <strong class="ndt__title">{{
+            expanded
+              ? t('planning.today.upcoming.less')
+              : t('planning.today.upcoming.more', { n: hiddenCount })
+          }}</strong>
         </button>
       </article>
-      <article v-if="pastDone.length" class="ndt next-day-upcoming__link-tile" :class="{ 'is-active': pastOpen }">
-        <button type="button" class="ndt__open next-day-upcoming__past-toggle" :aria-expanded="pastOpen" @click="pastOpen = !pastOpen">
+      <article
+        v-if="pastDone.length"
+        class="ndt next-day-upcoming__link-tile"
+        :class="{ 'is-active': pastOpen }"
+      >
+        <button
+          type="button"
+          class="ndt__open next-day-upcoming__past-toggle"
+          :aria-expanded="pastOpen"
+          @click="pastOpen = !pastOpen"
+        >
           <span class="next-day-upcoming__glyph"><AppIcon name="history" /></span>
-          <strong class="ndt__title">{{ t('planning.today.upcoming.past', { n: pastDone.length }) }}</strong>
+          <strong class="ndt__title">{{
+            t('planning.today.upcoming.past', { n: pastDone.length })
+          }}</strong>
         </button>
       </article>
     </div>
@@ -56,7 +87,11 @@
         :title="markerContextLabel(entry, todayRef, t, locale)"
       >
         <button type="button" class="ndt__open" :aria-label="tileLabel(entry)" @click="open(entry)">
-          <span class="next-day-upcoming__glyph" :title="markerDateLabel(entry, todayRef, t, locale)"><AppIcon :name="kindIcon(entry)" /></span>
+          <span
+            class="next-day-upcoming__glyph"
+            :title="markerDateLabel(entry, todayRef, t, locale)"
+            ><AppIcon :name="kindIcon(entry)"
+          /></span>
           <strong class="ndt__title">{{ markerTitle(entry, t, locale, todayRef) }}</strong>
         </button>
       </article>
@@ -94,7 +129,10 @@ watch(
 /** Overdue + upcoming: done ones lead, the open ones follow in service order (overdue days are earlier). */
 const front = computed(() => {
   const list = props.entries.filter(entry => bucketMarker(entry, props.todayRef) !== 'pastDone')
-  return [...list.filter(entry => entry.state === 'done'), ...list.filter(entry => entry.state !== 'done')]
+  return [
+    ...list.filter(entry => entry.state === 'done'),
+    ...list.filter(entry => entry.state !== 'done'),
+  ]
 })
 /** Done and behind today, newest first. */
 const pastDone = computed(() =>
@@ -109,7 +147,9 @@ const overflow = computed(() => front.value.length + reserved.value > props.limi
 const collapsedCount = computed(() =>
   overflow.value ? Math.max(0, props.limit - reserved.value - 1) : front.value.length
 )
-const visible = computed(() => (expanded.value ? front.value : front.value.slice(0, collapsedCount.value)))
+const visible = computed(() =>
+  expanded.value ? front.value : front.value.slice(0, collapsedCount.value)
+)
 const hiddenCount = computed(() => front.value.length - collapsedCount.value)
 
 /** Overdue in the rose sense: a letter behind its day is waiting, never late. */
@@ -172,7 +212,9 @@ function open(entry: DayMarker) {
     void router.push({
       name: 'program-detail',
       params: { slug: entry.programSlug },
-      ...(entry.kind === 'letter' ? { query: { letter: '1', enrollment: entry.enrollmentId } } : {}),
+      ...(entry.kind === 'letter'
+        ? { query: { letter: '1', enrollment: entry.enrollmentId } }
+        : {}),
     })
     return
   }

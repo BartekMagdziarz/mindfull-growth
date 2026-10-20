@@ -19,9 +19,7 @@ function role(name) {
 /** Same idea but for the 9-stop `sky` / `rose` Tailwind families. */
 function scale(name) {
   const stops = [50, 100, 200, 300, 400, 500, 600, 700, 800]
-  return Object.fromEntries(
-    stops.map((s) => [s, `rgb(var(--${name}-${s}) / <alpha-value>)`]),
-  )
+  return Object.fromEntries(stops.map(s => [s, `rgb(var(--${name}-${s}) / <alpha-value>)`]))
 }
 
 export default {
@@ -115,17 +113,24 @@ export default {
         'overlay-scrim': 'rgb(var(--overlay-scrim) / <alpha-value>)',
       },
       borderRadius: {
-        'md': '0.5rem',
-        'lg': '1rem',
+        md: '0.5rem',
+        lg: '1rem',
       },
       boxShadow: {
-        'neu-raised-sm': '-4px -4px 8px rgb(var(--neo-shadow-light) / 0.8), 4px 4px 8px rgb(var(--neo-shadow-dark) / 0.33)',
-        'neu-raised': '-7px -7px 14px rgb(var(--neo-shadow-light) / 0.8), 7px 7px 14px rgb(var(--neo-shadow-dark) / 0.33)',
-        'neu-raised-lg': '-9px -9px 18px rgb(var(--neo-shadow-light) / 0.8), 9px 9px 18px rgb(var(--neo-shadow-dark) / 0.33)',
-        'neu-pressed-sm': 'inset -2px -2px 5px rgb(var(--neo-shadow-light) / 0.8), inset 2px 2px 5px rgb(var(--neo-shadow-dark) / 0.33)',
-        'neu-pressed': 'inset -3px -3px 6px rgb(var(--neo-shadow-light) / 0.8), inset 3px 3px 6px rgb(var(--neo-shadow-dark) / 0.33)',
-        'neu-hover': '-3px -3px 6px rgb(var(--neo-shadow-light) / 0.8), 3px 3px 6px rgb(var(--neo-shadow-dark) / 0.33)',
-        'neu-flat': '-2px -2px 4px rgb(var(--neo-shadow-light) / 0.8), 2px 2px 4px rgb(var(--neo-shadow-dark) / 0.33)',
+        'neu-raised-sm':
+          '-4px -4px 8px rgb(var(--neo-shadow-light) / 0.8), 4px 4px 8px rgb(var(--neo-shadow-dark) / 0.33)',
+        'neu-raised':
+          '-7px -7px 14px rgb(var(--neo-shadow-light) / 0.8), 7px 7px 14px rgb(var(--neo-shadow-dark) / 0.33)',
+        'neu-raised-lg':
+          '-9px -9px 18px rgb(var(--neo-shadow-light) / 0.8), 9px 9px 18px rgb(var(--neo-shadow-dark) / 0.33)',
+        'neu-pressed-sm':
+          'inset -2px -2px 5px rgb(var(--neo-shadow-light) / 0.8), inset 2px 2px 5px rgb(var(--neo-shadow-dark) / 0.33)',
+        'neu-pressed':
+          'inset -3px -3px 6px rgb(var(--neo-shadow-light) / 0.8), inset 3px 3px 6px rgb(var(--neo-shadow-dark) / 0.33)',
+        'neu-hover':
+          '-3px -3px 6px rgb(var(--neo-shadow-light) / 0.8), 3px 3px 6px rgb(var(--neo-shadow-dark) / 0.33)',
+        'neu-flat':
+          '-2px -2px 4px rgb(var(--neo-shadow-light) / 0.8), 2px 2px 4px rgb(var(--neo-shadow-dark) / 0.33)',
       },
     },
   },

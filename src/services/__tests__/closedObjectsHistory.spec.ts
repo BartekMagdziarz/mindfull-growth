@@ -63,8 +63,8 @@ describe('closed objects stay in historical views, out of forward-looking ones',
 
       const bundle = await getMonthPlanningBundle(monthRef)
 
-      expect(bundle.goalItems.map((item) => item.goal.id)).toContain(goal.id)
-      expect(bundle.measurementItems.map((item) => item.subject.id)).toContain(keyResult.id)
+      expect(bundle.goalItems.map(item => item.goal.id)).toContain(goal.id)
+      expect(bundle.measurementItems.map(item => item.subject.id)).toContain(keyResult.id)
     })
 
     it('hides an archived goal even from a month it was active', async () => {
@@ -86,7 +86,7 @@ describe('closed objects stay in historical views, out of forward-looking ones',
 
       const bundle = await getMonthPlanningBundle(monthRef)
 
-      expect(bundle.goalItems.map((item) => item.goal.id)).not.toContain(goal.id)
+      expect(bundle.goalItems.map(item => item.goal.id)).not.toContain(goal.id)
     })
   })
 
@@ -134,10 +134,10 @@ describe('closed objects stay in historical views, out of forward-looking ones',
 
       const relevant = await getWeekRelevantObjects(weekRef)
 
-      expect(relevant.planning.measurementItems.map((item) => item.subject.id)).toContain(
-        keyResult.id,
+      expect(relevant.planning.measurementItems.map(item => item.subject.id)).toContain(
+        keyResult.id
       )
-      expect(relevant.reflection.goalItems.map((item) => item.goal.id)).toContain(goal.id)
+      expect(relevant.reflection.goalItems.map(item => item.goal.id)).toContain(goal.id)
     })
   })
 
@@ -150,10 +150,10 @@ describe('closed objects stay in historical views, out of forward-looking ones',
       await goalDexieRepository.update(goal.id, { status: 'completed' })
 
       const summary = await getCalendarYearSummary(yearRef)
-      const march = summary.months.find((item) => item.monthRef === monthRef)
+      const march = summary.months.find(item => item.monthRef === monthRef)
 
       expect(march?.activeGoalCount).toBe(1)
-      expect(march?.goalGroups.map((group) => group.goalId)).toContain(goal.id)
+      expect(march?.goalGroups.map(group => group.goalId)).toContain(goal.id)
     })
 
     it('excludes an archived goal from the year summary', async () => {
@@ -175,10 +175,10 @@ describe('closed objects stay in historical views, out of forward-looking ones',
       await goalDexieRepository.update(goal.id, { isActive: false })
 
       const summary = await getCalendarYearSummary(yearRef)
-      const march = summary.months.find((item) => item.monthRef === monthRef)
+      const march = summary.months.find(item => item.monthRef === monthRef)
 
       expect(march?.activeGoalCount).toBe(0)
-      expect(march?.goalGroups.map((group) => group.goalId)).not.toContain(goal.id)
+      expect(march?.goalGroups.map(group => group.goalId)).not.toContain(goal.id)
     })
   })
 
@@ -209,7 +209,7 @@ describe('closed objects stay in historical views, out of forward-looking ones',
         ...before.sections.scheduled,
         ...before.sections.week,
         ...before.sections.month,
-      ].some((item) => item.kind !== 'initiative' && item.subject.id === habit.id)
+      ].some(item => item.kind !== 'initiative' && item.subject.id === habit.id)
       expect(presentBefore).toBe(true)
 
       await habitDexieRepository.update(habit.id, { status: 'retired' })
@@ -220,7 +220,7 @@ describe('closed objects stay in historical views, out of forward-looking ones',
         ...after.sections.week,
         ...after.sections.month,
         ...after.hiddenItems,
-      ].some((item) => item.kind !== 'initiative' && item.subject.id === habit.id)
+      ].some(item => item.kind !== 'initiative' && item.subject.id === habit.id)
       expect(presentAfter).toBe(false)
     })
   })

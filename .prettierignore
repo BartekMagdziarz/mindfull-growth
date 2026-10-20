@@ -1,0 +1,14 @@
+# Prose stays as written; prettier formats code only.
+*.md
+# Separate projects and local scratch (ux-lab has its own gates).
+ux-lab/
+ideas/
+work/
+docs/
+# Build output and reports.
+dist/
+coverage/
+playwright-report/
+test-results/
+# Lockfile is generated.
+package-lock.json

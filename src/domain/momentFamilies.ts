@@ -79,7 +79,9 @@ export const MOMENT_FAMILIES: Readonly<Record<MomentFamilyKind, MomentFamilyConf
 
 /** Keys in summary order: the family's own order, else the stacking order with the self key last. */
 export function summaryKeys(config: MomentFamilyConfig): readonly string[] {
-  return config.summaryKeys ?? [...config.keys.filter((key) => key !== config.selfKey), config.selfKey]
+  return (
+    config.summaryKeys ?? [...config.keys.filter(key => key !== config.selfKey), config.selfKey]
+  )
 }
 
 export function isMomentFamilyKind(value: unknown): value is MomentFamilyKind {
@@ -92,28 +94,40 @@ export function momentFamily(kind: unknown): MomentFamilyConfig {
 }
 
 /** The reaction a Moment names, when it is one of the family's keys. */
-export function reactionOf(responses: Readonly<Record<string, unknown>>, config: MomentFamilyConfig): string | undefined {
+export function reactionOf(
+  responses: Readonly<Record<string, unknown>>,
+  config: MomentFamilyConfig
+): string | undefined {
   const value = responses[config.reactionStep]
   const picked = typeof value === 'string' ? value : Array.isArray(value) ? value[0] : undefined
   return typeof picked === 'string' && config.keys.includes(picked) ? picked : undefined
 }
 
 /** The "what I did instead" answers of a Moment (strings only). */
-export function responsesOf(responses: Readonly<Record<string, unknown>>, config: MomentFamilyConfig): string[] {
+export function responsesOf(
+  responses: Readonly<Record<string, unknown>>,
+  config: MomentFamilyConfig
+): string[] {
   const value = responses[config.responseStep]
-  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === 'string')
+    : []
 }
 
 /**
  * The Moment's 1–5 strength. Anger entries from before v2 carried a 0–10
  * `intensity`; they read as its half, rounded up, never below 1.
  */
-export function strengthOf(responses: Readonly<Record<string, unknown>>, config: MomentFamilyConfig): number | undefined {
+export function strengthOf(
+  responses: Readonly<Record<string, unknown>>,
+  config: MomentFamilyConfig
+): number | undefined {
   const value = responses[config.strengthStep]
   if (typeof value === 'number' && value >= 1 && value <= 5) return value
   if (config.kind === 'anger') {
     const intensity = responses.intensity
-    if (typeof intensity === 'number' && intensity >= 0 && intensity <= 10) return Math.min(5, Math.max(1, Math.ceil(intensity / 2)))
+    if (typeof intensity === 'number' && intensity >= 0 && intensity <= 10)
+      return Math.min(5, Math.max(1, Math.ceil(intensity / 2)))
   }
   return undefined
 }

@@ -37,11 +37,11 @@ describe('ratingBarColor (regression)', () => {
   })
 
   it('splits rose below / sky at-or-above the target', () => {
-    expect(
-      ratingBarColor({ value: 2, scaleMin: 1, scaleMax: 5, targetValue: 4 })
-    ).toBe('rgb(var(--rating-neg-4))')
-    expect(
-      ratingBarColor({ value: 4, scaleMin: 1, scaleMax: 5, targetValue: 4 })
-    ).toBe('rgb(var(--rating-pos-1))')
+    expect(ratingBarColor({ value: 2, scaleMin: 1, scaleMax: 5, targetValue: 4 })).toBe(
+      'rgb(var(--rating-neg-4))'
+    )
+    expect(ratingBarColor({ value: 4, scaleMin: 1, scaleMax: 5, targetValue: 4 })).toBe(
+      'rgb(var(--rating-pos-1))'
+    )
   })
 })

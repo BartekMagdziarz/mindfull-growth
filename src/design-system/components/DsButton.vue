@@ -9,13 +9,16 @@
 </template>
 
 <script setup lang="ts">
-withDefaults(defineProps<{
-  type?: 'button' | 'submit'
-  variant?: 'primary' | 'quiet' | 'danger'
-  iconOnly?: boolean
-}>(), {
-  type: 'button',
-  variant: 'primary',
-  iconOnly: false,
-})
+withDefaults(
+  defineProps<{
+    type?: 'button' | 'submit'
+    variant?: 'primary' | 'quiet' | 'danger'
+    iconOnly?: boolean
+  }>(),
+  {
+    type: 'button',
+    variant: 'primary',
+    iconOnly: false,
+  }
+)
 </script>

@@ -6,7 +6,7 @@ import { sumBandFor } from '../sum.scorer'
 function responsesFor(id: AssessmentId, values: Record<string, number>): AssessmentResponse[] {
   const { definition } = getAssessmentRegistryEntry(id)
   return Object.entries(values).map(([itemId, responseValue]) => {
-    const item = definition.items.find((candidate) => candidate.id === itemId)!
+    const item = definition.items.find(candidate => candidate.id === itemId)!
     return {
       id: `r-${itemId}`,
       attemptId: 'a1',
@@ -24,10 +24,14 @@ function responsesFor(id: AssessmentId, values: Record<string, number>): Assessm
 
 function allItems(id: AssessmentId, value: number): Record<string, number> {
   const { definition } = getAssessmentRegistryEntry(id)
-  return Object.fromEntries(definition.items.map((item) => [item.id, value]))
+  return Object.fromEntries(definition.items.map(item => [item.id, value]))
 }
 
-function score(id: AssessmentId, values: Record<string, number>, previousAttempt?: AssessmentAttempt) {
+function score(
+  id: AssessmentId,
+  values: Record<string, number>,
+  previousAttempt?: AssessmentAttempt
+) {
   const { definition, scorer } = getAssessmentRegistryEntry(id)
   return scorer.score({ definition, responses: responsesFor(id, values), previousAttempt })
 }
@@ -75,15 +79,21 @@ describe('GAD-7 sum scoring', () => {
 
 describe('anger barometer and IUS-12', () => {
   it('anger barometer runs 5–25 with orientative bands from 12 and 18', () => {
-    expect(score('anger-barometer', allItems('anger-barometer', 1)).computedScales[0]!.details).toMatchObject({
+    expect(
+      score('anger-barometer', allItems('anger-barometer', 1)).computedScales[0]!.details
+    ).toMatchObject({
       total: 5,
       bandId: 'low',
     })
-    expect(score('anger-barometer', allItems('anger-barometer', 3)).computedScales[0]!.details).toMatchObject({
+    expect(
+      score('anger-barometer', allItems('anger-barometer', 3)).computedScales[0]!.details
+    ).toMatchObject({
       total: 15,
       bandId: 'elevated',
     })
-    expect(score('anger-barometer', allItems('anger-barometer', 4)).computedScales[0]!.details).toMatchObject({
+    expect(
+      score('anger-barometer', allItems('anger-barometer', 4)).computedScales[0]!.details
+    ).toMatchObject({
       total: 20,
       bandId: 'high',
     })
@@ -91,7 +101,7 @@ describe('anger barometer and IUS-12', () => {
 
   it('IUS-12 totals 12–60 with prospective (7) and inhibitory (5) subscales and no bands', () => {
     const scales = score('ius-12', allItems('ius-12', 3)).computedScales
-    const byId = Object.fromEntries(scales.map((scale) => [scale.scaleId, scale.details]))
+    const byId = Object.fromEntries(scales.map(scale => [scale.scaleId, scale.details]))
     expect(byId.total).toMatchObject({ total: 36, minTotal: 12, maxTotal: 60 })
     expect(byId.prospective).toMatchObject({ total: 21, maxTotal: 35 })
     expect(byId.inhibitory).toMatchObject({ total: 15, maxTotal: 25 })
@@ -102,13 +112,11 @@ describe('anger barometer and IUS-12', () => {
 describe('SCS-SF mean scoring', () => {
   it('reverses the six negative items (OI, I, SJ) before averaging', () => {
     const { definition } = getAssessmentRegistryEntry('scs-sf')
-    const reversed = definition.items.filter((item) => item.reverse).map((item) => item.id)
+    const reversed = definition.items.filter(item => item.reverse).map(item => item.id)
     expect(reversed.sort()).toEqual(['scs_01', 'scs_04', 'scs_08', 'scs_09', 'scs_11', 'scs_12'])
 
     // Kind answers on positive items (5) and "almost never" on negative ones (1) → maximal self-compassion.
-    const values = Object.fromEntries(
-      definition.items.map((item) => [item.id, item.reverse ? 1 : 5]),
-    )
+    const values = Object.fromEntries(definition.items.map(item => [item.id, item.reverse ? 1 : 5]))
     const total = score('scs-sf', values).computedScales[0]!
     expect(total.rawMean).toBe(5)
     expect(total.band).toBe('high')
@@ -126,18 +134,18 @@ describe('FSCRS (three 0–4 means)', () => {
   it('scores inadequate / hated / reassured self as separate means with no reverse keys', () => {
     const { definition } = getAssessmentRegistryEntry('fscrs')
     expect(definition.items).toHaveLength(22)
-    expect(definition.items.every((item) => !item.reverse)).toBe(true)
-    expect(definition.scales.map((scale) => [scale.id, scale.itemIds.length])).toEqual([
+    expect(definition.items.every(item => !item.reverse)).toBe(true)
+    expect(definition.scales.map(scale => [scale.id, scale.itemIds.length])).toEqual([
       ['inadequateSelf', 9],
       ['hatedSelf', 5],
       ['reassuredSelf', 8],
     ])
 
     const values = allItems('fscrs', 1)
-    for (const id of definition.scales.find((s) => s.id === 'reassuredSelf')!.itemIds) values[id] = 4
-    for (const id of definition.scales.find((s) => s.id === 'hatedSelf')!.itemIds) values[id] = 0
+    for (const id of definition.scales.find(s => s.id === 'reassuredSelf')!.itemIds) values[id] = 4
+    for (const id of definition.scales.find(s => s.id === 'hatedSelf')!.itemIds) values[id] = 0
     const result = score('fscrs', values)
-    const byId = Object.fromEntries(result.computedScales.map((scale) => [scale.scaleId, scale]))
+    const byId = Object.fromEntries(result.computedScales.map(scale => [scale.scaleId, scale]))
     expect(byId.inadequateSelf?.rawMean).toBe(1)
     expect(byId.hatedSelf?.rawMean).toBe(0)
     expect(byId.reassuredSelf?.rawMean).toBe(4)
@@ -152,7 +160,7 @@ describe('FSCRS (three 0–4 means)', () => {
     delete values.fscrs_09
     delete values.fscrs_10 // hated self: 3 of 5 answered → below minAnswered 4
     const result = score('fscrs', values)
-    const byId = Object.fromEntries(result.computedScales.map((scale) => [scale.scaleId, scale]))
+    const byId = Object.fromEntries(result.computedScales.map(scale => [scale.scaleId, scale]))
     expect(byId.inadequateSelf?.rawMean).toBe(2)
     expect(byId.inadequateSelf?.answeredCount).toBe(8)
     expect(byId.hatedSelf?.rawMean).toBeNull()

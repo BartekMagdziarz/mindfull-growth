@@ -31,13 +31,7 @@ export type ProfileDataType = (typeof PROFILE_DATA_TYPES)[number]
  * recency. `undated` holds snapshot blocks (foundation/planning/life areas)
  * which have no per-record timestamp.
  */
-export const PROFILE_AGE_BUCKETS = [
-  '0-30d',
-  '31-90d',
-  '91-365d',
-  '365d+',
-  'undated',
-] as const
+export const PROFILE_AGE_BUCKETS = ['0-30d', '31-90d', '91-365d', '365d+', 'undated'] as const
 
 export type ProfileAgeBucket = (typeof PROFILE_AGE_BUCKETS)[number]
 

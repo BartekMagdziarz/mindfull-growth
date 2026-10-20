@@ -41,7 +41,6 @@
             {{ sortedCount }} / {{ allValues.length }}
           </div>
         </div>
-
       </AppCard>
 
       <div class="grid grid-cols-5 gap-3">
@@ -54,7 +53,9 @@
         >
           <div class="mb-3 flex items-center justify-between gap-2">
             <h3 class="text-sm font-semibold text-on-surface">{{ category.label }}</h3>
-            <span class="text-xs font-medium text-on-surface-variant">{{ valuesByCategory[category.id].length }}</span>
+            <span class="text-xs font-medium text-on-surface-variant">{{
+              valuesByCategory[category.id].length
+            }}</span>
           </div>
           <div class="space-y-2">
             <article
@@ -73,17 +74,26 @@
                 leave-from-class="max-h-24 opacity-100"
                 leave-to-class="max-h-0 opacity-0"
               >
-                <p v-if="isValueExpanded(value.id)" class="mt-2 overflow-hidden text-xs leading-5 text-on-surface-variant">
+                <p
+                  v-if="isValueExpanded(value.id)"
+                  class="mt-2 overflow-hidden text-xs leading-5 text-on-surface-variant"
+                >
                   {{ value.description }}
                 </p>
               </Transition>
               <button
                 type="button"
                 class="absolute -bottom-2 left-1/2 z-10 inline-flex h-5 w-7 -translate-x-1/2 items-center justify-center rounded-full border border-neu-border/40 bg-neu-base text-on-surface-variant shadow-neu-raised-sm transition-all duration-200 hover:text-primary neo-focus"
-                :class="isValueExpanded(value.id) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'"
-                :aria-label="isValueExpanded(value.id)
-                  ? t('exerciseWizards.valueMap.sort.collapseDescription')
-                  : t('exerciseWizards.valueMap.sort.expandDescription')"
+                :class="
+                  isValueExpanded(value.id)
+                    ? 'opacity-100'
+                    : 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'
+                "
+                :aria-label="
+                  isValueExpanded(value.id)
+                    ? t('exerciseWizards.valueMap.sort.collapseDescription')
+                    : t('exerciseWizards.valueMap.sort.expandDescription')
+                "
                 @click.stop="toggleValueExpanded(value.id)"
               >
                 <AppIcon
@@ -102,7 +112,9 @@
           <h3 class="text-sm font-semibold text-on-surface">
             {{ t('exerciseWizards.valueMap.sort.unsortedTitle') }}
           </h3>
-          <span class="text-xs font-medium text-on-surface-variant">{{ unsortedValues.length }}</span>
+          <span class="text-xs font-medium text-on-surface-variant">{{
+            unsortedValues.length
+          }}</span>
         </div>
         <div v-if="unsortedValues.length > 0" class="grid grid-cols-3 gap-2">
           <article
@@ -121,17 +133,26 @@
               leave-from-class="max-h-24 opacity-100"
               leave-to-class="max-h-0 opacity-0"
             >
-              <p v-if="isValueExpanded(value.id)" class="mt-2 overflow-hidden text-xs leading-5 text-on-surface-variant">
+              <p
+                v-if="isValueExpanded(value.id)"
+                class="mt-2 overflow-hidden text-xs leading-5 text-on-surface-variant"
+              >
                 {{ value.description }}
               </p>
             </Transition>
             <button
               type="button"
               class="absolute -bottom-2 left-1/2 z-10 inline-flex h-5 w-7 -translate-x-1/2 items-center justify-center rounded-full border border-neu-border/40 bg-neu-base text-on-surface-variant shadow-neu-raised-sm transition-all duration-200 hover:text-primary neo-focus"
-              :class="isValueExpanded(value.id) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'"
-              :aria-label="isValueExpanded(value.id)
-                ? t('exerciseWizards.valueMap.sort.collapseDescription')
-                : t('exerciseWizards.valueMap.sort.expandDescription')"
+              :class="
+                isValueExpanded(value.id)
+                  ? 'opacity-100'
+                  : 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'
+              "
+              :aria-label="
+                isValueExpanded(value.id)
+                  ? t('exerciseWizards.valueMap.sort.collapseDescription')
+                  : t('exerciseWizards.valueMap.sort.expandDescription')
+              "
               @click.stop="toggleValueExpanded(value.id)"
             >
               <AppIcon
@@ -150,7 +171,11 @@
             :placeholder="t('exerciseWizards.valueMap.sort.customPlaceholder')"
             @keydown.enter.prevent="addCustomValue"
           />
-          <AppButton variant="tonal" :disabled="customValueInput.trim().length === 0" @click="addCustomValue">
+          <AppButton
+            variant="tonal"
+            :disabled="customValueInput.trim().length === 0"
+            @click="addCustomValue"
+          >
             <AppIcon name="add" class="text-base" />
             {{ t('exerciseWizards.valueMap.sort.addCustom') }}
           </AppButton>
@@ -188,21 +213,27 @@
           :key="value.id"
           type="button"
           class="neo-selector border p-3 text-left transition"
-          :class="selectedTopIds.includes(value.id)
-            ? 'neo-selector--active'
-            : 'border-neu-border/20'"
+          :class="
+            selectedTopIds.includes(value.id) ? 'neo-selector--active' : 'border-neu-border/20'
+          "
           @click="toggleSelectedTop(value.id)"
         >
           <span class="block text-sm font-semibold text-on-surface">{{ value.label }}</span>
-          <span class="mt-1 block text-xs leading-5 text-on-surface-variant">{{ value.description }}</span>
+          <span class="mt-1 block text-xs leading-5 text-on-surface-variant">{{
+            value.description
+          }}</span>
         </button>
       </div>
     </AppCard>
 
     <AppCard v-else-if="step === 3" padding="lg" class="space-y-4">
       <div class="space-y-1">
-        <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.valueMap.rank.title') }}</h2>
-        <p class="text-sm text-on-surface-variant">{{ t('exerciseWizards.valueMap.rank.description') }}</p>
+        <h2 class="text-lg font-semibold text-on-surface">
+          {{ t('exerciseWizards.valueMap.rank.title') }}
+        </h2>
+        <p class="text-sm text-on-surface-variant">
+          {{ t('exerciseWizards.valueMap.rank.description') }}
+        </p>
         <ExerciseStepWhy :text="tg('exerciseWizards.valueMap.rank.why')" />
       </div>
 
@@ -220,14 +251,26 @@
           <div>
             <p class="text-sm font-semibold text-on-surface">{{ getValueLabel(valueId) }}</p>
             <p class="text-xs text-on-surface-variant">
-              {{ index < 3 ? t('exerciseWizards.valueMap.rank.core') : t('exerciseWizards.valueMap.rank.supporting') }}
+              {{
+                index < 3
+                  ? t('exerciseWizards.valueMap.rank.core')
+                  : t('exerciseWizards.valueMap.rank.supporting')
+              }}
             </p>
           </div>
           <div class="flex items-center gap-1">
-            <button class="rounded p-2 text-on-surface-variant hover:bg-neu-base" :disabled="index === 0" @click="moveRank(index, -1)">
+            <button
+              class="rounded p-2 text-on-surface-variant hover:bg-neu-base"
+              :disabled="index === 0"
+              @click="moveRank(index, -1)"
+            >
               <AppIcon name="keyboard_arrow_up" />
             </button>
-            <button class="rounded p-2 text-on-surface-variant hover:bg-neu-base" :disabled="index === rankedIds.length - 1" @click="moveRank(index, 1)">
+            <button
+              class="rounded p-2 text-on-surface-variant hover:bg-neu-base"
+              :disabled="index === rankedIds.length - 1"
+              @click="moveRank(index, 1)"
+            >
               <AppIcon name="keyboard_arrow_down" />
             </button>
           </div>
@@ -237,8 +280,12 @@
 
     <AppCard v-else-if="step === 4" padding="lg" class="space-y-4">
       <div>
-        <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.valueMap.meaning.title') }}</h2>
-        <p class="mt-1 text-sm text-on-surface-variant">{{ t('exerciseWizards.valueMap.meaning.description') }}</p>
+        <h2 class="text-lg font-semibold text-on-surface">
+          {{ t('exerciseWizards.valueMap.meaning.title') }}
+        </h2>
+        <p class="mt-1 text-sm text-on-surface-variant">
+          {{ t('exerciseWizards.valueMap.meaning.description') }}
+        </p>
         <ExerciseStepWhy :text="tg('exerciseWizards.valueMap.meaning.why')" />
       </div>
 
@@ -260,21 +307,31 @@
 
     <AppCard v-else-if="step === 5" padding="lg" class="space-y-4">
       <div>
-        <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.valueMap.conflicts.title') }}</h2>
-        <p class="mt-1 text-sm text-on-surface-variant">{{ t('exerciseWizards.valueMap.conflicts.description') }}</p>
+        <h2 class="text-lg font-semibold text-on-surface">
+          {{ t('exerciseWizards.valueMap.conflicts.title') }}
+        </h2>
+        <p class="mt-1 text-sm text-on-surface-variant">
+          {{ t('exerciseWizards.valueMap.conflicts.description') }}
+        </p>
         <ExerciseStepWhy :text="tg('exerciseWizards.valueMap.conflicts.why')" />
       </div>
 
-      <div v-for="valueId in coreRankedIds" :key="valueId" class="rounded-lg border border-neu-border/20 bg-section p-4">
+      <div
+        v-for="valueId in coreRankedIds"
+        :key="valueId"
+        class="rounded-lg border border-neu-border/20 bg-section p-4"
+      >
         <label class="flex items-center gap-2 text-sm font-semibold text-on-surface">
           <input v-model="conflictEnabled[valueId]" type="checkbox" />
-          {{ t('exerciseWizards.valueMap.conflicts.itemQuestion', { value: getValueLabel(valueId) }) }}
+          {{
+            t('exerciseWizards.valueMap.conflicts.itemQuestion', { value: getValueLabel(valueId) })
+          }}
         </label>
         <div v-if="conflictEnabled[valueId]" class="mt-3 grid grid-cols-[1fr_1.4fr] gap-3">
           <select v-model="conflictTargets[valueId]" class="neo-input p-2 text-sm">
             <option value="">{{ t('exerciseWizards.valueMap.conflicts.chooseValue') }}</option>
             <option
-              v-for="option in rankedIds.filter((id) => id !== valueId)"
+              v-for="option in rankedIds.filter(id => id !== valueId)"
               :key="option"
               :value="option"
             >
@@ -302,14 +359,32 @@
           </select>
           <select v-model="conflict.conflictingValueId" class="neo-input p-2 text-sm">
             <option value="">{{ t('exerciseWizards.valueMap.conflicts.valueB') }}</option>
-            <option v-for="id in rankedIds.filter((id) => id !== conflict.valueId)" :key="id" :value="id">{{ getValueLabel(id) }}</option>
+            <option
+              v-for="id in rankedIds.filter(id => id !== conflict.valueId)"
+              :key="id"
+              :value="id"
+            >
+              {{ getValueLabel(id) }}
+            </option>
           </select>
-          <input v-model="conflict.note" type="text" class="neo-input p-2 text-sm" :placeholder="t('exerciseWizards.valueMap.conflicts.notePlaceholder')" />
-          <button class="rounded-lg p-2 text-on-surface-variant hover:bg-section hover:text-error" @click="extraConflicts.splice(index, 1)">
+          <input
+            v-model="conflict.note"
+            type="text"
+            class="neo-input p-2 text-sm"
+            :placeholder="t('exerciseWizards.valueMap.conflicts.notePlaceholder')"
+          />
+          <button
+            class="rounded-lg p-2 text-on-surface-variant hover:bg-section hover:text-error"
+            @click="extraConflicts.splice(index, 1)"
+          >
             <AppIcon name="close" />
           </button>
         </div>
-        <AppButton variant="tonal" :disabled="compiledGlobalConflicts.length >= 5" @click="addExtraConflict">
+        <AppButton
+          variant="tonal"
+          :disabled="compiledGlobalConflicts.length >= 5"
+          @click="addExtraConflict"
+        >
           <AppIcon name="add" class="text-base" />
           {{ t('exerciseWizards.valueMap.conflicts.addExtra') }}
         </AppButton>
@@ -319,8 +394,12 @@
     <AppCard v-else-if="step === 6" padding="lg" class="space-y-4">
       <div class="flex items-start justify-between gap-4">
         <div>
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.valueMap.areas.title') }}</h2>
-          <p class="mt-1 text-sm text-on-surface-variant">{{ t('exerciseWizards.valueMap.areas.description') }}</p>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.valueMap.areas.title') }}
+          </h2>
+          <p class="mt-1 text-sm text-on-surface-variant">
+            {{ t('exerciseWizards.valueMap.areas.description') }}
+          </p>
           <ExerciseStepWhy :text="tg('exerciseWizards.valueMap.areas.why')" />
         </div>
         <AppButton variant="text" @click="router.push('/areas')">
@@ -328,11 +407,18 @@
         </AppButton>
       </div>
 
-      <div v-if="lifeAreaStore.activeLifeAreas.length === 0" class="rounded-lg bg-section p-4 text-sm text-on-surface-variant">
+      <div
+        v-if="lifeAreaStore.activeLifeAreas.length === 0"
+        class="rounded-lg bg-section p-4 text-sm text-on-surface-variant"
+      >
         {{ t('exerciseWizards.valueMap.areas.empty') }}
       </div>
 
-      <div v-for="area in lifeAreaStore.activeLifeAreas" :key="area.id" class="space-y-3 rounded-lg border border-neu-border/20 bg-section p-4">
+      <div
+        v-for="area in lifeAreaStore.activeLifeAreas"
+        :key="area.id"
+        class="space-y-3 rounded-lg border border-neu-border/20 bg-section p-4"
+      >
         <h3 class="text-sm font-semibold text-on-surface">{{ area.name }}</h3>
         <div class="flex flex-wrap gap-2">
           <button
@@ -374,60 +460,111 @@
         <div v-if="areaTensionEnabled[area.id]" class="grid grid-cols-[1fr_1fr_1.4fr] gap-2">
           <select v-model="areaTensionA[area.id]" class="neo-input p-2 text-sm">
             <option value="">{{ t('exerciseWizards.valueMap.conflicts.valueA') }}</option>
-            <option v-for="id in areaAssignments[area.id] ?? []" :key="id" :value="id">{{ getValueLabel(id) }}</option>
+            <option v-for="id in areaAssignments[area.id] ?? []" :key="id" :value="id">
+              {{ getValueLabel(id) }}
+            </option>
           </select>
           <select v-model="areaTensionB[area.id]" class="neo-input p-2 text-sm">
             <option value="">{{ t('exerciseWizards.valueMap.conflicts.valueB') }}</option>
-            <option v-for="id in (areaAssignments[area.id] ?? []).filter((id) => id !== areaTensionA[area.id])" :key="id" :value="id">{{ getValueLabel(id) }}</option>
+            <option
+              v-for="id in (areaAssignments[area.id] ?? []).filter(
+                id => id !== areaTensionA[area.id]
+              )"
+              :key="id"
+              :value="id"
+            >
+              {{ getValueLabel(id) }}
+            </option>
           </select>
-          <input v-model="areaTensionNotes[area.id]" class="neo-input p-2 text-sm" :placeholder="t('exerciseWizards.valueMap.conflicts.notePlaceholder')" />
+          <input
+            v-model="areaTensionNotes[area.id]"
+            class="neo-input p-2 text-sm"
+            :placeholder="t('exerciseWizards.valueMap.conflicts.notePlaceholder')"
+          />
         </div>
       </div>
     </AppCard>
 
     <AppCard v-else padding="lg" class="space-y-5">
       <div>
-        <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.valueMap.summary.title') }}</h2>
-        <p class="mt-1 text-sm text-on-surface-variant">{{ t('exerciseWizards.valueMap.summary.description') }}</p>
+        <h2 class="text-lg font-semibold text-on-surface">
+          {{ t('exerciseWizards.valueMap.summary.title') }}
+        </h2>
+        <p class="mt-1 text-sm text-on-surface-variant">
+          {{ t('exerciseWizards.valueMap.summary.description') }}
+        </p>
       </div>
 
       <section class="space-y-2">
-        <h3 class="text-sm font-semibold text-on-surface">{{ t('exerciseWizards.valueMap.summary.core') }}</h3>
+        <h3 class="text-sm font-semibold text-on-surface">
+          {{ t('exerciseWizards.valueMap.summary.core') }}
+        </h3>
         <div class="flex flex-wrap gap-2">
-          <span v-for="id in coreRankedIds" :key="id" class="rounded-full bg-primary/15 px-3 py-1 text-sm text-primary">
+          <span
+            v-for="id in coreRankedIds"
+            :key="id"
+            class="rounded-full bg-primary/15 px-3 py-1 text-sm text-primary"
+          >
             {{ getValueLabel(id) }}
           </span>
         </div>
       </section>
 
       <section class="space-y-2">
-        <h3 class="text-sm font-semibold text-on-surface">{{ t('exerciseWizards.valueMap.summary.supporting') }}</h3>
+        <h3 class="text-sm font-semibold text-on-surface">
+          {{ t('exerciseWizards.valueMap.summary.supporting') }}
+        </h3>
         <div class="flex flex-wrap gap-2">
-          <span v-for="id in supportingRankedIds" :key="id" class="rounded-full bg-chip px-3 py-1 text-sm text-on-surface">
+          <span
+            v-for="id in supportingRankedIds"
+            :key="id"
+            class="rounded-full bg-chip px-3 py-1 text-sm text-on-surface"
+          >
             {{ getValueLabel(id) }}
           </span>
         </div>
       </section>
 
       <section class="space-y-2">
-        <h3 class="text-sm font-semibold text-on-surface">{{ t('exerciseWizards.valueMap.summary.conflicts') }}</h3>
+        <h3 class="text-sm font-semibold text-on-surface">
+          {{ t('exerciseWizards.valueMap.summary.conflicts') }}
+        </h3>
         <p v-if="compiledGlobalConflicts.length === 0" class="text-sm text-on-surface-variant">
           {{ t('exerciseWizards.valueMap.summary.noConflicts') }}
         </p>
-        <div v-for="conflict in compiledGlobalConflicts" :key="`${conflict.valueId}-${conflict.conflictingValueId}`" class="rounded-lg bg-section p-3 text-sm">
+        <div
+          v-for="conflict in compiledGlobalConflicts"
+          :key="`${conflict.valueId}-${conflict.conflictingValueId}`"
+          class="rounded-lg bg-section p-3 text-sm"
+        >
           <span class="font-medium text-on-surface">{{ getValueLabel(conflict.valueId) }}</span>
           <span class="text-on-surface-variant"> ↔ </span>
-          <span class="font-medium text-on-surface">{{ getValueLabel(conflict.conflictingValueId) }}</span>
-          <p v-if="conflict.note" class="mt-1 text-xs text-on-surface-variant">{{ conflict.note }}</p>
+          <span class="font-medium text-on-surface">{{
+            getValueLabel(conflict.conflictingValueId)
+          }}</span>
+          <p v-if="conflict.note" class="mt-1 text-xs text-on-surface-variant">
+            {{ conflict.note }}
+          </p>
         </div>
       </section>
 
       <section class="space-y-2">
-        <h3 class="text-sm font-semibold text-on-surface">{{ t('exerciseWizards.valueMap.summary.areas') }}</h3>
-        <div v-for="assignment in compiledLifeAreaAssignments" :key="assignment.lifeAreaId" class="rounded-lg bg-section p-3">
-          <p class="text-sm font-medium text-on-surface">{{ getLifeAreaName(assignment.lifeAreaId) }}</p>
+        <h3 class="text-sm font-semibold text-on-surface">
+          {{ t('exerciseWizards.valueMap.summary.areas') }}
+        </h3>
+        <div
+          v-for="assignment in compiledLifeAreaAssignments"
+          :key="assignment.lifeAreaId"
+          class="rounded-lg bg-section p-3"
+        >
+          <p class="text-sm font-medium text-on-surface">
+            {{ getLifeAreaName(assignment.lifeAreaId) }}
+          </p>
           <p class="mt-1 text-xs text-on-surface-variant">
-            {{ assignment.valueIds.map(getValueLabel).join(', ') || t('exerciseWizards.valueMap.summary.noAreaValues') }}
+            {{
+              assignment.valueIds.map(getValueLabel).join(', ') ||
+              t('exerciseWizards.valueMap.summary.noAreaValues')
+            }}
           </p>
         </div>
       </section>
@@ -452,7 +589,12 @@
       <AppButton variant="text" :disabled="step === 0" @click="step -= 1">
         {{ t('exerciseWizards.valueMap.back') }}
       </AppButton>
-      <AppButton v-if="step < stepLabels.length - 1" variant="filled" :disabled="!canContinue" @click="handleNext">
+      <AppButton
+        v-if="step < stepLabels.length - 1"
+        variant="filled"
+        :disabled="!canContinue"
+        @click="handleNext"
+      >
         {{ t('exerciseWizards.valueMap.continue') }}
       </AppButton>
       <AppButton v-else variant="filled" :disabled="!canSave" @click="handleSave">
@@ -562,7 +704,7 @@ const startHighlights = computed(() => [
 
 const catalogValues = computed<DisplayValue[]>(() => {
   const catalogLocale = locale.value as CatalogLocale
-  return valueCatalog.values.map((value) => ({
+  return valueCatalog.values.map(value => ({
     id: value.id,
     label: value.label[catalogLocale] ?? value.label.en,
     description: value.description[catalogLocale] ?? value.description.en,
@@ -572,7 +714,7 @@ const catalogValues = computed<DisplayValue[]>(() => {
 
 const allValues = computed<DisplayValue[]>(() => [
   ...catalogValues.value,
-  ...customValues.map((value) => ({
+  ...customValues.map(value => ({
     id: value.id,
     label: value.label,
     description: t('exerciseWizards.valueMap.sort.customDescription'),
@@ -596,10 +738,10 @@ const valuesByCategory = computed<Record<ValueImportance, DisplayValue[]>>(() =>
   return grouped
 })
 
-const unsortedValues = computed(() => allValues.value.filter((value) => !sortState[value.id]))
-const sortedCount = computed(() => allValues.value.filter((value) => sortState[value.id]).length)
+const unsortedValues = computed(() => allValues.value.filter(value => !sortState[value.id]))
+const sortedCount = computed(() => allValues.value.filter(value => sortState[value.id]).length)
 const topCandidateValues = computed(() =>
-  allValues.value.filter((value) => ['mostImportant', 'veryImportant'].includes(sortState[value.id])),
+  allValues.value.filter(value => ['mostImportant', 'veryImportant'].includes(sortState[value.id]))
 )
 const coreRankedIds = computed(() => rankedIds.value.slice(0, 3))
 const supportingRankedIds = computed(() => rankedIds.value.slice(3))
@@ -617,7 +759,11 @@ const compiledGlobalConflicts = computed(() => {
     }
   }
   for (const conflict of extraConflicts) {
-    if (conflict.valueId && conflict.conflictingValueId && conflict.valueId !== conflict.conflictingValueId) {
+    if (
+      conflict.valueId &&
+      conflict.conflictingValueId &&
+      conflict.valueId !== conflict.conflictingValueId
+    ) {
       conflicts.push({
         valueId: conflict.valueId,
         conflictingValueId: conflict.conflictingValueId,
@@ -629,7 +775,7 @@ const compiledGlobalConflicts = computed(() => {
 })
 
 const compiledLifeAreaAssignments = computed(() => {
-  return lifeAreaStore.activeLifeAreas.map((area) => {
+  return lifeAreaStore.activeLifeAreas.map(area => {
     const valueIds = areaAssignments[area.id] ?? []
     const tension =
       areaTensionEnabled[area.id] &&
@@ -658,9 +804,11 @@ const canContinue = computed(() => {
     case 3:
       return rankedIds.value.length >= 5 && rankedIds.value.length <= 10
     case 4:
-      return coreRankedIds.value.every((id) => personalMeanings[id]?.trim().length > 0)
+      return coreRankedIds.value.every(id => personalMeanings[id]?.trim().length > 0)
     case 5:
-      return compiledGlobalConflicts.value.every((conflict) => conflict.valueId !== conflict.conflictingValueId)
+      return compiledGlobalConflicts.value.every(
+        conflict => conflict.valueId !== conflict.conflictingValueId
+      )
     case 6:
       return true
     default:
@@ -711,7 +859,7 @@ function toggleValueExpanded(valueId: string): void {
 
 function toggleSelectedTop(valueId: string): void {
   if (selectedTopIds.value.includes(valueId)) {
-    selectedTopIds.value = selectedTopIds.value.filter((id) => id !== valueId)
+    selectedTopIds.value = selectedTopIds.value.filter(id => id !== valueId)
     return
   }
   if (selectedTopIds.value.length >= 10) return
@@ -720,7 +868,9 @@ function toggleSelectedTop(valueId: string): void {
 
 function handleNext(): void {
   if (step.value === 2) {
-    rankedIds.value = selectedTopIds.value.filter((id) => allValues.value.some((value) => value.id === id))
+    rankedIds.value = selectedTopIds.value.filter(id =>
+      allValues.value.some(value => value.id === id)
+    )
   }
   step.value += 1
 }
@@ -764,13 +914,13 @@ function addAreaValue(areaId: string): void {
 }
 
 function removeAreaValue(areaId: string, valueId: string): void {
-  areaAssignments[areaId] = (areaAssignments[areaId] ?? []).filter((id) => id !== valueId)
+  areaAssignments[areaId] = (areaAssignments[areaId] ?? []).filter(id => id !== valueId)
   if (areaTensionA[areaId] === valueId) areaTensionA[areaId] = ''
   if (areaTensionB[areaId] === valueId) areaTensionB[areaId] = ''
 }
 
 function getValueLabel(valueId: string): string {
-  return allValues.value.find((value) => value.id === valueId)?.label ?? valueId
+  return allValues.value.find(value => value.id === valueId)?.label ?? valueId
 }
 
 function getLifeAreaName(lifeAreaId: string): string {
@@ -798,7 +948,7 @@ async function handleSave(): Promise<void> {
     const map = await valueMapStore.createMap({
       catalogVersion: '2026-05',
       sort,
-      customValues: customValues.map((value) => ({ ...value })),
+      customValues: customValues.map(value => ({ ...value })),
       rankedValues,
       coreValues: coreRankedIds.value.map(getValueLabel),
       globalConflicts: compiledGlobalConflicts.value,

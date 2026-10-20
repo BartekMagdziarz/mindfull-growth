@@ -24,26 +24,15 @@
         </span>
       </div>
 
-      <div
-        v-if="goalGroups.length > 0 || habitGroups.length > 0"
-        class="mt-auto space-y-2"
-      >
+      <div v-if="goalGroups.length > 0 || habitGroups.length > 0" class="mt-auto space-y-2">
         <!-- Goals — each goal is icon + pills, all flow inline and wrap -->
-        <div
-          v-if="goalGroups.length > 0"
-          class="flex flex-wrap items-center gap-x-3 gap-y-1.5"
-        >
+        <div v-if="goalGroups.length > 0" class="flex flex-wrap items-center gap-x-3 gap-y-1.5">
           <span
             v-for="group in goalGroups"
             :key="`goal-${group.goalId}`"
             class="inline-flex items-center gap-1"
           >
-            <EntityIcon
-              v-if="group.goalIcon"
-              :icon="group.goalIcon"
-              size="xs"
-              :circle="false"
-            />
+            <EntityIcon v-if="group.goalIcon" :icon="group.goalIcon" size="xs" :circle="false" />
             <KrStatusPill
               v-for="pill in group.pills"
               :key="pill.id"
@@ -63,21 +52,13 @@
         />
 
         <!-- Habits — icon + single pill pairs, all flow inline -->
-        <div
-          v-if="habitGroups.length > 0"
-          class="flex flex-wrap items-center gap-x-3 gap-y-1.5"
-        >
+        <div v-if="habitGroups.length > 0" class="flex flex-wrap items-center gap-x-3 gap-y-1.5">
           <span
             v-for="group in habitGroups"
             :key="`habit-${group.habitId}`"
             class="inline-flex items-center gap-1"
           >
-            <EntityIcon
-              v-if="group.habitIcon"
-              :icon="group.habitIcon"
-              size="xs"
-              :circle="false"
-            />
+            <EntityIcon v-if="group.habitIcon" :icon="group.habitIcon" size="xs" :circle="false" />
             <KrStatusPill
               :cadence="group.pill.cadence"
               :monthly-status="group.pill.monthlyStatus"

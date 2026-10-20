@@ -8,7 +8,9 @@
 
     <!-- Past Records -->
     <div v-if="thoughtRecordStore.sortedRecords.length > 0" class="mt-10 space-y-4">
-      <div class="mg-v2-section-head"><h2>{{ t('exercises.views.pastRecords') }}</h2></div>
+      <div class="mg-v2-section-head">
+        <h2>{{ t('exercises.views.pastRecords') }}</h2>
+      </div>
       <AppCard
         v-for="record in thoughtRecordStore.sortedRecords"
         :key="record.id"
@@ -69,7 +71,9 @@ import { useMomentSeed } from '@/features/program-path/useMomentSeed'
 const { t, locale } = useT()
 // Launched from a path moment (`?momentId=`): the situation and the critic's line prefill the record.
 const { seed } = useMomentSeed()
-const wizardSeed = computed(() => (seed.value ? { situation: seed.value.situation, thought: seed.value.criticThought } : undefined))
+const wizardSeed = computed(() =>
+  seed.value ? { situation: seed.value.situation, thought: seed.value.criticThought } : undefined
+)
 const thoughtRecordStore = useThoughtRecordStore()
 const emotionStore = useEmotionStore()
 const saved = ref(false)
@@ -96,12 +100,12 @@ function formatDate(iso: string): string {
 }
 
 function getRecordBeforeIntensity(record: ThoughtRecord, emotionId: string): number {
-  return record.emotionsBefore.find((e) => e.emotionId === emotionId)?.intensity ?? 0
+  return record.emotionsBefore.find(e => e.emotionId === emotionId)?.intensity ?? 0
 }
 
 function getRecordShiftClass(record: ThoughtRecord, emotionId: string): string {
   const before = getRecordBeforeIntensity(record, emotionId)
-  const after = record.emotionsAfter.find((e) => e.emotionId === emotionId)?.intensity ?? 0
+  const after = record.emotionsAfter.find(e => e.emotionId === emotionId)?.intensity ?? 0
   if (after < before) return 'text-status-good-on'
   if (after > before) return 'text-error'
   return 'text-on-surface-variant'

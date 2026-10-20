@@ -1,10 +1,6 @@
 <template>
   <div :class="wrapperClass">
-    <FoundationProgressHeader
-      :groups="groupProgress"
-      :unlocked="unlocked"
-      @build="goBuild"
-    />
+    <FoundationProgressHeader :groups="groupProgress" :unlocked="unlocked" @build="goBuild" />
 
     <section
       v-for="group in groups"
@@ -57,7 +53,9 @@
             {{ t(`profile.psychologicalProfile.foundation.comingSoon.groups.${group}.title`) }}
           </h3>
           <p class="mt-1 text-xs text-on-surface-variant">
-            {{ t(`profile.psychologicalProfile.foundation.comingSoon.groups.${group}.description`) }}
+            {{
+              t(`profile.psychologicalProfile.foundation.comingSoon.groups.${group}.description`)
+            }}
           </p>
         </div>
       </div>
@@ -82,21 +80,22 @@ import {
   type FoundationComingSoonGroup,
 } from '@/services/foundationCompleteness'
 
-const props = withDefaults(defineProps<{
-  embedded?: boolean
-  loadOnMount?: boolean
-}>(), {
-  embedded: false,
-  loadOnMount: true,
-})
+const props = withDefaults(
+  defineProps<{
+    embedded?: boolean
+    loadOnMount?: boolean
+  }>(),
+  {
+    embedded: false,
+    loadOnMount: true,
+  }
+)
 
 const router = useRouter()
 const { t } = useT()
 
 const wrapperClass = computed(() =>
-  props.embedded
-    ? 'w-full'
-    : 'mx-auto w-full max-w-3xl px-4 py-6 pb-28',
+  props.embedded ? 'w-full' : 'mx-auto w-full max-w-3xl px-4 py-6 pb-28'
 )
 
 const statuses = computed(() => computeFoundationStatuses())
@@ -104,10 +103,10 @@ const groupProgress = computed(() => computeFoundationGroupProgress(statuses.val
 const unlocked = computed(() => isFoundationBuildUnlocked(statuses.value))
 
 const groups = computed(() =>
-  FOUNDATION_GROUP_ORDER.map((id) => ({
+  FOUNDATION_GROUP_ORDER.map(id => ({
     id,
-    statuses: statuses.value.filter((status) => status.group === id),
-  })),
+    statuses: statuses.value.filter(status => status.group === id),
+  }))
 )
 
 const comingSoonGroups = FOUNDATION_COMING_SOON_ORDER
@@ -118,10 +117,7 @@ const comingSoonIcon: Record<FoundationComingSoonGroup, string> = {
   relationships: 'group',
 }
 
-function navigate(payload: {
-  routeName: string
-  routeParams?: Record<string, string>
-}): void {
+function navigate(payload: { routeName: string; routeParams?: Record<string, string> }): void {
   router.push({ name: payload.routeName, params: payload.routeParams })
 }
 

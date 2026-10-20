@@ -5,7 +5,7 @@
 
 /** Deterministic PRNG (mulberry32) — same seed, same shape. */
 export function seeded(seed: number): () => number {
-  let t = (seed >>> 0) || 1
+  let t = seed >>> 0 || 1
   return () => {
     t = (t + 0x6d2b79f5) >>> 0
     let x = Math.imul(t ^ (t >>> 15), 1 | t)

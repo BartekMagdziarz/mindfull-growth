@@ -6,7 +6,11 @@ import type { ProgramEnrollment } from '@/domain/program'
 import { microExerciseEntryDexieRepository } from '@/repositories/microExerciseEntryDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { programEnrollmentDexieRepository } from '@/repositories/programEnrollmentDexieRepository'
-import { matchProgramTasks, recordTaskProgress, taskCountsEntry } from '@/services/programTaskBridgeService'
+import {
+  matchProgramTasks,
+  recordTaskProgress,
+  taskCountsEntry,
+} from '@/services/programTaskBridgeService'
 import { listWeeklyIntentions } from '@/services/weeklyIntentionService'
 import { getPeriodRefsForDate } from '@/utils/periods'
 
@@ -30,7 +34,14 @@ function moment(id: string, responses: Record<string, string | string[]> = {}): 
     exerciseSlug: 'moments',
     createdAt: '2026-09-24T18:00:00.000Z',
     updatedAt: '2026-09-24T18:00:00.000Z',
-    responses: { kind: 'shame', hadMoment: 'yes', compass: 'attackSelf', noticed: 'soon', response: ['breath'], ...responses },
+    responses: {
+      kind: 'shame',
+      hadMoment: 'yes',
+      compass: 'attackSelf',
+      noticed: 'soon',
+      response: ['breath'],
+      ...responses,
+    },
   }
 }
 vi.mock('@/services/weeklyIntentionService', () => ({
@@ -51,7 +62,9 @@ function enrollment(overrides: Partial<ProgramEnrollment> = {}): ProgramEnrollme
     currentStepIndex: 4,
     completedSteps: [],
     contentVersion: 2,
-    weekLog: [{ weekRef: WEEK, taskKey: 'useResponse', decision: 'accepted', intentionId: 'int-1' }],
+    weekLog: [
+      { weekRef: WEEK, taskKey: 'useResponse', decision: 'accepted', intentionId: 'int-1' },
+    ],
     createdAt: '2026-09-14T10:00:00.000Z',
     updatedAt: '2026-09-14T10:00:00.000Z',
     ...overrides,
@@ -71,22 +84,36 @@ describe('matchProgramTasks', () => {
   })
 
   it('ignores other exercises, other weeks, declined tasks, missing intentions and inactive enrollments', () => {
-    expect(matchProgramTasks('self-compassion-break', WEEK, [enrollment()], [intention()])).toEqual([])
+    expect(matchProgramTasks('self-compassion-break', WEEK, [enrollment()], [intention()])).toEqual(
+      []
+    )
     expect(matchProgramTasks('moment-shame', NEXT_WEEK, [enrollment()], [intention()])).toEqual([])
     expect(
       matchProgramTasks(
         'moment-shame',
         WEEK,
-        [enrollment({ weekLog: [{ weekRef: WEEK, taskKey: 'useResponse', decision: 'declined' }] })],
-        [intention()],
-      ),
+        [
+          enrollment({
+            weekLog: [{ weekRef: WEEK, taskKey: 'useResponse', decision: 'declined' }],
+          }),
+        ],
+        [intention()]
+      )
     ).toEqual([])
-    expect(matchProgramTasks('moment-shame', WEEK, [enrollment()], [intention('other')])).toEqual([])
-    expect(matchProgramTasks('moment-shame', WEEK, [enrollment({ status: 'paused' })], [intention()])).toEqual([])
+    expect(matchProgramTasks('moment-shame', WEEK, [enrollment()], [intention('other')])).toEqual(
+      []
+    )
+    expect(
+      matchProgramTasks('moment-shame', WEEK, [enrollment({ status: 'paused' })], [intention()])
+    ).toEqual([])
   })
 
   it('a task anchored on a bespoke exercise matches that exercise (positive data log)', () => {
-    const e = enrollment({ weekLog: [{ weekRef: WEEK, taskKey: 'collectEvidence', decision: 'accepted', intentionId: 'int-1' }] })
+    const e = enrollment({
+      weekLog: [
+        { weekRef: WEEK, taskKey: 'collectEvidence', decision: 'accepted', intentionId: 'int-1' },
+      ],
+    })
     expect(matchProgramTasks('positive-data-log', WEEK, [e], [intention()])).toHaveLength(1)
     expect(matchProgramTasks('moment-shame', WEEK, [e], [intention()])).toEqual([])
   })
@@ -116,28 +143,38 @@ describe('recordTaskProgress', () => {
   })
 
   it('does nothing without an active enrollment or without a match', async () => {
-    vi.mocked(programEnrollmentDexieRepository.listAll).mockResolvedValueOnce([enrollment({ status: 'completed' })])
+    vi.mocked(programEnrollmentDexieRepository.listAll).mockResolvedValueOnce([
+      enrollment({ status: 'completed' }),
+    ])
     expect(await recordTaskProgress('moment-shame', DAY, 'entry-1')).toEqual({ intentionIds: [] })
     expect(listWeeklyIntentions).not.toHaveBeenCalled()
 
     vi.mocked(programEnrollmentDexieRepository.listAll).mockResolvedValueOnce([enrollment()])
     vi.mocked(listWeeklyIntentions).mockResolvedValueOnce([intention()])
-    expect(await recordTaskProgress('paced-breathing', DAY, 'entry-2')).toEqual({ intentionIds: [] })
+    expect(await recordTaskProgress('paced-breathing', DAY, 'entry-2')).toEqual({
+      intentionIds: [],
+    })
     expect(planningStateDexieRepository.upsertDailyMeasurementEntry).not.toHaveBeenCalled()
     expect(microExerciseEntryDexieRepository.update).not.toHaveBeenCalled()
   })
 
   it('a Moment counts a day only when its answers say the task happened (count rule)', async () => {
-    const kindAct = enrollment({ weekLog: [{ weekRef: WEEK, taskKey: 'kindAct', decision: 'accepted', intentionId: 'int-1' }] })
+    const kindAct = enrollment({
+      weekLog: [{ weekRef: WEEK, taskKey: 'kindAct', decision: 'accepted', intentionId: 'int-1' }],
+    })
     vi.mocked(programEnrollmentDexieRepository.listAll).mockResolvedValue([kindAct])
     vi.mocked(listWeeklyIntentions).mockResolvedValue([intention()])
 
-    vi.mocked(microExerciseEntryDexieRepository.getById).mockResolvedValueOnce(moment('nothing', { response: ['nothing'] }))
+    vi.mocked(microExerciseEntryDexieRepository.getById).mockResolvedValueOnce(
+      moment('nothing', { response: ['nothing'] })
+    )
     expect(await recordTaskProgress('moment-shame', DAY, 'nothing')).toEqual({ intentionIds: [] })
     expect(planningStateDexieRepository.upsertDailyMeasurementEntry).not.toHaveBeenCalled()
     expect(microExerciseEntryDexieRepository.update).not.toHaveBeenCalled()
 
-    vi.mocked(microExerciseEntryDexieRepository.getById).mockResolvedValueOnce(moment('kind', { response: ['breath', 'kindAct'] }))
+    vi.mocked(microExerciseEntryDexieRepository.getById).mockResolvedValueOnce(
+      moment('kind', { response: ['breath', 'kindAct'] })
+    )
     expect((await recordTaskProgress('moment-shame', DAY, 'kind')).intentionIds).toEqual(['int-1'])
     expect(microExerciseEntryDexieRepository.update).toHaveBeenCalledWith('kind', {
       programRef: { enrollmentId: 'enr-shame', taskKey: 'kindAct', weekRef: WEEK },
@@ -151,17 +188,29 @@ describe('recordTaskProgress', () => {
 
   it('a bespoke exercise counts the day but tags no micro entry', async () => {
     vi.mocked(programEnrollmentDexieRepository.listAll).mockResolvedValueOnce([
-      enrollment({ weekLog: [{ weekRef: WEEK, taskKey: 'collectEvidence', decision: 'accepted', intentionId: 'int-1' }] }),
+      enrollment({
+        weekLog: [
+          { weekRef: WEEK, taskKey: 'collectEvidence', decision: 'accepted', intentionId: 'int-1' },
+        ],
+      }),
     ])
     vi.mocked(listWeeklyIntentions).mockResolvedValueOnce([intention()])
-    expect((await recordTaskProgress('positive-data-log', DAY, 'log-1')).intentionIds).toEqual(['int-1'])
+    expect((await recordTaskProgress('positive-data-log', DAY, 'log-1')).intentionIds).toEqual([
+      'int-1',
+    ])
     expect(microExerciseEntryDexieRepository.update).not.toHaveBeenCalled()
   })
 })
 
 describe('taskCountsEntry', () => {
-  const task = (countRule?: { any?: true; options?: string[]; part?: string }) =>
-    ({ key: 't', phaseKey: 'w2', entryMode: 'counter' as const, times: 2, linkSlug: 'moment-shame', ...(countRule ? { countRule } : {}) })
+  const task = (countRule?: { any?: true; options?: string[]; part?: string }) => ({
+    key: 't',
+    phaseKey: 'w2',
+    entryMode: 'counter' as const,
+    times: 2,
+    linkSlug: 'moment-shame',
+    ...(countRule ? { countRule } : {}),
+  })
 
   it('counts every entry without a rule, and nothing without an entry under a rule', () => {
     expect(taskCountsEntry(task(), undefined)).toBe(true)
@@ -172,10 +221,21 @@ describe('taskCountsEntry', () => {
   it('reads the answers and the part at the wheel', () => {
     expect(taskCountsEntry(task({ any: true }), moment('a', { response: ['nothing'] }))).toBe(false)
     expect(taskCountsEntry(task({ any: true }), moment('b', { response: ['sentence'] }))).toBe(true)
-    expect(taskCountsEntry(task({ options: ['kindAct'] }), moment('c', { response: ['breath'] }))).toBe(false)
-    expect(taskCountsEntry(task({ options: ['kindAct'] }), moment('d', { response: ['breath', 'kindAct'] }))).toBe(true)
+    expect(
+      taskCountsEntry(task({ options: ['kindAct'] }), moment('c', { response: ['breath'] }))
+    ).toBe(false)
+    expect(
+      taskCountsEntry(
+        task({ options: ['kindAct'] }),
+        moment('d', { response: ['breath', 'kindAct'] })
+      )
+    ).toBe(true)
     const critic = task({ options: ['named', 'unblend'], part: 'attackSelf' })
-    expect(taskCountsEntry(critic, moment('e', { compass: 'attackSelf', response: ['named'] }))).toBe(true)
-    expect(taskCountsEntry(critic, moment('f', { compass: 'withdraw', response: ['named'] }))).toBe(false)
+    expect(
+      taskCountsEntry(critic, moment('e', { compass: 'attackSelf', response: ['named'] }))
+    ).toBe(true)
+    expect(taskCountsEntry(critic, moment('f', { compass: 'withdraw', response: ['named'] }))).toBe(
+      false
+    )
   })
 })

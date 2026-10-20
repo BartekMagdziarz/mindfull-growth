@@ -9,7 +9,7 @@ export interface VerificationScenarioIdRegistry {
 }
 
 export function createVerificationScenarioIdRegistry(
-  scenario: LabFixtureScenario,
+  scenario: LabFixtureScenario
 ): VerificationScenarioIdRegistry {
   const knownPriorityKeys = new Set(scenario.priorities.map(priority => priority.key))
   const objectByKey = new Map(scenario.objects.map(object => [object.key, object]))
@@ -44,7 +44,9 @@ export function createVerificationScenarioIdRegistry(
     },
     priorityIdsForObject(key) {
       requireKnown('object', key)
-      return objectByKey.get(key)!.priorityKeys.map(priorityKey => requireId('priority', priorityKey, priorityIds))
+      return objectByKey
+        .get(key)!
+        .priorityKeys.map(priorityKey => requireId('priority', priorityKey, priorityIds))
     },
   }
 }

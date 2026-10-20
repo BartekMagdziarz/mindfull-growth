@@ -1,9 +1,22 @@
 <template>
   <div class="smg" :class="{ 'smg--compact': compact }" data-testid="path-moments-glance">
-    <PathPartsChart v-if="total" :stats="stats" :slots="columns" :first-week="firstWeek" :compact="compact" />
-    <p v-else class="smg__empty">{{ compact ? t('programs.glance.quietWeek') : t('programs.glance.noMoments') }}</p>
+    <PathPartsChart
+      v-if="total"
+      :stats="stats"
+      :slots="columns"
+      :first-week="firstWeek"
+      :compact="compact"
+    />
+    <p v-else class="smg__empty">
+      {{ compact ? t('programs.glance.quietWeek') : t('programs.glance.noMoments') }}
+    </p>
 
-    <details v-if="total" class="smg__more" :open="open" @toggle="open = ($event.target as HTMLDetailsElement).open">
+    <details
+      v-if="total"
+      class="smg__more"
+      :open="open"
+      @toggle="open = ($event.target as HTMLDetailsElement).open"
+    >
       <summary>{{ open ? t('programs.ui.less') : t('programs.ui.details') }}</summary>
       <div class="smg__details">
         <section class="smg__picture">
@@ -14,7 +27,11 @@
                 v-if="stats[n - 1]"
                 class="smg__disc"
                 :class="{ 'is-quiet': stats[n - 1]!.quiet }"
-                :style="{ '--fill': stats[n - 1]!.total ? `${(stats[n - 1]!.responded / stats[n - 1]!.total) * 100}%` : '0%' }"
+                :style="{
+                  '--fill': stats[n - 1]!.total
+                    ? `${(stats[n - 1]!.responded / stats[n - 1]!.total) * 100}%`
+                    : '0%',
+                }"
                 :title="discTitle(n)"
               />
               <i v-else class="smg__disc smg__disc--slot" aria-hidden="true" />
@@ -25,7 +42,10 @@
           <h5>{{ t('programs.glance.whenNotice') }}</h5>
           <div v-for="bar in noticedBars" :key="bar.label" class="smg__bar-row">
             <span class="smg__bar-label">{{ bar.label }}</span>
-            <span class="smg__stack" :title="`${bar.label}: ${t('programs.glance.earlyShare', { pct: percent(bar.early) })}`">
+            <span
+              class="smg__stack"
+              :title="`${bar.label}: ${t('programs.glance.earlyShare', { pct: percent(bar.early) })}`"
+            >
               <i
                 v-for="(segment, i) in bar.segments"
                 :key="segment.key"
@@ -35,7 +55,12 @@
             </span>
           </div>
         </section>
-        <button type="button" class="smg__link" :aria-expanded="tableOpen" @click="tableOpen = !tableOpen">
+        <button
+          type="button"
+          class="smg__link"
+          :aria-expanded="tableOpen"
+          @click="tableOpen = !tableOpen"
+        >
           {{ tableOpen ? t('programs.glance.hideNumbers') : t('programs.glance.numbers') }}
         </button>
         <div v-if="tableOpen" class="smg__table-wrap">
@@ -43,7 +68,9 @@
             <thead>
               <tr>
                 <th>{{ t('programs.glance.week') }}</th>
-                <th v-for="row in rows" :key="row.key">{{ row.self ? t('programs.glance.noneShort') : row.label }}</th>
+                <th v-for="row in rows" :key="row.key">
+                  {{ row.self ? t('programs.glance.noneShort') : row.label }}
+                </th>
                 <th>{{ t('programs.glance.unloggedShort') }}</th>
                 <th>{{ t('programs.glance.response') }}</th>
                 <th>{{ t('programs.glance.early') }}</th>
@@ -56,12 +83,19 @@
                 <td v-for="row in rows" :key="row.key">{{ week.byPart[row.key] ?? 0 }}</td>
                 <td>{{ week.unlogged ?? '—' }}</td>
                 <td>{{ week.responded }} / {{ week.total }}</td>
-                <td>{{ week.noticed.during + week.noticed.soon }} / {{ week.total - week.noticed.unknown }}</td>
-                <td v-if="family.kind === 'shame'">{{ week.criticLogged }} · {{ week.kindVoiceLogged }}</td>
+                <td>
+                  {{ week.noticed.during + week.noticed.soon }} /
+                  {{ week.total - week.noticed.unknown }}
+                </td>
+                <td v-if="family.kind === 'shame'">
+                  {{ week.criticLogged }} · {{ week.kindVoiceLogged }}
+                </td>
               </tr>
               <tr class="smg__sum">
                 <th>{{ t('programs.glance.total') }}</th>
-                <td v-for="row in rows" :key="row.key">{{ stats.reduce((s, w) => s + (w.byPart[row.key] ?? 0), 0) }}</td>
+                <td v-for="row in rows" :key="row.key">
+                  {{ stats.reduce((s, w) => s + (w.byPart[row.key] ?? 0), 0) }}
+                </td>
                 <td />
                 <td>{{ responded }} / {{ total }}</td>
                 <td />
@@ -99,7 +133,7 @@ const props = withDefaults(
     firstWeek?: number
     compact?: boolean
   }>(),
-  { slots: undefined, firstWeek: 1, compact: false },
+  { slots: undefined, firstWeek: 1, compact: false }
 )
 
 const { t, tg } = useT()
@@ -111,14 +145,14 @@ const columns = computed(() => Math.max(props.slots ?? props.stats.length, props
 const family = computed(() => momentFamily(props.stats[0]?.kind))
 /** Table columns: the family's keys, the self key last. */
 const rows = computed(() =>
-  summaryKeys(family.value).map((key) => ({
+  summaryKeys(family.value).map(key => ({
     key,
     self: key === family.value.selfKey,
     label:
       key === family.value.selfKey
         ? t('programs.glance.nonePart')
         : tg(`exerciseWizards.micro.moments.${family.value.reactionStep}.options.${key}`),
-  })),
+  }))
 )
 const total = computed(() => props.stats.reduce((sum, week) => sum + week.total, 0))
 const responded = computed(() => props.stats.reduce((sum, week) => sum + week.responded, 0))
@@ -129,14 +163,14 @@ function discTitle(n: number): string {
   return `T${colLabel(n)}: ${week.total ? t('programs.glance.outOf', { a: week.responded, b: week.total }) : t('programs.glance.quietWeekShort')}`
 }
 const percent = (n: number | null) => (n === null ? '—' : `${Math.round(n * 100)} %`)
-const withMoments = computed(() => props.stats.filter((week) => week.total > 0))
+const withMoments = computed(() => props.stats.filter(week => week.total > 0))
 const noticedBars = computed(() => {
   const build = (label: string, weeks: MomentsWeekStats[]) => {
     const known = weeks.reduce((sum, week) => sum + week.total - week.noticed.unknown, 0)
     return {
       label,
       early: noticedEarlyShare(weeks),
-      segments: NOTICING_KEYS.map((key) => ({
+      segments: NOTICING_KEYS.map(key => ({
         key,
         share: known ? weeks.reduce((sum, week) => sum + week.noticed[key], 0) / known : 0,
       })),
@@ -145,7 +179,10 @@ const noticedBars = computed(() => {
   const list = withMoments.value
   if (list.length === 0) return []
   if (list.length < 3) return [build(t('programs.glance.soFar'), list)]
-  return [build(t('programs.glance.beginning'), list.slice(0, 2)), build(t('programs.glance.lately'), list.slice(-2))]
+  return [
+    build(t('programs.glance.beginning'), list.slice(0, 2)),
+    build(t('programs.glance.lately'), list.slice(-2)),
+  ]
 })
 </script>
 
@@ -209,7 +246,11 @@ const noticedBars = computed(() => {
   height: 1.15rem;
   border: 1px solid var(--mg-color-border);
   border-radius: var(--mg-radius-organic-a);
-  background: linear-gradient(to top, var(--ink) var(--fill, 0%), var(--mg-color-paper) var(--fill, 0%));
+  background: linear-gradient(
+    to top,
+    var(--ink) var(--fill, 0%),
+    var(--mg-color-paper) var(--fill, 0%)
+  );
   box-shadow: var(--mg-shadow-inset-sm);
 }
 .smg__disc:nth-child(even) {

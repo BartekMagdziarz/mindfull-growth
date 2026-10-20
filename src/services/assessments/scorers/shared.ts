@@ -12,10 +12,8 @@ export function round(value: number, digits = 3): number {
   return Math.round(value * factor) / factor
 }
 
-export function responseByItemId(
-  responses: AssessmentResponse[],
-): Map<string, AssessmentResponse> {
-  return new Map(responses.map((response) => [response.itemId, response]))
+export function responseByItemId(responses: AssessmentResponse[]): Map<string, AssessmentResponse> {
+  return new Map(responses.map(response => [response.itemId, response]))
 }
 
 export function reverseScore(raw: number, min: number, max: number): number {
@@ -25,7 +23,7 @@ export function reverseScore(raw: number, min: number, max: number): number {
 export function applyReverse(
   item: AssessmentItemDefinition,
   raw: number,
-  reverseFlagAtTime?: boolean,
+  reverseFlagAtTime?: boolean
 ): number {
   const shouldReverse = reverseFlagAtTime ?? item.reverse
   return shouldReverse ? reverseScore(raw, item.responseMin, item.responseMax) : raw
@@ -33,7 +31,7 @@ export function applyReverse(
 
 export function deriveBand(
   value: number | null,
-  interpretationScale: InterpretationScale,
+  interpretationScale: InterpretationScale
 ): ScaleBand | undefined {
   if (value === null) return undefined
 
@@ -86,9 +84,9 @@ export function computeLikertScale(
   labelKey: string,
   itemIds: string[],
   minAnswered: number,
-  responsesMap: Map<string, AssessmentResponse>,
+  responsesMap: Map<string, AssessmentResponse>
 ): ScaleComputation {
-  const itemsById = new Map(definition.items.map((item) => [item.id, item]))
+  const itemsById = new Map(definition.items.map(item => [item.id, item]))
   const values: number[] = []
   const missingItemIds: string[] = []
 

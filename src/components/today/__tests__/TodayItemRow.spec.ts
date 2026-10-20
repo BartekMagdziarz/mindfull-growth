@@ -25,7 +25,7 @@ function makeEntry(
   subjectType: MeasurementSubjectType,
   subjectId: string,
   dayRef: string,
-  value: number | null = null,
+  value: number | null = null
 ): DailyMeasurementEntry {
   return {
     id: `entry-${subjectId}-${dayRef}`,
@@ -38,7 +38,9 @@ function makeEntry(
   }
 }
 
-function makePlanning(overrides: Partial<MeasurementPlanningSummary> = {}): MeasurementPlanningSummary {
+function makePlanning(
+  overrides: Partial<MeasurementPlanningSummary> = {}
+): MeasurementPlanningSummary {
   return {
     scheduleScope: 'whole-week',
     scheduledDayRefs: [],
@@ -95,7 +97,7 @@ function makeMeasurementItem(
   measurement: MeasurementSummary,
   planning: MeasurementPlanningSummary = makePlanning(),
   todayEntry?: DailyMeasurementEntry,
-  overrides: Partial<TodayMeasurementItem> = {},
+  overrides: Partial<TodayMeasurementItem> = {}
 ): TodayMeasurementItem {
   return {
     kind: 'measurement',
@@ -122,7 +124,7 @@ function makeMonthlyMeasurementItem(
   subjectType: MeasurementSubjectType,
   subject: Habit | Tracker,
   measurement: MeasurementSummary,
-  todayEntry?: DailyMeasurementEntry,
+  todayEntry?: DailyMeasurementEntry
 ): TodayMeasurementItem {
   return {
     kind: 'measurement',
@@ -183,7 +185,7 @@ function renderRow(
   item: TodayItem,
   rawEntries: DailyMeasurementEntry[] = [],
   allDayAssignments: MeasurementDayAssignment[] = [],
-  options: RenderOptions<typeof TodayItemRow> = {},
+  options: RenderOptions<typeof TodayItemRow> = {}
 ) {
   return render(TodayItemRow, {
     ...options,
@@ -221,7 +223,7 @@ describe('TodayItemRow — simplified collapsed + expand-on-click layout', () =>
       }),
       makePlanning(),
       undefined,
-      { goalTitle: 'Strength', goalIcon: 'barbell' },
+      { goalTitle: 'Strength', goalIcon: 'barbell' }
     )
 
     const { getByText, container } = renderRow(item)
@@ -246,7 +248,7 @@ describe('TodayItemRow — simplified collapsed + expand-on-click layout', () =>
         periodRef: WEEK_REF,
       }),
       makePlanning(),
-      makeEntry('habit', 'habit-counter', TODAY, 3),
+      makeEntry('habit', 'habit-counter', TODAY, 3)
     )
     const { getByText, getByLabelText } = renderRow(item, [
       makeEntry('habit', 'habit-counter', '2026-03-10', 4),
@@ -275,7 +277,7 @@ describe('TodayItemRow — simplified collapsed + expand-on-click layout', () =>
         periodRef: WEEK_REF,
       }),
       makePlanning(),
-      makeEntry('habit', 'habit-counter-zero', TODAY, 0),
+      makeEntry('habit', 'habit-counter-zero', TODAY, 0)
     )
     const { emitted, getByLabelText } = renderRow(item, [
       makeEntry('habit', 'habit-counter-zero', TODAY, 0),
@@ -300,11 +302,9 @@ describe('TodayItemRow — simplified collapsed + expand-on-click layout', () =>
         actualValue: 7.1,
         target: habit.target,
         periodRef: WEEK_REF,
-      }),
+      })
     )
-    const { container } = renderRow(item, [
-      makeEntry('habit', 'habit-value', '2026-03-10', 6.8),
-    ])
+    const { container } = renderRow(item, [makeEntry('habit', 'habit-value', '2026-03-10', 6.8)])
 
     // Value mode does not render counter ± controls
     expect(container.querySelector('[aria-label="Increment"]')).toBeNull()
@@ -320,7 +320,7 @@ describe('TodayItemRow — simplified collapsed + expand-on-click layout', () =>
       tracker,
       makeSummary({ entryMode: 'value', actualValue: 4.5, periodRef: WEEK_REF }),
       makePlanning(),
-      makeEntry('tracker', 'tracker-value-clear', TODAY, 4.5),
+      makeEntry('tracker', 'tracker-value-clear', TODAY, 4.5)
     )
     const { container, emitted } = renderRow(item, [
       makeEntry('tracker', 'tracker-value-clear', TODAY, 4.5),
@@ -341,7 +341,7 @@ describe('TodayItemRow — simplified collapsed + expand-on-click layout', () =>
       tracker,
       makeSummary({ entryMode: 'value', actualValue: 4.5, periodRef: WEEK_REF }),
       makePlanning(),
-      makeEntry('tracker', 'tracker-value-zero', TODAY, 4.5),
+      makeEntry('tracker', 'tracker-value-zero', TODAY, 4.5)
     )
     const { container, emitted } = renderRow(item, [
       makeEntry('tracker', 'tracker-value-zero', TODAY, 4.5),
@@ -362,11 +362,9 @@ describe('TodayItemRow — simplified collapsed + expand-on-click layout', () =>
       tracker,
       makeSummary({ entryMode: 'rating', actualValue: 4, periodRef: WEEK_REF }),
       makePlanning(),
-      makeEntry('tracker', 'tracker-rating', TODAY, 4),
+      makeEntry('tracker', 'tracker-rating', TODAY, 4)
     )
-    const { getByLabelText } = renderRow(item, [
-      makeEntry('tracker', 'tracker-rating', TODAY, 4),
-    ])
+    const { getByLabelText } = renderRow(item, [makeEntry('tracker', 'tracker-rating', TODAY, 4)])
 
     // Rating entries render inline counter-style ± buttons
     expect(getByLabelText('Increment')).toBeTruthy()
@@ -380,7 +378,7 @@ describe('TodayItemRow — simplified collapsed + expand-on-click layout', () =>
       tracker,
       makeSummary({ entryMode: 'rating', actualValue: 1, periodRef: WEEK_REF }),
       makePlanning(),
-      makeEntry('tracker', 'tracker-rating-min', TODAY, 1),
+      makeEntry('tracker', 'tracker-rating-min', TODAY, 1)
     )
     const { emitted, getByLabelText } = renderRow(item, [
       makeEntry('tracker', 'tracker-rating-min', TODAY, 1),
@@ -405,7 +403,7 @@ describe('TodayItemRow — simplified collapsed + expand-on-click layout', () =>
         actualValue: 1,
         target: habit.target,
         periodRef: WEEK_REF,
-      }),
+      })
     )
     const { container, getByRole } = renderRow(item, [
       makeEntry('habit', 'habit-completion-small', '2026-03-10'),
@@ -431,7 +429,7 @@ describe('TodayItemRow — simplified collapsed + expand-on-click layout', () =>
         actualValue: 5,
         target: habit.target,
         periodRef: WEEK_REF,
-      }),
+      })
     )
     const { getByRole } = renderRow(item)
 
@@ -455,7 +453,7 @@ describe('TodayItemRow — simplified collapsed + expand-on-click layout', () =>
         entryCount: 10,
         target: habit.target,
         periodRef: MONTH_REF,
-      }),
+      })
     )
     const { getByLabelText } = renderRow(item, [
       makeEntry('habit', 'monthly-counter', '2026-03-02', 3),
@@ -480,7 +478,7 @@ describe('TodayItemRow — simplified collapsed + expand-on-click layout', () =>
         actualValue: 74,
         entryCount: 3,
         periodRef: MONTH_REF,
-      }),
+      })
     )
     const { container } = renderRow(item, [
       makeEntry('tracker', 'monthly-value', '2026-03-01', 72),
@@ -508,7 +506,7 @@ describe('TodayItemRow — simplified collapsed + expand-on-click layout', () =>
         entryCount: 12,
         target: habit.target,
         periodRef: MONTH_REF,
-      }),
+      })
     )
     const { getByLabelText } = renderRow(item, [
       makeEntry('habit', 'monthly-rating', '2026-03-05', 8),
@@ -531,7 +529,7 @@ describe('TodayItemRow — simplified collapsed + expand-on-click layout', () =>
         cadence: 'monthly',
         entryCount: 9,
         periodRef: MONTH_REF,
-      }),
+      })
     )
     const { container, getByRole } = renderRow(item, [
       makeEntry('tracker', 'monthly-completion', '2026-03-01'),
@@ -563,7 +561,7 @@ describe('TodayItemRow — simplified collapsed + expand-on-click layout', () =>
         actualValue: 7,
         target: habit.target,
         periodRef: WEEK_REF,
-      }),
+      })
     )
     const { container, queryByTitle, getByTitle } = renderRow(item, [
       makeEntry('habit', 'habit-expand', '2026-03-10', 4),

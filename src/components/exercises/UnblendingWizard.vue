@@ -14,13 +14,17 @@
       <template v-if="currentStep === 'check-in'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-lg font-bold text-on-surface">{{ t('exerciseWizards.unblending.checkIn.title') }}</h2>
+            <h2 class="text-lg font-bold text-on-surface">
+              {{ t('exerciseWizards.unblending.checkIn.title') }}
+            </h2>
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.unblending.checkIn.subtitle') }}
             </p>
             <div class="neo-surface p-4 rounded-xl">
-              <p class="text-sm text-on-surface leading-relaxed" v-html="t('exerciseWizards.unblending.checkIn.description')">
-              </p>
+              <p
+                class="text-sm text-on-surface leading-relaxed"
+                v-html="t('exerciseWizards.unblending.checkIn.description')"
+              ></p>
             </div>
 
             <div class="space-y-2">
@@ -46,7 +50,9 @@
       <template v-else-if="currentStep === 'awareness'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.unblending.awareness.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.unblending.awareness.title') }}
+            </h2>
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.unblending.awareness.description') }}
             </p>
@@ -57,7 +63,9 @@
                 v-for="option in awarenessOptions"
                 :key="option.value"
                 class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
-                :class="awarenessChoice === option.value ? 'neo-selector--active ring-2 ring-primary' : ''"
+                :class="
+                  awarenessChoice === option.value ? 'neo-selector--active ring-2 ring-primary' : ''
+                "
                 @click="handleAwarenessChoice(option.value)"
               >
                 <div class="flex items-center gap-3">
@@ -90,7 +98,9 @@
 
           <div class="flex justify-between">
             <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
-            <AppButton variant="filled" @click="nextStep()">{{ t('common.buttons.next') }}</AppButton>
+            <AppButton variant="filled" @click="nextStep()">{{
+              t('common.buttons.next')
+            }}</AppButton>
           </div>
         </div>
       </template>
@@ -99,7 +109,9 @@
       <template v-else-if="currentStep === 'magic-question'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.unblending.magicQuestion.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.unblending.magicQuestion.title') }}
+            </h2>
 
             <div class="neo-surface p-6 rounded-xl text-center">
               <p class="text-lg font-semibold text-on-surface">
@@ -115,22 +127,30 @@
             <div class="space-y-3">
               <button
                 class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
-                :class="selfEnergyPresent === true ? 'neo-selector--active ring-2 ring-primary' : ''"
+                :class="
+                  selfEnergyPresent === true ? 'neo-selector--active ring-2 ring-primary' : ''
+                "
                 @click="handleMagicAnswer(true)"
               >
                 <div class="flex items-center gap-3">
                   <AppIcon name="wb_sunny" class="text-xl text-insight-intention-on shrink-0" />
-                  <span class="text-sm text-on-surface">{{ tg('exerciseWizards.unblending.magicQuestion.options.selfEnergy') }}</span>
+                  <span class="text-sm text-on-surface">{{
+                    tg('exerciseWizards.unblending.magicQuestion.options.selfEnergy')
+                  }}</span>
                 </div>
               </button>
               <button
                 class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
-                :class="selfEnergyPresent === false ? 'neo-selector--active ring-2 ring-primary' : ''"
+                :class="
+                  selfEnergyPresent === false ? 'neo-selector--active ring-2 ring-primary' : ''
+                "
                 @click="handleMagicAnswer(false)"
               >
                 <div class="flex items-center gap-3">
                   <AppIcon name="error" class="text-xl text-status-warn shrink-0" />
-                  <span class="text-sm text-on-surface">{{ tg('exerciseWizards.unblending.magicQuestion.options.reactive') }}</span>
+                  <span class="text-sm text-on-surface">{{
+                    tg('exerciseWizards.unblending.magicQuestion.options.reactive')
+                  }}</span>
                 </div>
               </button>
             </div>
@@ -146,7 +166,9 @@
       <template v-else-if="currentStep === 'secondary-check'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.unblending.secondaryCheck.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.unblending.secondaryCheck.title') }}
+            </h2>
             <p class="text-sm text-on-surface">
               {{ tg('exerciseWizards.unblending.secondaryCheck.description') }}
             </p>
@@ -161,7 +183,13 @@
                 <span class="text-xs text-primary font-medium">{{ breathingLabel }}</span>
               </div>
               <p class="text-sm text-on-surface-variant">
-                {{ breathingActive ? t('exerciseWizards.unblending.secondaryCheck.breathingInstructions') : (breathingCompleted ? t('exerciseWizards.unblending.secondaryCheck.afterQuestion') : t('exerciseWizards.unblending.secondaryCheck.breathingPrompt')) }}
+                {{
+                  breathingActive
+                    ? t('exerciseWizards.unblending.secondaryCheck.breathingInstructions')
+                    : breathingCompleted
+                      ? t('exerciseWizards.unblending.secondaryCheck.afterQuestion')
+                      : t('exerciseWizards.unblending.secondaryCheck.breathingPrompt')
+                }}
               </p>
               <AppButton
                 v-if="!breathingActive && !breathingCompleted"
@@ -184,15 +212,19 @@
                   :allow-create="false"
                 />
 
-                <p class="text-sm text-on-surface">{{ t('exerciseWizards.unblending.secondaryCheck.afterQuestion') }}</p>
+                <p class="text-sm text-on-surface">
+                  {{ t('exerciseWizards.unblending.secondaryCheck.afterQuestion') }}
+                </p>
                 <div class="space-y-3">
                   <button
                     class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
-                    @click="selfEnergyPresent = true; nextStep()"
+                    @click="confirmSelfEnergyAndContinue"
                   >
                     <div class="flex items-center gap-3">
                       <AppIcon name="wb_sunny" class="text-xl text-insight-intention-on shrink-0" />
-                      <span class="text-sm text-on-surface">{{ tg('exerciseWizards.unblending.secondaryCheck.options.better') }}</span>
+                      <span class="text-sm text-on-surface">{{
+                        tg('exerciseWizards.unblending.secondaryCheck.options.better')
+                      }}</span>
                     </div>
                   </button>
                   <button
@@ -202,7 +234,9 @@
                   >
                     <div class="flex items-center gap-3">
                       <AppIcon name="error" class="text-xl text-status-warn shrink-0" />
-                      <span class="text-sm text-on-surface">{{ t('exerciseWizards.unblending.secondaryCheck.options.stillReactive') }}</span>
+                      <span class="text-sm text-on-surface">{{
+                        t('exerciseWizards.unblending.secondaryCheck.options.stillReactive')
+                      }}</span>
                     </div>
                   </button>
                 </div>
@@ -213,8 +247,12 @@
                   enter-from-class="opacity-0 -translate-y-2"
                 >
                   <AppCard v-if="stillReactive" variant="inset" padding="md" class="space-y-3">
-                    <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.unblending.secondaryCheck.stillReactiveTitle') }}</p>
-                    <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.unblending.secondaryCheck.stillReactiveHint') }}</p>
+                    <p class="text-sm font-medium text-on-surface">
+                      {{ t('exerciseWizards.unblending.secondaryCheck.stillReactiveTitle') }}
+                    </p>
+                    <p class="text-xs text-on-surface-variant">
+                      {{ t('exerciseWizards.unblending.secondaryCheck.stillReactiveHint') }}
+                    </p>
                     <div class="flex flex-wrap gap-2">
                       <AppButton variant="tonal" @click="switchToSecondaryPart()">
                         {{ t('exerciseWizards.unblending.secondaryCheck.switchTargetButton') }}
@@ -239,7 +277,9 @@
       <template v-else-if="currentStep === 'stepping-back'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.unblending.steppingBack.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.unblending.steppingBack.title') }}
+            </h2>
 
             <div class="neo-surface p-4 rounded-xl">
               <p class="text-sm text-on-surface leading-relaxed">
@@ -252,9 +292,21 @@
             <div class="neo-surface p-8 rounded-2xl flex flex-col items-center gap-4">
               <div class="relative w-20 h-20">
                 <svg class="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
-                  <circle cx="40" cy="40" r="36" fill="none" stroke="currentColor"
-                    class="text-neu-border/20" stroke-width="4" />
-                  <circle cx="40" cy="40" r="36" fill="none" stroke="currentColor"
+                  <circle
+                    cx="40"
+                    cy="40"
+                    r="36"
+                    fill="none"
+                    stroke="currentColor"
+                    class="text-neu-border/20"
+                    stroke-width="4"
+                  />
+                  <circle
+                    cx="40"
+                    cy="40"
+                    r="36"
+                    fill="none"
+                    stroke="currentColor"
                     class="text-primary transition-all duration-1000"
                     stroke-width="4"
                     stroke-linecap="round"
@@ -262,12 +314,20 @@
                     :stroke-dashoffset="countdownOffset"
                   />
                 </svg>
-                <span class="absolute inset-0 flex items-center justify-center text-lg font-bold text-primary">
+                <span
+                  class="absolute inset-0 flex items-center justify-center text-lg font-bold text-primary"
+                >
                   {{ countdownSeconds }}
                 </span>
               </div>
               <p class="text-sm text-on-surface-variant">
-                {{ countdownActive ? t('exerciseWizards.unblending.steppingBack.timerPrompt') : (countdownDone ? t('exerciseWizards.unblending.steppingBack.timerDone') : t('exerciseWizards.unblending.steppingBack.timerTap')) }}
+                {{
+                  countdownActive
+                    ? t('exerciseWizards.unblending.steppingBack.timerPrompt')
+                    : countdownDone
+                      ? t('exerciseWizards.unblending.steppingBack.timerDone')
+                      : t('exerciseWizards.unblending.steppingBack.timerTap')
+                }}
               </p>
               <AppButton
                 v-if="!countdownActive && !countdownDone"
@@ -283,7 +343,9 @@
               enter-from-class="opacity-0"
             >
               <div v-if="countdownDone" class="space-y-2">
-                <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.unblending.steppingBack.shiftLabel') }}</label>
+                <label class="text-xs font-medium text-on-surface-variant">{{
+                  t('exerciseWizards.unblending.steppingBack.shiftLabel')
+                }}</label>
                 <textarea
                   v-model="shiftNotes"
                   rows="2"
@@ -307,7 +369,9 @@
       <template v-else-if="currentStep === 'closing'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.unblending.closing.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.unblending.closing.title') }}
+            </h2>
 
             <RatingSlider
               v-model="shiftRating"
@@ -320,7 +384,9 @@
               <span>{{ t('exerciseWizards.unblending.closing.maxLabel') }}</span>
             </div>
 
-            <p class="text-sm text-on-surface-variant italic">{{ t('exerciseWizards.unblending.closing.thankPart') }}</p>
+            <p class="text-sm text-on-surface-variant italic">
+              {{ t('exerciseWizards.unblending.closing.thankPart') }}
+            </p>
           </AppCard>
 
           <div class="flex justify-between">
@@ -336,7 +402,9 @@
       <template v-else-if="currentStep === 'post-check'">
         <div class="space-y-6">
           <AppCard variant="raised" padding="lg" class="space-y-5">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.unblending.postCheck.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.unblending.postCheck.title') }}
+            </h2>
 
             <div class="space-y-2">
               <EmotionSelector
@@ -349,9 +417,14 @@
             </div>
 
             <!-- Before/After comparison -->
-            <div v-if="beforeEmotionIds.length || afterEmotionIds.length" class="grid grid-cols-2 gap-4">
+            <div
+              v-if="beforeEmotionIds.length || afterEmotionIds.length"
+              class="grid grid-cols-2 gap-4"
+            >
               <div class="space-y-2">
-                <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('exerciseWizards.unblending.postCheck.comparisonLabels.before') }}</p>
+                <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+                  {{ t('exerciseWizards.unblending.postCheck.comparisonLabels.before') }}
+                </p>
                 <div class="flex flex-wrap gap-1">
                   <span
                     v-for="eid in beforeEmotionIds"
@@ -360,11 +433,15 @@
                   >
                     {{ getEmotionName(eid) }}
                   </span>
-                  <span v-if="!beforeEmotionIds.length" class="text-xs text-on-surface-variant">—</span>
+                  <span v-if="!beforeEmotionIds.length" class="text-xs text-on-surface-variant"
+                    >—</span
+                  >
                 </div>
               </div>
               <div class="space-y-2">
-                <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('exerciseWizards.unblending.postCheck.comparisonLabels.after') }}</p>
+                <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+                  {{ t('exerciseWizards.unblending.postCheck.comparisonLabels.after') }}
+                </p>
                 <div class="flex flex-wrap gap-1">
                   <span
                     v-for="eid in afterEmotionIds"
@@ -373,20 +450,26 @@
                   >
                     {{ getEmotionName(eid) }}
                   </span>
-                  <span v-if="!afterEmotionIds.length" class="text-xs text-on-surface-variant">—</span>
+                  <span v-if="!afterEmotionIds.length" class="text-xs text-on-surface-variant"
+                    >—</span
+                  >
                 </div>
               </div>
             </div>
 
             <!-- Shift rating -->
             <div class="neo-surface p-3 rounded-lg flex items-center justify-between">
-              <span class="text-sm text-on-surface-variant">{{ t('exerciseWizards.unblending.postCheck.spaceLabel') }}</span>
+              <span class="text-sm text-on-surface-variant">{{
+                t('exerciseWizards.unblending.postCheck.spaceLabel')
+              }}</span>
               <span class="text-lg font-bold text-primary">{{ shiftRating }}/10</span>
             </div>
 
             <!-- Notes -->
             <div class="space-y-1">
-              <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.unblending.postCheck.notesLabel') }}</label>
+              <label class="text-xs font-medium text-on-surface-variant">{{
+                t('exerciseWizards.unblending.postCheck.notesLabel')
+              }}</label>
               <textarea
                 v-model="notes"
                 rows="2"
@@ -399,7 +482,11 @@
           <div class="flex justify-between">
             <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
             <AppButton variant="filled" :disabled="isSaving" @click="handleSave">
-              {{ isSaving ? t('exerciseWizards.unblending.postCheck.saving') : t('exerciseWizards.unblending.postCheck.saveButton') }}
+              {{
+                isSaving
+                  ? t('exerciseWizards.unblending.postCheck.saving')
+                  : t('exerciseWizards.unblending.postCheck.saveButton')
+              }}
             </AppButton>
           </div>
         </div>
@@ -434,8 +521,13 @@ const partStore = useIFSPartStore()
 const emotionStore = useEmotionStore()
 
 const STEPS: UnblendingStep[] = [
-  'check-in', 'awareness', 'magic-question', 'secondary-check',
-  'stepping-back', 'closing', 'post-check',
+  'check-in',
+  'awareness',
+  'magic-question',
+  'secondary-check',
+  'stepping-back',
+  'closing',
+  'post-check',
 ]
 
 const stepLabels = computed(() => [
@@ -498,9 +590,21 @@ function endGently() {
 }
 
 const awarenessOptions = computed(() => [
-  { value: 'yes' as const, label: t('exerciseWizards.unblending.awareness.options.yes'), icon: 'arrow_forward' },
-  { value: 'maybe' as const, label: tg('exerciseWizards.unblending.awareness.options.maybe'), icon: 'help' },
-  { value: 'no' as const, label: t('exerciseWizards.unblending.awareness.options.no'), icon: 'mood' },
+  {
+    value: 'yes' as const,
+    label: t('exerciseWizards.unblending.awareness.options.yes'),
+    icon: 'arrow_forward',
+  },
+  {
+    value: 'maybe' as const,
+    label: tg('exerciseWizards.unblending.awareness.options.maybe'),
+    icon: 'help',
+  },
+  {
+    value: 'no' as const,
+    label: t('exerciseWizards.unblending.awareness.options.no'),
+    icon: 'mood',
+  },
 ])
 
 function handleAwarenessChoice(choice: 'yes' | 'maybe' | 'no') {
@@ -535,7 +639,9 @@ function startBreathing() {
     breathingTimer = setTimeout(() => {
       breathingLabel.value = t('exerciseWizards.unblending.secondaryCheck.breathingLabel.hold')
       breathingTimer = setTimeout(() => {
-        breathingLabel.value = t('exerciseWizards.unblending.secondaryCheck.breathingLabel.breatheOut')
+        breathingLabel.value = t(
+          'exerciseWizards.unblending.secondaryCheck.breathingLabel.breatheOut'
+        )
         breathingTimer = setTimeout(() => {
           cycle++
           runCycle()
@@ -588,6 +694,13 @@ onUnmounted(() => {
   if (breathingTimer) clearTimeout(breathingTimer)
   if (countdownInterval) clearInterval(countdownInterval)
 })
+
+// Multi-statement inline handlers do not survive prettier's semi: false (the
+// template parser needs the semicolons), so they live here as functions.
+function confirmSelfEnergyAndContinue(): void {
+  selfEnergyPresent.value = true
+  nextStep()
+}
 </script>
 
 <style scoped>
@@ -596,8 +709,15 @@ onUnmounted(() => {
 }
 
 @keyframes breathe {
-  0%, 100% { transform: scale(1); }
-  40% { transform: scale(1.3); }
-  60% { transform: scale(1.3); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.3);
+  }
+  60% {
+    transform: scale(1.3);
+  }
 }
 </style>

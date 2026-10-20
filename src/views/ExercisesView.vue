@@ -1,9 +1,6 @@
 <template>
   <PageContainer>
-    <PageHeader
-      :title="t('exercises.title')"
-      :description="t('exercises.subtitle')"
-    />
+    <PageHeader :title="t('exercises.title')" :description="t('exercises.subtitle')" />
 
     <!-- Tab navigation: the active tab lives in the URL (?tab=) so a refresh
          or a "back to exercises" from a wizard lands on the same category. -->
@@ -11,7 +8,7 @@
       <DsSegmentedControl
         :label="t('exercises.title')"
         :model-value="activeTab"
-        :options="tabs.map((tab) => ({ value: tab.id, label: tab.label }))"
+        :options="tabs.map(tab => ({ value: tab.id, label: tab.label }))"
         @update:model-value="setActiveTab"
       />
     </div>
@@ -92,7 +89,7 @@ function isTab(value: unknown): value is ExercisesTab {
 }
 
 const activeTab = computed<ExercisesTab>(() =>
-  isTab(route.query.tab) ? route.query.tab : 'self-discovery',
+  isTab(route.query.tab) ? route.query.tab : 'self-discovery'
 )
 
 function setActiveTab(tab: ExercisesTab) {
@@ -109,11 +106,11 @@ const tabs = computed(() => [
 ])
 
 const activeTabLabel = computed(
-  () => tabs.value.find((tab) => tab.id === activeTab.value)?.label ?? '',
+  () => tabs.value.find(tab => tab.id === activeTab.value)?.label ?? ''
 )
 
 const visibleEntries = computed(() =>
-  activeTab.value === 'programs' ? [] : catalogEntriesForTab(activeTab.value),
+  activeTab.value === 'programs' ? [] : catalogEntriesForTab(activeTab.value)
 )
 
 // "Last completed" badges come from the unified completion log (one

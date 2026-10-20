@@ -15,10 +15,7 @@
     <!-- Step Content. Enter-only fade: an interruptible leave (out-in) could
          strand the incoming step at opacity-0 when autosave re-renders land
          mid-transition. -->
-    <Transition
-      enter-active-class="transition-opacity duration-200"
-      enter-from-class="opacity-0"
-    >
+    <Transition enter-active-class="transition-opacity duration-200" enter-from-class="opacity-0">
       <!-- Step: Plan (intentions + top-3, combined) -->
       <div v-if="currentStep === 'plan'" key="plan" class="space-y-4">
         <div class="flex flex-wrap items-baseline justify-between gap-2">
@@ -36,14 +33,25 @@
                 class="text-sm"
                 :class="isSavingPlan ? 'animate-spin' : 'text-primary'"
               />
-              {{ isSavingPlan ? t('planning.weekPlanning.priorities.saving') : t('planning.weekPlanning.priorities.saved') }}
+              {{
+                isSavingPlan
+                  ? t('planning.weekPlanning.priorities.saving')
+                  : t('planning.weekPlanning.priorities.saved')
+              }}
             </span>
             <span
               v-if="candidates.length > 0"
               class="text-xs font-semibold"
-              :class="selectedKeys.length > SOFT_LIMIT ? 'text-amber-600' : 'text-on-surface-variant'"
+              :class="
+                selectedKeys.length > SOFT_LIMIT ? 'text-amber-600' : 'text-on-surface-variant'
+              "
             >
-              {{ t('planning.weekPlanning.priorities.counter', { n: selectedKeys.length, max: SOFT_LIMIT }) }}
+              {{
+                t('planning.weekPlanning.priorities.counter', {
+                  n: selectedKeys.length,
+                  max: SOFT_LIMIT,
+                })
+              }}
             </span>
           </div>
         </div>
@@ -61,7 +69,7 @@
             :selected="selectedKeys.includes(candidate.key)"
             :priorities="activePriorities"
             @toggle="toggleCandidate(candidate.key)"
-            @save="(payload) => onSaveIntention(candidate, payload)"
+            @save="payload => onSaveIntention(candidate, payload)"
             @delete="onDeleteIntention(candidate)"
           />
           <div class="neo-card border border-dashed border-neu-border/40 p-3.5">
@@ -116,10 +124,7 @@
             {{ t(areaTitleKey(currentArea.key)) }}
           </h3>
         </div>
-        <ReflectionDimensionRatings
-          :groups="areaGroups"
-          @update:rating="handleRatingUpdate"
-        />
+        <ReflectionDimensionRatings :groups="areaGroups" @update:rating="handleRatingUpdate" />
       </div>
 
       <!-- Step: Anchors -->
@@ -161,11 +166,7 @@
         </AppButton>
       </template>
       <!-- Last reachable step while reflection is still locked: planning is saved live, just close. -->
-      <AppButton
-        v-else-if="isLastStep"
-        variant="filled"
-        @click="emit('close')"
-      >
+      <AppButton v-else-if="isLastStep" variant="filled" @click="emit('close')">
         {{ t('planning.weekWizard.done') }}
       </AppButton>
       <AppButton
@@ -267,7 +268,7 @@ function stepLabel(step: WeeklyReflectionStep): string {
 
 const stepLabels = computed(() => STEP_ORDER.map(stepLabel))
 
-const lockedSteps = computed(() => STEP_ORDER.map((step) => isStepLocked(step)))
+const lockedSteps = computed(() => STEP_ORDER.map(step => isStepLocked(step)))
 
 const stepSubtitle = computed(() => {
   switch (currentStep.value) {
@@ -338,7 +339,7 @@ function typeLabelFor(subjectType: MeasurementSubjectType): string {
 async function loadActivePriorities(): Promise<void> {
   const monthRef = getParentPeriod(props.weekRef)
   const priorities = await getActivePrioritiesForMonth(monthRef)
-  activePriorities.value = priorities.map((priority) => ({ id: priority.id, title: priority.title }))
+  activePriorities.value = priorities.map(priority => ({ id: priority.id, title: priority.title }))
 }
 
 async function loadCandidates(): Promise<void> {
@@ -348,7 +349,7 @@ async function loadCandidates(): Promise<void> {
     getWeekPlanningBundle(props.weekRef),
     goalDexieRepository.listAll(),
   ])
-  const goalMap = new Map(goals.map((goal) => [goal.id, goal]))
+  const goalMap = new Map(goals.map(goal => [goal.id, goal]))
   const seen = new Set<string>()
   const list: WeekPlanCandidate[] = []
   for (const item of bundle.relevant.measurementItems) {
@@ -388,16 +389,16 @@ async function loadCandidates(): Promise<void> {
   }
   candidates.value = list
   selectedKeys.value = (bundle.weekPlan?.topPriorities ?? []).map(
-    (ref) => `${ref.subjectType}:${ref.subjectId}`,
+    ref => `${ref.subjectType}:${ref.subjectId}`
   )
 }
 
 function buildTopPriorityRefs(): WeekTopPriorityRef[] {
-  const byKey = new Map(candidates.value.map((c) => [c.key, c]))
+  const byKey = new Map(candidates.value.map(c => [c.key, c]))
   return selectedKeys.value
-    .map((key) => byKey.get(key))
+    .map(key => byKey.get(key))
     .filter((c): c is WeekPlanCandidate => Boolean(c))
-    .map((c) => ({ subjectType: c.subjectType, subjectId: c.subjectId }))
+    .map(c => ({ subjectType: c.subjectType, subjectId: c.subjectId }))
 }
 
 // Top-3 persists live on every toggle. Serialize the writes so rapid clicks never
@@ -414,7 +415,7 @@ const {
 
 function toggleCandidate(key: string): void {
   selectedKeys.value = selectedKeys.value.includes(key)
-    ? selectedKeys.value.filter((value) => value !== key)
+    ? selectedKeys.value.filter(value => value !== key)
     : [...selectedKeys.value, key]
   void persistTopPriorities()
 }
@@ -431,7 +432,7 @@ async function onSaveIntention(
     entryMode: MeasurementEntryMode
     target: MeasurementTarget
     priorityIds: string[]
-  },
+  }
 ): Promise<void> {
   await updateWeeklyIntention(candidate.subjectId, payload)
   await loadCandidates()
@@ -442,7 +443,7 @@ async function onDeleteIntention(candidate: WeekPlanCandidate): Promise<void> {
   await deleteWeeklyIntention(candidate.subjectId, props.weekRef)
   // Prune a now-dangling top-3 ref so the persisted plan doesn't keep a stale entry.
   if (selectedKeys.value.includes(candidate.key)) {
-    selectedKeys.value = selectedKeys.value.filter((key) => key !== candidate.key)
+    selectedKeys.value = selectedKeys.value.filter(key => key !== candidate.key)
     await persistTopPriorities()
   }
   await loadCandidates()
@@ -461,12 +462,12 @@ watch(
   () => {
     void loadCandidates()
     void loadActivePriorities()
-  },
+  }
 )
 
 // The matrix area whose ratings the current step edits (undefined on non-area steps).
 const currentArea = computed(() =>
-  REFLECTION_MATRIX_AREAS.find((area) => area.key === currentStep.value),
+  REFLECTION_MATRIX_AREAS.find(area => area.key === currentStep.value)
 )
 
 // One group per area step: 3 questions in causal order (demand → action → state).
@@ -478,7 +479,7 @@ const areaGroups = computed<RatingGroup[]>(() => {
   return [
     {
       title: t(areaTitleKey(area.key)),
-      dimensions: MATRIX_SECTIONS.map((section) => ({
+      dimensions: MATRIX_SECTIONS.map(section => ({
         key: area.fields[section],
         label: tg(cellQuestionKey(area.key, section)),
         value: ratingRefsByKey[area.fields[section]].value,
@@ -497,13 +498,13 @@ function handleRatingUpdate(key: string, value: number) {
 
 // Journal-sidebar summary: section groups (Demands/Actions/State) with area-name items.
 const weeklyRatingSummary = computed<SidebarRatingGroup[]>(() =>
-  MATRIX_SECTIONS.map((section) => ({
+  MATRIX_SECTIONS.map(section => ({
     title: t(sectionTitleKey(section)),
-    items: REFLECTION_MATRIX_AREAS.map((area) => ({
+    items: REFLECTION_MATRIX_AREAS.map(area => ({
       label: t(areaTitleKey(area.key)),
       value: ratingRefsByKey[area.fields[section]].value,
     })),
-  })),
+  }))
 )
 
 const summaryPeriodLabel = computed(() => {
@@ -511,7 +512,11 @@ const summaryPeriodLabel = computed(() => {
   const start = new Date(bounds.start + 'T12:00:00')
   const end = new Date(bounds.end + 'T12:00:00')
   const startFmt = start.toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
-  const endFmt = end.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
+  const endFmt = end.toLocaleDateString(undefined, {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
   const match = /W(\d+)/.exec(props.weekRef)
   const weekLabel = match ? `W${match[1]}` : props.weekRef
   return `${weekLabel} · ${startFmt}–${endFmt}`
@@ -524,10 +529,8 @@ const summaryPriorities = computed<ReflectionPriorityLine[]>(() => {
   if (!bundle) return []
   const keys = new Set(topPriorityKeys.value)
   return bundle.weekObjectItems
-    .filter(
-      (item) => keys.has(item.key) || (objectComments.value[item.key] ?? '').trim().length > 0,
-    )
-    .map((item) => ({
+    .filter(item => keys.has(item.key) || (objectComments.value[item.key] ?? '').trim().length > 0)
+    .map(item => ({
       title: item.subject.title,
       status: item.measurement.evaluationStatus,
       comment: objectComments.value[item.key],
@@ -539,10 +542,10 @@ const summaryContext = computed<ReflectionSummaryContext>(() => {
   return {
     kind: 'weekly',
     periodLabel: summaryPeriodLabel.value,
-    ratings: weeklyRatingSummary.value.flatMap((g) => g.items),
+    ratings: weeklyRatingSummary.value.flatMap(g => g.items),
     anchors: weeklyAnchorCategories.value
-      .map((c) => ({ label: c.label, text: (promptResponses.value[c.key] ?? '').trim() }))
-      .filter((a) => a.text.length > 0),
+      .map(c => ({ label: c.label, text: (promptResponses.value[c.key] ?? '').trim() }))
+      .filter(a => a.text.length > 0),
     freeform: freeformReflection.value,
     journalEntries: bundle?.journalEntries ?? [],
     emotionLogs: bundle?.emotionLogs ?? [],

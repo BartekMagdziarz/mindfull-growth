@@ -52,7 +52,12 @@ describe('NextObjectChartCard', () => {
   })
 
   it('uses the whole-month span for monthly cadence objects', () => {
-    const wrapper = mountCard({ scale: 'month', cadence: 'monthly', actualValue: 2, targetValue: 4 })
+    const wrapper = mountCard({
+      scale: 'month',
+      cadence: 'monthly',
+      actualValue: 2,
+      targetValue: 4,
+    })
 
     expect(wrapper.find('.next-object-card__chart--span').exists()).toBe(true)
     expect(wrapper.find('.next-object-card__span-track i').attributes('style')).toContain('50%')

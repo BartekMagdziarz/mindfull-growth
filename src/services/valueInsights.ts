@@ -6,7 +6,7 @@ type ValuesDiscoveryStore = ReturnType<typeof useValuesDiscoveryStore>
 
 export function getLatestCoreValuesFromStores(
   valueMapStore: ValueMapStore,
-  valuesDiscoveryStore: ValuesDiscoveryStore,
+  valuesDiscoveryStore: ValuesDiscoveryStore
 ): string[] {
   const valueMapValues = valueMapStore.latestMap?.coreValues ?? []
   if (valueMapValues.length > 0) return valueMapValues

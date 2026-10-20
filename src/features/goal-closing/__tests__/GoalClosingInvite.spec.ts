@@ -21,7 +21,17 @@ vi.mock('@/services/goalClosingService', () => ({
 import GoalClosingInvite from '../GoalClosingInvite.vue'
 
 function goal(id: string, title: string, targetDate: string): Goal {
-  return { id, createdAt: 'x', updatedAt: 'x', title, isActive: true, status: 'open', priorityIds: [], lifeAreaIds: [], targetDate }
+  return {
+    id,
+    createdAt: 'x',
+    updatedAt: 'x',
+    title,
+    isActive: true,
+    status: 'open',
+    priorityIds: [],
+    lifeAreaIds: [],
+    targetDate,
+  }
 }
 
 beforeEach(() => {
@@ -51,10 +61,18 @@ describe('GoalClosingInvite', () => {
       global: { stubs: { AppIcon: true } },
     })
     await flushPromises()
-    expect(getGoalsAwaitingClosing).toHaveBeenCalledWith('2026-10-04', expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/))
-    expect(wrapper.find('.gc-invite__head small').text()).toBe('W tym okresie minął termin 1 celu, 1 czeka od wcześniej.')
+    expect(getGoalsAwaitingClosing).toHaveBeenCalledWith(
+      '2026-10-04',
+      expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/)
+    )
+    expect(wrapper.find('.gc-invite__head small').text()).toBe(
+      'W tym okresie minął termin 1 celu, 1 czeka od wcześniej.'
+    )
     const rows = wrapper.findAll('.gc-invite__row')
-    expect(rows.map((row) => row.find('strong').text())).toEqual(['Porządek w finansach', 'Blok treningowy'])
+    expect(rows.map(row => row.find('strong').text())).toEqual([
+      'Porządek w finansach',
+      'Blok treningowy',
+    ])
     expect(rows[1].find('small').text()).toMatch(/^termin 30 wrz/)
 
     await rows[1].find('.gc-invite__go').trigger('click')

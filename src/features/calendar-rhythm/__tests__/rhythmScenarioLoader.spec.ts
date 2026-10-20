@@ -63,10 +63,16 @@ describe('buildRhythmScenario', () => {
     const scenario = await buildRhythmScenario('month', MONTH, CLOCK)
 
     expect(scenario.assignments).toEqual([
-      expect.objectContaining({ objectKey: `habit:${habitId}`, scope: { kind: 'month', ref: MONTH } }),
+      expect.objectContaining({
+        objectKey: `habit:${habitId}`,
+        scope: { kind: 'month', ref: MONTH },
+      }),
     ])
     expect(scenario.overrides).toEqual([
-      expect.objectContaining({ objectKey: `habit:${habitId}`, scope: { kind: 'month', ref: MONTH } }),
+      expect.objectContaining({
+        objectKey: `habit:${habitId}`,
+        scope: { kind: 'month', ref: MONTH },
+      }),
     ])
   })
 
@@ -122,12 +128,19 @@ describe('buildRhythmScenario', () => {
       { kind: 'day', ref: '2026-07-14' },
     ])
     expect(scenario.entries).toEqual([
-      expect.objectContaining({ objectKey: `habit:${habitId}`, dayRef: '2026-07-14', value: undefined }),
+      expect.objectContaining({
+        objectKey: `habit:${habitId}`,
+        dayRef: '2026-07-14',
+        value: undefined,
+      }),
     ])
   })
 
   it('carries the plans and the weekly reflection axes in area order', async () => {
-    await periodPlanDexieRepository.createMonthPlan({ monthRef: MONTH, topPriorityIds: ['p1', 'p2'] })
+    await periodPlanDexieRepository.createMonthPlan({
+      monthRef: MONTH,
+      topPriorityIds: ['p1', 'p2'],
+    })
     await periodPlanDexieRepository.createWeekPlan({
       weekRef: WEEK,
       topPriorities: [{ subjectType: 'habit', subjectId: 'h1' }],

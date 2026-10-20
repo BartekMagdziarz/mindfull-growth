@@ -49,7 +49,9 @@
         <template #row-detail="{ row }">
           <div v-if="findRow(row.key)" class="space-y-2.5">
             <div class="flex flex-wrap items-center gap-2.5">
-              <span class="text-[10px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
+              <span
+                class="text-[10px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant"
+              >
                 {{ t('planning.calendar.planner.target') }}
               </span>
               <PlannerTargetControls
@@ -59,7 +61,9 @@
                 :entry-days-max="findRow(row.key)!.cadence === 'monthly' ? 31 : 7"
                 :entry-days-default="findRow(row.key)!.cadence === 'monthly' ? 20 : 5"
                 @operator-change="planner.handleTargetOperatorChange(findRow(row.key)!, $event)"
-                @aggregation-change="planner.handleTargetAggregationChange(findRow(row.key)!, $event)"
+                @aggregation-change="
+                  planner.handleTargetAggregationChange(findRow(row.key)!, $event)
+                "
                 @value-change="planner.handleTargetValueChange(findRow(row.key)!, $event)"
                 @entry-days-change="planner.handleEntryDaysChange(findRow(row.key)!, $event)"
                 @clear-override="planner.handleClearOverride(findRow(row.key)!)"
@@ -71,7 +75,9 @@
               class="flex flex-wrap items-center gap-x-3 gap-y-2"
               :data-testid="`monthly-planner-split-${row.key}`"
             >
-              <span class="text-[10px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
+              <span
+                class="text-[10px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant"
+              >
                 {{ t('planning.calendar.planner.matrix.subTargets') }}
               </span>
               <div
@@ -85,8 +91,12 @@
                 <PlannerWeekTargetPill
                   :target="weekSubTarget(row.key, weekRef)!"
                   :has-override="Boolean(findRow(row.key)!.weekTargetOverrideByRef[weekRef])"
-                  @change="value => planner.handleWeekTargetChange(findRow(row.key)!, weekRef, value)"
-                  @entry-days-change="days => planner.handleWeekEntryDaysValueChange(findRow(row.key)!, weekRef, days)"
+                  @change="
+                    value => planner.handleWeekTargetChange(findRow(row.key)!, weekRef, value)
+                  "
+                  @entry-days-change="
+                    days => planner.handleWeekEntryDaysValueChange(findRow(row.key)!, weekRef, days)
+                  "
                   @clear="planner.handleWeekTargetClear(findRow(row.key)!, weekRef)"
                 />
               </div>
@@ -156,7 +166,7 @@ const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 
 // A failed mutation surfaces as a snackbar; the matrix itself has already been
 // reloaded back to the persisted truth by the composable.
-watch(planner.mutationError, (message) => {
+watch(planner.mutationError, message => {
   if (message) {
     snackbarRef.value?.show(t('planning.calendar.planner.saveError'))
   }
@@ -175,9 +185,7 @@ const columns = computed<AssignmentMatrixColumn[]>(() =>
     key: week.weekRef,
     label: t('planning.calendar.planner.matrix.weekShort', { n: week.label }),
     sublabel: week.rangeLabel,
-    marker: week.isBoundary
-      ? t('planning.calendar.planner.matrix.boundaryHint')
-      : undefined,
+    marker: week.isBoundary ? t('planning.calendar.planner.matrix.boundaryHint') : undefined,
   }))
 )
 

@@ -101,35 +101,32 @@ beforeEach(() => {
   stubs.assessmentState.completed = {}
   stubs.assessmentState.active = {}
   stubs.assessmentState.getLatestCompletedAttemptFromState = vi.fn(
-    (id: AssessmentId) => stubs.assessmentState.completed[id],
+    (id: AssessmentId) => stubs.assessmentState.completed[id]
   )
   stubs.assessmentState.getActiveAttempt = vi.fn(
-    (id: AssessmentId) => stubs.assessmentState.active[id],
+    (id: AssessmentId) => stubs.assessmentState.active[id]
   )
 })
 
 describe('FOUNDATION_ITEMS', () => {
   it('has 16 items across 6 groups (3 / 3 / 5 / 2 / 1 / 2) with unique ids', () => {
-    const groups = FOUNDATION_ITEMS.map((item) => item.group)
-    const ids = FOUNDATION_ITEMS.map((item) => item.id)
+    const groups = FOUNDATION_ITEMS.map(item => item.group)
+    const ids = FOUNDATION_ITEMS.map(item => item.id)
 
     expect(FOUNDATION_ITEMS).toHaveLength(16)
-    expect(groups.filter((g) => g === 'values')).toHaveLength(3)
-    expect(groups.filter((g) => g === 'meaning')).toHaveLength(3)
-    expect(groups.filter((g) => g === 'personality')).toHaveLength(5)
-    expect(groups.filter((g) => g === 'emotions')).toHaveLength(2)
-    expect(groups.filter((g) => g === 'relationships')).toHaveLength(1)
-    expect(groups.filter((g) => g === 'lifeBalance')).toHaveLength(2)
+    expect(groups.filter(g => g === 'values')).toHaveLength(3)
+    expect(groups.filter(g => g === 'meaning')).toHaveLength(3)
+    expect(groups.filter(g => g === 'personality')).toHaveLength(5)
+    expect(groups.filter(g => g === 'emotions')).toHaveLength(2)
+    expect(groups.filter(g => g === 'relationships')).toHaveLength(1)
+    expect(groups.filter(g => g === 'lifeBalance')).toHaveLength(2)
     expect(new Set(ids).size).toBe(ids.length)
   })
 
   it('carries the two Big Five depth variants on the merged slot', () => {
-    const bigFive = FOUNDATION_ITEMS.find((item) => item.id === 'bigFive')!
+    const bigFive = FOUNDATION_ITEMS.find(item => item.id === 'bigFive')!
     expect(bigFive.group).toBe('personality')
-    expect(bigFive.variants?.map((v) => v.assessmentId)).toEqual([
-      'ipip-bfm-50',
-      'ipip-neo-120',
-    ])
+    expect(bigFive.variants?.map(v => v.assessmentId)).toEqual(['ipip-bfm-50', 'ipip-neo-120'])
   })
 })
 
@@ -138,7 +135,7 @@ describe('computeFoundationStatuses', () => {
     const statuses = computeFoundationStatuses(FROZEN_NOW)
 
     expect(statuses).toHaveLength(16)
-    expect(statuses.every((s) => s.state === 'not-started')).toBe(true)
+    expect(statuses.every(s => s.state === 'not-started')).toBe(true)
     expect(foundationCompletionCount(statuses)).toBe(0)
     expect(isFoundationOutdated(statuses)).toBe(false)
   })
@@ -147,7 +144,7 @@ describe('computeFoundationStatuses', () => {
     stubs.threePathwaysState.latestExploration = { createdAt: isoDaysAgo(2) }
 
     const statuses = computeFoundationStatuses(FROZEN_NOW)
-    const target = statuses.find((s) => s.id === 'threePathways')!
+    const target = statuses.find(s => s.id === 'threePathways')!
 
     expect(target.state).toBe('completed')
     expect(target.daysSince).toBe(2)
@@ -158,18 +155,18 @@ describe('computeFoundationStatuses', () => {
     stubs.partsMapState.latestMap = { createdAt: isoDaysAgo(200) }
 
     const statuses = computeFoundationStatuses(FROZEN_NOW)
-    expect(statuses.find((s) => s.id === 'ifsPartsMap')!.state).toBe('outdated')
+    expect(statuses.find(s => s.id === 'ifsPartsMap')!.state).toBe('outdated')
     expect(isFoundationOutdated(statuses)).toBe(true)
   })
 
   it('treats exactly 180 days as completed and 181 days as outdated', () => {
     stubs.mountainRangeState.latestExploration = { createdAt: isoDaysAgo(180) }
     let statuses = computeFoundationStatuses(FROZEN_NOW)
-    expect(statuses.find((s) => s.id === 'mountainRange')!.state).toBe('completed')
+    expect(statuses.find(s => s.id === 'mountainRange')!.state).toBe('completed')
 
     stubs.mountainRangeState.latestExploration = { createdAt: isoDaysAgo(181) }
     statuses = computeFoundationStatuses(FROZEN_NOW)
-    expect(statuses.find((s) => s.id === 'mountainRange')!.state).toBe('outdated')
+    expect(statuses.find(s => s.id === 'mountainRange')!.state).toBe('outdated')
   })
 
   it('marks a single-instrument assessment in-progress when only an active attempt exists', () => {
@@ -180,7 +177,7 @@ describe('computeFoundationStatuses', () => {
     })
 
     const statuses = computeFoundationStatuses(FROZEN_NOW)
-    const target = statuses.find((s) => s.id === 'hexaco-60')!
+    const target = statuses.find(s => s.id === 'hexaco-60')!
 
     expect(target.state).toBe('in-progress')
     expect(target.lastCompletedAt).toBeUndefined()
@@ -191,7 +188,7 @@ describe('Big Five merged slot', () => {
   it('is satisfied by the quick variant and points navigation at it', () => {
     completeAssessment('ipip-bfm-50', 5)
 
-    const bigFive = computeFoundationStatuses(FROZEN_NOW).find((s) => s.id === 'bigFive')!
+    const bigFive = computeFoundationStatuses(FROZEN_NOW).find(s => s.id === 'bigFive')!
 
     expect(bigFive.state).toBe('completed')
     expect(bigFive.completedVariantId).toBe('ipip-bfm-50')
@@ -203,7 +200,7 @@ describe('Big Five merged slot', () => {
     completeAssessment('ipip-bfm-50', 90)
     completeAssessment('ipip-neo-120', 10)
 
-    const bigFive = computeFoundationStatuses(FROZEN_NOW).find((s) => s.id === 'bigFive')!
+    const bigFive = computeFoundationStatuses(FROZEN_NOW).find(s => s.id === 'bigFive')!
 
     expect(bigFive.state).toBe('completed')
     expect(bigFive.completedVariantId).toBe('ipip-neo-120')
@@ -218,20 +215,17 @@ describe('Big Five merged slot', () => {
       completedAt: undefined,
     })
 
-    const bigFive = computeFoundationStatuses(FROZEN_NOW).find((s) => s.id === 'bigFive')!
+    const bigFive = computeFoundationStatuses(FROZEN_NOW).find(s => s.id === 'bigFive')!
 
     expect(bigFive.state).toBe('in-progress')
     expect(bigFive.completedVariantId).toBe('ipip-neo-120')
   })
 
   it('offers both depths to choose from while not started', () => {
-    const bigFive = computeFoundationStatuses(FROZEN_NOW).find((s) => s.id === 'bigFive')!
+    const bigFive = computeFoundationStatuses(FROZEN_NOW).find(s => s.id === 'bigFive')!
 
     expect(bigFive.state).toBe('not-started')
-    expect(bigFive.variants?.map((v) => v.assessmentId)).toEqual([
-      'ipip-bfm-50',
-      'ipip-neo-120',
-    ])
+    expect(bigFive.variants?.map(v => v.assessmentId)).toEqual(['ipip-bfm-50', 'ipip-neo-120'])
   })
 })
 
@@ -241,7 +235,7 @@ describe('group coverage + unlock', () => {
     stubs.partsMapState.latestMap = { createdAt: isoDaysAgo(200) } // personality (outdated)
 
     const progress = computeFoundationGroupProgress(computeFoundationStatuses(FROZEN_NOW))
-    const byGroup = Object.fromEntries(progress.map((g) => [g.group, g]))
+    const byGroup = Object.fromEntries(progress.map(g => [g.group, g]))
 
     expect(byGroup.values.completed).toBe(1)
     expect(byGroup.values.total).toBe(3)

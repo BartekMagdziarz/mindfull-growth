@@ -1,9 +1,17 @@
 <template>
-  <Transition mode="out-in" enter-active-class="transition-opacity duration-200" enter-from-class="opacity-0">
+  <Transition
+    mode="out-in"
+    enter-active-class="transition-opacity duration-200"
+    enter-from-class="opacity-0"
+  >
     <AppCard :key="currentStep.key" padding="lg" class="micro-card" :style="cardStyle">
       <!-- Progress: quiet accent dots, the current one drawn out; done dots lead back.
            Hidden until the first answer reveals the branch (a lone pill reads as loading). -->
-      <nav v-if="steps.length > 1" class="micro-steps" :aria-label="t('exerciseWizards.micro.shared.steps')">
+      <nav
+        v-if="steps.length > 1"
+        class="micro-steps"
+        :aria-label="t('exerciseWizards.micro.shared.steps')"
+      >
         <ol>
           <li v-for="(step, idx) in steps" :key="step.key">
             <button
@@ -33,7 +41,11 @@
             >{{ t('exerciseWizards.micro.shared.optional') }}</small
           >
         </h2>
-        <ExerciseStepWhy variant="disc" class="micro-why" :text="optionalText(stepKey(currentStep, 'why'))" />
+        <ExerciseStepWhy
+          variant="disc"
+          class="micro-why"
+          :text="optionalText(stepKey(currentStep, 'why'))"
+        />
         <p class="micro-desc">
           {{ tg(stepKey(currentStep, 'description')) }}
         </p>
@@ -47,147 +59,155 @@
 
       <!-- Body: the answer, always on the zone's full width (info steps have none). -->
       <div v-if="currentStep.type !== 'info'" class="micro-body">
-      <div v-if="currentStep.type === 'textarea'" class="micro-text">
-        <textarea
-          v-model="textValues[currentStep.key]"
-          :rows="currentStep.minLength ? 7 : 5"
-          :placeholder="tg(stepKey(currentStep, 'placeholder'))"
-          class="micro-field"
-          :class="{ 'micro-field--long': currentStep.minLength }"
-        />
-        <!-- Soft minimum: a counter and a gentle note, never a block. -->
-        <p v-if="currentStep.minLength" class="micro-minlength" data-testid="micro-minlength">
-          <span>{{ (textValues[currentStep.key] ?? '').trim().length }} / {{ currentStep.minLength }}</span>
-          <span v-if="(textValues[currentStep.key] ?? '').trim().length < currentStep.minLength">
-            {{ t('exerciseWizards.micro.shared.minLengthNote') }}
-          </span>
-        </p>
-      </div>
+        <div v-if="currentStep.type === 'textarea'" class="micro-text">
+          <textarea
+            v-model="textValues[currentStep.key]"
+            :rows="currentStep.minLength ? 7 : 5"
+            :placeholder="tg(stepKey(currentStep, 'placeholder'))"
+            class="micro-field"
+            :class="{ 'micro-field--long': currentStep.minLength }"
+          />
+          <!-- Soft minimum: a counter and a gentle note, never a block. -->
+          <p v-if="currentStep.minLength" class="micro-minlength" data-testid="micro-minlength">
+            <span
+              >{{ (textValues[currentStep.key] ?? '').trim().length }} /
+              {{ currentStep.minLength }}</span
+            >
+            <span v-if="(textValues[currentStep.key] ?? '').trim().length < currentStep.minLength">
+              {{ t('exerciseWizards.micro.shared.minLengthNote') }}
+            </span>
+          </p>
+        </div>
 
-      <div v-else-if="currentStep.type === 'textList'" class="micro-list">
-        <input
-          v-for="(_, index) in listValues[currentStep.key]"
-          :key="index"
-          v-model="listValues[currentStep.key]![index]"
-          type="text"
-          :placeholder="tg(stepKey(currentStep, 'placeholder'))"
-          class="micro-field"
-        />
-      </div>
+        <div v-else-if="currentStep.type === 'textList'" class="micro-list">
+          <input
+            v-for="(_, index) in listValues[currentStep.key]"
+            :key="index"
+            v-model="listValues[currentStep.key]![index]"
+            type="text"
+            :placeholder="tg(stepKey(currentStep, 'placeholder'))"
+            class="micro-field"
+          />
+        </div>
 
-      <!-- Up to five steps: the reflection's cloud stack, empty until rated.
+        <!-- Up to five steps: the reflection's cloud stack, empty until rated.
            Up to eleven: a row of numbered tiles. Wider (0–100): the range. -->
-      <ExerciseRatingStack
-        v-else-if="currentStep.type === 'slider' && isStackScale(currentStep)"
-        v-model="sliderValues[currentStep.key]!"
-        :min="currentStep.min"
-        :max="currentStep.max"
-        :min-label="tg(stepKey(currentStep, 'minLabel'))"
-        :max-label="tg(stepKey(currentStep, 'maxLabel'))"
-        :aria-label="tg(stepKey(currentStep, 'title'))"
-        :empty-label="t('exerciseWizards.micro.shared.unrated')"
-        :decrease-label="t('exerciseWizards.micro.shared.breath.less')"
-        :increase-label="t('exerciseWizards.micro.shared.breath.more')"
-      />
-      <ExerciseScaleRow
-        v-else-if="currentStep.type === 'slider' && isDiscreteScale(currentStep)"
-        :model-value="sliderValues[currentStep.key] ?? currentStep.min"
-        :min="currentStep.min"
-        :max="currentStep.max"
-        :min-label="tg(stepKey(currentStep, 'minLabel'))"
-        :max-label="tg(stepKey(currentStep, 'maxLabel'))"
-        :aria-label="tg(stepKey(currentStep, 'title'))"
-        @update:model-value="sliderValues[currentStep.key] = $event"
-      />
-      <div v-else-if="currentStep.type === 'slider'" class="micro-range">
-        <ExerciseRangeInput
+        <ExerciseRatingStack
+          v-else-if="currentStep.type === 'slider' && isStackScale(currentStep)"
+          v-model="sliderValues[currentStep.key]!"
+          :min="currentStep.min"
+          :max="currentStep.max"
+          :min-label="tg(stepKey(currentStep, 'minLabel'))"
+          :max-label="tg(stepKey(currentStep, 'maxLabel'))"
+          :aria-label="tg(stepKey(currentStep, 'title'))"
+          :empty-label="t('exerciseWizards.micro.shared.unrated')"
+          :decrease-label="t('exerciseWizards.micro.shared.breath.less')"
+          :increase-label="t('exerciseWizards.micro.shared.breath.more')"
+        />
+        <ExerciseScaleRow
+          v-else-if="currentStep.type === 'slider' && isDiscreteScale(currentStep)"
           :model-value="sliderValues[currentStep.key] ?? currentStep.min"
           :min="currentStep.min"
           :max="currentStep.max"
-          :step="currentStep.step ?? 1"
+          :min-label="tg(stepKey(currentStep, 'minLabel'))"
+          :max-label="tg(stepKey(currentStep, 'maxLabel'))"
+          :aria-label="tg(stepKey(currentStep, 'title'))"
           @update:model-value="sliderValues[currentStep.key] = $event"
         />
-        <div class="micro-range__ends">
-          <span>{{ tg(stepKey(currentStep, 'minLabel')) }}</span>
-          <strong>{{ sliderValues[currentStep.key] }}</strong>
-          <span>{{ tg(stepKey(currentStep, 'maxLabel')) }}</span>
+        <div v-else-if="currentStep.type === 'slider'" class="micro-range">
+          <ExerciseRangeInput
+            :model-value="sliderValues[currentStep.key] ?? currentStep.min"
+            :min="currentStep.min"
+            :max="currentStep.max"
+            :step="currentStep.step ?? 1"
+            @update:model-value="sliderValues[currentStep.key] = $event"
+          />
+          <div class="micro-range__ends">
+            <span>{{ tg(stepKey(currentStep, 'minLabel')) }}</span>
+            <strong>{{ sliderValues[currentStep.key] }}</strong>
+            <span>{{ tg(stepKey(currentStep, 'maxLabel')) }}</span>
+          </div>
         </div>
-      </div>
 
-      <EmotionGroupPicker
-        v-else-if="currentStep.type === 'emotionPick'"
-        v-model="emotionStates[currentStep.key]!.selections"
-        v-model:quadrant="emotionStates[currentStep.key]!.quadrant"
-      />
+        <EmotionGroupPicker
+          v-else-if="currentStep.type === 'emotionPick'"
+          v-model="emotionStates[currentStep.key]!.selections"
+          v-model:quadrant="emotionStates[currentStep.key]!.quadrant"
+        />
 
-      <div
-        v-else-if="currentStep.type === 'choice'"
-        class="micro-choice"
-        :class="{ 'micro-choice--pair': choiceOptions(currentStep).length <= 2 }"
-        :style="{ '--micro-cols': choiceColumns(choiceOptions(currentStep).length) }"
-        :role="currentStep.multiple ? 'group' : 'radiogroup'"
-        :aria-label="tg(stepKey(currentStep, 'title'))"
-      >
-        <p v-if="choiceOptions(currentStep).length === 0" class="micro-pick__empty">
-          {{ optionalText(stepKey(currentStep, 'empty')) || t('exerciseWizards.micro.shared.noPractices') }}
-        </p>
-        <button
-          v-for="option in choiceOptions(currentStep)"
-          :key="option.id"
-          type="button"
-          class="exercise-chip micro-choice__option"
-          :class="{ 'is-on': isChosen(currentStep.key, option.id) }"
-          :role="currentStep.multiple ? undefined : 'radio'"
-          :aria-pressed="currentStep.multiple ? isChosen(currentStep.key, option.id) : undefined"
-          :aria-checked="currentStep.multiple ? undefined : isChosen(currentStep.key, option.id)"
-          @click="toggleChoice(currentStep, option.id)"
+        <div
+          v-else-if="currentStep.type === 'choice'"
+          class="micro-choice"
+          :class="{ 'micro-choice--pair': choiceOptions(currentStep).length <= 2 }"
+          :style="{ '--micro-cols': choiceColumns(choiceOptions(currentStep).length) }"
+          :role="currentStep.multiple ? 'group' : 'radiogroup'"
+          :aria-label="tg(stepKey(currentStep, 'title'))"
         >
-          <span>{{ option.label }}</span>
-          <small v-if="option.hint" class="exercise-chip__hint micro-choice__hint">{{ option.hint }}</small>
-        </button>
-      </div>
-
-      <!-- Pick one recent entry of another micro (e.g. a moment to work on). -->
-      <div
-        v-else-if="currentStep.type === 'entryPick'"
-        class="micro-pick"
-        role="radiogroup"
-        :aria-label="tg(stepKey(currentStep, 'title'))"
-      >
-        <p v-if="pickable.length === 0" class="micro-pick__empty">
-          {{ tg(stepKey(currentStep, 'empty')) }}
-        </p>
-        <button
-          v-for="entry in pickable"
-          :key="entry.id"
-          type="button"
-          class="micro-pick__card"
-          :class="{ 'is-selected': pickValues[currentStep.key] === entry.id }"
-          role="radio"
-          :aria-checked="pickValues[currentStep.key] === entry.id"
-          @click="togglePick(currentStep.key, entry.id)"
-        >
-          <span class="micro-pick__date">{{ formatEntryDate(entry.createdAt) }}</span>
-          <span
-            v-for="line in pickCardLines(currentStep, entry)"
-            :key="line.key"
-            class="micro-pick__line"
-            :class="{ 'micro-pick__line--meta': line.meta }"
+          <p v-if="choiceOptions(currentStep).length === 0" class="micro-pick__empty">
+            {{
+              optionalText(stepKey(currentStep, 'empty')) ||
+              t('exerciseWizards.micro.shared.noPractices')
+            }}
+          </p>
+          <button
+            v-for="option in choiceOptions(currentStep)"
+            :key="option.id"
+            type="button"
+            class="exercise-chip micro-choice__option"
+            :class="{ 'is-on': isChosen(currentStep.key, option.id) }"
+            :role="currentStep.multiple ? undefined : 'radio'"
+            :aria-pressed="currentStep.multiple ? isChosen(currentStep.key, option.id) : undefined"
+            :aria-checked="currentStep.multiple ? undefined : isChosen(currentStep.key, option.id)"
+            @click="toggleChoice(currentStep, option.id)"
           >
-            {{ line.text }}
-          </span>
-        </button>
-      </div>
+            <span>{{ option.label }}</span>
+            <small v-if="option.hint" class="exercise-chip__hint micro-choice__hint">{{
+              option.hint
+            }}</small>
+          </button>
+        </div>
 
-      <MicroBreathTimer
-        v-else-if="currentStep.type === 'breathTimer'"
-        :phase-seconds="currentStep.phaseSeconds"
-        :total-seconds="currentStep.totalSeconds"
-        :storage-key="`${definition.slug}:${currentStep.key}`"
-        @started="Object.assign(breathStates[currentStep.key]!, $event)"
-        @progress="breathStates[currentStep.key]!.elapsed = $event"
-        @done="Object.assign(breathStates[currentStep.key]!, { done: true, elapsed: $event })"
-      />
+        <!-- Pick one recent entry of another micro (e.g. a moment to work on). -->
+        <div
+          v-else-if="currentStep.type === 'entryPick'"
+          class="micro-pick"
+          role="radiogroup"
+          :aria-label="tg(stepKey(currentStep, 'title'))"
+        >
+          <p v-if="pickable.length === 0" class="micro-pick__empty">
+            {{ tg(stepKey(currentStep, 'empty')) }}
+          </p>
+          <button
+            v-for="entry in pickable"
+            :key="entry.id"
+            type="button"
+            class="micro-pick__card"
+            :class="{ 'is-selected': pickValues[currentStep.key] === entry.id }"
+            role="radio"
+            :aria-checked="pickValues[currentStep.key] === entry.id"
+            @click="togglePick(currentStep.key, entry.id)"
+          >
+            <span class="micro-pick__date">{{ formatEntryDate(entry.createdAt) }}</span>
+            <span
+              v-for="line in pickCardLines(currentStep, entry)"
+              :key="line.key"
+              class="micro-pick__line"
+              :class="{ 'micro-pick__line--meta': line.meta }"
+            >
+              {{ line.text }}
+            </span>
+          </button>
+        </div>
+
+        <MicroBreathTimer
+          v-else-if="currentStep.type === 'breathTimer'"
+          :phase-seconds="currentStep.phaseSeconds"
+          :total-seconds="currentStep.totalSeconds"
+          :storage-key="`${definition.slug}:${currentStep.key}`"
+          @started="Object.assign(breathStates[currentStep.key]!, $event)"
+          @progress="breathStates[currentStep.key]!.elapsed = $event"
+          @done="Object.assign(breathStates[currentStep.key]!, { done: true, elapsed: $event })"
+        />
       </div>
 
       <!-- Actions right after the content, inside the card. -->
@@ -268,7 +288,7 @@ const props = withDefaults(
     /** Answers proposed up front; their steps still show, pre-filled and editable. */
     prefill?: MicroPrefill
   }>(),
-  { preset: () => ({}), prefill: () => ({}) },
+  { preset: () => ({}), prefill: () => ({}) }
 )
 
 const emit = defineEmits<{
@@ -341,13 +361,22 @@ for (const step of props.definition.steps) {
       textValues[step.key] = typeof given === 'string' ? given : ''
       break
     case 'textList': {
-      const list = Array.isArray(given) ? given.filter((v): v is string => typeof v === 'string') : []
-      listValues[step.key] = Array.from({ length: Math.max(step.prompts, list.length) }, (_, i) => list[i] ?? '')
+      const list = Array.isArray(given)
+        ? given.filter((v): v is string => typeof v === 'string')
+        : []
+      listValues[step.key] = Array.from(
+        { length: Math.max(step.prompts, list.length) },
+        (_, i) => list[i] ?? ''
+      )
       break
     }
     case 'slider':
       sliderValues[step.key] =
-        typeof given === 'number' ? given : isStackScale(step) ? null : Math.round((step.min + step.max) / 2)
+        typeof given === 'number'
+          ? given
+          : isStackScale(step)
+            ? null
+            : Math.round((step.min + step.max) / 2)
       break
     case 'emotionPick':
       emotionStates[step.key] = { selections: [], quadrant: null }
@@ -358,7 +387,8 @@ for (const step of props.definition.steps) {
     case 'choice': {
       const preset = props.preset[step.key] ?? given
       choiceValues[step.key] =
-        typeof preset === 'string' || (Array.isArray(preset) && preset.every((v) => typeof v === 'string'))
+        typeof preset === 'string' ||
+        (Array.isArray(preset) && preset.every(v => typeof v === 'string'))
           ? step.multiple
             ? [...(Array.isArray(preset) ? (preset as string[]) : [preset as string])]
             : Array.isArray(preset)
@@ -381,10 +411,10 @@ for (const step of props.definition.steps) {
 // the host view, so this is a no-op when already loaded.
 onMounted(() => {
   void entryStore.loadEntries()
-  if (props.definition.steps.some((step) => step.type === 'choice' && step.labelsFromParts)) {
+  if (props.definition.steps.some(step => step.type === 'choice' && step.labelsFromParts)) {
     void partStore.loadParts()
   }
-  if (props.definition.steps.some((step) => step.type === 'choice' && step.optionsFrom)) {
+  if (props.definition.steps.some(step => step.type === 'choice' && step.optionsFrom)) {
     void enrollmentStore.ensureLoaded()
   }
 })
@@ -419,16 +449,17 @@ function choiceOptions(step: MicroExerciseStep): ChoiceOption[] {
   if (step.type !== 'choice') return []
   const dynamic: ChoiceOption[] =
     step.optionsFrom === 'programPractices'
-      ? programPracticeSlugs.value.map((slug) => ({ id: slug, label: catalogTitle(slug), hint: '' }))
+      ? programPracticeSlugs.value.map(slug => ({ id: slug, label: catalogTitle(slug), hint: '' }))
       : []
-  const statics: ChoiceOption[] = step.options.map((option) => {
+  const statics: ChoiceOption[] = step.options.map(option => {
     const fallback = tg(stepKey(step, `options.${option}`))
     const tag = step.labelsFromParts?.[option]
-    const part = tag ? partStore.parts.find((candidate) => candidate.tags?.includes(tag)) : undefined
-    const label = part && part.name.trim() && part.name !== fallback ? `${part.name} (${fallback})` : fallback
+    const part = tag ? partStore.parts.find(candidate => candidate.tags?.includes(tag)) : undefined
+    const label =
+      part && part.name.trim() && part.name !== fallback ? `${part.name} (${fallback})` : fallback
     return { id: option, label, hint: optionalText(stepKey(step, `optionHints.${option}`)) }
   })
-  return [...dynamic, ...statics.filter((option) => !dynamic.some((d) => d.id === option.id))]
+  return [...dynamic, ...statics.filter(option => !dynamic.some(d => d.id === option.id))]
 }
 
 // Only steps whose `showWhen` matches the current choices take part in the
@@ -442,10 +473,10 @@ const choiceAnswers = computed<MicroChoiceAnswers>(() => {
   }
   return answers
 })
-const steps = computed(() => visibleMicroSteps(props.definition.steps, choiceAnswers.value, props.preset))
-const currentStep = computed(
-  () => steps.value[Math.min(stepIndex.value, steps.value.length - 1)]!,
+const steps = computed(() =>
+  visibleMicroSteps(props.definition.steps, choiceAnswers.value, props.preset)
 )
+const currentStep = computed(() => steps.value[Math.min(stepIndex.value, steps.value.length - 1)]!)
 /** An open quadrant tints the card, as in the emotion log editor. */
 const cardStyle = computed(() => {
   const step = currentStep.value
@@ -454,7 +485,8 @@ const cardStyle = computed(() => {
     : undefined
 })
 const isLastStep = computed(
-  () => !hasStepsAfter(props.definition.steps, currentStep.value.key, choiceAnswers.value, props.preset),
+  () =>
+    !hasStepsAfter(props.definition.steps, currentStep.value.key, choiceAnswers.value, props.preset)
 )
 
 function isChosen(key: string, option: string): boolean {
@@ -467,7 +499,7 @@ function toggleChoice(step: MicroExerciseStep, option: string): void {
   const value = choiceValues[step.key]
   if (Array.isArray(value)) {
     choiceValues[step.key] = value.includes(option)
-      ? value.filter((picked) => picked !== option)
+      ? value.filter(picked => picked !== option)
       : [...value, option]
     return
   }
@@ -507,10 +539,10 @@ function isStackScale(step: Extract<MicroExerciseStep, { type: 'slider' }>): boo
 function formatSourceValue(
   source: MicroExerciseDefinition | undefined,
   key: string,
-  value: MicroStepValue | undefined,
+  value: MicroStepValue | undefined
 ): string | undefined {
   if (value === undefined || value === null) return undefined
-  const sourceStep = source?.steps.find((step) => step.key === key)
+  const sourceStep = source?.steps.find(step => step.key === key)
   const label = (option: string) =>
     sourceStep?.type === 'choice' && source
       ? tg(`exerciseWizards.micro.${source.i18nKey}.${key}.options.${option}`)
@@ -526,13 +558,13 @@ function formatSourceValue(
 
 function pickCardLines(
   step: Extract<MicroExerciseStep, { type: 'entryPick' }>,
-  entry: MicroExerciseEntry,
+  entry: MicroExerciseEntry
 ): Array<{ key: string; text: string; meta: boolean }> {
   const source = getMicroExercise(step.slug)
-  return step.show.flatMap((key) => {
+  return step.show.flatMap(key => {
     const text = formatSourceValue(source, key, entry.responses[key])
     if (!text) return []
-    const sourceStep = source?.steps.find((candidate) => candidate.key === key)
+    const sourceStep = source?.steps.find(candidate => candidate.key === key)
     return [{ key, text, meta: sourceStep?.type === 'choice' }]
   })
 }
@@ -548,10 +580,10 @@ const hint = computed<{ label: string; text: string } | null>(() => {
   if (source.source === 'latest') {
     const when = conditionList(source.when)
     const answers = choiceAnswers.value
-    const holds = when.every((condition) => {
+    const holds = when.every(condition => {
       const answer = answers[condition.step]
       const picked = Array.isArray(answer) ? answer : answer ? [answer] : []
-      return picked.some((option) => condition.in.includes(option))
+      return picked.some(option => condition.in.includes(option))
     })
     if (!holds) return null
   }
@@ -560,16 +592,21 @@ const hint = computed<{ label: string; text: string } | null>(() => {
     source.source === 'latest'
       ? getMicroExercise(source.slug)
       : (() => {
-          const pickStep = props.definition.steps.find((candidate) => candidate.key === source.pickStep)
+          const pickStep = props.definition.steps.find(
+            candidate => candidate.key === source.pickStep
+          )
           return pickStep?.type === 'entryPick' ? getMicroExercise(pickStep.slug) : undefined
         })()
   const text = formatSourceValue(sourceDefinition, source.step, raw)
   if (!text) return null
-  const label = optionalText(stepKey(step, 'hintLabel')) || t('exerciseWizards.micro.shared.hintLabel')
+  const label =
+    optionalText(stepKey(step, 'hintLabel')) || t('exerciseWizards.micro.shared.hintLabel')
   return {
     label,
     text:
-      !source.full && text.length > HINT_MAX_CHARS ? `${text.slice(0, HINT_MAX_CHARS - 1).trimEnd()}…` : text,
+      !source.full && text.length > HINT_MAX_CHARS
+        ? `${text.slice(0, HINT_MAX_CHARS - 1).trimEnd()}…`
+        : text,
   }
 })
 
@@ -586,7 +623,7 @@ const canAdvance = computed(() => {
     case 'textarea':
       return (textValues[step.key] ?? '').trim().length > 0
     case 'textList':
-      return (listValues[step.key] ?? []).some((value) => value.trim().length > 0)
+      return (listValues[step.key] ?? []).some(value => value.trim().length > 0)
     case 'emotionPick':
       return (emotionStates[step.key]?.selections.length ?? 0) > 0
     case 'choice': {
@@ -622,8 +659,8 @@ function buildResponses(): Record<string, MicroStepValue> {
       }
       case 'textList': {
         const items = (listValues[step.key] ?? [])
-          .map((value) => value.trim())
-          .filter((value) => value.length > 0)
+          .map(value => value.trim())
+          .filter(value => value.length > 0)
         if (items.length > 0) responses[step.key] = items
         break
       }
@@ -636,7 +673,7 @@ function buildResponses(): Record<string, MicroStepValue> {
       case 'emotionPick': {
         const state = emotionStates[step.key]
         if (state && state.selections.length > 0) {
-          responses[step.key] = state.selections.map((selection) => ({ ...selection }))
+          responses[step.key] = state.selections.map(selection => ({ ...selection }))
         }
         break
       }
@@ -686,8 +723,8 @@ const canFinishNow = computed(
       currentStep.value.key,
       choiceAnswers.value,
       props.preset,
-      props.definition.earlyFinishAfter,
-    ),
+      props.definition.earlyFinishAfter
+    )
 )
 
 function finishEarly(): void {

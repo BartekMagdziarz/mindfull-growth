@@ -20,7 +20,7 @@ const MAX_DAILY = 7
 /** Slice points to the last N visible periods. */
 export function getVisiblePoints(
   points: ObjectsLibraryChartPoint[],
-  cadence: 'weekly' | 'monthly' | 'daily',
+  cadence: 'weekly' | 'monthly' | 'daily'
 ): ObjectsLibraryChartPoint[] {
   const max = cadence === 'monthly' ? MAX_MONTHLY : cadence === 'daily' ? MAX_DAILY : MAX_WEEKLY
   if (points.length <= max) return points
@@ -29,12 +29,16 @@ export function getVisiblePoints(
 
 /** Compute the max value across actual + target, floored at 1. */
 export function computeMaxValue(points: ObjectsLibraryChartPoint[]): number {
-  const values = points.flatMap((p) => [p.actualValue ?? 0, p.targetValue ?? 0])
+  const values = points.flatMap(p => [p.actualValue ?? 0, p.targetValue ?? 0])
   return Math.max(...values, 1)
 }
 
 /** Y coordinate of a target value on the chart's vertical scale. */
-export function targetValueY(targetValue: number, maxValue: number, chartHeight = CHART_HEIGHT): number {
+export function targetValueY(
+  targetValue: number,
+  maxValue: number,
+  chartHeight = CHART_HEIGHT
+): number {
   const h = Math.max(2, (targetValue / maxValue) * chartHeight)
   return PADDING_TOP + chartHeight - h
 }
@@ -57,7 +61,7 @@ export interface TargetStepSegment {
 export function targetStepPath(
   segments: TargetStepSegment[],
   maxValue: number,
-  chartHeight = CHART_HEIGHT,
+  chartHeight = CHART_HEIGHT
 ): string {
   let path = ''
   let penDown = false
@@ -74,20 +78,26 @@ export function targetStepPath(
 }
 
 /** Whether to show a period label at index i. */
-export function shouldShowLabel(i: number, n: number, cadence: 'weekly' | 'monthly' | 'daily'): boolean {
+export function shouldShowLabel(
+  i: number,
+  n: number,
+  cadence: 'weekly' | 'monthly' | 'daily'
+): boolean {
   if (cadence === 'monthly' || cadence === 'daily') return true
   if (i === 0 || i === n - 1) return true
   return i % 4 === 0
 }
 
 /** Format a period reference as a short label. */
-export function periodLabel(periodRef: string, cadence: 'weekly' | 'monthly' | 'daily', locale: string): string {
+export function periodLabel(
+  periodRef: string,
+  cadence: 'weekly' | 'monthly' | 'daily',
+  locale: string
+): string {
   if (cadence === 'daily') {
     // periodRef is a DayRef like "2026-03-14"
     const date = new Date(periodRef + 'T00:00:00')
-    return new Intl.DateTimeFormat(locale, { weekday: 'short' })
-      .format(date)
-      .slice(0, 2)
+    return new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(date).slice(0, 2)
   }
   if (cadence === 'weekly') {
     const match = periodRef.match(/W(\d+)$/)
@@ -124,7 +134,7 @@ export function topRoundedBarPath(
   y: number,
   w: number,
   h: number,
-  r = w * BAR_CORNER_FRACTION,
+  r = w * BAR_CORNER_FRACTION
 ): string {
   const rr = Math.max(0, Math.min(r, w / 2, h))
   return (

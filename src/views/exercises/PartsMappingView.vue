@@ -8,7 +8,9 @@
 
     <!-- Past Maps -->
     <div class="mt-10 space-y-4">
-      <div class="mg-v2-section-head"><h2>{{ t('exercises.views.pastMaps') }}</h2></div>
+      <div class="mg-v2-section-head">
+        <h2>{{ t('exercises.views.pastMaps') }}</h2>
+      </div>
 
       <template v-if="sortedMaps.length">
         <AppCard
@@ -23,11 +25,30 @@
               {{ formatDate(map.createdAt) }}
             </span>
             <div class="flex gap-2">
-              <span class="exercise-pill text-xs px-2 py-0.5 bg-exercise-ifs-soft text-exercise-ifs-on">
-                {{ tp(map.partIds.length, 'exercises.views.partCount.one', 'exercises.views.partCount.few', 'exercises.views.partCount.many') }}
+              <span
+                class="exercise-pill text-xs px-2 py-0.5 bg-exercise-ifs-soft text-exercise-ifs-on"
+              >
+                {{
+                  tp(
+                    map.partIds.length,
+                    'exercises.views.partCount.one',
+                    'exercises.views.partCount.few',
+                    'exercises.views.partCount.many'
+                  )
+                }}
               </span>
-              <span v-if="map.relationships.length" class="exercise-pill text-xs px-2 py-0.5 bg-ifs-manager-soft text-ifs-manager-on">
-                {{ tp(map.relationships.length, 'exercises.views.connectionCount.one', 'exercises.views.connectionCount.few', 'exercises.views.connectionCount.many') }}
+              <span
+                v-if="map.relationships.length"
+                class="exercise-pill text-xs px-2 py-0.5 bg-ifs-manager-soft text-ifs-manager-on"
+              >
+                {{
+                  tp(
+                    map.relationships.length,
+                    'exercises.views.connectionCount.one',
+                    'exercises.views.connectionCount.few',
+                    'exercises.views.connectionCount.many'
+                  )
+                }}
               </span>
             </div>
           </div>

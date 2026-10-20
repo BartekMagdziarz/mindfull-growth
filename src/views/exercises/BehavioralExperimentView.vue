@@ -8,13 +8,11 @@
 
     <!-- Past experiments section -->
     <div v-if="experimentStore.sortedExperiments.length > 0" class="mt-8">
-      <div class="mg-v2-section-head"><h2>{{ t('exercises.views.pastExperiments') }}</h2></div>
+      <div class="mg-v2-section-head">
+        <h2>{{ t('exercises.views.pastExperiments') }}</h2>
+      </div>
       <div class="space-y-3">
-        <AppCard
-          v-for="exp in experimentStore.sortedExperiments"
-          :key="exp.id"
-          padding="md"
-        >
+        <AppCard v-for="exp in experimentStore.sortedExperiments" :key="exp.id" padding="md">
           <div class="flex justify-between items-start">
             <div>
               <p class="text-sm font-medium text-on-surface line-clamp-2">{{ exp.targetBelief }}</p>
@@ -45,7 +43,9 @@ import { useMomentSeed } from '@/features/program-path/useMomentSeed'
 const { t, locale } = useT()
 // Launched from a path moment (`?momentId=`): the moment's thought is the prediction, its situation the context.
 const { seed } = useMomentSeed()
-const wizardSeed = computed(() => (seed.value ? { prediction: seed.value.criticThought, situation: seed.value.situation } : undefined))
+const wizardSeed = computed(() =>
+  seed.value ? { prediction: seed.value.criticThought, situation: seed.value.situation } : undefined
+)
 const experimentStore = useBehavioralExperimentStore()
 const saved = ref(false)
 

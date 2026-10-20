@@ -10,9 +10,7 @@ import type {
   ReflectionJournalEntryDetail,
 } from '../reflectionDataQueries'
 
-function baseContext(
-  overrides: Partial<ReflectionSummaryContext> = {},
-): ReflectionSummaryContext {
+function baseContext(overrides: Partial<ReflectionSummaryContext> = {}): ReflectionSummaryContext {
   return {
     kind: 'weekly',
     periodLabel: 'W24 · 10–16 Jun 2026',
@@ -41,7 +39,7 @@ describe('buildReflectionSummaryPayload', () => {
         anchors: [{ label: 'Co poszło dobrze?', text: 'Sporo' }],
         freeform: 'Trudny tydzień.',
       }),
-      'pl',
+      'pl'
     )
     expect(text).toContain('[OKRES]')
     expect(text).toContain('[OCENY (1–5)]')
@@ -61,7 +59,7 @@ describe('buildReflectionSummaryPayload', () => {
           { title: 'Deep work', status: 'missed' },
         ],
       }),
-      'en',
+      'en'
     )
     expect(en).toContain('[TOP PRIORITIES]')
     expect(en).toContain('Wake at 6am — met — Felt great')
@@ -69,7 +67,7 @@ describe('buildReflectionSummaryPayload', () => {
 
     const pl = buildReflectionSummaryPayload(
       baseContext({ priorities: [{ title: 'X', status: 'met' }] }),
-      'pl',
+      'pl'
     )
     expect(pl).toContain('[PRIORYTETY]')
     expect(pl).toContain('X — zrealizowany')
@@ -83,7 +81,7 @@ describe('buildReflectionSummaryPayload', () => {
           { label: 'Energy', value: 2 },
         ],
       }),
-      'en',
+      'en'
     )
     expect(text).toContain('[RATINGS (1–5)]')
     expect(text).toContain('Energy: 2/5')
@@ -102,7 +100,7 @@ describe('buildReflectionSummaryPayload', () => {
           ],
         },
       }),
-      'en',
+      'en'
     )
     expect(text).toContain('[EMOTIONS]')
     expect(text).toContain('12× · 58% pleasant')
@@ -114,9 +112,7 @@ describe('buildReflectionSummaryPayload', () => {
     const text = buildReflectionSummaryPayload(
       baseContext({
         kind: 'monthly',
-        weeklyTrends: [
-          { weekLabel: '1–7 Jun', mood: 4, energy: null, calm: 3, connection: 5 },
-        ],
+        weeklyTrends: [{ weekLabel: '1–7 Jun', mood: 4, energy: null, calm: 3, connection: 5 }],
         weeklyExcerpts: [{ weekLabel: '1–7 Jun', text: longText }],
         goals: [{ title: 'Ship v2', metKRs: 2, totalKRs: 3 }],
         habits: [
@@ -128,7 +124,7 @@ describe('buildReflectionSummaryPayload', () => {
           { title: 'Steps', latest: null },
         ],
       }),
-      'en',
+      'en'
     )
     expect(text).toContain('[WEEKLY TRENDS]')
     // null energy is skipped within the line
@@ -150,12 +146,10 @@ describe('buildReflectionSummaryPayload', () => {
     const text = buildReflectionSummaryPayload(
       baseContext({
         kind: 'monthly',
-        weeklyTrends: [
-          { weekLabel: 't1', mood: 5, energy: 4, calm: null, connection: null },
-        ],
+        weeklyTrends: [{ weekLabel: 't1', mood: 5, energy: 4, calm: null, connection: null }],
         habits: [{ title: 'Bieganie', status: 'met' }],
       }),
-      'pl',
+      'pl'
     )
     expect(text).toContain('t1: nastrój 5, energia 4')
     expect(text).toContain('Bieganie: zrealizowany')
@@ -197,7 +191,7 @@ describe('emotionContextFromSummary', () => {
           'low-energy-high-pleasantness': 0,
           'low-energy-low-pleasantness': 0,
         },
-      }),
+      })
     ).toBeUndefined()
   })
 
@@ -229,7 +223,7 @@ describe('emotionContextFromSummary', () => {
 
 describe('buildReflectionSummaryPayload — journal entries & emotion logs', () => {
   function journalEntry(
-    over: Partial<ReflectionJournalEntryDetail> = {},
+    over: Partial<ReflectionJournalEntryDetail> = {}
   ): ReflectionJournalEntryDetail {
     return {
       id: 'j1',
@@ -243,9 +237,7 @@ describe('buildReflectionSummaryPayload — journal entries & emotion logs', () 
     }
   }
 
-  function emotionLog(
-    over: Partial<ReflectionEmotionLogDetail> = {},
-  ): ReflectionEmotionLogDetail {
+  function emotionLog(over: Partial<ReflectionEmotionLogDetail> = {}): ReflectionEmotionLogDetail {
     return {
       id: 'e1',
       createdAt: '2026-06-10T18:00:00.000Z',
@@ -271,7 +263,7 @@ describe('buildReflectionSummaryPayload — journal entries & emotion logs', () 
           }),
         ],
       }),
-      'en',
+      'en'
     )
     expect(text).toContain('[JOURNAL ENTRIES]')
     expect(text).toContain('Hard Tuesday')
@@ -284,7 +276,7 @@ describe('buildReflectionSummaryPayload — journal entries & emotion logs', () 
   it('truncates long journal bodies', () => {
     const text = buildReflectionSummaryPayload(
       baseContext({ journalEntries: [journalEntry({ body: 'y'.repeat(2000) })] }),
-      'en',
+      'en'
     )
     expect(text).toContain('…')
     expect(text).not.toContain('y'.repeat(1001))
@@ -302,7 +294,7 @@ describe('buildReflectionSummaryPayload — journal entries & emotion logs', () 
           }),
         ],
       }),
-      'en',
+      'en'
     )
     expect(text).toContain('[EMOTION LOGS]')
     expect(text).toContain('tense')
@@ -315,7 +307,7 @@ describe('buildReflectionSummaryPayload — journal entries & emotion logs', () 
   it('omits the emotion-logs section entirely when no log carries context', () => {
     const text = buildReflectionSummaryPayload(
       baseContext({ emotionLogs: [emotionLog({ emotions: ['calm'] })] }),
-      'en',
+      'en'
     )
     expect(text).not.toContain('[EMOTION LOGS]')
   })
@@ -328,7 +320,7 @@ describe('buildReflectionSummaryPayload — journal entries & emotion logs', () 
         ],
         emotionLogs: [emotionLog({ emotions: ['spokój'], note: 'po spacerze' })],
       }),
-      'pl',
+      'pl'
     )
     expect(text).toContain('[WPISY Z DZIENNIKA]')
     expect(text).toContain('Emocje: lęk | Osoby: Anna')

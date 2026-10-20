@@ -8,10 +8,19 @@ const PUBLIC_ROUTES = ['login', 'signup']
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    ...(import.meta.env.DEV && import.meta.env.MODE === 'ai-demo' ? [{ path: '/ai-demo', name: 'ai-demo', component: () => import('@/dev/ai-companion/CompanionDemoView.vue') }] : []),
+    ...(import.meta.env.DEV && import.meta.env.MODE === 'ai-demo'
+      ? [
+          {
+            path: '/ai-demo',
+            name: 'ai-demo',
+            component: () => import('@/dev/ai-companion/CompanionDemoView.vue'),
+          },
+        ]
+      : []),
     {
       path: '/',
-      redirect: import.meta.env.DEV && import.meta.env.MODE === 'ai-demo' ? '/ai-demo' : '/calendar',
+      redirect:
+        import.meta.env.DEV && import.meta.env.MODE === 'ai-demo' ? '/ai-demo' : '/calendar',
     },
     // Auth routes (public)
     {
@@ -67,7 +76,11 @@ const router = createRouter({
       path: '/calendar/year/:yearRef',
       name: 'calendar-year',
       component: () => import('@/views/PlanningWorkspaceView.vue'),
-      props: route => ({ scale: 'year', periodRef: route.params.yearRef, ui: resolvePlanningUi(route.query) }),
+      props: route => ({
+        scale: 'year',
+        periodRef: route.params.yearRef,
+        ui: resolvePlanningUi(route.query),
+      }),
     },
     {
       path: '/calendar/month/:monthRef',
@@ -83,7 +96,11 @@ const router = createRouter({
       path: '/calendar/week/:weekRef',
       name: 'calendar-week',
       component: () => import('@/views/PlanningWorkspaceView.vue'),
-      props: route => ({ scale: 'week', periodRef: route.params.weekRef, ui: resolvePlanningUi(route.query) }),
+      props: route => ({
+        scale: 'week',
+        periodRef: route.params.weekRef,
+        ui: resolvePlanningUi(route.query),
+      }),
     },
     // Alternative "Strumień" (stream) calendar view — a single drill-down stream
     // of cards across year → month → week. Kept alongside the classic calendar.

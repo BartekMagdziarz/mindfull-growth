@@ -19,9 +19,7 @@ import type { ProfileScope } from '@/domain/approvedProfile'
  *
  * Empty sections are skipped entirely (no "N/A" or placeholder lines).
  */
-export function buildUserContext(
-  profile: UserProfile | undefined | null,
-): string {
+export function buildUserContext(profile: UserProfile | undefined | null): string {
   if (!profile) return ''
 
   const labels: Record<(typeof PROFILE_SECTION_IDS)[number], string> = {
@@ -79,7 +77,7 @@ export interface ProfileContextOptions {
  */
 export async function withProfileContextSystemPrompt(
   systemPrompt: string,
-  opts: ProfileContextOptions,
+  opts: ProfileContextOptions
 ): Promise<string> {
   if (!opts.useProfile) return systemPrompt
   const context = await approvedProfileContext(opts.scope ?? 'general')

@@ -34,11 +34,7 @@ const ROSE_RAMP = [
 ]
 // Trackers (no target) span the full range: keep a lighter low end (the two
 // lightest shared sky stops) and climb into the gentle positive ramp.
-const TRACKER_RAMP = [
-  'rgb(var(--sky-100))',
-  'rgb(var(--sky-200))',
-  ...SKY_RAMP,
-]
+const TRACKER_RAMP = ['rgb(var(--sky-100))', 'rgb(var(--sky-200))', ...SKY_RAMP]
 
 function lerpRamp(ramp: string[], t: number): string {
   const clamped = Math.max(0, Math.min(1, t))
@@ -71,8 +67,7 @@ export function ratingBarColor(opts: RatingGradientOptions): string {
   }
 
   const operator = targetOperator ?? 'gte'
-  const meets =
-    operator === 'gte' ? value >= targetValue : value <= targetValue
+  const meets = operator === 'gte' ? value >= targetValue : value <= targetValue
 
   if (meets) {
     // Higher (or lower for lte) above the target = stronger sky
@@ -107,8 +102,7 @@ export function ratingBarColor(opts: RatingGradientOptions): string {
  * Color used for empty-state "no entry" baselines on bar charts. Sits between
  * surface and the lightest sky shade so unrecorded days read as neutral.
  */
-export const RATING_BAR_EMPTY_COLOR =
-  'rgb(var(--neo-border) / 0.45)'
+export const RATING_BAR_EMPTY_COLOR = 'rgb(var(--neo-border) / 0.45)'
 
 // ---------------------------------------------------------------------------
 // Diverging 1–5 mapping (no target)

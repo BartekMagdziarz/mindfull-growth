@@ -20,28 +20,182 @@
     }
   },
   "items": [
-    { "id": "fscrs_01", "textKey": "assessments.fscrs.items.fscrs_01", "scaleId": "inadequateSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
-    { "id": "fscrs_02", "textKey": "assessments.fscrs.items.fscrs_02", "scaleId": "inadequateSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
-    { "id": "fscrs_03", "textKey": "assessments.fscrs.items.fscrs_03", "scaleId": "reassuredSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
-    { "id": "fscrs_04", "textKey": "assessments.fscrs.items.fscrs_04", "scaleId": "inadequateSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
-    { "id": "fscrs_05", "textKey": "assessments.fscrs.items.fscrs_05", "scaleId": "reassuredSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
-    { "id": "fscrs_06", "textKey": "assessments.fscrs.items.fscrs_06", "scaleId": "inadequateSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
-    { "id": "fscrs_07", "textKey": "assessments.fscrs.items.fscrs_07", "scaleId": "inadequateSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
-    { "id": "fscrs_08", "textKey": "assessments.fscrs.items.fscrs_08", "scaleId": "reassuredSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
-    { "id": "fscrs_09", "textKey": "assessments.fscrs.items.fscrs_09", "scaleId": "hatedSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
-    { "id": "fscrs_10", "textKey": "assessments.fscrs.items.fscrs_10", "scaleId": "hatedSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
-    { "id": "fscrs_11", "textKey": "assessments.fscrs.items.fscrs_11", "scaleId": "reassuredSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
-    { "id": "fscrs_12", "textKey": "assessments.fscrs.items.fscrs_12", "scaleId": "hatedSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
-    { "id": "fscrs_13", "textKey": "assessments.fscrs.items.fscrs_13", "scaleId": "reassuredSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
-    { "id": "fscrs_14", "textKey": "assessments.fscrs.items.fscrs_14", "scaleId": "inadequateSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
-    { "id": "fscrs_15", "textKey": "assessments.fscrs.items.fscrs_15", "scaleId": "hatedSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
-    { "id": "fscrs_16", "textKey": "assessments.fscrs.items.fscrs_16", "scaleId": "reassuredSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
-    { "id": "fscrs_17", "textKey": "assessments.fscrs.items.fscrs_17", "scaleId": "inadequateSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
-    { "id": "fscrs_18", "textKey": "assessments.fscrs.items.fscrs_18", "scaleId": "inadequateSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
-    { "id": "fscrs_19", "textKey": "assessments.fscrs.items.fscrs_19", "scaleId": "reassuredSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
-    { "id": "fscrs_20", "textKey": "assessments.fscrs.items.fscrs_20", "scaleId": "inadequateSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
-    { "id": "fscrs_21", "textKey": "assessments.fscrs.items.fscrs_21", "scaleId": "reassuredSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
-    { "id": "fscrs_22", "textKey": "assessments.fscrs.items.fscrs_22", "scaleId": "hatedSelf", "reverse": false, "responseMin": 0, "responseMax": 4 }
+    {
+      "id": "fscrs_01",
+      "textKey": "assessments.fscrs.items.fscrs_01",
+      "scaleId": "inadequateSelf",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 4
+    },
+    {
+      "id": "fscrs_02",
+      "textKey": "assessments.fscrs.items.fscrs_02",
+      "scaleId": "inadequateSelf",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 4
+    },
+    {
+      "id": "fscrs_03",
+      "textKey": "assessments.fscrs.items.fscrs_03",
+      "scaleId": "reassuredSelf",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 4
+    },
+    {
+      "id": "fscrs_04",
+      "textKey": "assessments.fscrs.items.fscrs_04",
+      "scaleId": "inadequateSelf",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 4
+    },
+    {
+      "id": "fscrs_05",
+      "textKey": "assessments.fscrs.items.fscrs_05",
+      "scaleId": "reassuredSelf",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 4
+    },
+    {
+      "id": "fscrs_06",
+      "textKey": "assessments.fscrs.items.fscrs_06",
+      "scaleId": "inadequateSelf",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 4
+    },
+    {
+      "id": "fscrs_07",
+      "textKey": "assessments.fscrs.items.fscrs_07",
+      "scaleId": "inadequateSelf",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 4
+    },
+    {
+      "id": "fscrs_08",
+      "textKey": "assessments.fscrs.items.fscrs_08",
+      "scaleId": "reassuredSelf",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 4
+    },
+    {
+      "id": "fscrs_09",
+      "textKey": "assessments.fscrs.items.fscrs_09",
+      "scaleId": "hatedSelf",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 4
+    },
+    {
+      "id": "fscrs_10",
+      "textKey": "assessments.fscrs.items.fscrs_10",
+      "scaleId": "hatedSelf",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 4
+    },
+    {
+      "id": "fscrs_11",
+      "textKey": "assessments.fscrs.items.fscrs_11",
+      "scaleId": "reassuredSelf",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 4
+    },
+    {
+      "id": "fscrs_12",
+      "textKey": "assessments.fscrs.items.fscrs_12",
+      "scaleId": "hatedSelf",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 4
+    },
+    {
+      "id": "fscrs_13",
+      "textKey": "assessments.fscrs.items.fscrs_13",
+      "scaleId": "reassuredSelf",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 4
+    },
+    {
+      "id": "fscrs_14",
+      "textKey": "assessments.fscrs.items.fscrs_14",
+      "scaleId": "inadequateSelf",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 4
+    },
+    {
+      "id": "fscrs_15",
+      "textKey": "assessments.fscrs.items.fscrs_15",
+      "scaleId": "hatedSelf",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 4
+    },
+    {
+      "id": "fscrs_16",
+      "textKey": "assessments.fscrs.items.fscrs_16",
+      "scaleId": "reassuredSelf",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 4
+    },
+    {
+      "id": "fscrs_17",
+      "textKey": "assessments.fscrs.items.fscrs_17",
+      "scaleId": "inadequateSelf",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 4
+    },
+    {
+      "id": "fscrs_18",
+      "textKey": "assessments.fscrs.items.fscrs_18",
+      "scaleId": "inadequateSelf",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 4
+    },
+    {
+      "id": "fscrs_19",
+      "textKey": "assessments.fscrs.items.fscrs_19",
+      "scaleId": "reassuredSelf",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 4
+    },
+    {
+      "id": "fscrs_20",
+      "textKey": "assessments.fscrs.items.fscrs_20",
+      "scaleId": "inadequateSelf",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 4
+    },
+    {
+      "id": "fscrs_21",
+      "textKey": "assessments.fscrs.items.fscrs_21",
+      "scaleId": "reassuredSelf",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 4
+    },
+    {
+      "id": "fscrs_22",
+      "textKey": "assessments.fscrs.items.fscrs_22",
+      "scaleId": "hatedSelf",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 4
+    }
   ],
   "scales": [
     {
@@ -63,13 +217,7 @@
     {
       "id": "hatedSelf",
       "labelKey": "assessments.fscrs.scales.hatedSelf",
-      "itemIds": [
-        "fscrs_09",
-        "fscrs_10",
-        "fscrs_12",
-        "fscrs_15",
-        "fscrs_22"
-      ],
+      "itemIds": ["fscrs_09", "fscrs_10", "fscrs_12", "fscrs_15", "fscrs_22"],
       "minAnswered": 4
     },
     {

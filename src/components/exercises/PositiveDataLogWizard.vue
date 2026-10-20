@@ -5,7 +5,11 @@
          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
     <template v-if="mode === 'setup'">
       <!-- Step indicator dots -->
-      <ExerciseStepper :labels="setupStepLabels" :current="currentSetupVisualStep" @go="goToSetupStepByIndex($event)" />
+      <ExerciseStepper
+        :labels="setupStepLabels"
+        :current="currentSetupVisualStep"
+        @go="goToSetupStepByIndex($event)"
+      />
 
       <!-- Setup Step 1: Intro -->
       <Transition
@@ -16,7 +20,9 @@
       >
         <div v-if="setupStep === 'intro'" class="space-y-4">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.positiveDataLog.intro.title') }}</h2>
+            <h2 class="text-lg font-semibold text-on-surface">
+              {{ t('exerciseWizards.positiveDataLog.intro.title') }}
+            </h2>
             <p class="text-sm text-on-surface-variant leading-relaxed">
               {{ t('exerciseWizards.positiveDataLog.intro.description') }}
             </p>
@@ -27,15 +33,21 @@
               <div class="space-y-2">
                 <div class="flex items-start gap-3">
                   <span class="exercise-pill px-3 py-1 text-xs flex-shrink-0">1</span>
-                  <p class="text-sm text-on-surface">{{ t('exerciseWizards.positiveDataLog.intro.step1') }}</p>
+                  <p class="text-sm text-on-surface">
+                    {{ t('exerciseWizards.positiveDataLog.intro.step1') }}
+                  </p>
                 </div>
                 <div class="flex items-start gap-3">
                   <span class="exercise-pill px-3 py-1 text-xs flex-shrink-0">2</span>
-                  <p class="text-sm text-on-surface">{{ t('exerciseWizards.positiveDataLog.intro.step2') }}</p>
+                  <p class="text-sm text-on-surface">
+                    {{ t('exerciseWizards.positiveDataLog.intro.step2') }}
+                  </p>
                 </div>
                 <div class="flex items-start gap-3">
                   <span class="exercise-pill px-3 py-1 text-xs flex-shrink-0">3</span>
-                  <p class="text-sm text-on-surface">{{ t('exerciseWizards.positiveDataLog.intro.step3') }}</p>
+                  <p class="text-sm text-on-surface">
+                    {{ t('exerciseWizards.positiveDataLog.intro.step3') }}
+                  </p>
                 </div>
               </div>
             </div>
@@ -71,33 +83,39 @@
               class="neo-input neo-focus w-full p-3 text-sm resize-none"
             />
 
-          <div class="space-y-3 pt-2">
-            <h3 class="text-sm font-semibold text-on-surface">
-              {{ t('exerciseWizards.positiveDataLog.targetBelief.believabilityTitle') }}
-            </h3>
-            <div class="space-y-2">
-              <div class="flex items-center justify-between">
-                <label class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.positiveDataLog.targetBelief.believabilityLabel') }}</label>
-                <span class="text-sm font-semibold text-primary">{{ believabilityInitial }}%</span>
-              </div>
-              <input
-                v-model.number="believabilityInitial"
-                type="range"
-                min="0"
-                max="100"
-                step="1"
-                class="neo-focus w-full accent-primary"
-              />
-              <div class="flex justify-between text-xs text-on-surface-variant">
-                <span>{{ t('exerciseWizards.positiveDataLog.targetBelief.notAtAll') }}</span>
-                <span>{{ t('exerciseWizards.positiveDataLog.targetBelief.completely') }}</span>
+            <div class="space-y-3 pt-2">
+              <h3 class="text-sm font-semibold text-on-surface">
+                {{ t('exerciseWizards.positiveDataLog.targetBelief.believabilityTitle') }}
+              </h3>
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <label class="text-sm font-medium text-on-surface">{{
+                    t('exerciseWizards.positiveDataLog.targetBelief.believabilityLabel')
+                  }}</label>
+                  <span class="text-sm font-semibold text-primary"
+                    >{{ believabilityInitial }}%</span
+                  >
+                </div>
+                <input
+                  v-model.number="believabilityInitial"
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="1"
+                  class="neo-focus w-full accent-primary"
+                />
+                <div class="flex justify-between text-xs text-on-surface-variant">
+                  <span>{{ t('exerciseWizards.positiveDataLog.targetBelief.notAtAll') }}</span>
+                  <span>{{ t('exerciseWizards.positiveDataLog.targetBelief.completely') }}</span>
+                </div>
               </div>
             </div>
-          </div>
           </AppCard>
 
           <div class="flex justify-between">
-            <AppButton variant="text" @click="setupStep = 'intro'">{{ t('common.buttons.back') }}</AppButton>
+            <AppButton variant="text" @click="setupStep = 'intro'">{{
+              t('common.buttons.back')
+            }}</AppButton>
             <AppButton
               variant="filled"
               :disabled="!targetBelief.trim()"
@@ -118,7 +136,9 @@
       >
         <div v-if="setupStep === 'confirmation'" class="space-y-4">
           <AppCard variant="raised" padding="lg" class="space-y-5">
-            <h2 class="text-lg font-semibold text-on-surface">{{ tg('exerciseWizards.positiveDataLog.confirmation.title') }}</h2>
+            <h2 class="text-lg font-semibold text-on-surface">
+              {{ tg('exerciseWizards.positiveDataLog.confirmation.title') }}
+            </h2>
 
             <div class="exercise-quote">
               <span class="exercise-quote__label">{{ frameCopy.label }}</span>
@@ -138,7 +158,9 @@
           </AppCard>
 
           <div class="flex justify-between">
-            <AppButton variant="text" @click="setupStep = 'target-belief'">{{ t('common.buttons.back') }}</AppButton>
+            <AppButton variant="text" @click="setupStep = 'target-belief'">{{
+              t('common.buttons.back')
+            }}</AppButton>
             <AppButton variant="filled" @click="handleCreate">
               {{ t('exerciseWizards.positiveDataLog.confirmation.createLog') }}
             </AppButton>
@@ -158,23 +180,42 @@
         </p>
         <p class="text-sm text-on-surface italic">"{{ existingLog.targetBelief }}"</p>
         <div class="flex items-center gap-3">
-          <span class="text-xs text-on-surface-variant">{{ t('exerciseWizards.positiveDataLog.log.currentBelievability') }}</span>
+          <span class="text-xs text-on-surface-variant">{{
+            t('exerciseWizards.positiveDataLog.log.currentBelievability')
+          }}</span>
           <span class="text-sm font-semibold text-primary">
             {{ existingLog.believabilityLatest ?? existingLog.believabilityInitial }}%
           </span>
-          <span v-if="believabilityChange !== 0" class="text-xs" :class="changeIsProgress ? 'text-success' : 'text-error'">
-            {{ t('exerciseWizards.positiveDataLog.log.fromStart', { change: (believabilityChange > 0 ? '+' : '') + believabilityChange }) }}
+          <span
+            v-if="believabilityChange !== 0"
+            class="text-xs"
+            :class="changeIsProgress ? 'text-success' : 'text-error'"
+          >
+            {{
+              t('exerciseWizards.positiveDataLog.log.fromStart', {
+                change: (believabilityChange > 0 ? '+' : '') + believabilityChange,
+              })
+            }}
           </span>
         </div>
         <div class="flex items-center gap-2 text-xs text-on-surface-variant">
           <AppIcon name="assignment" class="text-base" />
-          <span>{{ tp(existingLog.entries.length, 'exerciseWizards.positiveDataLog.log.entryCount.one', 'exerciseWizards.positiveDataLog.log.entryCount.few', 'exerciseWizards.positiveDataLog.log.entryCount.many') }}</span>
+          <span>{{
+            tp(
+              existingLog.entries.length,
+              'exerciseWizards.positiveDataLog.log.entryCount.one',
+              'exerciseWizards.positiveDataLog.log.entryCount.few',
+              'exerciseWizards.positiveDataLog.log.entryCount.many'
+            )
+          }}</span>
         </div>
       </div>
 
       <!-- Add Entry Section -->
       <AppCard padding="lg" class="space-y-4">
-        <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.positiveDataLog.log.addEvidenceTitle') }}</h2>
+        <h2 class="text-lg font-semibold text-on-surface">
+          {{ t('exerciseWizards.positiveDataLog.log.addEvidenceTitle') }}
+        </h2>
         <p class="text-sm text-on-surface-variant">
           {{ frameCopy.addEvidenceDescription }}
         </p>
@@ -182,7 +223,9 @@
 
         <div class="space-y-3">
           <div class="space-y-1">
-            <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.positiveDataLog.log.dateLabel') }}</label>
+            <label class="text-xs font-medium text-on-surface-variant">{{
+              t('exerciseWizards.positiveDataLog.log.dateLabel')
+            }}</label>
             <input
               v-model="newEntryDate"
               type="date"
@@ -191,7 +234,9 @@
           </div>
 
           <div class="space-y-1">
-            <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.positiveDataLog.log.evidenceLabel') }}</label>
+            <label class="text-xs font-medium text-on-surface-variant">{{
+              t('exerciseWizards.positiveDataLog.log.evidenceLabel')
+            }}</label>
             <textarea
               v-model="newEntryEvidence"
               rows="3"
@@ -201,7 +246,9 @@
           </div>
 
           <div class="space-y-1">
-            <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.positiveDataLog.log.notesLabel') }}</label>
+            <label class="text-xs font-medium text-on-surface-variant">{{
+              t('exerciseWizards.positiveDataLog.log.notesLabel')
+            }}</label>
             <textarea
               v-model="newEntryNotes"
               rows="2"
@@ -225,13 +272,17 @@
 
       <!-- Re-rate Section -->
       <AppCard padding="lg" class="space-y-4">
-        <h3 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.positiveDataLog.log.rerateTitle') }}</h3>
+        <h3 class="text-base font-semibold text-on-surface">
+          {{ t('exerciseWizards.positiveDataLog.log.rerateTitle') }}
+        </h3>
         <p class="text-sm text-on-surface-variant">
           {{ t('exerciseWizards.positiveDataLog.log.rerateDescription') }}
         </p>
         <div class="space-y-2">
           <div class="flex items-center justify-between">
-            <label class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.positiveDataLog.log.believabilityNow') }}</label>
+            <label class="text-sm font-medium text-on-surface">{{
+              t('exerciseWizards.positiveDataLog.log.believabilityNow')
+            }}</label>
             <span class="text-sm font-semibold text-primary">{{ rerateValue }}%</span>
           </div>
           <input
@@ -249,15 +300,25 @@
         </div>
         <div class="flex items-center gap-4 text-sm">
           <div class="text-center">
-            <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.positiveDataLog.log.initial') }}</p>
+            <p class="text-xs text-on-surface-variant">
+              {{ t('exerciseWizards.positiveDataLog.log.initial') }}
+            </p>
             <p class="font-semibold text-on-surface">{{ existingLog.believabilityInitial }}%</p>
           </div>
           <AppIcon name="arrow_forward" class="text-base text-on-surface-variant flex-shrink-0" />
           <div class="text-center">
-            <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.positiveDataLog.log.now') }}</p>
+            <p class="text-xs text-on-surface-variant">
+              {{ t('exerciseWizards.positiveDataLog.log.now') }}
+            </p>
             <p
               class="font-semibold"
-              :class="rerateValue < existingLog.believabilityInitial ? 'text-success' : rerateValue > existingLog.believabilityInitial ? 'text-error' : 'text-on-surface'"
+              :class="
+                rerateValue < existingLog.believabilityInitial
+                  ? 'text-success'
+                  : rerateValue > existingLog.believabilityInitial
+                    ? 'text-error'
+                    : 'text-on-surface'
+              "
             >
               {{ rerateValue }}%
             </p>
@@ -266,7 +327,9 @@
         <div class="flex justify-end">
           <AppButton
             variant="tonal"
-            :disabled="rerateValue === (existingLog.believabilityLatest ?? existingLog.believabilityInitial)"
+            :disabled="
+              rerateValue === (existingLog.believabilityLatest ?? existingLog.believabilityInitial)
+            "
             @click="handleUpdateRating"
           >
             {{ t('exerciseWizards.positiveDataLog.log.updateRating') }}
@@ -282,11 +345,7 @@
             ({{ sortedEntries.length }})
           </span>
         </h3>
-        <AppCard
-          v-for="entry in sortedEntries"
-          :key="entry.id"
-          padding="md"
-        >
+        <AppCard v-for="entry in sortedEntries" :key="entry.id" padding="md">
           <div class="flex justify-between items-start group">
             <div class="flex-1 space-y-1">
               <p class="text-xs text-on-surface-variant">
@@ -312,13 +371,13 @@
       <!-- LLM Review Assist -->
       <AppCard v-if="sortedEntries.length >= 3" padding="lg" class="space-y-3">
         <div class="flex flex-wrap items-center gap-2">
-          <AppButton
-            variant="tonal"
-            :disabled="isReviewLoading"
-            @click="handleReviewAssist"
-          >
+          <AppButton variant="tonal" :disabled="isReviewLoading" @click="handleReviewAssist">
             <AppIcon name="auto_awesome" class="text-base" />
-            {{ isReviewLoading ? t('exerciseWizards.positiveDataLog.log.reviewLoading') : t('exerciseWizards.positiveDataLog.log.reviewLabel') }}
+            {{
+              isReviewLoading
+                ? t('exerciseWizards.positiveDataLog.log.reviewLoading')
+                : t('exerciseWizards.positiveDataLog.log.reviewLabel')
+            }}
           </AppButton>
           <ProfileContextToggle v-model="useProfileReview" />
         </div>
@@ -455,7 +514,7 @@ const newEntryDate = ref(todayISO())
 const newEntryEvidence = ref('')
 const newEntryNotes = ref('')
 const rerateValue = ref(
-  props.existingLog?.believabilityLatest ?? props.existingLog?.believabilityInitial ?? 50,
+  props.existingLog?.believabilityLatest ?? props.existingLog?.believabilityInitial ?? 50
 )
 
 const sortedEntries = computed(() => {
@@ -471,7 +530,7 @@ const believabilityChange = computed(() => {
 
 /** Direction of progress depends on the frame: a belief should weaken, a fair demand should strengthen. */
 const changeIsProgress = computed(() =>
-  isDemandFrame.value ? believabilityChange.value > 0 : believabilityChange.value < 0,
+  isDemandFrame.value ? believabilityChange.value > 0 : believabilityChange.value < 0
 )
 
 function handleAddEntry() {
@@ -493,7 +552,10 @@ function handleRemoveEntry(entryId: string) {
 }
 
 function handleUpdateRating() {
-  emit('updated', { entries: props.existingLog?.entries ?? [], believabilityLatest: rerateValue.value })
+  emit('updated', {
+    entries: props.existingLog?.entries ?? [],
+    believabilityLatest: rerateValue.value,
+  })
 }
 
 // ─── LLM Assist ──────────────────────────────────────────────────────────────
@@ -509,14 +571,15 @@ async function handleReviewAssist() {
     const { reviewPositiveDataLog } = await import('@/services/cbtLLMAssists')
     reviewSummary.value = await reviewPositiveDataLog({
       targetBelief: props.existingLog.targetBelief,
-      entries: props.existingLog.entries.map((e) => ({ date: e.date, evidence: e.evidence })),
+      entries: props.existingLog.entries.map(e => ({ date: e.date, evidence: e.evidence })),
       believabilityInitial: props.existingLog.believabilityInitial,
       believabilityLatest: props.existingLog.believabilityLatest,
       locale: locale.value,
       useProfile: useProfileReview.value,
     })
   } catch (err) {
-    reviewError.value = err instanceof Error ? err.message : t('exerciseWizards.positiveDataLog.errors.reviewFailed')
+    reviewError.value =
+      err instanceof Error ? err.message : t('exerciseWizards.positiveDataLog.errors.reviewFailed')
   } finally {
     isReviewLoading.value = false
   }

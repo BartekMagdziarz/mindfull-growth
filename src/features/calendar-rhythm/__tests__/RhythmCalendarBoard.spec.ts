@@ -69,7 +69,9 @@ describe('RhythmBoard', () => {
 
   it('offers one lens at a time, grouped by directions, objects and period', () => {
     const wrapper = mountBoard()
-    const labels = wrapper.findAll('.rb-view__select optgroup').map(group => group.attributes('label'))
+    const labels = wrapper
+      .findAll('.rb-view__select optgroup')
+      .map(group => group.attributes('label'))
 
     expect(labels).toEqual(['Kierunki', 'Obiekty', 'Okres'])
   })
@@ -142,7 +144,8 @@ describe('ritualActions (calendar header)', () => {
 
 describe('Week scale · focus lens and reflection lens', () => {
   const weekUnits = () => unitsFor('week', WEEK, CLOCK)
-  const withFocus = (patch: Partial<RhythmScenario> = {}) => scenario({ weekPlans: [{ weekRef: WEEK, topObjectKeys: [habit.key] }], ...patch })
+  const withFocus = (patch: Partial<RhythmScenario> = {}) =>
+    scenario({ weekPlans: [{ weekRef: WEEK, topObjectKeys: [habit.key] }], ...patch })
 
   it('starts on the week focus and offers the reflection as a lens', () => {
     const state = withFocus()
@@ -155,7 +158,11 @@ describe('Week scale · focus lens and reflection lens', () => {
   it('lists the focus objects of the week under one sublabel, without "the rest"', () => {
     const rows = buildRows(withFocus(), 'week', WEEK, weekUnits(), 'focus', { moreSeries: null })
     expect(rows.map(r => r.kind)).toEqual(['sublabel', 'series'])
-    expect(buildRows(scenario(), 'week', WEEK, weekUnits(), 'focus', { moreSeries: null }).map(r => r.kind)).toEqual(['note'])
+    expect(
+      buildRows(scenario(), 'week', WEEK, weekUnits(), 'focus', { moreSeries: null }).map(
+        r => r.kind
+      )
+    ).toEqual(['note'])
   })
 
   it('draws each day as the Plan-dnia disc: done blob, today ring, dot without a plan', () => {
@@ -168,7 +175,15 @@ describe('Week scale · focus lens and reflection lens', () => {
     })
     const units = weekUnits()
     const wrapper = mount(RhythmBoard, {
-      props: { rows: buildRows(state, 'week', WEEK, units, 'focus', { moreSeries: null }), units, scale: 'week' as const, objects: state.objects, fine: [], view: 'focus', options: viewOptions(state, 'week', WEEK, units) },
+      props: {
+        rows: buildRows(state, 'week', WEEK, units, 'focus', { moreSeries: null }),
+        units,
+        scale: 'week' as const,
+        objects: state.objects,
+        fine: [],
+        view: 'focus',
+        options: viewOptions(state, 'week', WEEK, units),
+      },
     })
     const cells = wrapper.findAll('.rb-cell--series')
     expect(cells).toHaveLength(7)
@@ -183,14 +198,30 @@ describe('Week scale · focus lens and reflection lens', () => {
   it('shows the written reflection instead of rows and hides the day axis', async () => {
     const state = scenario({
       weeklyReflections: [
-        { weekRef: WEEK, status: 'done', load: [4, 2, 3, 1], state: [4, 4, 2, 5], anchors: { good: 'Dobry sen\nSpacer', hard: '', lessons: 'Wcześniej spać' }, freeform: 'Spokojny tydzień.', savedAt: '2026-07-19T18:00:00' },
+        {
+          weekRef: WEEK,
+          status: 'done',
+          load: [4, 2, 3, 1],
+          state: [4, 4, 2, 5],
+          anchors: { good: 'Dobry sen\nSpacer', hard: '', lessons: 'Wcześniej spać' },
+          freeform: 'Spokojny tydzień.',
+          savedAt: '2026-07-19T18:00:00',
+        },
       ],
     })
     const units = weekUnits()
     const rows = buildRows(state, 'week', WEEK, units, 'reflection', { moreSeries: null })
     expect(rows.map(r => r.kind)).toEqual(['reflection-own'])
     const wrapper = mount(RhythmBoard, {
-      props: { rows, units, scale: 'week' as const, objects: state.objects, fine: [], view: 'reflection', options: viewOptions(state, 'week', WEEK, units) },
+      props: {
+        rows,
+        units,
+        scale: 'week' as const,
+        objects: state.objects,
+        fine: [],
+        view: 'reflection',
+        options: viewOptions(state, 'week', WEEK, units),
+      },
     })
     expect(wrapper.findAll('.rb-axis__unit')).toHaveLength(0)
     expect(wrapper.findAll('.rb-refl__anchor')).toHaveLength(2) // the empty "hard" anchor disappears
@@ -205,7 +236,15 @@ describe('Week scale · focus lens and reflection lens', () => {
     const units = weekUnits()
     const rows = buildRows(scenario(), 'week', WEEK, units, 'reflection', { moreSeries: null })
     const wrapper = mount(RhythmBoard, {
-      props: { rows, units, scale: 'week' as const, objects: [], fine: [], view: 'reflection', options: [] },
+      props: {
+        rows,
+        units,
+        scale: 'week' as const,
+        objects: [],
+        fine: [],
+        view: 'reflection',
+        options: [],
+      },
     })
     expect(wrapper.text()).toContain('Refleksja nie została jeszcze zapisana.')
     await wrapper.find('.rb-refl__empty button').trigger('click')
@@ -225,7 +264,9 @@ describe('Month scale · focus lens, reflection lens and day discs', () => {
     expect(ids).toContain('ratings=Oceny tygodni')
     expect(resolveView(state, 'month', MONTH, monthUnits(), null)).toBe('focus')
     // the year has no focus or reflection of its own in the table
-    const yearIds = viewOptions(state, 'year', '2026', unitsFor('year', '2026', CLOCK)).map(o => o.id)
+    const yearIds = viewOptions(state, 'year', '2026', unitsFor('year', '2026', CLOCK)).map(
+      o => o.id
+    )
     expect(yearIds).not.toContain('focus')
     expect(yearIds).not.toContain('reflection')
     expect(yearIds).toContain('focus-units')
@@ -235,19 +276,33 @@ describe('Month scale · focus lens, reflection lens and day discs', () => {
     const rows = buildRows(scenario(), 'month', MONTH, monthUnits(), 'focus', { moreSeries: null })
     expect(rows.map(r => r.kind)).toEqual(['sublabel', 'series'])
     expect(rows[0]).toMatchObject({ text: 'Regularny ruch' })
-    expect(buildRows(scenario({ monthPlans: [] }), 'month', MONTH, monthUnits(), 'focus', { moreSeries: null }).map(r => r.kind)).toEqual(['note'])
+    expect(
+      buildRows(scenario({ monthPlans: [] }), 'month', MONTH, monthUnits(), 'focus', {
+        moreSeries: null,
+      }).map(r => r.kind)
+    ).toEqual(['note'])
   })
 
   it('draws the days of a week column as small Plan-dnia discs', () => {
     const state = scenario({
-      assignments: [{ id: 'a1', objectKey: habit.key, scope: { kind: 'day', ref: '2026-07-13' as DayRef } }],
+      assignments: [
+        { id: 'a1', objectKey: habit.key, scope: { kind: 'day', ref: '2026-07-13' as DayRef } },
+      ],
       entries: [{ id: 'e1', objectKey: habit.key, dayRef: '2026-07-14' as DayRef }],
     })
     const units = monthUnits()
     const daily: RhythmObject = { ...habit, target: { kind: 'count', operator: 'min', value: 10 } }
     const withDaily = { ...state, objects: [daily] }
     const wrapper = mount(RhythmBoard, {
-      props: { rows: buildRows(withDaily, 'month', MONTH, units, 'dir:p1', { moreSeries: null }), units, scale: 'month' as const, objects: withDaily.objects, fine: [], view: 'dir:p1', options: [] },
+      props: {
+        rows: buildRows(withDaily, 'month', MONTH, units, 'dir:p1', { moreSeries: null }),
+        units,
+        scale: 'month' as const,
+        objects: withDaily.objects,
+        fine: [],
+        view: 'dir:p1',
+        options: [],
+      },
     })
     const week = wrapper.findAll('.rb-cell--series')[2] // W28: 13–19.07
     const discs = week.findAll('.sm-wells > i')
@@ -260,14 +315,31 @@ describe('Month scale · focus lens, reflection lens and day discs', () => {
   it('shows the monthly reflection with its anchors and direction verdicts', async () => {
     const state = scenario({
       monthlyReflections: [
-        { monthRef: MONTH, status: 'done', compass: [3, 4, 4, 3, 4], anchors: { proud: 'Wróciłem do biegania', challenges: '', growth: '' }, priorityVerdicts: [{ priorityKey: 'p1', effort: 4, verdict: 'continue' }], freeform: 'Dobry miesiąc.', savedAt: '2026-07-31T20:00:00' },
+        {
+          monthRef: MONTH,
+          status: 'done',
+          compass: [3, 4, 4, 3, 4],
+          anchors: { proud: 'Wróciłem do biegania', challenges: '', growth: '' },
+          priorityVerdicts: [{ priorityKey: 'p1', effort: 4, verdict: 'continue' }],
+          freeform: 'Dobry miesiąc.',
+          savedAt: '2026-07-31T20:00:00',
+        },
       ],
     })
     const units = monthUnits()
     const rows = buildRows(state, 'month', MONTH, units, 'reflection', { moreSeries: null })
     expect(rows.map(r => r.kind)).toEqual(['reflection-own'])
     const wrapper = mount(RhythmBoard, {
-      props: { rows, units, scale: 'month' as const, objects: state.objects, priorities: state.priorities, fine: [], view: 'reflection', options: [] },
+      props: {
+        rows,
+        units,
+        scale: 'month' as const,
+        objects: state.objects,
+        priorities: state.priorities,
+        fine: [],
+        view: 'reflection',
+        options: [],
+      },
     })
     expect(wrapper.findAll('.rb-axis__unit')).toHaveLength(0)
     expect(wrapper.text()).toContain('Refleksja miesiąca')
@@ -286,13 +358,32 @@ describe('RhythmBoard · reflection view as area ribbons', () => {
     const units = unitsFor('month', MONTH, CLOCK)
     const state = scenario({
       weeklyReflections: [
-        { weekRef: WEEK, status: 'done', load: [4, 2, 3, 1], state: [4, 4, 2, 5], anchors: { good: '', hard: '', lessons: '' } },
+        {
+          weekRef: WEEK,
+          status: 'done',
+          load: [4, 2, 3, 1],
+          state: [4, 4, 2, 5],
+          anchors: { good: '', hard: '', lessons: '' },
+        },
       ],
     })
     const rows = buildRows(state, 'month', MONTH, units, 'ratings', { moreSeries: null })
-    expect(rows.map(r => r.kind)).toEqual(['reflection-area', 'reflection-area', 'reflection-area', 'reflection-area'])
+    expect(rows.map(r => r.kind)).toEqual([
+      'reflection-area',
+      'reflection-area',
+      'reflection-area',
+      'reflection-area',
+    ])
     const wrapper = mount(RhythmBoard, {
-      props: { rows, units, scale: 'month' as const, objects: state.objects, fine: [], view: 'ratings', options: viewOptions(state, 'month', MONTH, units) },
+      props: {
+        rows,
+        units,
+        scale: 'month' as const,
+        objects: state.objects,
+        fine: [],
+        view: 'ratings',
+        options: viewOptions(state, 'month', MONTH, units),
+      },
     })
     expect(wrapper.findAll('.rb-series--ribbon')).toHaveLength(4)
     expect(wrapper.text()).toContain('Zadania')
@@ -304,8 +395,16 @@ describe('RhythmBoard · reflection view as area ribbons', () => {
   })
 
   it('adds the monthly compass row after the area ribbons in the year scale', () => {
-    const rows = buildRows(scenario(), 'year', '2026', unitsFor('year', '2026', CLOCK), 'ratings', { moreSeries: null })
-    expect(rows.map(r => r.kind)).toEqual(['reflection-area', 'reflection-area', 'reflection-area', 'reflection-area', 'reflection-units'])
+    const rows = buildRows(scenario(), 'year', '2026', unitsFor('year', '2026', CLOCK), 'ratings', {
+      moreSeries: null,
+    })
+    expect(rows.map(r => r.kind)).toEqual([
+      'reflection-area',
+      'reflection-area',
+      'reflection-area',
+      'reflection-area',
+      'reflection-units',
+    ])
   })
 })
 
@@ -313,7 +412,13 @@ describe('RhythmPeriodSummary · load/state', () => {
   it('draws load and state pairs for the week alone — no header, no ribbons, no "Więcej"', () => {
     const state = scenario({
       weeklyReflections: [
-        { weekRef: WEEK, status: 'done', load: [4, 2, 3, 1], state: [4, 4, 2, 5], anchors: { good: 'Dobry sen', hard: '', lessons: '' } },
+        {
+          weekRef: WEEK,
+          status: 'done',
+          load: [4, 2, 3, 1],
+          state: [4, 4, 2, 5],
+          anchors: { good: 'Dobry sen', hard: '', lessons: '' },
+        },
       ],
       weekPlans: [{ weekRef: WEEK, topObjectKeys: [habit.key] }],
     })
@@ -352,10 +457,22 @@ describe('RhythmPeriodSummary · load/state', () => {
     const units = unitsFor('month', MONTH, CLOCK)
     const state = scenario({
       weeklyReflections: [
-        { weekRef: WEEK, status: 'done', load: [4, 2, 3, 1], state: [4, 4, 2, 5], anchors: { good: '', hard: '', lessons: '' } },
+        {
+          weekRef: WEEK,
+          status: 'done',
+          load: [4, 2, 3, 1],
+          state: [4, 4, 2, 5],
+          anchors: { good: '', hard: '', lessons: '' },
+        },
       ],
       monthlyReflections: [
-        { monthRef: MONTH, status: 'done', compass: [3, 4, 4, 3, 4], anchors: { proud: '', challenges: '', growth: '' }, priorityVerdicts: [] },
+        {
+          monthRef: MONTH,
+          status: 'done',
+          compass: [3, 4, 4, 3, 4],
+          anchors: { proud: '', challenges: '', growth: '' },
+          priorityVerdicts: [],
+        },
       ],
     })
     const wrapper = mount(RhythmPeriodSummary, {

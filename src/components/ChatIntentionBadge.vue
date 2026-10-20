@@ -30,5 +30,3 @@ const intentionLabel = computed(() => {
   return intentionLabelMap.value[props.intention] ?? props.intention
 })
 </script>
-
-

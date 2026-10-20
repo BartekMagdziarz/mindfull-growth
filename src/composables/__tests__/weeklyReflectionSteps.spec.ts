@@ -23,7 +23,15 @@ describe('weekly reflection wizard steps', () => {
   })
 
   it('lands all old section-grouped rating steps on the first area step', () => {
-    for (const legacy of ['reflect', 'ratings', 'context', 'demands', 'evaluation', 'actions', 'state']) {
+    for (const legacy of [
+      'reflect',
+      'ratings',
+      'context',
+      'demands',
+      'evaluation',
+      'actions',
+      'state',
+    ]) {
       expect(LEGACY_STEP_MAP[legacy]).toBe('body')
     }
   })

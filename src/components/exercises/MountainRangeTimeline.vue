@@ -14,7 +14,11 @@
         </linearGradient>
         <linearGradient id="valley-fill" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stop-color="rgb(var(--color-on-surface-variant))" stop-opacity="0.05" />
-          <stop offset="100%" stop-color="rgb(var(--color-on-surface-variant))" stop-opacity="0.2" />
+          <stop
+            offset="100%"
+            stop-color="rgb(var(--color-on-surface-variant))"
+            stop-opacity="0.2"
+          />
         </linearGradient>
       </defs>
 
@@ -30,18 +34,10 @@
       />
 
       <!-- Peak area fill -->
-      <path
-        v-if="peakPath"
-        :d="peakAreaPath"
-        fill="url(#peak-fill)"
-      />
+      <path v-if="peakPath" :d="peakAreaPath" fill="url(#peak-fill)" />
 
       <!-- Valley area fill -->
-      <path
-        v-if="valleyPath"
-        :d="valleyAreaPath"
-        fill="url(#valley-fill)"
-      />
+      <path v-if="valleyPath" :d="valleyAreaPath" fill="url(#valley-fill)" />
 
       <!-- Peak curve -->
       <path
@@ -124,18 +120,21 @@
     </svg>
 
     <!-- Selected event detail panel -->
-    <div
-      v-if="selectedEvent"
-      class="neo-panel p-4 mt-3"
-    >
+    <div v-if="selectedEvent" class="neo-panel p-4 mt-3">
       <div class="flex items-center gap-2 mb-2">
         <span
           class="exercise-pill text-xs"
           :class="selectedEvent.type === 'peak' ? 'text-primary' : 'text-on-surface-variant'"
         >
-          {{ selectedEvent.type === 'peak' ? t('exerciseWizards.mountainRange.timelineLabels.peak') : t('exerciseWizards.mountainRange.timelineLabels.valley') }}
+          {{
+            selectedEvent.type === 'peak'
+              ? t('exerciseWizards.mountainRange.timelineLabels.peak')
+              : t('exerciseWizards.mountainRange.timelineLabels.valley')
+          }}
         </span>
-        <span class="text-xs text-on-surface-variant">{{ t('exerciseWizards.mountainRange.timelineLabels.age', { age: selectedEvent.ageOrYear }) }}</span>
+        <span class="text-xs text-on-surface-variant">{{
+          t('exerciseWizards.mountainRange.timelineLabels.age', { age: selectedEvent.ageOrYear })
+        }}</span>
       </div>
       <p class="text-sm text-on-surface">{{ selectedEvent.description }}</p>
       <p v-if="selectedEvent.reflection" class="text-xs text-on-surface-variant mt-2 italic">
@@ -161,7 +160,7 @@ const props = withDefaults(
   }>(),
   {
     selectedEventId: undefined,
-  },
+  }
 )
 
 defineEmits<{
@@ -175,19 +174,19 @@ const svgHeight = 280
 const padding = 40
 const centerY = svgHeight / 2
 
-const peaks = computed(() => props.events.filter((e) => e.type === 'peak'))
-const valleys = computed(() => props.events.filter((e) => e.type === 'valley'))
+const peaks = computed(() => props.events.filter(e => e.type === 'peak'))
+const valleys = computed(() => props.events.filter(e => e.type === 'valley'))
 
 const sortedEvents = computed(() => [...props.events].sort((a, b) => a.ageOrYear - b.ageOrYear))
 
 const minAge = computed(() => {
   if (sortedEvents.value.length === 0) return 0
-  return Math.min(...sortedEvents.value.map((e) => e.ageOrYear))
+  return Math.min(...sortedEvents.value.map(e => e.ageOrYear))
 })
 
 const maxAge = computed(() => {
   if (sortedEvents.value.length === 0) return 100
-  return Math.max(...sortedEvents.value.map((e) => e.ageOrYear))
+  return Math.max(...sortedEvents.value.map(e => e.ageOrYear))
 })
 
 const ageRange = computed(() => Math.max(1, maxAge.value - minAge.value))
@@ -227,7 +226,7 @@ function getEventColor(event: MountainRangeEvent): string {
 const plotPoints = computed(() => {
   let peakIdx = 0
   let valleyIdx = 0
-  return sortedEvents.value.map((event) => {
+  return sortedEvents.value.map(event => {
     const idx = event.type === 'peak' ? peakIdx++ : valleyIdx++
     return {
       event,
@@ -239,11 +238,11 @@ const plotPoints = computed(() => {
 })
 
 const sortedPeakPoints = computed(() =>
-  plotPoints.value.filter((p) => p.event.type === 'peak').sort((a, b) => a.x - b.x),
+  plotPoints.value.filter(p => p.event.type === 'peak').sort((a, b) => a.x - b.x)
 )
 
 const sortedValleyPoints = computed(() =>
-  plotPoints.value.filter((p) => p.event.type === 'valley').sort((a, b) => a.x - b.x),
+  plotPoints.value.filter(p => p.event.type === 'valley').sort((a, b) => a.x - b.x)
 )
 
 function buildSmoothPath(points: { x: number; y: number }[]): string {
@@ -281,13 +280,13 @@ const valleyAreaPath = computed(() => {
 
 const axisTicks = computed(() => {
   if (sortedEvents.value.length === 0) return []
-  const ages = [...new Set(sortedEvents.value.map((e) => e.ageOrYear))].sort((a, b) => a - b)
-  return ages.map((age) => ({ value: age, x: ageToX(age) }))
+  const ages = [...new Set(sortedEvents.value.map(e => e.ageOrYear))].sort((a, b) => a - b)
+  return ages.map(age => ({ value: age, x: ageToX(age) }))
 })
 
 const selectedEvent = computed(() => {
   if (!props.selectedEventId) return null
-  return props.events.find((e) => e.id === props.selectedEventId) ?? null
+  return props.events.find(e => e.id === props.selectedEventId) ?? null
 })
 
 function truncate(text: string, maxLen: number): string {

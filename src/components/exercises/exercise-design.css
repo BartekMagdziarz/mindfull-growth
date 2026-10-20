@@ -233,15 +233,33 @@ button.exercise-pill:hover:not(:disabled) {
 }
 
 /* Global `field-sizing: content` ignores `rows`; the minimum is set here in lines. */
-.exercise-page textarea.neo-input[rows='2'] { min-height: calc(2 * 1.6em + 1.5rem + 2px); }
-.exercise-page textarea.neo-input[rows='3'] { min-height: calc(3 * 1.6em + 1.5rem + 2px); }
-.exercise-page textarea.neo-input[rows='4'] { min-height: calc(4 * 1.6em + 1.5rem + 2px); }
-.exercise-page textarea.neo-input[rows='5'] { min-height: calc(5 * 1.6em + 1.5rem + 2px); }
-.exercise-page textarea.neo-input[rows='6'] { min-height: calc(6 * 1.6em + 1.5rem + 2px); }
-.exercise-page textarea.neo-input[rows='7'] { min-height: calc(7 * 1.6em + 1.5rem + 2px); }
-.exercise-page textarea.neo-input[rows='8'] { min-height: calc(8 * 1.6em + 1.5rem + 2px); }
-.exercise-page textarea.neo-input[rows='10'] { min-height: calc(10 * 1.6em + 1.5rem + 2px); }
-.exercise-page textarea.neo-input[rows='12'] { min-height: calc(12 * 1.6em + 1.5rem + 2px); }
+.exercise-page textarea.neo-input[rows='2'] {
+  min-height: calc(2 * 1.6em + 1.5rem + 2px);
+}
+.exercise-page textarea.neo-input[rows='3'] {
+  min-height: calc(3 * 1.6em + 1.5rem + 2px);
+}
+.exercise-page textarea.neo-input[rows='4'] {
+  min-height: calc(4 * 1.6em + 1.5rem + 2px);
+}
+.exercise-page textarea.neo-input[rows='5'] {
+  min-height: calc(5 * 1.6em + 1.5rem + 2px);
+}
+.exercise-page textarea.neo-input[rows='6'] {
+  min-height: calc(6 * 1.6em + 1.5rem + 2px);
+}
+.exercise-page textarea.neo-input[rows='7'] {
+  min-height: calc(7 * 1.6em + 1.5rem + 2px);
+}
+.exercise-page textarea.neo-input[rows='8'] {
+  min-height: calc(8 * 1.6em + 1.5rem + 2px);
+}
+.exercise-page textarea.neo-input[rows='10'] {
+  min-height: calc(10 * 1.6em + 1.5rem + 2px);
+}
+.exercise-page textarea.neo-input[rows='12'] {
+  min-height: calc(12 * 1.6em + 1.5rem + 2px);
+}
 
 .exercise-page .neo-input:focus,
 .exercise-page .neo-input:focus-visible {

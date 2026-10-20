@@ -26,7 +26,11 @@ describe('QuietTagField', () => {
     const input = wrapper.find('input')
     expect(input.exists()).toBe(true)
     expect(document.activeElement).toBe(input.element)
-    expect(wrapper.findAll('.qr-tagfield-suggestions button').map(b => b.text())).toEqual(['Spokój', 'Praca', 'Bliscy'])
+    expect(wrapper.findAll('.qr-tagfield-suggestions button').map(b => b.text())).toEqual([
+      'Spokój',
+      'Praca',
+      'Bliscy',
+    ])
 
     await input.setValue('spok')
     const buttons = wrapper.findAll('.qr-tagfield-suggestions button')

@@ -64,11 +64,7 @@
             >
               {{ t('common.buttons.next') }}
             </AppButton>
-            <AppButton
-              v-else
-              variant="filled"
-              @click="session.openReview"
-            >
+            <AppButton v-else variant="filled" @click="session.openReview">
               {{ t('assessments.common.flow.review') }}
             </AppButton>
           </div>
@@ -124,7 +120,21 @@ const { t } = useT()
 
 const assessmentId = computed(() => route.params.assessmentId as string)
 
-const validAssessmentIds: AssessmentId[] = ['ipip-bfm-50', 'ipip-neo-120', 'hexaco-60', 'pvq-40', 'vlq', 'erq', 'ecr-rs', 'rrq', 'ipip-via', 'gad-7', 'scs-sf', 'anger-barometer', 'ius-12']
+const validAssessmentIds: AssessmentId[] = [
+  'ipip-bfm-50',
+  'ipip-neo-120',
+  'hexaco-60',
+  'pvq-40',
+  'vlq',
+  'erq',
+  'ecr-rs',
+  'rrq',
+  'ipip-via',
+  'gad-7',
+  'scs-sf',
+  'anger-barometer',
+  'ius-12',
+]
 const currentAssessmentId = validAssessmentIds.includes(assessmentId.value as AssessmentId)
   ? (assessmentId.value as AssessmentId)
   : 'ipip-bfm-50'
@@ -165,7 +175,7 @@ function handleUpdateResponse(itemId: string, value: number): void {
 }
 
 function handleEditItem(itemId: string): void {
-  const index = session.definition.items.findIndex((item) => item.id === itemId)
+  const index = session.definition.items.findIndex(item => item.id === itemId)
   const page = index >= 0 ? Math.floor(index / session.definition.pageSize) : 0
   session.backToQuestions(page)
 }

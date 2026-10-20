@@ -1,5 +1,12 @@
 <template>
-  <div class="quiet-ritual mg-design-v2" :class="{ 'quiet-ritual--week-review': wide && scale === 'week', 'qm--wide': wide && scale === 'month', qm: scale === 'month' }">
+  <div
+    class="quiet-ritual mg-design-v2"
+    :class="{
+      'quiet-ritual--week-review': wide && scale === 'week',
+      'qm--wide': wide && scale === 'month',
+      qm: scale === 'month',
+    }"
+  >
     <header class="qr-top">
       <button type="button" class="qr-icon" aria-label="Zamknij rytuał" @click="emit('close')">
         <AppIcon name="close" />
@@ -20,7 +27,11 @@
 
       <slot />
       <!-- Saved reflections invite the user to close out goals whose deadline passed (spec D8). -->
-      <GoalClosingInvite v-if="finished && closingPeriodEnd" :period-end="closingPeriodEnd" :period-start="closingPeriodStart" />
+      <GoalClosingInvite
+        v-if="finished && closingPeriodEnd"
+        :period-end="closingPeriodEnd"
+        :period-start="closingPeriodStart"
+      />
 
       <slot name="before-footer" />
       <footer class="qr-footer">
@@ -60,11 +71,19 @@
           <AppIcon name="arrow_forward" />
         </button>
         <div v-else class="qr-finish">
-          <button v-if="alternateLabel" type="button" class="qr-quiet" :disabled="saving" @click="emit('alternate')">
+          <button
+            v-if="alternateLabel"
+            type="button"
+            class="qr-quiet"
+            :disabled="saving"
+            @click="emit('alternate')"
+          >
             {{ alternateLabel }}
           </button>
           <button type="button" class="qr-primary" :disabled="saving" @click="emit('finish')">
-            <AppIcon :name="finished ? 'check' : 'done_all'" />{{ finished ? finishedLabel : finishLabel }}
+            <AppIcon :name="finished ? 'check' : 'done_all'" />{{
+              finished ? finishedLabel : finishLabel
+            }}
           </button>
         </div>
       </footer>
@@ -111,7 +130,14 @@ const props = withDefaults(
     closingPeriodEnd?: DayRef
     closingPeriodStart?: DayRef
   }>(),
-  { count: '', wide: false, saving: false, finished: false, finishLabel: 'Zapisz', finishedLabel: 'Zapisano' },
+  {
+    count: '',
+    wide: false,
+    saving: false,
+    finished: false,
+    finishLabel: 'Zapisz',
+    finishedLabel: 'Zapisano',
+  }
 )
 
 const emit = defineEmits<{ close: []; go: [index: number]; finish: []; alternate: [] }>()
@@ -119,7 +145,9 @@ const emit = defineEmits<{ close: []; go: [index: number]; finish: []; alternate
 const headingRef = ref<HTMLElement | null>(null)
 const activeStep = computed(() => props.steps[props.current] ?? props.steps[0])
 const statusLabel = computed(() =>
-  props.saving ? 'Zapisuję…' : props.statusLabel ?? (props.finished ? 'Zapisano' : 'Zapis na bieżąco'),
+  props.saving
+    ? 'Zapisuję…'
+    : (props.statusLabel ?? (props.finished ? 'Zapisano' : 'Zapis na bieżąco'))
 )
 
 // Moving between steps puts focus on the new question, so keyboard and screen
@@ -130,7 +158,7 @@ watch(
     await nextTick()
     headingRef.value?.focus({ preventScroll: true })
     headingRef.value?.scrollIntoView?.({ block: 'nearest' })
-  },
+  }
 )
 </script>
 

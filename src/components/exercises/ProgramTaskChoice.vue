@@ -20,13 +20,20 @@
       <span class="task-choice__copy">
         <span class="task-choice__title">{{ taskTitle(task) }}</span>
         <small class="task-choice__meta">
-          {{ timesLabel(task.times) }}<template v-if="task.key === suggestedKey"> · {{ suggestedNote }}</template>
+          {{ timesLabel(task.times)
+          }}<template v-if="task.key === suggestedKey"> · {{ suggestedNote }}</template>
         </small>
         <!-- The "why" belongs to the chosen task, so it lives inside its row. -->
-        <span v-if="task.key === modelValue" class="task-choice__why">{{ tg(`${program.i18nKey}.tasks.${task.key}.why`) }}</span>
+        <span v-if="task.key === modelValue" class="task-choice__why">{{
+          tg(`${program.i18nKey}.tasks.${task.key}.why`)
+        }}</span>
       </span>
       <!-- The same well that marks a done task in Dzisiaj; chosen = filled. -->
-      <span class="mg-well task-choice__well" :class="{ 'mg-well--done': task.key === modelValue }" aria-hidden="true"></span>
+      <span
+        class="mg-well task-choice__well"
+        :class="{ 'mg-well--done': task.key === modelValue }"
+        aria-hidden="true"
+      ></span>
     </label>
 
     <button
@@ -36,7 +43,11 @@
       :aria-expanded="showEarlier"
       @click="showEarlier = !showEarlier"
     >
-      {{ showEarlier ? t('programs.week.hideEarlierTasks') : t('programs.week.earlierTasks', { n: earlier.length }) }}
+      {{
+        showEarlier
+          ? t('programs.week.hideEarlierTasks')
+          : t('programs.week.earlierTasks', { n: earlier.length })
+      }}
       <AppIcon :name="showEarlier ? 'expand_less' : 'expand_more'" />
     </button>
   </div>
@@ -69,7 +80,7 @@ const props = withDefaults(
     /** Radio group name; unique per card when several paths are active. */
     name?: string
   }>(),
-  { repeat: false, disabled: false, name: 'program-task' },
+  { repeat: false, disabled: false, name: 'program-task' }
 )
 
 const emit = defineEmits<{ 'update:modelValue': [key: string] }>()
@@ -78,23 +89,32 @@ const { t, tg, tp } = useT()
 
 // The suggestion may live in an earlier phase (after "stay" or a phase
 // without tasks): keep that section open so the preselected radio shows.
-const showEarlier = ref(props.earlier.some((task) => task.key === props.modelValue))
+const showEarlier = ref(props.earlier.some(task => task.key === props.modelValue))
 watch(
   () => props.modelValue,
-  (key) => {
-    if (props.earlier.some((task) => task.key === key)) showEarlier.value = true
-  },
+  key => {
+    if (props.earlier.some(task => task.key === key)) showEarlier.value = true
+  }
 )
 
-const visibleTasks = computed(() => (showEarlier.value ? [...props.current, ...props.earlier] : props.current))
-const suggestedNote = computed(() => (props.repeat ? t('programs.week.repeatNote') : t('programs.week.suggestedNote')))
+const visibleTasks = computed(() =>
+  showEarlier.value ? [...props.current, ...props.earlier] : props.current
+)
+const suggestedNote = computed(() =>
+  props.repeat ? t('programs.week.repeatNote') : t('programs.week.suggestedNote')
+)
 
 function taskTitle(task: ProgramWeeklyTask): string {
   return tg(`${props.program.i18nKey}.tasks.${task.key}.title`)
 }
 
 function timesLabel(times: number): string {
-  return tp(times, 'programs.week.timesPerWeek.one', 'programs.week.timesPerWeek.few', 'programs.week.timesPerWeek.many')
+  return tp(
+    times,
+    'programs.week.timesPerWeek.one',
+    'programs.week.timesPerWeek.few',
+    'programs.week.timesPerWeek.many'
+  )
 }
 </script>
 

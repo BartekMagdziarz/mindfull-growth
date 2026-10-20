@@ -86,9 +86,7 @@ const progressStroke = computed(() => {
 })
 
 // Dim the arc on in-progress to emphasize that work is still ongoing.
-const strokeOpacity = computed(() =>
-  props.data.status === 'in-progress' ? 0.6 : 1,
-)
+const strokeOpacity = computed(() => (props.data.status === 'in-progress' ? 0.6 : 1))
 
 function formatNumber(value: number): string {
   return Number.isInteger(value) ? String(value) : value.toFixed(1).replace(/\.0$/, '')
@@ -106,7 +104,5 @@ const bigFontSize = computed(() => {
   return 24
 })
 
-const progressAriaLabel = computed(
-  () => `${formattedCurrent.value} of ${formattedTarget.value}`,
-)
+const progressAriaLabel = computed(() => `${formattedCurrent.value} of ${formattedTarget.value}`)
 </script>

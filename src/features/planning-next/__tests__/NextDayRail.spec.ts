@@ -8,7 +8,11 @@ import type { TodayMeasurementItem, TodayViewBundle } from '@/services/todayView
 const push = vi.fn()
 vi.mock('vue-router', () => ({ useRouter: () => ({ push }) }))
 vi.mock('@/repositories/userSettingsDexieRepository', () => ({
-  userSettingsDexieRepository: { get: vi.fn(async () => undefined), set: vi.fn(async () => {}), delete: vi.fn(async () => {}) },
+  userSettingsDexieRepository: {
+    get: vi.fn(async () => undefined),
+    set: vi.fn(async () => {}),
+    delete: vi.fn(async () => {}),
+  },
 }))
 vi.mock('@/services/todayViewActions', () => ({
   clearTodayInitiative: vi.fn(),
@@ -41,11 +45,24 @@ import NextDayRail from '../NextDayRail.vue'
 import NextWeekPlanBoard from '../NextWeekPlanBoard.vue'
 
 const DAY = '2026-03-12' as DayRef // Thursday
-const labelOf = (button: { text: () => string }) => button.text().replace(/^[a-z_]+(?=[A-ZĄĆĘŁŃÓŚŹŻ])/, '')
+const labelOf = (button: { text: () => string }) =>
+  button.text().replace(/^[a-z_]+(?=[A-ZĄĆĘŁŃÓŚŹŻ])/, '')
 const WEEK = getPeriodRefsForDate(new Date('2026-03-12T12:00:00')).week // app week numbering, not ISO
 
-function entry(subjectType: TodayMeasurementItem['subjectType'], subjectId: string, value: number | null): DailyMeasurementEntry {
-  return { id: `e-${subjectId}`, subjectType, subjectId, dayRef: DAY, value, createdAt: '', updatedAt: '' }
+function entry(
+  subjectType: TodayMeasurementItem['subjectType'],
+  subjectId: string,
+  value: number | null
+): DailyMeasurementEntry {
+  return {
+    id: `e-${subjectId}`,
+    subjectType,
+    subjectId,
+    dayRef: DAY,
+    value,
+    createdAt: '',
+    updatedAt: '',
+  }
 }
 
 function item(
@@ -53,12 +70,21 @@ function item(
   id: string,
   title: string,
   entryMode: 'completion' | 'counter',
-  options: { scheduled?: boolean; todayEntry?: DailyMeasurementEntry; goalId?: string } = {},
+  options: { scheduled?: boolean; todayEntry?: DailyMeasurementEntry; goalId?: string } = {}
 ): TodayMeasurementItem {
   const scheduled = options.scheduled ?? false
   const subject = {
-    id, title, isActive: true, priorityIds: [], lifeAreaIds: [], cadence: 'weekly', entryMode,
-    target: { kind: 'count', operator: 'min', value: 3 }, status: 'open', createdAt: '', updatedAt: '',
+    id,
+    title,
+    isActive: true,
+    priorityIds: [],
+    lifeAreaIds: [],
+    cadence: 'weekly',
+    entryMode,
+    target: { kind: 'count', operator: 'min', value: 3 },
+    status: 'open',
+    createdAt: '',
+    updatedAt: '',
     ...(options.goalId ? { goalId: options.goalId } : {}),
     ...(subjectType === 'weeklyIntention' ? { weekRef: WEEK } : {}),
   }
@@ -68,8 +94,17 @@ function item(
     panelType: subjectType,
     subjectType,
     subject,
-    planning: { scheduleScope: scheduled ? 'specific-days' : 'whole-week', scheduledDayRefs: scheduled ? [DAY] : [] },
-    measurement: { entryMode, cadence: 'weekly', entryCount: options.todayEntry ? 1 : 0, target: subject.target, periodRef: WEEK },
+    planning: {
+      scheduleScope: scheduled ? 'specific-days' : 'whole-week',
+      scheduledDayRefs: scheduled ? [DAY] : [],
+    },
+    measurement: {
+      entryMode,
+      cadence: 'weekly',
+      entryCount: options.todayEntry ? 1 : 0,
+      target: subject.target,
+      periodRef: WEEK,
+    },
     todayEntry: options.todayEntry,
     goalTitle: options.goalId ? 'Cel' : undefined,
     priorityIds: [],
@@ -97,20 +132,41 @@ function bundle(items: TodayMeasurementItem[]): TodayViewBundle {
     allDayAssignments: [],
     topPriorityKeys: [],
     addCandidates: [
-      { key: 'habit:h9', subjectType: 'habit', cadence: 'weekly', subject: { id: 'h9', title: 'Spacer' } },
-      { key: 'keyResult:kr9', subjectType: 'keyResult', cadence: 'weekly', subject: { id: 'kr9', title: 'Trzy sesje' }, goalTitle: 'Cel' },
+      {
+        key: 'habit:h9',
+        subjectType: 'habit',
+        cadence: 'weekly',
+        subject: { id: 'h9', title: 'Spacer' },
+      },
+      {
+        key: 'keyResult:kr9',
+        subjectType: 'keyResult',
+        cadence: 'weekly',
+        subject: { id: 'kr9', title: 'Trzy sesje' },
+        goalTitle: 'Cel',
+      },
     ] as unknown as TodayViewBundle['addCandidates'],
   }
 }
 
 const intention = item('weeklyIntention', 'i1', 'Zaplanować budżet', 'completion')
-const doneKr = item('keyResult', 'kr1', 'Biegi 3 razy', 'completion', { scheduled: true, todayEntry: entry('keyResult', 'kr1', null), goalId: 'g1' })
-const counterHabit = item('habit', 'h1', 'Szklanki wody', 'counter', { todayEntry: entry('habit', 'h1', 3) })
+const doneKr = item('keyResult', 'kr1', 'Biegi 3 razy', 'completion', {
+  scheduled: true,
+  todayEntry: entry('keyResult', 'kr1', null),
+  goalId: 'g1',
+})
+const counterHabit = item('habit', 'h1', 'Szklanki wody', 'counter', {
+  todayEntry: entry('habit', 'h1', 3),
+})
 const openHabit = item('habit', 'h2', 'Rozciąganie', 'completion', { scheduled: true })
 
 async function mountRail(items = [intention, doneKr, counterHabit, openHabit]) {
   vi.mocked(queries.getTodayViewBundleForDay).mockImplementation(async () => bundle(items))
-  const wrapper = mount(NextDayRail, { props: { dayRef: DAY }, attachTo: document.body, global: { stubs: { NextDayPractices: true } } })
+  const wrapper = mount(NextDayRail, {
+    props: { dayRef: DAY },
+    attachTo: document.body,
+    global: { stubs: { NextDayPractices: true } },
+  })
   await flushPromises()
   return wrapper
 }
@@ -132,10 +188,21 @@ describe('NextDayRail — inline stage', () => {
     const wrapper = await mountRail()
 
     expect(wrapper.find('.next-day-add__button').exists()).toBe(true)
-    await wrapper.findAll('.ndi').find(row => row.text().includes('Zaplanować budżet'))!.find('button.ndi__label').trigger('click')
-    expect(wrapper.findAll('.ndi--staged .ndi__actions button').map(labelOf)).toEqual(['Jutro', 'Dzień', 'Ukryj', 'Kontekst'])
+    await wrapper
+      .findAll('.ndi')
+      .find(row => row.text().includes('Zaplanować budżet'))!
+      .find('button.ndi__label')
+      .trigger('click')
+    expect(wrapper.findAll('.ndi--staged .ndi__actions button').map(labelOf)).toEqual([
+      'Jutro',
+      'Dzień',
+      'Ukryj',
+      'Kontekst',
+    ])
     const scheduledRow = wrapper.findAll('.ndi').find(row => row.text().includes('Rozciąganie'))!
-    expect(scheduledRow.findAll('.ndi__tray button').map(button => button.attributes('title'))).toEqual(['Przenieś na jutro', 'Przenieś na dzień', 'Usuń z dziś', 'Otwórz obiekt', 'Usuń'])
+    expect(
+      scheduledRow.findAll('.ndi__tray button').map(button => button.attributes('title'))
+    ).toEqual(['Przenieś na jutro', 'Przenieś na dzień', 'Usuń z dziś', 'Otwórz obiekt', 'Usuń'])
     expect(scheduledRow.find('button.ndi__well--button').exists()).toBe(true)
   })
 
@@ -145,7 +212,8 @@ describe('NextDayRail — inline stage', () => {
     await wrapper.find('.ndi__tray button[title="Usuń z dziś"]').trigger('click')
     await flushPromises()
     expect(actions.clearTodayMeasurementAssignment).toHaveBeenCalledWith(
-      expect.objectContaining({ key: openHabit.key }), DAY,
+      expect.objectContaining({ key: openHabit.key }),
+      DAY
     )
     wrapper.unmount()
   })
@@ -157,22 +225,36 @@ describe('NextDayRail — inline stage', () => {
     expect(wrapper.findAll('.ndi--staged')).toHaveLength(0)
     expect(wrapper.find('.ndi__actions').exists()).toBe(false)
 
-    const intentionRow = wrapper.findAll('.ndi').find(row => row.text().includes('Zaplanować budżet'))!
+    const intentionRow = wrapper
+      .findAll('.ndi')
+      .find(row => row.text().includes('Zaplanować budżet'))!
     await intentionRow.find('button.ndi__label').trigger('click')
     const staged = wrapper.findAll('.ndi--staged')
     expect(staged).toHaveLength(1)
     expect(staged[0].text()).toContain('Zaplanować budżet')
     expect(staged[0].find('.ndi__strip').exists()).toBe(true)
     expect(staged[0].findAll('.ndi__day')).toHaveLength(6)
-    expect(staged[0].findAll('.ndi__actions button').map(labelOf)).toEqual(['Jutro', 'Dzień', 'Ukryj', 'Kontekst'])
+    expect(staged[0].findAll('.ndi__actions button').map(labelOf)).toEqual([
+      'Jutro',
+      'Dzień',
+      'Ukryj',
+      'Kontekst',
+    ])
 
     const habitRow = wrapper.findAll('.ndi').find(row => row.text().includes('Rozciąganie'))!
     await habitRow.find('button.ndi__label').trigger('click')
     const restaged = wrapper.findAll('.ndi--staged')
     expect(restaged).toHaveLength(1)
     expect(restaged[0].text()).toContain('Rozciąganie')
-    expect(restaged[0].findAll('.ndi__actions button').map(labelOf)).toEqual(['Jutro', 'Dzień', 'Usuń z dziś', 'Otwórz'])
-    expect(wrapper.find('.next-day-rail__filament').attributes('aria-label')).toBe('Wykonanie dnia: 2 z 4')
+    expect(restaged[0].findAll('.ndi__actions button').map(labelOf)).toEqual([
+      'Jutro',
+      'Dzień',
+      'Usuń z dziś',
+      'Otwórz',
+    ])
+    expect(wrapper.find('.next-day-rail__filament').attributes('aria-label')).toBe(
+      'Wykonanie dnia: 2 z 4'
+    )
 
     // Clicking the expanded row again folds it — no row has to stay open.
     await habitRow.find('button.ndi__label').trigger('click')
@@ -181,7 +263,11 @@ describe('NextDayRail — inline stage', () => {
 
   it('collapses finished completion rows only, drops emptied groups and offers the way back', async () => {
     const wrapper = await mountRail()
-    expect(wrapper.findAll('.next-day-rail__group > header').map(header => header.text())).toEqual(['Intencje tygodnia', 'Cele i rezultaty', 'Nawyki'])
+    expect(wrapper.findAll('.next-day-rail__group > header').map(header => header.text())).toEqual([
+      'Intencje tygodnia',
+      'Cele i rezultaty',
+      'Nawyki',
+    ])
 
     await wrapper.find('[aria-label="Zwiń wykonane"]').trigger('click')
     await flushPromises()
@@ -189,49 +275,88 @@ describe('NextDayRail — inline stage', () => {
     const titles = wrapper.findAll('.ndi .ndi__label strong').map(node => node.text())
     expect(titles).not.toContain('Biegi 3 razy')
     expect(titles).toContain('Szklanki wody') // recorded number stays visible
-    expect(wrapper.findAll('.next-day-rail__group > header').map(header => header.text())).toEqual(['Intencje tygodnia', 'Nawyki'])
+    expect(wrapper.findAll('.next-day-rail__group > header').map(header => header.text())).toEqual([
+      'Intencje tygodnia',
+      'Nawyki',
+    ])
     expect(wrapper.find('.next-day-rail__collapsed').text()).toContain('Wykonane (1)')
 
     await wrapper.find('.next-day-rail__collapsed').trigger('click')
     await flushPromises()
-    expect(wrapper.findAll('.ndi .ndi__label strong').map(node => node.text())).toContain('Biegi 3 razy')
+    expect(wrapper.findAll('.ndi .ndi__label strong').map(node => node.text())).toContain(
+      'Biegi 3 razy'
+    )
   })
 
-  it.each(['2026-03-12', '2026-03-20'])('hide and undo use the viewed day when today is %s', async today => {
-    vi.setSystemTime(new Date(`${today}T12:00:00`))
-    const wrapper = await mountRail()
-    await wrapper.findAll('.ndi').find(row => row.text().includes('Zaplanować budżet'))!.find('button.ndi__label').trigger('click')
+  it.each(['2026-03-12', '2026-03-20'])(
+    'hide and undo use the viewed day when today is %s',
+    async today => {
+      vi.setSystemTime(new Date(`${today}T12:00:00`))
+      const wrapper = await mountRail()
+      await wrapper
+        .findAll('.ndi')
+        .find(row => row.text().includes('Zaplanować budżet'))!
+        .find('button.ndi__label')
+        .trigger('click')
 
-    await wrapper.findAll('.ndi--staged .ndi__actions button').find(button => labelOf(button) === 'Ukryj')!.trigger('click')
-    await flushPromises()
-    expect(actions.hideTodayItem).toHaveBeenCalledWith(expect.objectContaining({ key: 'weeklyIntention:i1' }), DAY)
+      await wrapper
+        .findAll('.ndi--staged .ndi__actions button')
+        .find(button => labelOf(button) === 'Ukryj')!
+        .trigger('click')
+      await flushPromises()
+      expect(actions.hideTodayItem).toHaveBeenCalledWith(
+        expect.objectContaining({ key: 'weeklyIntention:i1' }),
+        DAY
+      )
 
-    const undo = wrapper.find('.snackbar__action')
-    expect(undo.exists()).toBe(true)
-    expect(undo.text()).toBe('Cofnij')
-    await undo.trigger('click')
-    await flushPromises()
-    expect(actions.restoreTodayItem).toHaveBeenCalledWith(expect.objectContaining({ key: 'weeklyIntention:i1' }), DAY)
-  })
+      const undo = wrapper.find('.snackbar__action')
+      expect(undo.exists()).toBe(true)
+      expect(undo.text()).toBe('Cofnij')
+      await undo.trigger('click')
+      await flushPromises()
+      expect(actions.restoreTodayItem).toHaveBeenCalledWith(
+        expect.objectContaining({ key: 'weeklyIntention:i1' }),
+        DAY
+      )
+    }
+  )
 
-  it.each(['2026-03-12', '2026-03-20'])('"Jutro" moves to the day after the viewed day when today is %s', async today => {
-    vi.setSystemTime(new Date(`${today}T12:00:00`))
-    const wrapper = await mountRail()
-    const habitRow = wrapper.findAll('.ndi').find(row => row.text().includes('Rozciąganie'))!
-    await habitRow.find('button.ndi__label').trigger('click')
+  it.each(['2026-03-12', '2026-03-20'])(
+    '"Jutro" moves to the day after the viewed day when today is %s',
+    async today => {
+      vi.setSystemTime(new Date(`${today}T12:00:00`))
+      const wrapper = await mountRail()
+      const habitRow = wrapper.findAll('.ndi').find(row => row.text().includes('Rozciąganie'))!
+      await habitRow.find('button.ndi__label').trigger('click')
 
-    await wrapper.find('.ndi--staged .ndi__actions button').trigger('click')
-    await flushPromises()
-    expect(actions.moveTodayMeasurementAssignment).toHaveBeenCalledWith(expect.objectContaining({ key: 'habit:h2' }), DAY, '2026-03-13')
-  })
+      await wrapper.find('.ndi--staged .ndi__actions button').trigger('click')
+      await flushPromises()
+      expect(actions.moveTodayMeasurementAssignment).toHaveBeenCalledWith(
+        expect.objectContaining({ key: 'habit:h2' }),
+        DAY,
+        '2026-03-13'
+      )
+    }
+  )
 
   it('"Jutro" on a week-context row re-homes it through rescheduleContextItem', async () => {
     const wrapper = await mountRail()
-    await wrapper.findAll('.ndi').find(row => row.text().includes('Zaplanować budżet'))!.find('button.ndi__label').trigger('click')
+    await wrapper
+      .findAll('.ndi')
+      .find(row => row.text().includes('Zaplanować budżet'))!
+      .find('button.ndi__label')
+      .trigger('click')
 
-    await wrapper.findAll('.ndi--staged .ndi__actions button').find(button => labelOf(button) === 'Jutro')!.trigger('click')
+    await wrapper
+      .findAll('.ndi--staged .ndi__actions button')
+      .find(button => labelOf(button) === 'Jutro')!
+      .trigger('click')
     await flushPromises()
-    expect(actions.rescheduleContextItem).toHaveBeenCalledWith(expect.objectContaining({ key: 'weeklyIntention:i1' }), DAY, '2026-03-13')
+    expect(actions.rescheduleContextItem).toHaveBeenCalledWith(
+      expect.objectContaining({ key: 'weeklyIntention:i1' }),
+      DAY,
+      '2026-03-13'
+    )
     expect(actions.moveTodayMeasurementAssignment).not.toHaveBeenCalled()
   })
 
@@ -242,20 +367,28 @@ describe('NextDayRail — inline stage', () => {
     await wrapper.find('.next-day-add__button').trigger('click')
     expect(wrapper.find('.next-day-add__menu').exists()).toBe(true)
     expect(wrapper.find('.next-day-add__items').exists()).toBe(false)
-    expect(wrapper.findAll('.next-day-add__types button').map(button => button.find('span:not(.material-symbols-outlined)').text())).toEqual(['Cele i rezultaty', 'Nawyki'])
+    expect(
+      wrapper
+        .findAll('.next-day-add__types button')
+        .map(button => button.find('span:not(.material-symbols-outlined)').text())
+    ).toEqual(['Cele i rezultaty', 'Nawyki'])
 
     await wrapper.findAll('.next-day-add__types button')[1].trigger('mouseenter')
     const items = wrapper.findAll('.next-day-add__items button')
-    expect(items.map(button => button.find('span:not(.material-symbols-outlined)').text())).toEqual(['Spacer'])
+    expect(items.map(button => button.find('span:not(.material-symbols-outlined)').text())).toEqual(
+      ['Spacer']
+    )
 
     await items[0].trigger('click')
     await flushPromises()
-    expect(actions.addMeasurementToDay).toHaveBeenCalledWith(expect.objectContaining({ key: 'habit:h9' }), DAY)
+    expect(actions.addMeasurementToDay).toHaveBeenCalledWith(
+      expect.objectContaining({ key: 'habit:h9' }),
+      DAY
+    )
     expect(wrapper.find('.next-day-add__menu').exists()).toBe(false)
     expect(wrapper.find('.snackbar__action').text()).toBe('Cofnij')
   })
 })
-
 
 describe('Today calendar integration', () => {
   beforeEach(() => {
@@ -267,40 +400,63 @@ describe('Today calendar integration', () => {
   })
   afterEach(() => vi.useRealTimers())
 
-  it.each(['2026-03-12', '2026-03-20'])('routes drag and drop through move and undo when today is %s', async today => {
-    vi.setSystemTime(new Date(`${today}T12:00:00`))
-    vi.mocked(queries.getTodayViewBundleForDay).mockImplementation(async date => ({ ...bundle(date === DAY ? [openHabit] : []), dayRef: date }))
-    const rail = mount(NextDayRail, { props: { dayRef: DAY, calendarContext: true } })
-    await flushPromises()
-    const calendar = mount(NextDayPlanCalendar, { props: { dayRef: DAY, expanded: false } })
-    const payload = new Map<string, string>()
-    const transfer = { setData: (type: string, value: string) => payload.set(type, value), getData: (type: string) => payload.get(type), effectAllowed: '', dropEffect: '' }
-    const handle = rail.find('.ndi__drag')
-    await handle.trigger('dragstart', { dataTransfer: transfer })
-    expect(useTodayStore().draggingItemKey).toBe(openHabit.key)
-    await calendar.findAll('.day-plan-calendar__days button')[4].trigger('drop', { dataTransfer: transfer })
-    await handle.trigger('dragend')
-    await flushPromises()
-    expect(actions.moveTodayMeasurementAssignment).toHaveBeenCalledWith(expect.objectContaining({ key: openHabit.key }), DAY, '2026-03-13')
-    await rail.find('.snackbar__action').trigger('click')
-    await flushPromises()
-    expect(actions.moveTodayMeasurementAssignment).toHaveBeenLastCalledWith(expect.objectContaining({ key: openHabit.key }), '2026-03-13', DAY)
-    rail.unmount(); calendar.unmount()
-  })
+  it.each(['2026-03-12', '2026-03-20'])(
+    'routes drag and drop through move and undo when today is %s',
+    async today => {
+      vi.setSystemTime(new Date(`${today}T12:00:00`))
+      vi.mocked(queries.getTodayViewBundleForDay).mockImplementation(async date => ({
+        ...bundle(date === DAY ? [openHabit] : []),
+        dayRef: date,
+      }))
+      const rail = mount(NextDayRail, { props: { dayRef: DAY, calendarContext: true } })
+      await flushPromises()
+      const calendar = mount(NextDayPlanCalendar, { props: { dayRef: DAY, expanded: false } })
+      const payload = new Map<string, string>()
+      const transfer = {
+        setData: (type: string, value: string) => payload.set(type, value),
+        getData: (type: string) => payload.get(type),
+        effectAllowed: '',
+        dropEffect: '',
+      }
+      const handle = rail.find('.ndi__drag')
+      await handle.trigger('dragstart', { dataTransfer: transfer })
+      expect(useTodayStore().draggingItemKey).toBe(openHabit.key)
+      await calendar
+        .findAll('.day-plan-calendar__days button')[4]
+        .trigger('drop', { dataTransfer: transfer })
+      await handle.trigger('dragend')
+      await flushPromises()
+      expect(actions.moveTodayMeasurementAssignment).toHaveBeenCalledWith(
+        expect.objectContaining({ key: openHabit.key }),
+        DAY,
+        '2026-03-13'
+      )
+      await rail.find('.snackbar__action').trigger('click')
+      await flushPromises()
+      expect(actions.moveTodayMeasurementAssignment).toHaveBeenLastCalledWith(
+        expect.objectContaining({ key: openHabit.key }),
+        '2026-03-13',
+        DAY
+      )
+      rail.unmount()
+      calendar.unmount()
+    }
+  )
 
   it('moves selected object evidence to the calendar without duplicating the row chart', async () => {
-    const rail = mount(NextDayRail, {props:{dayRef:DAY,calendarContext:true}})
+    const rail = mount(NextDayRail, { props: { dayRef: DAY, calendarContext: true } })
     await flushPromises()
     await rail.find('.ndi__label').trigger('click')
     const store = useTodayStore()
     expect(store.selectedItemKey).toBe(openHabit.key)
     expect(rail.find('.ndi__strip').exists()).toBe(false)
-    const calendar = mount(NextDayPlanCalendar,{props:{dayRef:DAY,expanded:false}})
+    const calendar = mount(NextDayPlanCalendar, { props: { dayRef: DAY, expanded: false } })
     expect(calendar.find('.day-plan-calendar__selection').text()).toContain('Rozciąganie')
     expect(calendar.find('.next-object-card').exists()).toBe(true)
     await rail.find('.ndi__label').trigger('click')
     expect(store.selectedItemKey).toBeNull()
-    rail.unmount();calendar.unmount()
+    rail.unmount()
+    calendar.unmount()
   })
 
   it('only accepts an internal drag and hands the destination to the existing move flow', async () => {
@@ -308,21 +464,24 @@ describe('Today calendar integration', () => {
     store.bundle = bundle([openHabit])
     store.targetingItem = openHabit
     store.draggingItemKey = openHabit.key
-    const calendar = mount(NextDayPlanCalendar,{props:{dayRef:DAY,expanded:false}})
+    const calendar = mount(NextDayPlanCalendar, { props: { dayRef: DAY, expanded: false } })
     const cells = calendar.findAll('.day-plan-calendar__days button')
     expect(cells[0].attributes('disabled')).toBeUndefined()
     expect(cells[3].attributes('disabled')).toBeDefined()
-    await cells[4].trigger('drop',{dataTransfer:{getData:()=> 'external'}})
+    await cells[4].trigger('drop', { dataTransfer: { getData: () => 'external' } })
     expect(store.pendingPick).toBeNull()
-    await cells[4].trigger('drop',{dataTransfer:{getData:()=>openHabit.key}})
-    expect(store.pendingPick).toEqual({item:openHabit,dayRef:'2026-03-13'})
+    await cells[4].trigger('drop', { dataTransfer: { getData: () => openHabit.key } })
+    expect(store.pendingPick).toEqual({ item: openHabit, dayRef: '2026-03-13' })
     expect(store.draggingItemKey).toBeNull()
     calendar.unmount()
   })
 
   it('picks an earlier historical date through the row quick action and calendar', async () => {
     vi.setSystemTime(new Date('2026-03-20T12:00:00'))
-    vi.mocked(queries.getTodayViewBundleForDay).mockImplementation(async date => ({ ...bundle(date === DAY ? [openHabit] : []), dayRef: date }))
+    vi.mocked(queries.getTodayViewBundleForDay).mockImplementation(async date => ({
+      ...bundle(date === DAY ? [openHabit] : []),
+      dayRef: date,
+    }))
     const rail = mount(NextDayRail, { props: { dayRef: DAY, calendarContext: true } })
     await flushPromises()
     const calendar = mount(NextDayPlanCalendar, { props: { dayRef: DAY, expanded: false } })
@@ -332,22 +491,28 @@ describe('Today calendar integration', () => {
     await cells[0].trigger('click')
     await flushPromises()
     expect(actions.moveTodayMeasurementAssignment).toHaveBeenCalledWith(
-      expect.objectContaining({ key: openHabit.key }), DAY, '2026-03-09',
+      expect.objectContaining({ key: openHabit.key }),
+      DAY,
+      '2026-03-09'
     )
-    rail.unmount(); calendar.unmount()
+    rail.unmount()
+    calendar.unmount()
   })
 
   it('blocks an occupied destination rather than merging assignments and breaking undo', async () => {
     const store = useTodayStore()
     store.bundle = bundle([openHabit])
-    store.bundle.allDayAssignments = [{subjectType:'habit',subjectId:'h2',dayRef:'2026-03-13'}] as TodayViewBundle['allDayAssignments']
+    store.bundle.allDayAssignments = [
+      { subjectType: 'habit', subjectId: 'h2', dayRef: '2026-03-13' },
+    ] as TodayViewBundle['allDayAssignments']
     store.targetingItem = openHabit
-    const calendar = mount(NextDayPlanCalendar,{props:{dayRef:DAY,expanded:false}})
-    expect(calendar.findAll('.day-plan-calendar__days button')[4].attributes('disabled')).toBeDefined()
+    const calendar = mount(NextDayPlanCalendar, { props: { dayRef: DAY, expanded: false } })
+    expect(
+      calendar.findAll('.day-plan-calendar__days button')[4].attributes('disabled')
+    ).toBeDefined()
     calendar.unmount()
   })
 })
-
 
 describe('Week board planning mutations', () => {
   beforeEach(() => {
@@ -355,21 +520,35 @@ describe('Week board planning mutations', () => {
     vi.clearAllMocks()
     vi.useFakeTimers({ toFake: ['Date'] })
     vi.setSystemTime(new Date('2026-03-12T12:00:00'))
-    vi.mocked(queries.getTodayViewBundleForDay).mockImplementation(async date => ({ ...bundle(date === DAY ? [openHabit, intention] : []), dayRef: date }))
+    vi.mocked(queries.getTodayViewBundleForDay).mockImplementation(async date => ({
+      ...bundle(date === DAY ? [openHabit, intention] : []),
+      dayRef: date,
+    }))
   })
   afterEach(() => vi.useRealTimers())
 
   it('moves the selected assignment and reverses the same source and destination', async () => {
     const board = mount(NextWeekPlanBoard, { props: { dayRef: DAY } })
     await flushPromises()
-    await board.findAll('.week-plan-board__days button').find(b => b.text().includes('Rozciąganie'))!.trigger('click')
+    await board
+      .findAll('.week-plan-board__days button')
+      .find(b => b.text().includes('Rozciąganie'))!
+      .trigger('click')
     await board.find('input[type=date]').setValue('2026-03-13')
     await board.find('form').trigger('submit')
     await flushPromises()
-    expect(actions.moveTodayMeasurementAssignment).toHaveBeenCalledWith(expect.objectContaining({ key: openHabit.key }), DAY, '2026-03-13')
+    expect(actions.moveTodayMeasurementAssignment).toHaveBeenCalledWith(
+      expect.objectContaining({ key: openHabit.key }),
+      DAY,
+      '2026-03-13'
+    )
     await board.find('[role=status] button').trigger('click')
     await flushPromises()
-    expect(actions.moveTodayMeasurementAssignment).toHaveBeenLastCalledWith(expect.objectContaining({ key: openHabit.key }), '2026-03-13', DAY)
+    expect(actions.moveTodayMeasurementAssignment).toHaveBeenLastCalledWith(
+      expect.objectContaining({ key: openHabit.key }),
+      '2026-03-13',
+      DAY
+    )
     board.unmount()
   })
 
@@ -385,16 +564,24 @@ describe('Week board planning mutations', () => {
     await board.find('input[type=date]').setValue('2026-03-13')
     await board.find('form').trigger('submit')
     await flushPromises()
-    expect(actions.addMeasurementToDay).toHaveBeenCalledWith(expect.objectContaining({ key: intention.key }), '2026-03-13')
+    expect(actions.addMeasurementToDay).toHaveBeenCalledWith(
+      expect.objectContaining({ key: intention.key }),
+      '2026-03-13'
+    )
     expect(actions.moveTodayMeasurementAssignment).not.toHaveBeenCalled()
     board.unmount()
   })
 
   it('surfaces failed writes and keeps the editor available for retry', async () => {
-    vi.mocked(actions.moveTodayMeasurementAssignment).mockRejectedValueOnce(new Error('Save failed'))
+    vi.mocked(actions.moveTodayMeasurementAssignment).mockRejectedValueOnce(
+      new Error('Save failed')
+    )
     const board = mount(NextWeekPlanBoard, { props: { dayRef: DAY } })
     await flushPromises()
-    await board.findAll('.week-plan-board__days button').find(b => b.text().includes('Rozciąganie'))!.trigger('click')
+    await board
+      .findAll('.week-plan-board__days button')
+      .find(b => b.text().includes('Rozciąganie'))!
+      .trigger('click')
     await board.find('input[type=date]').setValue('2026-03-13')
     await board.find('form').trigger('submit')
     await flushPromises()

@@ -22,12 +22,7 @@
       :compact="compact"
     />
 
-    <SparklineBar
-      v-else
-      :points="visiblePoints"
-      :cadence="cadence"
-      :compact="compact"
-    />
+    <SparklineBar v-else :points="visiblePoints" :cadence="cadence" :compact="compact" />
   </div>
 </template>
 
@@ -48,7 +43,7 @@ const props = withDefaults(
     entryMode?: MeasurementEntryMode
     compact?: boolean
   }>(),
-  { entryMode: 'completion', compact: false },
+  { entryMode: 'completion', compact: false }
 )
 
 const { t } = useT()

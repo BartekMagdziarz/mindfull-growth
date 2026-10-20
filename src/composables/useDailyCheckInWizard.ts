@@ -100,7 +100,7 @@ export function useDailyCheckInWizard() {
 
   // Active parts management (Weather Report + Evening Reflection)
   function toggleActivePart(partId: string) {
-    const idx = activeParts.value.findIndex((ap) => ap.partId === partId)
+    const idx = activeParts.value.findIndex(ap => ap.partId === partId)
     if (idx === -1) {
       activeParts.value.push({ partId, intensity: 5 })
     } else {
@@ -109,14 +109,14 @@ export function useDailyCheckInWizard() {
   }
 
   function updatePartIntensity(partId: string, intensity: number) {
-    const entry = activeParts.value.find((ap) => ap.partId === partId)
+    const entry = activeParts.value.find(ap => ap.partId === partId)
     if (entry) {
       entry.intensity = intensity
     }
   }
 
   function updatePartTrigger(partId: string, triggerNote: string) {
-    const entry = activeParts.value.find((ap) => ap.partId === partId)
+    const entry = activeParts.value.find(ap => ap.partId === partId)
     if (entry) {
       entry.triggerNote = triggerNote || undefined
     }
@@ -149,16 +149,40 @@ export function useDailyCheckInWizard() {
     try {
       const payload: CreateIFSDailyCheckInPayload = {
         practiceType: practiceType.value,
-        activeParts: practiceType.value === 'weather-report' || practiceType.value === 'evening-reflection'
-          ? activeParts.value.length ? [...activeParts.value] : undefined
-          : undefined,
-        gratitudePartId: practiceType.value === 'gratitude-to-part' ? gratitudePartId.value ?? undefined : undefined,
-        gratitudeNote: practiceType.value === 'gratitude-to-part' ? gratitudeNote.value.trim() || undefined : undefined,
-        selfEnergyQuality: practiceType.value === 'self-energy-moment' ? selfEnergyQuality.value ?? undefined : undefined,
-        microPracticeNotes: practiceType.value === 'self-energy-moment' ? microPracticeNotes.value.trim() || undefined : undefined,
-        eveningReflection: practiceType.value === 'evening-reflection' ? eveningReflection.value.trim() || undefined : undefined,
-        selfLeadershipRating: practiceType.value === 'evening-reflection' ? selfLeadershipRating.value ?? undefined : undefined,
-        appreciationNote: practiceType.value === 'evening-reflection' ? appreciationNote.value.trim() || undefined : undefined,
+        activeParts:
+          practiceType.value === 'weather-report' || practiceType.value === 'evening-reflection'
+            ? activeParts.value.length
+              ? [...activeParts.value]
+              : undefined
+            : undefined,
+        gratitudePartId:
+          practiceType.value === 'gratitude-to-part'
+            ? (gratitudePartId.value ?? undefined)
+            : undefined,
+        gratitudeNote:
+          practiceType.value === 'gratitude-to-part'
+            ? gratitudeNote.value.trim() || undefined
+            : undefined,
+        selfEnergyQuality:
+          practiceType.value === 'self-energy-moment'
+            ? (selfEnergyQuality.value ?? undefined)
+            : undefined,
+        microPracticeNotes:
+          practiceType.value === 'self-energy-moment'
+            ? microPracticeNotes.value.trim() || undefined
+            : undefined,
+        eveningReflection:
+          practiceType.value === 'evening-reflection'
+            ? eveningReflection.value.trim() || undefined
+            : undefined,
+        selfLeadershipRating:
+          practiceType.value === 'evening-reflection'
+            ? (selfLeadershipRating.value ?? undefined)
+            : undefined,
+        appreciationNote:
+          practiceType.value === 'evening-reflection'
+            ? appreciationNote.value.trim() || undefined
+            : undefined,
         notes: notes.value.trim() || undefined,
       }
       await checkInStore.createCheckIn(payload)

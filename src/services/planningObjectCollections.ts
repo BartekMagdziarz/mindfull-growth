@@ -22,7 +22,10 @@ export interface PlanningLibraryObjects extends PlanningCoreObjects {
   priorities: Priority[]
 }
 
-const planningCoreObjectsCache = new Map<string, { revision: number; value: PlanningCoreObjects | Promise<PlanningCoreObjects> }>()
+const planningCoreObjectsCache = new Map<
+  string,
+  { revision: number; value: PlanningCoreObjects | Promise<PlanningCoreObjects> }
+>()
 const planningLibraryObjectsCache = new Map<
   string,
   { revision: number; value: PlanningLibraryObjects | Promise<PlanningLibraryObjects> }

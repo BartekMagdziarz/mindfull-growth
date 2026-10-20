@@ -14,18 +14,18 @@ export async function getActivePrioritiesForMonth(monthRef: MonthRef): Promise<P
   const year = monthRef.slice(0, 4) as YearRef
   const priorities = await priorityDexieRepository.listAll()
   return priorities
-    .filter((priority) => priority.status === 'active' && priority.years.includes(year))
+    .filter(priority => priority.status === 'active' && priority.years.includes(year))
     .sort(
       (left, right) =>
         (left.order ?? Number.MAX_SAFE_INTEGER) - (right.order ?? Number.MAX_SAFE_INTEGER) ||
-        left.title.localeCompare(right.title),
+        left.title.localeCompare(right.title)
     )
 }
 
 /** Lazily upsert the month's plan record with the chosen ≤3 top-priority ids (the "Zaplanuj miesiąc" pick). */
 export async function setMonthTopPriorities(
   monthRef: MonthRef,
-  topPriorityIds: string[],
+  topPriorityIds: string[]
 ): Promise<MonthPlan> {
   const existing = await periodPlanDexieRepository.getMonthPlan(monthRef)
   if (existing) {
@@ -36,7 +36,7 @@ export async function setMonthTopPriorities(
 
 function dedupeSignals(signals?: string[]): string[] {
   if (!signals) return []
-  return Array.from(new Set(signals.map((signal) => signal.trim()).filter(Boolean)))
+  return Array.from(new Set(signals.map(signal => signal.trim()).filter(Boolean)))
 }
 
 export interface MonthlyPriorityAssessmentInput {
@@ -59,7 +59,7 @@ export interface MonthlyPriorityAssessmentInput {
 export async function setMonthlyPriorityAssessment(
   monthRef: MonthRef,
   priorityId: string,
-  input: MonthlyPriorityAssessmentInput,
+  input: MonthlyPriorityAssessmentInput
 ): Promise<void> {
   const note = input.note?.trim() ?? ''
   const progressSignals = dedupeSignals(input.observedProgressSignals)
@@ -76,7 +76,7 @@ export async function setMonthlyPriorityAssessment(
       'month',
       monthRef,
       'priority',
-      priorityId,
+      priorityId
     )
     return
   }

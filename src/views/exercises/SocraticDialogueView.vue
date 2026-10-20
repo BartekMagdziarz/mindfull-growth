@@ -8,13 +8,11 @@
 
     <!-- Past dialogues -->
     <div v-if="socraticStore.sortedDialogues.length > 0" class="mt-8">
-      <div class="mg-v2-section-head"><h2>{{ t('exercises.views.pastDialogues') }}</h2></div>
+      <div class="mg-v2-section-head">
+        <h2>{{ t('exercises.views.pastDialogues') }}</h2>
+      </div>
       <div class="space-y-3">
-        <AppCard
-          v-for="dialogue in socraticStore.sortedDialogues"
-          :key="dialogue.id"
-          padding="md"
-        >
+        <AppCard v-for="dialogue in socraticStore.sortedDialogues" :key="dialogue.id" padding="md">
           <div class="flex justify-between items-start">
             <div class="flex-1">
               <div class="flex items-center gap-2 mb-1">

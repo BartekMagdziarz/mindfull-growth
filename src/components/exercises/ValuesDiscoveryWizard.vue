@@ -6,13 +6,19 @@
     <!-- Step 1: Admirable People -->
     <template v-if="step === 0">
       <AppCard padding="lg" class="space-y-4">
-        <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.valuesDiscovery.admirablePeople.title') }}</h2>
+        <h2 class="text-lg font-semibold text-on-surface">
+          {{ t('exerciseWizards.valuesDiscovery.admirablePeople.title') }}
+        </h2>
         <p class="text-sm text-on-surface-variant">
           {{ t('exerciseWizards.valuesDiscovery.admirablePeople.description') }}
         </p>
         <ExerciseStepWhy :text="tg('exerciseWizards.valuesDiscovery.admirablePeople.why')" />
 
-        <div v-for="(person, index) in draft.admirablePeople" :key="index" class="space-y-2 border-b border-neu-border/10 pb-4 last:border-0">
+        <div
+          v-for="(person, index) in draft.admirablePeople"
+          :key="index"
+          class="space-y-2 border-b border-neu-border/10 pb-4 last:border-0"
+        >
           <div class="flex items-center gap-3 group">
             <input
               v-model="person.name"
@@ -30,12 +36,18 @@
             </button>
           </div>
           <div class="ml-4 space-y-1">
-            <div v-for="(quality, qi) in person.qualities" :key="qi" class="flex items-center gap-2 group">
+            <div
+              v-for="(quality, qi) in person.qualities"
+              :key="qi"
+              class="flex items-center gap-2 group"
+            >
               <span class="text-primary text-xs">&#8226;</span>
               <input
                 :value="quality"
                 type="text"
-                :placeholder="t('exerciseWizards.valuesDiscovery.admirablePeople.qualityPlaceholder')"
+                :placeholder="
+                  t('exerciseWizards.valuesDiscovery.admirablePeople.qualityPlaceholder')
+                "
                 class="neo-input flex-1 p-1.5 text-sm"
                 @input="person.qualities[qi] = ($event.target as HTMLInputElement).value"
               />
@@ -79,7 +91,9 @@
     <!-- Step 2: Distill Core Values -->
     <template v-if="step === 1">
       <AppCard padding="lg" class="space-y-4">
-        <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.valuesDiscovery.coreValues.title') }}</h2>
+        <h2 class="text-lg font-semibold text-on-surface">
+          {{ t('exerciseWizards.valuesDiscovery.coreValues.title') }}
+        </h2>
         <p class="text-sm text-on-surface-variant">
           {{ tg('exerciseWizards.valuesDiscovery.coreValues.description') }}
         </p>
@@ -87,7 +101,9 @@
 
         <!-- Show qualities summary -->
         <div class="p-3 rounded-lg bg-section">
-          <p class="text-xs font-medium text-on-surface-variant mb-2">{{ tg('exerciseWizards.valuesDiscovery.coreValues.qualitiesSummaryLabel') }}</p>
+          <p class="text-xs font-medium text-on-surface-variant mb-2">
+            {{ tg('exerciseWizards.valuesDiscovery.coreValues.qualitiesSummaryLabel') }}
+          </p>
           <div class="flex flex-wrap gap-1.5">
             <span
               v-for="quality in allQualities"
@@ -101,7 +117,11 @@
 
         <!-- Core values input -->
         <div class="space-y-2">
-          <div v-for="(value, index) in draft.coreValues" :key="index" class="flex items-center gap-2 group">
+          <div
+            v-for="(value, index) in draft.coreValues"
+            :key="index"
+            class="flex items-center gap-2 group"
+          >
             <span class="text-primary">&#8226;</span>
             <input
               :value="value"
@@ -129,18 +149,22 @@
         </div>
 
         <div class="space-y-2 pt-2">
-        <label class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.valuesDiscovery.coreValues.reflectionTitle') }}</label>
-        <textarea
-          v-model="draft.notes"
-          rows="3"
-          :placeholder="tg('exerciseWizards.valuesDiscovery.coreValues.reflectionPlaceholder')"
-          class="neo-input w-full p-3 text-sm resize-none"
-        />
+          <label class="text-sm font-medium text-on-surface">{{
+            t('exerciseWizards.valuesDiscovery.coreValues.reflectionTitle')
+          }}</label>
+          <textarea
+            v-model="draft.notes"
+            rows="3"
+            :placeholder="tg('exerciseWizards.valuesDiscovery.coreValues.reflectionPlaceholder')"
+            class="neo-input w-full p-3 text-sm resize-none"
+          />
         </div>
       </AppCard>
 
       <div class="flex justify-between">
-        <AppButton variant="text" @click="step = 0">{{ t('exerciseWizards.valuesDiscovery.back') }}</AppButton>
+        <AppButton variant="text" @click="step = 0">{{
+          t('exerciseWizards.valuesDiscovery.back')
+        }}</AppButton>
         <AppButton variant="filled" :disabled="!canSave" @click="handleSave">
           {{ t('exerciseWizards.valuesDiscovery.saveButton') }}
         </AppButton>
@@ -168,7 +192,10 @@ const emit = defineEmits<{
 
 const valuesStore = useValuesDiscoveryStore()
 const step = ref(0)
-const stepLabels = computed(() => [t('exerciseWizards.valuesDiscovery.steps.admirablePeople'), t('exerciseWizards.valuesDiscovery.steps.coreValues')])
+const stepLabels = computed(() => [
+  t('exerciseWizards.valuesDiscovery.steps.admirablePeople'),
+  t('exerciseWizards.valuesDiscovery.steps.coreValues'),
+])
 
 const draft = reactive<{
   admirablePeople: AdmirablePerson[]
@@ -181,28 +208,26 @@ const draft = reactive<{
 })
 
 const hasAdmirablePeople = computed(() => {
-  return draft.admirablePeople.some((p) => p.name.trim().length > 0)
+  return draft.admirablePeople.some(p => p.name.trim().length > 0)
 })
 
 const allQualities = computed(() => {
-  return draft.admirablePeople
-    .flatMap((p) => p.qualities)
-    .filter((q) => q.trim().length > 0)
+  return draft.admirablePeople.flatMap(p => p.qualities).filter(q => q.trim().length > 0)
 })
 
 const canSave = computed(() => {
-  return draft.coreValues.some((v) => v.trim().length > 0)
+  return draft.coreValues.some(v => v.trim().length > 0)
 })
 
 async function handleSave() {
   const discovery = await valuesStore.createDiscovery({
     admirablePeople: draft.admirablePeople
-      .filter((p) => p.name.trim().length > 0)
-      .map((p) => ({
+      .filter(p => p.name.trim().length > 0)
+      .map(p => ({
         name: p.name.trim(),
-        qualities: p.qualities.filter((q) => q.trim().length > 0),
+        qualities: p.qualities.filter(q => q.trim().length > 0),
       })),
-    coreValues: draft.coreValues.filter((v) => v.trim().length > 0),
+    coreValues: draft.coreValues.filter(v => v.trim().length > 0),
     notes: draft.notes || undefined,
   })
   emit('saved', discovery.id)

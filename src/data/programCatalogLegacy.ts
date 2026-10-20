@@ -6,7 +6,9 @@
  */
 
 /** `programSlug → contentVersion → exercise slugs in step order`. */
-export const LEGACY_PROGRAM_STEPS: Readonly<Record<string, Readonly<Record<number, readonly string[]>>>> = {
+export const LEGACY_PROGRAM_STEPS: Readonly<
+  Record<string, Readonly<Record<number, readonly string[]>>>
+> = {
   // Shipped 2026-09-23 (v1); v2 on 2026-10-18 (weeks as phases, "Mój znak",
   // the mid-path measure and dose check, the letter, the close and Powrót).
   'anger-signal': {
@@ -85,6 +87,9 @@ export const LEGACY_PROGRAM_STEPS: Readonly<Record<string, Readonly<Record<numbe
   },
 }
 
-export function legacyProgramSteps(programSlug: string, contentVersion: number): readonly string[] | undefined {
+export function legacyProgramSteps(
+  programSlug: string,
+  contentVersion: number
+): readonly string[] | undefined {
   return LEGACY_PROGRAM_STEPS[programSlug]?.[contentVersion]
 }

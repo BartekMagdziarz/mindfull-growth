@@ -11,11 +11,11 @@ export class VlqScorer implements AssessmentScorer {
   score(input: ScoringInput): AssessmentComputation {
     const { definition, responses, previousAttempt } = input
     const responsesMap = responseByItemId(responses)
-    const itemsById = new Map(definition.items.map((item) => [item.id, item]))
+    const itemsById = new Map(definition.items.map(item => [item.id, item]))
 
     let missingItemCount = 0
 
-    const scaleScores: ScaleScore[] = definition.scales.map((scale) => {
+    const scaleScores: ScaleScore[] = definition.scales.map(scale => {
       let importance: number | null = null
       let consistency: number | null = null
       let answeredCount = 0
@@ -77,29 +77,29 @@ export class VlqScorer implements AssessmentScorer {
 
     const scoredWithDeltas = attachDeltas(scaleScores, previousAttempt)
 
-    const completedScales = scoredWithDeltas.filter((scale) => scale.normalizedMean !== null)
+    const completedScales = scoredWithDeltas.filter(scale => scale.normalizedMean !== null)
     const completedScaleCount = completedScales.length
     const totalScaleCount = scoredWithDeltas.length
     const hasOverallSummary = completedScaleCount >= 8
 
     const topValues = hasOverallSummary
       ? [...completedScales]
-          .map((scale) => ({
+          .map(scale => ({
             scaleId: scale.scaleId,
             value: asNumber(scale.details?.importance) ?? -Infinity,
           }))
-          .filter((entry) => Number.isFinite(entry.value))
+          .filter(entry => Number.isFinite(entry.value))
           .sort((a, b) => b.value - a.value)
           .slice(0, 3)
       : undefined
 
     const biggestGaps = hasOverallSummary
       ? [...completedScales]
-          .map((scale) => ({
+          .map(scale => ({
             scaleId: scale.scaleId,
             gap: asNumber(scale.details?.gap) ?? -Infinity,
           }))
-          .filter((entry) => Number.isFinite(entry.gap) && entry.gap > 0)
+          .filter(entry => Number.isFinite(entry.gap) && entry.gap > 0)
           .sort((a, b) => b.gap - a.gap)
           .slice(0, 3)
       : undefined
@@ -110,7 +110,7 @@ export class VlqScorer implements AssessmentScorer {
         completedScaleCount,
         totalScaleCount,
         meanOfMeans: hasOverallSummary
-          ? meanOfValues(scoredWithDeltas.map((scale) => scale.normalizedMean))
+          ? meanOfValues(scoredWithDeltas.map(scale => scale.normalizedMean))
           : null,
         topValues,
         biggestGaps,

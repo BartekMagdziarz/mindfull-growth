@@ -8,7 +8,9 @@
 
     <!-- Past explorations -->
     <div v-if="mountainRangeStore.sortedExplorations.length > 0" class="mt-8">
-      <div class="mg-v2-section-head"><h2>{{ t('exercises.views.pastExplorations') }}</h2></div>
+      <div class="mg-v2-section-head">
+        <h2>{{ t('exercises.views.pastExplorations') }}</h2>
+      </div>
       <div class="space-y-3">
         <AppCard
           v-for="exploration in mountainRangeStore.sortedExplorations"
@@ -18,8 +20,8 @@
           <div class="flex justify-between items-start">
             <div>
               <p class="text-sm font-medium text-on-surface">
-                {{ exploration.events.filter((e) => e.type === 'peak').length }} peaks,
-                {{ exploration.events.filter((e) => e.type === 'valley').length }} valleys
+                {{ exploration.events.filter(e => e.type === 'peak').length }} peaks,
+                {{ exploration.events.filter(e => e.type === 'valley').length }} valleys
               </p>
               <p class="text-xs text-on-surface-variant mt-1">
                 {{ formatDate(exploration.createdAt) }}

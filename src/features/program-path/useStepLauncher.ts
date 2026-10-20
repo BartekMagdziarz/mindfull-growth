@@ -14,7 +14,11 @@ import { pickableMoments } from './momentSeed'
  * step the picked moment's answers as an editable `prefill`
  * (`step.momentPrefill`).
  */
-export function stepLaunchRoute(step: ProgramStep, momentId?: string | null, moment?: MicroExerciseEntry | null): RouteLocationRaw | null {
+export function stepLaunchRoute(
+  step: ProgramStep,
+  momentId?: string | null,
+  moment?: MicroExerciseEntry | null
+): RouteLocationRaw | null {
   const entry = getCatalogEntry(step.exerciseSlug)
   if (!entry) return null
   const prefill: Record<string, MicroStepValue> = {}
@@ -69,7 +73,9 @@ export function useStepLauncher() {
     const target = pending.value
     pending.value = null
     if (!target) return
-    const moment = entryId ? entryStore.entries.find((candidate) => candidate.id === entryId) : undefined
+    const moment = entryId
+      ? entryStore.entries.find(candidate => candidate.id === entryId)
+      : undefined
     const route = stepLaunchRoute(target.step, entryId, moment)
     if (route) await router.push(route)
   }

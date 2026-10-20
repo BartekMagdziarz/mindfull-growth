@@ -19,10 +19,7 @@
       </button>
 
       <!-- Creating New Tag (appears after + button position) -->
-      <div
-        v-if="isCreatingTag"
-        class="mg-v2-pill mg-v2-pill--primary mg-v2-pill--selected"
-      >
+      <div v-if="isCreatingTag" class="mg-v2-pill mg-v2-pill--primary mg-v2-pill--selected">
         <input
           ref="createInputRef"
           v-model="newTagName"
@@ -68,7 +65,11 @@
         <button
           v-else
           type="button"
-          :aria-label="isTagSelected(tag.id) ? t('common.tagInput.deselectTag', { type: tagTypeLower, name: tag.name }) : t('common.tagInput.selectTag', { type: tagTypeLower, name: tag.name })"
+          :aria-label="
+            isTagSelected(tag.id)
+              ? t('common.tagInput.deselectTag', { type: tagTypeLower, name: tag.name })
+              : t('common.tagInput.selectTag', { type: tagTypeLower, name: tag.name })
+          "
           :aria-pressed="isTagSelected(tag.id)"
           :class="getTagClasses(tag.id)"
           @click="handleTagClick(tag.id)"
@@ -165,9 +166,7 @@ const tagTypeLabel = computed(() => {
 const tagTypeLower = computed(() => tagTypeLabel.value.toLowerCase())
 
 const availableTags = computed(() => {
-  return props.tagType === 'people'
-    ? tagStore.peopleTags
-    : tagStore.contextTags
+  return props.tagType === 'people' ? tagStore.peopleTags : tagStore.contextTags
 })
 
 // Zwijanie długich list: pierwsze N tagów + wszystkie ZAZNACZONE (nie mogą zniknąć).
@@ -180,18 +179,18 @@ const visibleTags = computed(() => {
   const base = availableTags.value.slice(0, limit)
   const extraSelected = availableTags.value
     .slice(limit)
-    .filter((tag) => selectedTagIds.value.includes(tag.id))
+    .filter(tag => selectedTagIds.value.includes(tag.id))
   return [...base, ...extraSelected]
 })
 
 const hiddenCount = computed(() =>
   props.visibleLimit == null || isExpanded.value
     ? 0
-    : availableTags.value.length - visibleTags.value.length,
+    : availableTags.value.length - visibleTags.value.length
 )
 
 const canCollapse = computed(
-  () => props.visibleLimit != null && availableTags.value.length > props.visibleLimit,
+  () => props.visibleLimit != null && availableTags.value.length > props.visibleLimit
 )
 
 // Methods
@@ -267,8 +266,7 @@ async function saveNewTag() {
     isCreatingTag.value = false
     newTagName.value = ''
   } catch (err) {
-    const errorMsg =
-      err instanceof Error ? err.message : 'Failed to create tag'
+    const errorMsg = err instanceof Error ? err.message : 'Failed to create tag'
     errorMessage.value = errorMsg
   }
 }
@@ -329,8 +327,7 @@ async function saveEditTag() {
     editingTagId.value = null
     editingTagName.value = ''
   } catch (err) {
-    const errorMsg =
-      err instanceof Error ? err.message : 'Failed to update tag'
+    const errorMsg = err instanceof Error ? err.message : 'Failed to update tag'
     errorMessage.value = errorMsg
   }
 }
@@ -373,8 +370,7 @@ async function deleteTag(tagId: string) {
     editingTagId.value = null
     editingTagName.value = ''
   } catch (err) {
-    const errorMsg =
-      err instanceof Error ? err.message : 'Failed to delete tag'
+    const errorMsg = err instanceof Error ? err.message : 'Failed to delete tag'
     errorMessage.value = errorMsg
   }
 }
@@ -382,13 +378,11 @@ async function deleteTag(tagId: string) {
 // Sync with modelValue prop
 watch(
   () => props.modelValue,
-  (newValue) => {
+  newValue => {
     // Filter out invalid tag IDs
-    const validIds = newValue.filter((id) => {
+    const validIds = newValue.filter(id => {
       const tag =
-        props.tagType === 'people'
-          ? tagStore.getPeopleTagById(id)
-          : tagStore.getContextTagById(id)
+        props.tagType === 'people' ? tagStore.getPeopleTagById(id) : tagStore.getContextTagById(id)
       return tag !== undefined
     })
     selectedTagIds.value = validIds

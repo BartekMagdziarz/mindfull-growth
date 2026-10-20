@@ -169,7 +169,7 @@ function planNextWeekInStream() {
 // --- active period + URL sync ------------------------------------------------
 
 const activeRef = computed<PeriodRef>(() =>
-  scale.value === 'year' ? yearRef.value : scale.value === 'month' ? monthRef.value : weekRef.value,
+  scale.value === 'year' ? yearRef.value : scale.value === 'month' ? monthRef.value : weekRef.value
 )
 
 function syncUrl() {
@@ -182,11 +182,11 @@ onMounted(syncUrl)
 // Re-init when the route param changes externally (e.g. browser back/forward).
 watch(
   () => props.periodRef,
-  (value) => {
+  value => {
     if (value && isPeriodRef(value) && value !== activeRef.value) {
       initFromParam(value)
     }
-  },
+  }
 )
 
 // --- navigation --------------------------------------------------------------
@@ -288,7 +288,7 @@ async function loadRibbon() {
 watch([scale, yearRef, monthRef, weekRef], loadRibbon, { immediate: true })
 
 const ribbonItems = computed(() =>
-  scale.value === 'year' ? months.value : scale.value === 'month' ? weeks.value : days.value,
+  scale.value === 'year' ? months.value : scale.value === 'month' ? weeks.value : days.value
 )
 // Only block the ribbon with a spinner on a cold load; keep the previous cards
 // visible while re-fetching as the user pages (data is cached → usually instant).
@@ -322,7 +322,7 @@ function monthName(ref: MonthRef): string {
 
 function weekdayLabel(dayRef: DayRef): string {
   return new Intl.DateTimeFormat(locale.value, { weekday: 'short' }).format(
-    new Date(`${dayRef}T00:00:00`),
+    new Date(`${dayRef}T00:00:00`)
   )
 }
 
@@ -373,7 +373,6 @@ const spine = computed<Crumb[]>(() => {
 
 const scaleHint = computed(() => t(`planning.calendar.stream.hint.${scale.value}`))
 const scaleHintIcon = computed(() => (scale.value === 'week' ? 'today' : 'ads_click'))
-
 </script>
 
 <template>
@@ -392,7 +391,12 @@ const scaleHintIcon = computed(() => (scale.value === 'week' ? 'today' : 'ads_cl
 
         <div class="stream-spine__crumbs">
           <template v-for="(crumb, i) in spine" :key="crumb.key">
-            <AppIcon v-if="i > 0" class="material-symbols-outlined stream-spine__sep" aria-hidden="true" name="chevron_right" />
+            <AppIcon
+              v-if="i > 0"
+              class="material-symbols-outlined stream-spine__sep"
+              aria-hidden="true"
+              name="chevron_right"
+            />
             <button
               v-if="crumb.onClick"
               type="button"
@@ -417,13 +421,21 @@ const scaleHintIcon = computed(() => (scale.value === 'week' ? 'today' : 'ads_cl
         </button>
 
         <button type="button" class="stream-today neo-focus" @click="goToday">
-          <AppIcon class="material-symbols-outlined stream-today__icon" aria-hidden="true" name="today" />
+          <AppIcon
+            class="material-symbols-outlined stream-today__icon"
+            aria-hidden="true"
+            name="today"
+          />
           {{ t('planning.calendar.stream.today') }}
         </button>
       </div>
 
       <div class="stream-spine__hint">
-        <AppIcon class="material-symbols-outlined stream-spine__hint-icon" aria-hidden="true" :name="scaleHintIcon" />
+        <AppIcon
+          class="material-symbols-outlined stream-spine__hint-icon"
+          aria-hidden="true"
+          :name="scaleHintIcon"
+        />
         {{ scaleHint }}
       </div>
     </div>

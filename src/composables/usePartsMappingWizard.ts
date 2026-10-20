@@ -176,7 +176,8 @@ export function usePartsMappingWizard() {
       emotionIds: [...currentPartEmotionIds.value],
       emotionFamilyIds: [...currentPartEmotionFamilyIds.value],
       lifeAreaIds: [],
-      positiveIntention: currentPartRole.value === 'exile' ? '' : currentPartPositiveIntention.value.trim(),
+      positiveIntention:
+        currentPartRole.value === 'exile' ? '' : currentPartPositiveIntention.value.trim(),
       fears: currentPartRole.value === 'exile' ? '' : currentPartFears.value.trim(),
       burden: currentPartRole.value === 'exile' ? currentPartBurden.value.trim() : '',
       needs: currentPartNeeds.value.trim(),
@@ -233,11 +234,11 @@ export function usePartsMappingWizard() {
     // Clean up relationships referencing the removed part
     const tempId = `temp-${index}`
     relationships.value = relationships.value.filter(
-      (r) => r.fromPartId !== tempId && r.toPartId !== tempId,
+      r => r.fromPartId !== tempId && r.toPartId !== tempId
     )
 
     // Re-index remaining relationships
-    relationships.value = relationships.value.map((r) => ({
+    relationships.value = relationships.value.map(r => ({
       ...r,
       fromPartId: reindexTempId(r.fromPartId, index),
       toPartId: reindexTempId(r.toPartId, index),
@@ -331,7 +332,7 @@ export function usePartsMappingWizard() {
       }
 
       // Map relationships from temp IDs to real IDs
-      const realRelationships: IFSRelationship[] = relationships.value.map((r) => ({
+      const realRelationships: IFSRelationship[] = relationships.value.map(r => ({
         fromPartId: tempToRealId.get(r.fromPartId) ?? r.fromPartId,
         toPartId: tempToRealId.get(r.toPartId) ?? r.toPartId,
         type: r.type,

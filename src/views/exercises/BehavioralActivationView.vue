@@ -8,22 +8,20 @@
 
     <!-- Past plans section -->
     <div v-if="activationStore.sortedActivations.length > 0" class="mt-8">
-      <div class="mg-v2-section-head"><h2>{{ t('exercises.views.pastPlans') }}</h2></div>
+      <div class="mg-v2-section-head">
+        <h2>{{ t('exercises.views.pastPlans') }}</h2>
+      </div>
       <div class="space-y-3">
-        <AppCard
-          v-for="plan in activationStore.sortedActivations"
-          :key="plan.id"
-          padding="md"
-        >
+        <AppCard v-for="plan in activationStore.sortedActivations" :key="plan.id" padding="md">
           <div class="flex justify-between items-start">
             <div>
               <p class="text-sm font-medium text-on-surface">
                 {{ t('exercises.views.weekOf', { date: formatDayRef(plan.weekStartDate) }) }}
               </p>
               <p class="text-xs text-on-surface-variant mt-1">
-                {{ plan.activities.length }} activities
-                &middot; {{ plan.activities.filter(a => a.completed).length }} completed
-                &middot; {{ formatDate(plan.createdAt) }}
+                {{ plan.activities.length }} activities &middot;
+                {{ plan.activities.filter(a => a.completed).length }} completed &middot;
+                {{ formatDate(plan.createdAt) }}
               </p>
             </div>
           </div>

@@ -1,7 +1,11 @@
 <template>
   <div class="space-y-6">
     <!-- Step indicator dots -->
-    <ExerciseStepper :labels="visibleStepLabels" :current="currentVisualStep" :interactive="false" />
+    <ExerciseStepper
+      :labels="visibleStepLabels"
+      :current="currentVisualStep"
+      :interactive="false"
+    />
 
     <!-- Step 1: Capture Worry -->
     <Transition
@@ -12,7 +16,9 @@
     >
       <div v-if="currentStep === 'capture'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.worryTree.capture.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.worryTree.capture.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.worryTree.capture.description') }}
           </p>
@@ -27,7 +33,9 @@
 
         <AppCard padding="lg" class="space-y-4">
           <div class="flex items-center gap-1.5">
-            <h3 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.worryTree.capture.emotionsTitle') }}</h3>
+            <h3 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.worryTree.capture.emotionsTitle') }}
+            </h3>
           </div>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.worryTree.capture.emotionsDescription') }}
@@ -39,7 +47,11 @@
           />
           <div v-if="selectedEmotionIds.length > 0" class="space-y-2">
             <label class="text-sm font-medium text-on-surface">
-              {{ t('exerciseWizards.worryTree.capture.intensityLabel', { value: emotionBeforeIntensity }) }}
+              {{
+                t('exerciseWizards.worryTree.capture.intensityLabel', {
+                  value: emotionBeforeIntensity,
+                })
+              }}
             </label>
             <input
               v-model.number="emotionBeforeIntensity"
@@ -77,77 +89,81 @@
     >
       <div v-if="currentStep === 'classify'" class="space-y-4">
         <AppCard padding="lg" class="space-y-3">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.worryTree.classify.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.worryTree.classify.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.worryTree.classify.description') }}
           </p>
           <ExerciseStepWhy :text="tg('exerciseWizards.worryTree.classify.why')" />
 
-        <button
-          type="button"
-          :class="[
-            'neo-selector neo-focus w-full text-left p-5 space-y-1',
-            worryType === 'real-problem' ? 'neo-selector--active' : '',
-          ]"
-          @click="selectWorryType('real-problem')"
-        >
-          <div class="flex items-center gap-3">
-            <div
-              class="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0"
-              :class="
-                worryType === 'real-problem'
-                  ? 'border-primary bg-primary'
-                  : 'border-outline'
-              "
-            >
+          <button
+            type="button"
+            :class="[
+              'neo-selector neo-focus w-full text-left p-5 space-y-1',
+              worryType === 'real-problem' ? 'neo-selector--active' : '',
+            ]"
+            @click="selectWorryType('real-problem')"
+          >
+            <div class="flex items-center gap-3">
               <div
-                v-if="worryType === 'real-problem'"
-                class="w-2 h-2 rounded-full bg-on-primary"
-              />
+                class="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0"
+                :class="
+                  worryType === 'real-problem' ? 'border-primary bg-primary' : 'border-outline'
+                "
+              >
+                <div
+                  v-if="worryType === 'real-problem'"
+                  class="w-2 h-2 rounded-full bg-on-primary"
+                />
+              </div>
+              <div>
+                <p class="text-base font-semibold text-on-surface">
+                  {{ t('exerciseWizards.worryTree.classify.realProblem') }}
+                </p>
+                <p class="text-sm text-on-surface-variant">
+                  {{ t('exerciseWizards.worryTree.classify.realProblemDescription') }}
+                </p>
+              </div>
             </div>
-            <div>
-              <p class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.worryTree.classify.realProblem') }}</p>
-              <p class="text-sm text-on-surface-variant">
-                {{ t('exerciseWizards.worryTree.classify.realProblemDescription') }}
-              </p>
-            </div>
-          </div>
-        </button>
+          </button>
 
-        <button
-          type="button"
-          :class="[
-            'neo-selector neo-focus w-full text-left p-5 space-y-1',
-            worryType === 'hypothetical' ? 'neo-selector--active' : '',
-          ]"
-          @click="selectWorryType('hypothetical')"
-        >
-          <div class="flex items-center gap-3">
-            <div
-              class="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0"
-              :class="
-                worryType === 'hypothetical'
-                  ? 'border-primary bg-primary'
-                  : 'border-outline'
-              "
-            >
+          <button
+            type="button"
+            :class="[
+              'neo-selector neo-focus w-full text-left p-5 space-y-1',
+              worryType === 'hypothetical' ? 'neo-selector--active' : '',
+            ]"
+            @click="selectWorryType('hypothetical')"
+          >
+            <div class="flex items-center gap-3">
               <div
-                v-if="worryType === 'hypothetical'"
-                class="w-2 h-2 rounded-full bg-on-primary"
-              />
+                class="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0"
+                :class="
+                  worryType === 'hypothetical' ? 'border-primary bg-primary' : 'border-outline'
+                "
+              >
+                <div
+                  v-if="worryType === 'hypothetical'"
+                  class="w-2 h-2 rounded-full bg-on-primary"
+                />
+              </div>
+              <div>
+                <p class="text-base font-semibold text-on-surface">
+                  {{ t('exerciseWizards.worryTree.classify.hypothetical') }}
+                </p>
+                <p class="text-sm text-on-surface-variant">
+                  {{ t('exerciseWizards.worryTree.classify.hypotheticalDescription') }}
+                </p>
+              </div>
             </div>
-            <div>
-              <p class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.worryTree.classify.hypothetical') }}</p>
-              <p class="text-sm text-on-surface-variant">
-                {{ t('exerciseWizards.worryTree.classify.hypotheticalDescription') }}
-              </p>
-            </div>
-          </div>
-        </button>
+          </button>
         </AppCard>
 
         <div class="flex justify-start">
-          <AppButton variant="text" @click="currentStep = 'capture'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'capture'">{{
+            t('common.buttons.back')
+          }}</AppButton>
         </div>
       </div>
     </Transition>
@@ -161,76 +177,70 @@
     >
       <div v-if="currentStep === 'can-act'" class="space-y-4">
         <AppCard padding="lg" class="space-y-3">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.worryTree.canAct.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.worryTree.canAct.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.worryTree.canAct.description') }}
           </p>
 
-        <button
-          type="button"
-          :class="[
-            'neo-selector neo-focus w-full text-left p-5',
-            canActNow === true ? 'neo-selector--active' : '',
-          ]"
-          @click="selectCanActNow(true)"
-        >
-          <div class="flex items-center gap-3">
-            <div
-              class="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0"
-              :class="
-                canActNow === true
-                  ? 'border-primary bg-primary'
-                  : 'border-outline'
-              "
-            >
+          <button
+            type="button"
+            :class="[
+              'neo-selector neo-focus w-full text-left p-5',
+              canActNow === true ? 'neo-selector--active' : '',
+            ]"
+            @click="selectCanActNow(true)"
+          >
+            <div class="flex items-center gap-3">
               <div
-                v-if="canActNow === true"
-                class="w-2 h-2 rounded-full bg-on-primary"
-              />
+                class="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0"
+                :class="canActNow === true ? 'border-primary bg-primary' : 'border-outline'"
+              >
+                <div v-if="canActNow === true" class="w-2 h-2 rounded-full bg-on-primary" />
+              </div>
+              <div>
+                <p class="text-base font-semibold text-on-surface">
+                  {{ t('exerciseWizards.worryTree.canAct.yesTitle') }}
+                </p>
+                <p class="text-sm text-on-surface-variant">
+                  {{ t('exerciseWizards.worryTree.canAct.yesDescription') }}
+                </p>
+              </div>
             </div>
-            <div>
-              <p class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.worryTree.canAct.yesTitle') }}</p>
-              <p class="text-sm text-on-surface-variant">
-                {{ t('exerciseWizards.worryTree.canAct.yesDescription') }}
-              </p>
-            </div>
-          </div>
-        </button>
+          </button>
 
-        <button
-          type="button"
-          :class="[
-            'neo-selector neo-focus w-full text-left p-5',
-            canActNow === false ? 'neo-selector--active' : '',
-          ]"
-          @click="selectCanActNow(false)"
-        >
-          <div class="flex items-center gap-3">
-            <div
-              class="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0"
-              :class="
-                canActNow === false
-                  ? 'border-primary bg-primary'
-                  : 'border-outline'
-              "
-            >
+          <button
+            type="button"
+            :class="[
+              'neo-selector neo-focus w-full text-left p-5',
+              canActNow === false ? 'neo-selector--active' : '',
+            ]"
+            @click="selectCanActNow(false)"
+          >
+            <div class="flex items-center gap-3">
               <div
-                v-if="canActNow === false"
-                class="w-2 h-2 rounded-full bg-on-primary"
-              />
+                class="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0"
+                :class="canActNow === false ? 'border-primary bg-primary' : 'border-outline'"
+              >
+                <div v-if="canActNow === false" class="w-2 h-2 rounded-full bg-on-primary" />
+              </div>
+              <div>
+                <p class="text-base font-semibold text-on-surface">
+                  {{ t('exerciseWizards.worryTree.canAct.noTitle') }}
+                </p>
+                <p class="text-sm text-on-surface-variant">
+                  {{ t('exerciseWizards.worryTree.canAct.noDescription') }}
+                </p>
+              </div>
             </div>
-            <div>
-              <p class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.worryTree.canAct.noTitle') }}</p>
-              <p class="text-sm text-on-surface-variant">
-                {{ t('exerciseWizards.worryTree.canAct.noDescription') }}
-              </p>
-            </div>
-          </div>
-        </button>
+          </button>
         </AppCard>
 
         <div class="flex justify-start">
-          <AppButton variant="text" @click="currentStep = 'classify'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'classify'">{{
+            t('common.buttons.back')
+          }}</AppButton>
         </div>
       </div>
     </Transition>
@@ -244,7 +254,9 @@
     >
       <div v-if="currentStep === 'action-plan'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.worryTree.actionPlan.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.worryTree.actionPlan.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.worryTree.actionPlan.description') }}
           </p>
@@ -256,7 +268,9 @@
             class="neo-input neo-focus w-full p-3 text-sm resize-none"
           />
           <div class="space-y-1">
-            <label class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.worryTree.actionPlan.whenLabel') }}</label>
+            <label class="text-sm font-medium text-on-surface">{{
+              t('exerciseWizards.worryTree.actionPlan.whenLabel')
+            }}</label>
             <input
               v-model="actionDate"
               type="date"
@@ -264,17 +278,15 @@
             />
           </div>
           <label class="flex items-center gap-3 text-sm text-on-surface cursor-pointer">
-            <input
-              v-model="createCommitment"
-              type="checkbox"
-              class="neo-checkbox"
-            />
+            <input v-model="createCommitment" type="checkbox" class="neo-checkbox" />
             {{ t('exerciseWizards.worryTree.actionPlan.createCommitment') }}
           </label>
         </AppCard>
 
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'can-act'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'can-act'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton
             variant="filled"
             :disabled="!actionPlan.trim()"
@@ -295,7 +307,9 @@
     >
       <div v-if="currentStep === 'schedule'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.worryTree.schedule.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.worryTree.schedule.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.worryTree.schedule.description') }}
           </p>
@@ -307,7 +321,9 @@
             class="neo-input neo-focus w-full p-3 text-sm resize-none"
           />
           <div class="space-y-1">
-            <label class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.worryTree.schedule.whenLabel') }}</label>
+            <label class="text-sm font-medium text-on-surface">{{
+              t('exerciseWizards.worryTree.schedule.whenLabel')
+            }}</label>
             <input
               v-model="actionDate"
               type="date"
@@ -323,7 +339,9 @@
         </AppCard>
 
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'can-act'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'can-act'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton variant="filled" @click="currentStep = 'recheck'">
             {{ t('exerciseWizards.worryTree.schedule.complete') }}
           </AppButton>
@@ -340,7 +358,9 @@
     >
       <div v-if="currentStep === 'letting-go'" class="space-y-4">
         <AppCard padding="lg" class="space-y-3">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.worryTree.lettingGo.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.worryTree.lettingGo.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.worryTree.lettingGo.description') }}
           </p>
@@ -349,23 +369,25 @@
             {{ t('exerciseWizards.worryTree.lettingGo.choosePrompt') }}
           </p>
 
-        <button
-          v-for="technique in lettingGoTechniques"
-          :key="technique.id"
-          type="button"
-          :class="[
-            'neo-selector neo-focus w-full text-left p-4 space-y-1',
-            selectedTechnique === technique.id ? 'neo-selector--active' : '',
-          ]"
-          @click="selectTechnique(technique.id)"
-        >
-          <p class="text-base font-semibold text-on-surface">{{ technique.name }}</p>
-          <p class="text-sm text-on-surface-variant">{{ technique.description }}</p>
-        </button>
+          <button
+            v-for="technique in lettingGoTechniques"
+            :key="technique.id"
+            type="button"
+            :class="[
+              'neo-selector neo-focus w-full text-left p-4 space-y-1',
+              selectedTechnique === technique.id ? 'neo-selector--active' : '',
+            ]"
+            @click="selectTechnique(technique.id)"
+          >
+            <p class="text-base font-semibold text-on-surface">{{ technique.name }}</p>
+            <p class="text-sm text-on-surface-variant">{{ technique.description }}</p>
+          </button>
         </AppCard>
 
         <div class="flex justify-start">
-          <AppButton variant="text" @click="currentStep = 'classify'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'classify'">{{
+            t('common.buttons.back')
+          }}</AppButton>
         </div>
       </div>
     </Transition>
@@ -379,21 +401,32 @@
     >
       <div v-if="currentStep === 'recheck'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.worryTree.recheck.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.worryTree.recheck.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.worryTree.recheck.description') }}
           </p>
 
           <!-- Before emotion display -->
           <div v-if="emotionBeforeName" class="exercise-quote">
-            <span class="exercise-quote__label">{{ t('exerciseWizards.worryTree.recheck.before') }}</span>
-            <span class="exercise-quote__text">{{ emotionBeforeName }} · {{ emotionBeforeIntensity }}%</span>
+            <span class="exercise-quote__label">{{
+              t('exerciseWizards.worryTree.recheck.before')
+            }}</span>
+            <span class="exercise-quote__text"
+              >{{ emotionBeforeName }} · {{ emotionBeforeIntensity }}%</span
+            >
           </div>
 
           <!-- After intensity slider -->
           <div class="space-y-2">
             <label class="text-sm font-medium text-on-surface">
-              {{ t('exerciseWizards.worryTree.recheck.nowLabel', { emotion: emotionBeforeName ?? '', value: emotionAfterIntensity }) }}
+              {{
+                t('exerciseWizards.worryTree.recheck.nowLabel', {
+                  emotion: emotionBeforeName ?? '',
+                  value: emotionAfterIntensity,
+                })
+              }}
             </label>
             <input
               v-model.number="emotionAfterIntensity"
@@ -411,12 +444,25 @@
 
           <!-- Before/After: one quiet line, no large numbers -->
           <p class="text-sm text-on-surface-variant">
-            {{ t('exerciseWizards.worryTree.recheck.before') }}: {{ emotionBeforeIntensity }}% · {{ t('exerciseWizards.worryTree.recheck.after') }}: {{ emotionAfterIntensity }}%<template v-if="intensityDelta !== 0"> · {{ intensityDelta < 0 ? t('exerciseWizards.worryTree.recheck.decrease', { value: Math.abs(intensityDelta) }) : t('exerciseWizards.worryTree.recheck.increase', { value: intensityDelta }) }}</template>
+            {{ t('exerciseWizards.worryTree.recheck.before') }}: {{ emotionBeforeIntensity }}% ·
+            {{ t('exerciseWizards.worryTree.recheck.after') }}:
+            {{ emotionAfterIntensity }}%<template v-if="intensityDelta !== 0">
+              ·
+              {{
+                intensityDelta < 0
+                  ? t('exerciseWizards.worryTree.recheck.decrease', {
+                      value: Math.abs(intensityDelta),
+                    })
+                  : t('exerciseWizards.worryTree.recheck.increase', { value: intensityDelta })
+              }}</template
+            >
           </p>
         </AppCard>
 
         <div class="flex justify-between">
-          <AppButton variant="text" @click="goBackFromRecheck">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="goBackFromRecheck">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton variant="filled" @click="handleSave">
             {{ t('common.buttons.save') }}
           </AppButton>
@@ -478,7 +524,9 @@ const createCommitment = ref(false)
 const selectedTechnique = ref<LettingGoTechnique | null>(null)
 
 // ─── Letting Go Techniques ──────────────────────────────────────────────────
-const lettingGoTechniques = computed<{ id: LettingGoTechnique; name: string; description: string }[]>(() => [
+const lettingGoTechniques = computed<
+  { id: LettingGoTechnique; name: string; description: string }[]
+>(() => [
   {
     id: 'leaves-on-stream',
     name: t('exerciseWizards.worryTree.lettingGo.techniques.leavesOnStream.name'),
@@ -601,17 +649,15 @@ function handleSave() {
     worryType: worryType.value!,
     emotionBefore,
     emotionAfter,
-    canActNow: worryType.value === 'real-problem' ? canActNow.value ?? undefined : undefined,
+    canActNow: worryType.value === 'real-problem' ? (canActNow.value ?? undefined) : undefined,
     actionPlan:
       worryType.value === 'real-problem' && actionPlan.value.trim()
         ? actionPlan.value.trim()
         : undefined,
     actionDate:
-      worryType.value === 'real-problem' && actionDate.value
-        ? actionDate.value
-        : undefined,
+      worryType.value === 'real-problem' && actionDate.value ? actionDate.value : undefined,
     lettingGoTechnique:
-      worryType.value === 'hypothetical' ? selectedTechnique.value ?? undefined : undefined,
+      worryType.value === 'hypothetical' ? (selectedTechnique.value ?? undefined) : undefined,
   }
 
   emit('saved', payload)

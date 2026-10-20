@@ -16,7 +16,7 @@ export function getPlanningQueryRevision(): number {
 export async function loadPlanningCached<T>(
   cache: Map<string, CacheEntry<T>>,
   key: string,
-  loader: () => Promise<T>,
+  loader: () => Promise<T>
 ): Promise<T> {
   const revision = getPlanningQueryRevision()
   const cached = cache.get(key)

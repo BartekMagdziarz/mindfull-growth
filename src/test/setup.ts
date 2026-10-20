@@ -26,10 +26,7 @@ if (!window.IntersectionObserver) {
     readonly rootMargin = ''
     readonly thresholds: ReadonlyArray<number> = []
 
-    constructor(
-      _callback: IntersectionObserverCallback,
-      _options?: IntersectionObserverInit
-    ) {}
+    constructor(_callback: IntersectionObserverCallback, _options?: IntersectionObserverInit) {}
 
     observe(_target: Element) {
       return undefined

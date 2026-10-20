@@ -1,5 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { CreateExercisePlanItemPayload, ExercisePlanItem, UpdateExercisePlanItemPayload } from '@/domain/exercisePlan'
+import type {
+  CreateExercisePlanItemPayload,
+  ExercisePlanItem,
+  UpdateExercisePlanItemPayload,
+} from '@/domain/exercisePlan'
 import type { DayRef } from '@/domain/period'
 import { exercisePlanDexieRepository } from '@/repositories/exercisePlanDexieRepository'
 import {
@@ -71,7 +75,11 @@ describe('autoCompleteFor', () => {
   it('completes the oldest due plan (dayRef, then createdAt) and forwards recordId', async () => {
     vi.mocked(exercisePlanDexieRepository.listPendingBySlug).mockResolvedValueOnce([
       planItem({ id: 'later-day', dayRef: day('2026-07-04') }),
-      planItem({ id: 'same-day-newer', dayRef: day('2026-07-02'), createdAt: '2026-07-01T12:00:00.000Z' }),
+      planItem({
+        id: 'same-day-newer',
+        dayRef: day('2026-07-02'),
+        createdAt: '2026-07-01T12:00:00.000Z',
+      }),
       planItem({ id: 'oldest', dayRef: day('2026-07-02'), createdAt: '2026-07-01T08:00:00.000Z' }),
     ])
 
@@ -96,8 +104,18 @@ describe('autoCompleteFor', () => {
 
   it('completes a path step done before its eligible day (the gap only paces delivery)', async () => {
     vi.mocked(exercisePlanDexieRepository.listPendingBySlug).mockResolvedValueOnce([
-      planItem({ id: 'future-practice', dayRef: day('2026-07-06'), source: 'program', programRole: 'practice' }),
-      planItem({ id: 'future-step', dayRef: day('2026-07-09'), source: 'program', programRole: 'step' }),
+      planItem({
+        id: 'future-practice',
+        dayRef: day('2026-07-06'),
+        source: 'program',
+        programRole: 'practice',
+      }),
+      planItem({
+        id: 'future-step',
+        dayRef: day('2026-07-09'),
+        source: 'program',
+        programRole: 'step',
+      }),
     ])
 
     await autoCompleteFor('worry-tree', day('2026-07-05'), 'record-3')
@@ -125,7 +143,7 @@ describe('selectDueItems (the D3 overdue query)', () => {
       planItem({ id: 'skipped', dayRef: day('2026-07-01'), status: 'skipped' }),
     ]
 
-    expect(selectDueItems(items, day('2026-07-05')).map((item) => item.id)).toEqual([
+    expect(selectDueItems(items, day('2026-07-05')).map(item => item.id)).toEqual([
       'overdue',
       'today',
     ])
@@ -136,8 +154,8 @@ describe('buildRepeatChipOptions', () => {
   it('marks the matching standard chip as suggested', () => {
     const options = buildRepeatChipOptions(7)
 
-    expect(options.map((o) => o.days)).toEqual([3, 7, 14, 30])
-    expect(options.find((o) => o.suggested)?.days).toBe(7)
+    expect(options.map(o => o.days)).toEqual([3, 7, 14, 30])
+    expect(options.find(o => o.suggested)?.days).toBe(7)
   })
 
   it('prepends a "tomorrow" chip for suggestedDays 1', () => {
@@ -165,7 +183,7 @@ describe('buildRepeatChipOptions', () => {
     const options = buildRepeatChipOptions()
 
     expect(options).toHaveLength(4)
-    expect(options.some((o) => o.suggested)).toBe(false)
+    expect(options.some(o => o.suggested)).toBe(false)
   })
 })
 

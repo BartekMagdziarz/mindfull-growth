@@ -1,10 +1,6 @@
 <template>
   <button type="button" class="mg-v2-tile" @click="$emit('click')">
-    <span
-      class="mg-v2-icon-board mg-v2-icon-board--tinted"
-      :style="tintStyle"
-      aria-hidden="true"
-    >
+    <span class="mg-v2-icon-board mg-v2-icon-board--tinted" :style="tintStyle" aria-hidden="true">
       <EntityIcon :icon="area.icon" :color="area.color" size="md" :circle="false" />
     </span>
 
@@ -44,7 +40,9 @@ defineEmits<{
 /** Area colour is domain data: it tints the icon board via the anatomy's
  *  CSS variable (blended into the sky field, never a raw fill). */
 const tintStyle = computed(() =>
-  props.area.color ? { '--mg-icon-board-tint': props.area.color, '--mg-icon-board-tint-mix': '26%' } : undefined,
+  props.area.color
+    ? { '--mg-icon-board-tint': props.area.color, '--mg-icon-board-tint-mix': '26%' }
+    : undefined
 )
 
 /** Score reads as a word-and-number fact; colour only for warn/bad. */

@@ -359,11 +359,7 @@ export interface DistortionAssessment {
 // CBT: Worry Tree
 // ============================================================================
 
-export type LettingGoTechnique =
-  | 'leaves-on-stream'
-  | 'refocus'
-  | 'worry-time'
-  | 'acceptance'
+export type LettingGoTechnique = 'leaves-on-stream' | 'refocus' | 'worry-time' | 'acceptance'
 
 /**
  * WorryTreeEntry
@@ -572,12 +568,7 @@ export interface BehavioralExperiment {
 // CBT: Behavioral Activation (Phase 3)
 // ============================================================================
 
-export type ActivityCategory =
-  | 'pleasure'
-  | 'mastery'
-  | 'social'
-  | 'physical'
-  | 'values-aligned'
+export type ActivityCategory = 'pleasure' | 'mastery' | 'social' | 'physical' | 'values-aligned'
 
 /**
  * A single scheduled or completed activity within a Behavioral Activation plan.
@@ -1058,26 +1049,17 @@ export type UpdateParadoxicalIntentionPayload = Partial<
   Omit<ParadoxicalIntentionLab, 'id' | 'createdAt' | 'updatedAt'>
 >
 
-export type CreateDereflectionPayload = Omit<
-  DereflectionPractice,
-  'id' | 'createdAt' | 'updatedAt'
->
+export type CreateDereflectionPayload = Omit<DereflectionPractice, 'id' | 'createdAt' | 'updatedAt'>
 export type UpdateDereflectionPayload = Partial<
   Omit<DereflectionPractice, 'id' | 'createdAt' | 'updatedAt'>
 >
 
-export type CreateTragicOptimismPayload = Omit<
-  TragicOptimism,
-  'id' | 'createdAt' | 'updatedAt'
->
+export type CreateTragicOptimismPayload = Omit<TragicOptimism, 'id' | 'createdAt' | 'updatedAt'>
 export type UpdateTragicOptimismPayload = Partial<
   Omit<TragicOptimism, 'id' | 'createdAt' | 'updatedAt'>
 >
 
-export type CreateAttitudinalShiftPayload = Omit<
-  AttitudinalShift,
-  'id' | 'createdAt' | 'updatedAt'
->
+export type CreateAttitudinalShiftPayload = Omit<AttitudinalShift, 'id' | 'createdAt' | 'updatedAt'>
 export type UpdateAttitudinalShiftPayload = Partial<
   Omit<AttitudinalShift, 'id' | 'createdAt' | 'updatedAt'>
 >
@@ -1315,10 +1297,7 @@ export interface IFSTrailheadEntry {
   notes?: string
 }
 
-export type CreateIFSTrailheadPayload = Omit<
-  IFSTrailheadEntry,
-  'id' | 'createdAt' | 'updatedAt'
->
+export type CreateIFSTrailheadPayload = Omit<IFSTrailheadEntry, 'id' | 'createdAt' | 'updatedAt'>
 export type UpdateIFSTrailheadPayload = Partial<CreateIFSTrailheadPayload>
 
 // ---- IFS Exercise 5: Protector Appreciation ----
@@ -1462,10 +1441,7 @@ export interface IFSPartsDialogue {
   notes?: string
 }
 
-export type CreateIFSPartsDialoguePayload = Omit<
-  IFSPartsDialogue,
-  'id' | 'createdAt' | 'updatedAt'
->
+export type CreateIFSPartsDialoguePayload = Omit<IFSPartsDialogue, 'id' | 'createdAt' | 'updatedAt'>
 export type UpdateIFSPartsDialoguePayload = Partial<CreateIFSPartsDialoguePayload>
 
 // ---- IFS Exercise 9: Daily IFS Check-In ----
@@ -1509,10 +1485,7 @@ export interface IFSDailyCheckIn {
   notes?: string
 }
 
-export type CreateIFSDailyCheckInPayload = Omit<
-  IFSDailyCheckIn,
-  'id' | 'createdAt' | 'updatedAt'
->
+export type CreateIFSDailyCheckInPayload = Omit<IFSDailyCheckIn, 'id' | 'createdAt' | 'updatedAt'>
 export type UpdateIFSDailyCheckInPayload = Partial<CreateIFSDailyCheckInPayload>
 
 // ---- IFS Exercise 10: Inner System Constellation ----
@@ -1565,8 +1538,5 @@ export interface IFSConstellation {
   notes?: string
 }
 
-export type CreateIFSConstellationPayload = Omit<
-  IFSConstellation,
-  'id' | 'createdAt' | 'updatedAt'
->
+export type CreateIFSConstellationPayload = Omit<IFSConstellation, 'id' | 'createdAt' | 'updatedAt'>
 export type UpdateIFSConstellationPayload = Partial<CreateIFSConstellationPayload>

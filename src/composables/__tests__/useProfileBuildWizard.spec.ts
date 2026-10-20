@@ -51,13 +51,13 @@ const loadProfilesMock = vi.fn(async () => {})
 // Mutable list backing `getById` / `profiles` for sessionStorage handoff tests.
 const userProfilesList: UserProfile[] = []
 function getByIdMock(id: string): UserProfile | undefined {
-  return userProfilesList.find((p) => p.id === id)
+  return userProfilesList.find(p => p.id === id)
 }
 
 vi.mock('@/stores/userProfile.store', async () => {
-  const actual = await vi.importActual<
-    typeof import('@/stores/userProfile.store')
-  >('@/stores/userProfile.store')
+  const actual = await vi.importActual<typeof import('@/stores/userProfile.store')>(
+    '@/stores/userProfile.store'
+  )
   return {
     ...actual,
     useUserProfileStore: vi.fn(() => ({
@@ -76,11 +76,14 @@ vi.mock('@/stores/userProfile.store', async () => {
 
 // Mock the build-log repository — `save()` does a best-effort link of the
 // latest log entry to the saved profile, so we need spies to assert it.
-const logListMock = vi.fn(async (_limit?: number) => [] as Array<{
-  id: string
-  success: boolean
-  resultProfileId?: string
-}>)
+const logListMock = vi.fn(
+  async (_limit?: number) =>
+    [] as Array<{
+      id: string
+      success: boolean
+      resultProfileId?: string
+    }>
+)
 const logUpdateMock = vi.fn(async (_id: string, _patch: unknown) => ({}))
 vi.mock('@/repositories/profileBuildLogDexieRepository', () => ({
   profileBuildLogDexieRepository: {
@@ -167,9 +170,9 @@ describe('useProfileBuildWizard', () => {
     }) => void = () => {}
     buildProfileMock.mockImplementationOnce(
       () =>
-        new Promise((resolve) => {
+        new Promise(resolve => {
           resolveBuild = resolve
-        }),
+        })
     )
 
     const wizard = mountWizard()
@@ -214,8 +217,9 @@ describe('useProfileBuildWizard', () => {
 
     const storage = await import('@/services/draftStorage')
     expect(storage.saveDraftToDB).toHaveBeenCalled()
-    const [, savedRaw] = (storage.saveDraftToDB as unknown as { mock: { calls: unknown[][] } })
-      .mock.calls.at(-1) as [string, string]
+    const [, savedRaw] = (
+      storage.saveDraftToDB as unknown as { mock: { calls: unknown[][] } }
+    ).mock.calls.at(-1) as [string, string]
     const parsed = JSON.parse(savedRaw)
     expect(parsed.dataTypes).toEqual(['journal'])
 
@@ -238,7 +242,7 @@ describe('useProfileBuildWizard', () => {
         dataTypes: ['questionnaires', 'journal'],
         dateRange: { kind: 'preset', preset: 'last30' },
         filters: {},
-      }),
+      })
     )
 
     const wizard = mountWizard()
@@ -256,7 +260,7 @@ describe('useProfileBuildWizard', () => {
         dataTypes: ['questionnaires', 'foundation', 'journal'],
         dateRange: { kind: 'preset', preset: 'last30' },
         filters: {},
-      }),
+      })
     )
 
     const wizard = mountWizard()
@@ -314,7 +318,7 @@ describe('useProfileBuildWizard — review state (Story 5)', () => {
       rawResponse: 'raw',
       model: 'gpt-5.4-nano',
       extras: '',
-    },
+    }
   ) {
     buildProfileMock.mockResolvedValueOnce({
       sections: result.sections,
@@ -534,7 +538,7 @@ describe('useProfileBuildWizard — save state (Story 6)', () => {
       rawResponse?: string
       model?: string
       extras?: string
-    } = {},
+    } = {}
   ) {
     buildProfileMock.mockResolvedValueOnce({
       sections: result.sections ?? {
@@ -625,9 +629,7 @@ describe('useProfileBuildWizard — save state (Story 6)', () => {
 
   it('linkLatestBuildLogToProfile updates only successful, unlinked latest logs', async () => {
     const wizard = await mountAndGenerate()
-    logListMock.mockResolvedValueOnce([
-      { id: 'log-1', success: true, resultProfileId: undefined },
-    ])
+    logListMock.mockResolvedValueOnce([{ id: 'log-1', success: true, resultProfileId: undefined }])
     createProfileMock.mockResolvedValueOnce(makeUserProfile({ id: 'profile-link' }))
 
     await wizard.save()
@@ -639,9 +641,7 @@ describe('useProfileBuildWizard — save state (Story 6)', () => {
 
   it('linkLatestBuildLogToProfile skips failed logs', async () => {
     const wizard = await mountAndGenerate()
-    logListMock.mockResolvedValueOnce([
-      { id: 'log-fail', success: false },
-    ])
+    logListMock.mockResolvedValueOnce([{ id: 'log-fail', success: false }])
     createProfileMock.mockResolvedValueOnce(makeUserProfile())
 
     await wizard.save()
@@ -847,8 +847,7 @@ describe('resolveDateRange', () => {
 
   it('resolves the all preset to a very long span', () => {
     const { start, end } = resolveDateRange({ kind: 'preset', preset: 'all' })
-    const years =
-      (new Date(end).getTime() - new Date(start).getTime()) / (86_400_000 * 365)
+    const years = (new Date(end).getTime() - new Date(start).getTime()) / (86_400_000 * 365)
     expect(years).toBeGreaterThan(19)
   })
 
@@ -870,9 +869,7 @@ describe('isValidDateRange', () => {
   })
 
   it('rejects custom ranges where start > end', () => {
-    expect(
-      isValidDateRange({ kind: 'custom', start: '2026-02-01', end: '2026-01-01' }),
-    ).toBe(false)
+    expect(isValidDateRange({ kind: 'custom', start: '2026-02-01', end: '2026-01-01' })).toBe(false)
   })
 
   it('rejects custom ranges with missing bounds', () => {
@@ -880,8 +877,6 @@ describe('isValidDateRange', () => {
   })
 
   it('accepts custom ranges with start <= end', () => {
-    expect(
-      isValidDateRange({ kind: 'custom', start: '2026-01-01', end: '2026-01-31' }),
-    ).toBe(true)
+    expect(isValidDateRange({ kind: 'custom', start: '2026-01-01', end: '2026-01-31' })).toBe(true)
   })
 })

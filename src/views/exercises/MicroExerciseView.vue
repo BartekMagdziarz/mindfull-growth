@@ -23,23 +23,40 @@
     <template v-else>
       <ExerciseSavedPanel :exercise-slug="slug" @again="saved = false" />
       <!-- The maintenance plan closes the path: the kept practices become repeat plans. -->
-      <MaintenanceRepeatsPanel v-if="slug === 'maintenance-plan' && lastResponses" :responses="lastResponses" />
+      <MaintenanceRepeatsPanel
+        v-if="slug === 'maintenance-plan' && lastResponses"
+        :responses="lastResponses"
+      />
       <!-- Powrót: what stayed can run on as repeats; the path can start again. -->
       <template v-if="slug === 'path-return' && lastResponses">
-        <MaintenanceRepeatsPanel :responses="{ keep: lastResponses.kept ?? [], rhythm: 'weekly' }" />
+        <MaintenanceRepeatsPanel
+          :responses="{ keep: lastResponses.kept ?? [], rhythm: 'weekly' }"
+        />
         <AppCard padding="lg" class="micro-follow-up mt-4" data-testid="return-reenroll">
           <div class="micro-follow-up__copy">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('programs.followUp.reenrollTitle') }}</h2>
-            <p class="text-sm text-on-surface-variant">{{ t('programs.followUp.reenrollDescription') }}</p>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('programs.followUp.reenrollTitle') }}
+            </h2>
+            <p class="text-sm text-on-surface-variant">
+              {{ t('programs.followUp.reenrollDescription') }}
+            </p>
           </div>
-          <AppButton v-if="returnProgramSlug" variant="tonal" @click="router.push({ name: 'program-detail', params: { slug: returnProgramSlug } })">
+          <AppButton
+            v-if="returnProgramSlug"
+            variant="tonal"
+            @click="router.push({ name: 'program-detail', params: { slug: returnProgramSlug } })"
+          >
             {{ t('programs.followUp.reenrollCta') }}
           </AppButton>
         </AppCard>
       </template>
       <!-- Dose check: the proposal (less often · only the breath) waits in the path view. -->
       <AppCard
-        v-if="slug === 'dose-check' && doseProgramSlug && (lastResponses?.load === 'tooMuch' || lastResponses?.load === 'none')"
+        v-if="
+          slug === 'dose-check' &&
+          doseProgramSlug &&
+          (lastResponses?.load === 'tooMuch' || lastResponses?.load === 'none')
+        "
         padding="lg"
         class="micro-follow-up mt-4"
         data-testid="dose-follow-up"
@@ -48,11 +65,18 @@
           <h2 class="text-base font-semibold text-on-surface">{{ t('programs.dose.title') }}</h2>
           <p class="text-sm text-on-surface-variant">{{ t('programs.dose.followUp') }}</p>
         </div>
-        <AppButton variant="tonal" @click="router.push({ name: 'program-detail', params: { slug: doseProgramSlug } })">
+        <AppButton
+          variant="tonal"
+          @click="router.push({ name: 'program-detail', params: { slug: doseProgramSlug } })"
+        >
           {{ t('programs.dose.open') }}
         </AppButton>
       </AppCard>
-      <AppCard v-if="definition.afterSave && lastResponses" padding="lg" class="micro-follow-up mt-4">
+      <AppCard
+        v-if="definition.afterSave && lastResponses"
+        padding="lg"
+        class="micro-follow-up mt-4"
+      >
         <div class="micro-follow-up__copy">
           <h2 class="text-base font-semibold text-on-surface">
             {{ tg(`exerciseWizards.micro.${definition.i18nKey}.afterSave.title`) }}
@@ -86,7 +110,9 @@
       <ul class="micro-past__list">
         <li v-for="entry in shownEntries" :key="entry.id" class="micro-past__row">
           <span class="micro-past__text">{{ entrySnippet(entry) }}</span>
-          <time class="micro-past__date" :datetime="entry.createdAt">{{ formatDate(entry.createdAt) }}</time>
+          <time class="micro-past__date" :datetime="entry.createdAt">{{
+            formatDate(entry.createdAt)
+          }}</time>
         </li>
       </ul>
       <button
@@ -117,7 +143,12 @@ import { PROGRAM_CATALOG } from '@/data/programCatalog'
 import { useT } from '@/composables/useT'
 import { definitionSlugFor, getCatalogEntry } from '@/data/exerciseCatalog'
 import { getMicroExercise } from '@/data/microExercises'
-import type { MicroExerciseEntry, MicroPrefill, MicroPreset, MicroStepValue } from '@/domain/microExercises'
+import type {
+  MicroExerciseEntry,
+  MicroPrefill,
+  MicroPreset,
+  MicroStepValue,
+} from '@/domain/microExercises'
 import { useMicroExerciseEntryStore } from '@/stores/microExerciseEntry.store'
 import {
   buildAfterSavePrefill,
@@ -149,12 +180,16 @@ const definition = computed(() => getMicroExercise(definitionSlugFor(slug.value)
 const preset = computed<MicroPreset>(() => {
   const base = catalogEntry.value?.variantOf?.preset ?? {}
   const kind = route.query.kind
-  const branches = definition.value?.steps.some((step) => step.key === 'kind')
+  const branches = definition.value?.steps.some(step => step.key === 'kind')
   return typeof kind === 'string' && kind && branches ? { ...base, kind } : base
 })
 /** The path this run belongs to: the variant's preset kind, else `?kind=` from the launching step (also for micros without a kind step, e.g. the dose check). */
 const presetKind = computed(() =>
-  typeof preset.value.kind === 'string' ? preset.value.kind : typeof route.query.kind === 'string' && route.query.kind ? route.query.kind : undefined,
+  typeof preset.value.kind === 'string'
+    ? preset.value.kind
+    : typeof route.query.kind === 'string' && route.query.kind
+      ? route.query.kind
+      : undefined
 )
 /** Answers carried over from another micro (`?prefill=`), shown and editable. */
 const prefill = computed<MicroPrefill>(() => decodeMicroPrefill(route.query.prefill))
@@ -166,11 +201,17 @@ const leftTooMuch = ref(false)
  * else the first program with it.
  */
 function programWithStep(stepSlug: string): string | undefined {
-  const withStep = PROGRAM_CATALOG.filter((program) => program.steps.some((step) => step.exerciseSlug === stepSlug))
-  const byKind = presetKind.value ? withStep.find((program) => program.momentKind === presetKind.value) : undefined
+  const withStep = PROGRAM_CATALOG.filter(program =>
+    program.steps.some(step => step.exerciseSlug === stepSlug)
+  )
+  const byKind = presetKind.value
+    ? withStep.find(program => program.momentKind === presetKind.value)
+    : undefined
   if (byKind) return byKind.slug
   const open = useProgramEnrollmentStore().enrollments.filter(
-    (enrollment) => (enrollment.status === 'active' || enrollment.status === 'paused') && withStep.some((program) => program.slug === enrollment.programSlug),
+    enrollment =>
+      (enrollment.status === 'active' || enrollment.status === 'paused') &&
+      withStep.some(program => program.slug === enrollment.programSlug)
   )
   return open.length === 1 ? open[0]!.programSlug : withStep[0]?.slug
 }
@@ -186,13 +227,13 @@ const pastEntries = computed(() => {
   const target = definition.value
   if (!target) return []
   const conditions = Object.entries(preset.value).flatMap(([step, value]) =>
-    typeof value === 'string' ? [{ step, in: [value] }] : [],
+    typeof value === 'string' ? [{ step, in: [value] }] : []
   )
-  return entryStore.entriesBySlug(target.slug).filter((entry) => entryMatches(entry, conditions))
+  return entryStore.entriesBySlug(target.slug).filter(entry => entryMatches(entry, conditions))
 })
 
 const shownEntries = computed(() =>
-  showAllPast.value ? pastEntries.value : pastEntries.value.slice(0, PAST_PREVIEW),
+  showAllPast.value ? pastEntries.value : pastEntries.value.slice(0, PAST_PREVIEW)
 )
 
 onMounted(() => {
@@ -218,14 +259,19 @@ async function handleSaved(payload: { responses: Record<string, MicroStepValue> 
       exerciseSlug: definition.value!.slug,
       responses: payload.responses,
     },
-    slug.value,
+    slug.value
   )
   lastResponses.value = payload.responses
   // The letter to a future self is pinned to its path with the day it comes back.
   if (slug.value === FUTURE_LETTER_SLUG) {
-    void recordFutureLetter(entry.id, payload.responses, undefined, programWithStep(FUTURE_LETTER_SLUG))
-      .then((updated) => updated && useProgramEnrollmentStore().applyUpdate(updated))
-      .catch((err) => console.error('Failed to record the future letter:', err))
+    void recordFutureLetter(
+      entry.id,
+      payload.responses,
+      undefined,
+      programWithStep(FUTURE_LETTER_SLUG)
+    )
+      .then(updated => updated && useProgramEnrollmentStore().applyUpdate(updated))
+      .catch(err => console.error('Failed to record the future letter:', err))
   }
   // "Za dużo na dziś": the entry counts, the breath takes over.
   if (leftTooMuch.value && slug.value !== 'paced-breathing') {
@@ -255,7 +301,7 @@ function openAfterSave() {
  */
 function entrySnippet(entry: MicroExerciseEntry): string {
   const steps = definition.value?.steps ?? []
-  const choiceKeys = new Set(steps.filter((step) => step.type === 'choice').map((step) => step.key))
+  const choiceKeys = new Set(steps.filter(step => step.type === 'choice').map(step => step.key))
   for (const [key, value] of Object.entries(entry.responses)) {
     if (choiceKeys.has(key)) continue
     if (typeof value === 'string' && value.length > 0) return value
@@ -271,13 +317,17 @@ function entrySnippet(entry: MicroExerciseEntry): string {
       const picked = Array.isArray(value) ? value : typeof value === 'string' ? [value] : []
       const labels = picked
         .filter((option): option is string => typeof option === 'string')
-        .map((option) => tg(`exerciseWizards.micro.${definition.value!.i18nKey}.${step.key}.options.${option}`))
+        .map(option =>
+          tg(`exerciseWizards.micro.${definition.value!.i18nKey}.${step.key}.options.${option}`)
+        )
       if (labels.length) parts.push(labels.join(', '))
     } else if (step.type === 'slider' && typeof value === 'number') {
       parts.push(String(value))
     }
   }
-  return parts.length ? parts.join(' · ') : t(`exercises.cards.${catalogEntry.value?.i18nKey}.title`)
+  return parts.length
+    ? parts.join(' · ')
+    : t(`exercises.cards.${catalogEntry.value?.i18nKey}.title`)
 }
 
 function formatDate(iso: string): string {

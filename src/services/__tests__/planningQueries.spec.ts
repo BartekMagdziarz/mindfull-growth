@@ -19,7 +19,7 @@ import {
 import { connectTestDatabase } from '@/test/testDatabase'
 
 function sortIds(values: { id: string }[]): string[] {
-  return values.map((value) => value.id).sort()
+  return values.map(value => value.id).sort()
 }
 
 describe('planningQueries', () => {
@@ -130,11 +130,13 @@ describe('planningQueries', () => {
     expect(sortIds(await listKeyResultsByGoal(goalA.id))).toHaveLength(2)
     expect(sortIds(await listHabitsByPriority('priority-1'))).toEqual(sortIds([habitA, habitB]))
     expect(sortIds(await listHabitsByLifeArea('la-2'))).toEqual(sortIds([habitB]))
-    expect(sortIds(await listTrackersByPriority('priority-1'))).toEqual(sortIds([trackerA, trackerB]))
+    expect(sortIds(await listTrackersByPriority('priority-1'))).toEqual(
+      sortIds([trackerA, trackerB])
+    )
     expect(sortIds(await listTrackersByLifeArea('la-1'))).toEqual(sortIds([trackerA]))
     expect(sortIds(await listInitiativesByGoal(goalA.id))).toEqual(sortIds([initiativeA]))
     expect(sortIds(await listInitiativesByPriority('priority-1'))).toEqual(
-      sortIds([initiativeA, initiativeB]),
+      sortIds([initiativeA, initiativeB])
     )
     expect(sortIds(await listInitiativesByLifeArea('la-2'))).toEqual(sortIds([initiativeB]))
   })

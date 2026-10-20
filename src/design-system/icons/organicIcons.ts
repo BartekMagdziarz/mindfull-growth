@@ -1631,7 +1631,9 @@ const expansion: Draft[] = [
     'Dziennik złości',
     'exercises',
     'ćwiczenie praktyka złość gniew dziennik anger-log',
-    path('M5 3h12q2 0 2 2v16H7q-2 0-2-2Z M9 3v18 M14 17q-3-1-2-4q1 1 2 0q-1-3 1-5q1 3 2 4q1 3-3 5Z'),
+    path(
+      'M5 3h12q2 0 2 2v16H7q-2 0-2-2Z M9 3v18 M14 17q-3-1-2-4q1 1 2 0q-1-3 1-5q1 3 2 4q1 3-3 5Z'
+    ),
   ],
   [
     'exercise-anger-map',
@@ -1666,14 +1668,18 @@ const expansion: Draft[] = [
     'Dziennik lęku',
     'exercises',
     'ćwiczenie praktyka lęk niepokój dziennik anxiety-log',
-    path('M5 3h12q2 0 2 2v16H7q-2 0-2-2Z M9 3v18 M12 9q1.5-1.5 3 0t3 0 M12 13q1.5-1.5 3 0t3 0 M12 17q1.5-1.5 3 0t3 0'),
+    path(
+      'M5 3h12q2 0 2 2v16H7q-2 0-2-2Z M9 3v18 M12 9q1.5-1.5 3 0t3 0 M12 13q1.5-1.5 3 0t3 0 M12 17q1.5-1.5 3 0t3 0'
+    ),
   ],
   [
     'exercise-shame-map',
     'Mapa wstydu',
     'exercises',
     'ćwiczenie praktyka wstyd mapa obszary shame-map',
-    path('M12 21a9 9 0 1 0 0-18a9 9 0 1 0 0 18 M12 16a4 4 0 1 0 0-8a4 4 0 1 0 0 8 M3 12h5 M16 12h5'),
+    path(
+      'M12 21a9 9 0 1 0 0-18a9 9 0 1 0 0 18 M12 16a4 4 0 1 0 0-8a4 4 0 1 0 0 8 M3 12h5 M16 12h5'
+    ),
   ],
   [
     'exercise-moments',
@@ -1701,7 +1707,9 @@ const expansion: Draft[] = [
     'Obraz współczujący',
     'exercises',
     'ćwiczenie praktyka współczucie obraz cft compassionate-image',
-    path('M12 8a3 3 0 1 0 0-6a3 3 0 1 0 0 6 M5 21q0-8 7-8t7 8 M12 19q-3-2-2-4q1-1 2 .5q1-1.5 2-.5q1 2-2 4Z'),
+    path(
+      'M12 8a3 3 0 1 0 0-6a3 3 0 1 0 0 6 M5 21q0-8 7-8t7 8 M12 19q-3-2-2-4q1-1 2 .5q1-1.5 2-.5q1 2-2 4Z'
+    ),
   ],
   [
     'exercise-worry-postponement',
@@ -2008,7 +2016,9 @@ const wellbeing: Draft[] = [
     'Światło dzienne',
     'activity',
     'ciało spacer rano słońce daylight sunlight',
-    path('M4 21V5q4-1 8 0v16 M4 13h8 M8 5v16 M15 8a3 3 0 1 0 6 0a3 3 0 1 0-6 0 M18 2v1 M18 13v1 M15 3l1 1 M22 4l-1 1'),
+    path(
+      'M4 21V5q4-1 8 0v16 M4 13h8 M8 5v16 M15 8a3 3 0 1 0 6 0a3 3 0 1 0-6 0 M18 2v1 M18 13v1 M15 3l1 1 M22 4l-1 1'
+    ),
   ],
   [
     'nap',

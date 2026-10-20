@@ -1,12 +1,7 @@
 <template>
   <article class="month-tile">
     <header class="month-tile__head">
-      <EntityIcon
-        :icon="iconName"
-        size="sm"
-        :circle="false"
-        class="month-tile__icon"
-      />
+      <EntityIcon :icon="iconName" size="sm" :circle="false" class="month-tile__icon" />
       <span class="month-tile__title">{{ title }}</span>
       <ContextChip v-if="viz.contextChip.value" :data="viz.contextChip.value" />
     </header>
@@ -49,10 +44,7 @@ import ValueLineChart from '@/components/today/visualizations/ValueLineChart.vue
 import ContextChip from '@/components/today/visualizations/ContextChip.vue'
 import { useMonthlySliceItemVisualization } from '@/composables/useMonthlySliceItemVisualization'
 import type { DayRef, MonthRef } from '@/domain/period'
-import type {
-  DailyMeasurementEntry,
-  MeasurementSubjectType,
-} from '@/domain/planningState'
+import type { DailyMeasurementEntry, MeasurementSubjectType } from '@/domain/planningState'
 import type { MeasureableSubject, MeasurementSummary } from '@/services/measurementProgress'
 import type { MeasurementPlanningSummary } from '@/services/planningStateQueries'
 
@@ -79,7 +71,7 @@ const viz = useMonthlySliceItemVisualization(
   toRef(props, 'measurement'),
   toRef(props, 'rawEntries'),
   toRef(props, 'monthRef'),
-  toRef(props, 'todayDayRef'),
+  toRef(props, 'todayDayRef')
 )
 
 const title = computed(() => props.subject.title)
@@ -114,12 +106,8 @@ const ratingTargetOperator = computed<'gte' | 'lte' | undefined>(() => {
   flex-direction: column;
   gap: 4px;
   min-height: 0;
-  background: linear-gradient(
-    145deg,
-    rgb(var(--neo-surface-top)),
-    rgb(var(--neo-surface-bottom))
-  );
-  border: 1px solid rgb(var(--neo-border) / 0.10);
+  background: linear-gradient(145deg, rgb(var(--neo-surface-top)), rgb(var(--neo-surface-bottom)));
+  border: 1px solid rgb(var(--neo-border) / 0.1);
   box-shadow:
     -4px -4px 9px rgb(var(--neo-shadow-light) / 0.75),
     4px 4px 9px rgb(var(--neo-shadow-dark) / 0.28);

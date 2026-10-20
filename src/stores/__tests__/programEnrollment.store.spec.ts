@@ -87,7 +87,7 @@ describe('useProgramEnrollmentStore', () => {
     store.applyUpdate(enrollment({ id: 'enr-b' }))
 
     expect(store.enrollments).toHaveLength(2)
-    expect(store.enrollments.find((e) => e.id === 'enr-a')?.status).toBe('paused')
+    expect(store.enrollments.find(e => e.id === 'enr-a')?.status).toBe('paused')
   })
 
   it('activeEnrollments filters and orders by creation', async () => {
@@ -99,7 +99,7 @@ describe('useProgramEnrollmentStore', () => {
     ])
     await store.ensureLoaded()
 
-    expect(store.activeEnrollments.map((e) => e.id)).toEqual(['enr-a', 'enr-b'])
+    expect(store.activeEnrollments.map(e => e.id)).toEqual(['enr-a', 'enr-b'])
   })
 
   it('enrollmentForProgram prefers open enrollments, then completed, never abandoned', async () => {
@@ -131,9 +131,9 @@ describe('useProgramEnrollmentStore', () => {
 
     await store.enroll('ifs-parts')
 
-    expect(store.enrollments.map((e) => e.id)).toContain('enr-new')
-    expect(planStore.items.map((i) => i.id)).toContain('plan-new')
-    expect(planStore.items.map((i) => i.id)).toContain('plan-practice')
+    expect(store.enrollments.map(e => e.id)).toContain('enr-new')
+    expect(planStore.items.map(i => i.id)).toContain('plan-new')
+    expect(planStore.items.map(i => i.id)).toContain('plan-practice')
   })
 
   it('pause applies the plan-item removals to the plan store', async () => {
@@ -165,7 +165,7 @@ describe('useProgramEnrollmentStore', () => {
     vi.mocked(runProgramScheduler).mockResolvedValueOnce([planItem({ id: 'plan-sched' })])
     await store.runScheduler()
 
-    expect(planStore.items.map((i) => i.id)).toEqual(['plan-sched'])
+    expect(planStore.items.map(i => i.id)).toEqual(['plan-sched'])
   })
 
   it('reset clears everything', async () => {

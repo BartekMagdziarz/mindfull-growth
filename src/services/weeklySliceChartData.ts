@@ -29,7 +29,11 @@
  */
 
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
-import type { DailyMeasurementEntry, MeasurementDayAssignment, MeasurementSubjectType } from '@/domain/planningState'
+import type {
+  DailyMeasurementEntry,
+  MeasurementDayAssignment,
+  MeasurementSubjectType,
+} from '@/domain/planningState'
 import {
   buildMeasurementSummary,
   multiCompletionActiveItems,
@@ -114,7 +118,7 @@ export function buildWeeklySliceCompletionSlots(
   planning: MeasurementPlanningSummary,
   weekRef: WeekRef,
   todayDayRef: DayRef,
-  locale: string,
+  locale: string
 ): TodayCompletionSlot[] {
   const isSpecificDays = (planning.scheduleScope ?? 'unassigned') === 'specific-days'
   const slots = buildDailyBarSlots(
@@ -125,9 +129,9 @@ export function buildWeeklySliceCompletionSlots(
     planning,
     weekRef,
     todayDayRef,
-    locale,
+    locale
   )
-  return slots.map((slot) => ({
+  return slots.map(slot => ({
     ...slot,
     state: resolveWeekdayCompletionState(slot, isSpecificDays),
   }))
@@ -170,7 +174,7 @@ export function buildMultiCompletionStackData(
   planning: MeasurementPlanningSummary,
   weekRef: WeekRef,
   todayDayRef: DayRef,
-  locale: string,
+  locale: string
 ): MultiCompletionStackData {
   const baseSlots = buildWeeklySliceCompletionSlots(
     subject,
@@ -180,16 +184,16 @@ export function buildMultiCompletionStackData(
     planning,
     weekRef,
     todayDayRef,
-    locale,
+    locale
   )
 
   const entryByDay = new Map(
     rawEntries
-      .filter((entry) => entry.subjectType === subjectType && entry.subjectId === subject.id)
-      .map((entry) => [entry.dayRef, entry] as const),
+      .filter(entry => entry.subjectType === subjectType && entry.subjectId === subject.id)
+      .map(entry => [entry.dayRef, entry] as const)
   )
 
-  const slots: MultiCompletionStackSlot[] = baseSlots.map((slot) => {
+  const slots: MultiCompletionStackSlot[] = baseSlots.map(slot => {
     const entry = entryByDay.get(slot.dayRef)
     return {
       ...slot,
@@ -199,17 +203,17 @@ export function buildMultiCompletionStackData(
     }
   })
 
-  const checkedThisWeek = new Set(slots.flatMap((slot) => slot.checkedIds))
+  const checkedThisWeek = new Set(slots.flatMap(slot => slot.checkedIds))
   const rows: MultiCompletionStackRow[] = [
-    ...multiCompletionActiveItems(subject).map((item) => ({
+    ...multiCompletionActiveItems(subject).map(item => ({
       id: item.id,
       label: item.label,
       icon: item.icon,
       archived: false,
     })),
     ...(subject.multiItems ?? [])
-      .filter((item) => item.archived && checkedThisWeek.has(item.id))
-      .map((item) => ({ id: item.id, label: item.label, icon: item.icon, archived: true })),
+      .filter(item => item.archived && checkedThisWeek.has(item.id))
+      .map(item => ({ id: item.id, label: item.label, icon: item.icon, archived: true })),
   ]
 
   return { rows, slots, threshold: multiCompletionEffectiveThreshold(subject) }
@@ -217,7 +221,7 @@ export function buildMultiCompletionStackData(
 
 function resolveWeekdayCompletionState(
   slot: TodayDaySlot,
-  isSpecificDays: boolean,
+  isSpecificDays: boolean
 ): TodayCompletionState {
   if (slot.hasEntry) return slot.isToday ? 'today-done' : 'done'
   if (slot.isToday) {
@@ -245,7 +249,7 @@ function resolveWeekdayCompletionState(
 export function buildContextChipData(
   subject: MeasureableSubject,
   summary: MeasurementSummary,
-  suppressTarget = false,
+  suppressTarget = false
 ): ContextChipData {
   // Prefer the summary's target — it is the one the summary was evaluated
   // against (incl. week sub-targets), while subject.target may be only
@@ -253,7 +257,7 @@ export function buildContextChipData(
   // subject they pass here, so for them this is a no-op.
   const target = suppressTarget
     ? undefined
-    : summary.target ?? ('target' in subject ? subject.target : undefined)
+    : (summary.target ?? ('target' in subject ? subject.target : undefined))
   const chip = buildBaseContextChipData(subject, target, summary)
 
   const entryDaysCondition = target?.entryDays
@@ -271,7 +275,7 @@ export function buildContextChipData(
 function buildBaseContextChipData(
   subject: MeasureableSubject,
   target: MeasurementSummary['target'],
-  summary: MeasurementSummary,
+  summary: MeasurementSummary
 ): ContextChipData {
   const current = summary.actualValue ?? 0
   const entryCount = summary.entryCount
@@ -280,19 +284,40 @@ function buildBaseContextChipData(
   switch (subject.entryMode) {
     case 'completion':
       if (target?.kind === 'count') {
-        return { variant: 'count-progress', current: entryCount, target: target.value, status, targetOperator: target.operator, entryCount }
+        return {
+          variant: 'count-progress',
+          current: entryCount,
+          target: target.value,
+          status,
+          targetOperator: target.operator,
+          entryCount,
+        }
       }
       return { variant: 'value-label', current: entryCount, aggregationLabel: 'days', entryCount }
 
     case 'counter':
       if (target?.kind === 'count') {
-        return { variant: 'count-progress', current, target: target.value, status, targetOperator: target.operator, entryCount }
+        return {
+          variant: 'count-progress',
+          current,
+          target: target.value,
+          status,
+          targetOperator: target.operator,
+          entryCount,
+        }
       }
       return { variant: 'value-label', current, aggregationLabel: 'sum', entryCount }
 
     case 'value':
       if (target?.kind === 'value' && target.aggregation === 'sum') {
-        return { variant: 'value-progress', current, target: target.value, status, targetOperator: target.operator, entryCount }
+        return {
+          variant: 'value-progress',
+          current,
+          target: target.value,
+          status,
+          targetOperator: target.operator,
+          entryCount,
+        }
       }
       if (target?.kind === 'value') {
         return {
@@ -311,7 +336,14 @@ function buildBaseContextChipData(
       // `current` (actualValue) is the number of MET days — unlike completion
       // it can be lower than entryCount because partial days don't count.
       if (target?.kind === 'count') {
-        return { variant: 'count-progress', current, target: target.value, status, targetOperator: target.operator, entryCount }
+        return {
+          variant: 'count-progress',
+          current,
+          target: target.value,
+          status,
+          targetOperator: target.operator,
+          entryCount,
+        }
       }
       return { variant: 'value-label', current, aggregationLabel: 'days', entryCount }
 
@@ -343,7 +375,7 @@ export function buildMonthlyContextFooter(
   subject: MeasureableSubject,
   rawEntries: DailyMeasurementEntry[],
   weekRef: WeekRef,
-  asOfDayRef?: DayRef,
+  asOfDayRef?: DayRef
 ): MonthlyContextFooterData | undefined {
   if (subject.cadence !== 'monthly') return undefined
   const weekStart = getPeriodBounds(weekRef).start as DayRef
@@ -353,7 +385,7 @@ export function buildMonthlyContextFooter(
 }
 
 function mapStatus(
-  evaluationStatus: 'met' | 'missed' | 'no-data' | undefined,
+  evaluationStatus: 'met' | 'missed' | 'no-data' | undefined
 ): 'met' | 'missed' | 'in-progress' {
   if (evaluationStatus === 'met') return 'met'
   if (evaluationStatus === 'missed') return 'missed'

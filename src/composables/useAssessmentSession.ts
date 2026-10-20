@@ -1,5 +1,9 @@
 import { computed, ref } from 'vue'
-import type { AssessmentComputation, AssessmentId, AssessmentItemDefinition } from '@/domain/assessments'
+import type {
+  AssessmentComputation,
+  AssessmentId,
+  AssessmentItemDefinition,
+} from '@/domain/assessments'
 import { getAssessmentDefinition } from '@/services/assessments/registry'
 import { useAssessmentStore } from '@/stores/assessment.store'
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
@@ -10,9 +14,9 @@ export type AssessmentSessionStep = 'intro' | 'consent' | 'questions' | 'review'
 function firstUnansweredPage(
   items: AssessmentItemDefinition[],
   responseMap: Record<string, number>,
-  pageSize: number,
+  pageSize: number
 ): number {
-  const index = items.findIndex((item) => responseMap[item.id] === undefined)
+  const index = items.findIndex(item => responseMap[item.id] === undefined)
   if (index === -1) {
     return Math.max(0, Math.ceil(items.length / pageSize) - 1)
   }
@@ -36,12 +40,12 @@ export function useAssessmentSession(assessmentId: AssessmentId) {
 
   const inProgressAttempt = computed(() => {
     if (currentAttemptId.value) {
-      const current = attempts.value.find((attempt) => attempt.id === currentAttemptId.value)
+      const current = attempts.value.find(attempt => attempt.id === currentAttemptId.value)
       if (current?.status === 'in-progress') {
         return current
       }
     }
-    return attempts.value.find((attempt) => attempt.status === 'in-progress')
+    return attempts.value.find(attempt => attempt.status === 'in-progress')
   })
 
   const latestCompletedAttempt = computed(() => {
@@ -70,7 +74,7 @@ export function useAssessmentSession(assessmentId: AssessmentId) {
   })
 
   const unansweredItems = computed(() => {
-    return definition.items.filter((item) => responsesMap.value[item.id] === undefined)
+    return definition.items.filter(item => responsesMap.value[item.id] === undefined)
   })
 
   const canSubmit = computed(() => {
@@ -79,7 +83,10 @@ export function useAssessmentSession(assessmentId: AssessmentId) {
 
   const effectiveComputation = computed(() => {
     if (resultComputation.value) return resultComputation.value
-    if (latestCompletedAttempt.value?.computedScales && latestCompletedAttempt.value.overallSummary) {
+    if (
+      latestCompletedAttempt.value?.computedScales &&
+      latestCompletedAttempt.value.overallSummary
+    ) {
       return {
         computedScales: latestCompletedAttempt.value.computedScales,
         overallSummary: latestCompletedAttempt.value.overallSummary,
@@ -87,7 +94,8 @@ export function useAssessmentSession(assessmentId: AssessmentId) {
           centeredScoringEnabled: definition.defaultCenteringEnabled ?? false,
           completedWithMissingData: false,
           missingItemCount: 0,
-          scoringTimestamp: latestCompletedAttempt.value.completedAt ?? latestCompletedAttempt.value.updatedAt,
+          scoringTimestamp:
+            latestCompletedAttempt.value.completedAt ?? latestCompletedAttempt.value.updatedAt,
         },
       }
     }
@@ -137,7 +145,10 @@ export function useAssessmentSession(assessmentId: AssessmentId) {
   }
 
   async function resumeAttempt(): Promise<void> {
-    const attempt = await assessmentStore.resumeOrStartAttempt(assessmentId, preferencesStore.locale)
+    const attempt = await assessmentStore.resumeOrStartAttempt(
+      assessmentId,
+      preferencesStore.locale
+    )
     currentAttemptId.value = attempt.id
 
     const responseMap = assessmentStore.getResponseMapByAttempt(attempt.id)
@@ -195,13 +206,13 @@ export function useAssessmentSession(assessmentId: AssessmentId) {
       activeAttemptId.value,
       {
         centeredScoringEnabled: centeredResultsEnabled.value,
-      },
+      }
     )
 
     // Assessment ids double as catalog slugs in the unified completion log.
     void useExerciseCompletionsStore()
       .record(assessmentId, attempt.id)
-      .catch((err) => console.error('Failed to record exercise completion:', err))
+      .catch(err => console.error('Failed to record exercise completion:', err))
 
     currentAttemptId.value = attempt.id
     resultComputation.value = computation
@@ -216,7 +227,7 @@ export function useAssessmentSession(assessmentId: AssessmentId) {
     resultComputation.value = await assessmentStore.recomputeAttempt(
       assessmentId,
       currentAttemptId.value,
-      centeredEnabled,
+      centeredEnabled
     )
   }
 

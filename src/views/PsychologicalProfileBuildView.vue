@@ -153,11 +153,7 @@ import {
   useProfileBuildWizard,
   type ProfileBuildStep,
 } from '@/composables/useProfileBuildWizard'
-import type {
-  ProfileDataType,
-  ProfileDateRange,
-  ProfileScopeFilters,
-} from '@/domain/userProfile'
+import type { ProfileDataType, ProfileDateRange, ProfileScopeFilters } from '@/domain/userProfile'
 
 const router = useRouter()
 const { t } = useT()
@@ -192,7 +188,7 @@ const {
 } = wizard
 
 const stepLabel = computed(() =>
-  t(`profile.psychologicalProfile.wizard.steps.${currentStep.value}`),
+  t(`profile.psychologicalProfile.wizard.steps.${currentStep.value}`)
 )
 
 const nextLabel = computed(() => {
@@ -216,18 +212,16 @@ const nextLabel = computed(() => {
 // navigate back to the overview with the new version preselected.
 watch(
   () => wizard.onSaveComplete.value,
-  (saved) => {
+  saved => {
     if (!saved) return
     const savedId = saved.id
-    snackbarRef.value?.show(
-      t('profile.psychologicalProfile.wizard.save.success'),
-    )
+    snackbarRef.value?.show(t('profile.psychologicalProfile.wizard.save.success'))
     wizard.resetWizard()
     void router.push({
       name: 'profile-psychological',
       query: { versionId: savedId },
     })
-  },
+  }
 )
 
 // Back-confirmation dialog: fires only on the review step when the user has
@@ -251,7 +245,7 @@ function confirmBack(): void {
 // Block Back while a generation is in flight so the user can't navigate
 // away mid-request and orphan the API call.
 const backDisabled = computed(
-  () => currentStep.value === 'generate' && generateState.value === 'in-flight',
+  () => currentStep.value === 'generate' && generateState.value === 'in-flight'
 )
 
 function stepDotClass(idx: number): string {

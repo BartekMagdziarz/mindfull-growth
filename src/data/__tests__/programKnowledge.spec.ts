@@ -8,13 +8,14 @@ type Card = { title?: string; lead?: string; body?: string[]; sources?: string[]
 
 describe('program knowledge cards', () => {
   it('have unique keys, real programs and phases, and copy in both locales', () => {
-    const keys = PROGRAM_KNOWLEDGE.map((card) => card.key)
+    const keys = PROGRAM_KNOWLEDGE.map(card => card.key)
     expect(new Set(keys).size).toBe(keys.length)
     for (const card of PROGRAM_KNOWLEDGE) {
       const program = getProgramDefinition(card.programSlug)
       expect(program, card.key).toBeDefined()
-      const phaseKeys = new Set((program?.phases ?? []).map((phase) => phase.key))
-      for (const phaseKey of card.phaseKeys) expect(phaseKeys.has(phaseKey), `${card.key} → ${phaseKey}`).toBe(true)
+      const phaseKeys = new Set((program?.phases ?? []).map(phase => phase.key))
+      for (const phaseKey of card.phaseKeys)
+        expect(phaseKeys.has(phaseKey), `${card.key} → ${phaseKey}`).toBe(true)
       for (const locale of [plKnowledge, enKnowledge]) {
         const copy = (locale as Record<string, Card>)[card.i18nKey]
         expect(copy?.title, `${card.key} title`).toBeTruthy()
@@ -28,9 +29,11 @@ describe('program knowledge cards', () => {
   })
 
   it('orders pinned cards first, then the current phase, then the rest', () => {
-    const keys = orderedKnowledgeCards('shame-compassion', 'w5').map((card) => card.key)
+    const keys = orderedKnowledgeCards('shame-compassion', 'w5').map(card => card.key)
     expect(keys.slice(0, 2)).toEqual(['whenWarmthHurts', 'whenTooMuch'])
     expect(keys.slice(2, 5)).toEqual(['compassParts', 'criticProtector', 'notIndulgence'])
-    expect(keys).toHaveLength(PROGRAM_KNOWLEDGE.filter((card) => card.programSlug === 'shame-compassion').length)
+    expect(keys).toHaveLength(
+      PROGRAM_KNOWLEDGE.filter(card => card.programSlug === 'shame-compassion').length
+    )
   })
 })

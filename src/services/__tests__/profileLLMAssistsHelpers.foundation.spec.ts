@@ -6,11 +6,7 @@ import type {
   ValuesDiscovery,
 } from '@/domain/exercises'
 import type { LifeAreaAssessment } from '@/domain/lifeAreaAssessment'
-import type {
-  AssessmentAttempt,
-  AssessmentId,
-  ScaleScore,
-} from '@/domain/assessments'
+import type { AssessmentAttempt, AssessmentId, ScaleScore } from '@/domain/assessments'
 
 const stubs = vi.hoisted(() => ({
   valuesState: { latestDiscovery: null as ValuesDiscovery | null },
@@ -42,10 +38,7 @@ vi.mock('@/stores/assessment.store', () => ({
   useAssessmentStore: () => stubs.assessmentState,
 }))
 
-import {
-  __test__,
-  buildFoundationSnapshot,
-} from '../profileLLMAssistsHelpers'
+import { __test__, buildFoundationSnapshot } from '../profileLLMAssistsHelpers'
 
 beforeEach(() => {
   stubs.valuesState.latestDiscovery = null
@@ -54,7 +47,7 @@ beforeEach(() => {
   stubs.shadowState.latestBeliefs = null
   stubs.purposeState.latestPurpose = null
   stubs.assessmentState.getLatestCompletedAttemptFromState = vi.fn(
-    (_id: AssessmentId): AssessmentAttempt | undefined => undefined,
+    (_id: AssessmentId): AssessmentAttempt | undefined => undefined
   )
 })
 
@@ -77,7 +70,9 @@ function makeAttempt(overrides: Partial<AssessmentAttempt>): AssessmentAttempt {
   }
 }
 
-function scale(overrides: Partial<ScaleScore> & Pick<ScaleScore, 'scaleId' | 'labelKey'>): ScaleScore {
+function scale(
+  overrides: Partial<ScaleScore> & Pick<ScaleScore, 'scaleId' | 'labelKey'>
+): ScaleScore {
   return {
     answeredCount: 10,
     itemCount: 10,
@@ -214,15 +209,45 @@ describe('buildFoundationSnapshot', () => {
       assessmentId: 'ipip-bfm-50',
       completedAt: '2026-04-20T11:00:00.000Z',
       computedScales: [
-        scale({ scaleId: 'extraversion', labelKey: 'assessments.ipipBfm50.scales.extraversion', rawMean: 3.4, normalizedMean: 3.4, band: 'medium' }),
-        scale({ scaleId: 'agreeableness', labelKey: 'assessments.ipipBfm50.scales.agreeableness', rawMean: 4.1, normalizedMean: 4.1, band: 'high' }),
-        scale({ scaleId: 'conscientiousness', labelKey: 'assessments.ipipBfm50.scales.conscientiousness', rawMean: 3.0, normalizedMean: 3.0, band: 'medium' }),
-        scale({ scaleId: 'neuroticism', labelKey: 'assessments.ipipBfm50.scales.neuroticism', rawMean: 2.7, normalizedMean: 2.7, band: 'low' }),
-        scale({ scaleId: 'openness', labelKey: 'assessments.ipipBfm50.scales.openness', rawMean: 4.5, normalizedMean: 4.5, band: 'high' }),
+        scale({
+          scaleId: 'extraversion',
+          labelKey: 'assessments.ipipBfm50.scales.extraversion',
+          rawMean: 3.4,
+          normalizedMean: 3.4,
+          band: 'medium',
+        }),
+        scale({
+          scaleId: 'agreeableness',
+          labelKey: 'assessments.ipipBfm50.scales.agreeableness',
+          rawMean: 4.1,
+          normalizedMean: 4.1,
+          band: 'high',
+        }),
+        scale({
+          scaleId: 'conscientiousness',
+          labelKey: 'assessments.ipipBfm50.scales.conscientiousness',
+          rawMean: 3.0,
+          normalizedMean: 3.0,
+          band: 'medium',
+        }),
+        scale({
+          scaleId: 'neuroticism',
+          labelKey: 'assessments.ipipBfm50.scales.neuroticism',
+          rawMean: 2.7,
+          normalizedMean: 2.7,
+          band: 'low',
+        }),
+        scale({
+          scaleId: 'openness',
+          labelKey: 'assessments.ipipBfm50.scales.openness',
+          rawMean: 4.5,
+          normalizedMean: 4.5,
+          band: 'high',
+        }),
       ],
     })
     stubs.assessmentState.getLatestCompletedAttemptFromState = vi.fn((id: AssessmentId) =>
-      id === 'ipip-bfm-50' ? attempt : undefined,
+      id === 'ipip-bfm-50' ? attempt : undefined
     )
 
     const result = await buildFoundationSnapshot()
@@ -245,16 +270,66 @@ describe('buildFoundationSnapshot', () => {
 
   it('renders PVQ-40 with Top 3 from overallSummary, computed Bottom 3, and an All block', async () => {
     const computedScales: ScaleScore[] = [
-      scale({ scaleId: 'selfDirection', labelKey: 'assessments.pvq40.scales.selfDirection', rawMean: 4.5, normalizedMean: 1.5 }),
-      scale({ scaleId: 'stimulation', labelKey: 'assessments.pvq40.scales.stimulation', rawMean: 4.0, normalizedMean: 1.0 }),
-      scale({ scaleId: 'hedonism', labelKey: 'assessments.pvq40.scales.hedonism', rawMean: 3.5, normalizedMean: 0.5 }),
-      scale({ scaleId: 'achievement', labelKey: 'assessments.pvq40.scales.achievement', rawMean: 3.2, normalizedMean: 0.2 }),
-      scale({ scaleId: 'power', labelKey: 'assessments.pvq40.scales.power', rawMean: 2.5, normalizedMean: -0.5 }),
-      scale({ scaleId: 'security', labelKey: 'assessments.pvq40.scales.security', rawMean: 3.0, normalizedMean: 0 }),
-      scale({ scaleId: 'conformity', labelKey: 'assessments.pvq40.scales.conformity', rawMean: 2.0, normalizedMean: -1.0 }),
-      scale({ scaleId: 'tradition', labelKey: 'assessments.pvq40.scales.tradition', rawMean: 1.8, normalizedMean: -1.2 }),
-      scale({ scaleId: 'benevolence', labelKey: 'assessments.pvq40.scales.benevolence', rawMean: 4.2, normalizedMean: 1.2 }),
-      scale({ scaleId: 'universalism', labelKey: 'assessments.pvq40.scales.universalism', rawMean: 4.4, normalizedMean: 1.4 }),
+      scale({
+        scaleId: 'selfDirection',
+        labelKey: 'assessments.pvq40.scales.selfDirection',
+        rawMean: 4.5,
+        normalizedMean: 1.5,
+      }),
+      scale({
+        scaleId: 'stimulation',
+        labelKey: 'assessments.pvq40.scales.stimulation',
+        rawMean: 4.0,
+        normalizedMean: 1.0,
+      }),
+      scale({
+        scaleId: 'hedonism',
+        labelKey: 'assessments.pvq40.scales.hedonism',
+        rawMean: 3.5,
+        normalizedMean: 0.5,
+      }),
+      scale({
+        scaleId: 'achievement',
+        labelKey: 'assessments.pvq40.scales.achievement',
+        rawMean: 3.2,
+        normalizedMean: 0.2,
+      }),
+      scale({
+        scaleId: 'power',
+        labelKey: 'assessments.pvq40.scales.power',
+        rawMean: 2.5,
+        normalizedMean: -0.5,
+      }),
+      scale({
+        scaleId: 'security',
+        labelKey: 'assessments.pvq40.scales.security',
+        rawMean: 3.0,
+        normalizedMean: 0,
+      }),
+      scale({
+        scaleId: 'conformity',
+        labelKey: 'assessments.pvq40.scales.conformity',
+        rawMean: 2.0,
+        normalizedMean: -1.0,
+      }),
+      scale({
+        scaleId: 'tradition',
+        labelKey: 'assessments.pvq40.scales.tradition',
+        rawMean: 1.8,
+        normalizedMean: -1.2,
+      }),
+      scale({
+        scaleId: 'benevolence',
+        labelKey: 'assessments.pvq40.scales.benevolence',
+        rawMean: 4.2,
+        normalizedMean: 1.2,
+      }),
+      scale({
+        scaleId: 'universalism',
+        labelKey: 'assessments.pvq40.scales.universalism',
+        rawMean: 4.4,
+        normalizedMean: 1.4,
+      }),
     ]
     const attempt = makeAttempt({
       assessmentId: 'pvq-40',
@@ -272,7 +347,7 @@ describe('buildFoundationSnapshot', () => {
       },
     })
     stubs.assessmentState.getLatestCompletedAttemptFromState = vi.fn((id: AssessmentId) =>
-      id === 'pvq-40' ? attempt : undefined,
+      id === 'pvq-40' ? attempt : undefined
     )
 
     const result = await buildFoundationSnapshot()
@@ -287,10 +362,34 @@ describe('buildFoundationSnapshot', () => {
 
   it('renders VLQ scales sorted by gap descending using details from the scoring engine', async () => {
     const computedScales: ScaleScore[] = [
-      scale({ scaleId: 'family', labelKey: 'assessments.vlq.scales.family', rawMean: 7, normalizedMean: 7, details: { importance: 9, consistency: 7, gap: 2, weighted: 63 } }),
-      scale({ scaleId: 'work', labelKey: 'assessments.vlq.scales.work', rawMean: 5, normalizedMean: 5, details: { importance: 9, consistency: 5, gap: 4, weighted: 45 } }),
-      scale({ scaleId: 'health', labelKey: 'assessments.vlq.scales.health', rawMean: 4, normalizedMean: 4, details: { importance: 10, consistency: 4, gap: 6, weighted: 40 } }),
-      scale({ scaleId: 'recreation', labelKey: 'assessments.vlq.scales.recreation', rawMean: 8, normalizedMean: 8, details: { importance: 9, consistency: 8, gap: 1, weighted: 72 } }),
+      scale({
+        scaleId: 'family',
+        labelKey: 'assessments.vlq.scales.family',
+        rawMean: 7,
+        normalizedMean: 7,
+        details: { importance: 9, consistency: 7, gap: 2, weighted: 63 },
+      }),
+      scale({
+        scaleId: 'work',
+        labelKey: 'assessments.vlq.scales.work',
+        rawMean: 5,
+        normalizedMean: 5,
+        details: { importance: 9, consistency: 5, gap: 4, weighted: 45 },
+      }),
+      scale({
+        scaleId: 'health',
+        labelKey: 'assessments.vlq.scales.health',
+        rawMean: 4,
+        normalizedMean: 4,
+        details: { importance: 10, consistency: 4, gap: 6, weighted: 40 },
+      }),
+      scale({
+        scaleId: 'recreation',
+        labelKey: 'assessments.vlq.scales.recreation',
+        rawMean: 8,
+        normalizedMean: 8,
+        details: { importance: 9, consistency: 8, gap: 1, weighted: 72 },
+      }),
     ]
     const attempt = makeAttempt({
       assessmentId: 'vlq',
@@ -298,7 +397,7 @@ describe('buildFoundationSnapshot', () => {
       computedScales,
     })
     stubs.assessmentState.getLatestCompletedAttemptFromState = vi.fn((id: AssessmentId) =>
-      id === 'vlq' ? attempt : undefined,
+      id === 'vlq' ? attempt : undefined
     )
 
     const result = await buildFoundationSnapshot()
@@ -333,7 +432,7 @@ describe('buildFoundationSnapshot', () => {
     expect(result.items[0].id).toBe('valuesDiscovery')
     expect(result.items[1].id).toBe('wheelOfLife')
     expect(result.snapshot.startsWith('## Values discovery')).toBe(true)
-    expect(result.snapshot).toBe(result.items.map((it) => it.body).join('\n\n'))
+    expect(result.snapshot).toBe(result.items.map(it => it.body).join('\n\n'))
   })
 
   it('produces English-only labels regardless of catalog locale presence', async () => {
@@ -373,7 +472,7 @@ describe('per-formatter unit coverage', () => {
       notes: 'Came up after a long week.',
     })
     expect(item.body.startsWith('## Shadow beliefs (2026-04-15)')).toBe(true)
-    expect(item.body).toContain('Self-sabotaging:\n- I don\'t deserve rest.')
+    expect(item.body).toContain("Self-sabotaging:\n- I don't deserve rest.")
     expect(item.body).toContain('Reframes:\n- Rest is part of the work.')
     expect(item.body).not.toContain('Advice to others:')
     expect(item.body).toContain('Notes: Came up after a long week.')
@@ -396,7 +495,7 @@ describe('per-formatter unit coverage', () => {
   it('resolveValueLabel falls back through catalog → customValues → raw id', () => {
     expect(__test__.resolveValueLabel('curiosity')).toBe('Curiosity')
     expect(
-      __test__.resolveValueLabel('mentorship', [{ id: 'mentorship', label: 'Mentorship' }]),
+      __test__.resolveValueLabel('mentorship', [{ id: 'mentorship', label: 'Mentorship' }])
     ).toBe('Mentorship')
     expect(__test__.resolveValueLabel('nope-nothing-matches')).toBe('nope-nothing-matches')
   })

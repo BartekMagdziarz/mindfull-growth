@@ -27,7 +27,7 @@ describe('weekly reflection review', () => {
     const intention = await makeIntention()
     const bundle = await getWeeklyReflectionDataBundle(WEEK, WEEK_END)
     const item = bundle.weekObjectItems.find(
-      (i) => i.subjectType === 'weeklyIntention' && i.subject.id === intention.id,
+      i => i.subjectType === 'weeklyIntention' && i.subject.id === intention.id
     )
     expect(item).toBeTruthy()
     expect(item?.key).toBe(`weeklyIntention:${intention.id}`)
@@ -47,7 +47,7 @@ describe('weekly reflection review', () => {
       'week',
       WEEK,
       'weeklyIntention',
-      intention.id,
+      intention.id
     )
     expect(saved?.note).toBe('Mostly hit it')
 
@@ -55,15 +55,15 @@ describe('weekly reflection review', () => {
       'week',
       WEEK,
       'weeklyIntention',
-      intention.id,
+      intention.id
     )
     expect(
       await reflectionDexieRepository.getPeriodObjectReflection(
         'week',
         WEEK,
         'weeklyIntention',
-        intention.id,
-      ),
+        intention.id
+      )
     ).toBeUndefined()
   })
 
@@ -75,7 +75,7 @@ describe('weekly reflection review', () => {
         subjectType: 'weeklyIntention',
         subjectId: 'missing-id',
         note: 'x',
-      }),
+      })
     ).rejects.toThrow()
   })
 })

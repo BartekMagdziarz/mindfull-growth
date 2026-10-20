@@ -3,9 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/vue'
 import FoundationTile from '../FoundationTile.vue'
 import type { FoundationItemStatus } from '@/services/foundationCompleteness'
 
-function makeStatus(
-  overrides: Partial<FoundationItemStatus> = {},
-): FoundationItemStatus {
+function makeStatus(overrides: Partial<FoundationItemStatus> = {}): FoundationItemStatus {
   return {
     id: 'valuesDiscovery',
     group: 'values',
@@ -67,7 +65,7 @@ describe('FoundationTile', () => {
     })
 
     expect(screen.getByRole('button', { name: 'Values discovery' })).toHaveClass(
-      'border-status-warn/40',
+      'border-status-warn/40'
     )
   })
 
@@ -99,9 +97,7 @@ describe('FoundationTile', () => {
       },
     })
 
-    expect(screen.getByTestId('foundation-date-line')).toHaveTextContent(
-      'Completed Apr 10, 2026',
-    )
+    expect(screen.getByTestId('foundation-date-line')).toHaveTextContent('Completed Apr 10, 2026')
   })
 
   const bigFiveVariants = [
@@ -134,7 +130,7 @@ describe('FoundationTile', () => {
     expect(screen.getByText('Big Five (personality)')).toBeInTheDocument()
 
     await fireEvent.click(
-      screen.getByRole('button', { name: 'Big Five (personality): Quick test' }),
+      screen.getByRole('button', { name: 'Big Five (personality): Quick test' })
     )
 
     expect(emitted().navigate).toEqual([
@@ -159,11 +155,9 @@ describe('FoundationTile', () => {
     })
 
     // A single navigable tile, not a chooser.
+    expect(screen.getByRole('button', { name: 'Big Five (personality)' })).toBeInTheDocument()
     expect(
-      screen.getByRole('button', { name: 'Big Five (personality)' }),
-    ).toBeInTheDocument()
-    expect(
-      screen.queryByRole('button', { name: 'Big Five (personality): Quick test' }),
+      screen.queryByRole('button', { name: 'Big Five (personality): Quick test' })
     ).not.toBeInTheDocument()
   })
 })

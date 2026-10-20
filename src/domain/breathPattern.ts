@@ -47,7 +47,7 @@ function clamp(value: number, min: number, max: number): number {
 /** Clamps every phase into its limits; bad input falls back per phase. */
 export function normalizePhaseSeconds(
   value: unknown,
-  fallback: BreathPhaseSeconds,
+  fallback: BreathPhaseSeconds
 ): BreathPhaseSeconds {
   const source = Array.isArray(value) && value.length === 4 ? value : fallback
   return BREATH_PHASES.map((phase, index) => {

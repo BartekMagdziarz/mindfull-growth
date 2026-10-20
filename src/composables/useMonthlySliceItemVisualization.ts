@@ -17,10 +17,7 @@
 import { computed, type ComputedRef, type Ref } from 'vue'
 import type { DayRef, MonthRef } from '@/domain/period'
 import type { MeasurementTarget } from '@/domain/planning'
-import type {
-  DailyMeasurementEntry,
-  MeasurementSubjectType,
-} from '@/domain/planningState'
+import type { DailyMeasurementEntry, MeasurementSubjectType } from '@/domain/planningState'
 import type { MeasureableSubject, MeasurementSummary } from '@/services/measurementProgress'
 import type { MeasurementPlanningSummary } from '@/services/planningStateQueries'
 import {
@@ -56,7 +53,7 @@ export function useMonthlySliceItemVisualization(
   measurement: Ref<MeasurementSummary>,
   rawEntries: Ref<DailyMeasurementEntry[]>,
   monthRef: Ref<MonthRef>,
-  todayDayRef: Ref<DayRef>,
+  todayDayRef: Ref<DayRef>
 ): UseMonthlySliceItemVisualization {
   const vizType = computed<TodayVizType>(() =>
     resolveMonthlySliceVizType({
@@ -65,7 +62,7 @@ export function useMonthlySliceItemVisualization(
       entryMode: subject.value.entryMode,
       target: (subject.value as { target?: MeasurementTarget }).target,
       cadence: subject.value.cadence,
-    }),
+    })
   )
 
   const completionSlots = computed<TodayCompletionSlot[]>(() => {
@@ -74,7 +71,7 @@ export function useMonthlySliceItemVisualization(
       subject.value,
       rawEntries.value,
       monthRef.value,
-      todayDayRef.value,
+      todayDayRef.value
     )
   })
 
@@ -84,7 +81,7 @@ export function useMonthlySliceItemVisualization(
       subject.value,
       rawEntries.value,
       monthRef.value,
-      todayDayRef.value,
+      todayDayRef.value
     )
   })
 
@@ -94,12 +91,12 @@ export function useMonthlySliceItemVisualization(
       subject.value,
       rawEntries.value,
       monthRef.value,
-      todayDayRef.value,
+      todayDayRef.value
     )
   })
 
   const aggregateData = computed<TodayAggregateData | undefined>(() =>
-    buildAggregateData(subject.value, measurement.value),
+    buildAggregateData(subject.value, measurement.value)
   )
 
   const targetValue = computed<number | undefined>(() => {
@@ -117,7 +114,7 @@ export function useMonthlySliceItemVisualization(
     const chip = buildContextChipData(
       subject.value,
       measurement.value,
-      subject.value.cadence !== 'monthly',
+      subject.value.cadence !== 'monthly'
     )
     // Hide the chip only when there's nothing to say — no target and no entries.
     return chip.target !== undefined || chip.entryCount > 0 ? chip : undefined

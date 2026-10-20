@@ -39,9 +39,7 @@ describe('useEmotionStore', () => {
     preferences.$patch({ locale: 'pl', isLoaded: true })
 
     const ecstatic = store.getEmotionById('e1m12-ecstatic-001')
-    expect(ecstatic?.name).toBe(
-      plEmotions['e1m12-ecstatic-001' as keyof typeof plEmotions].name
-    )
+    expect(ecstatic?.name).toBe(plEmotions['e1m12-ecstatic-001' as keyof typeof plEmotions].name)
   })
 
   it('returns all emotions from the current locale catalog', () => {
@@ -59,50 +57,40 @@ describe('useEmotionStore', () => {
       'low-energy-low-pleasantness',
     ]
 
-    const allQuadrantEmotions = quadrants.flatMap((quadrant) =>
-      store.getEmotionsByQuadrant(quadrant)
-    )
+    const allQuadrantEmotions = quadrants.flatMap(quadrant => store.getEmotionsByQuadrant(quadrant))
 
     expect(allQuadrantEmotions).toHaveLength(store.emotions.length)
-    expect(new Set(allQuadrantEmotions.map((emotion) => emotion.id)).size).toBe(
-      store.emotions.length
-    )
+    expect(new Set(allQuadrantEmotions.map(emotion => emotion.id)).size).toBe(store.emotions.length)
   })
 
   it('uses the current threshold rules for representative edge cases', () => {
     const store = useEmotionStore()
 
-    const lowEnergyHighPleasantness = store.getEmotionsByQuadrant(
-      'low-energy-high-pleasantness'
-    )
-    const highEnergyLowPleasantness = store.getEmotionsByQuadrant(
-      'high-energy-low-pleasantness'
-    )
-    const lowEnergyLowPleasantness = store.getEmotionsByQuadrant(
-      'low-energy-low-pleasantness'
-    )
+    const lowEnergyHighPleasantness = store.getEmotionsByQuadrant('low-energy-high-pleasantness')
+    const highEnergyLowPleasantness = store.getEmotionsByQuadrant('high-energy-low-pleasantness')
+    const lowEnergyLowPleasantness = store.getEmotionsByQuadrant('low-energy-low-pleasantness')
 
     expect(
-      lowEnergyHighPleasantness.find((emotion) => emotion.id === 'e8m8-thoughtful-056')
+      lowEnergyHighPleasantness.find(emotion => emotion.id === 'e8m8-thoughtful-056')
     ).toMatchObject({
       pleasantness: 8,
       energy: 5,
       name: 'Thoughtful',
     })
     expect(
-      highEnergyLowPleasantness.find((emotion) => emotion.id === 'e1m4-shocked-097')
+      highEnergyLowPleasantness.find(emotion => emotion.id === 'e1m4-shocked-097')
     ).toMatchObject({
       pleasantness: 4,
       energy: 12,
       name: 'Shocked',
     })
-    expect(
-      lowEnergyLowPleasantness.find((emotion) => emotion.id === 'e7m6-bored-079')
-    ).toMatchObject({
-      pleasantness: 6,
-      energy: 6,
-      name: 'Bored',
-    })
+    expect(lowEnergyLowPleasantness.find(emotion => emotion.id === 'e7m6-bored-079')).toMatchObject(
+      {
+        pleasantness: 6,
+        energy: 6,
+        name: 'Bored',
+      }
+    )
   })
 
   it('finds emotions by id and returns undefined for missing ids', () => {

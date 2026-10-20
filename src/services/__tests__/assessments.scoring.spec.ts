@@ -6,9 +6,9 @@ import { scoreAssessment } from '@/services/assessments/scoringEngine'
 function responseFor(
   definition: AssessmentDefinition,
   itemId: string,
-  responseValue: number,
+  responseValue: number
 ): AssessmentResponse {
-  const item = definition.items.find((entry) => entry.id === itemId)
+  const item = definition.items.find(entry => entry.id === itemId)
   if (!item) {
     throw new Error(`Unknown item ${itemId}`)
   }
@@ -29,7 +29,7 @@ function responseFor(
 
 function responsesFromMap(
   definition: AssessmentDefinition,
-  values: Record<string, number>,
+  values: Record<string, number>
 ): AssessmentResponse[] {
   return Object.entries(values).map(([itemId, value]) => responseFor(definition, itemId, value))
 }
@@ -37,13 +37,13 @@ function responsesFromMap(
 describe('assessments scoring', () => {
   it('applies reverse scoring correctly for IPIP-BFM-50', () => {
     const definition = getAssessmentDefinition('ipip-bfm-50')
-    const extraversionItems = definition.scales.find((scale) => scale.id === 'extraversion')?.itemIds
+    const extraversionItems = definition.scales.find(scale => scale.id === 'extraversion')?.itemIds
 
     expect(extraversionItems).toBeDefined()
 
     const responses = responsesFromMap(
       definition,
-      Object.fromEntries((extraversionItems ?? []).map((itemId) => [itemId, 1])),
+      Object.fromEntries((extraversionItems ?? []).map(itemId => [itemId, 1]))
     )
 
     const result = scoreAssessment({
@@ -51,7 +51,7 @@ describe('assessments scoring', () => {
       responses,
     })
 
-    const extraversion = result.computedScales.find((scale) => scale.scaleId === 'extraversion')
+    const extraversion = result.computedScales.find(scale => scale.scaleId === 'extraversion')
     expect(extraversion?.normalizedMean).toBe(3)
   })
 
@@ -59,25 +59,27 @@ describe('assessments scoring', () => {
     const neo = getAssessmentDefinition('ipip-neo-120')
     const hexaco = getAssessmentDefinition('hexaco-60')
 
-    const neoItems = neo.scales.find((scale) => scale.id === 'neuroticism')?.itemIds ?? []
-    const hexacoItems = hexaco.scales.find((scale) => scale.id === 'honestyHumility')?.itemIds ?? []
+    const neoItems = neo.scales.find(scale => scale.id === 'neuroticism')?.itemIds ?? []
+    const hexacoItems = hexaco.scales.find(scale => scale.id === 'honestyHumility')?.itemIds ?? []
 
     const neoResult = scoreAssessment({
       assessmentId: neo.id,
-      responses: responsesFromMap(neo, Object.fromEntries(neoItems.map((itemId) => [itemId, 1]))),
+      responses: responsesFromMap(neo, Object.fromEntries(neoItems.map(itemId => [itemId, 1]))),
     })
 
     const hexacoResult = scoreAssessment({
       assessmentId: hexaco.id,
       responses: responsesFromMap(
         hexaco,
-        Object.fromEntries(hexacoItems.map((itemId) => [itemId, 1])),
+        Object.fromEntries(hexacoItems.map(itemId => [itemId, 1]))
       ),
     })
 
-    expect(neoResult.computedScales.find((scale) => scale.scaleId === 'neuroticism')?.normalizedMean).toBe(3)
     expect(
-      hexacoResult.computedScales.find((scale) => scale.scaleId === 'honestyHumility')?.normalizedMean,
+      neoResult.computedScales.find(scale => scale.scaleId === 'neuroticism')?.normalizedMean
+    ).toBe(3)
+    expect(
+      hexacoResult.computedScales.find(scale => scale.scaleId === 'honestyHumility')?.normalizedMean
     ).toBe(3)
   })
 
@@ -94,7 +96,7 @@ describe('assessments scoring', () => {
     ]
 
     for (const definition of definitions) {
-      const mappedItemIds = definition.scales.flatMap((scale) => scale.itemIds)
+      const mappedItemIds = definition.scales.flatMap(scale => scale.itemIds)
 
       expect(mappedItemIds.length).toBe(definition.items.length)
       expect(new Set(mappedItemIds).size).toBe(definition.items.length)
@@ -103,8 +105,8 @@ describe('assessments scoring', () => {
 
   it('scores ERQ reappraisal/suppression as 1-7 Likert means with bands', () => {
     const definition = getAssessmentDefinition('erq')
-    const reappraisal = definition.scales.find((scale) => scale.id === 'reappraisal')?.itemIds ?? []
-    const suppression = definition.scales.find((scale) => scale.id === 'suppression')?.itemIds ?? []
+    const reappraisal = definition.scales.find(scale => scale.id === 'reappraisal')?.itemIds ?? []
+    const suppression = definition.scales.find(scale => scale.id === 'suppression')?.itemIds ?? []
 
     const values: Record<string, number> = {}
     for (const itemId of reappraisal) values[itemId] = 6
@@ -115,8 +117,8 @@ describe('assessments scoring', () => {
       responses: responsesFromMap(definition, values),
     })
 
-    const reappraisalScale = result.computedScales.find((scale) => scale.scaleId === 'reappraisal')
-    const suppressionScale = result.computedScales.find((scale) => scale.scaleId === 'suppression')
+    const reappraisalScale = result.computedScales.find(scale => scale.scaleId === 'reappraisal')
+    const suppressionScale = result.computedScales.find(scale => scale.scaleId === 'suppression')
 
     expect(reappraisalScale?.normalizedMean).toBe(6)
     expect(reappraisalScale?.band).toBe('high')
@@ -147,8 +149,8 @@ describe('assessments scoring', () => {
       responses: responsesFromMap(definition, values),
     })
 
-    const avoidance = result.computedScales.find((scale) => scale.scaleId === 'avoidance')
-    const anxiety = result.computedScales.find((scale) => scale.scaleId === 'anxiety')
+    const avoidance = result.computedScales.find(scale => scale.scaleId === 'avoidance')
+    const anxiety = result.computedScales.find(scale => scale.scaleId === 'anxiety')
 
     expect(avoidance?.normalizedMean).toBe(7)
     expect(avoidance?.band).toBe('high')
@@ -158,7 +160,7 @@ describe('assessments scoring', () => {
 
   it('reverse-keys RRQ rumination and reflection items correctly', () => {
     const definition = getAssessmentDefinition('rrq')
-    const reverseIds = new Set(definition.items.filter((item) => item.reverse).map((item) => item.id))
+    const reverseIds = new Set(definition.items.filter(item => item.reverse).map(item => item.id))
 
     // Answer every item so that, after reverse-keying, all contribute 5 to
     // rumination and 1 to reflection — isolating the reverse logic.
@@ -174,8 +176,8 @@ describe('assessments scoring', () => {
       responses: responsesFromMap(definition, values),
     })
 
-    const rumination = result.computedScales.find((scale) => scale.scaleId === 'rumination')
-    const reflection = result.computedScales.find((scale) => scale.scaleId === 'reflection')
+    const rumination = result.computedScales.find(scale => scale.scaleId === 'rumination')
+    const reflection = result.computedScales.find(scale => scale.scaleId === 'reflection')
 
     expect(rumination?.normalizedMean).toBe(5)
     expect(rumination?.band).toBe('high')
@@ -185,8 +187,8 @@ describe('assessments scoring', () => {
 
   it('scores IPIP-VIA virtue scales as 1-5 Likert means', () => {
     const definition = getAssessmentDefinition('ipip-via')
-    const wisdom = definition.scales.find((scale) => scale.id === 'wisdom')?.itemIds ?? []
-    const temperance = definition.scales.find((scale) => scale.id === 'temperance')?.itemIds ?? []
+    const wisdom = definition.scales.find(scale => scale.id === 'wisdom')?.itemIds ?? []
+    const temperance = definition.scales.find(scale => scale.id === 'temperance')?.itemIds ?? []
 
     const values: Record<string, number> = {}
     for (const itemId of wisdom) values[itemId] = 5
@@ -197,8 +199,8 @@ describe('assessments scoring', () => {
       responses: responsesFromMap(definition, values),
     })
 
-    const wisdomScale = result.computedScales.find((scale) => scale.scaleId === 'wisdom')
-    const temperanceScale = result.computedScales.find((scale) => scale.scaleId === 'temperance')
+    const wisdomScale = result.computedScales.find(scale => scale.scaleId === 'wisdom')
+    const temperanceScale = result.computedScales.find(scale => scale.scaleId === 'temperance')
 
     expect(wisdomScale?.normalizedMean).toBe(5)
     expect(wisdomScale?.band).toBe('high')
@@ -208,11 +210,12 @@ describe('assessments scoring', () => {
 
   it('handles missing-data boundaries at ~79%, 80%, and 100% for IPIP-NEO-120', () => {
     const definition = getAssessmentDefinition('ipip-neo-120')
-    const neuroticismItems = definition.scales.find((scale) => scale.id === 'neuroticism')?.itemIds ?? []
+    const neuroticismItems =
+      definition.scales.find(scale => scale.id === 'neuroticism')?.itemIds ?? []
 
-    const values79 = Object.fromEntries(neuroticismItems.slice(0, 18).map((itemId) => [itemId, 3]))
-    const values80 = Object.fromEntries(neuroticismItems.slice(0, 19).map((itemId) => [itemId, 3]))
-    const values100 = Object.fromEntries(neuroticismItems.map((itemId) => [itemId, 3]))
+    const values79 = Object.fromEntries(neuroticismItems.slice(0, 18).map(itemId => [itemId, 3]))
+    const values80 = Object.fromEntries(neuroticismItems.slice(0, 19).map(itemId => [itemId, 3]))
+    const values100 = Object.fromEntries(neuroticismItems.map(itemId => [itemId, 3]))
 
     const result79 = scoreAssessment({
       assessmentId: definition.id,
@@ -228,7 +231,7 @@ describe('assessments scoring', () => {
     })
 
     const getScore = (result: ReturnType<typeof scoreAssessment>) =>
-      result.computedScales.find((scale) => scale.scaleId === 'neuroticism')
+      result.computedScales.find(scale => scale.scaleId === 'neuroticism')
 
     expect(getScore(result79)?.normalizedMean).toBeNull()
     expect(getScore(result80)?.normalizedMean).toBe(3)
@@ -239,7 +242,7 @@ describe('assessments scoring', () => {
     const definition = getAssessmentDefinition('pvq-40')
 
     const responses = definition.items.map((item, index) =>
-      responseFor(definition, item.id, (index % 6) + 1),
+      responseFor(definition, item.id, (index % 6) + 1)
     )
 
     const centered = scoreAssessment({
@@ -278,7 +281,7 @@ describe('assessments scoring', () => {
 
     // Leave one answer missing in each of the last two domains.
     for (const scale of incompleteDomains) {
-      const importance = scale.itemIds.find((itemId) => itemId.endsWith('_importance'))
+      const importance = scale.itemIds.find(itemId => itemId.endsWith('_importance'))
       if (importance) {
         values[importance] = 7
       }
@@ -289,7 +292,7 @@ describe('assessments scoring', () => {
       responses: responsesFromMap(definition, values),
     })
 
-    const family = result.computedScales.find((scale) => scale.scaleId === 'family')
+    const family = result.computedScales.find(scale => scale.scaleId === 'family')
     expect(family?.details?.gap).toBe(3)
     expect(family?.details?.weighted).toBe(40)
 

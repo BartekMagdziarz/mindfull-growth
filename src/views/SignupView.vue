@@ -31,7 +31,9 @@
           <div>
             <label for="displayName" class="mg-v2-field-wrap__label block mb-2">
               {{ t('auth.signup.displayName') }}
-              <span class="text-on-surface-variant font-normal">{{ t('auth.signup.displayNameOptional') }}</span>
+              <span class="text-on-surface-variant font-normal">{{
+                t('auth.signup.displayNameOptional')
+              }}</span>
             </label>
             <input
               id="displayName"
@@ -76,9 +78,7 @@
               :disabled="isLoading"
               :class="[
                 'mg-v2-field disabled:opacity-50',
-                passwordMismatch
-                  ? 'border-error focus:ring-error'
-                  : ''
+                passwordMismatch ? 'border-error focus:ring-error' : '',
               ]"
               :placeholder="t('auth.signup.confirmPasswordPlaceholder')"
             />
@@ -94,16 +94,12 @@
 
           <!-- Warning about password recovery -->
           <div class="p-3 rounded-lg bg-tertiary-container text-on-tertiary-container text-sm">
-            <strong>{{ t('auth.signup.offlineWarningNote') }}</strong> {{ t('auth.signup.offlineWarning') }}
+            <strong>{{ t('auth.signup.offlineWarningNote') }}</strong>
+            {{ t('auth.signup.offlineWarning') }}
           </div>
 
           <!-- Submit button -->
-          <AppButton
-            type="submit"
-            variant="filled"
-            :disabled="!canSubmit"
-            class="w-full"
-          >
+          <AppButton type="submit" variant="filled" :disabled="!canSubmit" class="w-full">
             <span v-if="isLoading">{{ t('auth.signup.creatingAccount') }}</span>
             <span v-else>{{ t('auth.signup.createAccount') }}</span>
           </AppButton>

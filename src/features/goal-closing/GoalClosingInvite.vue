@@ -14,8 +14,12 @@
         <small>{{ rowMeta(goal) }}</small>
       </span>
       <span class="gc-invite__actions">
-        <button type="button" class="qr-primary gc-invite__go" @click="openRitual(goal)">Podsumuj cel</button>
-        <button type="button" class="qr-quiet" :disabled="busyId === goal.id" @click="defer(goal)">Później</button>
+        <button type="button" class="qr-primary gc-invite__go" @click="openRitual(goal)">
+          Podsumuj cel
+        </button>
+        <button type="button" class="qr-quiet" :disabled="busyId === goal.id" @click="defer(goal)">
+          Później
+        </button>
       </span>
     </div>
     <p v-if="error" class="qr-mutation-error" role="alert">{{ error }}</p>
@@ -55,17 +59,24 @@ async function load(): Promise<void> {
     error.value = err instanceof Error ? err.message : String(err)
   }
 }
-watch(() => props.periodEnd, () => void load(), { immediate: true })
+watch(
+  () => props.periodEnd,
+  () => void load(),
+  { immediate: true }
+)
 
 const inPeriodCount = computed(
-  () => goals.value.filter((goal) => !props.periodStart || (goal.targetDate as string) >= props.periodStart).length,
+  () =>
+    goals.value.filter(
+      goal => !props.periodStart || (goal.targetDate as string) >= props.periodStart
+    ).length
 )
 const lead = computed(() => {
   const older = goals.value.length - inPeriodCount.value
   const parts: string[] = []
   if (inPeriodCount.value) {
     parts.push(
-      `W tym okresie minął termin ${inPeriodCount.value} ${plural(inPeriodCount.value, 'celu', 'celów', 'celów')}`,
+      `W tym okresie minął termin ${inPeriodCount.value} ${plural(inPeriodCount.value, 'celu', 'celów', 'celów')}`
     )
   }
   if (older) parts.push(`${older} ${plural(older, 'czeka', 'czekają', 'czeka')} od wcześniej`)
@@ -75,7 +86,8 @@ const lead = computed(() => {
 function rowMeta(goal: Goal): string {
   const late = daysAfterDeadline(goal.targetDate, todayRef)
   const parts = [`termin ${formatDay(goal.targetDate as string)}`]
-  if (late !== null && late > 0) parts.push(`${late} ${plural(late, 'dzień', 'dni', 'dni')} po terminie`)
+  if (late !== null && late > 0)
+    parts.push(`${late} ${plural(late, 'dzień', 'dni', 'dni')} po terminie`)
   return parts.join(' · ')
 }
 
@@ -92,7 +104,7 @@ async function defer(goal: Goal): Promise<void> {
   error.value = null
   try {
     await deferGoalClosing(goal.id, GOAL_CLOSING_DEFER_DAYS)
-    goals.value = goals.value.filter((item) => item.id !== goal.id)
+    goals.value = goals.value.filter(item => item.id !== goal.id)
   } catch (err) {
     error.value = err instanceof Error ? err.message : String(err)
   } finally {

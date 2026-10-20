@@ -11,10 +11,12 @@
       </AppButton>
     </div>
     <AppCard v-if="showStopPanel" variant="inset" padding="md" class="space-y-3">
-      <p class="text-sm font-semibold text-on-surface">{{ t('exerciseWizards.exileWitnessing.stop.title') }}</p>
+      <p class="text-sm font-semibold text-on-surface">
+        {{ t('exerciseWizards.exileWitnessing.stop.title') }}
+      </p>
       <p class="text-sm text-on-surface">{{ t('exerciseWizards.exileWitnessing.stop.text') }}</p>
       <div class="flex flex-wrap gap-2">
-        <AppButton variant="tonal" @click="showStopPanel = false; stopEarly()">
+        <AppButton variant="tonal" @click="confirmStopEarly">
           {{ t('exerciseWizards.exileWitnessing.stop.continueButton') }}
         </AppButton>
         <AppButton variant="text" @click="showStopPanel = false">
@@ -34,9 +36,17 @@
       <template v-if="currentStep === 'safety'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-lg font-bold text-on-surface">{{ t('exerciseWizards.exileWitnessing.safety.title') }}</h2>
-            <p class="text-sm text-on-surface-variant" v-html="tg('exerciseWizards.exileWitnessing.safety.description')" />
-            <p class="text-sm text-on-surface-variant" v-html="t('exerciseWizards.exileWitnessing.safety.disclaimer')" />
+            <h2 class="text-lg font-bold text-on-surface">
+              {{ t('exerciseWizards.exileWitnessing.safety.title') }}
+            </h2>
+            <p
+              class="text-sm text-on-surface-variant"
+              v-html="tg('exerciseWizards.exileWitnessing.safety.description')"
+            />
+            <p
+              class="text-sm text-on-surface-variant"
+              v-html="t('exerciseWizards.exileWitnessing.safety.disclaimer')"
+            />
 
             <IFSSafetyBanner
               :require-acknowledgment="true"
@@ -57,7 +67,9 @@
       <template v-else-if="currentStep === 'protector-check'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.exileWitnessing.protectorCheck.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.exileWitnessing.protectorCheck.title') }}
+            </h2>
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.exileWitnessing.protectorCheck.description') }}
             </p>
@@ -87,24 +99,35 @@
               <p class="text-sm text-on-surface-variant text-center">
                 {{ t('exerciseWizards.exileWitnessing.protectorCheck.silentQuestion') }}
               </p>
-              <div class="breathing-circle breathing-10s w-16 h-16 rounded-full bg-primary/10 border-2 border-primary/30" />
-              <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.exileWitnessing.protectorCheck.listenPrompt') }}</p>
+              <div
+                class="breathing-circle breathing-10s w-16 h-16 rounded-full bg-primary/10 border-2 border-primary/30"
+              />
+              <p class="text-xs text-on-surface-variant">
+                {{ t('exerciseWizards.exileWitnessing.protectorCheck.listenPrompt') }}
+              </p>
             </div>
 
             <!-- Permission outcome -->
             <div class="space-y-2">
-              <label class="block text-sm font-medium text-on-surface">{{ t('exerciseWizards.exileWitnessing.protectorCheck.permissionLabel') }}</label>
+              <label class="block text-sm font-medium text-on-surface">{{
+                t('exerciseWizards.exileWitnessing.protectorCheck.permissionLabel')
+              }}</label>
               <div class="grid grid-cols-1 gap-2">
                 <button
                   v-for="option in permissionOptions"
                   :key="option.value"
                   class="neo-focus rounded-xl p-3 text-left transition-all flex items-start gap-3"
-                  :class="protectorPermission === option.value
-                    ? 'neo-selector neo-selector--active border'
-                    : 'neo-selector border'"
+                  :class="
+                    protectorPermission === option.value
+                      ? 'neo-selector neo-selector--active border'
+                      : 'neo-selector border'
+                  "
                   @click="protectorPermission = option.value"
                 >
-                  <div class="rounded-full w-8 h-8 flex items-center justify-center shrink-0" :class="option.iconBg">
+                  <div
+                    class="rounded-full w-8 h-8 flex items-center justify-center shrink-0"
+                    :class="option.iconBg"
+                  >
                     <AppIcon :name="option.icon" class="text-base" :class="option.iconColor" />
                   </div>
                   <div>
@@ -117,7 +140,10 @@
 
             <!-- "Jeszcze nie" is a complete answer: close for today, the step counts -->
             <div v-if="isBlocking" class="bg-status-warn-soft p-3 rounded-lg space-y-3">
-              <p class="text-sm text-status-warn-on" v-html="t('exerciseWizards.exileWitnessing.protectorCheck.blockingMessage')" />
+              <p
+                class="text-sm text-status-warn-on"
+                v-html="t('exerciseWizards.exileWitnessing.protectorCheck.blockingMessage')"
+              />
               <AppButton variant="tonal" :disabled="isSaving" @click="handleNotYet()">
                 {{ t('exerciseWizards.exileWitnessing.protectorCheck.notYetButton') }}
               </AppButton>
@@ -137,7 +163,9 @@
       <template v-else-if="currentStep === 'approach'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.exileWitnessing.approach.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.exileWitnessing.approach.title') }}
+            </h2>
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.exileWitnessing.approach.description') }}
             </p>
@@ -145,7 +173,9 @@
 
             <!-- Breathing animation -->
             <div class="flex justify-center py-4">
-              <div class="breathing-circle breathing-15s w-20 h-20 rounded-full bg-rose-100 border-2 border-rose-300" />
+              <div
+                class="breathing-circle breathing-15s w-20 h-20 rounded-full bg-rose-100 border-2 border-rose-300"
+              />
             </div>
 
             <!-- Body location -->
@@ -159,7 +189,10 @@
             <!-- Felt age -->
             <div class="space-y-1">
               <label class="block text-sm font-medium text-on-surface">
-                {{ t('exerciseWizards.exileWitnessing.approach.feltAgeLabel') }} <span class="text-on-surface-variant font-normal">({{ t('common.optional') }})</span>
+                {{ t('exerciseWizards.exileWitnessing.approach.feltAgeLabel') }}
+                <span class="text-on-surface-variant font-normal"
+                  >({{ t('common.optional') }})</span
+                >
               </label>
               <input
                 v-model.number="feltAge"
@@ -206,29 +239,37 @@
       <template v-else-if="currentStep === 'self-check'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.exileWitnessing.selfCheck.title') }}</h2>
-            <p class="text-sm text-on-surface-variant">{{ t('exerciseWizards.exileWitnessing.selfCheck.description') }}</p>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.exileWitnessing.selfCheck.title') }}
+            </h2>
+            <p class="text-sm text-on-surface-variant">
+              {{ t('exerciseWizards.exileWitnessing.selfCheck.description') }}
+            </p>
             <ExerciseStepWhy :text="tg('exerciseWizards.exileWitnessing.selfCheck.why')" />
 
             <div class="space-y-3">
               <button
                 class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
                 :class="selfCheckPassed === true ? 'neo-selector--active ring-2 ring-primary' : ''"
-                @click="selfCheckPassed = true; selfCheckReactive = false"
+                @click="markSelfCheckPassed"
               >
                 <div class="flex items-center gap-3">
                   <AppIcon name="wb_sunny" class="text-xl text-insight-intention-on shrink-0" />
-                  <span class="text-sm text-on-surface">{{ t('exerciseWizards.exileWitnessing.selfCheck.options.selfEnergy') }}</span>
+                  <span class="text-sm text-on-surface">{{
+                    t('exerciseWizards.exileWitnessing.selfCheck.options.selfEnergy')
+                  }}</span>
                 </div>
               </button>
               <button
                 class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
                 :class="selfCheckReactive ? 'shadow-neu-pressed ring-2 ring-status-warn' : ''"
-                @click="selfCheckPassed = false; selfCheckReactive = true"
+                @click="markSelfCheckReactive"
               >
                 <div class="flex items-center gap-3">
                   <AppIcon name="error" class="text-xl text-status-warn shrink-0" />
-                  <span class="text-sm text-on-surface">{{ t('exerciseWizards.exileWitnessing.selfCheck.options.notQuite') }}</span>
+                  <span class="text-sm text-on-surface">{{
+                    t('exerciseWizards.exileWitnessing.selfCheck.options.notQuite')
+                  }}</span>
                 </div>
               </button>
             </div>
@@ -237,18 +278,29 @@
               enter-active-class="transition-all duration-200"
               enter-from-class="opacity-0 -translate-y-2"
             >
-              <div v-if="selfCheckReactive" class="neo-surface p-6 rounded-2xl flex flex-col items-center gap-4">
-                <div class="breathing-circle breathing-10s w-20 h-20 rounded-full bg-primary/10 border-2 border-primary/30" />
-                <p class="text-sm text-on-surface-variant text-center">{{ t('exerciseWizards.exileWitnessing.selfCheck.breathingPrompt') }}</p>
-                <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.exileWitnessing.selfCheck.breathingDone') }}</p>
+              <div
+                v-if="selfCheckReactive"
+                class="neo-surface p-6 rounded-2xl flex flex-col items-center gap-4"
+              >
+                <div
+                  class="breathing-circle breathing-10s w-20 h-20 rounded-full bg-primary/10 border-2 border-primary/30"
+                />
+                <p class="text-sm text-on-surface-variant text-center">
+                  {{ t('exerciseWizards.exileWitnessing.selfCheck.breathingPrompt') }}
+                </p>
+                <p class="text-sm font-medium text-on-surface">
+                  {{ t('exerciseWizards.exileWitnessing.selfCheck.breathingDone') }}
+                </p>
                 <div class="w-full space-y-2">
                   <button
                     class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
-                    @click="selfCheckPassed = true; selfCheckReactive = false; nextStep()"
+                    @click="confirmSelfCheckAndContinue"
                   >
                     <div class="flex items-center gap-3">
                       <AppIcon name="wb_sunny" class="text-xl text-insight-intention-on shrink-0" />
-                      <span class="text-sm text-on-surface">{{ t('exerciseWizards.exileWitnessing.selfCheck.continueButton') }}</span>
+                      <span class="text-sm text-on-surface">{{
+                        t('exerciseWizards.exileWitnessing.selfCheck.continueButton')
+                      }}</span>
                     </div>
                   </button>
                   <button
@@ -257,7 +309,9 @@
                   >
                     <div class="flex items-center gap-3">
                       <AppIcon name="bedtime" class="text-xl text-on-surface-variant shrink-0" />
-                      <span class="text-sm text-on-surface">{{ t('exerciseWizards.exileWitnessing.selfCheck.notTodayButton') }}</span>
+                      <span class="text-sm text-on-surface">{{
+                        t('exerciseWizards.exileWitnessing.selfCheck.notTodayButton')
+                      }}</span>
                     </div>
                   </button>
                 </div>
@@ -278,7 +332,9 @@
       <template v-else-if="currentStep === 'witnessing'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.exileWitnessing.witness.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.exileWitnessing.witness.title') }}
+            </h2>
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.exileWitnessing.witness.description') }}
             </p>
@@ -286,7 +342,9 @@
 
             <!-- 30-second breathing circle -->
             <div class="flex justify-center py-6">
-              <div class="breathing-circle breathing-30s w-28 h-28 rounded-full bg-rose-100 border-2 border-rose-300" />
+              <div
+                class="breathing-circle breathing-30s w-28 h-28 rounded-full bg-rose-100 border-2 border-rose-300"
+              />
             </div>
 
             <textarea
@@ -320,7 +378,9 @@
       <template v-else-if="currentStep === 'compassion'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.exileWitnessing.compassion.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.exileWitnessing.compassion.title') }}
+            </h2>
             <p class="text-sm text-on-surface-variant">
               {{ tg('exerciseWizards.exileWitnessing.compassion.description') }}
             </p>
@@ -347,8 +407,12 @@
 
             <!-- Settling pause -->
             <div class="flex flex-col items-center gap-2 py-3">
-              <div class="breathing-circle breathing-10s w-12 h-12 rounded-full bg-rose-100 border-2 border-rose-300" />
-              <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.exileWitnessing.compassion.settlePrompt') }}</p>
+              <div
+                class="breathing-circle breathing-10s w-12 h-12 rounded-full bg-rose-100 border-2 border-rose-300"
+              />
+              <p class="text-xs text-on-surface-variant">
+                {{ t('exerciseWizards.exileWitnessing.compassion.settlePrompt') }}
+              </p>
             </div>
           </AppCard>
 
@@ -365,24 +429,33 @@
       <template v-else-if="currentStep === 'closing'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.exileWitnessing.closing.title') }}</h2>
-            <p class="text-sm text-on-surface-variant">{{ t('exerciseWizards.exileWitnessing.closing.description') }}</p>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.exileWitnessing.closing.title') }}
+            </h2>
+            <p class="text-sm text-on-surface-variant">
+              {{ t('exerciseWizards.exileWitnessing.closing.description') }}
+            </p>
 
             <div class="grid grid-cols-1 gap-2">
               <button
                 v-for="option in postStateOptions"
                 :key="option.value"
                 class="neo-focus rounded-xl p-3 text-left transition-all"
-                :class="postSessionState === option.value
-                  ? 'neo-selector neo-selector--active border'
-                  : 'neo-selector border'"
+                :class="
+                  postSessionState === option.value
+                    ? 'neo-selector neo-selector--active border'
+                    : 'neo-selector border'
+                "
                 @click="postSessionState = option.value"
               >
                 <p class="text-sm font-medium text-on-surface">{{ option.label }}</p>
               </button>
             </div>
 
-            <div v-if="postSessionState === 'more-distressed'" class="bg-status-warn-soft p-3 rounded-lg">
+            <div
+              v-if="postSessionState === 'more-distressed'"
+              class="bg-status-warn-soft p-3 rounded-lg"
+            >
               <p class="text-sm text-status-warn-on">
                 {{ t('exerciseWizards.exileWitnessing.closing.distressedWarning') }}
               </p>
@@ -390,7 +463,9 @@
 
             <!-- A promise to the exile (IFS: tell the part you'll come back) -->
             <div class="space-y-2">
-              <label class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.exileWitnessing.closing.promiseLabel') }}</label>
+              <label class="text-sm font-medium text-on-surface">{{
+                t('exerciseWizards.exileWitnessing.closing.promiseLabel')
+              }}</label>
               <div class="flex flex-wrap gap-2">
                 <button
                   v-for="chip in promiseChips"
@@ -415,7 +490,9 @@
 
             <!-- Closing animation -->
             <div class="flex justify-center py-2">
-              <div class="breathing-circle breathing-10s w-10 h-10 rounded-full bg-primary/10 border-2 border-primary/20" />
+              <div
+                class="breathing-circle breathing-10s w-10 h-10 rounded-full bg-primary/10 border-2 border-primary/20"
+              />
             </div>
           </AppCard>
 
@@ -432,20 +509,26 @@
       <template v-else-if="currentStep === 'reflection'">
         <div class="space-y-6">
           <AppCard variant="raised" padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.exileWitnessing.reflection.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.exileWitnessing.reflection.title') }}
+            </h2>
 
             <IFSSafetyBanner />
 
             <!-- Summary -->
             <div class="neo-surface p-4 rounded-xl space-y-3 text-sm">
               <div class="flex items-center gap-2">
-                <span class="text-on-surface-variant">{{ t('exerciseWizards.exileWitnessing.reflection.exileLabel') }}</span>
+                <span class="text-on-surface-variant">{{
+                  t('exerciseWizards.exileWitnessing.reflection.exileLabel')
+                }}</span>
                 <span class="font-medium text-on-surface">{{ getPartName(exilePartId!) }}</span>
                 <PartRoleBadge role="exile" />
               </div>
 
               <div v-if="protectorPartIds.length" class="flex items-center gap-2 flex-wrap">
-                <span class="text-on-surface-variant">{{ t('exerciseWizards.exileWitnessing.reflection.protectorsLabel') }}</span>
+                <span class="text-on-surface-variant">{{
+                  t('exerciseWizards.exileWitnessing.reflection.protectorsLabel')
+                }}</span>
                 <span
                   v-for="pid in protectorPartIds"
                   :key="pid"
@@ -456,37 +539,51 @@
               </div>
 
               <div v-if="bodyLocation" class="flex items-center gap-2">
-                <span class="text-on-surface-variant">{{ t('exerciseWizards.exileWitnessing.reflection.bodyLabel') }}</span>
+                <span class="text-on-surface-variant">{{
+                  t('exerciseWizards.exileWitnessing.reflection.bodyLabel')
+                }}</span>
                 <span class="text-on-surface">{{ formatLocation(bodyLocation) }}</span>
               </div>
 
               <div v-if="feltAge" class="flex items-center gap-2">
-                <span class="text-on-surface-variant">{{ t('exerciseWizards.exileWitnessing.reflection.feltAgeLabel') }}</span>
+                <span class="text-on-surface-variant">{{
+                  t('exerciseWizards.exileWitnessing.reflection.feltAgeLabel')
+                }}</span>
                 <span class="text-on-surface">~{{ feltAge }}</span>
               </div>
 
               <div class="space-y-1">
-                <span class="text-on-surface-variant">{{ t('exerciseWizards.exileWitnessing.reflection.exileMessageLabel') }}</span>
+                <span class="text-on-surface-variant">{{
+                  t('exerciseWizards.exileWitnessing.reflection.exileMessageLabel')
+                }}</span>
                 <p class="text-on-surface italic">"{{ exileMessage }}"</p>
               </div>
 
               <div v-if="exileBelief.trim()" class="space-y-1">
-                <span class="text-on-surface-variant">{{ t('exerciseWizards.exileWitnessing.reflection.beliefLabel') }}</span>
+                <span class="text-on-surface-variant">{{
+                  t('exerciseWizards.exileWitnessing.reflection.beliefLabel')
+                }}</span>
                 <p class="text-on-surface italic">"{{ exileBelief }}"</p>
               </div>
 
               <div class="space-y-1">
-                <span class="text-on-surface-variant">{{ t('exerciseWizards.exileWitnessing.reflection.compassionLabel') }}</span>
+                <span class="text-on-surface-variant">{{
+                  t('exerciseWizards.exileWitnessing.reflection.compassionLabel')
+                }}</span>
                 <p class="text-on-surface italic">"{{ compassionMessage }}"</p>
               </div>
 
               <div v-if="promise.trim()" class="space-y-1">
-                <span class="text-on-surface-variant">{{ t('exerciseWizards.exileWitnessing.reflection.promiseLabel') }}</span>
+                <span class="text-on-surface-variant">{{
+                  t('exerciseWizards.exileWitnessing.reflection.promiseLabel')
+                }}</span>
                 <p class="text-on-surface italic">"{{ promise }}"</p>
               </div>
 
               <div class="flex items-center gap-2">
-                <span class="text-on-surface-variant">{{ t('exerciseWizards.exileWitnessing.reflection.postSessionLabel') }}</span>
+                <span class="text-on-surface-variant">{{
+                  t('exerciseWizards.exileWitnessing.reflection.postSessionLabel')
+                }}</span>
                 <span class="exercise-pill text-xs px-2 py-0.5" :class="postStateBadgeClass">
                   {{ postStateLabel }}
                 </span>
@@ -501,7 +598,9 @@
               <input v-model="updatePartCard" type="checkbox" class="mt-0.5 neo-focus" />
               <span class="text-xs text-on-surface">
                 {{ t('exerciseWizards.exileWitnessing.reflection.updatePartLabel') }}
-                <span class="block text-on-surface-variant">{{ t('exerciseWizards.exileWitnessing.reflection.updatePartHint') }}</span>
+                <span class="block text-on-surface-variant">{{
+                  t('exerciseWizards.exileWitnessing.reflection.updatePartHint')
+                }}</span>
               </span>
             </label>
 
@@ -523,7 +622,11 @@
           <div class="flex justify-between">
             <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
             <AppButton variant="filled" :loading="isSaving" @click="handleSave">
-              {{ isSaving ? t('exerciseWizards.exileWitnessing.summary.saving') : t('exerciseWizards.exileWitnessing.summary.saveButton') }}
+              {{
+                isSaving
+                  ? t('exerciseWizards.exileWitnessing.summary.saving')
+                  : t('exerciseWizards.exileWitnessing.summary.saveButton')
+              }}
             </AppButton>
           </div>
         </div>
@@ -567,7 +670,14 @@ const partStore = useIFSPartStore()
 const activeEmotionQuadrant = ref<Quadrant | null>(null)
 
 const STEPS: ExileWitnessingStep[] = [
-  'safety', 'protector-check', 'approach', 'self-check', 'witnessing', 'compassion', 'closing', 'reflection',
+  'safety',
+  'protector-check',
+  'approach',
+  'self-check',
+  'witnessing',
+  'compassion',
+  'closing',
+  'reflection',
 ]
 const stepLabels = computed(() => [
   t('exerciseWizards.exileWitnessing.steps.safety'),
@@ -630,7 +740,7 @@ function leaveForToday() {
 
 const protectorParts = computed(() => {
   return partStore.sortedParts.filter(
-    (p) => p.role === 'manager' || p.role === 'firefighter' || p.role === 'unknown',
+    p => p.role === 'manager' || p.role === 'firefighter' || p.role === 'unknown'
   )
 })
 
@@ -638,7 +748,9 @@ const permissionOptions = computed(() => [
   {
     value: 'okay' as const,
     label: t('exerciseWizards.exileWitnessing.protectorCheck.permissionOptions.yes.label'),
-    description: t('exerciseWizards.exileWitnessing.protectorCheck.permissionOptions.yes.description'),
+    description: t(
+      'exerciseWizards.exileWitnessing.protectorCheck.permissionOptions.yes.description'
+    ),
     icon: 'check_circle',
     iconBg: 'bg-status-good-soft',
     iconColor: 'text-status-good-on',
@@ -646,7 +758,9 @@ const permissionOptions = computed(() => [
   {
     value: 'nervous-but-willing' as const,
     label: t('exerciseWizards.exileWitnessing.protectorCheck.permissionOptions.hesitant.label'),
-    description: t('exerciseWizards.exileWitnessing.protectorCheck.permissionOptions.hesitant.description'),
+    description: t(
+      'exerciseWizards.exileWitnessing.protectorCheck.permissionOptions.hesitant.description'
+    ),
     icon: 'warning',
     iconBg: 'bg-status-warn-soft',
     iconColor: 'text-status-warn-on',
@@ -654,7 +768,9 @@ const permissionOptions = computed(() => [
   {
     value: 'blocking' as const,
     label: t('exerciseWizards.exileWitnessing.protectorCheck.permissionOptions.no.label'),
-    description: t('exerciseWizards.exileWitnessing.protectorCheck.permissionOptions.no.description'),
+    description: t(
+      'exerciseWizards.exileWitnessing.protectorCheck.permissionOptions.no.description'
+    ),
     icon: 'cancel',
     iconBg: 'bg-status-bad-soft',
     iconColor: 'text-status-bad-on',
@@ -664,22 +780,32 @@ const permissionOptions = computed(() => [
 const compassionChips = computed(() => tList('exerciseWizards.exileWitnessing.compassion.chips'))
 
 const postStateOptions = computed(() => [
-  { value: 'calmer' as const, label: t('exerciseWizards.exileWitnessing.summary.postState.calmer') },
+  {
+    value: 'calmer' as const,
+    label: t('exerciseWizards.exileWitnessing.summary.postState.calmer'),
+  },
   { value: 'same' as const, label: t('exerciseWizards.exileWitnessing.summary.postState.same') },
-  { value: 'more-distressed' as const, label: t('exerciseWizards.exileWitnessing.summary.postState.moreDistressed') },
+  {
+    value: 'more-distressed' as const,
+    label: t('exerciseWizards.exileWitnessing.summary.postState.moreDistressed'),
+  },
 ])
 
 const postStateLabel = computed(() => {
-  const opt = postStateOptions.value.find((o) => o.value === postSessionState.value)
+  const opt = postStateOptions.value.find(o => o.value === postSessionState.value)
   return opt?.label ?? ''
 })
 
 const postStateBadgeClass = computed(() => {
   switch (postSessionState.value) {
-    case 'calmer': return 'bg-status-good-soft text-status-good-on'
-    case 'same': return 'bg-neu-base text-on-surface-variant'
-    case 'more-distressed': return 'bg-status-warn-soft text-status-warn-on'
-    default: return 'bg-neu-base text-on-surface-variant'
+    case 'calmer':
+      return 'bg-status-good-soft text-status-good-on'
+    case 'same':
+      return 'bg-neu-base text-on-surface-variant'
+    case 'more-distressed':
+      return 'bg-status-warn-soft text-status-warn-on'
+    default:
+      return 'bg-neu-base text-on-surface-variant'
   }
 })
 
@@ -689,13 +815,16 @@ function getPartName(id: string): string {
 
 function roleBorderClass(role: IFSPartRole): string {
   switch (role) {
-    case 'manager': return 'border-l-4 border-l-blue-400'
-    case 'firefighter': return 'border-l-4 border-l-orange-400'
-    case 'exile': return 'border-l-4 border-l-purple-400'
-    default: return ''
+    case 'manager':
+      return 'border-l-4 border-l-blue-400'
+    case 'firefighter':
+      return 'border-l-4 border-l-orange-400'
+    case 'exile':
+      return 'border-l-4 border-l-purple-400'
+    default:
+      return ''
   }
 }
-
 
 async function handleCreatePart(data: { name: string; role: IFSPartRole }) {
   const part = await partStore.createPart({
@@ -726,11 +855,34 @@ async function handleNotYet() {
     console.error('Error closing exile witnessing as "not yet":', err)
   }
 }
+
+// Multi-statement inline handlers do not survive prettier's semi: false (the
+// template parser needs the semicolons), so they live here as functions.
+function confirmStopEarly(): void {
+  showStopPanel.value = false
+  stopEarly()
+}
+
+function markSelfCheckPassed(): void {
+  selfCheckPassed.value = true
+  selfCheckReactive.value = false
+}
+
+function markSelfCheckReactive(): void {
+  selfCheckPassed.value = false
+  selfCheckReactive.value = true
+}
+
+function confirmSelfCheckAndContinue(): void {
+  markSelfCheckPassed()
+  nextStep()
+}
 </script>
 
 <style scoped>
 @keyframes breathe-slow {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     opacity: 0.6;
   }

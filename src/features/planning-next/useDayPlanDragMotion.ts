@@ -40,7 +40,8 @@ export function provideDayPlanDragMotion() {
     document.removeEventListener('dragover', move)
   }
   function position() {
-    if (preview) preview.style.transform = `translate3d(${x - offsetX}px, ${y - offsetY}px, 0) rotate(-2deg) scale(1.025)`
+    if (preview)
+      preview.style.transform = `translate3d(${x - offsetX}px, ${y - offsetY}px, 0) rotate(-2deg) scale(1.025)`
   }
   function move(event: DragEvent) {
     if (landing) return
@@ -81,27 +82,45 @@ export function provideDayPlanDragMotion() {
     document.addEventListener('dragover', move)
   }
   function settle(element: HTMLElement, returning: boolean) {
-    if (!preview) { cleanup(); return }
+    if (!preview) {
+      cleanup()
+      return
+    }
     landing = true
     cancelAnimationFrame(frame)
     document.removeEventListener('dragover', move)
     hover(null)
     const bounds = element.getBoundingClientRect()
     const scale = returning ? 1 : Math.min(bounds.width / preview.offsetWidth, 0.24)
-    const endX = returning ? bounds.left : bounds.left + bounds.width / 2 - preview.offsetWidth * scale / 2
-    const endY = returning ? bounds.top : bounds.top + bounds.height / 2 - preview.offsetHeight * scale / 2
-    if (reducedMotion() || !preview.animate) { cleanup(); return }
-    animation = preview.animate([
-      { transform: preview.style.transform, opacity: 1 },
-      { transform: `translate3d(${endX}px, ${endY}px, 0) rotate(0deg) scale(${scale})`, opacity: returning ? 1 : 0 },
-    ], { duration: returning ? 220 : 320, easing: 'cubic-bezier(.22, 1, .36, 1)', fill: 'forwards' })
+    const endX = returning
+      ? bounds.left
+      : bounds.left + bounds.width / 2 - (preview.offsetWidth * scale) / 2
+    const endY = returning
+      ? bounds.top
+      : bounds.top + bounds.height / 2 - (preview.offsetHeight * scale) / 2
+    if (reducedMotion() || !preview.animate) {
+      cleanup()
+      return
+    }
+    animation = preview.animate(
+      [
+        { transform: preview.style.transform, opacity: 1 },
+        {
+          transform: `translate3d(${endX}px, ${endY}px, 0) rotate(0deg) scale(${scale})`,
+          opacity: returning ? 1 : 0,
+        },
+      ],
+      { duration: returning ? 220 : 320, easing: 'cubic-bezier(.22, 1, .36, 1)', fill: 'forwards' }
+    )
     animation.onfinish = cleanup
   }
   const motion: DayPlanDragMotion = {
     start,
     hover,
     land: element => settle(element, false),
-    cancel: () => { if (!landing) source?.isConnected ? settle(source, true) : cleanup() },
+    cancel: () => {
+      if (!landing) source?.isConnected ? settle(source, true) : cleanup()
+    },
   }
   provide(motionKey, motion)
   onBeforeUnmount(cleanup)

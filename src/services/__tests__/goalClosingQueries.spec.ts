@@ -26,17 +26,33 @@ describe('selectGoalsAwaitingClosing', () => {
     const longOverdue = goal({ id: 'b', targetDate: '2026-07-15' })
     const ahead = goal({ id: 'c', targetDate: '2026-10-05' })
     const noDate = goal({ id: 'd' })
-    const result = selectGoalsAwaitingClosing([inPeriod, longOverdue, ahead, noDate], WEEK_END, TODAY)
-    expect(result.map((g) => g.id)).toEqual(['b', 'a'])
+    const result = selectGoalsAwaitingClosing(
+      [inPeriod, longOverdue, ahead, noDate],
+      WEEK_END,
+      TODAY
+    )
+    expect(result.map(g => g.id)).toEqual(['b', 'a'])
   })
 
   it('skips closed, archived and deferred goals, but brings back an expired deferral', () => {
     const closed = goal({ id: 'closed', targetDate: '2026-09-30', status: 'completed' })
     const dropped = goal({ id: 'dropped', targetDate: '2026-09-30', status: 'dropped' })
     const archived = goal({ id: 'archived', targetDate: '2026-09-30', isActive: false })
-    const deferred = goal({ id: 'deferred', targetDate: '2026-09-30', closingDeferredUntil: '2026-10-11' })
-    const expired = goal({ id: 'expired', targetDate: '2026-09-30', closingDeferredUntil: '2026-10-04' })
-    const result = selectGoalsAwaitingClosing([closed, dropped, archived, deferred, expired], WEEK_END, TODAY)
-    expect(result.map((g) => g.id)).toEqual(['expired'])
+    const deferred = goal({
+      id: 'deferred',
+      targetDate: '2026-09-30',
+      closingDeferredUntil: '2026-10-11',
+    })
+    const expired = goal({
+      id: 'expired',
+      targetDate: '2026-09-30',
+      closingDeferredUntil: '2026-10-04',
+    })
+    const result = selectGoalsAwaitingClosing(
+      [closed, dropped, archived, deferred, expired],
+      WEEK_END,
+      TODAY
+    )
+    expect(result.map(g => g.id)).toEqual(['expired'])
   })
 })

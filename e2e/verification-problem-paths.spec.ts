@@ -23,9 +23,13 @@ async function bootFreshSeed(page: Page): Promise<string[]> {
   })
   page.on('pageerror', error => consoleErrors.push(String(error)))
   await page.goto('/')
-  await page.waitForFunction((key: string) => window.localStorage.getItem(key) !== null, SEED_MARKER_KEY, {
-    timeout: 90_000,
-  })
+  await page.waitForFunction(
+    (key: string) => window.localStorage.getItem(key) !== null,
+    SEED_MARKER_KEY,
+    {
+      timeout: 90_000,
+    }
+  )
   // The hook reloads the page when it is done — wait for that reload so the
   // next page.goto is not interrupted by it.
   const reloaded = page.waitForEvent('load', { timeout: 90_000 })
@@ -39,7 +43,7 @@ async function bootFreshSeed(page: Page): Promise<string[]> {
 
 function expectNoAppErrors(consoleErrors: string[]): void {
   const relevant = consoleErrors.filter(
-    text => text.includes('[Vue warn]') || text.includes('program') || text.includes('practice'),
+    text => text.includes('[Vue warn]') || text.includes('program') || text.includes('practice')
   )
   expect(relevant, `Console errors: ${relevant.join('\n')}`).toHaveLength(0)
 }
@@ -47,7 +51,9 @@ function expectNoAppErrors(consoleErrors: string[]): void {
 test.describe.configure({ mode: 'serial' })
 
 test.describe('problem paths', () => {
-  test('Today shows the path with its due practice; doing it schedules the next one', async ({ page }) => {
+  test('Today shows the path with its due practice; doing it schedules the next one', async ({
+    page,
+  }) => {
     test.setTimeout(120_000)
     const consoleErrors = await bootFreshSeed(page)
 
@@ -63,7 +69,9 @@ test.describe('problem paths', () => {
       await page.getByRole('button', { name: label, exact: true }).click()
     }
     await step('Pora na zmartwienia')
-    await expect(page.getByRole('heading', { name: 'Co cię dziś martwiło?', level: 2 })).toBeVisible()
+    await expect(
+      page.getByRole('heading', { name: 'Co cię dziś martwiło?', level: 2 })
+    ).toBeVisible()
     await page.locator('input[type=text]').first().fill('Termin w piątek')
     await step('Co cię dziś martwiło?')
     await step('Ile z nich nadal wydaje się ważnych?')
@@ -77,7 +85,9 @@ test.describe('problem paths', () => {
     expectNoAppErrors(consoleErrors)
   })
 
-  test('path view (v2): weeks as rows, the experiment current in week 3, the measure behind Szczegóły, Reakcje, the sign and this week\'s proposal', async ({ page }) => {
+  test("path view (v2): weeks as rows, the experiment current in week 3, the measure behind Szczegóły, Reakcje, the sign and this week's proposal", async ({
+    page,
+  }) => {
     test.setTimeout(120_000)
     const consoleErrors = await bootFreshSeed(page)
 
@@ -98,12 +108,20 @@ test.describe('problem paths', () => {
     await expect(measure.getByRole('table').first()).toContainText('13 z 21')
     // Postęp: the anxiety reaction families, time left → right, legend on the left.
     const glance = page.getByTestId('path-moments-glance')
-    await expect(glance.locator('.pc__legend-name')).toHaveText(['Zamartwianie', 'Sprawdzanie', 'Wycofanie', 'Odkładanie', 'Ja'])
+    await expect(glance.locator('.pc__legend-name')).toHaveText([
+      'Zamartwianie',
+      'Sprawdzanie',
+      'Wycofanie',
+      'Odkładanie',
+      'Ja',
+    ])
     // Praktyki: the worry time and Momenty as tiles (the breath ended with the worry tree), the proposal for this week.
     const practices = page.getByTestId('path-practices')
     await expect(practices.getByTestId('path-practice-tile')).toHaveCount(1)
     await expect(practices.getByTestId('path-moment-tile')).toHaveCount(1)
-    await expect(page.getByTestId('path-world').getByRole('button', { name: 'Dodaj do tego tygodnia' })).toBeVisible()
+    await expect(
+      page.getByTestId('path-world').getByRole('button', { name: 'Dodaj do tego tygodnia' })
+    ).toBeVisible()
     // The experiment starts from a Moment: the picker lists the seven anxiety Moments.
     await current.getByRole('button', { name: 'Rozpocznij' }).click()
     const picker = page.getByTestId('moment-picker')
@@ -131,7 +149,9 @@ test.describe('problem paths', () => {
     expectNoAppErrors(consoleErrors)
   })
 
-  test('the previous week reflection has a "Ścieżka" step with the saved answers', async ({ page }) => {
+  test('the previous week reflection has a "Ścieżka" step with the saved answers', async ({
+    page,
+  }) => {
     test.setTimeout(120_000)
     const consoleErrors = await bootFreshSeed(page)
 
@@ -142,7 +162,7 @@ test.describe('problem paths', () => {
     await expect(block).toBeVisible()
     await expect(block.locator('textarea').first()).toHaveValue(/Przewidywałem katastrofę/)
     // The seeded days (6 and 4 days ago) count only when they fall in the previous week — the same rule the seed applies.
-    const counted = [6, 4].filter((daysAgo) => {
+    const counted = [6, 4].filter(daysAgo => {
       const day = new Date()
       day.setDate(day.getDate() - daysAgo)
       return getPeriodRefsForDate(day).week === prevWeek

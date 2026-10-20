@@ -1,11 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/vue'
 import ProfileSectionList from '../ProfileSectionList.vue'
-import {
-  PROFILE_SECTION_IDS,
-  createEmptySections,
-  type UserProfile,
-} from '@/domain/userProfile'
+import { PROFILE_SECTION_IDS, createEmptySections, type UserProfile } from '@/domain/userProfile'
 
 function makeProfile(overrides: Partial<UserProfile> = {}): UserProfile {
   return {

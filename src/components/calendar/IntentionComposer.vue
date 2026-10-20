@@ -5,7 +5,11 @@ import MeasurementTargetSentence from '@/components/objects/MeasurementTargetSen
 import MultiItemsEditor from '@/components/objects/MultiItemsEditor.vue'
 import { useT } from '@/composables/useT'
 import type { WeekRef } from '@/domain/period'
-import type { MeasurementEntryMode, MeasurementTarget, MultiCompletionItem } from '@/domain/planning'
+import type {
+  MeasurementEntryMode,
+  MeasurementTarget,
+  MultiCompletionItem,
+} from '@/domain/planning'
 import { createWeeklyIntention } from '@/services/weeklyIntentionService'
 import PriorityLinkPicker from './PriorityLinkPicker.vue'
 import type { WeekPlanPriorityOption } from './weekPlanCandidate'
@@ -50,7 +54,10 @@ function onUpdateMeasurement(measurement: {
   draft.value = { ...draft.value, entryMode: measurement.entryMode, target: measurement.target }
 }
 
-function onMultiConfig(config: { items: MultiCompletionItem[]; threshold: number | undefined }): void {
+function onMultiConfig(config: {
+  items: MultiCompletionItem[]
+  threshold: number | undefined
+}): void {
   draft.value = { ...draft.value, multiItems: config.items, multiDailyThreshold: config.threshold }
 }
 

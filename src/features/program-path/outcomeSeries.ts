@@ -1,4 +1,9 @@
-import type { AssessmentAttempt, AssessmentDefinition, AssessmentId, ScaleScore } from '@/domain/assessments'
+import type {
+  AssessmentAttempt,
+  AssessmentDefinition,
+  AssessmentId,
+  ScaleScore,
+} from '@/domain/assessments'
 import type { ProgramDefinition, ProgramEnrollment } from '@/domain/program'
 import { getAssessmentDefinition } from '@/services/assessments/registry'
 import { getPeriodRefsForDate } from '@/utils/periods'
@@ -56,16 +61,20 @@ function formatDate(iso: string | undefined, locale: string): string {
 function attemptForStep(
   enrollment: ProgramEnrollment,
   attempts: AssessmentAttempt[],
-  stepIndex: number,
+  stepIndex: number
 ): AssessmentAttempt | undefined {
-  const completed = enrollment.completedSteps.find((step) => step.stepIndex === stepIndex)
+  const completed = enrollment.completedSteps.find(step => step.stepIndex === stepIndex)
   if (!completed) return undefined
-  const byId = completed.recordId ? attempts.find((attempt) => attempt.id === completed.recordId) : undefined
+  const byId = completed.recordId
+    ? attempts.find(attempt => attempt.id === completed.recordId)
+    : undefined
   if (byId) return byId
   const day = getPeriodRefsForDate(completed.completedAt).day
   return attempts.find(
-    (attempt) =>
-      attempt.status === 'completed' && attempt.completedAt && getPeriodRefsForDate(attempt.completedAt).day === day,
+    attempt =>
+      attempt.status === 'completed' &&
+      attempt.completedAt &&
+      getPeriodRefsForDate(attempt.completedAt).day === day
   )
 }
 
@@ -75,8 +84,16 @@ function attemptForStep(
  * IUS-12 both have `total`), else `<i18nKey>.scaleLabels.<scaleId>`; else the
  * instrument's own label.
  */
-function scaleLabel(input: OutcomeSeriesInput, instrumentId: string, scaleId: string, labelKey: string): string {
-  for (const key of [`${input.program.i18nKey}.scaleLabels.${instrumentId}.${scaleId}`, `${input.program.i18nKey}.scaleLabels.${scaleId}`]) {
+function scaleLabel(
+  input: OutcomeSeriesInput,
+  instrumentId: string,
+  scaleId: string,
+  labelKey: string
+): string {
+  for (const key of [
+    `${input.program.i18nKey}.scaleLabels.${instrumentId}.${scaleId}`,
+    `${input.program.i18nKey}.scaleLabels.${scaleId}`,
+  ]) {
     const value = input.t(key)
     if (value !== key && typeof value === 'string') return value
   }
@@ -86,7 +103,7 @@ function scaleLabel(input: OutcomeSeriesInput, instrumentId: string, scaleId: st
 /** Phase title of a step, or the legacy before/after labels for paths without phases. */
 function pointLabel(input: OutcomeSeriesInput, stepIndex: number, ordinal: number): string {
   const phases = input.program.phases ?? []
-  const phase = [...phases].reverse().find((candidate) => candidate.fromStepIndex <= stepIndex)
+  const phase = [...phases].reverse().find(candidate => candidate.fromStepIndex <= stepIndex)
   if (phase) return input.t(`${input.program.i18nKey}.phases.${phase.key}.title`)
   return ordinal === 0 ? input.t('programs.ui.outcomeBefore') : input.t('programs.ui.outcomeAfter')
 }
@@ -94,7 +111,7 @@ function pointLabel(input: OutcomeSeriesInput, stepIndex: number, ordinal: numbe
 function describe(
   input: OutcomeSeriesInput,
   definition: AssessmentDefinition,
-  scale: ScaleScore | undefined,
+  scale: ScaleScore | undefined
 ): { value: number | null; text: string } {
   if (!scale) return { value: null, text: '–' }
   if (definition.sumScoring) {
@@ -111,8 +128,9 @@ function describe(
 
 export function buildOutcomeSeries(input: OutcomeSeriesInput): OutcomeSeries[] {
   const { program, enrollment } = input
-  const ids = (program.outcomeSlugs ?? (program.outcomeSlug ? [program.outcomeSlug] : [])) as AssessmentId[]
-  return ids.flatMap((id) => {
+  const ids = (program.outcomeSlugs ??
+    (program.outcomeSlug ? [program.outcomeSlug] : [])) as AssessmentId[]
+  return ids.flatMap(id => {
     let definition: AssessmentDefinition
     try {
       definition = getAssessmentDefinition(id)
@@ -121,7 +139,7 @@ export function buildOutcomeSeries(input: OutcomeSeriesInput): OutcomeSeries[] {
     }
     const stepIndices = program.steps
       .map((step, index) => (step.exerciseSlug === id ? index : -1))
-      .filter((index) => index >= 0)
+      .filter(index => index >= 0)
     if (stepIndices.length === 0) return []
     const attempts = input.attemptsFor(id)
     const points: OutcomePoint[] = stepIndices.map((stepIndex, ordinal) => {
@@ -136,23 +154,30 @@ export function buildOutcomeSeries(input: OutcomeSeriesInput): OutcomeSeries[] {
     })
     // Sum-scored instruments have one meaningful scale; mean-scored ones show every scale.
     const scales = definition.sumScoring
-      ? definition.scales.filter((scale) => scale.id === definition.sumScoring!.primaryScaleId)
+      ? definition.scales.filter(scale => scale.id === definition.sumScoring!.primaryScaleId)
       : definition.scales
-    const tracks: OutcomeTrack[] = scales.map((scale) => {
-      const cells = points.map((point) => {
-        const score = point.attempt?.computedScales?.find((candidate) => candidate.scaleId === scale.id)
+    const tracks: OutcomeTrack[] = scales.map(scale => {
+      const cells = points.map(point => {
+        const score = point.attempt?.computedScales?.find(
+          candidate => candidate.scaleId === scale.id
+        )
         return describe(input, definition, score)
       })
       const maxTotal = points
-        .map((point) => point.attempt?.computedScales?.find((c) => c.scaleId === scale.id)?.details?.maxTotal)
+        .map(
+          point =>
+            point.attempt?.computedScales?.find(c => c.scaleId === scale.id)?.details?.maxTotal
+        )
         .find((value): value is number => typeof value === 'number')
       return {
         scaleId: scale.id,
         label: scaleLabel(input, definition.id, scale.id, scale.labelKey),
         min: definition.sumScoring ? 0 : definition.responseScale.min,
-        max: definition.sumScoring ? (maxTotal ?? definition.responseScale.max * scale.itemIds.length) : definition.responseScale.max,
-        values: cells.map((cell) => cell.value),
-        texts: cells.map((cell) => cell.text),
+        max: definition.sumScoring
+          ? (maxTotal ?? definition.responseScale.max * scale.itemIds.length)
+          : definition.responseScale.max,
+        values: cells.map(cell => cell.value),
+        texts: cells.map(cell => cell.text),
       }
     })
     return [{ id, title: input.t(definition.titleKey), points, tracks }]

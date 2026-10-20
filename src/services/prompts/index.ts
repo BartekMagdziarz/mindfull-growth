@@ -4,7 +4,13 @@
  */
 
 import type { LocaleId } from '@/services/locale.service'
-import type { CbtPromptModule, LogotherapyPromptModule, IfsPromptModule, ChatPromptModule, PathPromptModule } from './types'
+import type {
+  CbtPromptModule,
+  LogotherapyPromptModule,
+  IfsPromptModule,
+  ChatPromptModule,
+  PathPromptModule,
+} from './types'
 
 import { cbtEn } from './cbt.en'
 import { cbtPl } from './cbt.pl'
@@ -18,7 +24,10 @@ import { pathEn } from './path.en'
 import { pathPl } from './path.pl'
 
 const cbtModules: Record<LocaleId, CbtPromptModule> = { en: cbtEn, pl: cbtPl }
-const logotherapyModules: Record<LocaleId, LogotherapyPromptModule> = { en: logotherapyEn, pl: logotherapyPl }
+const logotherapyModules: Record<LocaleId, LogotherapyPromptModule> = {
+  en: logotherapyEn,
+  pl: logotherapyPl,
+}
 const ifsModules: Record<LocaleId, IfsPromptModule> = { en: ifsEn, pl: ifsPl }
 const chatModules: Record<LocaleId, ChatPromptModule> = { en: chatEn, pl: chatPl }
 const pathModules: Record<LocaleId, PathPromptModule> = { en: pathEn, pl: pathPl }

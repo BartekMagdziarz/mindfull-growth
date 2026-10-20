@@ -1,7 +1,11 @@
 <template>
   <div class="space-y-6">
     <!-- Step indicator dots -->
-    <ExerciseStepper :labels="stepLabels" :current="currentVisualStep" @go="goToStepByIndex($event)" />
+    <ExerciseStepper
+      :labels="stepLabels"
+      :current="currentVisualStep"
+      @go="goToStepByIndex($event)"
+    />
 
     <!-- Step 1: Intro -->
     <Transition
@@ -12,7 +16,9 @@
     >
       <div v-if="currentStep === 'intro'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.mountainRange.intro.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.mountainRange.intro.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.mountainRange.intro.description') }}
           </p>
@@ -24,16 +30,23 @@
               <div class="flex items-start gap-2">
                 <AppIcon name="trending_up" class="text-base text-primary flex-shrink-0 mt-0.5" />
                 <div>
-                  <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.mountainRange.intro.peaksName') }}</p>
+                  <p class="text-sm font-medium text-on-surface">
+                    {{ t('exerciseWizards.mountainRange.intro.peaksName') }}
+                  </p>
                   <p class="text-xs text-on-surface-variant">
                     {{ tg('exerciseWizards.mountainRange.intro.peaksDescription') }}
                   </p>
                 </div>
               </div>
               <div class="flex items-start gap-2">
-                <AppIcon name="trending_down" class="text-base text-on-surface-variant flex-shrink-0 mt-0.5" />
+                <AppIcon
+                  name="trending_down"
+                  class="text-base text-on-surface-variant flex-shrink-0 mt-0.5"
+                />
                 <div>
-                  <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.mountainRange.intro.valleysName') }}</p>
+                  <p class="text-sm font-medium text-on-surface">
+                    {{ t('exerciseWizards.mountainRange.intro.valleysName') }}
+                  </p>
                   <p class="text-xs text-on-surface-variant">
                     {{ t('exerciseWizards.mountainRange.intro.valleysDescription') }}
                   </p>
@@ -52,7 +65,9 @@
           </div>
         </AppCard>
         <div class="flex justify-end">
-          <AppButton variant="filled" @click="currentStep = 'peaks'">{{ t('common.buttons.start') }}</AppButton>
+          <AppButton variant="filled" @click="currentStep = 'peaks'">{{
+            t('common.buttons.start')
+          }}</AppButton>
         </div>
       </div>
     </Transition>
@@ -66,7 +81,9 @@
     >
       <div v-if="currentStep === 'peaks'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.mountainRange.peaks.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.mountainRange.peaks.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ tg('exerciseWizards.mountainRange.peaks.description') }}
           </p>
@@ -77,7 +94,9 @@
             class="space-y-2 neo-surface p-3 rounded-xl"
           >
             <div class="flex items-start gap-2">
-              <span class="text-xs font-semibold text-on-surface-variant mt-2">{{ index + 1 }}.</span>
+              <span class="text-xs font-semibold text-on-surface-variant mt-2"
+                >{{ index + 1 }}.</span
+              >
               <div class="flex-1 space-y-2">
                 <textarea
                   v-model="event.description"
@@ -86,7 +105,9 @@
                   rows="3"
                 />
                 <div class="flex items-center gap-3">
-                  <label class="text-xs text-on-surface-variant whitespace-nowrap">{{ tg('exerciseWizards.mountainRange.peaks.ageLabel') }}</label>
+                  <label class="text-xs text-on-surface-variant whitespace-nowrap">{{
+                    tg('exerciseWizards.mountainRange.peaks.ageLabel')
+                  }}</label>
                   <input
                     v-model.number="event.ageOrYear"
                     type="number"
@@ -109,10 +130,20 @@
                     :aria-expanded="openEmotions.has(event.id)"
                     @click="toggleEmotions(event.id)"
                   >
-                    <AppIcon :name="openEmotions.has(event.id) ? 'expand_less' : 'add'" class="text-base" />
-                    {{ openEmotions.has(event.id) ? t('exerciseWizards.mountainRange.peaks.hideEmotions') : t('exerciseWizards.mountainRange.peaks.addEmotions') }}
+                    <AppIcon
+                      :name="openEmotions.has(event.id) ? 'expand_less' : 'add'"
+                      class="text-base"
+                    />
+                    {{
+                      openEmotions.has(event.id)
+                        ? t('exerciseWizards.mountainRange.peaks.hideEmotions')
+                        : t('exerciseWizards.mountainRange.peaks.addEmotions')
+                    }}
                     <span
-                      v-if="!openEmotions.has(event.id) && event.emotionIds.length + event.emotionFamilyIds.length > 0"
+                      v-if="
+                        !openEmotions.has(event.id) &&
+                        event.emotionIds.length + event.emotionFamilyIds.length > 0
+                      "
                       class="text-xs text-on-surface-variant"
                     >
                       ({{ event.emotionIds.length + event.emotionFamilyIds.length }})
@@ -138,17 +169,15 @@
               </button>
             </div>
           </div>
-          <AppButton
-            v-if="peakEvents.length < 7"
-            variant="text"
-            @click="addPeak"
-          >
+          <AppButton v-if="peakEvents.length < 7" variant="text" @click="addPeak">
             <AppIcon name="add" class="text-base mr-1" />
             {{ t('exerciseWizards.mountainRange.peaks.addAnother') }}
           </AppButton>
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'intro'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'intro'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton
             variant="filled"
             :disabled="filledPeaks.length < 3"
@@ -169,7 +198,9 @@
     >
       <div v-if="currentStep === 'valleys'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.mountainRange.valleys.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.mountainRange.valleys.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.mountainRange.valleys.description') }}
           </p>
@@ -183,7 +214,9 @@
             class="space-y-2 neo-surface p-3 rounded-xl"
           >
             <div class="flex items-start gap-2">
-              <span class="text-xs font-semibold text-on-surface-variant mt-2">{{ index + 1 }}.</span>
+              <span class="text-xs font-semibold text-on-surface-variant mt-2"
+                >{{ index + 1 }}.</span
+              >
               <div class="flex-1 space-y-2">
                 <textarea
                   v-model="event.description"
@@ -192,7 +225,9 @@
                   rows="4"
                 />
                 <div class="flex items-center gap-3">
-                  <label class="text-xs text-on-surface-variant whitespace-nowrap">{{ tg('exerciseWizards.mountainRange.valleys.ageLabel') }}</label>
+                  <label class="text-xs text-on-surface-variant whitespace-nowrap">{{
+                    tg('exerciseWizards.mountainRange.valleys.ageLabel')
+                  }}</label>
                   <input
                     v-model.number="event.ageOrYear"
                     type="number"
@@ -215,10 +250,20 @@
                     :aria-expanded="openEmotions.has(event.id)"
                     @click="toggleEmotions(event.id)"
                   >
-                    <AppIcon :name="openEmotions.has(event.id) ? 'expand_less' : 'add'" class="text-base" />
-                    {{ openEmotions.has(event.id) ? t('exerciseWizards.mountainRange.peaks.hideEmotions') : t('exerciseWizards.mountainRange.peaks.addEmotions') }}
+                    <AppIcon
+                      :name="openEmotions.has(event.id) ? 'expand_less' : 'add'"
+                      class="text-base"
+                    />
+                    {{
+                      openEmotions.has(event.id)
+                        ? t('exerciseWizards.mountainRange.peaks.hideEmotions')
+                        : t('exerciseWizards.mountainRange.peaks.addEmotions')
+                    }}
                     <span
-                      v-if="!openEmotions.has(event.id) && event.emotionIds.length + event.emotionFamilyIds.length > 0"
+                      v-if="
+                        !openEmotions.has(event.id) &&
+                        event.emotionIds.length + event.emotionFamilyIds.length > 0
+                      "
                       class="text-xs text-on-surface-variant"
                     >
                       ({{ event.emotionIds.length + event.emotionFamilyIds.length }})
@@ -244,17 +289,15 @@
               </button>
             </div>
           </div>
-          <AppButton
-            v-if="valleyEvents.length < 5"
-            variant="text"
-            @click="addValley"
-          >
+          <AppButton v-if="valleyEvents.length < 5" variant="text" @click="addValley">
             <AppIcon name="add" class="text-base mr-1" />
             {{ t('exerciseWizards.mountainRange.valleys.addAnother') }}
           </AppButton>
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'peaks'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'peaks'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton
             variant="filled"
             :disabled="filledValleys.length < 2"
@@ -275,7 +318,9 @@
     >
       <div v-if="currentStep === 'timeline'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.mountainRange.timeline.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.mountainRange.timeline.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.mountainRange.timeline.description') }}
           </p>
@@ -286,8 +331,12 @@
           />
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'valleys'">{{ t('common.buttons.back') }}</AppButton>
-          <AppButton variant="filled" @click="currentStep = 'themes'">{{ t('common.buttons.next') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'valleys'">{{
+            t('common.buttons.back')
+          }}</AppButton>
+          <AppButton variant="filled" @click="currentStep = 'themes'">{{
+            t('common.buttons.next')
+          }}</AppButton>
         </div>
       </div>
     </Transition>
@@ -301,7 +350,9 @@
     >
       <div v-if="currentStep === 'themes'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.mountainRange.themes.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.mountainRange.themes.title') }}
+          </h2>
           <ExerciseStepWhy :text="tg('exerciseWizards.mountainRange.themes.why')" />
           <div class="space-y-3">
             <div>
@@ -342,16 +393,15 @@
           <!-- LLM Synthesis -->
           <div class="space-y-2">
             <div v-if="!llmSynthesis && !isLlmLoading" class="flex flex-wrap items-center gap-2">
-              <AppButton
-                variant="tonal"
-                @click="handleSynthesisAssist"
-              >
+              <AppButton variant="tonal" @click="handleSynthesisAssist">
                 <AppIcon name="auto_awesome" class="text-base mr-1" />
                 {{ t('exerciseWizards.mountainRange.themes.analyzeButton') }}
               </AppButton>
               <ProfileContextToggle v-model="useProfileSynthesis" />
             </div>
-            <div v-if="isLlmLoading" class="text-sm text-on-surface-variant">{{ t('exerciseWizards.mountainRange.themes.thinking') }}</div>
+            <div v-if="isLlmLoading" class="text-sm text-on-surface-variant">
+              {{ t('exerciseWizards.mountainRange.themes.thinking') }}
+            </div>
             <div v-if="llmSynthesis" class="neo-panel p-4">
               <p class="text-sm text-on-surface whitespace-pre-wrap">{{ llmSynthesis }}</p>
             </div>
@@ -359,8 +409,12 @@
           </div>
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'timeline'">{{ t('common.buttons.back') }}</AppButton>
-          <AppButton variant="filled" @click="currentStep = 'future'">{{ t('common.buttons.next') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'timeline'">{{
+            t('common.buttons.back')
+          }}</AppButton>
+          <AppButton variant="filled" @click="currentStep = 'future'">{{
+            t('common.buttons.next')
+          }}</AppButton>
         </div>
       </div>
     </Transition>
@@ -374,7 +428,9 @@
     >
       <div v-if="currentStep === 'future'" class="space-y-4">
         <AppCard variant="raised" padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.mountainRange.future.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.mountainRange.future.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.mountainRange.future.description') }}
           </p>
@@ -385,7 +441,9 @@
             class="space-y-2 neo-surface p-3 rounded-xl"
           >
             <div class="flex items-start gap-2">
-              <span class="text-xs font-semibold text-on-surface-variant mt-2">{{ index + 1 }}.</span>
+              <span class="text-xs font-semibold text-on-surface-variant mt-2"
+                >{{ index + 1 }}.</span
+              >
               <div class="flex-1 space-y-2">
                 <textarea
                   v-model="peak.description"
@@ -393,11 +451,10 @@
                   class="neo-input neo-focus w-full p-3 text-sm resize-none"
                   rows="2"
                 />
-                <select
-                  v-model="peak.lifeAreaId"
-                  class="neo-input neo-focus w-full p-2 text-sm"
-                >
-                  <option value="">{{ t('exerciseWizards.mountainRange.future.lifeAreaSelect') }}</option>
+                <select v-model="peak.lifeAreaId" class="neo-input neo-focus w-full p-2 text-sm">
+                  <option value="">
+                    {{ t('exerciseWizards.mountainRange.future.lifeAreaSelect') }}
+                  </option>
                   <option v-for="area in lifeAreas" :key="area.id" :value="area.id">
                     {{ area.name }}
                   </option>
@@ -445,7 +502,9 @@
           </div>
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'themes'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'themes'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton variant="filled" @click="handleSave">{{ t('common.buttons.save') }}</AppButton>
         </div>
       </div>
@@ -561,10 +620,7 @@ function toggleEmotions(id: string): void {
   openEmotions.value = next
 }
 
-const valleyEvents = reactive<EditableEvent[]>([
-  createEvent('valley'),
-  createEvent('valley'),
-])
+const valleyEvents = reactive<EditableEvent[]>([createEvent('valley'), createEvent('valley')])
 
 function addPeak() {
   peakEvents.push(createEvent('peak'))
@@ -601,7 +657,7 @@ const filledPeaks = computed(() => peakEvents.filter(isFilled))
 const filledValleys = computed(() => valleyEvents.filter(isFilled))
 
 const allFilledEvents = computed<MountainRangeEvent[]>(() => {
-  return [...filledPeaks.value, ...filledValleys.value].map((e) => ({
+  return [...filledPeaks.value, ...filledValleys.value].map(e => ({
     id: e.id,
     type: e.type,
     description: e.description.trim(),
@@ -636,7 +692,8 @@ async function handleSynthesisAssist() {
       useProfile: useProfileSynthesis.value,
     })
   } catch (err) {
-    llmError.value = err instanceof Error ? err.message : t('exerciseWizards.mountainRange.errors.themesFailed')
+    llmError.value =
+      err instanceof Error ? err.message : t('exerciseWizards.mountainRange.errors.themesFailed')
   } finally {
     isLlmLoading.value = false
   }
@@ -645,8 +702,8 @@ async function handleSynthesisAssist() {
 // ─── Save ────────────────────────────────────────────────────────────────────
 function handleSave() {
   const filledFuturePeaks = futurePeaks
-    .filter((p) => p.description.trim().length > 0)
-    .map((p) => p.description.trim())
+    .filter(p => p.description.trim().length > 0)
+    .map(p => p.description.trim())
 
   const payload: CreateMountainRangePayload = {
     events: allFilledEvents.value,

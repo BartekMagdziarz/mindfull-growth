@@ -33,7 +33,7 @@ const props = defineProps<{
 const { t } = useT()
 
 const chartPoints = computed<ObjectsLibraryChartPoint[]>(() =>
-  props.data.points.map((slot) => ({
+  props.data.points.map(slot => ({
     periodRef: slot.dayRef,
     actualValue: slot.value,
     targetValue: props.data.targetValue,
@@ -42,7 +42,7 @@ const chartPoints = computed<ObjectsLibraryChartPoint[]>(() =>
     // this was `slot.isToday`, which made every non-today dot dim — losing the
     // distinction between past (recorded) and future (pre-filled).
     isCurrent: !slot.isFuture,
-  })),
+  }))
 )
 
 function formatNumber(value: number): string {

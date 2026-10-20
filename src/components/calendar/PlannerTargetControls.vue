@@ -6,11 +6,7 @@
       :disabled="disabled"
       @change="$emit('operatorChange', ($event.target as HTMLSelectElement).value)"
     >
-      <option
-        v-for="op in operatorOpts"
-        :key="op"
-        :value="op"
-      >
+      <option v-for="op in operatorOpts" :key="op" :value="op">
         {{ op }}
       </option>
     </select>
@@ -22,11 +18,7 @@
       :disabled="disabled"
       @change="$emit('aggregationChange', ($event.target as HTMLSelectElement).value)"
     >
-      <option
-        v-for="agg in aggregationOpts"
-        :key="agg"
-        :value="agg"
-      >
+      <option v-for="agg in aggregationOpts" :key="agg" :value="agg">
         {{ agg }}
       </option>
     </select>
@@ -117,7 +109,7 @@ const props = withDefaults(
     /** Default day count when the condition is added. */
     entryDaysDefault?: number
   }>(),
-  { allowEntryDays: false, entryDaysMax: 7, entryDaysDefault: 5 },
+  { allowEntryDays: false, entryDaysMax: 7, entryDaysDefault: 5 }
 )
 
 const emit = defineEmits<{

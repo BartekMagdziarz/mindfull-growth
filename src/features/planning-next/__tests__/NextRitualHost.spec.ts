@@ -18,22 +18,30 @@ describe('NextRitualHost', () => {
     ['month', '2026-07', 'reflect', QuietMonthlyReflection],
     ['week', '2026-W29', 'plan', QuietWeeklyPlan],
     ['week', '2026-W29', 'reflect', QuietWeeklyReflection],
-  ] as const)('dispatches %s/%s/%s to the quiet ritual by default', (scale, periodRef, action, expectedComponent) => {
-    const wrapper = shallowMount(NextRitualHost, { props: { scale, periodRef, action } })
+  ] as const)(
+    'dispatches %s/%s/%s to the quiet ritual by default',
+    (scale, periodRef, action, expectedComponent) => {
+      const wrapper = shallowMount(NextRitualHost, { props: { scale, periodRef, action } })
 
-    expect(wrapper.findComponent(expectedComponent).exists()).toBe(true)
-  })
+      expect(wrapper.findComponent(expectedComponent).exists()).toBe(true)
+    }
+  )
 
   it.each([
     ['month', '2026-07', 'plan', NextMonthlyPlanRitual],
     ['month', '2026-07', 'reflect', NextMonthlyReflectionRitual],
     ['week', '2026-W29', 'plan', NextWeeklyPlanRitual],
     ['week', '2026-W29', 'reflect', NextWeeklyReflectionRitual],
-  ] as const)('keeps the previous %s/%s wizard reachable as the classic variant', (scale, periodRef, action, expectedComponent) => {
-    const wrapper = shallowMount(NextRitualHost, { props: { scale, periodRef, action, variant: 'classic' } })
+  ] as const)(
+    'keeps the previous %s/%s wizard reachable as the classic variant',
+    (scale, periodRef, action, expectedComponent) => {
+      const wrapper = shallowMount(NextRitualHost, {
+        props: { scale, periodRef, action, variant: 'classic' },
+      })
 
-    expect(wrapper.findComponent(expectedComponent).exists()).toBe(true)
-  })
+      expect(wrapper.findComponent(expectedComponent).exists()).toBe(true)
+    }
+  )
 
   it('forwards the weekly reflection continuation without writing domain data itself', async () => {
     const wrapper = shallowMount(NextRitualHost, {

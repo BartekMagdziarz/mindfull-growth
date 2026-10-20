@@ -1,11 +1,7 @@
 <template>
   <article class="dz-card neo-raised flex flex-col gap-[10px] p-3">
     <header class="dz-card__head">
-      <button
-        type="button"
-        class="dz-card__label"
-        @click="router.push('/exercises')"
-      >
+      <button type="button" class="dz-card__label" @click="router.push('/exercises')">
         {{ t('planning.today.wellness.exercises') }}
       </button>
     </header>
@@ -19,9 +15,14 @@
         @click="router.push('/exercises')"
       >
         <svg
-          width="32" height="32" viewBox="0 0 24 24"
-          fill="none" stroke="white" stroke-width="3"
-          stroke-linecap="round" stroke-linejoin="round"
+          width="32"
+          height="32"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="white"
+          stroke-width="3"
+          stroke-linecap="round"
+          stroke-linejoin="round"
           aria-hidden="true"
         >
           <path d="M5 12l5 5 9-11" />
@@ -33,7 +34,7 @@
             dayCount,
             'planning.today.wellness.exerciseDoneCount.one',
             'planning.today.wellness.exerciseDoneCount.few',
-            'planning.today.wellness.exerciseDoneCount.many',
+            'planning.today.wellness.exerciseDoneCount.many'
           )
         }}
       </p>
@@ -96,12 +97,10 @@ watch(
   () => props.dayRef,
   () => {
     offset.value = 0
-  },
+  }
 )
 
-const suggestion = computed(() =>
-  suggestExercise(props.dayRef, props.completions, offset.value),
-)
+const suggestion = computed(() => suggestExercise(props.dayRef, props.completions, offset.value))
 
 function showAnother(): void {
   const poolSize = suggestionPoolSize(props.dayRef, props.completions)
@@ -126,7 +125,7 @@ function showAnother(): void {
 .dz-card__label {
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.10em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: rgb(var(--neo-muted));
   background: none;
@@ -154,7 +153,11 @@ function showAnother(): void {
   display: grid;
   place-items: center;
   flex: 0 0 auto;
-  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease, background 200ms ease;
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease,
+    border-color 200ms ease,
+    background 200ms ease;
 }
 button.dz-slot {
   cursor: pointer;
@@ -165,7 +168,7 @@ button.dz-slot {
   border: 1px dashed rgb(var(--color-primary) / 0.55);
   box-shadow:
     -5px -5px 10px rgb(var(--neo-shadow-light) / 0.85),
-    5px 5px 10px rgb(var(--neo-shadow-dark) / 0.30);
+    5px 5px 10px rgb(var(--neo-shadow-dark) / 0.3);
   color: rgb(var(--color-primary-strong));
 }
 .dz-slot--empty:hover {

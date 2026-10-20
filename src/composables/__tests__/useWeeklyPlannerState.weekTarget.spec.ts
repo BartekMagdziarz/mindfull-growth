@@ -76,7 +76,11 @@ describe('useWeeklyPlannerState week target overrides', () => {
 
     // Row becomes week-effective after reload; clearing restores the month override view.
     const updatedRow = planner.habitRows.value.find(item => item.id === habitId)
-    expect(planner.editableTarget(updatedRow!)).toEqual({ kind: 'count', operator: 'min', value: 2 })
+    expect(planner.editableTarget(updatedRow!)).toEqual({
+      kind: 'count',
+      operator: 'min',
+      value: 2,
+    })
     expect(updatedRow?.weekTargetOverrideByRef[WEEK]).toEqual({
       kind: 'count',
       operator: 'min',
@@ -85,7 +89,11 @@ describe('useWeeklyPlannerState week target overrides', () => {
 
     await planner.handleClearOverride(updatedRow!)
     const clearedRow = planner.habitRows.value.find(item => item.id === habitId)
-    expect(planner.editableTarget(clearedRow!)).toEqual({ kind: 'count', operator: 'min', value: 5 })
+    expect(planner.editableTarget(clearedRow!)).toEqual({
+      kind: 'count',
+      operator: 'min',
+      value: 5,
+    })
     expect(
       (await planningStateDexieRepository.getMeasurementMonthState(MONTH, 'habit', habitId))
         ?.targetOverride

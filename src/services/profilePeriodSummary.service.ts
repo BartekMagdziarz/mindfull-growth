@@ -84,7 +84,7 @@ function countWords(text: string): number {
 function topN(
   ids: string[],
   resolve: (id: string) => string | undefined,
-  n: number,
+  n: number
 ): { name: string; count: number }[] {
   const counts = new Map<string, number>()
   for (const id of ids) counts.set(id, (counts.get(id) ?? 0) + 1)
@@ -99,13 +99,13 @@ function collectPeriodRecords(periodRef: WeekRef | MonthRef, ctx: DigestContext)
   const { startIso, endIso } = dayBoundsIso(periodRef)
   const inRange = (iso: string) => iso >= startIso && iso <= endIso
   const journal = ctx.enabled.journal
-    ? useJournalStore().sortedEntries.filter((e) => inRange(e.createdAt))
+    ? useJournalStore().sortedEntries.filter(e => inRange(e.createdAt))
     : []
   const logs = ctx.enabled.emotionLogs
-    ? useEmotionLogStore().sortedLogs.filter((l) => inRange(l.createdAt))
+    ? useEmotionLogStore().sortedLogs.filter(l => inRange(l.createdAt))
     : []
   const exercises = ctx.enabled.exerciseSessions
-    ? ctx.exerciseBundles.filter((b) => inRange(b.createdAt))
+    ? ctx.exerciseBundles.filter(b => inRange(b.createdAt))
     : []
   return { journal, logs, exercises }
 }
@@ -118,12 +118,12 @@ function computeInputHash(
   periodRef: string,
   kind: ProfilePeriodSummaryKind,
   enabled: EnabledDiaryTypes,
-  records: PeriodRecords,
+  records: PeriodRecords
 ): string {
   const parts = [
-    ...records.journal.map((e) => `j:${e.id}:${e.updatedAt}`),
-    ...records.logs.map((l) => `e:${l.id}:${l.updatedAt}`),
-    ...records.exercises.map((x) => {
+    ...records.journal.map(e => `j:${e.id}:${e.updatedAt}`),
+    ...records.logs.map(l => `e:${l.id}:${l.updatedAt}`),
+    ...records.exercises.map(x => {
       const u = typeof x.raw?.updatedAt === 'string' ? x.raw.updatedAt : x.createdAt
       return `x:${x.id}:${u}`
     }),
@@ -140,10 +140,12 @@ export function buildPeriodDigestContent(
   periodRef: WeekRef | MonthRef,
   tier: 1 | 2,
   records: PeriodRecords,
-  enabled: EnabledDiaryTypes,
+  enabled: EnabledDiaryTypes
 ): string | null {
   const b = getPeriodBounds(periodRef)
-  const lines: string[] = [`### ${tier === 1 ? 'Week' : 'Month'} ${periodRef} (${b.start} – ${b.end})`]
+  const lines: string[] = [
+    `### ${tier === 1 ? 'Week' : 'Month'} ${periodRef} (${b.start} – ${b.end})`,
+  ]
   let hasContent = false
 
   if (enabled.journal && records.journal.length > 0) {
@@ -152,18 +154,18 @@ export function buildPeriodDigestContent(
     const n = records.journal.length
     const words = records.journal.reduce((s, e) => s + countWords(e.body ?? ''), 0)
     const people = topN(
-      records.journal.flatMap((e) => e.peopleTagIds ?? []),
-      (id) => tagStore.getPeopleTagById(id)?.name,
-      5,
+      records.journal.flatMap(e => e.peopleTagIds ?? []),
+      id => tagStore.getPeopleTagById(id)?.name,
+      5
     )
     const contexts = topN(
-      records.journal.flatMap((e) => e.contextTagIds ?? []),
-      (id) => tagStore.getContextTagById(id)?.name,
-      5,
+      records.journal.flatMap(e => e.contextTagIds ?? []),
+      id => tagStore.getContextTagById(id)?.name,
+      5
     )
     let line = `Journal: ${n} ${n === 1 ? 'entry' : 'entries'}, ~${words} words.`
-    if (people.length) line += ` People: ${people.map((p) => p.name).join(', ')}.`
-    if (contexts.length) line += ` Contexts: ${contexts.map((c) => c.name).join(', ')}.`
+    if (people.length) line += ` People: ${people.map(p => p.name).join(', ')}.`
+    if (contexts.length) line += ` Contexts: ${contexts.map(c => c.name).join(', ')}.`
     lines.push(line)
     // sortedEntries is newest-first → leads are the most recent entries.
     const leadCap = tier === 1 ? 2 : 5
@@ -176,8 +178,8 @@ export function buildPeriodDigestContent(
   if (enabled.emotionLogs && records.logs.length > 0) {
     hasContent = true
     const emotionStore = useEmotionStore()
-    const emotionIds = records.logs.flatMap((l) => l.emotionIds ?? [])
-    const top = topN(emotionIds, (id) => emotionStore.getEmotionById(id)?.name, 5)
+    const emotionIds = records.logs.flatMap(l => l.emotionIds ?? [])
+    const top = topN(emotionIds, id => emotionStore.getEmotionById(id)?.name, 5)
     const quad: Record<Quadrant, number> = {
       'high-energy-high-pleasantness': 0,
       'high-energy-low-pleasantness': 0,
@@ -189,7 +191,7 @@ export function buildPeriodDigestContent(
       if (em) quad[getQuadrant(em)]++
     }
     let line = `Emotions: ${records.logs.length} logs.`
-    if (top.length) line += ` Top: ${top.map((t) => `${t.name} ${t.count}`).join(', ')}.`
+    if (top.length) line += ` Top: ${top.map(t => `${t.name} ${t.count}`).join(', ')}.`
     line +=
       ` Quadrants: ${QUAD_CODE['high-energy-high-pleasantness']} ${quad['high-energy-high-pleasantness']}` +
       ` / ${QUAD_CODE['high-energy-low-pleasantness']} ${quad['high-energy-low-pleasantness']}` +
@@ -221,7 +223,7 @@ export async function getPeriodDigest(
   periodRef: WeekRef | MonthRef,
   kind: ProfilePeriodSummaryKind,
   tier: 1 | 2,
-  ctx: DigestContext,
+  ctx: DigestContext
 ): Promise<ProfilePeriodSummary | null> {
   const records = collectPeriodRecords(periodRef, ctx)
   if (recordCountOf(records) === 0) return null
@@ -293,14 +295,14 @@ export async function buildSummarizedHistory(args: {
   const out: ProfilePayloadSummary[] = []
   let guard = 0
 
-  const push = async (
-    ref: WeekRef | MonthRef,
-    tier: 1 | 2,
-    endMs: number,
-  ): Promise<void> => {
+  const push = async (ref: WeekRef | MonthRef, tier: 1 | 2, endMs: number): Promise<void> => {
     const summary = await getPeriodDigest(ref, 'deterministic', tier, ctx)
     if (summary && summary.recordCount > 0) {
-      out.push({ periodRef: ref, periodEndIso: new Date(endMs).toISOString(), content: summary.content })
+      out.push({
+        periodRef: ref,
+        periodEndIso: new Date(endMs).toISOString(),
+        content: summary.content,
+      })
     }
   }
 

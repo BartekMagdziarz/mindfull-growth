@@ -11,4 +11,3 @@ export interface EmotionLog {
   peopleTagIds?: string[] // Array of PeopleTag IDs (optional)
   contextTagIds?: string[] // Array of ContextTag IDs (optional)
 }
-

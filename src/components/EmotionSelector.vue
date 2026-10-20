@@ -50,35 +50,36 @@
         role="list"
         aria-label="Selected emotions and families"
       >
-      <span
-        v-if="props.label"
-        class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mr-1"
-      >{{ props.label }}</span>
-      <button
-        v-for="emotion in chipEmotions"
-        :key="`emotion-${emotion.id}`"
-        type="button"
-        :aria-label="`Remove ${emotion.name}`"
-        :style="getEmotionChipStyle(emotion.id)"
-        class="neo-emotion-chip inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200"
-        @click="removeEmotion(emotion.id)"
-      >
-        <span>{{ emotion.name }}</span>
-        <AppIcon name="close" class="text-base" />
-      </button>
-      <button
-        v-for="family in chipFamilies"
-        :key="`family-${family.id}`"
-        type="button"
-        :aria-label="`Remove ${familyName(family)}`"
-        :style="getQuadrantChipStyle(family.quadrant)"
-        class="neo-emotion-chip inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200"
-        @click="removeFamily(family.id)"
-      >
-        <AppIcon name="category" class="text-sm opacity-80" />
-        <span>{{ familyName(family) }}</span>
-        <AppIcon name="close" class="text-base" />
-      </button>
+        <span
+          v-if="props.label"
+          class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mr-1"
+          >{{ props.label }}</span
+        >
+        <button
+          v-for="emotion in chipEmotions"
+          :key="`emotion-${emotion.id}`"
+          type="button"
+          :aria-label="`Remove ${emotion.name}`"
+          :style="getEmotionChipStyle(emotion.id)"
+          class="neo-emotion-chip inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200"
+          @click="removeEmotion(emotion.id)"
+        >
+          <span>{{ emotion.name }}</span>
+          <AppIcon name="close" class="text-base" />
+        </button>
+        <button
+          v-for="family in chipFamilies"
+          :key="`family-${family.id}`"
+          type="button"
+          :aria-label="`Remove ${familyName(family)}`"
+          :style="getQuadrantChipStyle(family.quadrant)"
+          class="neo-emotion-chip inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200"
+          @click="removeFamily(family.id)"
+        >
+          <AppIcon name="category" class="text-sm opacity-80" />
+          <span>{{ familyName(family) }}</span>
+          <AppIcon name="close" class="text-base" />
+        </button>
       </div>
 
       <!-- Kapsuła przełącznika ćwiartek (wariant 'capsule'): jedna segmentowana
@@ -99,8 +100,16 @@
           :class="{ 'q-capsule__seg--active': quadrant.value === quadrantModel }"
           :data-testid="`emotion-quadrant-switch-${quadrant.value}`"
           :style="capsuleSegStyle(quadrant.value)"
-          :title="quadrant.value === quadrantModel ? t('emotionViews.selector.backToQuadrants') : quadrant.label"
-          :aria-label="quadrant.value === quadrantModel ? t('emotionViews.selector.backToQuadrants') : quadrant.label"
+          :title="
+            quadrant.value === quadrantModel
+              ? t('emotionViews.selector.backToQuadrants')
+              : quadrant.label
+          "
+          :aria-label="
+            quadrant.value === quadrantModel
+              ? t('emotionViews.selector.backToQuadrants')
+              : quadrant.label
+          "
           :aria-pressed="quadrant.value === quadrantModel"
           @click="onSwitcherClick(quadrant.value)"
         >
@@ -109,18 +118,28 @@
       </div>
     </div>
     <div
-      v-else-if="props.showSelectedSection && props.showEmptyState && !props.label && !hasAnySelection"
+      v-else-if="
+        props.showSelectedSection && props.showEmptyState && !props.label && !hasAnySelection
+      "
       class="mb-4 p-3 rounded-2xl bg-section text-center text-on-surface-variant text-xs border border-neu-border/30"
     >
       {{ t('emotionViews.selector.noSelection') }}
     </div>
 
     <!-- Wspólne pole/panel — 2 poziomy z animacjami zagłębiania -->
-    <div class="es-panel" :class="{ 'es-panel--expanded': level !== 'quadrants' }" :style="panelStyle">
+    <div
+      class="es-panel"
+      :class="{ 'es-panel--expanded': level !== 'quadrants' }"
+      :style="panelStyle"
+    >
       <Transition :name="transitionName" mode="out-in">
         <!-- 1. Wybór ćwiartki — duże przyciski (krok 1), wprost na polu „Emocje" -->
         <div v-if="level === 'quadrants'" key="quadrants" class="lvl">
-          <div class="grid grid-cols-2 gap-3" role="group" :aria-label="t('emotionViews.selector.backToQuadrants')">
+          <div
+            class="grid grid-cols-2 gap-3"
+            role="group"
+            :aria-label="t('emotionViews.selector.backToQuadrants')"
+          >
             <button
               v-for="quadrant in quadrants"
               :key="quadrant.value"
@@ -135,7 +154,9 @@
                 <AppIcon :name="quadrant.icon" class="text-xl flex-shrink-0" />
                 <div class="flex flex-col items-start">
                   <span class="text-sm font-medium leading-snug">{{ quadrant.energyLabel }}</span>
-                  <span class="text-sm font-medium leading-snug">{{ quadrant.pleasantnessLabel }}</span>
+                  <span class="text-sm font-medium leading-snug">{{
+                    quadrant.pleasantnessLabel
+                  }}</span>
                 </div>
               </div>
             </button>
@@ -173,13 +194,26 @@
                         <EmotionFaceIcon :name="f.rep" :color="quadrantInk" :size="30" />
                       </span>
                       <span class="fam-card__name">{{ familyName(f) }}</span>
-                      <AppIcon v-if="isFamilySelected(f.id)" name="check_circle" class="fam-card__check" />
+                      <AppIcon
+                        v-if="isFamilySelected(f.id)"
+                        name="check_circle"
+                        class="fam-card__check"
+                      />
                       <span
                         v-if="selectedCountByFamily.get(f.id)"
                         class="fam-badge-count"
-                        :aria-label="t('emotionViews.selector.selectedInFamily', { count: selectedCountByFamily.get(f.id) ?? 0 })"
-                      >{{ selectedCountByFamily.get(f.id) }}</span>
-                      <AppIcon v-if="!props.allowFamilyOnly" name="expand_more" class="fam-card__chevron" />
+                        :aria-label="
+                          t('emotionViews.selector.selectedInFamily', {
+                            count: selectedCountByFamily.get(f.id) ?? 0,
+                          })
+                        "
+                        >{{ selectedCountByFamily.get(f.id) }}</span
+                      >
+                      <AppIcon
+                        v-if="!props.allowFamilyOnly"
+                        name="expand_more"
+                        class="fam-card__chevron"
+                      />
                     </button>
                     <button
                       v-if="props.allowFamilyOnly"
@@ -208,12 +242,20 @@
                             'fam-expanded__head--selectable': props.allowFamilyOnly,
                             'fam-expanded__head--selected': isFamilySelected(f.id),
                           }"
-                          :style="props.allowFamilyOnly ? familyCardStyle(isFamilySelected(f.id)) : undefined"
+                          :style="
+                            props.allowFamilyOnly
+                              ? familyCardStyle(isFamilySelected(f.id))
+                              : undefined
+                          "
                           @click="props.allowFamilyOnly ? toggleFamily(f.id) : undefined"
                         >
                           <EmotionFaceIcon :name="f.rep" :color="quadrantInk" :size="28" />
                           <span class="fam-card__name">{{ familyName(f) }}</span>
-                          <AppIcon v-if="isFamilySelected(f.id)" name="check_circle" class="text-base" />
+                          <AppIcon
+                            v-if="isFamilySelected(f.id)"
+                            name="check_circle"
+                            class="text-base"
+                          />
                         </component>
 
                         <div class="fam-expanded__emotions" @pointerleave="hoveredId = null">
@@ -239,7 +281,9 @@
                           type="button"
                           class="fam-collapse"
                           :data-testid="`emotion-family-expand-${f.id}`"
-                          :aria-label="t('emotionViews.selector.collapseFamily', { name: familyName(f) })"
+                          :aria-label="
+                            t('emotionViews.selector.collapseFamily', { name: familyName(f) })
+                          "
                           aria-expanded="true"
                           @click="toggleExpand(f.id)"
                         >
@@ -259,7 +303,9 @@
                             <span class="font-semibold">{{ hoveredEmotion.name }}</span>
                             <template v-if="hoveredEmotion.description">
                               <span class="mx-1.5 text-on-surface-variant/40">&mdash;</span>
-                              <span class="text-on-surface-variant">{{ hoveredEmotion.description }}</span>
+                              <span class="text-on-surface-variant">{{
+                                hoveredEmotion.description
+                              }}</span>
                             </template>
                           </span>
                           <span v-else>{{ t('emotionViews.selector.pickHint') }}</span>
@@ -289,7 +335,12 @@ import {
   type Quadrant,
   type Emotion,
 } from '@/domain/emotion'
-import { FAMILIES_BY_QUADRANT, FAMILY_OF, getFamilyById, type EmotionFamily } from '@/domain/emotionFamily'
+import {
+  FAMILIES_BY_QUADRANT,
+  FAMILY_OF,
+  getFamilyById,
+  type EmotionFamily,
+} from '@/domain/emotionFamily'
 import { useEmotionStore } from '@/stores/emotion.store'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import EmotionFaceIcon from '@/components/emotion/EmotionFaceIcon.vue'
@@ -343,7 +394,7 @@ const transitionName = ref<'dive' | 'surface' | 'switch'>('dive')
 
 // --- Poziomy / dane ze sklepu ---
 const quadrants = computed(() =>
-  QUADRANTS_IN_ORDER.map((value) => getQuadrantDisplayConfig(value, t))
+  QUADRANTS_IN_ORDER.map(value => getQuadrantDisplayConfig(value, t))
 )
 
 const level = computed<'quadrants' | 'families'>(() =>
@@ -370,7 +421,7 @@ const expandedEmotions = computed<Emotion[]>(() => {
   if (!q || !famId) return []
   return emotionStore
     .getEmotionsByQuadrant(q)
-    .filter((e) => FAMILY_OF[e.id] === famId)
+    .filter(e => FAMILY_OF[e.id] === famId)
     .sort(
       (a, b) =>
         intensityMax(a) - intensityMax(b) ||
@@ -393,7 +444,7 @@ const selectedCountByFamily = computed(() => {
 // Pełne obiekty wybranych rodzin (do chipów w sekcji wybranych).
 const selectedFamilyObjects = computed(() =>
   familiesModel.value
-    .map((id) => getFamilyById(id))
+    .map(id => getFamilyById(id))
     .filter((f): f is EmotionFamily => f !== undefined)
 )
 function isFamilySelected(id: string): boolean {
@@ -405,22 +456,21 @@ function isFamilySelected(id: string): boolean {
 // rodzin nadal pokazują swój stan — to dotyczy tylko chipów „wybranej
 // odpowiedzi". Stosujemy tę samą zasadę po stronie odczytu (historia).
 const emotionFamilySet = computed(
-  () => new Set(selectedEmotionIds.value.map((id) => FAMILY_OF[id]).filter(Boolean))
+  () => new Set(selectedEmotionIds.value.map(id => FAMILY_OF[id]).filter(Boolean))
 )
 const displayedFamilyChips = computed(() =>
-  selectedFamilyObjects.value.filter((f) => !emotionFamilySet.value.has(f.id))
+  selectedFamilyObjects.value.filter(f => !emotionFamilySet.value.has(f.id))
 )
 
 const selectedEmotions = computed(() =>
   selectedEmotionIds.value
-    .map((id) => emotionStore.getEmotionById(id))
+    .map(id => emotionStore.getEmotionById(id))
     .filter((e): e is Emotion => e !== undefined)
 )
 
 const hasAnySelection = computed(
   () =>
-    selectedEmotionIds.value.length > 0 ||
-    (props.allowFamilyOnly && familiesModel.value.length > 0)
+    selectedEmotionIds.value.length > 0 || (props.allowFamilyOnly && familiesModel.value.length > 0)
 )
 
 // Wspólny rząd chipów: emocje (gdy showSelectedSection) najpierw, potem
@@ -465,13 +515,13 @@ function removeEmotion(id: string): void {
 // --- Rodziny: wybór (emotionFamilyIds) + rozwinięcie w miejscu ---
 function toggleFamily(id: string): void {
   if (familiesModel.value.includes(id)) {
-    familiesModel.value = familiesModel.value.filter((x) => x !== id)
+    familiesModel.value = familiesModel.value.filter(x => x !== id)
   } else {
     familiesModel.value = [...familiesModel.value, id]
   }
 }
 function removeFamily(id: string): void {
-  familiesModel.value = familiesModel.value.filter((x) => x !== id)
+  familiesModel.value = familiesModel.value.filter(x => x !== id)
 }
 
 // Rozwinięcie to czysta nawigacja — nie zmienia modeli. Jedna rodzina naraz
@@ -605,8 +655,8 @@ function getEmotionChipStyle(emotionId: string): Record<string, string> {
 // --- Synchronizacja z modelValue ---
 watch(
   () => props.modelValue,
-  (newValue) => {
-    selectedEmotionIds.value = newValue.filter((id) => {
+  newValue => {
+    selectedEmotionIds.value = newValue.filter(id => {
       const ok = emotionStore.getEmotionById(id) !== undefined
       if (!ok && import.meta.env.DEV) console.warn(`Invalid emotion ID in modelValue: ${id}`)
       return ok
@@ -649,7 +699,9 @@ onMounted(async () => {
   overflow: hidden;
   overflow: clip;
   overflow-clip-margin: 16px;
-  transition: min-height 260ms cubic-bezier(0.2, 0.8, 0.2, 1), background 280ms ease;
+  transition:
+    min-height 260ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    background 280ms ease;
 }
 .es-panel--expanded {
   min-height: 240px;
@@ -704,7 +756,9 @@ onMounted(async () => {
   background: transparent;
   cursor: pointer;
   opacity: 0.55;
-  transition: opacity 120ms ease, filter 120ms ease;
+  transition:
+    opacity 120ms ease,
+    filter 120ms ease;
 }
 .q-capsule__seg:hover {
   opacity: 1;
@@ -748,7 +802,10 @@ onMounted(async () => {
   box-shadow:
     -5px -5px 10px rgb(var(--neo-shadow-light) / 0.8),
     5px 5px 10px rgb(var(--neo-shadow-dark) / 0.3);
-  transition: transform 150ms ease, filter 150ms ease, border-color 150ms ease;
+  transition:
+    transform 150ms ease,
+    filter 150ms ease,
+    border-color 150ms ease;
 }
 .fam-card-wrap:not(.fam-card-wrap--expanded):hover {
   transform: translateY(-1px);
@@ -893,7 +950,9 @@ onMounted(async () => {
   box-shadow:
     -3px -3px 6px rgb(var(--neo-shadow-light) / 0.55),
     3px 3px 6px rgb(var(--neo-shadow-dark) / 0.2);
-  transition: transform 150ms ease, box-shadow 150ms ease;
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease;
 }
 .fam-expanded__head--selectable:hover {
   transform: translateY(-1px);
@@ -924,7 +983,10 @@ onMounted(async () => {
   box-shadow:
     -3px -3px 6px rgb(var(--neo-shadow-light) / 0.6),
     3px 3px 6px rgb(var(--neo-shadow-dark) / 0.24);
-  transition: transform 150ms ease, box-shadow 150ms ease, filter 150ms ease;
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    filter 150ms ease;
 }
 .emotion-btn:hover {
   transform: translateY(-1px);
@@ -996,34 +1058,88 @@ onMounted(async () => {
 }
 
 /* === Animacje przejść === */
-.dive-enter-active { transition: opacity 320ms cubic-bezier(0.2, 0.8, 0.2, 1), transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1); }
-.dive-leave-active { transition: opacity 180ms ease, transform 180ms ease; }
-.dive-enter-from { opacity: 0; transform: scale(0.72); }
-.dive-leave-to { opacity: 0; transform: scale(1.12); }
+.dive-enter-active {
+  transition:
+    opacity 320ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.dive-leave-active {
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
+}
+.dive-enter-from {
+  opacity: 0;
+  transform: scale(0.72);
+}
+.dive-leave-to {
+  opacity: 0;
+  transform: scale(1.12);
+}
 
-.surface-enter-active { transition: opacity 280ms cubic-bezier(0.2, 0.8, 0.2, 1), transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1); }
-.surface-leave-active { transition: opacity 200ms ease, transform 200ms ease; }
-.surface-enter-from { opacity: 0; transform: scale(1.12); }
-.surface-leave-to { opacity: 0; transform: scale(0.72); }
+.surface-enter-active {
+  transition:
+    opacity 280ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.surface-leave-active {
+  transition:
+    opacity 200ms ease,
+    transform 200ms ease;
+}
+.surface-enter-from {
+  opacity: 0;
+  transform: scale(1.12);
+}
+.surface-leave-to {
+  opacity: 0;
+  transform: scale(0.72);
+}
 
-.switch-enter-active { transition: opacity 260ms ease, transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1); }
-.switch-leave-active { transition: opacity 150ms ease, transform 150ms ease; }
-.switch-enter-from { opacity: 0; transform: scale(0.94); }
-.switch-leave-to { opacity: 0; transform: scale(0.94); }
+.switch-enter-active {
+  transition:
+    opacity 260ms ease,
+    transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.switch-leave-active {
+  transition:
+    opacity 150ms ease,
+    transform 150ms ease;
+}
+.switch-enter-from {
+  opacity: 0;
+  transform: scale(0.94);
+}
+.switch-leave-to {
+  opacity: 0;
+  transform: scale(0.94);
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .es-panel { transition: none !important; }
-  .fam-move { transition: none !important; }
-  .fam-expanded__inner { animation: none !important; }
-  .dive-enter-active, .dive-leave-active,
-  .surface-enter-active, .surface-leave-active,
-  .switch-enter-active, .switch-leave-active {
+  .es-panel {
+    transition: none !important;
+  }
+  .fam-move {
+    transition: none !important;
+  }
+  .fam-expanded__inner {
+    animation: none !important;
+  }
+  .dive-enter-active,
+  .dive-leave-active,
+  .surface-enter-active,
+  .surface-leave-active,
+  .switch-enter-active,
+  .switch-leave-active {
     transition: opacity 120ms linear !important;
     transform: none !important;
   }
-  .dive-enter-from, .dive-leave-to,
-  .surface-enter-from, .surface-leave-to,
-  .switch-enter-from, .switch-leave-to {
+  .dive-enter-from,
+  .dive-leave-to,
+  .surface-enter-from,
+  .surface-leave-to,
+  .switch-enter-from,
+  .switch-leave-to {
     transform: none;
   }
 }

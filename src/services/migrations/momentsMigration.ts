@@ -76,7 +76,7 @@ export interface MomentsMigrationIO {
 
 /** Runs the three migrations; returns how many rows changed per table. */
 export async function migrateLogsToMoments(
-  io: MomentsMigrationIO,
+  io: MomentsMigrationIO
 ): Promise<{ entries: number; completions: number; planItems: number }> {
   const counts = { entries: 0, completions: 0, planItems: 0 }
   for (const entry of io.entries) {

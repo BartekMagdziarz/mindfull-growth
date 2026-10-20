@@ -1,6 +1,9 @@
 <template>
   <SummaryCard :title="t('planning.reflection.review.journalShort')">
-    <p v-if="entries.length === 0" class="flex items-center gap-1.5 text-xs text-on-surface-variant/70">
+    <p
+      v-if="entries.length === 0"
+      class="flex items-center gap-1.5 text-xs text-on-surface-variant/70"
+    >
       <AppIcon name="edit_note" class="text-sm" />
       {{ t('planning.calendar.empty.journalPeriod') }}
     </p>
@@ -107,7 +110,7 @@ const entries = computed<JournalEntry[]>(() => {
   const startISO = `${bounds.start}T00:00:00.000Z`
   const endISO = `${bounds.end}T23:59:59.999Z`
   return journalStore.sortedEntries.filter(
-    (entry) => entry.createdAt >= startISO && entry.createdAt <= endISO,
+    entry => entry.createdAt >= startISO && entry.createdAt <= endISO
   )
 })
 
@@ -178,12 +181,7 @@ function contextTagName(id: string): string | undefined {
   left: 1px;
   right: 1px;
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgb(var(--neo-border) / 0.45),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgb(var(--neo-border) / 0.45), transparent);
   pointer-events: none;
 }
 

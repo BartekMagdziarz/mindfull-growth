@@ -8,7 +8,9 @@
 
     <!-- Past practices -->
     <div v-if="dereflectionStore.sortedPractices.length > 0" class="mt-8">
-      <div class="mg-v2-section-head"><h2>{{ t('exercises.views.pastPractices') }}</h2></div>
+      <div class="mg-v2-section-head">
+        <h2>{{ t('exercises.views.pastPractices') }}</h2>
+      </div>
       <div class="space-y-3">
         <AppCard
           v-for="practice in dereflectionStore.sortedPractices"

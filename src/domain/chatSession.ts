@@ -82,14 +82,10 @@ export function createChatSession(
  * @param content - The message text content
  * @returns A new ChatMessage with timestamp set to current time
  */
-export function createChatMessage(
-  role: 'user' | 'assistant',
-  content: string
-): ChatMessage {
+export function createChatMessage(role: 'user' | 'assistant', content: string): ChatMessage {
   return {
     role,
     content,
     timestamp: new Date().toISOString(),
   }
 }
-

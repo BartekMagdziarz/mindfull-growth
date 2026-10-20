@@ -15,20 +15,11 @@
           <AppIcon name="edit" class="text-base mr-1" />
           {{ t('profile.psychologicalProfile.wizard.review.editAll') }}
         </AppButton>
-        <AppButton
-          v-else
-          variant="text"
-          data-test-done-editing
-          @click="wizard.exitEditAllMode"
-        >
+        <AppButton v-else variant="text" data-test-done-editing @click="wizard.exitEditAllMode">
           <AppIcon name="check" class="text-base mr-1" />
           {{ t('profile.psychologicalProfile.wizard.review.doneEditing') }}
         </AppButton>
-        <AppButton
-          variant="text"
-          data-test-regenerate
-          @click="handleRegenerate"
-        >
+        <AppButton variant="text" data-test-regenerate @click="handleRegenerate">
           <AppIcon name="refresh" class="text-base mr-1" />
           {{ t('profile.psychologicalProfile.wizard.review.regenerate') }}
         </AppButton>
@@ -77,7 +68,10 @@
           @input="onSectionInput(sectionId, $event)"
         />
         <p
-          v-else-if="wizard.editedSections.value[sectionId] && wizard.editedSections.value[sectionId].trim().length > 0"
+          v-else-if="
+            wizard.editedSections.value[sectionId] &&
+            wizard.editedSections.value[sectionId].trim().length > 0
+          "
           class="text-sm text-on-surface whitespace-pre-wrap"
         >
           {{ wizard.editedSections.value[sectionId] }}
@@ -135,10 +129,7 @@ import AppButton from '@/components/AppButton.vue'
 import AppDialog from '@/components/AppDialog.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import type { useProfileBuildWizard } from '@/composables/useProfileBuildWizard'
-import {
-  PROFILE_SECTION_IDS,
-  type ProfileSectionId,
-} from '@/domain/userProfile'
+import { PROFILE_SECTION_IDS, type ProfileSectionId } from '@/domain/userProfile'
 import { useT } from '@/composables/useT'
 
 const props = defineProps<{

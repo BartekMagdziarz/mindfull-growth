@@ -113,7 +113,9 @@ export function effectivePractice(
   enrollment: Pick<ProgramEnrollment, 'practiceOverrides'>
 ): ProgramPractice {
   const override = enrollment.practiceOverrides?.[practice.exerciseSlug]
-  return override && override.everyDays > 0 ? { ...practice, everyDays: override.everyDays } : practice
+  return override && override.everyDays > 0
+    ? { ...practice, everyDays: override.everyDays }
+    : practice
 }
 
 /**
@@ -128,7 +130,8 @@ function statusAfterStep(
   now: string
 ): Pick<UpdateProgramEnrollmentPayload, 'status' | 'completedAt'> {
   if (enrollment.status === 'completed') return {}
-  const closes = program.steps[stepIndex]?.closesPath === true || stepIndex + 1 >= program.steps.length
+  const closes =
+    program.steps[stepIndex]?.closesPath === true || stepIndex + 1 >= program.steps.length
   if (!closes) return { status: 'active' }
   return { status: 'completed', completedAt: enrollment.completedAt ?? now }
 }
@@ -529,7 +532,12 @@ export async function skipOptionalStep(id: string): Promise<{
     }
     const nextStepIndex = enrollment.currentStepIndex + 1
     const updated = await programEnrollmentDexieRepository.update(id, {
-      ...statusAfterStep(program, enrollment, enrollment.currentStepIndex, new Date().toISOString()),
+      ...statusAfterStep(
+        program,
+        enrollment,
+        enrollment.currentStepIndex,
+        new Date().toISOString()
+      ),
       currentStepIndex: nextStepIndex,
     })
     const nextPlanItem = await ensureCurrentStepMaterialized(updated)
@@ -573,15 +581,27 @@ export async function undoLastStep(id: string): Promise<{
       completedSteps: enrollment.completedSteps.filter(step => step.stepIndex !== previousIndex),
     })
     const planItem = await ensureCurrentStepMaterialized(updated)
-    return { enrollment: updated, removedPlanIds, planItem, practices: await reconcilePractices(updated) }
+    return {
+      enrollment: updated,
+      removedPlanIds,
+      planItem,
+      practices: await reconcilePractices(updated),
+    }
   })
 }
 
 /** Whether "Cofnij" applies: the step before the current one was completed (not skipped) on an active enrollment. */
-export function canUndoLastStep(enrollment: Pick<ProgramEnrollment, 'status' | 'currentStepIndex' | 'completedSteps'> | null | undefined): boolean {
+export function canUndoLastStep(
+  enrollment:
+    | Pick<ProgramEnrollment, 'status' | 'currentStepIndex' | 'completedSteps'>
+    | null
+    | undefined
+): boolean {
   if (!enrollment || enrollment.status !== 'active') return false
   const previousIndex = enrollment.currentStepIndex - 1
-  return previousIndex >= 0 && enrollment.completedSteps.some(step => step.stepIndex === previousIndex)
+  return (
+    previousIndex >= 0 && enrollment.completedSteps.some(step => step.stepIndex === previousIndex)
+  )
 }
 
 /**

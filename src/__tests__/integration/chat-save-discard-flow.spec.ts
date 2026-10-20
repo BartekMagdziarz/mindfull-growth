@@ -163,7 +163,7 @@ describe('Chat Save Discard Flow Integration', () => {
     expect(updatedEntry?.chatSessions?.length).toBe(2)
 
     // Verify both sessions exist
-    const sessionIds = updatedEntry?.chatSessions?.map((s) => s.id) || []
+    const sessionIds = updatedEntry?.chatSessions?.map(s => s.id) || []
     expect(sessionIds).toContain('existing-session-1')
     expect(sessionIds).toContain(newSessionId)
   })
@@ -227,4 +227,3 @@ describe('Chat Save Discard Flow Integration', () => {
     expect(chatStore.error).toContain('message exchange')
   })
 })
-

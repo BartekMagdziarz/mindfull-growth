@@ -33,9 +33,9 @@ vi.mock('@/services/profileScopeQueries', () => ({
 const mockBuildProfile = vi.fn()
 const mockCreateProfile = vi.fn()
 vi.mock('@/stores/userProfile.store', async () => {
-  const actual = await vi.importActual<
-    typeof import('@/stores/userProfile.store')
-  >('@/stores/userProfile.store')
+  const actual = await vi.importActual<typeof import('@/stores/userProfile.store')>(
+    '@/stores/userProfile.store'
+  )
   return {
     ...actual,
     useUserProfileStore: vi.fn(() => ({
@@ -124,9 +124,7 @@ describe('PsychologicalProfileBuildView', () => {
     render(PsychologicalProfileBuildView)
 
     // Advance scope → preview
-    await fireEvent.click(
-      document.querySelector('[data-test-next]') as HTMLButtonElement,
-    )
+    await fireEvent.click(document.querySelector('[data-test-next]') as HTMLButtonElement)
     await waitFor(() => expect(previewMock).toHaveBeenCalled())
 
     // Click Generate (the Next button on Step 2)
@@ -144,29 +142,21 @@ describe('PsychologicalProfileBuildView', () => {
 
     // On success the wizard auto-advances to the review placeholder.
     await waitFor(() => {
-      expect(
-        document.querySelector('[data-test-section="summary"]'),
-      ).toBeInTheDocument()
+      expect(document.querySelector('[data-test-section="summary"]')).toBeInTheDocument()
     })
   })
 
   it('shows the error panel with a Retry button when the build fails', async () => {
-    mockBuildProfile.mockRejectedValue(
-      new ProfileBuildError('unknown', 'Simulated failure.'),
-    )
+    mockBuildProfile.mockRejectedValue(new ProfileBuildError('unknown', 'Simulated failure.'))
 
     render(PsychologicalProfileBuildView)
-    await fireEvent.click(
-      document.querySelector('[data-test-next]') as HTMLButtonElement,
-    )
+    await fireEvent.click(document.querySelector('[data-test-next]') as HTMLButtonElement)
     await waitFor(() => expect(previewMock).toHaveBeenCalled())
     const generateBtn = await screen.findByRole('button', { name: 'Generate' })
     await fireEvent.click(generateBtn)
 
     await waitFor(() => {
-      expect(
-        document.querySelector('[data-test-generate-state="error"]'),
-      ).toBeInTheDocument()
+      expect(document.querySelector('[data-test-generate-state="error"]')).toBeInTheDocument()
     })
     expect(screen.getByText('Simulated failure.')).toBeInTheDocument()
 
@@ -184,26 +174,22 @@ describe('PsychologicalProfileBuildView', () => {
 
   it('shows the missing-API-key CTA and navigates to /profile on click', async () => {
     mockBuildProfile.mockRejectedValue(
-      new ProfileBuildError('missingApiKey', 'AI provider is not configured.'),
+      new ProfileBuildError('missingApiKey', 'AI provider is not configured.')
     )
 
     render(PsychologicalProfileBuildView)
-    await fireEvent.click(
-      document.querySelector('[data-test-next]') as HTMLButtonElement,
-    )
+    await fireEvent.click(document.querySelector('[data-test-next]') as HTMLButtonElement)
     await waitFor(() => expect(previewMock).toHaveBeenCalled())
     const generateBtn = await screen.findByRole('button', { name: 'Generate' })
     await fireEvent.click(generateBtn)
 
     await waitFor(() => {
       expect(
-        document.querySelector('[data-test-generate-state="missing-api-key"]'),
+        document.querySelector('[data-test-generate-state="missing-api-key"]')
       ).toBeInTheDocument()
     })
 
-    const goToSettings = document.querySelector(
-      '[data-test-go-to-settings]',
-    ) as HTMLButtonElement
+    const goToSettings = document.querySelector('[data-test-go-to-settings]') as HTMLButtonElement
     await fireEvent.click(goToSettings)
     expect(mockPush).toHaveBeenCalledWith({
       name: 'profile',
@@ -220,18 +206,14 @@ describe('PsychologicalProfileBuildView', () => {
     })
 
     render(PsychologicalProfileBuildView)
-    await fireEvent.click(
-      document.querySelector('[data-test-next]') as HTMLButtonElement,
-    )
+    await fireEvent.click(document.querySelector('[data-test-next]') as HTMLButtonElement)
     await waitFor(() => expect(previewMock).toHaveBeenCalled())
     await fireEvent.click(await screen.findByRole('button', { name: 'Generate' }))
 
     await waitFor(() => {
       expect(document.querySelector('[data-test-review-step]')).toBeInTheDocument()
     })
-    expect(
-      screen.getByRole('button', { name: 'Continue to save' }),
-    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Continue to save' })).toBeInTheDocument()
   })
 
   it('Next on review advances to save and renders the ProfileSaveStep', async () => {
@@ -243,13 +225,11 @@ describe('PsychologicalProfileBuildView', () => {
     })
 
     render(PsychologicalProfileBuildView)
-    await fireEvent.click(
-      document.querySelector('[data-test-next]') as HTMLButtonElement,
-    )
+    await fireEvent.click(document.querySelector('[data-test-next]') as HTMLButtonElement)
     await waitFor(() => expect(previewMock).toHaveBeenCalled())
     await fireEvent.click(await screen.findByRole('button', { name: 'Generate' }))
     await waitFor(() =>
-      expect(document.querySelector('[data-test-review-step]')).toBeInTheDocument(),
+      expect(document.querySelector('[data-test-review-step]')).toBeInTheDocument()
     )
 
     const continueBtn = await screen.findByRole('button', {
@@ -258,13 +238,9 @@ describe('PsychologicalProfileBuildView', () => {
     await fireEvent.click(continueBtn)
 
     await waitFor(() => {
-      expect(
-        document.querySelector('[data-test-save-step]'),
-      ).toBeInTheDocument()
+      expect(document.querySelector('[data-test-save-step]')).toBeInTheDocument()
     })
-    expect(
-      screen.getByRole('button', { name: 'Save profile' }),
-    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Save profile' })).toBeInTheDocument()
   })
 
   it('Save profile button calls createProfile, navigates to /profile/psychological with versionId, and resets wizard', async () => {
@@ -294,26 +270,18 @@ describe('PsychologicalProfileBuildView', () => {
 
     render(PsychologicalProfileBuildView)
     // Walk through scope → preview → generate → review
-    await fireEvent.click(
-      document.querySelector('[data-test-next]') as HTMLButtonElement,
-    )
+    await fireEvent.click(document.querySelector('[data-test-next]') as HTMLButtonElement)
     await waitFor(() => expect(previewMock).toHaveBeenCalled())
     await fireEvent.click(await screen.findByRole('button', { name: 'Generate' }))
     await waitFor(() =>
-      expect(document.querySelector('[data-test-review-step]')).toBeInTheDocument(),
+      expect(document.querySelector('[data-test-review-step]')).toBeInTheDocument()
     )
     // → save
-    await fireEvent.click(
-      await screen.findByRole('button', { name: 'Continue to save' }),
-    )
-    await waitFor(() =>
-      expect(document.querySelector('[data-test-save-step]')).toBeInTheDocument(),
-    )
+    await fireEvent.click(await screen.findByRole('button', { name: 'Continue to save' }))
+    await waitFor(() => expect(document.querySelector('[data-test-save-step]')).toBeInTheDocument())
 
     // Type a note then click Save profile.
-    const noteInput = document.querySelector(
-      '[data-test-save-note]',
-    ) as HTMLInputElement
+    const noteInput = document.querySelector('[data-test-save-note]') as HTMLInputElement
     await fireEvent.update(noteInput, 'after Big Five')
 
     const saveBtn = await screen.findByRole('button', { name: 'Save profile' })
@@ -333,7 +301,7 @@ describe('PsychologicalProfileBuildView', () => {
       expect(mockPush).toHaveBeenCalledWith({
         name: 'profile-psychological',
         query: { versionId: 'new-profile-id' },
-      }),
+      })
     )
 
     // After reset, the build view should be back on the scope step. Because
@@ -355,20 +323,14 @@ describe('PsychologicalProfileBuildView', () => {
     mockCreateProfile.mockRejectedValue(new Error('Quota exceeded'))
 
     render(PsychologicalProfileBuildView)
-    await fireEvent.click(
-      document.querySelector('[data-test-next]') as HTMLButtonElement,
-    )
+    await fireEvent.click(document.querySelector('[data-test-next]') as HTMLButtonElement)
     await waitFor(() => expect(previewMock).toHaveBeenCalled())
     await fireEvent.click(await screen.findByRole('button', { name: 'Generate' }))
     await waitFor(() =>
-      expect(document.querySelector('[data-test-review-step]')).toBeInTheDocument(),
+      expect(document.querySelector('[data-test-review-step]')).toBeInTheDocument()
     )
-    await fireEvent.click(
-      await screen.findByRole('button', { name: 'Continue to save' }),
-    )
-    await waitFor(() =>
-      expect(document.querySelector('[data-test-save-step]')).toBeInTheDocument(),
-    )
+    await fireEvent.click(await screen.findByRole('button', { name: 'Continue to save' }))
+    await waitFor(() => expect(document.querySelector('[data-test-save-step]')).toBeInTheDocument())
 
     const saveBtn = await screen.findByRole('button', { name: 'Save profile' })
     await fireEvent.click(saveBtn)
@@ -377,13 +339,11 @@ describe('PsychologicalProfileBuildView', () => {
 
     // Stays on save step, banner appears, no navigation.
     await waitFor(() => {
-      expect(
-        document.querySelector('[data-test-save-error]'),
-      ).toBeInTheDocument()
+      expect(document.querySelector('[data-test-save-error]')).toBeInTheDocument()
     })
     expect(screen.getByText('Quota exceeded')).toBeInTheDocument()
     expect(mockPush).not.toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'profile-psychological' }),
+      expect.objectContaining({ name: 'profile-psychological' })
     )
   })
 
@@ -396,23 +356,19 @@ describe('PsychologicalProfileBuildView', () => {
     })
 
     render(PsychologicalProfileBuildView)
-    await fireEvent.click(
-      document.querySelector('[data-test-next]') as HTMLButtonElement,
-    )
+    await fireEvent.click(document.querySelector('[data-test-next]') as HTMLButtonElement)
     await waitFor(() => expect(previewMock).toHaveBeenCalled())
     await fireEvent.click(await screen.findByRole('button', { name: 'Generate' }))
     await waitFor(() =>
-      expect(document.querySelector('[data-test-review-step]')).toBeInTheDocument(),
+      expect(document.querySelector('[data-test-review-step]')).toBeInTheDocument()
     )
 
     // Open the summary editor and type to create an unsaved edit.
     const toggle = document.querySelector(
-      '[data-test-toggle-section="summary"]',
+      '[data-test-toggle-section="summary"]'
     ) as HTMLButtonElement
     await fireEvent.click(toggle)
-    const textarea = document.querySelector(
-      '[data-test-textarea="summary"]',
-    ) as HTMLTextAreaElement
+    const textarea = document.querySelector('[data-test-textarea="summary"]') as HTMLTextAreaElement
     await fireEvent.update(textarea, 'edited summary')
 
     // Footer back opens the dialog.
@@ -420,9 +376,7 @@ describe('PsychologicalProfileBuildView', () => {
     await fireEvent.click(backBtn)
     let dialog = await screen.findByRole('dialog')
     expect(dialog).toBeInTheDocument()
-    expect(
-      within(dialog).getByText('Discard unsaved edits?'),
-    ).toBeInTheDocument()
+    expect(within(dialog).getByText('Discard unsaved edits?')).toBeInTheDocument()
 
     // Stay closes the dialog, leaves the user on review.
     await fireEvent.click(within(dialog).getByRole('button', { name: 'Stay' }))
@@ -430,20 +384,14 @@ describe('PsychologicalProfileBuildView', () => {
     expect(document.querySelector('[data-test-review-step]')).toBeInTheDocument()
 
     // Re-open the dialog and confirm Continue — should return to preview.
-    await fireEvent.click(
-      document.querySelector('[data-test-back]') as HTMLButtonElement,
-    )
+    await fireEvent.click(document.querySelector('[data-test-back]') as HTMLButtonElement)
     dialog = await screen.findByRole('dialog')
-    await fireEvent.click(
-      within(dialog).getByRole('button', { name: 'Continue' }),
-    )
+    await fireEvent.click(within(dialog).getByRole('button', { name: 'Continue' }))
     await waitFor(() => {
       expect(document.querySelector('[data-test-review-step]')).toBeNull()
     })
     // The preview step's Generate button is back on screen.
-    expect(
-      await screen.findByRole('button', { name: 'Generate' }),
-    ).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Generate' })).toBeInTheDocument()
   })
 
   it('Back on review without unsaved edits skips the dialog and goes straight to preview', async () => {
@@ -455,13 +403,11 @@ describe('PsychologicalProfileBuildView', () => {
     })
 
     render(PsychologicalProfileBuildView)
-    await fireEvent.click(
-      document.querySelector('[data-test-next]') as HTMLButtonElement,
-    )
+    await fireEvent.click(document.querySelector('[data-test-next]') as HTMLButtonElement)
     await waitFor(() => expect(previewMock).toHaveBeenCalled())
     await fireEvent.click(await screen.findByRole('button', { name: 'Generate' }))
     await waitFor(() =>
-      expect(document.querySelector('[data-test-review-step]')).toBeInTheDocument(),
+      expect(document.querySelector('[data-test-review-step]')).toBeInTheDocument()
     )
 
     const backBtn = document.querySelector('[data-test-back]') as HTMLButtonElement
@@ -470,9 +416,7 @@ describe('PsychologicalProfileBuildView', () => {
     await waitFor(() => {
       expect(document.querySelector('[data-test-review-step]')).toBeNull()
     })
-    expect(
-      await screen.findByRole('button', { name: 'Generate' }),
-    ).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Generate' })).toBeInTheDocument()
   })
 
   it('hides the Next button while the generate step is active', async () => {
@@ -486,23 +430,19 @@ describe('PsychologicalProfileBuildView', () => {
     }) => void = () => {}
     mockBuildProfile.mockImplementation(
       () =>
-        new Promise((resolve) => {
+        new Promise(resolve => {
           resolveBuild = resolve
-        }),
+        })
     )
 
     render(PsychologicalProfileBuildView)
-    await fireEvent.click(
-      document.querySelector('[data-test-next]') as HTMLButtonElement,
-    )
+    await fireEvent.click(document.querySelector('[data-test-next]') as HTMLButtonElement)
     await waitFor(() => expect(previewMock).toHaveBeenCalled())
     await fireEvent.click(await screen.findByRole('button', { name: 'Generate' }))
 
     // While in-flight, the footer's Next button is not rendered.
     await waitFor(() => {
-      expect(
-        document.querySelector('[data-test-generate-state="in-flight"]'),
-      ).toBeInTheDocument()
+      expect(document.querySelector('[data-test-generate-state="in-flight"]')).toBeInTheDocument()
     })
     expect(document.querySelector('[data-test-next]')).toBeNull()
 

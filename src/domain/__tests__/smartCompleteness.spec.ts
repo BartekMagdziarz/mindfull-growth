@@ -42,7 +42,7 @@ describe('computeSmartCompleteness', () => {
   it('marks S false when only title present without description/successDefinition', () => {
     const result = computeSmartCompleteness(
       { ...completeGoal, description: undefined, successDefinition: undefined },
-      1,
+      1
     )
     expect(result.S).toBe(false)
     expect(result.missing).toContain('S')
@@ -51,7 +51,7 @@ describe('computeSmartCompleteness', () => {
   it('marks A false when no contingency or support plan', () => {
     const noFollowUp = computeSmartCompleteness(
       { ...completeGoal, obstacles: undefined, resources: undefined },
-      1,
+      1
     )
     expect(noFollowUp.A).toBe(false)
   })
@@ -59,7 +59,7 @@ describe('computeSmartCompleteness', () => {
   it('marks R true with only whyMatters even without ids', () => {
     const result = computeSmartCompleteness(
       { ...completeGoal, priorityIds: [], lifeAreaIds: [], whyMatters: 'It matters' },
-      1,
+      1
     )
     expect(result.R).toBe(true)
   })
@@ -67,7 +67,7 @@ describe('computeSmartCompleteness', () => {
   it('marks R false when no priority, life area, or whyMatters', () => {
     const result = computeSmartCompleteness(
       { ...completeGoal, priorityIds: [], lifeAreaIds: [], whyMatters: undefined },
-      1,
+      1
     )
     expect(result.R).toBe(false)
     expect(result.missing).toContain('R')
@@ -76,7 +76,7 @@ describe('computeSmartCompleteness', () => {
   it('treats whitespace-only strings as missing', () => {
     const result = computeSmartCompleteness(
       { ...completeGoal, targetDate: '   ', whyMatters: '   ', priorityIds: [], lifeAreaIds: [] },
-      1,
+      1
     )
     expect(result.T).toBe(false)
     expect(result.R).toBe(false)

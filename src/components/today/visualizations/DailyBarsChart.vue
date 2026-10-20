@@ -1,11 +1,6 @@
 <template>
   <div class="flex w-full flex-col gap-1">
-    <svg
-      :viewBox="`0 0 ${VW} ${VH}`"
-      width="100%"
-      preserveAspectRatio="none"
-      aria-hidden="true"
-    >
+    <svg :viewBox="`0 0 ${VW} ${VH}`" width="100%" preserveAspectRatio="none" aria-hidden="true">
       <defs>
         <linearGradient :id="gradientIds.met" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stop-color="rgb(var(--neo-chart-primary-start))" />
@@ -45,7 +40,11 @@
           :height="barHeight(slot) + 2"
           rx="4"
           fill="none"
-          :stroke="periodStatus === 'missed' ? 'rgb(var(--color-error))' : 'rgb(var(--neo-chart-primary-end))'"
+          :stroke="
+            periodStatus === 'missed'
+              ? 'rgb(var(--color-error))'
+              : 'rgb(var(--neo-chart-primary-end))'
+          "
           stroke-width="1"
           stroke-opacity="0.4"
           vector-effect="non-scaling-stroke"
@@ -53,11 +52,7 @@
       </g>
     </svg>
     <div class="day-labels">
-      <span
-        v-for="(slot, i) in slots"
-        :key="slot.dayRef || i"
-        class="day-label"
-      >
+      <span v-for="(slot, i) in slots" :key="slot.dayRef || i" class="day-label">
         {{ slot.label }}
       </span>
     </div>
@@ -78,9 +73,7 @@ const props = defineProps<{
 const gradientIds = useGradientIds('dbars')
 
 const barGradient = computed(() =>
-  props.periodStatus === 'missed'
-    ? `url(#${gradientIds.missed})`
-    : `url(#${gradientIds.met})`,
+  props.periodStatus === 'missed' ? `url(#${gradientIds.missed})` : `url(#${gradientIds.met})`
 )
 
 // SVG hosts the bars only; labels live in an HTML row below so their size

@@ -77,7 +77,10 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import ObjectsCompactMultiSelect from '@/components/objects/ObjectsCompactMultiSelect.vue'
-import type { ObjectsLibraryFilterOption, ObjectsLibraryQuery } from '@/services/objectsLibraryQueries'
+import type {
+  ObjectsLibraryFilterOption,
+  ObjectsLibraryQuery,
+} from '@/services/objectsLibraryQueries'
 
 const props = defineProps<{
   query: ObjectsLibraryQuery
@@ -109,7 +112,7 @@ const activeCount = computed(
   () =>
     props.query.lifeAreaIds.length +
     props.query.priorityIds.length +
-    (props.query.showClosed ? 1 : 0),
+    (props.query.showClosed ? 1 : 0)
 )
 
 async function toggleOpen(): Promise<void> {

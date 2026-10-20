@@ -53,7 +53,7 @@ export function useTodayItemVisualization(
   rawEntries: Ref<DailyMeasurementEntry[]>,
   allDayAssignments: Ref<MeasurementDayAssignment[]>,
   todayDayRef: Ref<DayRef>,
-  locale: Ref<string>,
+  locale: Ref<string>
 ) {
   const vizType = computed<TodayVizType>(() => {
     const current = item.value
@@ -91,7 +91,7 @@ export function useTodayItemVisualization(
         m.planning,
         m.contextPeriodRef as WeekRef,
         todayDayRef.value,
-        locale.value,
+        locale.value
       )
     }
     return buildCompletionSlots(
@@ -102,7 +102,7 @@ export function useTodayItemVisualization(
       m.planning,
       m.contextPeriodRef,
       todayDayRef.value,
-      locale.value,
+      locale.value
     )
   })
 
@@ -122,7 +122,7 @@ export function useTodayItemVisualization(
       m.planning,
       m.contextPeriodRef as WeekRef,
       todayDayRef.value,
-      locale.value,
+      locale.value
     )
   })
 
@@ -144,7 +144,7 @@ export function useTodayItemVisualization(
       m.planning,
       m.contextPeriodRef,
       todayDayRef.value,
-      locale.value,
+      locale.value
     )
   })
 
@@ -157,7 +157,7 @@ export function useTodayItemVisualization(
       rawEntries.value,
       m.contextPeriodRef,
       todayDayRef.value,
-      locale.value,
+      locale.value
     )
   })
 
@@ -185,7 +185,7 @@ export function useTodayItemVisualization(
       m.contextPeriodRef,
       todayDayRef.value,
       m.measurement,
-      locale.value,
+      locale.value
     )
   })
 
@@ -203,7 +203,7 @@ export function useTodayItemVisualization(
       m.subjectType,
       rawEntries.value,
       m.contextPeriodRef,
-      m.measurement,
+      m.measurement
     )
   })
 

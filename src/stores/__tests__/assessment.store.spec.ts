@@ -32,7 +32,8 @@ describe('assessment.store', () => {
 
     const attempt = await store.startAttempt('ipip-bfm-50', 'en')
 
-    const extraversionItems = definition.scales.find((scale) => scale.id === 'extraversion')?.itemIds ?? []
+    const extraversionItems =
+      definition.scales.find(scale => scale.id === 'extraversion')?.itemIds ?? []
     for (const itemId of extraversionItems.slice(0, 8)) {
       await store.saveResponse('ipip-bfm-50', attempt.id, itemId, 3)
     }
@@ -52,7 +53,8 @@ describe('assessment.store', () => {
 
     const attempt = await store.startAttempt('ipip-bfm-50', 'en')
 
-    const extraversionItems = definition.scales.find((scale) => scale.id === 'extraversion')?.itemIds ?? []
+    const extraversionItems =
+      definition.scales.find(scale => scale.id === 'extraversion')?.itemIds ?? []
     for (const itemId of extraversionItems.slice(0, 8)) {
       await store.saveResponse('ipip-bfm-50', attempt.id, itemId, 3)
     }

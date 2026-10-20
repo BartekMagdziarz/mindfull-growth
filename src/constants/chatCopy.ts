@@ -1,16 +1,12 @@
 export const CHAT_COPY = {
   errors: {
-    missingApiKey:
-      'OpenAI API key is not configured. Please add your API key in Profile settings.',
+    missingApiKey: 'OpenAI API key is not configured. Please add your API key in Profile settings.',
     missingAIProviderConfig:
       'AI provider is not configured. Please add AI provider settings in Profile settings.',
-    invalidApiKey:
-      'Invalid API key. Please check your API key in Profile settings.',
-    network:
-      'Network error. Please check your connection and try again.',
+    invalidApiKey: 'Invalid API key. Please check your API key in Profile settings.',
+    network: 'Network error. Please check your connection and try again.',
     rateLimit: 'Rate limit exceeded. Please try again in a moment.',
-    genericApi: (status: number) =>
-      `API request failed with status ${status}. Please try again.`,
+    genericApi: (status: number) => `API request failed with status ${status}. Please try again.`,
   },
   chat: {
     saveRequirements:
@@ -20,4 +16,3 @@ export const CHAT_COPY = {
     noSessionToSave: 'No active chat session to save.',
   },
 } as const
-

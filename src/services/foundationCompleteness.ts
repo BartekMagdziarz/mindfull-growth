@@ -137,27 +137,68 @@ export const FOUNDATION_BIG_FIVE_VARIANTS: readonly FoundationVariant[] = [
 
 export const FOUNDATION_ITEMS: readonly FoundationItemDescriptor[] = [
   // Values — what matters to you
-  { id: 'valuesDiscovery',       group: 'values',      routeName: 'exercise-values' },
-  { id: 'valueMap',              group: 'values',      routeName: 'exercise-value-map' },
-  { id: 'pvq-40',                group: 'values',      routeName: 'exercise-assessment', routeParams: { assessmentId: 'pvq-40' } },
+  { id: 'valuesDiscovery', group: 'values', routeName: 'exercise-values' },
+  { id: 'valueMap', group: 'values', routeName: 'exercise-value-map' },
+  {
+    id: 'pvq-40',
+    group: 'values',
+    routeName: 'exercise-assessment',
+    routeParams: { assessmentId: 'pvq-40' },
+  },
   // Meaning & direction — where you're heading and the story so far
-  { id: 'transformativePurpose', group: 'meaning',     routeName: 'exercise-purpose' },
-  { id: 'threePathways',         group: 'meaning',     routeName: 'exercise-three-pathways' },
-  { id: 'mountainRange',         group: 'meaning',     routeName: 'exercise-mountain-range' },
+  { id: 'transformativePurpose', group: 'meaning', routeName: 'exercise-purpose' },
+  { id: 'threePathways', group: 'meaning', routeName: 'exercise-three-pathways' },
+  { id: 'mountainRange', group: 'meaning', routeName: 'exercise-mountain-range' },
   // Personality & lenses — your traits, patterns, and inner system
-  { id: 'bigFive',               group: 'personality', routeName: 'exercise-assessment', routeParams: { assessmentId: 'ipip-bfm-50' }, variants: FOUNDATION_BIG_FIVE_VARIANTS },
-  { id: 'hexaco-60',             group: 'personality', routeName: 'exercise-assessment', routeParams: { assessmentId: 'hexaco-60' } },
-  { id: 'shadowBeliefs',         group: 'personality', routeName: 'exercise-shadow-beliefs' },
-  { id: 'ifsPartsMap',           group: 'personality', routeName: 'exercise-parts-mapping' },
-  { id: 'ipip-via',              group: 'personality', routeName: 'exercise-assessment', routeParams: { assessmentId: 'ipip-via' } },
+  {
+    id: 'bigFive',
+    group: 'personality',
+    routeName: 'exercise-assessment',
+    routeParams: { assessmentId: 'ipip-bfm-50' },
+    variants: FOUNDATION_BIG_FIVE_VARIANTS,
+  },
+  {
+    id: 'hexaco-60',
+    group: 'personality',
+    routeName: 'exercise-assessment',
+    routeParams: { assessmentId: 'hexaco-60' },
+  },
+  { id: 'shadowBeliefs', group: 'personality', routeName: 'exercise-shadow-beliefs' },
+  { id: 'ifsPartsMap', group: 'personality', routeName: 'exercise-parts-mapping' },
+  {
+    id: 'ipip-via',
+    group: 'personality',
+    routeName: 'exercise-assessment',
+    routeParams: { assessmentId: 'ipip-via' },
+  },
   // Emotions & regulation — how you work with feelings
-  { id: 'erq',                   group: 'emotions',    routeName: 'exercise-assessment', routeParams: { assessmentId: 'erq' } },
-  { id: 'rrq',                   group: 'emotions',    routeName: 'exercise-assessment', routeParams: { assessmentId: 'rrq' } },
+  {
+    id: 'erq',
+    group: 'emotions',
+    routeName: 'exercise-assessment',
+    routeParams: { assessmentId: 'erq' },
+  },
+  {
+    id: 'rrq',
+    group: 'emotions',
+    routeName: 'exercise-assessment',
+    routeParams: { assessmentId: 'rrq' },
+  },
   // Relationships & bonds — how you connect and attach
-  { id: 'ecr-rs',                group: 'relationships', routeName: 'exercise-assessment', routeParams: { assessmentId: 'ecr-rs' } },
+  {
+    id: 'ecr-rs',
+    group: 'relationships',
+    routeName: 'exercise-assessment',
+    routeParams: { assessmentId: 'ecr-rs' },
+  },
   // Life balance — how your areas of life feel right now
-  { id: 'wheelOfLife',           group: 'lifeBalance', routeName: 'exercise-wheel-of-life' },
-  { id: 'vlq',                   group: 'lifeBalance', routeName: 'exercise-assessment', routeParams: { assessmentId: 'vlq' } },
+  { id: 'wheelOfLife', group: 'lifeBalance', routeName: 'exercise-wheel-of-life' },
+  {
+    id: 'vlq',
+    group: 'lifeBalance',
+    routeName: 'exercise-assessment',
+    routeParams: { assessmentId: 'vlq' },
+  },
 ] as const
 
 /** Self-discovery (non-assessment) foundation items, resolved from store getters below. */
@@ -191,7 +232,7 @@ export async function loadFoundationSourceData(): Promise<void> {
     threePathways.loadExplorations(),
     mountainRange.loadExplorations(),
     partsMap.loadMaps(),
-    ...FOUNDATION_BIG_FIVE_VARIANTS.map((v) => assessments.loadAttempts(v.assessmentId)),
+    ...FOUNDATION_BIG_FIVE_VARIANTS.map(v => assessments.loadAttempts(v.assessmentId)),
     assessments.loadAttempts('hexaco-60'),
     assessments.loadAttempts('pvq-40'),
     assessments.loadAttempts('vlq'),
@@ -210,16 +251,13 @@ function daysSince(iso: string, now: Date): number {
 function deriveState(
   lastCompletedAt: string | undefined,
   hasInProgress: boolean,
-  now: Date,
+  now: Date
 ): FoundationItemState {
   if (!lastCompletedAt) return hasInProgress ? 'in-progress' : 'not-started'
   return daysSince(lastCompletedAt, now) > FOUNDATION_OUTDATED_DAYS ? 'outdated' : 'completed'
 }
 
-function assessmentStatus(
-  descriptor: FoundationItemDescriptor,
-  now: Date,
-): FoundationItemStatus {
+function assessmentStatus(descriptor: FoundationItemDescriptor, now: Date): FoundationItemStatus {
   const assessments = useAssessmentStore()
   const assessmentId = descriptor.routeParams!.assessmentId as AssessmentId
   const completed = assessments.getLatestCompletedAttemptFromState(assessmentId)?.completedAt
@@ -240,27 +278,26 @@ function assessmentStatus(
  * completion across variants, and points navigation at the completed (or
  * active) depth so re-opening lands on the test the user actually took.
  */
-function bigFiveStatus(
-  descriptor: FoundationItemDescriptor,
-  now: Date,
-): FoundationItemStatus {
+function bigFiveStatus(descriptor: FoundationItemDescriptor, now: Date): FoundationItemStatus {
   const assessments = useAssessmentStore()
   const variants = descriptor.variants ?? FOUNDATION_BIG_FIVE_VARIANTS
 
   let bestCompletedAt: string | undefined
   let bestVariant: AssessmentId | undefined
   for (const variant of variants) {
-    const completed = assessments.getLatestCompletedAttemptFromState(variant.assessmentId)?.completedAt
+    const completed = assessments.getLatestCompletedAttemptFromState(
+      variant.assessmentId
+    )?.completedAt
     if (completed && (!bestCompletedAt || completed > bestCompletedAt)) {
       bestCompletedAt = completed
       bestVariant = variant.assessmentId
     }
   }
 
-  const activeVariant = variants.find((v) => Boolean(assessments.getActiveAttempt(v.assessmentId)))
+  const activeVariant = variants.find(v => Boolean(assessments.getActiveAttempt(v.assessmentId)))
   const inProgress = !bestCompletedAt && Boolean(activeVariant)
   const target =
-    (bestVariant && variants.find((v) => v.assessmentId === bestVariant)) ||
+    (bestVariant && variants.find(v => v.assessmentId === bestVariant)) ||
     activeVariant ||
     variants[0]
 
@@ -298,7 +335,7 @@ export function computeFoundationStatuses(now: Date = new Date()): FoundationIte
     ifsPartsMap: partsMap.latestMap?.createdAt ?? undefined,
   }
 
-  return FOUNDATION_ITEMS.map((descriptor) => {
+  return FOUNDATION_ITEMS.map(descriptor => {
     if (descriptor.id === 'bigFive') return bigFiveStatus(descriptor, now)
     if (descriptor.routeName === 'exercise-assessment') return assessmentStatus(descriptor, now)
 
@@ -316,11 +353,11 @@ export function computeFoundationStatuses(now: Date = new Date()): FoundationIte
 }
 
 export function foundationCompletionCount(statuses: FoundationItemStatus[]): number {
-  return statuses.filter((s) => s.state === 'completed' || s.state === 'outdated').length
+  return statuses.filter(s => s.state === 'completed' || s.state === 'outdated').length
 }
 
 export function isFoundationOutdated(statuses: FoundationItemStatus[]): boolean {
-  return statuses.some((s) => s.state === 'outdated')
+  return statuses.some(s => s.state === 'outdated')
 }
 
 export interface FoundationGroupProgress {
@@ -337,13 +374,11 @@ export interface FoundationGroupProgress {
 
 /** Per-group fill + satisfaction, in display order. Drives the pillars gauge. */
 export function computeFoundationGroupProgress(
-  statuses: FoundationItemStatus[],
+  statuses: FoundationItemStatus[]
 ): FoundationGroupProgress[] {
-  return FOUNDATION_GROUP_ORDER.map((group) => {
-    const inGroup = statuses.filter((s) => s.group === group)
-    const completed = inGroup.filter(
-      (s) => s.state === 'completed' || s.state === 'outdated',
-    ).length
+  return FOUNDATION_GROUP_ORDER.map(group => {
+    const inGroup = statuses.filter(s => s.group === group)
+    const completed = inGroup.filter(s => s.state === 'completed' || s.state === 'outdated').length
     const minRequired = FOUNDATION_GROUP_MIN_REQUIRED[group]
     return {
       group,
@@ -361,5 +396,5 @@ export function computeFoundationGroupProgress(
  * coverage rather than a single over-represented dimension.
  */
 export function isFoundationBuildUnlocked(statuses: FoundationItemStatus[]): boolean {
-  return computeFoundationGroupProgress(statuses).every((g) => g.satisfied)
+  return computeFoundationGroupProgress(statuses).every(g => g.satisfied)
 }

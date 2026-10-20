@@ -88,7 +88,7 @@ describe('auditMeasurementRecords', () => {
     const records = auditMeasurementRecords(
       [makeHabit(), brokenHabit],
       [makeKeyResult(), brokenKr],
-      [makeTracker()],
+      [makeTracker()]
     )
 
     expect(records).toHaveLength(2)
@@ -106,7 +106,7 @@ describe('auditMeasurementRecords', () => {
           title: 'Daily rating',
           reason: 'completion entry mode requires count target',
         },
-      ]),
+      ])
     )
   })
 

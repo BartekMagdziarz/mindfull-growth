@@ -20,7 +20,13 @@ vi.mock('@/services/planningStateQueries', () => ({
   getWeekPlanningBundle: vi.fn().mockResolvedValue({ weekPlan: undefined, rawEntries: [] }),
   getWeekReflectionBundle: vi.fn().mockResolvedValue({
     overlappingMonthRefs: [],
-    relevant: { goalItems: [], measurementItems: [], cadencedItems: [], trackerItems: [], initiativeItems: [] },
+    relevant: {
+      goalItems: [],
+      measurementItems: [],
+      cadencedItems: [],
+      trackerItems: [],
+      initiativeItems: [],
+    },
   }),
 }))
 

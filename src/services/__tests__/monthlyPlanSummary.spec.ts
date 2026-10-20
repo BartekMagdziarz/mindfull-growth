@@ -45,7 +45,10 @@ function makeKeyResult(overrides: Partial<KeyResult> = {}): KeyResult {
   }
 }
 
-function makeIntention(weekRef: WeekRef, overrides: Partial<WeeklyIntention> = {}): WeeklyIntention {
+function makeIntention(
+  weekRef: WeekRef,
+  overrides: Partial<WeeklyIntention> = {}
+): WeeklyIntention {
   return {
     id: 'intention-1',
     createdAt: '2026-01-01T00:00:00.000Z',
@@ -62,7 +65,9 @@ function makeIntention(weekRef: WeekRef, overrides: Partial<WeeklyIntention> = {
   }
 }
 
-function makePlanning(overrides: Partial<MeasurementPlanningSummary> = {}): MeasurementPlanningSummary {
+function makePlanning(
+  overrides: Partial<MeasurementPlanningSummary> = {}
+): MeasurementPlanningSummary {
   return {
     activityState: 'active',
     scheduleScope: 'whole-month',
@@ -84,7 +89,7 @@ function makeMeasurement(overrides: Partial<MeasurementSummary> = {}): Measureme
 function makeCompletionEntry(
   subjectId: string,
   dayRef: string,
-  subjectType: 'habit' | 'keyResult' | 'weeklyIntention' = 'habit',
+  subjectType: 'habit' | 'keyResult' | 'weeklyIntention' = 'habit'
 ): DailyMeasurementEntry {
   return {
     id: `${subjectId}-${dayRef}`,
@@ -99,7 +104,7 @@ function makeCompletionEntry(
 
 function monthlyHabitItem(
   status: MeasurementSummary['evaluationStatus'],
-  id = 'habit-1',
+  id = 'habit-1'
 ): MonthObjectItem {
   return {
     key: `habit:${id}`,
@@ -113,7 +118,7 @@ function monthlyHabitItem(
 
 function monthlyKrItem(
   status: MeasurementSummary['evaluationStatus'],
-  id = 'kr-1',
+  id = 'kr-1'
 ): MonthObjectItem {
   return {
     key: `keyResult:${id}`,
@@ -158,32 +163,17 @@ describe('buildMonthlyPlanSummary', () => {
   })
 
   it('counts a monthly habit met as a single unit', () => {
-    const summary = buildMonthlyPlanSummary(
-      [monthlyHabitItem('met')],
-      [],
-      monthRef,
-      endOfMonth,
-    )
+    const summary = buildMonthlyPlanSummary([monthlyHabitItem('met')], [], monthRef, endOfMonth)
     expect(summary.habits).toEqual({ total: 1, met: 1 })
   })
 
   it('counts a monthly habit missed as zero met', () => {
-    const summary = buildMonthlyPlanSummary(
-      [monthlyHabitItem('missed')],
-      [],
-      monthRef,
-      endOfMonth,
-    )
+    const summary = buildMonthlyPlanSummary([monthlyHabitItem('missed')], [], monthRef, endOfMonth)
     expect(summary.habits).toEqual({ total: 1, met: 0 })
   })
 
   it('counts each week of the month as one unit for a weekly habit', () => {
-    const summary = buildMonthlyPlanSummary(
-      [weeklyHabitItem()],
-      [],
-      monthRef,
-      endOfMonth,
-    )
+    const summary = buildMonthlyPlanSummary([weeklyHabitItem()], [], monthRef, endOfMonth)
     expect(summary.habits.total).toBe(monthWeeks.length)
     // No entries → all weeks no-data → met stays 0.
     expect(summary.habits.met).toBe(0)
@@ -191,19 +181,14 @@ describe('buildMonthlyPlanSummary', () => {
 
   it('increments met for each week of a weekly habit with at least one entry', () => {
     // One completion entry on the first day of each week of the month.
-    const entries = monthWeeks.map((weekRef) => {
+    const entries = monthWeeks.map(weekRef => {
       // Pick a day inside the week that also falls inside May 2026 (weeks at
       // the month boundary may include April/June days too).
       const days = getChildPeriods(weekRef) as DayRef[]
-      const targetDay = days.find((d) => d.startsWith('2026-05')) ?? days[0]
+      const targetDay = days.find(d => d.startsWith('2026-05')) ?? days[0]
       return makeCompletionEntry('habit-weekly', targetDay, 'habit')
     })
-    const summary = buildMonthlyPlanSummary(
-      [weeklyHabitItem()],
-      entries,
-      monthRef,
-      endOfMonth,
-    )
+    const summary = buildMonthlyPlanSummary([weeklyHabitItem()], entries, monthRef, endOfMonth)
     // Some weeks may not overlap May 2026 (W18 spans April-27..May-3) — every
     // week we ARE supplying an in-May entry; if a week has no May day the
     // entry uses days[0] which is outside May and weekly summary won't see it,
@@ -218,7 +203,7 @@ describe('buildMonthlyPlanSummary', () => {
       [monthlyKrItem('met'), weeklyHabitItem()],
       [],
       monthRef,
-      endOfMonth,
+      endOfMonth
     )
     expect(summary.keyResults).toEqual({ total: 1, met: 1 })
     expect(summary.habits.total).toBe(monthWeeks.length)
@@ -232,7 +217,7 @@ describe('buildMonthlyPlanSummary', () => {
       [weeklyHabitItem()],
       [],
       monthRef,
-      '2026-05-01' as DayRef,
+      '2026-05-01' as DayRef
     )
     expect(summary.habits.total).toBeLessThan(monthWeeks.length)
     expect(summary.habits.total).toBeGreaterThan(0)
@@ -241,9 +226,7 @@ describe('buildMonthlyPlanSummary', () => {
   it('counts each intention once in its own week — unmet without entries', () => {
     const met = makeIntention(monthWeeks[0], { id: 'i-met' })
     const unmet = makeIntention(monthWeeks[1], { id: 'i-unmet' })
-    const entries = [
-      makeCompletionEntry('i-met', dayOfWeekRef(monthWeeks[0]), 'weeklyIntention'),
-    ]
+    const entries = [makeCompletionEntry('i-met', dayOfWeekRef(monthWeeks[0]), 'weeklyIntention')]
     const summary = buildMonthlyPlanSummary([], entries, monthRef, endOfMonth, [met, unmet])
     expect(summary.intentions).toEqual({ total: 2, met: 1 })
   })
@@ -258,7 +241,7 @@ describe('buildMonthlyPlanSummary', () => {
       monthRef,
       // Today = first day of the month → only the first (already started) week counts.
       '2026-05-01' as DayRef,
-      [firstWeek, lastWeek, inactive],
+      [firstWeek, lastWeek, inactive]
     )
     expect(summary.intentions).toEqual({ total: 1, met: 0 })
   })
@@ -276,7 +259,10 @@ describe('buildMonthlyPlanSummary', () => {
       },
     }
     const entries = [
-      makeCompletionEntry('habit-sub', weeklyDays.find((d) => d.startsWith('2026-05')) ?? weeklyDays[0]),
+      makeCompletionEntry(
+        'habit-sub',
+        weeklyDays.find(d => d.startsWith('2026-05')) ?? weeklyDays[0]
+      ),
     ]
 
     const summary = buildMonthlyPlanSummary([item], entries, monthRef, endOfMonth)

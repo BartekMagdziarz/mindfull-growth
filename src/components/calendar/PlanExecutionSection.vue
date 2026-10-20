@@ -33,19 +33,10 @@
     </div>
 
     <div v-else class="plan-exec__rings">
-      <div
-        v-for="ring in ringModels"
-        :key="ring.key"
-        class="plan-ring-cell"
-      >
+      <div v-for="ring in ringModels" :key="ring.key" class="plan-ring-cell">
         <div class="plan-ring">
           <svg viewBox="0 0 36 36" class="plan-ring__svg" aria-hidden="true">
-            <circle
-              cx="18"
-              cy="18"
-              r="15.915"
-              class="plan-ring__track"
-            />
+            <circle cx="18" cy="18" r="15.915" class="plan-ring__track" />
             <circle
               v-if="ring.denominator > 0 && ring.percent > 0"
               cx="18"
@@ -89,7 +80,7 @@ const props = withDefaults(
     /** Overrides the default no-plan copy (e.g. the month card points at its wizard). */
     emptyDescription?: string
   }>(),
-  { showActions: true, emptyDescription: '' },
+  { showActions: true, emptyDescription: '' }
 )
 
 defineEmits<{
@@ -117,11 +108,11 @@ function ringValueText(numerator: number, denominator: number): string {
 }
 
 const ringModels = computed<RingModel[]>(() =>
-  props.rings.map((ring) => ({
+  props.rings.map(ring => ({
     ...ring,
     percent: ratioPercent(ring.numerator, ring.denominator),
     text: ringValueText(ring.numerator, ring.denominator),
-  })),
+  }))
 )
 </script>
 
@@ -140,7 +131,6 @@ const ringModels = computed<RingModel[]>(() =>
   min-height: 18px;
 }
 
-
 .plan-exec__edit {
   display: flex;
   align-items: center;
@@ -153,7 +143,10 @@ const ringModels = computed<RingModel[]>(() =>
   color: rgb(var(--neo-muted));
   cursor: pointer;
   opacity: 0;
-  transition: opacity 150ms ease, color 150ms ease, transform 150ms ease;
+  transition:
+    opacity 150ms ease,
+    color 150ms ease,
+    transform 150ms ease;
   box-shadow:
     -1px -1px 2px rgb(var(--neo-shadow-light) / 0.8),
     1px 1px 2px rgb(var(--neo-shadow-dark) / 0.25);

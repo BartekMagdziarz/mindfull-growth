@@ -11,12 +11,26 @@
           <button type="button" class="cp__arrow" aria-label="Następny okres" @click="shift(1)">
             <AppIcon name="chevron_right" />
           </button>
-          <button v-if="!state.isTodayFocused.value" type="button" class="cp-btn cp-btn--quiet" @click="goToday">Dziś</button>
+          <button
+            v-if="!state.isTodayFocused.value"
+            type="button"
+            class="cp-btn cp-btn--quiet"
+            @click="goToday"
+          >
+            Dziś
+          </button>
         </div>
         <div class="cp__tools">
           <!-- jedno miejsce na rytuały okresu: etykieta zależy od stanu okresu, nie od skali -->
           <div class="cp__actions">
-            <button v-for="action in actions" :key="action.kind" type="button" class="cp-btn" :title="action.hint" @click="openRitual(action.kind)">
+            <button
+              v-for="action in actions"
+              :key="action.kind"
+              type="button"
+              class="cp-btn"
+              :title="action.hint"
+              @click="openRitual(action.kind)"
+            >
               <AppIcon :name="action.icon" />{{ action.label }}
             </button>
           </div>
@@ -88,10 +102,22 @@ import type { PeriodRef } from '@/domain/period'
 import type { PlanningScale } from '@/design-system/contracts'
 import { DsState } from '@/design-system/components'
 import AppIcon from '@/components/shared/AppIcon.vue'
-import { getNextPeriod, getPeriodRefsForDate, getPeriodType, getPreviousPeriod } from '@/utils/periods'
+import {
+  getNextPeriod,
+  getPeriodRefsForDate,
+  getPeriodType,
+  getPreviousPeriod,
+} from '@/utils/periods'
 import RhythmBoard from './RhythmBoard.vue'
 import RhythmPeriodSummary from './RhythmPeriodSummary.vue'
-import { SCALES, ownReflection, periodTitle, ritualActions, type RitualKind, type Scale } from './rhythmProjections'
+import {
+  SCALES,
+  ownReflection,
+  periodTitle,
+  ritualActions,
+  type RitualKind,
+  type Scale,
+} from './rhythmProjections'
 import { buildRows, viewOptions as viewOptionsFor } from './rhythmRows'
 import { useRhythmCalendar } from './useRhythmCalendar'
 import './rhythm.css'
@@ -108,15 +134,26 @@ const state = useRhythmCalendar(toRef(props, 'scale'), toRef(props, 'periodRef')
 
 const title = computed(() => periodTitle(props.scale, props.periodRef))
 const actions = computed(() =>
-  ritualActions(props.scale, state.periodState.value, !!ownReflection(state.scenario.value, props.scale, props.periodRef)?.exists),
+  ritualActions(
+    props.scale,
+    state.periodState.value,
+    !!ownReflection(state.scenario.value, props.scale, props.periodRef)?.exists
+  )
 )
 const viewOptions = computed(() =>
-  viewOptionsFor(state.scenario.value, props.scale, props.periodRef, state.units.value),
+  viewOptionsFor(state.scenario.value, props.scale, props.periodRef, state.units.value)
 )
 const rows = computed(() =>
-  buildRows(state.scenario.value, props.scale, props.periodRef, state.units.value, state.view.value, {
-    moreSeries: state.moreSeries.value,
-  }),
+  buildRows(
+    state.scenario.value,
+    props.scale,
+    props.periodRef,
+    state.units.value,
+    state.view.value,
+    {
+      moreSeries: state.moreSeries.value,
+    }
+  )
 )
 
 function shift(direction: -1 | 1) {
@@ -126,7 +163,11 @@ function shift(direction: -1 | 1) {
 
 function goToday() {
   const refs = getPeriodRefsForDate(new Date())
-  emit('open-period', props.scale, props.scale === 'year' ? refs.year : props.scale === 'month' ? refs.month : refs.week)
+  emit(
+    'open-period',
+    props.scale,
+    props.scale === 'year' ? refs.year : props.scale === 'month' ? refs.month : refs.week
+  )
 }
 
 /** Clicking a sub-period zooms into it: a week/month becomes the focus of its own scale, a day opens the day view. */

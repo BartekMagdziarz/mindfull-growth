@@ -1,7 +1,11 @@
 <template>
   <div class="space-y-6">
     <!-- Step indicator dots -->
-    <ExerciseStepper :labels="stepLabels" :current="currentVisualStep" @go="goToStepByIndex($event)" />
+    <ExerciseStepper
+      :labels="stepLabels"
+      :current="currentVisualStep"
+      @go="goToStepByIndex($event)"
+    />
 
     <!-- Step 1: Intro -->
     <Transition
@@ -12,7 +16,9 @@
     >
       <div v-if="currentStep === 'intro'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.compassionateLetter.intro.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.compassionateLetter.intro.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ tg('exerciseWizards.compassionateLetter.intro.description') }}
           </p>
@@ -24,7 +30,9 @@
               <div class="flex items-start gap-2">
                 <AppIcon name="favorite" class="text-base text-primary flex-shrink-0 mt-0.5" />
                 <div>
-                  <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.compassionateLetter.intro.selfKindness') }}</p>
+                  <p class="text-sm font-medium text-on-surface">
+                    {{ t('exerciseWizards.compassionateLetter.intro.selfKindness') }}
+                  </p>
                   <p class="text-xs text-on-surface-variant">
                     {{ t('exerciseWizards.compassionateLetter.intro.selfKindnessDescription') }}
                   </p>
@@ -33,7 +41,9 @@
               <div class="flex items-start gap-2">
                 <AppIcon name="group" class="text-base text-primary flex-shrink-0 mt-0.5" />
                 <div>
-                  <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.compassionateLetter.intro.commonHumanity') }}</p>
+                  <p class="text-sm font-medium text-on-surface">
+                    {{ t('exerciseWizards.compassionateLetter.intro.commonHumanity') }}
+                  </p>
                   <p class="text-xs text-on-surface-variant">
                     {{ t('exerciseWizards.compassionateLetter.intro.commonHumanityDescription') }}
                   </p>
@@ -42,7 +52,9 @@
               <div class="flex items-start gap-2">
                 <AppIcon name="visibility" class="text-base text-primary flex-shrink-0 mt-0.5" />
                 <div>
-                  <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.compassionateLetter.intro.mindfulness') }}</p>
+                  <p class="text-sm font-medium text-on-surface">
+                    {{ t('exerciseWizards.compassionateLetter.intro.mindfulness') }}
+                  </p>
                   <p class="text-xs text-on-surface-variant">
                     {{ t('exerciseWizards.compassionateLetter.intro.mindfulnessDescription') }}
                   </p>
@@ -68,7 +80,9 @@
     >
       <div v-if="currentStep === 'situation'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.compassionateLetter.situation.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.compassionateLetter.situation.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ tg('exerciseWizards.compassionateLetter.situation.description') }}
           </p>
@@ -81,7 +95,9 @@
         </AppCard>
 
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'intro'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'intro'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton
             variant="filled"
             :disabled="!situation.trim()"
@@ -103,7 +119,9 @@
       <div v-if="currentStep === 'emotions'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
           <div class="flex items-center gap-1.5">
-            <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.compassionateLetter.emotions.title') }}</h2>
+            <h2 class="text-lg font-semibold text-on-surface">
+              {{ t('exerciseWizards.compassionateLetter.emotions.title') }}
+            </h2>
           </div>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.compassionateLetter.emotions.description') }}
@@ -118,7 +136,9 @@
         </AppCard>
 
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'situation'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'situation'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton
             variant="filled"
             :disabled="selectedEmotionIds.length === 0 && selectedEmotionFamilyIds.length === 0"
@@ -139,7 +159,9 @@
     >
       <div v-if="currentStep === 'critic'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.compassionateLetter.critic.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.compassionateLetter.critic.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.compassionateLetter.critic.description') }}
           </p>
@@ -162,13 +184,16 @@
               </button>
             </div>
             <AppButton variant="text" @click="selfCriticalThoughts.push('')">
-              <AppIcon name="add" class="text-base mr-1" /> {{ t('exerciseWizards.compassionateLetter.critic.addThought') }}
+              <AppIcon name="add" class="text-base mr-1" />
+              {{ t('exerciseWizards.compassionateLetter.critic.addThought') }}
             </AppButton>
           </div>
         </AppCard>
 
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'emotions'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'emotions'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton
             variant="filled"
             :disabled="filledSelfCriticalThoughts.length === 0"
@@ -189,7 +214,9 @@
     >
       <div v-if="currentStep === 'response'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.compassionateLetter.response.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.compassionateLetter.response.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ tg('exerciseWizards.compassionateLetter.response.description') }}
           </p>
@@ -206,11 +233,17 @@
             <div class="flex flex-wrap items-center gap-2">
               <AppButton
                 variant="tonal"
-                :disabled="isLlmLoading || !situation.trim() || filledSelfCriticalThoughts.length === 0"
+                :disabled="
+                  isLlmLoading || !situation.trim() || filledSelfCriticalThoughts.length === 0
+                "
                 @click="handleCompassionateAssist"
               >
                 <AppIcon name="auto_awesome" class="text-base mr-1.5" />
-                {{ isLlmLoading ? t('exerciseWizards.compassionateLetter.response.llmLoading') : t('exerciseWizards.compassionateLetter.response.llmLabel') }}
+                {{
+                  isLlmLoading
+                    ? t('exerciseWizards.compassionateLetter.response.llmLoading')
+                    : t('exerciseWizards.compassionateLetter.response.llmLabel')
+                }}
               </AppButton>
               <ProfileContextToggle v-model="useProfileCompassionate" />
             </div>
@@ -229,7 +262,9 @@
         </AppCard>
 
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'critic'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'critic'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton
             variant="filled"
             :disabled="!compassionateResponse.trim()"
@@ -250,10 +285,16 @@
     >
       <div v-if="currentStep === 'check'" class="space-y-4" data-testid="letter-check">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.compassionateLetter.check.title') }}</h2>
-          <p class="text-sm text-on-surface-variant">{{ tg('exerciseWizards.compassionateLetter.check.description') }}</p>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.compassionateLetter.check.title') }}
+          </h2>
+          <p class="text-sm text-on-surface-variant">
+            {{ tg('exerciseWizards.compassionateLetter.check.description') }}
+          </p>
           <ExerciseStepWhy :text="tg('exerciseWizards.compassionateLetter.check.why')" />
-          <blockquote class="neo-panel p-4 text-sm text-on-surface whitespace-pre-line">{{ compassionateResponse }}</blockquote>
+          <blockquote class="neo-panel p-4 text-sm text-on-surface whitespace-pre-line">
+            {{ compassionateResponse }}
+          </blockquote>
           <ul class="space-y-2">
             <li v-for="item in CHECKLIST_ITEMS" :key="item">
               <label class="flex items-start gap-3 cursor-pointer">
@@ -263,17 +304,27 @@
                   :checked="checklist.includes(item)"
                   @change="toggleChecklist(item)"
                 />
-                <span class="text-sm text-on-surface">{{ t(`exerciseWizards.compassionateLetter.check.items.${item}`) }}</span>
+                <span class="text-sm text-on-surface">{{
+                  t(`exerciseWizards.compassionateLetter.check.items.${item}`)
+                }}</span>
               </label>
             </li>
           </ul>
-          <p v-if="letterHasAdvice" class="text-sm text-on-surface-variant">{{ tg('exerciseWizards.compassionateLetter.check.warning') }}</p>
-          <p v-if="letterTooShort" class="text-xs text-on-surface-variant">{{ t('exerciseWizards.compassionateLetter.check.lengthNote') }}</p>
+          <p v-if="letterHasAdvice" class="text-sm text-on-surface-variant">
+            {{ tg('exerciseWizards.compassionateLetter.check.warning') }}
+          </p>
+          <p v-if="letterTooShort" class="text-xs text-on-surface-variant">
+            {{ t('exerciseWizards.compassionateLetter.check.lengthNote') }}
+          </p>
         </AppCard>
 
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'response'">{{ t('exerciseWizards.compassionateLetter.check.editLetter') }}</AppButton>
-          <AppButton variant="filled" @click="currentStep = 'takeaways'">{{ t('common.buttons.next') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'response'">{{
+            t('exerciseWizards.compassionateLetter.check.editLetter')
+          }}</AppButton>
+          <AppButton variant="filled" @click="currentStep = 'takeaways'">{{
+            t('common.buttons.next')
+          }}</AppButton>
         </div>
       </div>
     </Transition>
@@ -287,7 +338,9 @@
     >
       <div v-if="currentStep === 'takeaways'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.compassionateLetter.takeaways.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.compassionateLetter.takeaways.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.compassionateLetter.takeaways.description') }}
           </p>
@@ -310,13 +363,16 @@
               </button>
             </div>
             <AppButton variant="text" @click="takeaways.push('')">
-              <AppIcon name="add" class="text-base mr-1" /> {{ t('exerciseWizards.compassionateLetter.takeaways.addTakeaway') }}
+              <AppIcon name="add" class="text-base mr-1" />
+              {{ t('exerciseWizards.compassionateLetter.takeaways.addTakeaway') }}
             </AppButton>
           </div>
         </AppCard>
 
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'check'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'check'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton
             variant="filled"
             :disabled="filledTakeaways.length === 0"
@@ -337,7 +393,9 @@
     >
       <div v-if="currentStep === 'summary'" class="space-y-4">
         <AppCard variant="raised" padding="lg" class="space-y-5">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.compassionateLetter.summary.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.compassionateLetter.summary.title') }}
+          </h2>
 
           <!-- Situation summary -->
           <div class="space-y-1">
@@ -408,7 +466,9 @@
         </AppCard>
 
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'takeaways'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'takeaways'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton variant="filled" @click="handleSave">
             {{ t('common.buttons.save') }}
           </AppButton>
@@ -501,24 +561,36 @@ const compassionateResponse = ref('')
 const takeaways = reactive<string[]>([''])
 /** Gilbert's six qualities, ticked while reading the letter back (never required). */
 const checklist = ref<string[]>([])
-const CHECKLIST_ITEMS = ['care', 'sensitivity', 'tolerance', 'nonJudgement', 'warmth', 'nextStep'] as const
+const CHECKLIST_ITEMS = [
+  'care',
+  'sensitivity',
+  'tolerance',
+  'nonJudgement',
+  'warmth',
+  'nextStep',
+] as const
 /** A soft floor: a letter that does its work usually needs a few hundred characters. */
 const SOFT_MIN_LENGTH = 300
 const letterTooShort = computed(() => compassionateResponse.value.trim().length < SOFT_MIN_LENGTH)
-const letterHasAdvice = computed(() => /\b(powinien|powinn|musisz|musi|should|must)/i.test(compassionateResponse.value))
+const letterHasAdvice = computed(() =>
+  /\b(powinien|powinn|musisz|musi|should|must)/i.test(compassionateResponse.value)
+)
 
 function toggleChecklist(item: string) {
-  checklist.value = checklist.value.includes(item) ? checklist.value.filter((c) => c !== item) : [...checklist.value, item]
+  checklist.value = checklist.value.includes(item)
+    ? checklist.value.filter(c => c !== item)
+    : [...checklist.value, item]
 }
 
 watch(
   () => props.seed,
-  (seed) => {
+  seed => {
     if (!seed) return
     if (seed.situation && !situation.value.trim()) situation.value = seed.situation
-    if (seed.criticThought && !selfCriticalThoughts[0]?.trim()) selfCriticalThoughts[0] = seed.criticThought
+    if (seed.criticThought && !selfCriticalThoughts[0]?.trim())
+      selfCriticalThoughts[0] = seed.criticThought
   },
-  { immediate: true },
+  { immediate: true }
 )
 
 /** The AI draft goes into the editor as a starting point, never as the finished letter. */
@@ -530,12 +602,10 @@ function insertDraft() {
 
 // ─── Computed ────────────────────────────────────────────────────────────────
 const filledSelfCriticalThoughts = computed(() =>
-  selfCriticalThoughts.filter((t) => t.trim().length > 0),
+  selfCriticalThoughts.filter(t => t.trim().length > 0)
 )
 
-const filledTakeaways = computed(() =>
-  takeaways.filter((t) => t.trim().length > 0),
-)
+const filledTakeaways = computed(() => takeaways.filter(t => t.trim().length > 0))
 
 // ─── Emotion Helpers ─────────────────────────────────────────────────────────
 function getEmotionName(id: string): string {
@@ -560,7 +630,7 @@ async function handleCompassionateAssist() {
   llmError.value = ''
   try {
     const { guideCompassionateResponse } = await import('@/services/cbtLLMAssists')
-    const emotions = selectedEmotionIds.value.map((id) => {
+    const emotions = selectedEmotionIds.value.map(id => {
       const emotion = emotionStore.getEmotionById(id)
       return { name: emotion?.name ?? t('common.unknown') }
     })
@@ -573,7 +643,10 @@ async function handleCompassionateAssist() {
     })
     llmAssistUsed.value = true
   } catch (err) {
-    llmError.value = err instanceof Error ? err.message : t('exerciseWizards.compassionateLetter.errors.guidanceFailed')
+    llmError.value =
+      err instanceof Error
+        ? err.message
+        : t('exerciseWizards.compassionateLetter.errors.guidanceFailed')
   } finally {
     isLlmLoading.value = false
   }

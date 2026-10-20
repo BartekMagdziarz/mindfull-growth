@@ -22,7 +22,11 @@
       v-for="row in rows"
       :key="row.id"
       class="ndpath"
-      :class="{ 'ndpath--no-step': !row.step, 'ndpath--no-moment': !row.moment, 'ndpath--no-task': !row.task }"
+      :class="{
+        'ndpath--no-step': !row.step,
+        'ndpath--no-moment': !row.moment,
+        'ndpath--no-task': !row.task,
+      }"
       :aria-label="row.title"
       data-testid="today-path-tile"
     >
@@ -39,7 +43,12 @@
         </span>
         <span class="ndpath__phase">
           <span v-if="row.phase.title" class="ndpath__text">{{ row.phase.title }}</span>
-          <span class="ndpath-dots" role="img" :aria-label="row.progressLabel" :title="row.progressLabel">
+          <span
+            class="ndpath-dots"
+            role="img"
+            :aria-label="row.progressLabel"
+            :title="row.progressLabel"
+          >
             <i
               v-for="n in row.dots.total"
               :key="n"
@@ -47,7 +56,9 @@
             />
           </span>
         </span>
-        <span class="ndpath__open" aria-hidden="true">{{ t('planning.today.wellness.programsOpen') }}</span>
+        <span class="ndpath__open" aria-hidden="true">{{
+          t('planning.today.wellness.programsOpen')
+        }}</span>
       </RouterLink>
 
       <button
@@ -55,7 +66,9 @@
         type="button"
         class="ndpath__field ndpath__action ndpath__step"
         :title="row.step.what"
-        :aria-label="t('planning.today.paths.ariaStep', { step: row.step.title, when: row.step.when })"
+        :aria-label="
+          t('planning.today.paths.ariaStep', { step: row.step.title, when: row.step.when })
+        "
         data-testid="today-path-step"
         @click="row.step.launch()"
       >
@@ -82,7 +95,9 @@
         :to="detailRoute(row.slug)"
         class="ndpath__field ndpath__action ndpath__task"
         :title="row.task.days"
-        :aria-label="t('planning.today.paths.ariaTask', { title: row.task.title, days: row.task.days })"
+        :aria-label="
+          t('planning.today.paths.ariaTask', { title: row.task.title, days: row.task.days })
+        "
         data-testid="today-path-task"
       >
         <span class="ndpath__task-text">
@@ -96,10 +111,16 @@
 
       <p v-if="row.dose" class="ndpath__hint" data-testid="today-path-dose">
         {{ t('planning.today.paths.doseHint') }}
-        <RouterLink :to="detailRoute(row.slug)" class="ndt-link">{{ t('planning.today.paths.doseSee') }}</RouterLink>
+        <RouterLink :to="detailRoute(row.slug)" class="ndt-link">{{
+          t('planning.today.paths.doseSee')
+        }}</RouterLink>
       </p>
     </section>
-    <MomentPickerDialog v-model="launcher.pickerOpen.value" :moments="launcher.pickerMoments.value" @pick="launcher.picked($event)" />
+    <MomentPickerDialog
+      v-model="launcher.pickerOpen.value"
+      :moments="launcher.pickerMoments.value"
+      @pick="launcher.picked($event)"
+    />
   </DsSurface>
 </template>
 
@@ -115,7 +136,12 @@ import type { ProgramDefinition, ProgramEnrollment } from '@/domain/program'
 import { doseProposal } from '@/domain/programFollowUp'
 import { DsSurface } from '@/design-system/components'
 import MomentPickerDialog from '@/features/program-path/MomentPickerDialog.vue'
-import { currentGroupIndex, groupState, pathGroups, stepItemState } from '@/features/program-path/pathModel'
+import {
+  currentGroupIndex,
+  groupState,
+  pathGroups,
+  stepItemState,
+} from '@/features/program-path/pathModel'
 import { useStepLauncher } from '@/features/program-path/useStepLauncher'
 import { deriveStepStates, isPracticeItem } from '@/services/programSchedulerService'
 import { weekTaskState } from '@/services/programWeekService'
@@ -167,7 +193,9 @@ onMounted(() => {
 const tasks = reactive<Record<string, TaskState | null>>({})
 
 // Only open paths: the closed ones live in "Najbliżej" (letter, return) and the day plan; paused ones show nothing.
-const openEnrollments = computed(() => activeEnrollments.value.filter((enrollment) => enrollment.status === 'active'))
+const openEnrollments = computed(() =>
+  activeEnrollments.value.filter(enrollment => enrollment.status === 'active')
+)
 
 function detailRoute(slug: string): RouteLocationRaw {
   return { name: 'program-detail', params: { slug } }
@@ -178,20 +206,26 @@ function whenLabel(dayRef: DayRef): string {
   if (dayRef < props.dayRef) return t('planning.today.paths.overdue')
   if (dayRef === props.dayRef) return t('programs.ui.today')
   if (dayRef === addDaysToDayRef(props.dayRef, 1)) return t('programs.ui.tomorrow')
-  return new Date(`${dayRef}T12:00:00`).toLocaleDateString(locale.value, { weekday: 'short', day: 'numeric', month: 'short' })
+  return new Date(`${dayRef}T12:00:00`).toLocaleDateString(locale.value, {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  })
 }
 
 function taskDays(done: number, target: number): string {
-  return tp(target, 'planning.today.paths.taskDays.one', 'planning.today.paths.taskDays.few', 'planning.today.paths.taskDays.many').replace(
-    '{done}',
-    String(done),
-  )
+  return tp(
+    target,
+    'planning.today.paths.taskDays.one',
+    'planning.today.paths.taskDays.few',
+    'planning.today.paths.taskDays.many'
+  ).replace('{done}', String(done))
 }
 
 function buildRow(enrollment: ProgramEnrollment, program: ProgramDefinition): PathRow {
   const groups = pathGroups(program)
   const states = deriveStepStates(program, enrollment)
-  const weekGroups = groups.filter((group) => group.week !== undefined)
+  const weekGroups = groups.filter(group => group.week !== undefined)
   const currentIndex = currentGroupIndex(groups, states)
   const currentGroup = currentIndex >= 0 ? groups[currentIndex] : undefined
 
@@ -201,29 +235,41 @@ function buildRow(enrollment: ProgramEnrollment, program: ProgramDefinition): Pa
   const dots = phased
     ? {
         total: weekGroups.length,
-        done: weekGroups.filter((group) => groupState(group, states) === 'done').length,
+        done: weekGroups.filter(group => groupState(group, states) === 'done').length,
         current: currentGroup?.week ?? 0,
       }
     : {
         total: program.steps.length,
-        done: states.filter((state) => stepItemState(state) === 'done').length,
+        done: states.filter(state => stepItemState(state) === 'done').length,
         current: enrollment.currentStepIndex < program.steps.length ? stepNumber : 0,
       }
   const progressLabel = phased
-    ? t('planning.today.wellness.programWeekProgress', { current: currentGroup?.week ?? dots.done, total: dots.total })
+    ? t('planning.today.wellness.programWeekProgress', {
+        current: currentGroup?.week ?? dots.done,
+        total: dots.total,
+      })
     : t('planning.today.wellness.programStepProgress', { current: stepNumber, total: dots.total })
-  const phase = { title: currentGroup?.phase ? t(`${program.i18nKey}.phases.${currentGroup.phase.key}.title`) : '' }
+  const phase = {
+    title: currentGroup?.phase
+      ? t(`${program.i18nKey}.phases.${currentGroup.phase.key}.title`)
+      : '',
+  }
 
   // The next step: its pending plan item (due, overdue or ahead), else the current step by index.
-  const own = planStore.pendingItems.filter((item) => item.source === 'program' && item.sourceRef === enrollment.id)
-  const stepItem = own.find((item) => !isPracticeItem(item))
+  const own = planStore.pendingItems.filter(
+    item => item.source === 'program' && item.sourceRef === enrollment.id
+  )
+  const stepItem = own.find(item => !isPracticeItem(item))
   const stepIndex = stepItem?.programStepIndex ?? enrollment.currentStepIndex
   const stepDef = program.steps[stepIndex]
-  const stepDayRef = stepItem?.dayRef ?? (states[stepIndex]?.eligibleDay as DayRef | undefined) ?? props.dayRef
+  const stepDayRef =
+    stepItem?.dayRef ?? (states[stepIndex]?.eligibleDay as DayRef | undefined) ?? props.dayRef
   const step = stepDef
     ? (() => {
         const entry = getCatalogEntry(stepDef.exerciseSlug)
-        const catalogTitle = entry ? t(`exercises.cards.${entry.i18nKey}.title`) : stepDef.exerciseSlug
+        const catalogTitle = entry
+          ? t(`exercises.cards.${entry.i18nKey}.title`)
+          : stepDef.exerciseSlug
         return {
           title: programStepTitle(t, program.i18nKey, stepIndex, catalogTitle),
           what: stepDef.introKey ? t(stepDef.introKey) : '',
@@ -233,15 +279,21 @@ function buildRow(enrollment: ProgramEnrollment, program: ProgramDefinition): Pa
       })()
     : undefined
 
-  const momentEntry = program.momentKind ? getCatalogEntry(`moment-${program.momentKind}`) : undefined
+  const momentEntry = program.momentKind
+    ? getCatalogEntry(`moment-${program.momentKind}`)
+    : undefined
   const moment = program.momentKind
     ? {
         route: `/exercises/micro/moment-${program.momentKind}`,
-        eyebrow: momentEntry ? t(`exercises.cards.${momentEntry.i18nKey}.title`) : t('programs.ui.logMoment'),
+        eyebrow: momentEntry
+          ? t(`exercises.cards.${momentEntry.i18nKey}.title`)
+          : t('programs.ui.logMoment'),
       }
     : undefined
   const taskState = tasks[enrollment.id]
-  const task = taskState ? { ...taskState, days: taskDays(taskState.done, taskState.target) } : undefined
+  const task = taskState
+    ? { ...taskState, days: taskDays(taskState.done, taskState.target) }
+    : undefined
   const dose = doseProposal(program, enrollment, entryStore.entries) !== null
 
   return {
@@ -260,10 +312,10 @@ function buildRow(enrollment: ProgramEnrollment, program: ProgramDefinition): Pa
 }
 
 const rows = computed<PathRow[]>(() =>
-  openEnrollments.value.flatMap((enrollment) => {
+  openEnrollments.value.flatMap(enrollment => {
     const program = getProgramDefinition(enrollment.programSlug)
     return program ? [buildRow(enrollment, program)] : []
-  }),
+  })
 )
 
 async function loadTask(enrollment: ProgramEnrollment, program: ProgramDefinition): Promise<void> {
@@ -272,9 +324,17 @@ async function loadTask(enrollment: ProgramEnrollment, program: ProgramDefinitio
     return
   }
   try {
-    const state = await weekTaskState(program, enrollment, getPeriodRefsForDate(new Date(`${props.dayRef}T12:00:00`)).week)
+    const state = await weekTaskState(
+      program,
+      enrollment,
+      getPeriodRefsForDate(new Date(`${props.dayRef}T12:00:00`)).week
+    )
     tasks[enrollment.id] = state.intention
-      ? { title: state.intention.title, done: state.doneCount, target: state.intention.target.value ?? state.task?.times ?? 1 }
+      ? {
+          title: state.intention.title,
+          done: state.doneCount,
+          target: state.intention.target.value ?? state.task?.times ?? 1,
+        }
       : null
   } catch (err) {
     console.error('Failed to read the week task:', err)
@@ -286,7 +346,12 @@ async function loadTask(enrollment: ProgramEnrollment, program: ProgramDefinitio
 // so the state reloads with the enrollments, the Moments and the day bundle.
 watch(
   () => [
-    openEnrollments.value.map((enrollment) => `${enrollment.id}:${enrollment.currentStepIndex}:${enrollment.weekLog?.length ?? 0}`).join('|'),
+    openEnrollments.value
+      .map(
+        enrollment =>
+          `${enrollment.id}:${enrollment.currentStepIndex}:${enrollment.weekLog?.length ?? 0}`
+      )
+      .join('|'),
     entryStore.entries.length,
     todayStore.bundle,
     props.dayRef,
@@ -297,6 +362,6 @@ watch(
       if (program) void loadTask(enrollment, program)
     }
   },
-  { immediate: true },
+  { immediate: true }
 )
 </script>

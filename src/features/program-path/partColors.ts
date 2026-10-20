@@ -22,7 +22,8 @@ import type { ShamePartKey } from '@/domain/momentsProgress'
  * only channel — outlines, gaps, the legend and the hover counts carry
  * identity too.
  */
-export const PART_ORDER: readonly ShamePartKey[] = MOMENT_FAMILIES.shame.keys as readonly ShamePartKey[]
+export const PART_ORDER: readonly ShamePartKey[] = MOMENT_FAMILIES.shame
+  .keys as readonly ShamePartKey[]
 
 const SKY = 'color-mix(in srgb, rgb(var(--sky-400)) 78%, var(--mg-color-paper))'
 const LILAC = 'rgb(227 220 246)'

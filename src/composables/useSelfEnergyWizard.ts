@@ -1,8 +1,5 @@
 import { ref, computed } from 'vue'
-import type {
-  SelfEnergyQuality,
-  CreateIFSSelfEnergyPayload,
-} from '@/domain/exercises'
+import type { SelfEnergyQuality, CreateIFSSelfEnergyPayload } from '@/domain/exercises'
 import { useIFSSelfEnergyStore } from '@/stores/ifsSelfEnergy.store'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
 import { useIFSTrailheadStore } from '@/stores/ifsTrailhead.store'
@@ -14,8 +11,14 @@ export type SelfEnergyStep = 'check-in' | 'gap' | 'micro-practice' | 'save'
 const STEP_ORDER: SelfEnergyStep[] = ['check-in', 'gap', 'micro-practice', 'save']
 
 const ALL_QUALITIES: SelfEnergyQuality[] = [
-  'calm', 'curiosity', 'compassion', 'clarity',
-  'courage', 'creativity', 'confidence', 'connection',
+  'calm',
+  'curiosity',
+  'compassion',
+  'clarity',
+  'courage',
+  'creativity',
+  'confidence',
+  'connection',
 ]
 
 function createEmptyRatings(): Record<SelfEnergyQuality, number> {
@@ -41,17 +44,17 @@ export function useSelfEnergyWizard() {
   const ratings = ref<Record<SelfEnergyQuality, number>>(createEmptyRatings())
 
   const allRated = computed(() => {
-    return ALL_QUALITIES.every((q) => ratings.value[q] > 0)
+    return ALL_QUALITIES.every(q => ratings.value[q] > 0)
   })
 
   const lowestRating = computed(() => {
-    const rated = ALL_QUALITIES.map((q) => ratings.value[q]).filter((v) => v > 0)
+    const rated = ALL_QUALITIES.map(q => ratings.value[q]).filter(v => v > 0)
     return rated.length ? Math.min(...rated) : 0
   })
 
   /** Every C sharing the lowest rating, in wheel order. */
   const tiedLowest = computed<SelfEnergyQuality[]>(() =>
-    lowestRating.value ? ALL_QUALITIES.filter((q) => ratings.value[q] === lowestRating.value) : [],
+    lowestRating.value ? ALL_QUALITIES.filter(q => ratings.value[q] === lowestRating.value) : []
   )
 
   /** With several C's tied, the user picks which one is today's gap. */
@@ -161,7 +164,9 @@ export function useSelfEnergyWizard() {
         lowestQuality: lowestQuality.value,
         identifiedPartId: identifiedPartId.value ?? undefined,
         microPracticeType: skipMicroPractice.value ? undefined : microPracticeType.value,
-        microPracticeNotes: skipMicroPractice.value ? undefined : microPracticeNotes.value.trim() || undefined,
+        microPracticeNotes: skipMicroPractice.value
+          ? undefined
+          : microPracticeNotes.value.trim() || undefined,
         notes: notes.value.trim() || undefined,
       }
 

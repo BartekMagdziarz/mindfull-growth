@@ -13,11 +13,7 @@
 
     <FoundationPillarsGauge :groups="groups" :unlocked="unlocked" />
 
-    <AppButton
-      variant="filled"
-      :disabled="!unlocked"
-      @click="emit('build')"
-    >
+    <AppButton variant="filled" :disabled="!unlocked" @click="emit('build')">
       {{
         unlocked
           ? t('profile.psychologicalProfile.foundation.buildCta')

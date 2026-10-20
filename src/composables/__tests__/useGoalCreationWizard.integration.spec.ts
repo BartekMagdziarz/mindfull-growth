@@ -20,7 +20,7 @@ describe('useGoalCreationWizard – create save integration', () => {
     // Weeks that fall entirely inside the month all share the same overlapping
     // month, so every week's link upserts the same measurement-month-state row.
     const weeks = (getChildPeriods(monthRef) as WeekRef[]).filter(
-      (weekRef) => getWeekOverlappingMonths(weekRef).length === 1,
+      weekRef => getWeekOverlappingMonths(weekRef).length === 1
     )
     expect(weeks.length).toBeGreaterThanOrEqual(2)
 
@@ -37,16 +37,16 @@ describe('useGoalCreationWizard – create save integration', () => {
     const goalId = await wizard.save()
 
     const keyResults = await keyResultDexieRepository.listAll()
-    const created = keyResults.find((item) => item.goalId === goalId)
+    const created = keyResults.find(item => item.goalId === goalId)
     expect(created).toBeDefined()
 
     const monthStates = await planningStateDexieRepository.listMeasurementMonthStatesForSubject(
       'keyResult',
-      created!.id,
+      created!.id
     )
     const weekStates = await planningStateDexieRepository.listMeasurementWeekStatesForSubject(
       'keyResult',
-      created!.id,
+      created!.id
     )
 
     // Exactly one month-state row for the shared month (no duplicates, no crash),
@@ -71,14 +71,25 @@ it('persists an inherited schedule and preserves saved assignments on an unchang
   expect(goal.startDate).toBe('2026-09-07')
   const keyResults = (await keyResultDexieRepository.listAll()).filter(kr => kr.goalId === id)
   const kr = keyResults[0]
-  const states = await planningStateDexieRepository.listMeasurementWeekStatesForSubject('keyResult', kr.id)
+  const states = await planningStateDexieRepository.listMeasurementWeekStatesForSubject(
+    'keyResult',
+    kr.id
+  )
   expect(states.map(state => state.weekRef).sort()).toEqual(expected)
   const editor = useGoalCreationWizard()
-  editor.loadForEdit({ goal: { ...goal, periodAssignmentMode: undefined }, keyResults: keyResults.map(kr => ({ ...kr, periodAssignmentMode: undefined })), goalMonthRefs: ['2026-09'], krPeriodRefsByKrId: { [kr.id]: expected } })
+  editor.loadForEdit({
+    goal: { ...goal, periodAssignmentMode: undefined },
+    keyResults: keyResults.map(kr => ({ ...kr, periodAssignmentMode: undefined })),
+    goalMonthRefs: ['2026-09'],
+    krPeriodRefsByKrId: { [kr.id]: expected },
+  })
   editor.goalDraft.targetDate = '2026-10-04'
   expect(editor.krPeriods(kr.id)).toEqual(expected)
   await editor.save()
-  const after = await planningStateDexieRepository.listMeasurementWeekStatesForSubject('keyResult', kr.id)
+  const after = await planningStateDexieRepository.listMeasurementWeekStatesForSubject(
+    'keyResult',
+    kr.id
+  )
   expect(after.map(state => state.weekRef).sort()).toEqual(expected)
 })
 
@@ -94,12 +105,21 @@ it('retains automatic scheduling after reopening and extends the saved weeks whe
   const goal = (await goalDexieRepository.getById(id))!
   const keyResults = (await keyResultDexieRepository.listAll()).filter(kr => kr.goalId === id)
   const kr = keyResults[0]
-  const periods = (await planningStateDexieRepository.listMeasurementWeekStatesForSubject('keyResult', kr.id)).map(state => state.weekRef)
+  const periods = (
+    await planningStateDexieRepository.listMeasurementWeekStatesForSubject('keyResult', kr.id)
+  ).map(state => state.weekRef)
   const editor = useGoalCreationWizard()
-  editor.loadForEdit({ goal, keyResults, goalMonthRefs: ['2026-09'], krPeriodRefsByKrId: { [kr.id]: periods } })
+  editor.loadForEdit({
+    goal,
+    keyResults,
+    goalMonthRefs: ['2026-09'],
+    krPeriodRefsByKrId: { [kr.id]: periods },
+  })
   expect(editor.inheritsSchedule(kr.id)).toBe(true)
   editor.goalDraft.targetDate = '2026-10-04'
   expect(editor.krPeriods(kr.id)).toHaveLength(4)
   await editor.save()
-  expect(await planningStateDexieRepository.listMeasurementWeekStatesForSubject('keyResult', kr.id)).toHaveLength(4)
+  expect(
+    await planningStateDexieRepository.listMeasurementWeekStatesForSubject('keyResult', kr.id)
+  ).toHaveLength(4)
 })

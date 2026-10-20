@@ -78,14 +78,17 @@ export function useProtectorAppreciationWizard() {
   }
   const plannedReturnDayRef = computed(() =>
     checkInFrequency.value
-      ? addDaysToDayRef(getPeriodRefsForDate(new Date()).day, RETURN_GAP_DAYS[checkInFrequency.value])
-      : null,
+      ? addDaysToDayRef(
+          getPeriodRefsForDate(new Date()).day,
+          RETURN_GAP_DAYS[checkInFrequency.value]
+        )
+      : null
   )
 
   // Summary step: copy the protector's fear / what it protects from to its card (empty fields only)
   const updatePartCard = ref(true)
   const hasCardDiscoveries = computed(
-    () => fearIfStopped.value.trim().length > 0 || activationTriggers.value.trim().length > 0,
+    () => fearIfStopped.value.trim().length > 0 || activationTriggers.value.trim().length > 0
   )
 
   // Notes
@@ -104,8 +107,12 @@ export function useProtectorAppreciationWizard() {
       case 'write-letter':
         return appreciationLetter.value.trim().length > 0
       case 'part-response':
-        return responseMode.value !== null &&
-          (responseMode.value === 'ai' ? partResponse.value.length > 0 : partResponse.value.trim().length > 0)
+        return (
+          responseMode.value !== null &&
+          (responseMode.value === 'ai'
+            ? partResponse.value.length > 0
+            : partResponse.value.trim().length > 0)
+        )
       case 'body-check':
         return true
       case 'commitment':
@@ -155,9 +162,9 @@ export function useProtectorAppreciationWizard() {
   }
 
   function removeCustomBehavior(behavior: string) {
-    customBehaviors.value = customBehaviors.value.filter((b) => b !== behavior)
+    customBehaviors.value = customBehaviors.value.filter(b => b !== behavior)
     if (!customBehaviors.value.length) {
-      behaviors.value = behaviors.value.filter((b) => b !== 'custom')
+      behaviors.value = behaviors.value.filter(b => b !== 'custom')
     }
   }
 
@@ -167,7 +174,7 @@ export function useProtectorAppreciationWizard() {
     llmError.value = null
     try {
       const allBehaviors = [
-        ...behaviors.value.filter((b) => b !== 'custom').map(formatProtectorBehavior),
+        ...behaviors.value.filter(b => b !== 'custom').map(formatProtectorBehavior),
         ...customBehaviors.value,
       ]
       const response = await generateProtectorResponse({
@@ -199,7 +206,11 @@ export function useProtectorAppreciationWizard() {
       let plannedReturnItemId: string | undefined
       if (plannedReturnDayRef.value) {
         const planStore = useExercisePlanStore()
-        const item = await planStore.createPlan('protector-appreciation', plannedReturnDayRef.value, 'repeat')
+        const item = await planStore.createPlan(
+          'protector-appreciation',
+          plannedReturnDayRef.value,
+          'repeat'
+        )
         plannedReturnItemId = item.id
       }
 

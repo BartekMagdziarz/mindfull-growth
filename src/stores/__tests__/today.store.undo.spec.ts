@@ -39,11 +39,26 @@ function makeItem(overrides: Partial<TodayMeasurementItem> = {}): TodayMeasureme
     panelType: 'habit',
     subjectType: 'habit',
     subject: {
-      id: 'h1', title: 'Rozciąganie', isActive: true, priorityIds: [], lifeAreaIds: [], cadence: 'weekly',
-      entryMode: 'completion', target: { kind: 'count', operator: 'min', value: 3 }, status: 'open', createdAt: '', updatedAt: '',
+      id: 'h1',
+      title: 'Rozciąganie',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      cadence: 'weekly',
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 3 },
+      status: 'open',
+      createdAt: '',
+      updatedAt: '',
     },
     planning: { scheduleScope: 'whole-week', scheduledDayRefs: [] },
-    measurement: { entryMode: 'completion', cadence: 'weekly', entryCount: 0, target: { kind: 'count', operator: 'min', value: 3 }, periodRef: '2026-W11' },
+    measurement: {
+      entryMode: 'completion',
+      cadence: 'weekly',
+      entryCount: 0,
+      target: { kind: 'count', operator: 'min', value: 3 },
+      periodRef: '2026-W11',
+    },
     priorityIds: [],
     contextPeriodRef: '2026-W11',
     sectionId: 'week',
@@ -96,7 +111,14 @@ describe('today.store — single-level undo for planning operations', () => {
   })
 
   it('move → undoLast moves the assignment back from the target day', async () => {
-    const item = makeItem({ key: 'habit:h2', sectionId: 'scheduled', isScheduledToday: true, canHide: false, canReschedule: true, canDelete: true })
+    const item = makeItem({
+      key: 'habit:h2',
+      sectionId: 'scheduled',
+      isScheduledToday: true,
+      canHide: false,
+      canReschedule: true,
+      canDelete: true,
+    })
     vi.mocked(queries.getTodayViewBundleForDay).mockResolvedValue(makeBundle([item]))
     const store = useTodayStore()
     await store.loadBundle(DAY)
@@ -145,7 +167,12 @@ describe('today.store — single-level undo for planning operations', () => {
     vi.mocked(queries.getTodayViewBundleForDay).mockResolvedValue(makeBundle([]))
     const store = useTodayStore()
     await store.loadBundle(DAY)
-    const candidate = { key: 'habit:h5', subjectType: 'habit', cadence: 'weekly', subject: { id: 'h5', title: 'Spacer' } } as unknown as Parameters<typeof store.addToDay>[0]
+    const candidate = {
+      key: 'habit:h5',
+      subjectType: 'habit',
+      cadence: 'weekly',
+      subject: { id: 'h5', title: 'Spacer' },
+    } as unknown as Parameters<typeof store.addToDay>[0]
 
     await store.addToDay(candidate)
     expect(actions.addMeasurementToDay).toHaveBeenCalledWith(candidate, DAY)

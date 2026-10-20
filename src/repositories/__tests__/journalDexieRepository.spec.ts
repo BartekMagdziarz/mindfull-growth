@@ -39,7 +39,10 @@ describe('journalDexieRepository with chatSessions', () => {
 
     it('creates entry with chatSessions', async () => {
       const chatSession1 = createChatSession('will-be-replaced', CHAT_INTENTIONS.REFLECT)
-      const chatSession2 = createChatSession('will-be-replaced', CHAT_INTENTIONS.HELP_SEE_DIFFERENTLY)
+      const chatSession2 = createChatSession(
+        'will-be-replaced',
+        CHAT_INTENTIONS.HELP_SEE_DIFFERENTLY
+      )
 
       const entryData = {
         body: 'Test body',
@@ -173,8 +176,8 @@ describe('journalDexieRepository with chatSessions', () => {
       const entries = await journalDexieRepository.getAll()
 
       expect(entries).toHaveLength(2)
-      const entryWithChat = entries.find((e) => e.body === 'Entry with chat')
-      const entryWithoutChat = entries.find((e) => e.body === 'Entry without chat')
+      const entryWithChat = entries.find(e => e.body === 'Entry with chat')
+      const entryWithoutChat = entries.find(e => e.body === 'Entry without chat')
 
       expect(entryWithChat?.chatSessions).toBeDefined()
       expect(Array.isArray(entryWithChat?.chatSessions)).toBe(true)
@@ -184,4 +187,3 @@ describe('journalDexieRepository with chatSessions', () => {
     })
   })
 })
-

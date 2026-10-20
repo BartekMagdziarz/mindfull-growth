@@ -143,7 +143,7 @@ const handleEscapeKey = (event: KeyboardEvent) => {
 // Focus management: When dialog opens, focus the dialog. When it closes, restore focus.
 watch(
   () => props.modelValue,
-  async (isOpen) => {
+  async isOpen => {
     if (isOpen) {
       // Store the previously focused element
       previousActiveElement = (document.activeElement as HTMLElement) || null
@@ -152,9 +152,7 @@ watch(
       await nextTick()
       if (dialogRef.value) {
         // Focus the first focusable element (confirm button)
-        const confirmButton = dialogRef.value.querySelector(
-          'button:last-of-type'
-        ) as HTMLElement
+        const confirmButton = dialogRef.value.querySelector('button:last-of-type') as HTMLElement
         if (confirmButton) {
           confirmButton.focus()
         } else {
@@ -188,7 +186,9 @@ onUnmounted(() => {
 
 .dialog-enter-active .dialog-panel,
 .dialog-leave-active .dialog-panel {
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
 }
 
 .dialog-enter-from,

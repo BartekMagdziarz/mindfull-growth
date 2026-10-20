@@ -13,14 +13,18 @@ const pt = (i: number, load: number | null, state: number | null): WeekPoint => 
 
 describe('LoadStateRibbon', () => {
   it('renders one hit zone per point and a single unbroken segment for full data', () => {
-    const w = mount(LoadStateRibbon, { props: { points: [pt(0, 2, 4), pt(1, 3, 4), pt(2, 5, 2)], label: 'Ciało' } })
+    const w = mount(LoadStateRibbon, {
+      props: { points: [pt(0, 2, 4), pt(1, 3, 4), pt(2, 5, 2)], label: 'Ciało' },
+    })
     expect(w.findAll('.ls-ribbon__hit')).toHaveLength(3)
     expect(w.findAll('.ls-ribbon__line--state')).toHaveLength(1)
     expect(w.findAll('.ls-ribbon__band')).toHaveLength(1)
   })
 
   it('breaks the ribbon at weeks without a reflection', () => {
-    const w = mount(LoadStateRibbon, { props: { points: [pt(0, 2, 4), pt(1, null, null), pt(2, 5, 2), pt(3, 4, 4)] } })
+    const w = mount(LoadStateRibbon, {
+      props: { points: [pt(0, 2, 4), pt(1, null, null), pt(2, 5, 2), pt(3, 4, 4)] },
+    })
     expect(w.findAll('.ls-ribbon__line--state')).toHaveLength(2)
     expect(w.findAll('.ls-ribbon__band')).toHaveLength(2)
     // gradient stops only for rated weeks

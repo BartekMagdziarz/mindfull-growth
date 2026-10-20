@@ -37,7 +37,7 @@ describe('ifsDailyCheckIn.store', () => {
       buildCheckIn('future', new Date(2026, 2, 15, 10, 0).toISOString()),
     ]
 
-    expect(store.currentWeekCheckIns.map((checkIn) => checkIn.id)).toEqual([
+    expect(store.currentWeekCheckIns.map(checkIn => checkIn.id)).toEqual([
       'window-start',
       'prev-week',
       'monday',

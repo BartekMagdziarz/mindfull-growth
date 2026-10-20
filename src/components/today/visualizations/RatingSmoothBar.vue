@@ -73,14 +73,14 @@ const fillColor = computed(() =>
     scaleMax: props.data.scaleMax,
     targetValue: props.data.targetValue,
     targetOperator: props.data.targetOperator,
-  }),
+  })
 )
 
 const showTargetMarker = computed(
   () =>
     props.data.targetValue !== undefined &&
     props.data.targetValue >= props.data.scaleMin &&
-    props.data.targetValue <= props.data.scaleMax,
+    props.data.targetValue <= props.data.scaleMax
 )
 
 const targetRatio = computed(() => {
@@ -97,7 +97,7 @@ const formattedAverage = computed(() => {
 
 const ariaLabel = computed(
   () =>
-    `average ${formattedAverage.value} of ${props.data.scaleMax} from ${props.data.entryCount} entries`,
+    `average ${formattedAverage.value} of ${props.data.scaleMax} from ${props.data.entryCount} entries`
 )
 </script>
 
@@ -156,7 +156,9 @@ const ariaLabel = computed(
   bottom: 0;
   left: 0;
   border-radius: 9999px;
-  transition: width 220ms ease, background 220ms ease;
+  transition:
+    width 220ms ease,
+    background 220ms ease;
 }
 
 /* Tall sliver marker pointing to the exact average position. Same colour

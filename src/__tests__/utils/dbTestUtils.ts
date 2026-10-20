@@ -15,7 +15,7 @@ export async function resetDatabase(): Promise<void> {
   await db.delete()
   await db.open()
 
-  await Promise.all(db.tables.map((table) => table.clear()))
+  await Promise.all(db.tables.map(table => table.clear()))
 }
 
 export async function getAllJournalEntries(): Promise<JournalEntry[]> {
@@ -41,4 +41,3 @@ export async function getAllContextTags(): Promise<ContextTag[]> {
 export function getDatabase() {
   return getTestDatabase()
 }
-

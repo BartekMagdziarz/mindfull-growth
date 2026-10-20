@@ -98,7 +98,7 @@ function planItem(overrides: Partial<ExercisePlanItem> = {}): ExercisePlanItem {
 }
 
 const createdPayloads = () =>
-  vi.mocked(exercisePlanDexieRepository.create).mock.calls.map((call) => call[0])
+  vi.mocked(exercisePlanDexieRepository.create).mock.calls.map(call => call[0])
 
 afterEach(() => {
   vi.clearAllMocks()
@@ -114,13 +114,19 @@ describe('practice windows', () => {
   })
 
   it('opens only after startsAfterStep is passed', () => {
-    expect(isPracticeWindowOpen(PROGRAM, breathing!, enrollment({ currentStepIndex: 0 }))).toBe(false)
-    expect(isPracticeWindowOpen(PROGRAM, breathing!, enrollment({ currentStepIndex: 1 }))).toBe(true)
+    expect(isPracticeWindowOpen(PROGRAM, breathing!, enrollment({ currentStepIndex: 0 }))).toBe(
+      false
+    )
+    expect(isPracticeWindowOpen(PROGRAM, breathing!, enrollment({ currentStepIndex: 1 }))).toBe(
+      true
+    )
   })
 
   it('is closed for paused or finished enrollments', () => {
     expect(isPracticeWindowOpen(PROGRAM, log!, enrollment({ status: 'paused' }))).toBe(false)
-    expect(isPracticeWindowOpen(PROGRAM, log!, enrollment({ currentStepIndex: 4, status: 'completed' }))).toBe(false)
+    expect(
+      isPracticeWindowOpen(PROGRAM, log!, enrollment({ currentStepIndex: 4, status: 'completed' }))
+    ).toBe(false)
   })
 })
 
@@ -128,20 +134,29 @@ describe('eligibleDayForPractice', () => {
   const [log, breathing] = PROGRAM.practices!
 
   it('first occurrence: the enrollment start, clamped to today', () => {
-    expect(eligibleDayForPractice(log!, enrollment(), undefined, day('2026-09-20'))).toBe(day('2026-09-20'))
-    expect(eligibleDayForPractice(log!, enrollment(), undefined, day('2026-09-23'))).toBe(day('2026-09-23'))
+    expect(eligibleDayForPractice(log!, enrollment(), undefined, day('2026-09-20'))).toBe(
+      day('2026-09-20')
+    )
+    expect(eligibleDayForPractice(log!, enrollment(), undefined, day('2026-09-23'))).toBe(
+      day('2026-09-23')
+    )
   })
 
   it('next occurrence: last done + everyDays', () => {
-    expect(eligibleDayForPractice(breathing!, enrollment(), '2026-09-23T18:00:00.000Z', day('2026-09-23'))).toBe(
-      day('2026-09-25'),
-    )
+    expect(
+      eligibleDayForPractice(
+        breathing!,
+        enrollment(),
+        '2026-09-23T18:00:00.000Z',
+        day('2026-09-23')
+      )
+    ).toBe(day('2026-09-25'))
   })
 
   it('never births an overdue occurrence after a long gap', () => {
-    expect(eligibleDayForPractice(log!, enrollment(), '2026-09-01T10:00:00.000Z', day('2026-09-23'))).toBe(
-      day('2026-09-23'),
-    )
+    expect(
+      eligibleDayForPractice(log!, enrollment(), '2026-09-01T10:00:00.000Z', day('2026-09-23'))
+    ).toBe(day('2026-09-23'))
   })
 })
 
@@ -150,13 +165,20 @@ describe('reconcilePractices', () => {
     const result = await reconcilePractices(enrollment({ currentStepIndex: 1 }), day('2026-09-23'))
     expect(result.created).toHaveLength(2)
     expect(createdPayloads()).toEqual([
-      expect.objectContaining({ exerciseSlug: 'moment-anger', dayRef: '2026-09-23', programRole: 'practice', sourceRef: 'enr-1' }),
+      expect.objectContaining({
+        exerciseSlug: 'moment-anger',
+        dayRef: '2026-09-23',
+        programRole: 'practice',
+        sourceRef: 'enr-1',
+      }),
       expect.objectContaining({ exerciseSlug: 'paced-breathing', programRole: 'practice' }),
     ])
   })
 
   it('is idempotent: an existing pending occurrence blocks a new one', async () => {
-    vi.mocked(exercisePlanDexieRepository.listPendingByProgramSourceRef).mockResolvedValueOnce([planItem()])
+    vi.mocked(exercisePlanDexieRepository.listPendingByProgramSourceRef).mockResolvedValueOnce([
+      planItem(),
+    ])
     const result = await reconcilePractices(enrollment({ currentStepIndex: 0 }), day('2026-09-23'))
     expect(result.created).toHaveLength(0)
     expect(exercisePlanDexieRepository.create).not.toHaveBeenCalled()
@@ -167,10 +189,19 @@ describe('reconcilePractices', () => {
       planItem({ id: 'old-1', status: 'done', updatedAt: '2026-09-22T19:00:00.000Z' }),
       planItem({ id: 'old-2', status: 'done', updatedAt: '2026-09-23T19:00:00.000Z' }),
       // A step with the same enrollment never counts as practice history.
-      planItem({ id: 'step', status: 'done', programRole: 'step', exerciseSlug: 'moment-anger', updatedAt: '2026-09-25T10:00:00.000Z' }),
+      planItem({
+        id: 'step',
+        status: 'done',
+        programRole: 'step',
+        exerciseSlug: 'moment-anger',
+        updatedAt: '2026-09-25T10:00:00.000Z',
+      }),
     ])
     await reconcilePractices(enrollment({ currentStepIndex: 0 }), day('2026-09-23'))
-    expect(createdPayloads()[0]).toMatchObject({ exerciseSlug: 'moment-anger', dayRef: '2026-09-24' })
+    expect(createdPayloads()[0]).toMatchObject({
+      exerciseSlug: 'moment-anger',
+      dayRef: '2026-09-24',
+    })
   })
 
   it('a skipped occurrence counts as handled: no same-day re-creation', async () => {
@@ -178,7 +209,10 @@ describe('reconcilePractices', () => {
       planItem({ id: 'skipped', status: 'skipped', updatedAt: '2026-09-23T08:00:00.000Z' }),
     ])
     await reconcilePractices(enrollment({ currentStepIndex: 0 }), day('2026-09-23'))
-    expect(createdPayloads()[0]).toMatchObject({ exerciseSlug: 'moment-anger', dayRef: '2026-09-24' })
+    expect(createdPayloads()[0]).toMatchObject({
+      exerciseSlug: 'moment-anger',
+      dayRef: '2026-09-24',
+    })
   })
 
   it('deletes occurrences whose window closed', async () => {
@@ -194,7 +228,9 @@ describe('reconcilePractices', () => {
   })
 
   it('leaves no pending practice on a paused enrollment', async () => {
-    vi.mocked(exercisePlanDexieRepository.listPendingByProgramSourceRef).mockResolvedValueOnce([planItem()])
+    vi.mocked(exercisePlanDexieRepository.listPendingByProgramSourceRef).mockResolvedValueOnce([
+      planItem(),
+    ])
     const result = await reconcilePractices(enrollment({ status: 'paused' }), day('2026-09-23'))
     expect(result).toEqual({ created: [], removedPlanIds: ['plan-1'] })
   })
@@ -202,7 +238,9 @@ describe('reconcilePractices', () => {
 
 describe('steps and practices stay separate', () => {
   it('a pending practice does not block materializing the current step', async () => {
-    vi.mocked(exercisePlanDexieRepository.listPendingByProgramSourceRef).mockResolvedValueOnce([planItem()])
+    vi.mocked(exercisePlanDexieRepository.listPendingByProgramSourceRef).mockResolvedValueOnce([
+      planItem(),
+    ])
     const item = await ensureCurrentStepMaterialized(enrollment())
     expect(item).toMatchObject({ exerciseSlug: 'anger-map', programRole: 'step' })
   })
@@ -225,21 +263,31 @@ describe('steps and practices stay separate', () => {
   it('advancing a step opens the practice that starts after it', async () => {
     const base = enrollment()
     vi.mocked(programEnrollmentDexieRepository.getById).mockResolvedValueOnce(base)
-    vi.mocked(programEnrollmentDexieRepository.update).mockImplementation(async (id, patch) => ({ ...base, id, ...patch }))
+    vi.mocked(programEnrollmentDexieRepository.update).mockImplementation(async (id, patch) => ({
+      ...base,
+      id,
+      ...patch,
+    }))
     vi.mocked(exercisePlanDexieRepository.listPendingByProgramSourceRef)
       .mockResolvedValueOnce([]) // ensureCurrentStepMaterialized
       .mockResolvedValueOnce([planItem({ id: 'log-pending' })]) // reconcilePractices
     const advancement = await advanceEnrollmentForPlan(
-      planItem({ id: 'step-0', programRole: 'step', exerciseSlug: 'anger-map', status: 'done' }),
+      planItem({ id: 'step-0', programRole: 'step', exerciseSlug: 'anger-map', status: 'done' })
     )
     expect(advancement?.enrollment.currentStepIndex).toBe(1)
-    expect(advancement?.practices?.created.map((item) => item.exerciseSlug)).toEqual(['paced-breathing'])
+    expect(advancement?.practices?.created.map(item => item.exerciseSlug)).toEqual([
+      'paced-breathing',
+    ])
   })
 
   it('skipping an optional step skips the step item, not a practice', async () => {
     const base = enrollment({ currentStepIndex: 2 })
     vi.mocked(programEnrollmentDexieRepository.getById).mockResolvedValueOnce(base)
-    vi.mocked(programEnrollmentDexieRepository.update).mockImplementation(async (id, patch) => ({ ...base, id, ...patch }))
+    vi.mocked(programEnrollmentDexieRepository.update).mockImplementation(async (id, patch) => ({
+      ...base,
+      id,
+      ...patch,
+    }))
     vi.mocked(exercisePlanDexieRepository.listPendingByProgramSourceRef).mockResolvedValueOnce([
       planItem({ id: 'log-pending' }),
       planItem({ id: 'step-2', programRole: 'step', exerciseSlug: 'thought-record' }),

@@ -135,11 +135,11 @@ async function ensureActiveMeasurementMonthStatesForWeek(
         planningStateDexieRepository.getGoalMonthState(monthRef, keyResult.goalId)
       )
     )
-    monthRefs = monthRefs.filter(
-      (_, index) => goalMonthStates[index]?.activityState === 'active'
-    )
+    monthRefs = monthRefs.filter((_, index) => goalMonthStates[index]?.activityState === 'active')
     if (monthRefs.length === 0) {
-      throw new Error('Goal must be active in an overlapping month to assign a KeyResult week to it')
+      throw new Error(
+        'Goal must be active in an overlapping month to assign a KeyResult week to it'
+      )
     }
   }
 
@@ -652,7 +652,7 @@ export async function toggleMeasurementDayAssignment({
   monthRef,
 }: MeasurementDayRef): Promise<void> {
   const refs = getPeriodRefsForDate(dayRef)
-  const sourceMonthRef = cadence === 'monthly' ? monthRef ?? refs.month : undefined
+  const sourceMonthRef = cadence === 'monthly' ? (monthRef ?? refs.month) : undefined
   const existingAssignment = await planningStateDexieRepository.getMeasurementDayAssignment(
     dayRef,
     subjectType,
@@ -660,7 +660,11 @@ export async function toggleMeasurementDayAssignment({
   )
 
   if (existingAssignment) {
-    await planningStateDexieRepository.deleteMeasurementDayAssignment(dayRef, subjectType, subjectId)
+    await planningStateDexieRepository.deleteMeasurementDayAssignment(
+      dayRef,
+      subjectType,
+      subjectId
+    )
     const remainingAssignments = (await listSubjectDayAssignments(subjectType, subjectId)).filter(
       assignment =>
         assignment.subjectType === subjectType &&

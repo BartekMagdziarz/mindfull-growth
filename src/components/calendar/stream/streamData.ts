@@ -29,7 +29,11 @@ import {
   type CalendarYearMonthSummary,
   type YearMonthPillData,
 } from '@/services/calendarViewQueries'
-import { getMonthPlanningBundle, getWeekPlanningBundle, type MonthCadencedPlanningItem } from '@/services/planningStateQueries'
+import {
+  getMonthPlanningBundle,
+  getWeekPlanningBundle,
+  type MonthCadencedPlanningItem,
+} from '@/services/planningStateQueries'
 import { classifyWeek, type WeekState } from '@/domain/weeklyCadence'
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
 import { weeklyIntentionDexieRepository } from '@/repositories/weeklyIntentionDexieRepository'
@@ -114,7 +118,8 @@ export function pillFraction(pill: YearMonthPillData, maxWeeks?: number): number
     if (pill.monthlyStatus === 'missed') return 0
     return null
   }
-  const total = maxWeeks === undefined ? pill.weeksTotal ?? 0 : Math.min(pill.weeksTotal ?? 0, maxWeeks)
+  const total =
+    maxWeeks === undefined ? (pill.weeksTotal ?? 0) : Math.min(pill.weeksTotal ?? 0, maxWeeks)
   if (total > 0) return Math.min(pill.weeksMet ?? 0, total) / total
   return null
 }
@@ -126,7 +131,7 @@ export function ratingToValue(rating: number | null | undefined): number | null 
 }
 
 export function quadrantSegments(counts: Record<Quadrant, number>): StreamEmotionSegment[] {
-  return QUADRANT_ORDER.filter((q) => counts[q] > 0).map((q) => ({
+  return QUADRANT_ORDER.filter(q => counts[q] > 0).map(q => ({
     color: QUADRANT_COLOR[q],
     weight: counts[q],
   }))
@@ -148,9 +153,9 @@ function emptyQuadrantCounts(): Record<Quadrant, number> {
  * sky reads "ease/wellbeing".
  */
 export function matrixFromReflection(
-  reflection: WeeklyReflection | undefined,
+  reflection: WeeklyReflection | undefined
 ): StreamMatrixRowVM[] {
-  return REFLECTION_MATRIX_AREAS.map((area) => {
+  return REFLECTION_MATRIX_AREAS.map(area => {
     // Two axes (D10): load = the stored demands field, state = the state field; actions stay history.
     const load = toRating(reflection ? (reflection[area.fields.demands] as number | null) : null)
     const state = toRating(reflection ? (reflection[area.fields.state] as number | null) : null)
@@ -159,7 +164,11 @@ export function matrixFromReflection(
       icon: area.icon,
       cells: [
         { section: 'load' as const, rating: load, color: loadInkCss(load) },
-        { section: 'state' as const, rating: state, color: state == null ? null : pairColor(load, state) },
+        {
+          section: 'state' as const,
+          rating: state,
+          color: state == null ? null : pairColor(load, state),
+        },
       ],
     }
   })
@@ -176,10 +185,10 @@ export function ringsForPeriod(
   entries: DailyMeasurementEntry[],
   periodRef: MeasurementPeriodRef,
   timeState: PeriodTimeState,
-  asOfDayRef: DayRef,
+  asOfDayRef: DayRef
 ): StreamRingVM[] {
   if (timeState === 'future') {
-    return RING_DEFS.map((d) => ({ key: d.key, icon: d.icon, pct: null, planOnly: true }))
+    return RING_DEFS.map(d => ({ key: d.key, icon: d.icon, pct: null, planOnly: true }))
   }
 
   let goalMet = 0
@@ -216,8 +225,22 @@ export function ringsForPeriod(
   }
 
   return [
-    { key: 'goals', icon: 'flag', pct: pct(goalMet, goalEval), planOnly: false, num: goalMet, den: goalEval },
-    { key: 'habits', icon: 'task_alt', pct: pct(habitMet, habitEval), planOnly: false, num: habitMet, den: habitEval },
+    {
+      key: 'goals',
+      icon: 'flag',
+      pct: pct(goalMet, goalEval),
+      planOnly: false,
+      num: goalMet,
+      den: goalEval,
+    },
+    {
+      key: 'habits',
+      icon: 'task_alt',
+      pct: pct(habitMet, habitEval),
+      planOnly: false,
+      num: habitMet,
+      den: habitEval,
+    },
     {
       key: 'intentions',
       icon: 'target',
@@ -243,7 +266,7 @@ export function monthWeekRings(
   entries: DailyMeasurementEntry[],
   weekRef: WeekRef,
   timeState: PeriodTimeState,
-  today: DayRef,
+  today: DayRef
 ): StreamRingVM[] {
   const rings = ringsForPeriod(intentions, entries, weekRef, timeState, today)
   if (timeState === 'future') return rings
@@ -252,12 +275,18 @@ export function monthWeekRings(
   for (const item of items) {
     let state: WeekState | undefined
     if (item.weekEvaluations) {
-      const week = item.weekEvaluations.find((candidate) => candidate.weekRef === weekRef)
-      if (week) state = classifyWeek(weekRef, week.planned, week.measurement.evaluationStatus, today)
+      const week = item.weekEvaluations.find(candidate => candidate.weekRef === weekRef)
+      if (week)
+        state = classifyWeek(weekRef, week.planned, week.measurement.evaluationStatus, today)
     } else {
       const override = item.weekTargetOverrides?.[weekRef]
       if (override) {
-        const summary = buildMeasurementSummary(applyMeasurementTargetOverride(item.subject, override), entries, weekRef, today)
+        const summary = buildMeasurementSummary(
+          applyMeasurementTargetOverride(item.subject, override),
+          entries,
+          weekRef,
+          today
+        )
         state = classifyWeek(weekRef, true, summary.evaluationStatus, today)
       }
     }
@@ -267,9 +296,12 @@ export function monthWeekRings(
     if (state === 'met') count.met++
   }
 
-  return rings.map((ring) => {
-    const count = ring.key === 'goals' ? counts.keyResult : ring.key === 'habits' ? counts.habit : null
-    return count ? { ...ring, pct: pct(count.met, count.den), num: count.met, den: count.den } : ring
+  return rings.map(ring => {
+    const count =
+      ring.key === 'goals' ? counts.keyResult : ring.key === 'habits' ? counts.habit : null
+    return count
+      ? { ...ring, pct: pct(count.met, count.den), num: count.met, den: count.den }
+      : ring
   })
 }
 
@@ -278,16 +310,20 @@ export function dayRings(
   krIds: Set<string>,
   habitIds: Set<string>,
   dayEntries: DailyMeasurementEntry[],
-  timeState: PeriodTimeState,
+  timeState: PeriodTimeState
 ): StreamRingVM[] {
   if (timeState === 'future') {
-    return DAY_RING_DEFS.map((d) => ({ key: d.key, icon: d.icon, pct: null, planOnly: true }))
+    return DAY_RING_DEFS.map(d => ({ key: d.key, icon: d.icon, pct: null, planOnly: true }))
   }
   const krWithEntry = new Set(
-    dayEntries.filter((e) => e.subjectType === 'keyResult' && krIds.has(e.subjectId)).map((e) => e.subjectId),
+    dayEntries
+      .filter(e => e.subjectType === 'keyResult' && krIds.has(e.subjectId))
+      .map(e => e.subjectId)
   )
   const habitWithEntry = new Set(
-    dayEntries.filter((e) => e.subjectType === 'habit' && habitIds.has(e.subjectId)).map((e) => e.subjectId),
+    dayEntries
+      .filter(e => e.subjectType === 'habit' && habitIds.has(e.subjectId))
+      .map(e => e.subjectId)
   )
   return [
     {
@@ -324,20 +360,32 @@ export function yearMonthRings(
   monthSummary: CalendarYearMonthSummary,
   timeState: PeriodTimeState,
   /** Cap on the weekly denominator; the pills already count only decided weeks. */
-  elapsedWeeks?: number,
+  elapsedWeeks?: number
 ): StreamRingVM[] {
   if (timeState === 'future') {
-    return YEAR_RING_DEFS.map((d) => ({ key: d.key, icon: d.icon, pct: null, planOnly: true }))
+    return YEAR_RING_DEFS.map(d => ({ key: d.key, icon: d.icon, pct: null, planOnly: true }))
   }
   const goalMean = nonNullMean(
-    monthSummary.goalGroups.map((g) => nonNullMean(g.pills.map((p) => pillFraction(p, elapsedWeeks)))),
+    monthSummary.goalGroups.map(g => nonNullMean(g.pills.map(p => pillFraction(p, elapsedWeeks))))
   )
   const habitMean = nonNullMean(
-    monthSummary.habitGroups.map((h) => pillFraction(h.pill, elapsedWeeks)),
+    monthSummary.habitGroups.map(h => pillFraction(h.pill, elapsedWeeks))
   )
   return [
-    { key: 'goals', icon: 'flag', pct: goalMean === null ? null : Math.round(goalMean * 100), planOnly: false, mean: true },
-    { key: 'habits', icon: 'task_alt', pct: habitMean === null ? null : Math.round(habitMean * 100), planOnly: false, mean: true },
+    {
+      key: 'goals',
+      icon: 'flag',
+      pct: goalMean === null ? null : Math.round(goalMean * 100),
+      planOnly: false,
+      mean: true,
+    },
+    {
+      key: 'habits',
+      icon: 'task_alt',
+      pct: habitMean === null ? null : Math.round(habitMean * 100),
+      planOnly: false,
+      mean: true,
+    },
   ]
 }
 
@@ -355,9 +403,9 @@ const MONTHLY_DIMENSIONS: { key: string; field: keyof MonthlyReflection }[] = [
 /** Year-view month-card bars = the month's 5 monthly-reflection dimension ratings. */
 export function monthlyDimensionBars(
   reflection: MonthlyReflection | undefined,
-  timeState: PeriodTimeState,
+  timeState: PeriodTimeState
 ): StreamBarVM[] {
-  return MONTHLY_DIMENSIONS.map((dim) => ({
+  return MONTHLY_DIMENSIONS.map(dim => ({
     key: dim.key,
     value:
       timeState === 'future'
@@ -373,7 +421,7 @@ export function monthlyDimensionBars(
 export function monthPriorities(
   topPriorityIds: string[] | undefined,
   prioritiesById: Map<string, { title: string; icon?: string }>,
-  effortFor: (priorityId: string) => number | null,
+  effortFor: (priorityId: string) => number | null
 ): StreamPriorityVM[] {
   const slots: StreamPriorityVM[] = []
   for (const id of (topPriorityIds ?? []).slice(0, 3)) {
@@ -399,16 +447,17 @@ export async function loadStreamYear(yearRef: YearRef): Promise<StreamMonthVM[]>
   const today = todayDayRef()
   const todayMonthRef = getPeriodRefsForDate(today).month
 
-  const [summary, monthlyReflections, monthPlans, priorities, objectReflections] = await Promise.all([
-    getCalendarYearSummary(yearRef),
-    structuredReflectionDexieRepository.listMonthly(),
-    periodPlanDexieRepository.listMonthPlans(),
-    priorityDexieRepository.listAll(),
-    reflectionDexieRepository.listPeriodObjectReflections(),
-  ])
-  const reflectionByMonth = new Map(monthlyReflections.map((r) => [r.monthRef, r]))
-  const planByMonth = new Map(monthPlans.map((p) => [p.monthRef, p]))
-  const prioritiesById = new Map(priorities.map((p) => [p.id, p]))
+  const [summary, monthlyReflections, monthPlans, priorities, objectReflections] =
+    await Promise.all([
+      getCalendarYearSummary(yearRef),
+      structuredReflectionDexieRepository.listMonthly(),
+      periodPlanDexieRepository.listMonthPlans(),
+      priorityDexieRepository.listAll(),
+      reflectionDexieRepository.listPeriodObjectReflections(),
+    ])
+  const reflectionByMonth = new Map(monthlyReflections.map(r => [r.monthRef, r]))
+  const planByMonth = new Map(monthPlans.map(p => [p.monthRef, p]))
+  const prioritiesById = new Map(priorities.map(p => [p.id, p]))
   const effortByKey = new Map<string, number | null>()
   for (const r of objectReflections) {
     if (r.periodType === 'month' && r.subjectType === 'priority') {
@@ -428,7 +477,7 @@ export async function loadStreamYear(yearRef: YearRef): Promise<StreamMonthVM[]>
       priorities: monthPriorities(
         planByMonth.get(monthSummary.monthRef)?.topPriorityIds,
         prioritiesById,
-        (priorityId) => effortByKey.get(`${monthSummary.monthRef}:${priorityId}`) ?? null,
+        priorityId => effortByKey.get(`${monthSummary.monthRef}:${priorityId}`) ?? null
       ),
     }
   })
@@ -442,17 +491,17 @@ export async function loadStreamMonth(monthRef: MonthRef): Promise<StreamWeekVM[
   const [bundle, weeklyReflections, intentionsPerWeek] = await Promise.all([
     getMonthPlanningBundle(monthRef),
     structuredReflectionDexieRepository.getWeeklyForMonth(monthRef),
-    Promise.all(weekRefs.map((weekRef) => weeklyIntentionDexieRepository.listByWeek(weekRef))),
+    Promise.all(weekRefs.map(weekRef => weeklyIntentionDexieRepository.listByWeek(weekRef))),
   ])
 
-  const reflectionByWeek = new Map(weeklyReflections.map((r) => [r.weekRef, r]))
+  const reflectionByWeek = new Map(weeklyReflections.map(r => [r.weekRef, r]))
 
   return weekRefs.map((weekRef, weekIndex) => {
     const bounds = getPeriodBounds(weekRef)
     const timeState = spanTimeState(bounds.start, bounds.end, today)
     const intentions: ActiveSubject[] = intentionsPerWeek[weekIndex]
-      .filter((subject) => subject.isActive)
-      .map((subject) => ({ subjectType: 'weeklyIntention' as const, subject }))
+      .filter(subject => subject.isActive)
+      .map(subject => ({ subjectType: 'weeklyIntention' as const, subject }))
     return {
       weekRef,
       weekNumber: Number(weekRef.slice(-2)),
@@ -461,7 +510,14 @@ export async function loadStreamMonth(monthRef: MonthRef): Promise<StreamWeekVM[
       timeState,
       isCurrent: timeState === 'current',
       matrix: matrixFromReflection(reflectionByWeek.get(weekRef)),
-      rings: monthWeekRings(bundle.cadencedItems, intentions, bundle.rawEntries, weekRef, timeState, today),
+      rings: monthWeekRings(
+        bundle.cadencedItems,
+        intentions,
+        bundle.rawEntries,
+        weekRef,
+        timeState,
+        today
+      ),
     }
   })
 }
@@ -483,10 +539,10 @@ export async function loadStreamWeek(weekRef: WeekRef): Promise<StreamDayVM[]> {
   ])
 
   const krIds = new Set(
-    bundle.relevant.cadencedItems.filter((i) => i.subjectType === 'keyResult').map((i) => i.subject.id),
+    bundle.relevant.cadencedItems.filter(i => i.subjectType === 'keyResult').map(i => i.subject.id)
   )
   const habitIds = new Set(
-    bundle.relevant.cadencedItems.filter((i) => i.subjectType === 'habit').map((i) => i.subject.id),
+    bundle.relevant.cadencedItems.filter(i => i.subjectType === 'habit').map(i => i.subject.id)
   )
 
   const journalEntries = journalStore.sortedEntries
@@ -499,9 +555,11 @@ export async function loadStreamWeek(weekRef: WeekRef): Promise<StreamDayVM[]> {
     const dayEnd = `${dayRef}T23:59:59.999Z`
 
     const journalWritten =
-      !isFuture && journalEntries.some((e) => e.createdAt >= dayStart && e.createdAt <= dayEnd)
+      !isFuture && journalEntries.some(e => e.createdAt >= dayStart && e.createdAt <= dayEnd)
 
-    const dayLogs = isFuture ? [] : logs.filter((l) => l.createdAt >= dayStart && l.createdAt <= dayEnd)
+    const dayLogs = isFuture
+      ? []
+      : logs.filter(l => l.createdAt >= dayStart && l.createdAt <= dayEnd)
     const counts = emptyQuadrantCounts()
     for (const log of dayLogs) {
       for (const emotionId of log.emotionIds) {
@@ -510,13 +568,13 @@ export async function loadStreamWeek(weekRef: WeekRef): Promise<StreamDayVM[]> {
       }
     }
 
-    const dayEntries = bundle.rawEntries.filter((e) => e.dayRef === dayRef)
+    const dayEntries = bundle.rawEntries.filter(e => e.dayRef === dayRef)
 
     // Exact dayRef match, NOT the UTC window above: completions already
     // store the canonical local day.
     const exerciseCount = isFuture
       ? 0
-      : exerciseCompletionsStore.completions.filter((c) => c.dayRef === dayRef).length
+      : exerciseCompletionsStore.completions.filter(c => c.dayRef === dayRef).length
 
     return {
       dayRef,

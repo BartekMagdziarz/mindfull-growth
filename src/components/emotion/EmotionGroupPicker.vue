@@ -48,7 +48,11 @@
               :data-testid="`egp-quadrant-mini-${q.id}`"
               @click="openQuad(q.id)"
             >
-              <span class="egp-icon" aria-hidden="true" :style="{ maskImage: quadrantMask(q.id) }"></span>
+              <span
+                class="egp-icon"
+                aria-hidden="true"
+                :style="{ maskImage: quadrantMask(q.id) }"
+              ></span>
             </button>
           </div>
         </div>
@@ -65,7 +69,11 @@
             :data-testid="`egp-quadrant-${q.id}`"
             @click="openQuad(q.id)"
           >
-            <span class="egp-icon" aria-hidden="true" :style="{ maskImage: quadrantMask(q.id) }"></span>
+            <span
+              class="egp-icon"
+              aria-hidden="true"
+              :style="{ maskImage: quadrantMask(q.id) }"
+            ></span>
             <span class="q-name">
               <span class="q-en">{{ energyLabel(q.id) }}</span>
               <span class="q-div"></span>
@@ -81,7 +89,12 @@
             :key="g.slug"
             class="etile"
             :class="{ sel: g.slug in selMap }"
-            :style="{ '--c': accent, '--qtint': quadrantTint, '--fw': fillWidth(g.slug), '--tp': thumbPos(g.slug) }"
+            :style="{
+              '--c': accent,
+              '--qtint': quadrantTint,
+              '--fw': fillWidth(g.slug),
+              '--tp': thumbPos(g.slug),
+            }"
             :data-testid="`egp-tile-${g.slug}`"
             @mouseenter="hovered = g.slug"
             @mouseleave="hovered = null"
@@ -213,9 +226,9 @@ const OVERVIEW_ORDER: Quadrant[] = [
   'low-energy-low-pleasantness',
   'low-energy-high-pleasantness',
 ]
-const quadrantList = OVERVIEW_ORDER.map((q) => QUADRANT_STYLES[q])
+const quadrantList = OVERVIEW_ORDER.map(q => QUADRANT_STYLES[q])
 const activeGroups = computed<EmotionGroup[]>(() =>
-  activeQuad.value ? GROUPS_BY_QUADRANT[activeQuad.value] : [],
+  activeQuad.value ? GROUPS_BY_QUADRANT[activeQuad.value] : []
 )
 
 // ---- stan wyboru: mapa slug → poziom (0 = zaznaczenie bez natężenia) ----
@@ -225,16 +238,16 @@ const selMap = computed<Record<string, number>>(() => {
   return m
 })
 function writeSel(slug: string, lvl: number | null) {
-  const rest = selections.value.filter((s) => s.emotionId !== slug)
+  const rest = selections.value.filter(s => s.emotionId !== slug)
   if (lvl === null) {
     selections.value = rest
     return
   }
   const entry: EmotionGroupSelection =
     lvl > 0 ? { emotionId: slug, intensity: lvl as GroupIntensity } : { emotionId: slug }
-  const existing = selections.value.findIndex((s) => s.emotionId === slug)
+  const existing = selections.value.findIndex(s => s.emotionId === slug)
   if (existing >= 0) {
-    selections.value = selections.value.map((s) => (s.emotionId === slug ? entry : s))
+    selections.value = selections.value.map(s => (s.emotionId === slug ? entry : s))
   } else {
     selections.value = [...rest, entry]
   }
@@ -311,7 +324,8 @@ function slideUp(slug: string) {
   drag.value = null
   if (!d) return
   if (!d.moved) {
-    if (d.onThumb) toggle(slug) // tap w ikonę = zaznaczenie samej grupy
+    if (d.onThumb)
+      toggle(slug) // tap w ikonę = zaznaczenie samej grupy
     else if (d.prev === d.start) setLvl(slug, 0) // tap w aktywny poziom zdejmuje natężenie
   }
 }
@@ -326,7 +340,7 @@ function shortName(slug: string): string {
   return groupName(slug).split(' · ')[0]
 }
 function auxLine(g: EmotionGroup): string {
-  return g.auxIds.map((id) => t(`emotions.${id}.name`)).join(' · ')
+  return g.auxIds.map(id => t(`emotions.${id}.name`)).join(' · ')
 }
 function scaleLabel(n: number): string {
   return t(`emotionGroups.scale.${n}`)
@@ -338,7 +352,9 @@ function thumbAria(slug: string): string {
     : t('emotionGroups.ui.selectGroup', { name: groupName(slug) })
 }
 function energyLabel(q: Quadrant): string {
-  return q.startsWith('high') ? t('emotionViews.selector.energyLabels.high') : t('emotionViews.selector.energyLabels.low')
+  return q.startsWith('high')
+    ? t('emotionViews.selector.energyLabels.high')
+    : t('emotionViews.selector.energyLabels.low')
 }
 function pleasantnessLabel(q: Quadrant): string {
   return q.endsWith('high-pleasantness')
@@ -349,7 +365,7 @@ function quadLabel(q: Quadrant): string {
   return `${energyLabel(q)} · ${pleasantnessLabel(q)}`
 }
 function quadSelCount(q: Quadrant): number {
-  return GROUPS_BY_QUADRANT[q].filter((g) => g.slug in selMap.value).length
+  return GROUPS_BY_QUADRANT[q].filter(g => g.slug in selMap.value).length
 }
 function fillWidth(slug: string): string {
   const lvl = selMap.value[slug] ?? 0
@@ -361,26 +377,26 @@ function thumbPos(slug: string): string {
 }
 
 const accent = computed(() =>
-  activeQuad.value ? QUADRANT_STYLES[activeQuad.value].accent : EGP_DEFAULT_ACCENT,
+  activeQuad.value ? QUADRANT_STYLES[activeQuad.value].accent : EGP_DEFAULT_ACCENT
 )
 /** Tint karty-gospodarza (ten sam token co getQuadrantTintStyle) — baza drabinki kafla. */
 const quadrantTint = computed(() =>
   activeQuad.value
     ? `var(--color-quadrant-${activeQuad.value}-tint)`
-    : 'var(--mg-color-emotion-paper)',
+    : 'var(--mg-color-emotion-paper)'
 )
 const chips = computed(() =>
-  selections.value.map((s) => {
+  selections.value.map(s => {
     const g = Object.values(GROUPS_BY_QUADRANT)
       .flat()
-      .find((x) => x.slug === s.emotionId)
+      .find(x => x.slug === s.emotionId)
     return {
       slug: s.emotionId,
       name: shortName(s.emotionId),
       color: g ? QUADRANT_STYLES[g.quadrant].accent : EGP_DEFAULT_ACCENT,
       suffix: s.intensity ? `${s.intensity}/5` : '',
     }
-  }),
+  })
 )
 </script>
 
@@ -614,8 +630,16 @@ const chips = computed(() =>
   /* Drabinka tonalna w barwie ćwiartki: kafel = tint karty o stopień bielszy,
      tor suwaka = jeszcze bielszy. Baza zawsze w hue karty (neutralny paper
      wychodził chłodno-szary na różu/fiolecie). Selected = 34% akcentu. */
-  --tile-paper: color-mix(in srgb, var(--mg-color-emotion-paper) 55%, var(--qtint, var(--mg-color-emotion-paper)));
-  --track-paper: color-mix(in srgb, var(--mg-color-emotion-paper) 80%, var(--qtint, var(--mg-color-emotion-paper)));
+  --tile-paper: color-mix(
+    in srgb,
+    var(--mg-color-emotion-paper) 55%,
+    var(--qtint, var(--mg-color-emotion-paper))
+  );
+  --track-paper: color-mix(
+    in srgb,
+    var(--mg-color-emotion-paper) 80%,
+    var(--qtint, var(--mg-color-emotion-paper))
+  );
   background: var(--tile-paper);
   box-shadow: none;
   transition:
@@ -736,7 +760,9 @@ const chips = computed(() =>
   display: grid;
   place-items: center;
   box-shadow: none;
-  transition: left 160ms ease, transform 140ms ease;
+  transition:
+    left 160ms ease,
+    transform 140ms ease;
 }
 .hthumb:hover {
   transform: translateY(-50%) scale(1.08);
@@ -877,10 +903,23 @@ const chips = computed(() =>
   }
 }
 
-.hthumb:active { transform: translateY(-50%) scale(1.04, .96); }
-button:focus-visible { outline: 2px solid var(--mg-color-focus); outline-offset: 3px; }
+.hthumb:active {
+  transform: translateY(-50%) scale(1.04, 0.96);
+}
+button:focus-visible {
+  outline: 2px solid var(--mg-color-focus);
+  outline-offset: 3px;
+}
 @media (prefers-reduced-motion: reduce) {
-  .ep-stage > div { animation: none; }
-  .qbtn, .mcell, .etile, .hthumb, .hfillbar { transition: none; }
+  .ep-stage > div {
+    animation: none;
+  }
+  .qbtn,
+  .mcell,
+  .etile,
+  .hthumb,
+  .hfillbar {
+    transition: none;
+  }
 }
 </style>

@@ -7,9 +7,12 @@ describe('planning next view-model states', () => {
     [false, 'boom', false, 0, 'error'],
     [false, null, true, 0, 'empty'],
     [false, null, true, 3, 'ready'],
-  ] as const)('classifies loading/error/empty/ready', (loading, error, hasData, count, expected) => {
-    expect(classifyPlanningState(loading, error, hasData, count)).toBe(expected)
-  })
+  ] as const)(
+    'classifies loading/error/empty/ready',
+    (loading, error, hasData, count, expected) => {
+      expect(classifyPlanningState(loading, error, hasData, count)).toBe(expected)
+    }
+  )
 
   it('documents canonical period reference shapes', () => {
     expect(expectedPeriodRefLength('day')).toBe(10)

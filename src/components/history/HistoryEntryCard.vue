@@ -39,10 +39,7 @@
       </h3>
 
       <!-- Body/Note Preview -->
-      <p
-        v-if="contentPreview"
-        class="text-on-surface-variant line-clamp-2"
-      >
+      <p v-if="contentPreview" class="text-on-surface-variant line-clamp-2">
         {{ contentPreview }}
       </p>
 
@@ -59,18 +56,17 @@
         >
           <AppIcon name="chat_bubble" class="text-sm" />
           <span>
-            {{ entry.chatSessions.length > 1
-              ? t('history.card.chatCountPlural', { count: entry.chatSessions.length })
-              : t('history.card.chatCount', { count: entry.chatSessions.length }) }}
+            {{
+              entry.chatSessions.length > 1
+                ? t('history.card.chatCountPlural', { count: entry.chatSessions.length })
+                : t('history.card.chatCount', { count: entry.chatSessions.length })
+            }}
           </span>
         </button>
       </div>
 
       <!-- Emotion Chips -->
-      <div
-        v-if="entry.emotionIds.length > 0"
-        class="flex flex-wrap gap-2"
-      >
+      <div v-if="entry.emotionIds.length > 0" class="flex flex-wrap gap-2">
         <span
           v-for="emotionId in entry.emotionIds"
           :key="`emotion-${emotionId}`"
@@ -83,10 +79,7 @@
       </div>
 
       <!-- Family Chips (rodzina-only) — bez rodzin „wchłoniętych" przez wybraną emocję -->
-      <div
-        v-if="displayedFamilyIds.length > 0"
-        class="flex flex-wrap gap-2"
-      >
+      <div v-if="displayedFamilyIds.length > 0" class="flex flex-wrap gap-2">
         <span
           v-for="familyId in displayedFamilyIds"
           :key="`family-${familyId}`"
@@ -99,10 +92,7 @@
       </div>
 
       <!-- People & Context Tags -->
-      <div
-        v-if="hasTags"
-        class="flex flex-wrap gap-2"
-      >
+      <div v-if="hasTags" class="flex flex-wrap gap-2">
         <!-- People Tags -->
         <span
           v-for="peopleTagId in entry.peopleTagIds"
@@ -181,9 +171,7 @@ const hasTags = computed(() => {
 const deleteAriaLabel = computed(() => {
   if (props.entry.type === 'journal') {
     const title = getDisplayTitle(props.entry)
-    return title
-      ? t('history.card.deleteJournal', { title })
-      : t('history.card.deleteUntitled')
+    return title ? t('history.card.deleteJournal', { title }) : t('history.card.deleteUntitled')
   }
   return t('history.card.deleteEmotion', { date: formatEntryDate(props.entry.createdAt) })
 })
@@ -214,9 +202,9 @@ const displayedFamilyIds = computed(() => {
   const families = props.entry.emotionFamilyIds ?? []
   if (families.length === 0) return []
   const emotionFamilies = new Set(
-    (props.entry.emotionIds ?? []).map((id) => familyOfEmotionId(id)).filter(Boolean)
+    (props.entry.emotionIds ?? []).map(id => familyOfEmotionId(id)).filter(Boolean)
   )
-  return families.filter((fid) => !emotionFamilies.has(fid))
+  return families.filter(fid => !emotionFamilies.has(fid))
 })
 
 function getPeopleTagName(id: string): string | undefined {

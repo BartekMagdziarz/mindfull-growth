@@ -8,22 +8,26 @@
 
     <!-- Past shifts -->
     <div v-if="attitudinalShiftStore.sortedShifts.length > 0" class="mt-8">
-      <div class="mg-v2-section-head"><h2>{{ t('exercises.views.pastShifts') }}</h2></div>
+      <div class="mg-v2-section-head">
+        <h2>{{ t('exercises.views.pastShifts') }}</h2>
+      </div>
       <div class="space-y-3">
-        <AppCard
-          v-for="shift in attitudinalShiftStore.sortedShifts"
-          :key="shift.id"
-          padding="md"
-        >
+        <AppCard v-for="shift in attitudinalShiftStore.sortedShifts" :key="shift.id" padding="md">
           <div class="flex justify-between items-start">
             <div class="min-w-0 flex-1">
               <p v-if="shift.statements[0]" class="text-sm text-on-surface truncate">
-                <span class="text-on-surface-variant line-through">{{ truncate(shift.statements[0].belief, 30) }}</span>
+                <span class="text-on-surface-variant line-through">{{
+                  truncate(shift.statements[0].belief, 30)
+                }}</span>
                 <span class="mx-1">&rarr;</span>
-                <span class="font-medium">{{ truncate(shift.statements[0].reframe ?? '', 30) }}</span>
+                <span class="font-medium">{{
+                  truncate(shift.statements[0].reframe ?? '', 30)
+                }}</span>
               </p>
               <p class="text-xs text-on-surface-variant mt-1">
-                {{ shift.statements.length }} statement{{ shift.statements.length !== 1 ? 's' : '' }}
+                {{ shift.statements.length }} statement{{
+                  shift.statements.length !== 1 ? 's' : ''
+                }}
                 &middot;
                 {{ formatDate(shift.createdAt) }}
               </p>

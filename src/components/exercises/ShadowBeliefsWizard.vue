@@ -1,7 +1,9 @@
 <template>
   <div class="space-y-6">
     <AppCard padding="lg" class="space-y-4">
-      <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.shadowBeliefs.title') }}</h2>
+      <h2 class="text-lg font-semibold text-on-surface">
+        {{ t('exerciseWizards.shadowBeliefs.title') }}
+      </h2>
       <p class="text-sm text-on-surface-variant">
         {{ t('exerciseWizards.shadowBeliefs.description') }}
       </p>
@@ -9,7 +11,9 @@
 
     <!-- Identify beliefs -->
     <AppCard padding="lg" class="space-y-4">
-      <h3 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.shadowBeliefs.beliefs.title') }}</h3>
+      <h3 class="text-base font-semibold text-on-surface">
+        {{ t('exerciseWizards.shadowBeliefs.beliefs.title') }}
+      </h3>
       <p class="text-sm text-on-surface-variant">
         {{ t('exerciseWizards.shadowBeliefs.beliefs.description') }}
       </p>
@@ -21,9 +25,11 @@
           :key="key"
           type="button"
           class="px-3 py-1.5 rounded-full text-xs font-medium transition-colors border"
-          :class="isCommonSelected(key)
-            ? 'bg-primary/20 text-primary border-primary/40'
-            : 'bg-chip text-on-surface border-chip-border hover:bg-section'"
+          :class="
+            isCommonSelected(key)
+              ? 'bg-primary/20 text-primary border-primary/40'
+              : 'bg-chip text-on-surface border-chip-border hover:bg-section'
+          "
           @click="toggleCommonBelief(key)"
         >
           {{ commonLabel(key) }}
@@ -54,10 +60,9 @@
         >
           <div class="flex items-center gap-2">
             <span class="text-primary">&#8226;</span>
-            <span
-              v-if="entry.commonKey"
-              class="flex-1 p-2 text-sm font-medium text-on-surface"
-            >{{ commonLabel(entry.commonKey) }}</span>
+            <span v-if="entry.commonKey" class="flex-1 p-2 text-sm font-medium text-on-surface">{{
+              commonLabel(entry.commonKey)
+            }}</span>
             <input
               v-else
               :value="entry.belief"
@@ -119,7 +124,9 @@
 
     <!-- Advice to others -->
     <AppCard padding="lg" class="space-y-4">
-      <h3 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.shadowBeliefs.advice.title') }}</h3>
+      <h3 class="text-base font-semibold text-on-surface">
+        {{ t('exerciseWizards.shadowBeliefs.advice.title') }}
+      </h3>
       <p class="text-sm text-on-surface-variant">
         {{ t('exerciseWizards.shadowBeliefs.advice.description') }}
       </p>
@@ -159,9 +166,11 @@
                   :key="opt"
                   type="button"
                   class="px-3 py-1 rounded-full text-xs font-medium transition-colors border"
-                  :class="item.followsSelf === opt
-                    ? 'bg-primary/20 text-primary border-primary/40'
-                    : 'bg-chip text-on-surface border-chip-border hover:bg-section'"
+                  :class="
+                    item.followsSelf === opt
+                      ? 'bg-primary/20 text-primary border-primary/40'
+                      : 'bg-chip text-on-surface border-chip-border hover:bg-section'
+                  "
                   @click="item.followsSelf = item.followsSelf === opt ? '' : opt"
                 >
                   {{ t(`exerciseWizards.shadowBeliefs.advice.follow.${opt}`) }}
@@ -169,7 +178,10 @@
               </div>
             </div>
 
-            <div v-if="item.followsSelf === 'sometimes' || item.followsSelf === 'no'" class="space-y-1 pt-1">
+            <div
+              v-if="item.followsSelf === 'sometimes' || item.followsSelf === 'no'"
+              class="space-y-1 pt-1"
+            >
               <label class="text-xs font-medium text-on-surface-variant">
                 {{ t('exerciseWizards.shadowBeliefs.advice.blockerLabel') }}
               </label>
@@ -194,13 +206,15 @@
       </div>
 
       <div class="space-y-2 pt-2">
-      <label class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.shadowBeliefs.reflectionTitle') }}</label>
-      <textarea
-        v-model="draft.notes"
-        rows="3"
-        :placeholder="tg('exerciseWizards.shadowBeliefs.reflectionPlaceholder')"
-        class="neo-input w-full p-3 text-sm resize-none"
-      />
+        <label class="text-sm font-medium text-on-surface">{{
+          t('exerciseWizards.shadowBeliefs.reflectionTitle')
+        }}</label>
+        <textarea
+          v-model="draft.notes"
+          rows="3"
+          :placeholder="tg('exerciseWizards.shadowBeliefs.reflectionPlaceholder')"
+          class="neo-input w-full p-3 text-sm resize-none"
+        />
       </div>
     </AppCard>
 
@@ -269,13 +283,19 @@ function commonLabel(key: string): string {
 }
 
 function isCommonSelected(key: string): boolean {
-  return draft.beliefs.some((b) => b.commonKey === key)
+  return draft.beliefs.some(b => b.commonKey === key)
 }
 
 function toggleCommonBelief(key: string) {
-  const index = draft.beliefs.findIndex((b) => b.commonKey === key)
+  const index = draft.beliefs.findIndex(b => b.commonKey === key)
   if (index === -1) {
-    draft.beliefs.push({ commonKey: key, belief: '', evidenceFor: '', evidenceAgainst: '', reframe: '' })
+    draft.beliefs.push({
+      commonKey: key,
+      belief: '',
+      evidenceFor: '',
+      evidenceAgainst: '',
+      reframe: '',
+    })
   } else {
     draft.beliefs.splice(index, 1)
   }
@@ -299,20 +319,20 @@ function beliefText(entry: DraftBelief): string {
   return entry.commonKey ? commonLabel(entry.commonKey) : entry.belief.trim()
 }
 
-const canSave = computed(() => draft.beliefs.some((b) => beliefText(b).length > 0))
+const canSave = computed(() => draft.beliefs.some(b => beliefText(b).length > 0))
 
 async function handleSave() {
   const beliefs = draft.beliefs
-    .map((b) => ({
+    .map(b => ({
       belief: beliefText(b),
       evidenceFor: b.evidenceFor.trim() || undefined,
       evidenceAgainst: b.evidenceAgainst.trim() || undefined,
       reframe: b.reframe.trim() || undefined,
     }))
-    .filter((b) => b.belief.length > 0)
+    .filter(b => b.belief.length > 0)
 
   const adviceToOthers = draft.advice
-    .map((a) => {
+    .map(a => {
       const notFollowed = a.followsSelf === 'sometimes' || a.followsSelf === 'no'
       return {
         advice: a.advice.trim(),
@@ -320,7 +340,7 @@ async function handleSave() {
         blocker: notFollowed && a.blocker.trim() ? a.blocker.trim() : undefined,
       }
     })
-    .filter((a) => a.advice.length > 0)
+    .filter(a => a.advice.length > 0)
 
   const saved = await shadowBeliefsStore.createBeliefs({
     beliefs,

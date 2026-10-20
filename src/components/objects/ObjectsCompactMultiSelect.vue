@@ -10,7 +10,10 @@
       :disabled="disabled"
       @click.stop="toggleOpen"
     >
-      <span class="min-w-0 truncate" :class="selectedIds.length === 0 ? 'text-on-surface-variant' : 'text-on-surface'">
+      <span
+        class="min-w-0 truncate"
+        :class="selectedIds.length === 0 ? 'text-on-surface-variant' : 'text-on-surface'"
+      >
         {{ summary }}
       </span>
       <span class="flex shrink-0 items-center gap-1">
@@ -36,7 +39,9 @@
       @keydown="onListKeydown"
     >
       <li v-for="option in options" :key="option.id">
-        <label class="objects-multi__option flex cursor-pointer items-center gap-2.5 px-2.5 py-1.5 text-sm text-on-surface">
+        <label
+          class="objects-multi__option flex cursor-pointer items-center gap-2.5 px-2.5 py-1.5 text-sm text-on-surface"
+        >
           <input
             type="checkbox"
             class="mg-v2-checkbox"
@@ -75,15 +80,17 @@ const open = ref(false)
 // 0 → placeholder, 1 → name, 2 → "A, B", 3+ → "A +2".
 const summary = computed(() => {
   const labels = props.options
-    .filter((option) => props.selectedIds.includes(option.id))
-    .map((option) => option.label)
+    .filter(option => props.selectedIds.includes(option.id))
+    .map(option => option.label)
   if (labels.length === 0) return props.placeholder
   if (labels.length <= 2) return labels.join(', ')
   return `${labels[0]} +${labels.length - 1}`
 })
 
 function optionInputs(): HTMLInputElement[] {
-  return Array.from(listRef.value?.querySelectorAll<HTMLInputElement>('input[type="checkbox"]') ?? [])
+  return Array.from(
+    listRef.value?.querySelectorAll<HTMLInputElement>('input[type="checkbox"]') ?? []
+  )
 }
 
 async function toggleOpen(): Promise<void> {
@@ -92,7 +99,7 @@ async function toggleOpen(): Promise<void> {
   await nextTick()
   // Focus the first checked option, else the first one, so arrows work at once.
   const inputs = optionInputs()
-  ;(inputs.find((input) => input.checked) ?? inputs[0])?.focus()
+  ;(inputs.find(input => input.checked) ?? inputs[0])?.focus()
 }
 
 function close(restoreFocus = true): void {
@@ -110,7 +117,7 @@ function onListKeydown(event: KeyboardEvent): void {
     return
   }
   const inputs = optionInputs()
-  const index = inputs.findIndex((input) => input === document.activeElement)
+  const index = inputs.findIndex(input => input === document.activeElement)
   let next: number | null = null
   if (event.key === 'ArrowDown') next = Math.min(index + 1, inputs.length - 1)
   else if (event.key === 'ArrowUp') next = Math.max(index - 1, 0)

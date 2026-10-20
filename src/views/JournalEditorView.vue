@@ -9,9 +9,29 @@
     <template v-else>
       <details v-if="!isEditMode && savedDrafts.length" class="mg-v2-surface p-3">
         <summary>Zachowane szkice ({{ savedDrafts.length }})</summary>
-        <div v-for="savedDraft in savedDrafts" :key="savedDraft.id" class="flex flex-wrap gap-2 py-2">
-          <button type="button" class="mg-v2-button mg-v2-button--quiet" @click="resumeDraft(savedDraft.id)">{{ savedDraft.content.title || savedDraft.content.body.slice(0, 60) || 'Rozmowa przy pustym szkicu' }}</button>
-          <button type="button" class="mg-v2-button mg-v2-button--quiet" @click="removeDraft(savedDraft.id)">Usuń szkic</button>
+        <div
+          v-for="savedDraft in savedDrafts"
+          :key="savedDraft.id"
+          class="flex flex-wrap gap-2 py-2"
+        >
+          <button
+            type="button"
+            class="mg-v2-button mg-v2-button--quiet"
+            @click="resumeDraft(savedDraft.id)"
+          >
+            {{
+              savedDraft.content.title ||
+              savedDraft.content.body.slice(0, 60) ||
+              'Rozmowa przy pustym szkicu'
+            }}
+          </button>
+          <button
+            type="button"
+            class="mg-v2-button mg-v2-button--quiet"
+            @click="removeDraft(savedDraft.id)"
+          >
+            Usuń szkic
+          </button>
         </div>
       </details>
       <p v-if="draftError" role="alert">{{ draftError }}</p>
@@ -43,10 +63,15 @@
               role="dialog"
               aria-modal="true"
             >
-              <h2 class="text-lg font-semibold text-on-surface mb-4">{{ t('journal.editor.setDateTime') }}</h2>
+              <h2 class="text-lg font-semibold text-on-surface mb-4">
+                {{ t('journal.editor.setDateTime') }}
+              </h2>
               <div class="space-y-4">
                 <div>
-                  <label for="entry-date" class="block text-sm font-medium text-on-surface-variant mb-1">
+                  <label
+                    for="entry-date"
+                    class="block text-sm font-medium text-on-surface-variant mb-1"
+                  >
                     {{ t('journal.editor.date') }}
                   </label>
                   <input
@@ -57,7 +82,10 @@
                   />
                 </div>
                 <div>
-                  <label for="entry-time" class="block text-sm font-medium text-on-surface-variant mb-1">
+                  <label
+                    for="entry-time"
+                    class="block text-sm font-medium text-on-surface-variant mb-1"
+                  >
                     {{ t('journal.editor.time') }}
                   </label>
                   <input
@@ -69,7 +97,9 @@
                 </div>
               </div>
               <div class="flex gap-3 justify-end mt-6">
-                <DsButton variant="quiet" @click="showDateTimePicker = false">{{ t('common.buttons.cancel') }}</DsButton>
+                <DsButton variant="quiet" @click="showDateTimePicker = false">{{
+                  t('common.buttons.cancel')
+                }}</DsButton>
                 <DsButton @click="applyDateTime">{{ t('journal.editor.apply') }}</DsButton>
               </div>
             </div>
@@ -87,27 +117,25 @@
         ]"
       >
         <!-- Left: Title + Body textarea (full height) -->
-        <section
-          class="mg-v2-surface mg-v2-surface--raised-sm p-3 flex flex-col min-h-0"
-        >
-        <div class="mg-v2-editor-canvas flex flex-1 flex-col gap-4 px-6 py-5 min-h-0">
-          <label for="title" class="sr-only">{{ t('journal.editor.titleLabel') }}</label>
-          <input
-            id="title"
-            v-model="title"
-            type="text"
-            :placeholder="t('journal.editor.titlePlaceholder')"
-            class="w-full bg-transparent text-2xl font-semibold text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-0"
-          />
+        <section class="mg-v2-surface mg-v2-surface--raised-sm p-3 flex flex-col min-h-0">
+          <div class="mg-v2-editor-canvas flex flex-1 flex-col gap-4 px-6 py-5 min-h-0">
+            <label for="title" class="sr-only">{{ t('journal.editor.titleLabel') }}</label>
+            <input
+              id="title"
+              v-model="title"
+              type="text"
+              :placeholder="t('journal.editor.titlePlaceholder')"
+              class="w-full bg-transparent text-2xl font-semibold text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-0"
+            />
 
-          <label for="body" class="sr-only">{{ t('journal.editor.bodyLabel') }}</label>
-          <textarea
-            id="body"
-            v-model="body"
-            :placeholder="t('journal.editor.bodyPlaceholder')"
-            class="w-full flex-1 bg-transparent text-base leading-relaxed text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-0 resize-none min-h-[240px]"
-          />
-        </div>
+            <label for="body" class="sr-only">{{ t('journal.editor.bodyLabel') }}</label>
+            <textarea
+              id="body"
+              v-model="body"
+              :placeholder="t('journal.editor.bodyPlaceholder')"
+              class="w-full flex-1 bg-transparent text-base leading-relaxed text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-0 resize-none min-h-[240px]"
+            />
+          </div>
         </section>
 
         <!-- Side panel toggle (desktop only) -->
@@ -115,7 +143,11 @@
           <button
             type="button"
             class="mg-v2-button mg-v2-button--icon mg-v2-button--quiet flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant/70 hover:-translate-y-px hover:text-on-surface transition-all duration-200"
-            :aria-label="isSidePanelOpen ? t('journal.editor.collapseSidePanel') : t('journal.editor.expandSidePanel')"
+            :aria-label="
+              isSidePanelOpen
+                ? t('journal.editor.collapseSidePanel')
+                : t('journal.editor.expandSidePanel')
+            "
             :aria-expanded="isSidePanelOpen"
             @click="toggleSidePanel"
           >
@@ -143,8 +175,22 @@
           ]"
         >
           <div class="flex gap-2" aria-label="Sekcje panelu Dziennika">
-            <button type="button" class="mg-v2-button" :aria-pressed="sideSection === 'emotions'" @click="sideSection = 'emotions'">Emocje</button>
-            <button type="button" class="mg-v2-button" :aria-pressed="sideSection === 'ai'" @click="sideSection = 'ai'">AI</button>
+            <button
+              type="button"
+              class="mg-v2-button"
+              :aria-pressed="sideSection === 'emotions'"
+              @click="sideSection = 'emotions'"
+            >
+              Emocje
+            </button>
+            <button
+              type="button"
+              class="mg-v2-button"
+              :aria-pressed="sideSection === 'ai'"
+              @click="sideSection = 'ai'"
+            >
+              AI
+            </button>
           </div>
           <ReflectionCompanionPanel
             v-if="sideSection === 'ai' && draftReady"
@@ -159,74 +205,62 @@
             @insert="insertCompanionText"
           />
           <div v-show="sideSection === 'emotions'" class="flex flex-col gap-4">
-          <section
-            class="mg-v2-surface mg-v2-surface--raised-sm px-5 py-4 flex flex-col gap-3"
-            :style="emotionCardStyle"
-          >
-            <div
-              v-if="isEmotionSectionLoading"
-              class="journal-v2__placeholder p-3 text-center text-xs text-on-surface-variant"
-            >
-              {{ t('journal.editor.loadingEmotions') }}
-            </div>
-            <div v-else class="pt-1">
-              <EmotionGroupPicker
-                :label="t('journal.editor.emotions')"
-                v-model="wheelSelections"
-                v-model:quadrant="activeEmotionQuadrant"
-              />
-            </div>
-          </section>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <!-- Context Tags Section -->
             <section
               class="mg-v2-surface mg-v2-surface--raised-sm px-5 py-4 flex flex-col gap-3"
+              :style="emotionCardStyle"
             >
-              <header>
-                <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-                  {{ t('journal.editor.context') }}
-                </p>
-              </header>
               <div
-                v-if="areContextTagsLoading"
+                v-if="isEmotionSectionLoading"
                 class="journal-v2__placeholder p-3 text-center text-xs text-on-surface-variant"
               >
-                {{ t('journal.editor.loadingContext') }}
+                {{ t('journal.editor.loadingEmotions') }}
               </div>
               <div v-else class="pt-1">
-                <TagInput
-                  v-model="selectedContextTagIds"
-                  tag-type="context"
-                  :visible-limit="6"
+                <EmotionGroupPicker
+                  :label="t('journal.editor.emotions')"
+                  v-model="wheelSelections"
+                  v-model:quadrant="activeEmotionQuadrant"
                 />
               </div>
             </section>
 
-            <!-- People Tags Section -->
-            <section
-              class="mg-v2-surface mg-v2-surface--raised-sm px-5 py-4 flex flex-col gap-3"
-            >
-              <header>
-                <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-                  {{ t('journal.editor.people') }}
-                </p>
-              </header>
-              <div
-                v-if="arePeopleTagsLoading"
-                class="journal-v2__placeholder p-3 text-center text-xs text-on-surface-variant"
-              >
-                {{ t('journal.editor.loadingPeople') }}
-              </div>
-              <div v-else class="pt-1">
-                <TagInput
-                  v-model="selectedPeopleTagIds"
-                  tag-type="people"
-                  :visible-limit="6"
-                />
-              </div>
-            </section>
-          </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Context Tags Section -->
+              <section class="mg-v2-surface mg-v2-surface--raised-sm px-5 py-4 flex flex-col gap-3">
+                <header>
+                  <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+                    {{ t('journal.editor.context') }}
+                  </p>
+                </header>
+                <div
+                  v-if="areContextTagsLoading"
+                  class="journal-v2__placeholder p-3 text-center text-xs text-on-surface-variant"
+                >
+                  {{ t('journal.editor.loadingContext') }}
+                </div>
+                <div v-else class="pt-1">
+                  <TagInput v-model="selectedContextTagIds" tag-type="context" :visible-limit="6" />
+                </div>
+              </section>
+
+              <!-- People Tags Section -->
+              <section class="mg-v2-surface mg-v2-surface--raised-sm px-5 py-4 flex flex-col gap-3">
+                <header>
+                  <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+                    {{ t('journal.editor.people') }}
+                  </p>
+                </header>
+                <div
+                  v-if="arePeopleTagsLoading"
+                  class="journal-v2__placeholder p-3 text-center text-xs text-on-surface-variant"
+                >
+                  {{ t('journal.editor.loadingPeople') }}
+                </div>
+                <div v-else class="pt-1">
+                  <TagInput v-model="selectedPeopleTagIds" tag-type="people" :visible-limit="6" />
+                </div>
+              </section>
+            </div>
           </div>
         </aside>
       </div>
@@ -242,7 +276,14 @@
               {{ t('journal.editor.chatSessions') }}
             </p>
             <p class="text-sm text-on-surface-variant">
-              {{ t(chatSessionsForEntry.length === 1 ? 'journal.editor.conversationCount' : 'journal.editor.conversationsCount', { count: chatSessionsForEntry.length }) }}
+              {{
+                t(
+                  chatSessionsForEntry.length === 1
+                    ? 'journal.editor.conversationCount'
+                    : 'journal.editor.conversationsCount',
+                  { count: chatSessionsForEntry.length }
+                )
+              }}
             </p>
           </div>
         </header>
@@ -253,15 +294,18 @@
             :chat-session="session"
             :show-actions="true"
             @view="handleViewChatSession(session.id)"
-            @delete="() => { chatSessionToDelete = session; showDeleteChatDialog = true }"
+            @delete="
+              () => {
+                chatSessionToDelete = session
+                showDeleteChatDialog = true
+              }
+            "
           />
         </div>
       </section>
 
       <!-- Bottom Action Bar -->
-      <div
-        class="journal-v2__actions flex justify-end gap-3 px-2 sm:px-4 py-4 mt-auto"
-      >
+      <div class="journal-v2__actions flex justify-end gap-3 px-2 sm:px-4 py-4 mt-auto">
         <!-- Chat Button with Dropdown -->
         <div v-if="!isLoading" class="relative" ref="chatDropdownContainerRef">
           <DsButton
@@ -297,18 +341,10 @@
           </div>
         </div>
 
-        <DsButton
-          variant="quiet"
-          @click="handleCancel"
-          :disabled="isSaving || isStartingChat"
-        >
+        <DsButton variant="quiet" @click="handleCancel" :disabled="isSaving || isStartingChat">
           {{ t('common.buttons.cancel') }}
         </DsButton>
-        <DsButton
-          @click="handleSave"
-          :disabled="!canSaveEntry"
-          class="min-w-[140px]"
-        >
+        <DsButton @click="handleSave" :disabled="!canSaveEntry" class="min-w-[140px]">
           {{ isSaving ? t('common.saving') : t('common.buttons.save') }}
         </DsButton>
       </div>
@@ -354,7 +390,9 @@
             </h2>
 
             <!-- Textarea -->
-            <label for="custom-prompt-input" class="sr-only">{{ t('journal.editor.customPromptLabel') }}</label>
+            <label for="custom-prompt-input" class="sr-only">{{
+              t('journal.editor.customPromptLabel')
+            }}</label>
             <textarea
               id="custom-prompt-input"
               v-model="customPromptInput"
@@ -364,11 +402,10 @@
 
             <!-- Actions -->
             <div class="flex gap-3 justify-end mt-6">
-              <DsButton variant="quiet" @click="closeCustomPromptDialog">{{ t('common.buttons.cancel') }}</DsButton>
-              <DsButton
-                @click="handleCustomPromptConfirm"
-                :disabled="!customPromptInput.trim()"
-              >
+              <DsButton variant="quiet" @click="closeCustomPromptDialog">{{
+                t('common.buttons.cancel')
+              }}</DsButton>
+              <DsButton @click="handleCustomPromptConfirm" :disabled="!customPromptInput.trim()">
                 {{ t('journal.editor.startChat') }}
               </DsButton>
             </div>
@@ -479,8 +516,8 @@ function applyDateTime() {
     if (
       dateParts.length === 3 &&
       timeParts.length >= 2 &&
-      dateParts.every((n) => !isNaN(n)) &&
-      timeParts.every((n) => !isNaN(n))
+      dateParts.every(n => !isNaN(n)) &&
+      timeParts.every(n => !isNaN(n))
     ) {
       const [year, month, day] = dateParts
       const [hours, minutes] = timeParts
@@ -490,17 +527,23 @@ function applyDateTime() {
       if (!isNaN(newDate.getTime())) {
         customCreatedAt.value = newDate
       } else {
-        console.warn('applyDateTime: Created invalid date from inputs', { selectedDate: selectedDate.value, selectedTime: selectedTime.value })
+        console.warn('applyDateTime: Created invalid date from inputs', {
+          selectedDate: selectedDate.value,
+          selectedTime: selectedTime.value,
+        })
       }
     } else {
-      console.warn('applyDateTime: Invalid date/time input format', { selectedDate: selectedDate.value, selectedTime: selectedTime.value })
+      console.warn('applyDateTime: Invalid date/time input format', {
+        selectedDate: selectedDate.value,
+        selectedTime: selectedTime.value,
+      })
     }
   }
   showDateTimePicker.value = false
 }
 
 // Initialize picker values when modal opens
-watch(showDateTimePicker, (isOpen) => {
+watch(showDateTimePicker, isOpen => {
   if (isOpen) {
     initDateTimePicker()
   }
@@ -625,9 +668,7 @@ const ensureEmotionData = async () => {
     await emotionStore.loadEmotions()
   } catch (error) {
     const errorMessage =
-      error instanceof Error
-        ? error.message
-        : 'Failed to load emotions. Please try again.'
+      error instanceof Error ? error.message : 'Failed to load emotions. Please try again.'
     snackbarRef.value?.show(errorMessage)
     console.error('Error loading emotions:', error)
   } finally {
@@ -645,9 +686,7 @@ const ensurePeopleTags = async () => {
     await tagStore.loadPeopleTags()
   } catch (error) {
     const errorMessage =
-      error instanceof Error
-        ? error.message
-        : 'Failed to load people tags. Please try again.'
+      error instanceof Error ? error.message : 'Failed to load people tags. Please try again.'
     snackbarRef.value?.show(errorMessage)
     console.error('Error loading people tags:', error)
   } finally {
@@ -669,9 +708,7 @@ const ensureContextTags = async () => {
     await tagStore.loadContextTags()
   } catch (error) {
     const errorMessage =
-      error instanceof Error
-        ? error.message
-        : 'Failed to load context tags. Please try again.'
+      error instanceof Error ? error.message : 'Failed to load context tags. Please try again.'
     snackbarRef.value?.show(errorMessage)
     console.error('Error loading context tags:', error)
   } finally {
@@ -687,7 +724,7 @@ const loadEntry = async (id: string) => {
   isLoading.value = true
   try {
     // First check if entry exists in store (faster)
-    const storeEntry = journalStore.entries.find((e) => e.id === id)
+    const storeEntry = journalStore.entries.find(e => e.id === id)
     if (storeEntry) {
       syncEntryToForm(storeEntry)
       return
@@ -705,9 +742,7 @@ const loadEntry = async (id: string) => {
     syncEntryToForm(entry)
   } catch (error) {
     const errorMessage =
-      error instanceof Error
-        ? error.message
-        : 'Failed to load journal entry. Please try again.'
+      error instanceof Error ? error.message : 'Failed to load journal entry. Please try again.'
     snackbarRef.value?.show(errorMessage)
     console.error('Error loading journal entry:', error)
     router.push('/journal')
@@ -763,7 +798,7 @@ const saveEntry = async (): Promise<JournalEntry> => {
     body: body.value.trim(),
     emotionIds: [],
     emotionFamilyIds: groupSelectionsToFamilyIds(wheelSelections.value),
-    emotions: wheelSelections.value.map((s) => ({ ...s })),
+    emotions: wheelSelections.value.map(s => ({ ...s })),
     peopleTagIds: [...selectedPeopleTagIds.value],
     contextTagIds: [...selectedContextTagIds.value],
   }
@@ -824,9 +859,7 @@ const handleSave = async () => {
   } catch (error) {
     // Error handling: show error message and stay on page
     const errorMessage =
-      error instanceof Error
-        ? error.message
-        : 'Failed to save journal entry. Please try again.'
+      error instanceof Error ? error.message : 'Failed to save journal entry. Please try again.'
     snackbarRef.value?.show(errorMessage)
     console.error('Error saving journal entry:', error)
   } finally {
@@ -909,9 +942,7 @@ const startChat = async (intention: ChatIntention, customPrompt?: string) => {
     router.push(`/journal/${savedEntry.id}/chat`)
   } catch (error) {
     const errorMessage =
-      error instanceof Error
-        ? error.message
-        : 'Failed to start chat. Please try again.'
+      error instanceof Error ? error.message : 'Failed to start chat. Please try again.'
     snackbarRef.value?.show(errorMessage)
     console.error('Error starting chat:', error)
   } finally {
@@ -934,10 +965,7 @@ const handleConfirmDeleteChatSession = async () => {
   if (!currentEntry.value || !chatSessionToDelete.value) return
 
   try {
-    await chatStore.deleteChatSession(
-      currentEntry.value.id,
-      chatSessionToDelete.value.id
-    )
+    await chatStore.deleteChatSession(currentEntry.value.id, chatSessionToDelete.value.id)
     const updatedEntry = await journalStore.getEntryById(currentEntry.value.id)
     if (updatedEntry) {
       currentEntry.value = updatedEntry
@@ -945,9 +973,7 @@ const handleConfirmDeleteChatSession = async () => {
     snackbarRef.value?.show(t('journal.editor.chatDeleted'))
   } catch (error) {
     const errorMessage =
-      error instanceof Error
-        ? error.message
-        : 'Failed to delete chat session. Please try again.'
+      error instanceof Error ? error.message : 'Failed to delete chat session. Please try again.'
     snackbarRef.value?.show(errorMessage)
     console.error('Error deleting chat session:', error)
   } finally {
@@ -988,39 +1014,82 @@ const sideSection = ref<'emotions' | 'ai'>('emotions')
 const companionPanel = ref<InstanceType<typeof ReflectionCompanionPanel> | null>(null)
 const draftRepo = journalDraftRepository()
 const draftId = ref(crypto.randomUUID() as string)
-const draftReady = ref(false), draftError = ref('')
+const draftReady = ref(false),
+  draftError = ref('')
 const savedDrafts = ref<JournalDraft[]>([])
-const companionId = computed(() => currentEntry.value?.companionConversationId ?? `journal:${currentEntry.value?.id ?? draftId.value}`)
-const companionDay = computed(() => getPeriodRefsForDate(customCreatedAt.value ?? currentEntry.value?.createdAt ?? new Date()).day)
-const companionEntryContext = computed(() => JSON.stringify({
-  title: title.value, entryDate: companionDay.value,
-  emotions: wheelSelections.value,
-  people: selectedPeopleTagIds.value.map(id => ({ id, name: tagStore.peopleTags.find(t => t.id === id)?.name ?? id })),
-  contexts: selectedContextTagIds.value.map(id => ({ id, name: tagStore.contextTags.find(t => t.id === id)?.name ?? id })),
-}))
+const companionId = computed(
+  () =>
+    currentEntry.value?.companionConversationId ??
+    `journal:${currentEntry.value?.id ?? draftId.value}`
+)
+const companionDay = computed(
+  () =>
+    getPeriodRefsForDate(customCreatedAt.value ?? currentEntry.value?.createdAt ?? new Date()).day
+)
+const companionEntryContext = computed(() =>
+  JSON.stringify({
+    title: title.value,
+    entryDate: companionDay.value,
+    emotions: wheelSelections.value,
+    people: selectedPeopleTagIds.value.map(id => ({
+      id,
+      name: tagStore.peopleTags.find(t => t.id === id)?.name ?? id,
+    })),
+    contexts: selectedContextTagIds.value.map(id => ({
+      id,
+      name: tagStore.contextTags.find(t => t.id === id)?.name ?? id,
+    })),
+  })
+)
 let draftTimer: ReturnType<typeof setTimeout> | undefined
 let draftWrite: Promise<void> = Promise.resolve()
-function insertCompanionText(text: string) { body.value += `${body.value ? '\n\n' : ''}${text}\n` }
+function insertCompanionText(text: string) {
+  body.value += `${body.value ? '\n\n' : ''}${text}\n`
+}
 async function refreshDrafts() {
-  try { savedDrafts.value = (await draftRepo.list()).filter(d => d.id !== draftId.value) }
-  catch { draftError.value = 'Nie udało się wczytać zachowanych szkiców.' }
+  try {
+    savedDrafts.value = (await draftRepo.list()).filter(d => d.id !== draftId.value)
+  } catch {
+    draftError.value = 'Nie udało się wczytać zachowanych szkiców.'
+  }
 }
 function persistDraft() {
-  if (!draftReady.value || currentEntry.value || (!body.value && !title.value && sideSection.value !== 'ai')) return draftWrite
+  if (
+    !draftReady.value ||
+    currentEntry.value ||
+    (!body.value && !title.value && sideSection.value !== 'ai')
+  )
+    return draftWrite
   const row: JournalDraft = {
     id: draftId.value,
-    content: { title: title.value, body: body.value, emotions: wheelSelections.value.map(e => ({ ...e })), peopleTagIds: [...selectedPeopleTagIds.value], contextTagIds: [...selectedContextTagIds.value] },
-    entryDate: customCreatedAt.value?.toISOString(), updatedAt: new Date().toISOString(),
+    content: {
+      title: title.value,
+      body: body.value,
+      emotions: wheelSelections.value.map(e => ({ ...e })),
+      peopleTagIds: [...selectedPeopleTagIds.value],
+      contextTagIds: [...selectedContextTagIds.value],
+    },
+    entryDate: customCreatedAt.value?.toISOString(),
+    updatedAt: new Date().toISOString(),
   }
-  draftWrite = draftWrite.then(() => draftRepo.save(row)).catch(() => { draftError.value = 'Nie udało się zachować szkicu lokalnie. Zapisz wpis przed opuszczeniem strony.' })
+  draftWrite = draftWrite
+    .then(() => draftRepo.save(row))
+    .catch(() => {
+      draftError.value =
+        'Nie udało się zachować szkicu lokalnie. Zapisz wpis przed opuszczeniem strony.'
+    })
   return draftWrite
 }
 async function initializeDraft() {
-  const id = typeof route.query?.draft === 'string' && /^[a-zA-Z0-9_-]{1,200}$/.test(route.query.draft) ? route.query.draft : draftId.value
+  const id =
+    typeof route.query?.draft === 'string' && /^[a-zA-Z0-9_-]{1,200}$/.test(route.query.draft)
+      ? route.query.draft
+      : draftId.value
   draftId.value = id
   const saved = await draftRepo.load(id)
   if (saved) {
-    title.value = saved.content.title ?? ''; body.value = saved.content.body
+    title.value = saved.content.title ?? ''
+    body.value = saved.content.body
     wheelSelections.value = saved.content.emotions ?? []
     selectedPeopleTagIds.value = saved.content.peopleTagIds ?? []
     selectedContextTagIds.value = saved.content.contextTagIds ?? []
@@ -1044,24 +1113,48 @@ async function removeDraft(id: string) {
     // Unsaved drafts have no independent historical source; remove their local dialogue too.
     await getUserDatabase().companionConversations.delete(`journal:${id}`)
     await refreshDrafts()
-  } catch { draftError.value = 'Nie udało się usunąć szkicu.' }
+  } catch {
+    draftError.value = 'Nie udało się usunąć szkicu.'
+  }
 }
-watch([title, body, wheelSelections, selectedPeopleTagIds, selectedContextTagIds, customCreatedAt, sideSection], () => {
-  if (!draftReady.value || isEditMode.value) return
-  clearTimeout(draftTimer)
-  // The URL keeps the draft identity over reloads without creating an empty journal entry.
-  if (route.query?.draft !== draftId.value) void router.replace({ query: { ...route.query, draft: draftId.value } })
-  draftTimer = setTimeout(() => { void persistDraft() }, 400)
-}, { deep: true })
-watch(() => route.params.id, async id => {
-  clearTimeout(draftTimer)
-  companionPanel.value?.cancel()
-  await persistDraft()
-  draftReady.value = false
-  if (typeof id === 'string') await loadEntry(id)
-  else { resetCreateForm(); draftReady.value = false; await initializeDraft() }
-  draftReady.value = true
-})
+watch(
+  [
+    title,
+    body,
+    wheelSelections,
+    selectedPeopleTagIds,
+    selectedContextTagIds,
+    customCreatedAt,
+    sideSection,
+  ],
+  () => {
+    if (!draftReady.value || isEditMode.value) return
+    clearTimeout(draftTimer)
+    // The URL keeps the draft identity over reloads without creating an empty journal entry.
+    if (route.query?.draft !== draftId.value)
+      void router.replace({ query: { ...route.query, draft: draftId.value } })
+    draftTimer = setTimeout(() => {
+      void persistDraft()
+    }, 400)
+  },
+  { deep: true }
+)
+watch(
+  () => route.params.id,
+  async id => {
+    clearTimeout(draftTimer)
+    companionPanel.value?.cancel()
+    await persistDraft()
+    draftReady.value = false
+    if (typeof id === 'string') await loadEntry(id)
+    else {
+      resetCreateForm()
+      draftReady.value = false
+      await initializeDraft()
+    }
+    draftReady.value = true
+  }
+)
 
 // Load entry data if in edit mode
 onMounted(async () => {
@@ -1069,11 +1162,7 @@ onMounted(async () => {
   document.addEventListener('keydown', handleEscapeKey)
   applyGuidedPromptSeedForCreateMode()
   if (!isEditMode.value) customCreatedAt.value = entryDateFromDay(route.query?.day)
-  const dataPromises = [
-    ensureEmotionData(),
-    ensurePeopleTags(),
-    ensureContextTags(),
-  ]
+  const dataPromises = [ensureEmotionData(), ensurePeopleTags(), ensureContextTags()]
 
   if (isEditMode.value && typeof route.params.id === 'string') {
     await loadEntry(route.params.id)
@@ -1091,8 +1180,6 @@ onMounted(async () => {
   draftReady.value = true
   await refreshDrafts()
   await Promise.all(dataPromises)
-
-
 })
 
 onUnmounted(() => {
@@ -1105,7 +1192,9 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-:global(main:has(.journal-v2)) { min-width: 0; }
+:global(main:has(.journal-v2)) {
+  min-width: 0;
+}
 /* The v2 root's min-width/canvas background are meant for full-viewport
    workspaces; this view is a centered column inside AppShell. */
 .journal-v2 {
@@ -1134,7 +1223,9 @@ onUnmounted(() => {
 
 .dialog-enter-active .dialog-panel,
 .dialog-leave-active .dialog-panel {
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
 }
 
 .dialog-enter-from,

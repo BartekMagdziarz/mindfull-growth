@@ -2,12 +2,7 @@
   <div class="chat-view flex flex-col h-screen">
     <!-- Top App Bar -->
     <div class="chat-view__bar flex items-center gap-4 px-4 py-3">
-      <AppButton
-        variant="text"
-        @click="handleBack"
-        :aria-label="t('chat.goBack')"
-        class="p-2"
-      >
+      <AppButton variant="text" @click="handleBack" :aria-label="t('chat.goBack')" class="p-2">
         <AppIcon name="arrow_back" class="text-xl" />
       </AppButton>
       <h1 class="chat-view__title flex-1">
@@ -25,11 +20,7 @@
           <span v-else-if="isSaved">{{ t('chat.saved') }}</span>
           <span v-else>{{ t('chat.saveConversation') }}</span>
         </AppButton>
-        <AppButton
-          variant="text"
-          @click="handleLeave"
-          :aria-label="t('chat.leaveWithoutSaving')"
-        >
+        <AppButton variant="text" @click="handleLeave" :aria-label="t('chat.leaveWithoutSaving')">
           {{ t('chat.leaveWithoutSaving') }}
         </AppButton>
       </div>
@@ -37,10 +28,7 @@
 
     <!-- Entry Context Display -->
     <div class="px-4 py-4 space-y-3">
-      <p
-        class="text-xs text-on-surface-variant"
-        aria-label="Info about how this chat works"
-      >
+      <p class="text-xs text-on-surface-variant" aria-label="Info about how this chat works">
         {{ t('chat.disclaimer') }}
       </p>
       <AppCard v-if="isLoadingEntry" padding="md">
@@ -144,17 +132,12 @@
       <div
         v-for="(message, index) in messages"
         :key="`${message.timestamp}-${index}`"
-        :class="[
-          'flex',
-          message.role === 'user' ? 'justify-end' : 'justify-start',
-        ]"
+        :class="['flex', message.role === 'user' ? 'justify-end' : 'justify-start']"
       >
-        <div
-          class="chat-bubble"
-          :class="{ 'chat-bubble--user': message.role === 'user' }"
-        >
+        <div class="chat-bubble" :class="{ 'chat-bubble--user': message.role === 'user' }">
           <p class="whitespace-pre-wrap break-words">
-            {{ message.content }}<span
+            {{ message.content
+            }}<span
               v-if="
                 isLoading &&
                 message.role === 'assistant' &&
@@ -315,7 +298,7 @@ const emotionNames = computed(() => {
     return []
   }
   return entry.value.emotionIds
-    .map((id) => emotionStore.getEmotionById(id)?.name)
+    .map(id => emotionStore.getEmotionById(id)?.name)
     .filter((name): name is string => Boolean(name))
 })
 
@@ -324,7 +307,7 @@ const peopleTagNames = computed(() => {
     return []
   }
   return entry.value.peopleTagIds
-    .map((id) => tagStore.getPeopleTagById(id)?.name)
+    .map(id => tagStore.getPeopleTagById(id)?.name)
     .filter((name): name is string => Boolean(name))
 })
 
@@ -333,7 +316,7 @@ const contextTagNames = computed(() => {
     return []
   }
   return entry.value.contextTagIds
-    .map((id) => tagStore.getContextTagById(id)?.name)
+    .map(id => tagStore.getContextTagById(id)?.name)
     .filter((name): name is string => Boolean(name))
 })
 
@@ -372,15 +355,15 @@ const isHistoricalView = computed(() => {
 const isSaved = computed(() => {
   const session = currentChatSession.value
   if (!session || !entry.value?.chatSessions) return false
-  return entry.value.chatSessions.some((cs) => cs.id === session.id)
+  return entry.value.chatSessions.some(cs => cs.id === session.id)
 })
 
 const canSave = computed(() => {
   if (!currentChatSession.value || isSaving.value || isSaved.value) return false
   if (isHistoricalView.value) return false
   const messages = currentChatSession.value.messages
-  const hasUser = messages.some((m) => m.role === 'user')
-  const hasAssistant = messages.some((m) => m.role === 'assistant')
+  const hasUser = messages.some(m => m.role === 'user')
+  const hasAssistant = messages.some(m => m.role === 'assistant')
   return hasUser && hasAssistant
 })
 
@@ -400,10 +383,7 @@ async function loadEntry() {
     }
     entry.value = loadedEntry
   } catch (error) {
-    const errorMessage =
-      error instanceof Error
-        ? error.message
-        : t('chat.loadEntryError')
+    const errorMessage = error instanceof Error ? error.message : t('chat.loadEntryError')
     entryError.value = errorMessage
     console.error('Error loading journal entry:', error)
   } finally {
@@ -461,7 +441,7 @@ function handleDiscardCancel() {
 async function handleDiscard() {
   chatStore.discardChatSession()
   showDiscardDialog.value = false
-  
+
   // If there's a pending navigation, execute it
   if (pendingNavigation) {
     pendingNavigation()
@@ -516,13 +496,17 @@ function scrollToBottom() {
 }
 
 // Watch for new messages and auto-scroll
-watch(messages, async () => {
-  await nextTick()
-  scrollToBottom()
-}, { deep: true })
+watch(
+  messages,
+  async () => {
+    await nextTick()
+    scrollToBottom()
+  },
+  { deep: true }
+)
 
 // Watch for loading state changes and auto-scroll
-watch(isLoading, async (newValue) => {
+watch(isLoading, async newValue => {
   if (newValue) {
     await nextTick()
     scrollToBottom()
@@ -530,7 +514,7 @@ watch(isLoading, async (newValue) => {
 })
 
 // Watch for error state and display via snackbar
-watch(error, (newError) => {
+watch(error, newError => {
   if (newError) {
     nextTick(() => {
       if (snackbarRef.value) {
@@ -577,10 +561,7 @@ onMounted(async () => {
   if (sessionId) {
     // Historical view: load an existing saved session
     try {
-      const loadedSession = await chatStore.loadChatSession(
-        entryId.value,
-        sessionId
-      )
+      const loadedSession = await chatStore.loadChatSession(entryId.value, sessionId)
 
       if (!loadedSession) {
         // Session not found

@@ -1,7 +1,11 @@
 <template>
   <div class="space-y-6">
     <!-- Step indicator dots -->
-    <ExerciseStepper :labels="stepLabels" :current="currentVisualStep" @go="goToStepByIndex($event)" />
+    <ExerciseStepper
+      :labels="stepLabels"
+      :current="currentVisualStep"
+      @go="goToStepByIndex($event)"
+    />
 
     <!-- Step 1: Intro -->
     <Transition
@@ -12,7 +16,9 @@
     >
       <div v-if="currentStep === 'intro'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.threePathways.intro.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.threePathways.intro.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.threePathways.intro.description') }}
           </p>
@@ -24,7 +30,9 @@
               <div class="flex items-start gap-2">
                 <AppIcon name="edit" class="text-base text-primary flex-shrink-0 mt-0.5" />
                 <div>
-                  <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.threePathways.intro.creativeName') }}</p>
+                  <p class="text-sm font-medium text-on-surface">
+                    {{ t('exerciseWizards.threePathways.intro.creativeName') }}
+                  </p>
                   <p class="text-xs text-on-surface-variant">
                     {{ t('exerciseWizards.threePathways.intro.creativeDescription') }}
                   </p>
@@ -33,7 +41,9 @@
               <div class="flex items-start gap-2">
                 <AppIcon name="favorite" class="text-base text-primary flex-shrink-0 mt-0.5" />
                 <div>
-                  <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.threePathways.intro.experientialName') }}</p>
+                  <p class="text-sm font-medium text-on-surface">
+                    {{ t('exerciseWizards.threePathways.intro.experientialName') }}
+                  </p>
                   <p class="text-xs text-on-surface-variant">
                     {{ t('exerciseWizards.threePathways.intro.experientialDescription') }}
                   </p>
@@ -42,7 +52,9 @@
               <div class="flex items-start gap-2">
                 <AppIcon name="verified_user" class="text-base text-primary flex-shrink-0 mt-0.5" />
                 <div>
-                  <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.threePathways.intro.attitudinalName') }}</p>
+                  <p class="text-sm font-medium text-on-surface">
+                    {{ t('exerciseWizards.threePathways.intro.attitudinalName') }}
+                  </p>
                   <p class="text-xs text-on-surface-variant">
                     {{ t('exerciseWizards.threePathways.intro.attitudinalDescription') }}
                   </p>
@@ -67,7 +79,9 @@
           </div>
         </AppCard>
         <div class="flex justify-end">
-          <AppButton variant="filled" @click="currentStep = 'creative'">{{ t('common.buttons.start') }}</AppButton>
+          <AppButton variant="filled" @click="currentStep = 'creative'">{{
+            t('common.buttons.start')
+          }}</AppButton>
         </div>
       </div>
     </Transition>
@@ -81,14 +95,22 @@
     >
       <div v-if="currentStep === 'creative'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.threePathways.creative.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.threePathways.creative.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.threePathways.creative.description') }}
           </p>
           <ExerciseStepWhy :text="tg('exerciseWizards.threePathways.creative.why')" />
-          <div v-for="(item, index) in creativeValues" :key="index" class="space-y-2 neo-surface p-3 rounded-xl">
+          <div
+            v-for="(item, index) in creativeValues"
+            :key="index"
+            class="space-y-2 neo-surface p-3 rounded-xl"
+          >
             <div class="flex items-start gap-2">
-              <span class="text-xs font-semibold text-on-surface-variant mt-2">{{ index + 1 }}.</span>
+              <span class="text-xs font-semibold text-on-surface-variant mt-2"
+                >{{ index + 1 }}.</span
+              >
               <div class="flex-1 space-y-2">
                 <textarea
                   v-model="item.description"
@@ -102,11 +124,10 @@
                   :min="1"
                   :max="5"
                 />
-                <select
-                  v-model="item.lifeAreaId"
-                  class="neo-input neo-focus w-full p-2 text-sm"
-                >
-                  <option value="">{{ t('exerciseWizards.threePathways.creative.lifeAreaSelect') }}</option>
+                <select v-model="item.lifeAreaId" class="neo-input neo-focus w-full p-2 text-sm">
+                  <option value="">
+                    {{ t('exerciseWizards.threePathways.creative.lifeAreaSelect') }}
+                  </option>
                   <option v-for="area in lifeAreas" :key="area.id" :value="area.id">
                     {{ area.name }}
                   </option>
@@ -131,7 +152,9 @@
           </AppButton>
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'intro'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'intro'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton
             variant="filled"
             :disabled="filledCreativeValues.length < 3"
@@ -152,14 +175,22 @@
     >
       <div v-if="currentStep === 'experiential'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.threePathways.experiential.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.threePathways.experiential.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.threePathways.experiential.description') }}
           </p>
           <ExerciseStepWhy :text="tg('exerciseWizards.threePathways.experiential.why')" />
-          <div v-for="(item, index) in experientialValues" :key="index" class="space-y-2 neo-surface p-3 rounded-xl">
+          <div
+            v-for="(item, index) in experientialValues"
+            :key="index"
+            class="space-y-2 neo-surface p-3 rounded-xl"
+          >
             <div class="flex items-start gap-2">
-              <span class="text-xs font-semibold text-on-surface-variant mt-2">{{ index + 1 }}.</span>
+              <span class="text-xs font-semibold text-on-surface-variant mt-2"
+                >{{ index + 1 }}.</span
+              >
               <div class="flex-1 space-y-2">
                 <textarea
                   v-model="item.description"
@@ -173,11 +204,10 @@
                   :min="1"
                   :max="5"
                 />
-                <select
-                  v-model="item.lifeAreaId"
-                  class="neo-input neo-focus w-full p-2 text-sm"
-                >
-                  <option value="">{{ t('exerciseWizards.threePathways.experiential.lifeAreaSelect') }}</option>
+                <select v-model="item.lifeAreaId" class="neo-input neo-focus w-full p-2 text-sm">
+                  <option value="">
+                    {{ t('exerciseWizards.threePathways.experiential.lifeAreaSelect') }}
+                  </option>
                   <option v-for="area in lifeAreas" :key="area.id" :value="area.id">
                     {{ area.name }}
                   </option>
@@ -195,14 +225,18 @@
           </div>
           <AppButton
             variant="text"
-            @click="experientialValues.push({ description: '', engagementRating: 3, lifeAreaId: '' })"
+            @click="
+              experientialValues.push({ description: '', engagementRating: 3, lifeAreaId: '' })
+            "
           >
             <AppIcon name="add" class="text-base mr-1" />
             {{ t('exerciseWizards.threePathways.experiential.addAnother') }}
           </AppButton>
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'creative'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'creative'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton
             variant="filled"
             :disabled="filledExperientialValues.length < 3"
@@ -223,14 +257,22 @@
     >
       <div v-if="currentStep === 'attitudinal'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.threePathways.attitudinal.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.threePathways.attitudinal.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ tg('exerciseWizards.threePathways.attitudinal.description') }}
           </p>
           <ExerciseStepWhy :text="tg('exerciseWizards.threePathways.attitudinal.why')" />
-          <div v-for="(item, index) in attitudinalValues" :key="index" class="space-y-2 neo-surface p-3 rounded-xl">
+          <div
+            v-for="(item, index) in attitudinalValues"
+            :key="index"
+            class="space-y-2 neo-surface p-3 rounded-xl"
+          >
             <div class="flex items-start gap-2">
-              <span class="text-xs font-semibold text-on-surface-variant mt-2">{{ index + 1 }}.</span>
+              <span class="text-xs font-semibold text-on-surface-variant mt-2"
+                >{{ index + 1 }}.</span
+              >
               <div class="flex-1 space-y-2">
                 <textarea
                   v-model="item.description"
@@ -244,11 +286,10 @@
                   :min="1"
                   :max="5"
                 />
-                <select
-                  v-model="item.lifeAreaId"
-                  class="neo-input neo-focus w-full p-2 text-sm"
-                >
-                  <option value="">{{ t('exerciseWizards.threePathways.attitudinal.lifeAreaSelect') }}</option>
+                <select v-model="item.lifeAreaId" class="neo-input neo-focus w-full p-2 text-sm">
+                  <option value="">
+                    {{ t('exerciseWizards.threePathways.attitudinal.lifeAreaSelect') }}
+                  </option>
                   <option v-for="area in lifeAreas" :key="area.id" :value="area.id">
                     {{ area.name }}
                   </option>
@@ -266,14 +307,18 @@
           </div>
           <AppButton
             variant="text"
-            @click="attitudinalValues.push({ description: '', engagementRating: 3, lifeAreaId: '' })"
+            @click="
+              attitudinalValues.push({ description: '', engagementRating: 3, lifeAreaId: '' })
+            "
           >
             <AppIcon name="add" class="text-base mr-1" />
             {{ t('exerciseWizards.threePathways.attitudinal.addAnother') }}
           </AppButton>
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'experiential'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'experiential'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton
             variant="filled"
             :disabled="filledAttitudinalValues.length < 1"
@@ -294,39 +339,61 @@
     >
       <div v-if="currentStep === 'synthesis'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.threePathways.synthesis.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.threePathways.synthesis.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
-            {{ t('exerciseWizards.threePathways.synthesis.summaryText', {
-              creative: filledCreativeValues.length,
-              experiential: filledExperientialValues.length,
-              attitudinal: filledAttitudinalValues.length
-            }) }}
+            {{
+              t('exerciseWizards.threePathways.synthesis.summaryText', {
+                creative: filledCreativeValues.length,
+                experiential: filledExperientialValues.length,
+                attitudinal: filledAttitudinalValues.length,
+              })
+            }}
           </p>
 
           <!-- Three-column summary -->
           <div class="grid grid-cols-3 gap-3">
             <div class="neo-surface p-3 rounded-xl">
-              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-2">{{ t('exerciseWizards.threePathways.synthesis.columnCreative') }}</p>
+              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-2">
+                {{ t('exerciseWizards.threePathways.synthesis.columnCreative') }}
+              </p>
               <ul class="space-y-1">
-                <li v-for="item in filledCreativeValues" :key="item.description" class="text-xs text-on-surface">
+                <li
+                  v-for="item in filledCreativeValues"
+                  :key="item.description"
+                  class="text-xs text-on-surface"
+                >
                   {{ item.description.slice(0, 40) }}{{ item.description.length > 40 ? '...' : '' }}
                   <span class="text-on-surface-variant">({{ item.engagementRating }}/5)</span>
                 </li>
               </ul>
             </div>
             <div class="neo-surface p-3 rounded-xl">
-              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-2">{{ t('exerciseWizards.threePathways.synthesis.columnExperiential') }}</p>
+              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-2">
+                {{ t('exerciseWizards.threePathways.synthesis.columnExperiential') }}
+              </p>
               <ul class="space-y-1">
-                <li v-for="item in filledExperientialValues" :key="item.description" class="text-xs text-on-surface">
+                <li
+                  v-for="item in filledExperientialValues"
+                  :key="item.description"
+                  class="text-xs text-on-surface"
+                >
                   {{ item.description.slice(0, 40) }}{{ item.description.length > 40 ? '...' : '' }}
                   <span class="text-on-surface-variant">({{ item.engagementRating }}/5)</span>
                 </li>
               </ul>
             </div>
             <div class="neo-surface p-3 rounded-xl">
-              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-2">{{ t('exerciseWizards.threePathways.synthesis.columnAttitudinal') }}</p>
+              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-2">
+                {{ t('exerciseWizards.threePathways.synthesis.columnAttitudinal') }}
+              </p>
               <ul class="space-y-1">
-                <li v-for="item in filledAttitudinalValues" :key="item.description" class="text-xs text-on-surface">
+                <li
+                  v-for="item in filledAttitudinalValues"
+                  :key="item.description"
+                  class="text-xs text-on-surface"
+                >
                   {{ item.description.slice(0, 40) }}{{ item.description.length > 40 ? '...' : '' }}
                   <span class="text-on-surface-variant">({{ item.engagementRating }}/5)</span>
                 </li>
@@ -337,16 +404,15 @@
           <!-- LLM Synthesis -->
           <div class="space-y-2">
             <div v-if="!llmResponse && !isLlmLoading" class="flex flex-wrap items-center gap-2">
-              <AppButton
-                variant="tonal"
-                @click="handleSynthesisAssist"
-              >
+              <AppButton variant="tonal" @click="handleSynthesisAssist">
                 <AppIcon name="auto_awesome" class="text-base mr-1" />
                 {{ t('exerciseWizards.threePathways.synthesis.analyzeButton') }}
               </AppButton>
               <ProfileContextToggle v-model="useProfileSynthesis" />
             </div>
-            <div v-if="isLlmLoading" class="text-sm text-on-surface-variant">{{ t('exerciseWizards.threePathways.synthesis.thinking') }}</div>
+            <div v-if="isLlmLoading" class="text-sm text-on-surface-variant">
+              {{ t('exerciseWizards.threePathways.synthesis.thinking') }}
+            </div>
             <div v-if="llmResponse" class="neo-panel p-4">
               <p class="text-sm text-on-surface whitespace-pre-wrap">{{ llmResponse }}</p>
             </div>
@@ -354,8 +420,12 @@
           </div>
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'attitudinal'">{{ t('common.buttons.back') }}</AppButton>
-          <AppButton variant="filled" @click="currentStep = 'summary'">{{ t('common.buttons.next') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'attitudinal'">{{
+            t('common.buttons.back')
+          }}</AppButton>
+          <AppButton variant="filled" @click="currentStep = 'summary'">{{
+            t('common.buttons.next')
+          }}</AppButton>
         </div>
       </div>
     </Transition>
@@ -369,7 +439,9 @@
     >
       <div v-if="currentStep === 'summary'" class="space-y-4">
         <AppCard variant="raised" padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.threePathways.summary.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.threePathways.summary.title') }}
+          </h2>
 
           <!-- Creative Values -->
           <div>
@@ -377,9 +449,17 @@
               {{ t('exerciseWizards.threePathways.summary.creativeHeader') }}
             </p>
             <div class="space-y-1">
-              <div v-for="item in filledCreativeValues" :key="item.description" class="text-sm text-on-surface">
+              <div
+                v-for="item in filledCreativeValues"
+                :key="item.description"
+                class="text-sm text-on-surface"
+              >
                 {{ item.description }}
-                <span class="text-on-surface-variant text-xs">{{ t('exerciseWizards.threePathways.summary.engagementLabel', { value: item.engagementRating }) }}</span>
+                <span class="text-on-surface-variant text-xs">{{
+                  t('exerciseWizards.threePathways.summary.engagementLabel', {
+                    value: item.engagementRating,
+                  })
+                }}</span>
               </div>
             </div>
           </div>
@@ -390,9 +470,17 @@
               {{ t('exerciseWizards.threePathways.summary.experientialHeader') }}
             </p>
             <div class="space-y-1">
-              <div v-for="item in filledExperientialValues" :key="item.description" class="text-sm text-on-surface">
+              <div
+                v-for="item in filledExperientialValues"
+                :key="item.description"
+                class="text-sm text-on-surface"
+              >
                 {{ item.description }}
-                <span class="text-on-surface-variant text-xs">{{ t('exerciseWizards.threePathways.summary.engagementLabel', { value: item.engagementRating }) }}</span>
+                <span class="text-on-surface-variant text-xs">{{
+                  t('exerciseWizards.threePathways.summary.engagementLabel', {
+                    value: item.engagementRating,
+                  })
+                }}</span>
               </div>
             </div>
           </div>
@@ -403,9 +491,17 @@
               {{ t('exerciseWizards.threePathways.summary.attitudinalHeader') }}
             </p>
             <div class="space-y-1">
-              <div v-for="item in filledAttitudinalValues" :key="item.description" class="text-sm text-on-surface">
+              <div
+                v-for="item in filledAttitudinalValues"
+                :key="item.description"
+                class="text-sm text-on-surface"
+              >
                 {{ item.description }}
-                <span class="text-on-surface-variant text-xs">{{ t('exerciseWizards.threePathways.summary.engagementLabel', { value: item.engagementRating }) }}</span>
+                <span class="text-on-surface-variant text-xs">{{
+                  t('exerciseWizards.threePathways.summary.engagementLabel', {
+                    value: item.engagementRating,
+                  })
+                }}</span>
               </div>
             </div>
           </div>
@@ -443,7 +539,9 @@
           </div>
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'synthesis'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'synthesis'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton variant="filled" @click="handleSave">{{ t('common.buttons.save') }}</AppButton>
         </div>
       </div>
@@ -501,7 +599,14 @@ const stepLabels = computed(() => [
   t('exerciseWizards.threePathways.steps.summary'),
 ])
 
-const stepOrder: Step[] = ['intro', 'creative', 'experiential', 'attitudinal', 'synthesis', 'summary']
+const stepOrder: Step[] = [
+  'intro',
+  'creative',
+  'experiential',
+  'attitudinal',
+  'synthesis',
+  'summary',
+]
 
 const currentVisualStep = computed(() => {
   return stepOrder.indexOf(currentStep.value)
@@ -547,8 +652,8 @@ const attitudinalValues = reactive<PathwayItem[]>([
 // ─── Computed ────────────────────────────────────────────────────────────────
 function toPayloadItems(items: PathwayItem[]): MeaningPathwayItem[] {
   return items
-    .filter((i) => i.description.trim().length > 0)
-    .map((i) => ({
+    .filter(i => i.description.trim().length > 0)
+    .map(i => ({
       description: i.description.trim(),
       engagementRating: i.engagementRating,
       ...(i.lifeAreaId ? { lifeAreaId: i.lifeAreaId } : {}),
@@ -572,7 +677,7 @@ async function handleSynthesisAssist() {
   try {
     const { synthesizeThreePathways } = await import('@/services/logotherapyLLMAssists')
 
-    const lifeAreaNames = lifeAreas.value.map((a) => a.name)
+    const lifeAreaNames = lifeAreas.value.map(a => a.name)
     const coreValues = getLatestCoreValuesFromStores(valueMapStore, valuesDiscoveryStore)
 
     llmResponse.value = await synthesizeThreePathways({
@@ -585,7 +690,8 @@ async function handleSynthesisAssist() {
       useProfile: useProfileSynthesis.value,
     })
   } catch (err) {
-    llmError.value = err instanceof Error ? err.message : t('exerciseWizards.threePathways.errors.analyzeFailed')
+    llmError.value =
+      err instanceof Error ? err.message : t('exerciseWizards.threePathways.errors.analyzeFailed')
   } finally {
     isLlmLoading.value = false
   }
@@ -598,9 +704,11 @@ function handleSave() {
     experientialValues: filledExperientialValues.value,
     attitudinalValues: filledAttitudinalValues.value,
     emotionIdsBefore: emotionIdsBefore.value.length > 0 ? [...emotionIdsBefore.value] : undefined,
-    emotionFamilyIdsBefore: emotionFamilyIdsBefore.value.length > 0 ? [...emotionFamilyIdsBefore.value] : undefined,
+    emotionFamilyIdsBefore:
+      emotionFamilyIdsBefore.value.length > 0 ? [...emotionFamilyIdsBefore.value] : undefined,
     emotionIdsAfter: emotionIdsAfter.value.length > 0 ? [...emotionIdsAfter.value] : undefined,
-    emotionFamilyIdsAfter: emotionFamilyIdsAfter.value.length > 0 ? [...emotionFamilyIdsAfter.value] : undefined,
+    emotionFamilyIdsAfter:
+      emotionFamilyIdsAfter.value.length > 0 ? [...emotionFamilyIdsAfter.value] : undefined,
     llmSynthesis: llmResponse.value || undefined,
     notes: notes.value.trim() || undefined,
   }

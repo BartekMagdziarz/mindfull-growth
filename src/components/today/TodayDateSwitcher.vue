@@ -10,11 +10,7 @@
       <AppIcon name="chevron_left" class="text-[18px]" />
     </button>
 
-    <button
-      type="button"
-      class="date-switch__pill neo-focus"
-      @click="emit('pill-click')"
-    >
+    <button type="button" class="date-switch__pill neo-focus" @click="emit('pill-click')">
       <span class="date-switch__pill-date">{{ shortDate }}</span>
       <span class="date-switch__pill-weekday">{{ weekday }}</span>
     </button>
@@ -91,16 +87,15 @@ const weekday = computed(() => {
   align-items: center;
   justify-content: center;
   color: rgb(var(--neo-muted));
-  background: linear-gradient(
-    145deg,
-    rgb(var(--neo-surface-top)),
-    rgb(var(--neo-surface-bottom))
-  );
+  background: linear-gradient(145deg, rgb(var(--neo-surface-top)), rgb(var(--neo-surface-bottom)));
   box-shadow:
     -2px -2px 5px rgb(var(--neo-shadow-light) / 0.85),
-    2px 2px 5px rgb(var(--neo-shadow-dark) / 0.30);
+    2px 2px 5px rgb(var(--neo-shadow-dark) / 0.3);
   cursor: pointer;
-  transition: transform 200ms ease, box-shadow 200ms ease, color 200ms ease;
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease,
+    color 200ms ease;
   flex-shrink: 0;
 }
 
@@ -129,11 +124,7 @@ const weekday = computed(() => {
   padding: 4px 8px;
   border-radius: 14px;
   border: 1px solid rgb(var(--neo-border) / 0.14);
-  background: linear-gradient(
-    145deg,
-    rgb(var(--neo-surface-top)),
-    rgb(var(--neo-surface-bottom))
-  );
+  background: linear-gradient(145deg, rgb(var(--neo-surface-top)), rgb(var(--neo-surface-bottom)));
   box-shadow:
     -3px -3px 7px rgb(var(--neo-shadow-light) / 0.85),
     3px 3px 7px rgb(var(--neo-shadow-dark) / 0.28);
@@ -144,7 +135,9 @@ const weekday = computed(() => {
   align-items: center;
   justify-content: center;
   gap: 1px;
-  transition: transform 200ms ease, box-shadow 200ms ease;
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease;
 }
 
 .date-switch__pill:hover {

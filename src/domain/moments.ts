@@ -33,12 +33,12 @@ export function momentDayRef(entry: MicroExerciseEntry): DayRef {
 export function momentsInWeek(
   entries: readonly MicroExerciseEntry[],
   kind: MomentKind,
-  weekRef: WeekRef,
+  weekRef: WeekRef
 ): MicroExerciseEntry[] {
   const { start, end } = getPeriodBounds(weekRef)
   return entries
-    .filter((entry) => isMoment(entry, kind))
-    .filter((entry) => {
+    .filter(entry => isMoment(entry, kind))
+    .filter(entry => {
       const day = momentDayRef(entry)
       return day >= start && day <= end
     })
@@ -50,12 +50,12 @@ export function recentMoments(
   entries: readonly MicroExerciseEntry[],
   kind: MomentKind,
   days: number,
-  now: Date = new Date(),
+  now: Date = new Date()
 ): MicroExerciseEntry[] {
   const cutoff = new Date(now.getTime() - (days - 1) * 24 * 60 * 60 * 1000)
   const cutoffDay = getPeriodRefsForDate(cutoff).day
   return entries
-    .filter((entry) => isMoment(entry, kind) && momentDayRef(entry) >= cutoffDay)
+    .filter(entry => isMoment(entry, kind) && momentDayRef(entry) >= cutoffDay)
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
 }
 
@@ -75,10 +75,14 @@ export function summarizeMoments(
   entries: readonly MicroExerciseEntry[],
   kind: MomentKind,
   steps: readonly string[] = ['about', 'compass', 'response'],
-  recentLimit = 5,
+  recentLimit = 5
 ): MomentsSummary {
-  const sorted = entries.filter((entry) => isMoment(entry, kind)).sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-  const counts: Record<string, Record<string, number>> = Object.fromEntries(steps.map((step) => [step, {}]))
+  const sorted = entries
+    .filter(entry => isMoment(entry, kind))
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+  const counts: Record<string, Record<string, number>> = Object.fromEntries(
+    steps.map(step => [step, {}])
+  )
   let moments = 0
   let quiet = 0
   for (const entry of sorted) {

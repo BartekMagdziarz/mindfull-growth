@@ -1,6 +1,17 @@
 import { describe, it, expect } from 'vitest'
-import { getCbtPrompts, getLogotherapyPrompts, getIfsPrompts, getChatPrompts, getPathPrompts } from '../index'
-import type { CbtPromptModule, LogotherapyPromptModule, IfsPromptModule, ChatPromptModule } from '../types'
+import {
+  getCbtPrompts,
+  getLogotherapyPrompts,
+  getIfsPrompts,
+  getChatPrompts,
+  getPathPrompts,
+} from '../index'
+import type {
+  CbtPromptModule,
+  LogotherapyPromptModule,
+  IfsPromptModule,
+  ChatPromptModule,
+} from '../types'
 
 describe('prompt modules', () => {
   describe('getCbtPrompts', () => {
@@ -63,7 +74,10 @@ describe('prompt modules', () => {
   })
 
   describe('getLogotherapyPrompts', () => {
-    const logoKeys: (keyof Omit<LogotherapyPromptModule, 'labels' | 'socraticPrompts' | 'tragicOptimismPrompts'>)[] = [
+    const logoKeys: (keyof Omit<
+      LogotherapyPromptModule,
+      'labels' | 'socraticPrompts' | 'tragicOptimismPrompts'
+    >)[] = [
       'THREE_PATHWAYS_SYNTHESIS',
       'SOCRATIC_DIALOGUE_MEANING',
       'SOCRATIC_DIALOGUE_EMPTINESS',

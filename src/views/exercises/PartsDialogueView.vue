@@ -8,7 +8,9 @@
 
     <!-- Past Dialogues -->
     <div class="mt-10 space-y-4">
-      <div class="mg-v2-section-head"><h2>{{ t('exercises.views.pastDialogues') }}</h2></div>
+      <div class="mg-v2-section-head">
+        <h2>{{ t('exercises.views.pastDialogues') }}</h2>
+      </div>
 
       <template v-if="sortedDialogues.length">
         <AppCard
@@ -19,13 +21,34 @@
           class="space-y-2"
         >
           <div class="flex items-center justify-between">
-            <span class="text-sm font-medium text-on-surface">{{ formatDate(dialogue.createdAt) }}</span>
+            <span class="text-sm font-medium text-on-surface">{{
+              formatDate(dialogue.createdAt)
+            }}</span>
             <div class="flex items-center gap-2">
-              <span class="exercise-pill text-xs px-2 py-0.5 bg-primary/10 text-primary font-semibold">
-                {{ tp(dialogue.messages.length, 'exercises.views.messagesCount.one', 'exercises.views.messagesCount.few', 'exercises.views.messagesCount.many') }}
+              <span
+                class="exercise-pill text-xs px-2 py-0.5 bg-primary/10 text-primary font-semibold"
+              >
+                {{
+                  tp(
+                    dialogue.messages.length,
+                    'exercises.views.messagesCount.one',
+                    'exercises.views.messagesCount.few',
+                    'exercises.views.messagesCount.many'
+                  )
+                }}
               </span>
-              <span v-if="dialogue.insights.length" class="exercise-pill text-xs px-2 py-0.5 bg-status-warn-soft text-status-warn-on font-semibold">
-                {{ tp(dialogue.insights.length, 'exercises.views.insightsCount.one', 'exercises.views.insightsCount.few', 'exercises.views.insightsCount.many') }}
+              <span
+                v-if="dialogue.insights.length"
+                class="exercise-pill text-xs px-2 py-0.5 bg-status-warn-soft text-status-warn-on font-semibold"
+              >
+                {{
+                  tp(
+                    dialogue.insights.length,
+                    'exercises.views.insightsCount.one',
+                    'exercises.views.insightsCount.few',
+                    'exercises.views.insightsCount.many'
+                  )
+                }}
               </span>
             </div>
           </div>
@@ -33,12 +56,18 @@
           <!-- Linked part -->
           <div class="flex items-center gap-2">
             <span class="text-xs text-on-surface-variant">{{ t('exercises.views.part') }}</span>
-            <span class="text-xs font-medium text-on-surface">{{ getPartName(dialogue.partId) }}</span>
-            <PartRoleBadge v-if="getPartRole(dialogue.partId)" :role="getPartRole(dialogue.partId)!" />
+            <span class="text-xs font-medium text-on-surface">{{
+              getPartName(dialogue.partId)
+            }}</span>
+            <PartRoleBadge
+              v-if="getPartRole(dialogue.partId)"
+              :role="getPartRole(dialogue.partId)!"
+            />
           </div>
 
           <p class="text-xs text-on-surface-variant">
-            <span class="font-medium">{{ t('exercises.views.intention') }}</span> {{ dialogue.intention }}
+            <span class="font-medium">{{ t('exercises.views.intention') }}</span>
+            {{ dialogue.intention }}
           </p>
 
           <p v-if="dialogue.summary" class="text-xs text-on-surface-variant line-clamp-2">
@@ -46,7 +75,10 @@
           </p>
 
           <div v-if="dialogue.llmAssistUsed" class="flex items-center gap-1">
-            <span class="exercise-pill text-xs px-1.5 py-0.5 bg-status-warn-soft text-status-warn">{{ t('exercises.views.aiAssistedBadge') }}</span>
+            <span
+              class="exercise-pill text-xs px-1.5 py-0.5 bg-status-warn-soft text-status-warn"
+              >{{ t('exercises.views.aiAssistedBadge') }}</span
+            >
           </div>
         </AppCard>
       </template>

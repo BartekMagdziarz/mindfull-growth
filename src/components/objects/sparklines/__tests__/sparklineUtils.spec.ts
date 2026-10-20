@@ -16,7 +16,7 @@ function point(
   periodRef: string,
   actual?: number,
   target?: number,
-  status: ObjectsLibraryChartPoint['status'] = 'met',
+  status: ObjectsLibraryChartPoint['status'] = 'met'
 ): ObjectsLibraryChartPoint {
   return { periodRef, actualValue: actual, targetValue: target, status }
 }
@@ -29,14 +29,18 @@ describe('sparklineUtils', () => {
     })
 
     it('slices to last 6 for monthly', () => {
-      const pts = Array.from({ length: 10 }, (_, i) => point(`2026-${String(i + 1).padStart(2, '0')}`))
+      const pts = Array.from({ length: 10 }, (_, i) =>
+        point(`2026-${String(i + 1).padStart(2, '0')}`)
+      )
       const result = getVisiblePoints(pts, 'monthly')
       expect(result).toHaveLength(6)
       expect(result[0].periodRef).toBe('2026-05')
     })
 
     it('slices to last 12 for weekly', () => {
-      const pts = Array.from({ length: 20 }, (_, i) => point(`2026-W${String(i + 1).padStart(2, '0')}`))
+      const pts = Array.from({ length: 20 }, (_, i) =>
+        point(`2026-W${String(i + 1).padStart(2, '0')}`)
+      )
       const result = getVisiblePoints(pts, 'weekly')
       expect(result).toHaveLength(12)
       expect(result[0].periodRef).toBe('2026-W09')
@@ -74,7 +78,7 @@ describe('sparklineUtils', () => {
           { x1: 0, x2: 100, targetValue: 10 },
           { x1: 100, x2: 200, targetValue: 10 },
         ],
-        10,
+        10
       )
       expect(path).toBe(`M0,${y}H100V${y}H200`)
     })
@@ -88,7 +92,7 @@ describe('sparklineUtils', () => {
           { x1: 100, x2: 200, targetValue: 1 },
           { x1: 200, x2: 300, targetValue: 3 },
         ],
-        3,
+        3
       )
       expect(path).toBe(`M0,${yHigh}H100V${yLow}H200V${yHigh}H300`)
     })
@@ -101,7 +105,7 @@ describe('sparklineUtils', () => {
           { x1: 100, x2: 200, targetValue: undefined },
           { x1: 200, x2: 300, targetValue: 5 },
         ],
-        5,
+        5
       )
       expect(path).toBe(`M0,${y}H100M200,${y}H300`)
     })

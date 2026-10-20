@@ -26,7 +26,7 @@ describe('Emotion Log Flow Integration', () => {
 
     const emotionIds = getAll(emotionStore)
       .slice(0, 3)
-      .map((emotion) => emotion.id)
+      .map(emotion => emotion.id)
     const momTag = await tagStore.createPeopleTag('Mom')
     const commuteTag = await tagStore.createContextTag('Commute')
 
@@ -50,7 +50,7 @@ describe('Emotion Log Flow Integration', () => {
     expect(emotionLogStore.logs).toHaveLength(1)
 
     // Emotions resolve through emotion store for display
-    const resolvedNames = createdLog.emotionIds.map((id) => emotionStore.getEmotionById(id)?.name)
+    const resolvedNames = createdLog.emotionIds.map(id => emotionStore.getEmotionById(id)?.name)
     expect(resolvedNames.filter(Boolean).length).toBe(createdLog.emotionIds.length)
   })
 
@@ -64,7 +64,7 @@ describe('Emotion Log Flow Integration', () => {
 
     const emotionIds = getAll(emotionStore)
       .slice(0, 2)
-      .map((emotion) => emotion.id)
+      .map(emotion => emotion.id)
     const log = await emotionLogStore.createLog({
       emotionIds,
       note: 'Original note',
@@ -74,7 +74,7 @@ describe('Emotion Log Flow Integration', () => {
 
     const newEmotionIds = getAll(emotionStore)
       .slice(2, 4)
-      .map((emotion) => emotion.id)
+      .map(emotion => emotion.id)
     const officeTag = await tagStore.createContextTag('Office')
     const updated = await emotionLogStore.updateLog({
       ...log,
@@ -125,5 +125,3 @@ describe('Emotion Log Flow Integration', () => {
     expect(contextTagsInDb).toHaveLength(1)
   })
 })
-
-

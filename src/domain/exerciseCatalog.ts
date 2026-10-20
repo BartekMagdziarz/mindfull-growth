@@ -30,12 +30,7 @@ export function exerciseStepForm(
   return entry.kind === 'assessment' ? 'measure' : entry.form
 }
 
-export type ExerciseCatalogCategory =
-  | 'self-discovery'
-  | 'cbt'
-  | 'logotherapy'
-  | 'ifs'
-  | 'micro'
+export type ExerciseCatalogCategory = 'self-discovery' | 'cbt' | 'logotherapy' | 'ifs' | 'micro'
 
 export interface ExerciseCatalogEntry {
   /** Stable id, reuses route slugs ('worry-tree', 'erq', …). */

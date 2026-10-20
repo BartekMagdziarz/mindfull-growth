@@ -46,7 +46,7 @@ const rootRef = ref<HTMLElement | null>(null)
 const open = ref(false)
 
 const selectedLabel = computed(() => {
-  const opt = props.options.find((o) => o.value === props.modelValue)
+  const opt = props.options.find(o => o.value === props.modelValue)
   return opt?.label ?? props.modelValue
 })
 

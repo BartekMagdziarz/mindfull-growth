@@ -16,18 +16,26 @@ const SEED_MARKER_KEY = 'mindfull_growth_verification_seed_version'
 
 async function bootSeededApp(page: Page): Promise<void> {
   await page.goto('/')
-  await page.waitForFunction((key: string) => window.localStorage.getItem(key) !== null, SEED_MARKER_KEY, {
-    timeout: 90_000,
-  })
+  await page.waitForFunction(
+    (key: string) => window.localStorage.getItem(key) !== null,
+    SEED_MARKER_KEY,
+    {
+      timeout: 90_000,
+    }
+  )
   await expect(page).not.toHaveURL(/login/)
 }
 
 test.describe('shame path v3', () => {
-  test('path view: nine week rows, the current week open as tiles, Praktyki, Postęp, own sentences and knowledge', async ({ page }) => {
+  test('path view: nine week rows, the current week open as tiles, Praktyki, Postęp, own sentences and knowledge', async ({
+    page,
+  }) => {
     test.setTimeout(120_000)
     await bootSeededApp(page)
     await page.goto('/exercises/programs/shame-compassion')
-    await expect(page.getByRole('heading', { name: 'Ze wstydu do współczucia', level: 1 })).toBeVisible()
+    await expect(
+      page.getByRole('heading', { name: 'Ze wstydu do współczucia', level: 1 })
+    ).toBeVisible()
     await expect(page.locator('.mg-v2-page-head__eyebrow')).toContainText('Tydzień 4 z 8')
     await expect(page.locator('.path-view__sign')).toContainText('zostanę w rozmowie')
 
@@ -58,7 +66,9 @@ test.describe('shame path v3', () => {
     const practices = page.getByTestId('path-practices')
     await expect(practices).toContainText('Przerwa na współczucie')
     await expect(page.getByTestId('path-world')).toContainText('Użyj swojej odpowiedzi na wstyd')
-    await expect(page.getByTestId('path-moment-tile').getByRole('button', { name: 'Zapisz' })).toBeVisible()
+    await expect(
+      page.getByTestId('path-moment-tile').getByRole('button', { name: 'Zapisz' })
+    ).toBeVisible()
     // "Od nowa" is a link in the journey head with an inline confirm; no "Teraz" card any more.
     await journey.getByTestId('path-restart').click()
     await expect(journey.getByRole('button', { name: 'Zacznij od nowa' })).toBeVisible()
@@ -82,11 +92,19 @@ test.describe('shame path v3', () => {
     await page.goto('/exercises/programs/shame-compassion')
     await expect(currentTile.getByRole('button', { name: 'Rozpocznij' })).toBeVisible()
     await practices.getByRole('button', { name: 'Mój plan' }).click()
-    await expect(page.getByTestId('path-response')).toContainText('Widzę cię. Nie musisz tego teraz naprawiać.')
+    await expect(page.getByTestId('path-response')).toContainText(
+      'Widzę cię. Nie musisz tego teraz naprawiać.'
+    )
 
     // Postęp: the parts chart (columns per week, the legend on the left, numbers only on hover and in the table) and four measure tracks.
     const glance = page.getByTestId('path-moments-glance')
-    await expect(glance.locator('.pc__legend-name')).toHaveText(['Agresor', 'Krytyk', 'Ukrywający', 'Odwracający uwagę', 'Ja'])
+    await expect(glance.locator('.pc__legend-name')).toHaveText([
+      'Agresor',
+      'Krytyk',
+      'Ukrywający',
+      'Odwracający uwagę',
+      'Ja',
+    ])
     await expect(glance.locator('.pc__week:not(.is-slot)')).toHaveCount(4)
     await glance.locator('summary').click()
     await glance.getByRole('button', { name: 'Liczby' }).click()
@@ -105,7 +123,9 @@ test.describe('shame path v3', () => {
     await expect(drawer).toBeVisible()
     await drawer.getByRole('button', { name: 'Przeczytane' }).click()
     await expect(drawer).toBeHidden()
-    await expect(knowledge.locator('.kn button').first().locator('.app-icon').first()).toHaveAttribute('data-icon', 'check')
+    await expect(
+      knowledge.locator('.kn button').first().locator('.app-icon').first()
+    ).toHaveAttribute('data-icon', 'check')
   })
 
   test('Momenty (shame variant): quick taps, hints from the plan and the map, the week read back in the reflection', async ({
@@ -120,7 +140,9 @@ test.describe('shame path v3', () => {
       await page.getByRole('button', { name: label, exact: true }).click()
     }
     // The preset kind never shows: the first question is whether there was a moment.
-    await expect(page.getByRole('heading', { name: 'Czy od ostatniego wpisu był taki moment?' })).toBeVisible()
+    await expect(
+      page.getByRole('heading', { name: 'Czy od ostatniego wpisu był taki moment?' })
+    ).toBeVisible()
     await page.getByRole('radio', { name: 'Tak' }).click()
     await step('Czy od ostatniego wpisu był taki moment?')
     // The quick taps: part · when noticed · response · how strongly.
@@ -135,9 +157,14 @@ test.describe('shame path v3', () => {
     await step(/Jak odpowiedział/)
     // The strength stack starts empty: Dalej waits for a tap.
     await expect(page.getByRole('button', { name: 'Dalej', exact: true })).toBeDisabled()
-    await page.getByRole('radiogroup', { name: 'Jak silny był wstyd?' }).getByRole('radio', { name: '3' }).click()
+    await page
+      .getByRole('radiogroup', { name: 'Jak silny był wstyd?' })
+      .getByRole('radio', { name: '3' })
+      .click()
     await step('Jak silny był wstyd?')
-    await page.locator('textarea').fill('Na stand-upie nie wiedziałem, o co chodzi, i nie zapytałem.')
+    await page
+      .locator('textarea')
+      .fill('Na stand-upie nie wiedziałem, o co chodzi, i nie zapytałem.')
     await step('Co się wydarzyło?')
     await step('O czym jest ten wstyd?')
     await expect(page.getByTestId('micro-hint')).toContainText('gorąco na twarzy')
@@ -198,7 +225,9 @@ test.describe('shame path v3', () => {
     await expect(page.getByTestId('micro-hint')).toContainText('Zadałem „głupie” pytanie')
   })
 
-  test('Today: the day plan lists the step and the practice; the paths card is one row — phase with dots, next step, Zapisz moment, the task as dots', async ({ page }) => {
+  test('Today: the day plan lists the step and the practice; the paths card is one row — phase with dots, next step, Zapisz moment, the task as dots', async ({
+    page,
+  }) => {
     test.setTimeout(120_000)
     await bootSeededApp(page)
     await page.goto('/today')
@@ -208,7 +237,9 @@ test.describe('shame path v3', () => {
     await expect(practices.locator('.ndp', { hasText: 'Zapis myśli' })).toBeVisible()
     await expect(practices.locator('.ndp', { hasText: 'Przerwa na współczucie' })).toBeVisible()
 
-    const tile = card.locator('[data-testid="today-path-tile"]', { hasText: 'Ze wstydu do współczucia' })
+    const tile = card.locator('[data-testid="today-path-tile"]', {
+      hasText: 'Ze wstydu do współczucia',
+    })
     const phase = tile.getByTestId('today-path-phase')
     await expect(phase).toContainText('Inne spojrzenie')
     await expect(phase).not.toContainText('Tydzień')
@@ -226,7 +257,10 @@ test.describe('shame path v3', () => {
     await expect(task.locator('.ndpath__task-dots > i.is-done')).toHaveCount(1)
     await expect(task).toHaveAttribute('title', '1 z 3 dni')
 
-    await expect(tile.getByTestId('today-path-moment')).toHaveAttribute('href', '/exercises/micro/moment-shame')
+    await expect(tile.getByTestId('today-path-moment')).toHaveAttribute(
+      'href',
+      '/exercises/micro/moment-shame'
+    )
     await expect(tile.locator('.next-day-paths__step')).toHaveCount(0)
     await expect(tile.getByRole('link', { name: 'Mój plan' })).toHaveCount(0)
     await card.screenshot({ path: 'test-results/today-paths.png' })
@@ -239,13 +273,17 @@ test.describe('shame path v3', () => {
     await expect(page.getByRole('dialog')).toBeVisible()
   })
 
-  test('Najbliżej: the closed path\'s letter waits (no rose) and the return is announced; opening the letter marks it read', async ({ page }) => {
+  test("Najbliżej: the closed path's letter waits (no rose) and the return is announced; opening the letter marks it read", async ({
+    page,
+  }) => {
     test.setTimeout(120_000)
     await bootSeededApp(page)
     await page.goto('/today')
     const upcoming = page.locator('.next-day-upcoming')
     // The waiting letter is overdue, so it leads the list and tells us the markers have loaded.
-    const letter = upcoming.locator('.next-day-upcoming__tile.is-letter', { hasText: 'List od Ciebie' })
+    const letter = upcoming.locator('.next-day-upcoming__tile.is-letter', {
+      hasText: 'List od Ciebie',
+    })
     await expect(letter).toBeVisible()
     const more = upcoming.getByRole('button', { name: /^Jeszcze/ })
     if (await more.isVisible()) await more.click()
@@ -258,7 +296,9 @@ test.describe('shame path v3', () => {
     await upcoming.screenshot({ path: 'test-results/today-upcoming-path-events.png' })
 
     await letter.locator('.ndt__open').click()
-    await expect(page).toHaveURL(/\/exercises\/programs\/shame-compassion\?letter=1&enrollment=[\w-]+$/)
+    await expect(page).toHaveURL(
+      /\/exercises\/programs\/shame-compassion\?letter=1&enrollment=[\w-]+$/
+    )
     await expect(page.getByTestId('path-practices')).toContainText('pomost nad jeziorem')
 
     // Read today: the marker moves to today's day as done ("przeczytany"), and leaves a week later.
@@ -267,9 +307,13 @@ test.describe('shame path v3', () => {
     await expect(upcomingAgain.locator('.next-day-upcoming__tile').first()).toBeVisible()
     const moreAgain = upcomingAgain.getByRole('button', { name: /^Jeszcze/ })
     if (await moreAgain.isVisible()) await moreAgain.click()
-    const read = upcomingAgain.locator('.next-day-upcoming__tile.is-letter.is-done', { hasText: 'List od Ciebie' })
+    const read = upcomingAgain.locator('.next-day-upcoming__tile.is-letter.is-done', {
+      hasText: 'List od Ciebie',
+    })
     await expect(read).toBeVisible()
     await expect(read.locator('.next-day-upcoming__glyph')).toHaveAttribute('title', 'przeczytany')
-    await expect(upcomingAgain.locator('.next-day-upcoming__tile.is-letter:not(.is-done)')).toHaveCount(0)
+    await expect(
+      upcomingAgain.locator('.next-day-upcoming__tile.is-letter:not(.is-done)')
+    ).toHaveCount(0)
   })
 })

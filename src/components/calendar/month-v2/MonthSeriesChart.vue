@@ -135,7 +135,6 @@
              (a column of dashes would just be noise). -->
         <template v-if="week.inactive" />
 
-
         <!-- specific-days: 7 fixed Mon–Sun micro slots -->
         <template v-else-if="week.days">
           <div class="month-series__days" aria-hidden="true">
@@ -211,21 +210,12 @@ const props = withDefaults(
 
 const gradientId = `mv2-grad-${useId().replace(/:/g, '')}`
 
-type DisplayKind =
-  | 'completion'
-  | 'multi'
-  | 'scheduled-days'
-  | 'bars'
-  | 'line'
-  | 'rating'
-  | 'count'
+type DisplayKind = 'completion' | 'multi' | 'scheduled-days' | 'bars' | 'line' | 'rating' | 'count'
 
 const displayKind = computed<DisplayKind>(() => {
   switch (props.series.kind) {
     case 'monthly-contribution':
-      return props.series.display === 'multi'
-        ? 'multi'
-        : (props.series.display as DisplayKind)
+      return props.series.display === 'multi' ? 'multi' : (props.series.display as DisplayKind)
     case 'completion-progress':
       return 'completion'
     case 'multi-completion':
@@ -377,9 +367,7 @@ function weekTitle(week: MonthV2WeekDatum): string {
   return `${week.weekRef}: ${week.inactive ? '—' : cellValueText(week)}`
 }
 
-const weeksDescription = computed(() =>
-  props.series.weeks.map((week) => weekTitle(week)).join(', ')
-)
+const weeksDescription = computed(() => props.series.weeks.map(week => weekTitle(week)).join(', '))
 </script>
 
 <style scoped>

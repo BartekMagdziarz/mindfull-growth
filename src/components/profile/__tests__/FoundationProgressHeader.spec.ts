@@ -35,7 +35,7 @@ describe('FoundationProgressHeader', () => {
     expect(
       screen.getByRole('button', {
         name: 'Complete one exercise in each group to unlock',
-      }),
+      })
     ).toBeDisabled()
   })
 
@@ -49,9 +49,7 @@ describe('FoundationProgressHeader', () => {
 
     expect(screen.getByText('Unlocked — every group covered')).toBeInTheDocument()
 
-    await fireEvent.click(
-      screen.getByRole('button', { name: 'Build my first profile' }),
-    )
+    await fireEvent.click(screen.getByRole('button', { name: 'Build my first profile' }))
 
     expect(emitted().build).toHaveLength(1)
   })

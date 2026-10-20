@@ -30,12 +30,8 @@ const mockUpdatePeopleTag = vi.fn()
 const mockUpdateContextTag = vi.fn()
 const mockDeletePeopleTag = vi.fn()
 const mockDeleteContextTag = vi.fn()
-const mockGetPeopleTagById = vi.fn((id: string) =>
-  mockPeopleTags.find((tag) => tag.id === id)
-)
-const mockGetContextTagById = vi.fn((id: string) =>
-  mockContextTags.find((tag) => tag.id === id)
-)
+const mockGetPeopleTagById = vi.fn((id: string) => mockPeopleTags.find(tag => tag.id === id))
+const mockGetContextTagById = vi.fn((id: string) => mockContextTags.find(tag => tag.id === id))
 
 vi.mock('@/stores/tag.store', () => ({
   useTagStore: () => ({
@@ -65,9 +61,7 @@ describe('TagInput', () => {
     mockLoadPeopleTags.mockResolvedValue(undefined)
     mockLoadContextTags.mockResolvedValue(undefined)
     mockCreatePeopleTag.mockImplementation(async (name: string) => {
-      const existing = mockPeopleTags.find(
-        (tag) => tag.name.toLowerCase() === name.toLowerCase()
-      )
+      const existing = mockPeopleTags.find(tag => tag.name.toLowerCase() === name.toLowerCase())
       if (existing) {
         return existing
       }
@@ -79,9 +73,7 @@ describe('TagInput', () => {
       return newTag
     })
     mockCreateContextTag.mockImplementation(async (name: string) => {
-      const existing = mockContextTags.find(
-        (tag) => tag.name.toLowerCase() === name.toLowerCase()
-      )
+      const existing = mockContextTags.find(tag => tag.name.toLowerCase() === name.toLowerCase())
       if (existing) {
         return existing
       }
@@ -93,27 +85,27 @@ describe('TagInput', () => {
       return newTag
     })
     mockUpdatePeopleTag.mockImplementation(async (id: string, name: string) => {
-      const tag = mockPeopleTags.find((t) => t.id === id)
+      const tag = mockPeopleTags.find(t => t.id === id)
       if (tag) {
         tag.name = name
       }
       return tag
     })
     mockUpdateContextTag.mockImplementation(async (id: string, name: string) => {
-      const tag = mockContextTags.find((t) => t.id === id)
+      const tag = mockContextTags.find(t => t.id === id)
       if (tag) {
         tag.name = name
       }
       return tag
     })
     mockDeletePeopleTag.mockImplementation(async (id: string) => {
-      const index = mockPeopleTags.findIndex((t) => t.id === id)
+      const index = mockPeopleTags.findIndex(t => t.id === id)
       if (index !== -1) {
         mockPeopleTags.splice(index, 1)
       }
     })
     mockDeleteContextTag.mockImplementation(async (id: string) => {
-      const index = mockContextTags.findIndex((t) => t.id === id)
+      const index = mockContextTags.findIndex(t => t.id === id)
       if (index !== -1) {
         mockContextTags.splice(index, 1)
       }
@@ -351,9 +343,12 @@ describe('TagInput', () => {
       const input = screen.getByLabelText('New people tag name')
       await fireEvent.blur(input)
 
-      await waitFor(() => {
-        expect(screen.getByLabelText('Add new people tag')).toBeInTheDocument()
-      }, { timeout: 300 })
+      await waitFor(
+        () => {
+          expect(screen.getByLabelText('Add new people tag')).toBeInTheDocument()
+        },
+        { timeout: 300 }
+      )
     })
 
     it('shows error message when tag creation fails', async () => {

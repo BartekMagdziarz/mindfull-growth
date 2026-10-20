@@ -75,7 +75,10 @@ export function useTrailheadWizard() {
   const canAdvance = computed(() => {
     switch (currentStep.value) {
       case 'trigger':
-        return triggerDescription.value.trim().length > 0 && (emotionIds.value.length > 0 || emotionFamilyIds.value.length > 0)
+        return (
+          triggerDescription.value.trim().length > 0 &&
+          (emotionIds.value.length > 0 || emotionFamilyIds.value.length > 0)
+        )
       case 'thoughts':
         return thoughts.value.trim().length > 0
       case 'sensations':

@@ -21,7 +21,7 @@ withDefaults(
     prevDisabled: false,
     nextDisabled: false,
     labelClickable: false,
-  },
+  }
 )
 
 const emit = defineEmits<{

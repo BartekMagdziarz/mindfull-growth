@@ -59,7 +59,9 @@ function makeIntention(overrides: Partial<WeeklyIntention> = {}): WeeklyIntentio
   }
 }
 
-function makePlanning(overrides: Partial<MeasurementPlanningSummary> = {}): MeasurementPlanningSummary {
+function makePlanning(
+  overrides: Partial<MeasurementPlanningSummary> = {}
+): MeasurementPlanningSummary {
   return {
     activityState: 'active',
     scheduleScope: 'whole-week',
@@ -81,7 +83,7 @@ function makeMeasurement(overrides: Partial<MeasurementSummary> = {}): Measureme
 function makeEntry(
   subjectId: string,
   dayRef: string,
-  value: number | null = 1,
+  value: number | null = 1
 ): DailyMeasurementEntry {
   return {
     id: `${subjectId}-${dayRef}`,
@@ -95,7 +97,7 @@ function makeEntry(
 }
 
 function krItem(
-  overrides: Partial<{ id: string; status: MeasurementSummary['evaluationStatus'] }> = {},
+  overrides: Partial<{ id: string; status: MeasurementSummary['evaluationStatus'] }> = {}
 ): WeekObjectItem {
   const id = overrides.id ?? 'kr-1'
   return {
@@ -109,7 +111,7 @@ function krItem(
 }
 
 function habitItem(
-  overrides: Partial<{ id: string; status: MeasurementSummary['evaluationStatus'] }> = {},
+  overrides: Partial<{ id: string; status: MeasurementSummary['evaluationStatus'] }> = {}
 ): WeekObjectItem {
   const id = overrides.id ?? 'habit-1'
   return {
@@ -141,7 +143,7 @@ describe('buildWeeklyPlanSummary', () => {
         krItem({ id: 'kr-d', status: 'met' }),
       ],
       [],
-      weekRef,
+      weekRef
     )
     expect(summary.keyResults).toEqual({ total: 4, met: 2 })
   })
@@ -154,7 +156,7 @@ describe('buildWeeklyPlanSummary', () => {
         krItem({ id: 'kr-a', status: 'met' }),
       ],
       [],
-      weekRef,
+      weekRef
     )
     expect(summary.habits).toEqual({ total: 2, met: 1 })
     expect(summary.keyResults).toEqual({ total: 1, met: 1 })
@@ -179,7 +181,7 @@ describe('buildWeeklyPlanSummary', () => {
     const summary = buildWeeklyPlanSummary(
       [habitItem({ id: 'h-a' })], // no status — defaults to undefined
       [],
-      weekRef,
+      weekRef
     )
     expect(summary.habits).toEqual({ total: 1, met: 0 })
   })
@@ -187,12 +189,10 @@ describe('buildWeeklyPlanSummary', () => {
   it('evaluates intentions against the week entries — unmet without entries', () => {
     const met = makeIntention({ id: 'i-met' })
     const unmet = makeIntention({ id: 'i-unmet' })
-    const summary = buildWeeklyPlanSummary(
-      [],
-      [makeEntry('i-met', '2026-03-09')],
-      weekRef,
-      [met, unmet],
-    )
+    const summary = buildWeeklyPlanSummary([], [makeEntry('i-met', '2026-03-09')], weekRef, [
+      met,
+      unmet,
+    ])
     // Plan-vs-execution semantics: a no-data intention still counts as planned.
     expect(summary.intentions).toEqual({ total: 2, met: 1 })
   })
@@ -214,7 +214,7 @@ describe('buildWeeklyPlanSummary', () => {
       [],
       [makeEntry('i-active', '2026-03-16')], // next week — ignored
       weekRef,
-      [inactive, active],
+      [inactive, active]
     )
     expect(summary.intentions).toEqual({ total: 1, met: 0 })
   })
@@ -228,7 +228,7 @@ describe('buildWeeklyPlanSummary', () => {
       [],
       [makeEntry('i-3x', '2026-03-09'), makeEntry('i-3x', '2026-03-10')],
       weekRef,
-      [intention],
+      [intention]
     )
     expect(summary.intentions).toEqual({ total: 1, met: 0 })
   })
@@ -244,7 +244,7 @@ describe('buildWeeklyPlanSummary', () => {
       ],
       [makeEntry('i-a', '2026-03-09')],
       weekRef,
-      [makeIntention({ id: 'i-a' }), makeIntention({ id: 'i-b' })],
+      [makeIntention({ id: 'i-a' }), makeIntention({ id: 'i-b' })]
     )
     expect(summary.keyResults).toEqual({ total: 2, met: 1 })
     expect(summary.habits).toEqual({ total: 3, met: 2 })

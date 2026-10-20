@@ -90,7 +90,7 @@ describe('CompletionDots', () => {
 
   it('renders 6 history dots (target minus today)', () => {
     const slots = Array.from({ length: 6 }, (_, i) =>
-      makeSlot(i < 3 ? 'done' : 'future', ['Mo', 'Tu', 'We', 'Fr', 'Sa', 'Su'][i]),
+      makeSlot(i < 3 ? 'done' : 'future', ['Mo', 'Tu', 'We', 'Fr', 'Sa', 'Su'][i])
     )
     const { container } = render(CompletionDots, { props: { slots } })
 

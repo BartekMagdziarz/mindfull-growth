@@ -14,7 +14,9 @@
       <template v-if="currentStep === 'intro'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-lg font-bold text-on-surface">{{ t('exerciseWizards.partsMapping.intro.title') }}</h2>
+            <h2 class="text-lg font-bold text-on-surface">
+              {{ t('exerciseWizards.partsMapping.intro.title') }}
+            </h2>
             <p class="text-sm text-on-surface-variant leading-relaxed">
               {{ t('exerciseWizards.partsMapping.intro.description') }}
             </p>
@@ -22,29 +24,46 @@
               <div class="flex items-start gap-3">
                 <AppIcon name="group" class="text-xl text-ifs-manager shrink-0 mt-0.5" />
                 <div>
-                  <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.partsMapping.intro.managers.title') }}</p>
-                  <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.partsMapping.intro.managers.description') }}</p>
+                  <p class="text-sm font-medium text-on-surface">
+                    {{ t('exerciseWizards.partsMapping.intro.managers.title') }}
+                  </p>
+                  <p class="text-xs text-on-surface-variant">
+                    {{ t('exerciseWizards.partsMapping.intro.managers.description') }}
+                  </p>
                 </div>
               </div>
               <div class="flex items-start gap-3">
-                <AppIcon name="local_fire_department" class="text-xl text-ifs-firefighter shrink-0 mt-0.5" />
+                <AppIcon
+                  name="local_fire_department"
+                  class="text-xl text-ifs-firefighter shrink-0 mt-0.5"
+                />
                 <div>
-                  <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.partsMapping.intro.firefighters.title') }}</p>
-                  <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.partsMapping.intro.firefighters.description') }}</p>
+                  <p class="text-sm font-medium text-on-surface">
+                    {{ t('exerciseWizards.partsMapping.intro.firefighters.title') }}
+                  </p>
+                  <p class="text-xs text-on-surface-variant">
+                    {{ t('exerciseWizards.partsMapping.intro.firefighters.description') }}
+                  </p>
                 </div>
               </div>
               <div class="flex items-start gap-3">
                 <AppIcon name="favorite" class="text-xl text-ifs-exile shrink-0 mt-0.5" />
                 <div>
-                  <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.partsMapping.intro.exiles.title') }}</p>
-                  <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.partsMapping.intro.exiles.description') }}</p>
+                  <p class="text-sm font-medium text-on-surface">
+                    {{ t('exerciseWizards.partsMapping.intro.exiles.title') }}
+                  </p>
+                  <p class="text-xs text-on-surface-variant">
+                    {{ t('exerciseWizards.partsMapping.intro.exiles.description') }}
+                  </p>
                 </div>
               </div>
             </div>
             <div class="neo-surface p-3 rounded-lg">
               <p class="text-sm italic text-on-surface-variant">
                 "{{ t('exerciseWizards.partsMapping.intro.quote') }}"
-                <span class="text-xs">— {{ t('exerciseWizards.partsMapping.intro.quoteAuthor') }}</span>
+                <span class="text-xs"
+                  >— {{ t('exerciseWizards.partsMapping.intro.quoteAuthor') }}</span
+                >
               </p>
             </div>
 
@@ -71,14 +90,18 @@
       <template v-else-if="currentStep === 'trailhead'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.partsMapping.trailhead.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.partsMapping.trailhead.title') }}
+            </h2>
             <p class="text-sm text-on-surface-variant">
               {{ tg('exerciseWizards.partsMapping.trailhead.description') }}
             </p>
             <ExerciseStepWhy :text="tg('exerciseWizards.partsMapping.trailhead.why')" />
 
             <div class="space-y-1">
-              <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.partsMapping.trailhead.situationLabel') }}</label>
+              <label class="text-xs font-medium text-on-surface-variant">{{
+                t('exerciseWizards.partsMapping.trailhead.situationLabel')
+              }}</label>
               <textarea
                 v-model="trailheadSituation"
                 rows="3"
@@ -104,7 +127,9 @@
             />
 
             <div class="space-y-1">
-              <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.partsMapping.trailhead.thoughtsLabel') }}</label>
+              <label class="text-xs font-medium text-on-surface-variant">{{
+                t('exerciseWizards.partsMapping.trailhead.thoughtsLabel')
+              }}</label>
               <textarea
                 v-model="trailheadThoughts"
                 rows="2"
@@ -128,7 +153,11 @@
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
             <h2 class="text-base font-semibold text-on-surface">
-              {{ editingPartIndex !== null ? t('exerciseWizards.partsMapping.identifyPart.editTitle') : t('exerciseWizards.partsMapping.identifyPart.title') }}
+              {{
+                editingPartIndex !== null
+                  ? t('exerciseWizards.partsMapping.identifyPart.editTitle')
+                  : t('exerciseWizards.partsMapping.identifyPart.title')
+              }}
             </h2>
             <p class="text-sm text-on-surface-variant">
               {{ tg('exerciseWizards.partsMapping.identifyPart.description') }}
@@ -136,7 +165,9 @@
             <ExerciseStepWhy :text="tg('exerciseWizards.partsMapping.identifyPart.why')" />
 
             <div class="space-y-1">
-              <label class="text-xs font-medium text-on-surface-variant">{{ tg('exerciseWizards.partsMapping.identifyPart.nameLabel') }}</label>
+              <label class="text-xs font-medium text-on-surface-variant">{{
+                tg('exerciseWizards.partsMapping.identifyPart.nameLabel')
+              }}</label>
               <input
                 v-model="currentPartName"
                 type="text"
@@ -146,15 +177,19 @@
             </div>
 
             <div class="space-y-1">
-              <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.partsMapping.identifyPart.roleLabel') }}</label>
+              <label class="text-xs font-medium text-on-surface-variant">{{
+                t('exerciseWizards.partsMapping.identifyPart.roleLabel')
+              }}</label>
               <div class="flex flex-wrap gap-2">
                 <button
                   v-for="role in roleOptions"
                   :key="role.value"
                   class="exercise-pill px-3 py-1.5 text-xs neo-focus transition-all"
-                  :class="currentPartRole === role.value
-                    ? `${role.activeClass} shadow-neu-pressed`
-                    : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'"
+                  :class="
+                    currentPartRole === role.value
+                      ? `${role.activeClass} shadow-neu-pressed`
+                      : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'
+                  "
                   @click="currentPartRole = role.value"
                 >
                   {{ role.label }}
@@ -162,22 +197,30 @@
               </div>
             </div>
 
-            <p class="text-xs text-on-surface-variant italic">{{ t('exerciseWizards.partsMapping.identifyPart.roleHint') }}</p>
+            <p class="text-xs text-on-surface-variant italic">
+              {{ t('exerciseWizards.partsMapping.identifyPart.roleHint') }}
+            </p>
 
             <!-- Protector questions (managers, firefighters, unknown) -->
             <template v-if="currentPartRole !== 'exile'">
               <div class="space-y-1">
-                <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.partsMapping.identifyPart.protectionLabel') }}</label>
+                <label class="text-xs font-medium text-on-surface-variant">{{
+                  t('exerciseWizards.partsMapping.identifyPart.protectionLabel')
+                }}</label>
                 <textarea
                   v-model="currentPartPositiveIntention"
                   rows="2"
-                  :placeholder="t('exerciseWizards.partsMapping.identifyPart.protectionPlaceholder')"
+                  :placeholder="
+                    t('exerciseWizards.partsMapping.identifyPart.protectionPlaceholder')
+                  "
                   class="neo-input w-full p-3 text-sm resize-none"
                 />
               </div>
 
               <div class="space-y-1">
-                <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.partsMapping.identifyPart.fearLabel') }}</label>
+                <label class="text-xs font-medium text-on-surface-variant">{{
+                  t('exerciseWizards.partsMapping.identifyPart.fearLabel')
+                }}</label>
                 <textarea
                   v-model="currentPartFears"
                   rows="2"
@@ -190,21 +233,29 @@
             <!-- Exile questions: an exile doesn't protect — it carries and needs -->
             <template v-else>
               <div class="space-y-1">
-                <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.partsMapping.identifyPart.exileCarriesLabel') }}</label>
+                <label class="text-xs font-medium text-on-surface-variant">{{
+                  t('exerciseWizards.partsMapping.identifyPart.exileCarriesLabel')
+                }}</label>
                 <textarea
                   v-model="currentPartBurden"
                   rows="2"
-                  :placeholder="t('exerciseWizards.partsMapping.identifyPart.exileCarriesPlaceholder')"
+                  :placeholder="
+                    t('exerciseWizards.partsMapping.identifyPart.exileCarriesPlaceholder')
+                  "
                   class="neo-input w-full p-3 text-sm resize-none"
                 />
               </div>
 
               <div class="space-y-1">
-                <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.partsMapping.identifyPart.exileNeedsLabel') }}</label>
+                <label class="text-xs font-medium text-on-surface-variant">{{
+                  t('exerciseWizards.partsMapping.identifyPart.exileNeedsLabel')
+                }}</label>
                 <textarea
                   v-model="currentPartNeeds"
                   rows="2"
-                  :placeholder="t('exerciseWizards.partsMapping.identifyPart.exileNeedsPlaceholder')"
+                  :placeholder="
+                    t('exerciseWizards.partsMapping.identifyPart.exileNeedsPlaceholder')
+                  "
                   class="neo-input w-full p-3 text-sm resize-none"
                 />
               </div>
@@ -223,16 +274,34 @@
                 <PartRoleBadge :role="currentPartRole" />
               </div>
               <p v-if="currentPartPositiveIntention.trim()" class="text-xs text-on-surface-variant">
-                {{ t('exerciseWizards.partsMapping.identifyPart.protectsFrom', { text: currentPartPositiveIntention }) }}
+                {{
+                  t('exerciseWizards.partsMapping.identifyPart.protectsFrom', {
+                    text: currentPartPositiveIntention,
+                  })
+                }}
               </p>
               <p v-if="currentPartFears.trim()" class="text-xs text-on-surface-variant">
-                {{ t('exerciseWizards.partsMapping.identifyPart.fears', { text: currentPartFears }) }}
+                {{
+                  t('exerciseWizards.partsMapping.identifyPart.fears', { text: currentPartFears })
+                }}
               </p>
-              <p v-if="currentPartRole === 'exile' && currentPartBurden.trim()" class="text-xs text-on-surface-variant">
-                {{ t('exerciseWizards.partsMapping.identifyPart.carries', { text: currentPartBurden }) }}
+              <p
+                v-if="currentPartRole === 'exile' && currentPartBurden.trim()"
+                class="text-xs text-on-surface-variant"
+              >
+                {{
+                  t('exerciseWizards.partsMapping.identifyPart.carries', {
+                    text: currentPartBurden,
+                  })
+                }}
               </p>
-              <p v-if="currentPartRole === 'exile' && currentPartNeeds.trim()" class="text-xs text-on-surface-variant">
-                {{ t('exerciseWizards.partsMapping.identifyPart.needs', { text: currentPartNeeds }) }}
+              <p
+                v-if="currentPartRole === 'exile' && currentPartNeeds.trim()"
+                class="text-xs text-on-surface-variant"
+              >
+                {{
+                  t('exerciseWizards.partsMapping.identifyPart.needs', { text: currentPartNeeds })
+                }}
               </p>
             </AppCard>
           </AppCard>
@@ -250,7 +319,9 @@
       <template v-else-if="currentStep === 'add-more'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.partsMapping.addMore.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.partsMapping.addMore.title') }}
+            </h2>
 
             <div class="space-y-3">
               <AppCard
@@ -266,17 +337,27 @@
                     <PartRoleBadge :role="part.role" />
                   </div>
                   <p v-if="part.positiveIntention" class="text-xs text-on-surface-variant truncate">
-                    {{ t('exerciseWizards.partsMapping.identifyPart.protectsFrom', { text: part.positiveIntention }) }}
+                    {{
+                      t('exerciseWizards.partsMapping.identifyPart.protectsFrom', {
+                        text: part.positiveIntention,
+                      })
+                    }}
                   </p>
                   <p v-if="part.bodyLocations.length" class="text-xs text-on-surface-variant">
                     {{ part.bodyLocations.map(formatLocation).join(', ') }}
                   </p>
                 </div>
                 <div class="flex gap-1 shrink-0">
-                  <button class="neo-focus rounded-full p-1 text-on-surface-variant hover:text-primary" @click="editPart(idx)">
+                  <button
+                    class="neo-focus rounded-full p-1 text-on-surface-variant hover:text-primary"
+                    @click="editPart(idx)"
+                  >
                     <AppIcon name="edit" class="text-base" />
                   </button>
-                  <button class="neo-focus rounded-full p-1 text-on-surface-variant hover:text-error" @click="removePart(idx)">
+                  <button
+                    class="neo-focus rounded-full p-1 text-on-surface-variant hover:text-error"
+                    @click="removePart(idx)"
+                  >
                     <AppIcon name="delete" class="text-base" />
                   </button>
                 </div>
@@ -304,12 +385,19 @@
       <template v-else-if="currentStep === 'visual-map'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.partsMapping.visualMap.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.partsMapping.visualMap.title') }}
+            </h2>
             <ExerciseStepWhy :text="tg('exerciseWizards.partsMapping.visualMap.why')" />
 
             <!-- SVG Map -->
             <div class="neo-surface rounded-2xl p-4" style="min-height: 300px">
-              <svg :width="mapWidth" :height="mapHeight" :viewBox="`0 0 ${mapWidth} ${mapHeight}`" class="w-full">
+              <svg
+                :width="mapWidth"
+                :height="mapHeight"
+                :viewBox="`0 0 ${mapWidth} ${mapHeight}`"
+                class="w-full"
+              >
                 <!-- Relationship lines -->
                 <line
                   v-for="(rel, idx) in relationships"
@@ -320,11 +408,27 @@
                   :y2="partPosition(getPartIndex(rel.toPartId)).y"
                   :stroke="relationshipColor(rel.type)"
                   stroke-width="2"
-                  :stroke-dasharray="rel.type === 'protects' || rel.type === 'triggers' ? '6 3' : 'none'"
+                  :stroke-dasharray="
+                    rel.type === 'protects' || rel.type === 'triggers' ? '6 3' : 'none'
+                  "
                 />
                 <!-- Self circle -->
-                <circle :cx="mapWidth / 2" :cy="mapHeight / 2" r="28" class="fill-primary/20 stroke-primary" stroke-width="2" />
-                <text :x="mapWidth / 2" :y="mapHeight / 2" text-anchor="middle" dominant-baseline="middle" class="fill-primary text-xs font-bold select-none">{{ t('exerciseWizards.partsMapping.visualMap.self') }}</text>
+                <circle
+                  :cx="mapWidth / 2"
+                  :cy="mapHeight / 2"
+                  r="28"
+                  class="fill-primary/20 stroke-primary"
+                  stroke-width="2"
+                />
+                <text
+                  :x="mapWidth / 2"
+                  :y="mapHeight / 2"
+                  text-anchor="middle"
+                  dominant-baseline="middle"
+                  class="fill-primary text-xs font-bold select-none"
+                >
+                  {{ t('exerciseWizards.partsMapping.visualMap.self') }}
+                </text>
                 <!-- Part circles -->
                 <g
                   v-for="(part, idx) in identifiedParts"
@@ -337,10 +441,17 @@
                     r="24"
                     :class="[
                       partFillClass(part.role),
-                      selectedPartIndices.includes(idx) ? 'stroke-primary stroke-[3]' : 'stroke-current stroke-1',
+                      selectedPartIndices.includes(idx)
+                        ? 'stroke-primary stroke-[3]'
+                        : 'stroke-current stroke-1',
                     ]"
                   />
-                  <text y="1" text-anchor="middle" dominant-baseline="middle" class="fill-on-surface text-[10px] font-medium select-none pointer-events-none">
+                  <text
+                    y="1"
+                    text-anchor="middle"
+                    dominant-baseline="middle"
+                    class="fill-on-surface text-[10px] font-medium select-none pointer-events-none"
+                  >
                     {{ part.name.length > 8 ? part.name.slice(0, 7) + '…' : part.name }}
                   </text>
                 </g>
@@ -350,9 +461,13 @@
             <!-- Relationship builder -->
             <div class="space-y-2">
               <p class="text-sm text-on-surface-variant">
-                {{ selectedPartIndices.length === 0 ? t('exerciseWizards.partsMapping.visualMap.instructions.tapTwo') :
-                   selectedPartIndices.length === 1 ? t('exerciseWizards.partsMapping.visualMap.instructions.tapSecond') :
-                   t('exerciseWizards.partsMapping.visualMap.instructions.chooseType') }}
+                {{
+                  selectedPartIndices.length === 0
+                    ? t('exerciseWizards.partsMapping.visualMap.instructions.tapTwo')
+                    : selectedPartIndices.length === 1
+                      ? t('exerciseWizards.partsMapping.visualMap.instructions.tapSecond')
+                      : t('exerciseWizards.partsMapping.visualMap.instructions.chooseType')
+                }}
               </p>
               <div v-if="selectedPartIndices.length === 2" class="flex flex-wrap gap-2">
                 <button
@@ -368,7 +483,9 @@
 
             <!-- Relationship list -->
             <div v-if="relationships.length" class="space-y-2">
-              <p class="text-xs font-medium text-on-surface-variant uppercase tracking-wide">{{ t('exerciseWizards.partsMapping.visualMap.relationships.heading') }}</p>
+              <p class="text-xs font-medium text-on-surface-variant uppercase tracking-wide">
+                {{ t('exerciseWizards.partsMapping.visualMap.relationships.heading') }}
+              </p>
               <div
                 v-for="(rel, idx) in relationships"
                 :key="`rlist-${idx}`"
@@ -376,10 +493,15 @@
               >
                 <span class="text-on-surface">
                   {{ getPartName(rel.fromPartId) }}
-                  <span class="text-on-surface-variant mx-1">{{ formatRelationshipType(rel.type) }}</span>
+                  <span class="text-on-surface-variant mx-1">{{
+                    formatRelationshipType(rel.type)
+                  }}</span>
                   {{ getPartName(rel.toPartId) }}
                 </span>
-                <button class="neo-focus rounded-full p-1 text-on-surface-variant hover:text-error" @click="removeRelationship(idx)">
+                <button
+                  class="neo-focus rounded-full p-1 text-on-surface-variant hover:text-error"
+                  @click="removeRelationship(idx)"
+                >
                   <AppIcon name="close" class="text-sm" />
                 </button>
               </div>
@@ -388,7 +510,9 @@
 
           <div class="flex justify-between">
             <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
-            <AppButton variant="filled" @click="nextStep()">{{ t('common.buttons.next') }}</AppButton>
+            <AppButton variant="filled" @click="nextStep()">{{
+              t('common.buttons.next')
+            }}</AppButton>
           </div>
         </div>
       </template>
@@ -397,7 +521,9 @@
       <template v-else-if="currentStep === 'reflection'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">{{ tg('exerciseWizards.partsMapping.reflection.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ tg('exerciseWizards.partsMapping.reflection.title') }}
+            </h2>
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.partsMapping.reflection.description') }}
             </p>
@@ -416,7 +542,11 @@
                 @click="handleFetchInsight"
               >
                 <AppIcon name="auto_awesome" class="text-base mr-1" />
-                {{ isLoadingLLM ? t('exerciseWizards.partsMapping.reflection.aiButtonLoading') : t('exerciseWizards.partsMapping.reflection.aiButton') }}
+                {{
+                  isLoadingLLM
+                    ? t('exerciseWizards.partsMapping.reflection.aiButtonLoading')
+                    : t('exerciseWizards.partsMapping.reflection.aiButton')
+                }}
               </AppButton>
               <ProfileContextToggle v-model="useProfileReflection" />
             </div>
@@ -431,7 +561,9 @@
 
           <div class="flex justify-between">
             <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
-            <AppButton variant="filled" @click="nextStep()">{{ t('common.buttons.next') }}</AppButton>
+            <AppButton variant="filled" @click="nextStep()">{{
+              t('common.buttons.next')
+            }}</AppButton>
           </div>
         </div>
       </template>
@@ -440,7 +572,9 @@
       <template v-else-if="currentStep === 'life-areas'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.partsMapping.lifeAreas.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.partsMapping.lifeAreas.title') }}
+            </h2>
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.partsMapping.lifeAreas.description') }}
             </p>
@@ -456,9 +590,11 @@
                     v-for="area in lifeAreas"
                     :key="area.id"
                     class="exercise-pill px-2.5 py-1 text-xs neo-focus transition-all"
-                    :class="isLifeAreaSelected(idx, area.id)
-                      ? 'bg-primary/20 text-primary shadow-neu-pressed'
-                      : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'"
+                    :class="
+                      isLifeAreaSelected(idx, area.id)
+                        ? 'bg-primary/20 text-primary shadow-neu-pressed'
+                        : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'
+                    "
                     @click="toggleLifeArea(idx, area.id)"
                   >
                     {{ area.name }}
@@ -473,7 +609,9 @@
 
           <div class="flex justify-between">
             <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
-            <AppButton variant="filled" @click="nextStep()">{{ t('common.buttons.next') }}</AppButton>
+            <AppButton variant="filled" @click="nextStep()">{{
+              t('common.buttons.next')
+            }}</AppButton>
           </div>
         </div>
       </template>
@@ -483,15 +621,26 @@
         <div class="space-y-6">
           <AppCard variant="raised" padding="lg" class="space-y-5">
             <div>
-              <h2 class="text-lg font-bold text-on-surface">{{ t('exerciseWizards.partsMapping.summary.title') }}</h2>
+              <h2 class="text-lg font-bold text-on-surface">
+                {{ t('exerciseWizards.partsMapping.summary.title') }}
+              </h2>
               <p class="text-xs text-on-surface-variant mt-1">
-                {{ tp(identifiedParts.length, 'exerciseWizards.partsMapping.summary.partCount.one', 'exerciseWizards.partsMapping.summary.partCount.few', 'exerciseWizards.partsMapping.summary.partCount.many') }}
+                {{
+                  tp(
+                    identifiedParts.length,
+                    'exerciseWizards.partsMapping.summary.partCount.one',
+                    'exerciseWizards.partsMapping.summary.partCount.few',
+                    'exerciseWizards.partsMapping.summary.partCount.many'
+                  )
+                }}
               </p>
             </div>
 
             <!-- Parts List -->
             <div class="space-y-2">
-              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('exerciseWizards.partsMapping.summary.sections.parts') }}</p>
+              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+                {{ t('exerciseWizards.partsMapping.summary.sections.parts') }}
+              </p>
               <AppCard
                 v-for="(part, idx) in identifiedParts"
                 :key="idx"
@@ -504,25 +653,28 @@
                   <PartRoleBadge :role="part.role" />
                 </div>
                 <p v-if="part.positiveIntention" class="text-xs text-on-surface-variant">
-                  {{ t('exerciseWizards.partsMapping.identifyPart.protectsFrom', { text: part.positiveIntention }) }}
+                  {{
+                    t('exerciseWizards.partsMapping.identifyPart.protectsFrom', {
+                      text: part.positiveIntention,
+                    })
+                  }}
                 </p>
                 <p v-if="part.fears" class="text-xs text-on-surface-variant">
                   {{ t('exerciseWizards.partsMapping.identifyPart.fears', { text: part.fears }) }}
                 </p>
                 <p v-if="part.bodyLocations.length" class="text-xs text-on-surface-variant">
-                  {{ t('exerciseWizards.partsMapping.summary.bodyPrefix') }} {{ part.bodyLocations.map(formatLocation).join(', ') }}
+                  {{ t('exerciseWizards.partsMapping.summary.bodyPrefix') }}
+                  {{ part.bodyLocations.map(formatLocation).join(', ') }}
                 </p>
               </AppCard>
             </div>
 
             <!-- Relationships -->
             <div v-if="relationships.length" class="space-y-2">
-              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('exerciseWizards.partsMapping.summary.sections.relationships') }}</p>
-              <p
-                v-for="(rel, idx) in relationships"
-                :key="idx"
-                class="text-sm text-on-surface"
-              >
+              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+                {{ t('exerciseWizards.partsMapping.summary.sections.relationships') }}
+              </p>
+              <p v-for="(rel, idx) in relationships" :key="idx" class="text-sm text-on-surface">
                 {{ getPartName(rel.fromPartId) }}
                 <span class="text-on-surface-variant">{{ formatRelationshipType(rel.type) }}</span>
                 {{ getPartName(rel.toPartId) }}
@@ -531,13 +683,17 @@
 
             <!-- Reflection -->
             <div v-if="reflection.trim()" class="space-y-1">
-              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('exerciseWizards.partsMapping.summary.sections.reflection') }}</p>
+              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+                {{ t('exerciseWizards.partsMapping.summary.sections.reflection') }}
+              </p>
               <p class="text-sm text-on-surface">{{ reflection }}</p>
             </div>
 
             <!-- LLM Insight -->
             <div v-if="llmInsight" class="space-y-1">
-              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('exerciseWizards.partsMapping.summary.sections.aiInsights') }}</p>
+              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+                {{ t('exerciseWizards.partsMapping.summary.sections.aiInsights') }}
+              </p>
               <p class="text-sm text-on-surface whitespace-pre-wrap">{{ llmInsight }}</p>
             </div>
 
@@ -552,7 +708,9 @@
             </div>
 
             <div class="space-y-1">
-              <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.partsMapping.summary.notesLabel') }}</label>
+              <label class="text-xs font-medium text-on-surface-variant">{{
+                t('exerciseWizards.partsMapping.summary.notesLabel')
+              }}</label>
               <textarea
                 v-model="notes"
                 rows="2"
@@ -565,7 +723,11 @@
           <div class="flex justify-between">
             <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
             <AppButton variant="filled" :disabled="isSaving" @click="handleSave">
-              {{ isSaving ? t('exerciseWizards.partsMapping.summary.saving') : t('exerciseWizards.partsMapping.summary.saveButton') }}
+              {{
+                isSaving
+                  ? t('exerciseWizards.partsMapping.summary.saving')
+                  : t('exerciseWizards.partsMapping.summary.saveButton')
+              }}
             </AppButton>
           </div>
         </div>
@@ -604,7 +766,11 @@ const emit = defineEmits<{
 
 const { t, tg, tp } = useT()
 
-const { formatBodyLocation: formatLocation, formatRelationshipType, unknownPartName } = useIfsLabels()
+const {
+  formatBodyLocation: formatLocation,
+  formatRelationshipType,
+  unknownPartName,
+} = useIfsLabels()
 
 const lifeAreaStore = useLifeAreaStore()
 const lifeAreas = computed(() => lifeAreaStore.lifeAreas)
@@ -612,8 +778,14 @@ const userPreferencesStore = useUserPreferencesStore()
 const useProfileReflection = ref(userPreferencesStore.profileContextDefault)
 
 const STEPS: PartsMappingStep[] = [
-  'intro', 'trailhead', 'identify-part', 'add-more',
-  'visual-map', 'reflection', 'life-areas', 'summary',
+  'intro',
+  'trailhead',
+  'identify-part',
+  'add-more',
+  'visual-map',
+  'reflection',
+  'life-areas',
+  'summary',
 ]
 
 const stepLabels = computed(() => [
@@ -673,18 +845,49 @@ const activeEmotionQuadrantTrailhead = ref<Quadrant | null>(null)
 const activeEmotionQuadrantSummary = ref<Quadrant | null>(null)
 
 const roleOptions = computed(() => [
-  { value: 'manager' as IFSPartRole, label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.manager'), activeClass: `${IFS_ROLE_CLASSES.manager.bg} ${IFS_ROLE_CLASSES.manager.text}` },
-  { value: 'firefighter' as IFSPartRole, label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.firefighter'), activeClass: `${IFS_ROLE_CLASSES.firefighter.bg} ${IFS_ROLE_CLASSES.firefighter.text}` },
-  { value: 'exile' as IFSPartRole, label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.exile'), activeClass: `${IFS_ROLE_CLASSES.exile.bg} ${IFS_ROLE_CLASSES.exile.text}` },
-  { value: 'unknown' as IFSPartRole, label: tg('exerciseWizards.shared.ifs.partSelector.roleOptions.notSure'), activeClass: 'bg-neu-base text-on-surface' },
+  {
+    value: 'manager' as IFSPartRole,
+    label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.manager'),
+    activeClass: `${IFS_ROLE_CLASSES.manager.bg} ${IFS_ROLE_CLASSES.manager.text}`,
+  },
+  {
+    value: 'firefighter' as IFSPartRole,
+    label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.firefighter'),
+    activeClass: `${IFS_ROLE_CLASSES.firefighter.bg} ${IFS_ROLE_CLASSES.firefighter.text}`,
+  },
+  {
+    value: 'exile' as IFSPartRole,
+    label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.exile'),
+    activeClass: `${IFS_ROLE_CLASSES.exile.bg} ${IFS_ROLE_CLASSES.exile.text}`,
+  },
+  {
+    value: 'unknown' as IFSPartRole,
+    label: tg('exerciseWizards.shared.ifs.partSelector.roleOptions.notSure'),
+    activeClass: 'bg-neu-base text-on-surface',
+  },
 ])
 
 const relationshipTypes = computed(() => [
-  { value: 'protects' as IFSRelationship['type'], label: t('exerciseWizards.partsMapping.visualMap.relationships.protects') },
-  { value: 'polarized' as IFSRelationship['type'], label: t('exerciseWizards.partsMapping.visualMap.relationships.polarized') },
-  { value: 'allied' as IFSRelationship['type'], label: t('exerciseWizards.partsMapping.visualMap.relationships.allied') },
-  { value: 'triggers' as IFSRelationship['type'], label: t('exerciseWizards.partsMapping.visualMap.relationships.triggers') },
-  { value: 'soothes' as IFSRelationship['type'], label: t('exerciseWizards.partsMapping.visualMap.relationships.soothes') },
+  {
+    value: 'protects' as IFSRelationship['type'],
+    label: t('exerciseWizards.partsMapping.visualMap.relationships.protects'),
+  },
+  {
+    value: 'polarized' as IFSRelationship['type'],
+    label: t('exerciseWizards.partsMapping.visualMap.relationships.polarized'),
+  },
+  {
+    value: 'allied' as IFSRelationship['type'],
+    label: t('exerciseWizards.partsMapping.visualMap.relationships.allied'),
+  },
+  {
+    value: 'triggers' as IFSRelationship['type'],
+    label: t('exerciseWizards.partsMapping.visualMap.relationships.triggers'),
+  },
+  {
+    value: 'soothes' as IFSRelationship['type'],
+    label: t('exerciseWizards.partsMapping.visualMap.relationships.soothes'),
+  },
 ])
 
 // Visual Map
@@ -714,7 +917,7 @@ function relationshipColor(type: IFSRelationship['type']): string {
 function togglePartSelection(idx: number) {
   const indices = selectedPartIndices.value
   if (indices.includes(idx)) {
-    selectedPartIndices.value = indices.filter((i) => i !== idx)
+    selectedPartIndices.value = indices.filter(i => i !== idx)
   } else if (indices.length < 2) {
     selectedPartIndices.value = [...indices, idx]
   } else {
@@ -742,7 +945,6 @@ function getPartIndex(tempId: string): number {
   return parseInt(tempId.replace('temp-', ''), 10)
 }
 
-
 // Life Area toggling
 function isLifeAreaSelected(partIdx: number, areaId: string): boolean {
   return partLifeAreaIds.value[partIdx]?.includes(areaId) ?? false
@@ -751,14 +953,14 @@ function isLifeAreaSelected(partIdx: number, areaId: string): boolean {
 function toggleLifeArea(partIdx: number, areaId: string) {
   const current = partLifeAreaIds.value[partIdx] ?? []
   if (current.includes(areaId)) {
-    partLifeAreaIds.value[partIdx] = current.filter((id) => id !== areaId)
+    partLifeAreaIds.value[partIdx] = current.filter(id => id !== areaId)
   } else {
     partLifeAreaIds.value[partIdx] = [...current, areaId]
   }
 }
 
 async function handleFetchInsight() {
-  const lifeAreaNames = lifeAreas.value.map((a) => a.name)
+  const lifeAreaNames = lifeAreas.value.map(a => a.name)
   await fetchLLMInsight({ lifeAreaNames, useProfile: useProfileReflection.value })
 }
 

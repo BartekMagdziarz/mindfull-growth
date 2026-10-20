@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { classifyPair, pairColor, pairInk, toRating, verdictSentence, type Rating } from '../loadState'
+import {
+  classifyPair,
+  pairColor,
+  pairInk,
+  toRating,
+  verdictSentence,
+  type Rating,
+} from '../loadState'
 
 const R = [1, 2, 3, 4, 5] as Rating[]
 
@@ -28,7 +35,8 @@ describe('loadState · classifyPair', () => {
 
   it('covers all 25 pairs without throwing and never returns an unknown quadrant', () => {
     const known = new Set(['recovery', 'strain', 'ease', 'low', 'neutral'])
-    for (const load of R) for (const state of R) expect(known.has(classifyPair(load, state).quadrant)).toBe(true)
+    for (const load of R)
+      for (const state of R) expect(known.has(classifyPair(load, state).quadrant)).toBe(true)
   })
 })
 
@@ -45,7 +53,9 @@ describe('loadState · colours', () => {
   })
 
   it('mixes neighbours for load = 3', () => {
-    expect(pairColor(3, 5)).toMatch(/^color-mix\(in oklab, var\(--color-quadrant-low-energy-high-pleasantness\) 50%, rgb\(var\(--sky-600\)\)\)$/)
+    expect(pairColor(3, 5)).toMatch(
+      /^color-mix\(in oklab, var\(--color-quadrant-low-energy-high-pleasantness\) 50%, rgb\(var\(--sky-600\)\)\)$/
+    )
     expect(pairInk(3, 5)).toBe('rgb(var(--sky-800))')
   })
 

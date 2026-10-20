@@ -14,4 +14,3 @@ export interface ContextTagRepository {
   create(data: { name: string }): Promise<ContextTag>
   delete(id: string): Promise<void>
 }
-

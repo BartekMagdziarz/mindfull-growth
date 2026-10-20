@@ -1,7 +1,9 @@
 <template>
   <div class="pc" :class="{ 'pc--compact': compact }" data-testid="path-parts-chart">
     <div class="pc__legend" :aria-label="t('programs.glance.partsLegend')">
-      <small class="pc__legend-head" :class="{ 'is-on': legendHead }">{{ legendHead || ' ' }}</small>
+      <small class="pc__legend-head" :class="{ 'is-on': legendHead }">{{
+        legendHead || ' '
+      }}</small>
       <div
         v-for="row in legend"
         :key="row.part"
@@ -9,11 +11,19 @@
         :class="{ 'is-dominant': row.dominant, 'is-zero': row.count === 0 }"
       >
         <i :style="partStyle(row.part)" /><span class="pc__legend-name">{{ row.label }}</span
-        ><span class="pc__legend-n">{{ row.count === null ? '' : row.count || '·' }}<em v-if="row.later"> (+{{ row.later }})</em></span>
+        ><span class="pc__legend-n"
+          >{{ row.count === null ? '' : row.count || '·'
+          }}<em v-if="row.later"> (+{{ row.later }})</em></span
+        >
       </div>
     </div>
     <div class="pc__plot" @mouseleave="hovered = null">
-      <div class="pc__weeks" :style="{ '--cols': columns }" role="img" :aria-label="t('programs.glance.whoTakesWheel')">
+      <div
+        class="pc__weeks"
+        :style="{ '--cols': columns }"
+        role="img"
+        :aria-label="t('programs.glance.whoTakesWheel')"
+      >
         <div
           v-for="(col, i) in weekColumns"
           :key="col.key"
@@ -26,8 +36,18 @@
           @blur="hovered = null"
         >
           <span class="pc__col">
-            <i v-if="col.unloggedHeight" class="pc__unlogged" :style="{ height: `${col.unloggedHeight * 100}%` }" />
-            <i v-for="seg in col.segments" :key="seg.key" class="pc__seg" :class="{ 'is-later': seg.later }" :style="{ ...partStyle(seg.part), flexBasis: `${seg.share * 100}%` }" />
+            <i
+              v-if="col.unloggedHeight"
+              class="pc__unlogged"
+              :style="{ height: `${col.unloggedHeight * 100}%` }"
+            />
+            <i
+              v-for="seg in col.segments"
+              :key="seg.key"
+              class="pc__seg"
+              :class="{ 'is-later': seg.later }"
+              :style="{ ...partStyle(seg.part), flexBasis: `${seg.share * 100}%` }"
+            />
           </span>
         </div>
       </div>
@@ -73,7 +93,7 @@ const props = withDefaults(
     /** Per weekRef, how many Moments of each part were written down later (drawn hatched). */
     backfilled?: Partial<Record<string, Partial<Record<ReactionKey, number>>>>
   }>(),
-  { slots: undefined, firstWeek: 1, compact: false, backfilled: () => ({}) },
+  { slots: undefined, firstWeek: 1, compact: false, backfilled: () => ({}) }
 )
 
 const { t, tg, tp } = useT()
@@ -87,7 +107,12 @@ const label = (part: ReactionKey) =>
     ? t('programs.glance.selfShort')
     : tg(`exerciseWizards.micro.moments.${family.value.reactionStep}.options.${part}`)
 const momentsCount = (n: number) =>
-  tp(n, 'programs.glance.momentsCount.one', 'programs.glance.momentsCount.few', 'programs.glance.momentsCount.many')
+  tp(
+    n,
+    'programs.glance.momentsCount.one',
+    'programs.glance.momentsCount.few',
+    'programs.glance.momentsCount.many'
+  )
 
 interface Dominant {
   part: ReactionKey
@@ -97,13 +122,15 @@ interface Dominant {
 /** Who took the wheel most often this week; ties go to the earlier key in the stacking order ("Ja" first). */
 function dominantPart(week: MomentsWeekStats): Dominant | null {
   if (!week.total) return null
-  const max = Math.max(...order.value.map((part) => week.byPart[part] ?? 0))
-  const winners = order.value.filter((part) => (week.byPart[part] ?? 0) === max)
+  const max = Math.max(...order.value.map(part => week.byPart[part] ?? 0))
+  const winners = order.value.filter(part => (week.byPart[part] ?? 0) === max)
   return { part: winners[0]!, count: max, tiedWith: winners.slice(1) }
 }
 
 /* The compact chart keeps a floor of four, so two Moments do not fill the whole height. */
-const maxTotal = computed(() => Math.max(props.compact ? 4 : 1, ...props.stats.map((week) => week.total + (week.unlogged ?? 0))))
+const maxTotal = computed(() =>
+  Math.max(props.compact ? 4 : 1, ...props.stats.map(week => week.total + (week.unlogged ?? 0)))
+)
 
 interface Segment {
   key: string
@@ -146,8 +173,10 @@ const weekColumns = computed<WeekColumn[]>(() =>
       const count = week.byPart[part] ?? 0
       const hatched = Math.min(count, later[part] ?? 0)
       const solid = count - hatched
-      if (solid > 0) segments.push({ key: `${part}-solid`, part, share: solid / maxTotal.value, later: false })
-      if (hatched > 0) segments.push({ key: `${part}-later`, part, share: hatched / maxTotal.value, later: true })
+      if (solid > 0)
+        segments.push({ key: `${part}-solid`, part, share: solid / maxTotal.value, later: false })
+      if (hatched > 0)
+        segments.push({ key: `${part}-later`, part, share: hatched / maxTotal.value, later: true })
     }
     return {
       key: label,
@@ -159,18 +188,20 @@ const weekColumns = computed<WeekColumn[]>(() =>
       dominant,
       title: `${label}: ${momentsCount(week.total)}${week.unlogged ? ` · ${t('programs.glance.unloggedPlus', { n: week.unlogged })}` : ''}`,
     }
-  }),
+  })
 )
 
 /** The hovered / focused week (index into weekColumns), or null. */
 const hovered = ref<number | null>(null)
-const hoveredWeek = computed(() => (hovered.value === null ? null : (weekColumns.value[hovered.value] ?? null)))
+const hoveredWeek = computed(() =>
+  hovered.value === null ? null : (weekColumns.value[hovered.value] ?? null)
+)
 /** The legend on the left: names always; the hovered week's counts when there is one, every part tied for the top in bold. */
 const legend = computed(() => {
   const week = hoveredWeek.value?.week && !hoveredWeek.value.quiet ? hoveredWeek.value.week : null
   const dominant = week ? dominantPart(week) : null
   const top = dominant ? new Set([dominant.part, ...dominant.tiedWith]) : new Set<ReactionKey>()
-  return [...order.value].reverse().map((part) => ({
+  return [...order.value].reverse().map(part => ({
     part,
     label: label(part),
     count: week ? (week.byPart[part] ?? 0) : null,
@@ -182,7 +213,9 @@ const legendHead = computed(() => {
   const col = hoveredWeek.value
   if (!col || !col.week) return ''
   if (col.quiet) return `${col.label} · ${t('programs.glance.quietWeekShort')}`
-  const unlogged = col.week.unlogged ? ` · ${t('programs.glance.unloggedPlus', { n: col.week.unlogged })}` : ''
+  const unlogged = col.week.unlogged
+    ? ` · ${t('programs.glance.unloggedPlus', { n: col.week.unlogged })}`
+    : ''
   return `${col.label} · ${momentsCount(col.week.total)}${unlogged}`
 })
 </script>

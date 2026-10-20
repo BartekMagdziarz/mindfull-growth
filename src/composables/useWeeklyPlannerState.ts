@@ -1,6 +1,12 @@
 import { computed, nextTick, ref, watch } from 'vue'
 import type { Ref } from 'vue'
-import type { Habit, KeyResult, MeasurementTarget, Tracker, WeeklyIntention } from '@/domain/planning'
+import type {
+  Habit,
+  KeyResult,
+  MeasurementTarget,
+  Tracker,
+  WeeklyIntention,
+} from '@/domain/planning'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import type {
   GoalMonthState,
@@ -15,7 +21,11 @@ import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepositor
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
 import { weeklyIntentionDexieRepository } from '@/repositories/weeklyIntentionDexieRepository'
-import { isGoalOpen, isInitiativeActive, isMeasurementSubjectOpen } from '@/services/planningVisibility'
+import {
+  isGoalOpen,
+  isInitiativeActive,
+  isMeasurementSubjectOpen,
+} from '@/services/planningVisibility'
 import {
   materializeMeasurementDayAssignments,
   materializeMeasurementWeekPlacements,
@@ -82,9 +92,7 @@ export function useWeeklyPlannerState(
 
   const weekdayHeaders = computed(() => {
     const formatter = new Intl.DateTimeFormat(locale.value, { weekday: 'short' })
-    return weekDayRefs.value.map(dayRef =>
-      formatter.format(new Date(`${dayRef}T00:00:00`))
-    )
+    return weekDayRefs.value.map(dayRef => formatter.format(new Date(`${dayRef}T00:00:00`)))
   })
 
   const monthBadgeFormatter = computed(
@@ -190,9 +198,8 @@ export function useWeeklyPlannerState(
     // weekly-cadence rows use the month-agnostic state.
     const governingWeekState =
       item.cadence === 'monthly'
-        ? relevantWeekStates.find(
-            state => state.sourceMonthRef === parentMonthRef.value
-          ) ?? relevantWeekStates[0]
+        ? (relevantWeekStates.find(state => state.sourceMonthRef === parentMonthRef.value) ??
+          relevantWeekStates[0])
         : relevantWeekStates.find(state => !state.sourceMonthRef)
 
     const scheduledDayRefs = dayAssignments
@@ -207,9 +214,7 @@ export function useWeeklyPlannerState(
     const itemIcon = 'icon' in item ? (item as { icon?: string }).icon : undefined
     const resolvedIcon =
       itemIcon ??
-      ('goalId' in item && goalIconMap
-        ? goalIconMap.get((item as KeyResult).goalId)
-        : undefined)
+      ('goalId' in item && goalIconMap ? goalIconMap.get((item as KeyResult).goalId) : undefined)
 
     return {
       id: item.id,
@@ -305,11 +310,7 @@ export function useWeeklyPlannerState(
   /** Week target pill is editable only on rows placed in this week (active ⇔ placed:
    * writing an override on an unplaced row would resurrect an unassigned state). */
   function weekTargetEditable(row: PlannerMeasurementRow): boolean {
-    return (
-      row.subjectType !== 'tracker' &&
-      Boolean(editableTarget(row)) &&
-      rowHasWeekPlacement(row)
-    )
+    return row.subjectType !== 'tracker' && Boolean(editableTarget(row)) && rowHasWeekPlacement(row)
   }
 
   function goalSectionFor(row: PlannerMeasurementRow): GoalSection | undefined {
@@ -450,9 +451,7 @@ export function useWeeklyPlannerState(
       }))
 
       habitRows.value = openHabits
-        .map(item =>
-          buildMeasurementRow(item, 'habit', monthStateMap, weekStates, dayAssignments)
-        )
+        .map(item => buildMeasurementRow(item, 'habit', monthStateMap, weekStates, dayAssignments))
         .filter(isVisible)
 
       trackerRows.value = openTrackers
@@ -479,9 +478,8 @@ export function useWeeklyPlannerState(
               Boolean(planState.dayRef && weekDays.has(planState.dayRef))
             : false
 
-          const assignedDayRefs: DayRef[] = planState?.dayRef && weekDays.has(planState.dayRef)
-            ? [planState.dayRef]
-            : []
+          const assignedDayRefs: DayRef[] =
+            planState?.dayRef && weekDays.has(planState.dayRef) ? [planState.dayRef] : []
 
           return {
             id: initiative.id,
@@ -556,10 +554,7 @@ export function useWeeklyPlannerState(
 
   /** Toggle a single day cell, materializing soft coverage first so the rest of
    * the whole-week / whole-month coverage never silently collapses. */
-  async function handleMatrixCellToggle(
-    row: PlannerMeasurementRow,
-    dayRef: DayRef
-  ): Promise<void> {
+  async function handleMatrixCellToggle(row: PlannerMeasurementRow, dayRef: DayRef): Promise<void> {
     // Turning a day ON past the goal's deadline: ask to move the deadline
     // instead of writing (or silently failing). Turning OFF is always allowed.
     if (dayCellState(row, dayRef) === 'empty' && isDayBeyondGoalEnd(row, dayRef)) {

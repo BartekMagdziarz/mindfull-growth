@@ -1,7 +1,5 @@
 <template>
-  <article
-    class="group/card mg-v2-surface mg-v2-surface--raised-sm p-3.5"
-  >
+  <article class="group/card mg-v2-surface mg-v2-surface--raised-sm p-3.5">
     <div class="space-y-2">
       <!-- Row 1: Icon + Title + hover tray (menu w/ status) -->
       <div class="flex items-center gap-2">
@@ -78,7 +76,11 @@
                   class="block w-full px-3 py-2 text-left text-xs font-medium text-on-surface hover:bg-primary-soft/30"
                   @click="handleArchive"
                 >
-                  {{ item.isActive ? t('planning.objects.actions.archive') : t('planning.objects.actions.unarchive') }}
+                  {{
+                    item.isActive
+                      ? t('planning.objects.actions.archive')
+                      : t('planning.objects.actions.unarchive')
+                  }}
                 </button>
                 <button
                   type="button"
@@ -96,8 +98,12 @@
       <!-- Row 2: status only when it is not the default -->
       <p v-if="statusLabel || !item.isActive" class="mg-v2-meta px-1">
         <span v-if="statusLabel" class="mg-v2-meta__status">{{ statusLabel }}</span>
-        <span v-if="item.goalClosingReflection">{{ t('planning.goalClosing.outcome.' + item.goalClosingReflection.outcome) }}</span>
-        <span v-if="item.goalClosingReflection">{{ formatDayShort(item.goalClosingReflection.closedAt as DayRef, locale) }}</span>
+        <span v-if="item.goalClosingReflection">{{
+          t('planning.goalClosing.outcome.' + item.goalClosingReflection.outcome)
+        }}</span>
+        <span v-if="item.goalClosingReflection">{{
+          formatDayShort(item.goalClosingReflection.closedAt as DayRef, locale)
+        }}</span>
         <span v-if="!item.isActive">{{ t('planning.objects.badges.archived') }}</span>
       </p>
 
@@ -154,19 +160,16 @@
     />
 
     <!-- Key Results section -->
-    <section
-      v-if="item.childPreviews && item.childPreviews.length > 0"
-      class="mt-3.5 space-y-1.5"
-    >
+    <section v-if="item.childPreviews && item.childPreviews.length > 0" class="mt-3.5 space-y-1.5">
       <ObjectsLibraryKrCard
         v-for="child in item.childPreviews"
         :key="child.id"
         :child="child"
         :parent-goal-id="item.id"
-        :save-periods="saveKrPeriods ? (refs) => saveKrPeriods!(child.id, refs) : undefined"
+        :save-periods="saveKrPeriods ? refs => saveKrPeriods!(child.id, refs) : undefined"
         :is-expanded="expandedKrId === child.id"
         :linked-periods="expandedKrId === child.id ? expandedKrPeriods : []"
-        :goal-linked-month-refs="linkedMonths.map((m) => m.monthRef)"
+        :goal-linked-month-refs="linkedMonths.map(m => m.monthRef)"
         :cadence-options="cadenceOptions"
         :entry-mode-options="entryModeOptions"
         :status-options="krStatusOptions"
@@ -221,8 +224,12 @@ const props = defineProps<{
   cadenceOptions: Array<{ value: string; label: string }>
   entryModeOptions: Array<{ value: string; label: string }>
   krStatusOptions: Array<{ value: string; label: string }>
-  krTargetOperatorOptions: (entryMode: MeasurementEntryMode) => Array<{ value: string; label: string }>
-  krTargetAggregationOptions: (entryMode: MeasurementEntryMode) => Array<{ value: string; label: string }>
+  krTargetOperatorOptions: (
+    entryMode: MeasurementEntryMode
+  ) => Array<{ value: string; label: string }>
+  krTargetAggregationOptions: (
+    entryMode: MeasurementEntryMode
+  ) => Array<{ value: string; label: string }>
   krShowTargetAggregation: (entryMode: MeasurementEntryMode) => boolean
   saveMonths?: (refs: string[]) => Promise<void>
   saveKrPeriods?: (id: string, refs: string[]) => Promise<void>
@@ -258,9 +265,13 @@ function emitFieldChange(field: string, value: unknown): void {
   emit('field-change', props.item.id, field, value)
 }
 
-const { value: title, inputRef: titleRef, flush: flushTitle } = useEditableField({
+const {
+  value: title,
+  inputRef: titleRef,
+  flush: flushTitle,
+} = useEditableField({
   source: () => props.item.title,
-  commit: (value) => emitFieldChange('title', value),
+  commit: value => emitFieldChange('title', value),
   delay: 400,
 })
 
@@ -271,11 +282,11 @@ const goalWindow = computed(() =>
     {
       startDate: props.item.startDate,
       targetDate: props.item.targetDate,
-      monthRefs: props.linkedMonths.map((month) => month.monthRef),
+      monthRefs: props.linkedMonths.map(month => month.monthRef),
       createdAt: props.item.createdAt,
     },
-    new Date(),
-  ),
+    new Date()
+  )
 )
 
 const currentYear = String(new Date().getFullYear())
@@ -314,7 +325,10 @@ const endLabel = computed<TimelineEndLabel | null>(() => {
   }
   if (daysToEnd === 1) return { label, hint: t('planning.objects.timeline.inOneDay') }
   if (daysToEnd >= 14) {
-    return { label, hint: t('planning.objects.timeline.inWeeks', { count: Math.round(daysToEnd / 7) }) }
+    return {
+      label,
+      hint: t('planning.objects.timeline.inWeeks', { count: Math.round(daysToEnd / 7) }),
+    }
   }
   return { label, hint: t('planning.objects.timeline.inDays', { count: daysToEnd }) }
 })
@@ -334,7 +348,7 @@ function openMonths(): void {
 // Status is quiet: shown as text only when it is not the default "open".
 const statusLabel = computed(() => {
   if (props.item.status === 'open') return null
-  const opt = props.statusOptions.find((o) => o.value === props.item.status)
+  const opt = props.statusOptions.find(o => o.value === props.item.status)
   return opt?.label ?? props.item.status
 })
 
@@ -376,14 +390,14 @@ function handleOutsideClick(event: MouseEvent): void {
 // Auto-focus title when new goal is created
 watch(
   () => props.isNew,
-  (isNew) => {
+  isNew => {
     if (isNew) {
       void nextTick(() => {
         titleRef.value?.focus()
       })
     }
   },
-  { immediate: true },
+  { immediate: true }
 )
 
 onMounted(() => {

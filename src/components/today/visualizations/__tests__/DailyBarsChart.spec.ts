@@ -4,7 +4,11 @@ import DailyBarsChart from '../DailyBarsChart.vue'
 import type { TodayDaySlot } from '@/services/todayChartData'
 import type { DayRef } from '@/domain/period'
 
-function makeSlot(dayRef: string, value: number | undefined, overrides: Partial<TodayDaySlot> = {}): TodayDaySlot {
+function makeSlot(
+  dayRef: string,
+  value: number | undefined,
+  overrides: Partial<TodayDaySlot> = {}
+): TodayDaySlot {
   return {
     dayRef: dayRef as DayRef,
     label: 'Mo',
@@ -32,9 +36,7 @@ describe('DailyBarsChart', () => {
   })
 
   it('highlights today bar', () => {
-    const slots = [
-      makeSlot('2026-03-12', 7, { isToday: true, label: 'Th' }),
-    ]
+    const slots = [makeSlot('2026-03-12', 7, { isToday: true, label: 'Th' })]
     const { container } = render(DailyBarsChart, { props: { slots } })
 
     // Data bar is a <path>; today gets an extra highlight <rect>.
@@ -43,9 +45,7 @@ describe('DailyBarsChart', () => {
   })
 
   it('renders day labels', () => {
-    const slots = [
-      makeSlot('2026-03-09', 5, { label: 'Mo' }),
-    ]
+    const slots = [makeSlot('2026-03-09', 5, { label: 'Mo' })]
     const { container } = render(DailyBarsChart, { props: { slots } })
 
     // Labels moved out of the SVG into a sibling HTML row so they render at
@@ -55,9 +55,7 @@ describe('DailyBarsChart', () => {
   })
 
   it('renders a slot without a value as a no-data dash rect', () => {
-    const slots = [
-      makeSlot('2026-03-09', undefined, { label: 'Mo', hasEntry: false }),
-    ]
+    const slots = [makeSlot('2026-03-09', undefined, { label: 'Mo', hasEntry: false })]
     const { container } = render(DailyBarsChart, { props: { slots } })
 
     const rects = container.querySelectorAll('g > rect')
@@ -68,9 +66,7 @@ describe('DailyBarsChart', () => {
   })
 
   it('renders error gradient when periodStatus is missed', () => {
-    const slots = [
-      makeSlot('2026-03-09', 5, { label: 'Mo' }),
-    ]
+    const slots = [makeSlot('2026-03-09', 5, { label: 'Mo' })]
     const { container } = render(DailyBarsChart, {
       props: { slots, periodStatus: 'missed' },
     })

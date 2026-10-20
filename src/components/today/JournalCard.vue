@@ -1,11 +1,7 @@
 <template>
   <article class="dz-card neo-raised flex flex-col gap-[10px] p-3">
     <header class="dz-card__head">
-      <button
-        type="button"
-        class="dz-card__label"
-        @click="router.push('/journal')"
-      >
+      <button type="button" class="dz-card__label" @click="router.push('/journal')">
         {{ t('planning.today.wellness.journal') }}
       </button>
       <button
@@ -15,7 +11,17 @@
         :aria-label="t('planning.calendar.wellness.newEntry')"
         @click.stop="router.push('/journal/edit')"
       >
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.4"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
           <path d="M12 5v14M5 12h14" />
         </svg>
       </button>
@@ -26,25 +32,37 @@
         type="button"
         class="dz-slot neo-focus"
         :class="state === 'done' ? 'dz-slot--filled' : 'dz-slot--empty'"
-        :aria-label="state === 'done'
-          ? t('planning.today.wellness.ariaJournalDone')
-          : t('planning.today.wellness.ariaJournalEmpty')"
+        :aria-label="
+          state === 'done'
+            ? t('planning.today.wellness.ariaJournalDone')
+            : t('planning.today.wellness.ariaJournalEmpty')
+        "
         @click="router.push('/journal/edit')"
       >
         <svg
           v-if="state === 'done'"
-          width="32" height="32" viewBox="0 0 24 24"
-          fill="none" stroke="white" stroke-width="3"
-          stroke-linecap="round" stroke-linejoin="round"
+          width="32"
+          height="32"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="white"
+          stroke-width="3"
+          stroke-linecap="round"
+          stroke-linejoin="round"
           aria-hidden="true"
         >
           <path d="M5 12l5 5 9-11" />
         </svg>
         <svg
           v-else
-          width="28" height="28" viewBox="0 0 24 24"
-          fill="none" stroke="rgb(var(--color-primary-strong))" stroke-width="2.2"
-          stroke-linecap="round" stroke-linejoin="round"
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="rgb(var(--color-primary-strong))"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
           aria-hidden="true"
         >
           <path d="M3 21l3.5-1 11-11-2.5-2.5-11 11L3 21z" />
@@ -82,7 +100,7 @@ const { t } = useT()
 .dz-card__label {
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.10em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: rgb(var(--neo-muted));
   background: none;
@@ -107,7 +125,9 @@ const { t } = useT()
   place-items: center;
   color: rgb(var(--neo-muted) / 0.8);
   opacity: 0.85;
-  transition: opacity 200ms ease, color 200ms ease;
+  transition:
+    opacity 200ms ease,
+    color 200ms ease;
   border: none;
   cursor: pointer;
 }
@@ -132,7 +152,11 @@ const { t } = useT()
   place-items: center;
   flex: 0 0 auto;
   cursor: pointer;
-  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease, background 200ms ease;
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease,
+    border-color 200ms ease,
+    background 200ms ease;
 }
 
 .dz-slot--empty {
@@ -140,7 +164,7 @@ const { t } = useT()
   border: 1px dashed rgb(var(--color-primary) / 0.55);
   box-shadow:
     -5px -5px 10px rgb(var(--neo-shadow-light) / 0.85),
-    5px 5px 10px rgb(var(--neo-shadow-dark) / 0.30);
+    5px 5px 10px rgb(var(--neo-shadow-dark) / 0.3);
   color: rgb(var(--color-primary-strong));
 }
 .dz-slot--empty:hover {

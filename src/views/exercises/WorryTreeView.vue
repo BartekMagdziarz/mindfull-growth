@@ -8,13 +8,11 @@
 
     <!-- Past entries section -->
     <div v-if="worryTreeStore.sortedEntries.length > 0" class="mt-8">
-      <div class="mg-v2-section-head"><h2>{{ t('exercises.views.pastEntries') }}</h2></div>
+      <div class="mg-v2-section-head">
+        <h2>{{ t('exercises.views.pastEntries') }}</h2>
+      </div>
       <div class="space-y-3">
-        <AppCard
-          v-for="entry in worryTreeStore.sortedEntries"
-          :key="entry.id"
-          padding="md"
-        >
+        <AppCard v-for="entry in worryTreeStore.sortedEntries" :key="entry.id" padding="md">
           <div class="flex justify-between items-start">
             <div>
               <p class="text-sm font-medium text-on-surface line-clamp-2">{{ entry.worry }}</p>

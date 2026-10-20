@@ -7,7 +7,7 @@ const STORAGE_PREFIX = 'mg-chart-scale:'
 
 function getAvailableScales(
   objectCadence: PlanningCadence,
-  viewScale: 'month' | 'week',
+  viewScale: 'month' | 'week'
 ): ChartScale[] {
   if (viewScale === 'month') {
     return objectCadence === 'monthly' ? ['months', 'weeks'] : ['weeks']
@@ -16,10 +16,7 @@ function getAvailableScales(
   return ['weeks', 'days']
 }
 
-function getDefaultScale(
-  objectCadence: PlanningCadence,
-  viewScale: 'month' | 'week',
-): ChartScale {
+function getDefaultScale(objectCadence: PlanningCadence, viewScale: 'month' | 'week'): ChartScale {
   if (viewScale === 'month') {
     return objectCadence === 'monthly' ? 'months' : 'weeks'
   }
@@ -64,7 +61,7 @@ export function clearChartScalePreferences(): void {
       const key = localStorage.key(i)
       if (key?.startsWith(STORAGE_PREFIX)) keys.push(key)
     }
-    keys.forEach((k) => localStorage.removeItem(k))
+    keys.forEach(k => localStorage.removeItem(k))
   } catch {
     // localStorage unavailable — ignore
   }
@@ -73,31 +70,25 @@ export function clearChartScalePreferences(): void {
 export function useChartScale(
   objectId: Ref<string>,
   objectCadence: Ref<PlanningCadence>,
-  viewScale: Ref<'month' | 'week'>,
+  viewScale: Ref<'month' | 'week'>
 ) {
-  const availableScales = computed(() =>
-    getAvailableScales(objectCadence.value, viewScale.value),
-  )
+  const availableScales = computed(() => getAvailableScales(objectCadence.value, viewScale.value))
 
-  const defaultScale = computed(() =>
-    getDefaultScale(objectCadence.value, viewScale.value),
-  )
+  const defaultScale = computed(() => getDefaultScale(objectCadence.value, viewScale.value))
 
   const hasToggle = computed(() => availableScales.value.length > 1)
 
-  const currentScale = ref<ChartScale>(
-    loadStoredScale(objectId.value) ?? defaultScale.value,
-  )
+  const currentScale = ref<ChartScale>(loadStoredScale(objectId.value) ?? defaultScale.value)
 
   // Validate stored scale whenever inputs change
   watch(
     availableScales,
-    (scales) => {
+    scales => {
       if (!scales.includes(currentScale.value)) {
         currentScale.value = defaultScale.value
       }
     },
-    { immediate: true },
+    { immediate: true }
   )
 
   function toggle(): void {

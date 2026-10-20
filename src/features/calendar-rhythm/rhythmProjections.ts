@@ -43,7 +43,13 @@ import type {
 export type Scale = 'year' | 'month' | 'week'
 export type TimeState = 'past' | 'current' | 'future'
 export type Presence = 'recorded' | 'planned-only' | 'empty'
-export type MarkKind = 'slots' | 'day-slots' | 'checklist-slots' | 'bar-target' | 'point' | 'rating-point'
+export type MarkKind =
+  | 'slots'
+  | 'day-slots'
+  | 'checklist-slots'
+  | 'bar-target'
+  | 'point'
+  | 'rating-point'
 export type DaySlot = 'met' | 'partial' | 'none' | 'future' | 'outside'
 /**
  * Dysk wykonania jak w „Plan dnia”: wykonane · częściowo (checklista) · zaplanowane bez wpisu · dziś, zaplanowane ·
@@ -65,17 +71,63 @@ export const AREA_ICONS = REFLECTION_MATRIX_AREAS.map(area => area.icon) as read
    the stored keys and meaning are unchanged, so that rename is a separate call). */
 export const COMPASS = ['Balans', 'Sens', 'Rozwój', 'Spójność', 'Sprawczość'] as const
 export const FAMILY_LABEL: Record<RhythmObject['family'], string> = {
-  goal: 'Cele', keyResult: 'Cele', habit: 'Nawyki', tracker: 'Trackery', intention: 'Intencje tygodnia',
+  goal: 'Cele',
+  keyResult: 'Cele',
+  habit: 'Nawyki',
+  tracker: 'Trackery',
+  intention: 'Intencje tygodnia',
 }
 export const TYPE_ORDER: RhythmObject['family'][] = ['keyResult', 'habit', 'tracker', 'intention']
-export const MONTHS_PL = ['styczeń', 'luty', 'marzec', 'kwiecień', 'maj', 'czerwiec', 'lipiec', 'sierpień', 'wrzesień', 'październik', 'listopad', 'grudzień']
-export const MONTHS_SHORT = ['Sty', 'Lut', 'Mar', 'Kwi', 'Maj', 'Cze', 'Lip', 'Sie', 'Wrz', 'Paź', 'Lis', 'Gru']
-const MONTHS_GEN = ['stycznia', 'lutego', 'marca', 'kwietnia', 'maja', 'czerwca', 'lipca', 'sierpnia', 'września', 'października', 'listopada', 'grudnia']
+export const MONTHS_PL = [
+  'styczeń',
+  'luty',
+  'marzec',
+  'kwiecień',
+  'maj',
+  'czerwiec',
+  'lipiec',
+  'sierpień',
+  'wrzesień',
+  'październik',
+  'listopad',
+  'grudzień',
+]
+export const MONTHS_SHORT = [
+  'Sty',
+  'Lut',
+  'Mar',
+  'Kwi',
+  'Maj',
+  'Cze',
+  'Lip',
+  'Sie',
+  'Wrz',
+  'Paź',
+  'Lis',
+  'Gru',
+]
+const MONTHS_GEN = [
+  'stycznia',
+  'lutego',
+  'marca',
+  'kwietnia',
+  'maja',
+  'czerwca',
+  'lipca',
+  'sierpnia',
+  'września',
+  'października',
+  'listopada',
+  'grudnia',
+]
 export const WEEKDAYS_SHORT = ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd']
 
 /* ------------------------------------------------------------------ jednostki czasu */
 
-export interface Bounds { start: DayRef; end: DayRef }
+export interface Bounds {
+  start: DayRef
+  end: DayRef
+}
 
 export interface TimeUnit {
   /** Kanoniczny ref jednostki (tydzień / miesiąc / dzień). */
@@ -93,10 +145,14 @@ export interface TimeUnit {
   weekRef?: WeekRef
 }
 
-function dayNum(ref: string): number { return Number(ref.slice(8, 10)) }
-function monthIndex(ref: string): number { return Number(ref.slice(5, 7)) - 1 }
+function dayNum(ref: string): number {
+  return Number(ref.slice(8, 10))
+}
+function monthIndex(ref: string): number {
+  return Number(ref.slice(5, 7)) - 1
+}
 function intersect(a: Bounds, b: Bounds): Bounds {
-  return { start: (a.start > b.start ? a.start : b.start), end: (a.end < b.end ? a.end : b.end) }
+  return { start: a.start > b.start ? a.start : b.start, end: a.end < b.end ? a.end : b.end }
 }
 function timeState(bounds: Bounds, clock: DayRef): TimeState {
   if (bounds.end < clock) return 'past'
@@ -151,22 +207,48 @@ export function unitsFor(scale: Scale, ref: string, clock: DayRef): TimeUnit[] {
       const fullBounds = getPeriodBounds(weekRef)
       const visibleBounds = intersect(fullBounds, mb)
       return {
-        ref: weekRef, kind: 'week', label: rangeLabel(fullBounds), fullBounds, visibleBounds,
+        ref: weekRef,
+        kind: 'week',
+        label: rangeLabel(fullBounds),
+        fullBounds,
+        visibleBounds,
         partial: fullBounds.start !== visibleBounds.start || fullBounds.end !== visibleBounds.end,
-        state: timeState(fullBounds, clock), monthRef, weekRef,
+        state: timeState(fullBounds, clock),
+        monthRef,
+        weekRef,
       }
     })
   }
   if (scale === 'year') {
     return getChildPeriods(ref as YearRef).map(monthRef => {
       const bounds = getPeriodBounds(monthRef)
-      return { ref: monthRef, kind: 'month', label: MONTHS_SHORT[monthIndex(monthRef)], fullBounds: bounds, visibleBounds: bounds, partial: false, state: timeState(bounds, clock), monthRef }
+      return {
+        ref: monthRef,
+        kind: 'month',
+        label: MONTHS_SHORT[monthIndex(monthRef)],
+        fullBounds: bounds,
+        visibleBounds: bounds,
+        partial: false,
+        state: timeState(bounds, clock),
+        monthRef,
+      }
     })
   }
   const weekRef = ref as WeekRef
   return getChildPeriods(weekRef).map((dayRef, index) => {
     const bounds = { start: dayRef, end: dayRef }
-    return { ref: dayRef, kind: 'day', label: WEEKDAYS_SHORT[index], sublabel: String(dayNum(dayRef)), fullBounds: bounds, visibleBounds: bounds, partial: false, state: timeState(bounds, clock), monthRef: getPeriodRefsForDate(dayRef).month, weekRef }
+    return {
+      ref: dayRef,
+      kind: 'day',
+      label: WEEKDAYS_SHORT[index],
+      sublabel: String(dayNum(dayRef)),
+      fullBounds: bounds,
+      visibleBounds: bounds,
+      partial: false,
+      state: timeState(bounds, clock),
+      monthRef: getPeriodRefsForDate(dayRef).month,
+      weekRef,
+    }
   })
 }
 
@@ -208,7 +290,9 @@ export function goalTitle(s: RhythmScenario, object: RhythmObject): string | und
 
 /* ------------------------------------------------------------------ przynależność do jednostki */
 
-function inBounds(dayRef: DayRef, b: Bounds): boolean { return dayRef >= b.start && dayRef <= b.end }
+function inBounds(dayRef: DayRef, b: Bounds): boolean {
+  return dayRef >= b.start && dayRef <= b.end
+}
 
 export function entryInUnit(entry: RhythmEntry, unit: TimeUnit): boolean {
   return inBounds(entry.dayRef, unit.visibleBounds)
@@ -222,7 +306,8 @@ export function assignmentInUnit(a: RhythmAssignment, unit: TimeUnit): boolean {
       return inBounds(a.scope.ref, unit.visibleBounds)
     case 'week':
       if (unit.kind === 'week') return a.scope.ref === unit.ref
-      if (unit.kind === 'month') return getWeekOverlappingMonths(a.scope.ref).includes(unit.monthRef)
+      if (unit.kind === 'month')
+        return getWeekOverlappingMonths(a.scope.ref).includes(unit.monthRef)
       return getPeriodRefsForDate(unit.ref).week === a.scope.ref
     case 'month':
       if (unit.kind === 'month') return a.scope.ref === unit.ref
@@ -253,28 +338,50 @@ export interface CellProjection {
   state: TimeState
 }
 
-export function presenceCell(s: RhythmScenario, objects: RhythmObject[], unit: TimeUnit): CellProjection {
+export function presenceCell(
+  s: RhythmScenario,
+  objects: RhythmObject[],
+  unit: TimeUnit
+): CellProjection {
   // obecność liczy zapisy działań; zbiór złożony z samych obserwacji (np. typ Trackery) pokazuje ich zapisy
   const actionKeys = objects.filter(o => o.evidenceRole === 'action').map(o => o.key)
   const allKeys = new Set(objects.map(o => o.key))
   const keys = actionKeys.length ? new Set(actionKeys) : allKeys
-  const records = s.entries.filter(e => keys.has(e.objectKey) && isRecorded(e) && entryInUnit(e, unit))
-  const assignments = s.assignments.filter(a => allKeys.has(a.objectKey) && assignmentPlansUnit(a, unit))
+  const records = s.entries.filter(
+    e => keys.has(e.objectKey) && isRecorded(e) && entryInUnit(e, unit)
+  )
+  const assignments = s.assignments.filter(
+    a => allKeys.has(a.objectKey) && assignmentPlansUnit(a, unit)
+  )
   const recordIds = [...new Set(records.map(r => r.id))]
   const assignmentIds = [...new Set(assignments.map(a => a.id))]
-  const presence: Presence = recordIds.length && unit.state !== 'future' ? 'recorded' : assignmentIds.length ? 'planned-only' : 'empty'
+  const presence: Presence =
+    recordIds.length && unit.state !== 'future'
+      ? 'recorded'
+      : assignmentIds.length
+        ? 'planned-only'
+        : 'empty'
   return { unitRef: unit.ref, presence, recordIds, assignmentIds, state: unit.state }
 }
 
 export function presenceLabel(p: Presence): string {
-  return p === 'recorded' ? 'Zapisane działanie' : p === 'planned-only' ? 'Plan bez zapisanego wykonania' : 'Brak planu i zapisanych działań'
+  return p === 'recorded'
+    ? 'Zapisane działanie'
+    : p === 'planned-only'
+      ? 'Plan bez zapisanego wykonania'
+      : 'Brak planu i zapisanych działań'
 }
 
 /* ------------------------------------------------------------------ serie */
 
 /** Granulacja serii: wartość na kolumnę (jednostka) albo na podjednostkę (dni w miesiącu, tygodnie w roku). */
 export type Grain = 'unit' | 'fine'
-export interface SeriesSample { ref: string; label: string; value: number | null; future: boolean }
+export interface SeriesSample {
+  ref: string
+  label: string
+  value: number | null
+  future: boolean
+}
 
 export interface SeriesPoint {
   /** Podjednostki kolumny: dni w tygodniu, tygodnie (przecięte z miesiącem) w miesiącu. Null trzyma swoje miejsce. */
@@ -317,7 +424,14 @@ export interface SeriesProjection {
    * Plan przypisany do całego oglądanego okresu (tydzień w skali tygodnia, miesiąc w skali miesiąca):
    * nie „bez dnia”, lecz „na cały tydzień” — pokazywany w kolumnie Σ jako sam ułamek (pełne zdanie w tooltipie). Pomijany, gdy Σ już mówi to samo.
    */
-  periodPlan?: { count: number; value: number | null; target: number | null; status: PeriodPlanStatus; label: string; readout: string }
+  periodPlan?: {
+    count: number
+    value: number | null
+    target: number | null
+    status: PeriodPlanStatus
+    label: string
+    readout: string
+  }
   points: SeriesPoint[]
   /** Wspólna skala słupków w grupie serii ustalana przez wywołującego. */
   maxValue: number
@@ -344,17 +458,33 @@ export function seriesAxis(series: SeriesProjection, grain: Grain): { min: numbe
     return { min: 0, max: Math.max(1, grain === 'fine' ? series.fineMax : series.maxValue) }
   }
   if (series.markKind === 'rating-point' || grain === 'fine') return series.axis
-  const values = [...series.points.map(p => p.value), ...series.points.map(p => p.target)].filter((v): v is number => v !== null)
+  const values = [...series.points.map(p => p.value), ...series.points.map(p => p.target)].filter(
+    (v): v is number => v !== null
+  )
   if (!values.length) return series.axis
-  const lo = Math.min(...values); const hi = Math.max(...values)
+  const lo = Math.min(...values)
+  const hi = Math.max(...values)
   const pad = hi === lo ? Math.max(1, Math.abs(hi) * 0.02) : (hi - lo) * 0.35
   return { min: lo - pad, max: hi + pad }
 }
 
 /** Podjednostki kolumny: tygodnie miesiąca (przecięcie), dni tygodnia; dzień nie ma podjednostek. */
-export function subUnitsOf(unit: TimeUnit, clock: DayRef): { ref: string; label: string; bounds: Bounds }[] {
-  if (unit.kind === 'month') return unitsFor('month', unit.ref, clock).map(u => ({ ref: u.ref, label: rangeLabel(u.visibleBounds), bounds: u.visibleBounds }))
-  if (unit.kind === 'week') return daysBetween(unit.visibleBounds.start, unit.visibleBounds.end).map(d => ({ ref: d, label: shortDate(d), bounds: { start: d, end: d } }))
+export function subUnitsOf(
+  unit: TimeUnit,
+  clock: DayRef
+): { ref: string; label: string; bounds: Bounds }[] {
+  if (unit.kind === 'month')
+    return unitsFor('month', unit.ref, clock).map(u => ({
+      ref: u.ref,
+      label: rangeLabel(u.visibleBounds),
+      bounds: u.visibleBounds,
+    }))
+  if (unit.kind === 'week')
+    return daysBetween(unit.visibleBounds.start, unit.visibleBounds.end).map(d => ({
+      ref: d,
+      label: shortDate(d),
+      bounds: { start: d, end: d },
+    }))
   return []
 }
 
@@ -363,7 +493,9 @@ export function resolveMarkKind(object: RhythmObject, scale: Scale): MarkKind {
   switch (object.entryMode) {
     case 'completion':
       if (scale === 'year') return 'bar-target'
-      return t?.kind === 'count' && t.value <= 7 && object.cadence === 'weekly' ? 'slots' : 'day-slots'
+      return t?.kind === 'count' && t.value <= 7 && object.cadence === 'weekly'
+        ? 'slots'
+        : 'day-slots'
     case 'multi-completion':
       return scale === 'year' ? 'bar-target' : 'checklist-slots'
     case 'counter':
@@ -384,10 +516,21 @@ function aggregationOf(object: RhythmObject): SeriesProjection['aggregation'] {
   return 'last'
 }
 
-export function effectiveTarget(s: RhythmScenario, object: RhythmObject, monthRef: MonthRef, weekRef?: WeekRef): RhythmTarget | undefined {
-  const week = weekRef ? s.overrides.find(o => o.objectKey === object.key && o.scope.kind === 'week' && o.scope.ref === weekRef) : undefined
+export function effectiveTarget(
+  s: RhythmScenario,
+  object: RhythmObject,
+  monthRef: MonthRef,
+  weekRef?: WeekRef
+): RhythmTarget | undefined {
+  const week = weekRef
+    ? s.overrides.find(
+        o => o.objectKey === object.key && o.scope.kind === 'week' && o.scope.ref === weekRef
+      )
+    : undefined
   if (week) return week.target
-  const month = s.overrides.find(o => o.objectKey === object.key && o.scope.kind === 'month' && o.scope.ref === monthRef)
+  const month = s.overrides.find(
+    o => o.objectKey === object.key && o.scope.kind === 'month' && o.scope.ref === monthRef
+  )
   return month?.target ?? object.target
 }
 
@@ -415,7 +558,8 @@ function aggregate(object: RhythmObject, entries: RhythmEntry[]): number | null 
   if (agg === 'count') {
     // brak wpisów = brak zapisu (null), nie zero wykonań
     if (!recorded.length) return null
-    if (object.entryMode === 'multi-completion') return recorded.filter(e => multiDayMet(object, e)).length
+    if (object.entryMode === 'multi-completion')
+      return recorded.filter(e => multiDayMet(object, e)).length
     return recorded.length
   }
   const values = recorded.filter(e => typeof e.value === 'number').map(e => e.value as number)
@@ -425,7 +569,12 @@ function aggregate(object: RhythmObject, entries: RhythmEntry[]): number | null 
   return values[values.length - 1]
 }
 
-function daySlotsFor(object: RhythmObject, unit: TimeUnit, entries: RhythmEntry[], clock: DayRef): DaySlot[] {
+function daySlotsFor(
+  object: RhythmObject,
+  unit: TimeUnit,
+  entries: RhythmEntry[],
+  clock: DayRef
+): DaySlot[] {
   return daysBetween(unit.fullBounds.start, unit.fullBounds.end).map(dayRef => {
     if (!inBounds(dayRef, unit.visibleBounds)) return 'outside'
     const dayEntries = entries.filter(e => e.dayRef === dayRef && !e.skipped)
@@ -438,7 +587,13 @@ function daySlotsFor(object: RhythmObject, unit: TimeUnit, entries: RhythmEntry[
   })
 }
 
-function dayWellsFor(object: RhythmObject, unit: TimeUnit, entries: RhythmEntry[], assignments: RhythmAssignment[], clock: DayRef): DayWell[] {
+function dayWellsFor(
+  object: RhythmObject,
+  unit: TimeUnit,
+  entries: RhythmEntry[],
+  assignments: RhythmAssignment[],
+  clock: DayRef
+): DayWell[] {
   return daysBetween(unit.fullBounds.start, unit.fullBounds.end).map(dayRef => {
     if (!inBounds(dayRef, unit.visibleBounds)) return 'outside'
     const dayEntries = entries.filter(e => e.dayRef === dayRef && !e.skipped)
@@ -446,16 +601,28 @@ function dayWellsFor(object: RhythmObject, unit: TimeUnit, entries: RhythmEntry[
       if (object.entryMode !== 'multi-completion') return 'done'
       return dayEntries.some(e => multiDayMet(object, e)) ? 'done' : 'partial'
     }
-    const planned = assignments.some(a => !a.cancelled && a.scope.kind === 'day' && a.scope.ref === dayRef)
+    const planned = assignments.some(
+      a => !a.cancelled && a.scope.kind === 'day' && a.scope.ref === dayRef
+    )
     if (!planned) return 'none'
     return dayRef > clock ? 'future' : dayRef === clock ? 'today' : 'missed'
   })
 }
 
-function targetValueFor(object: RhythmObject, s: RhythmScenario, unit: TimeUnit, scale: Scale): number | null {
+function targetValueFor(
+  object: RhythmObject,
+  s: RhythmScenario,
+  unit: TimeUnit,
+  scale: Scale
+): number | null {
   // intencja tygodnia żyje tylko w swoim tygodniu
   if (object.weekRef && unit.kind === 'week' && unit.ref !== object.weekRef) return null
-  if (object.weekRef && unit.kind === 'month' && !getWeekOverlappingMonths(object.weekRef).includes(unit.monthRef)) return null
+  if (
+    object.weekRef &&
+    unit.kind === 'month' &&
+    !getWeekOverlappingMonths(object.weekRef).includes(unit.monthRef)
+  )
+    return null
   if (scale === 'month') {
     if (object.cadence !== 'weekly' || unit.partial) return null
     return effectiveTarget(s, object, unit.monthRef, unit.weekRef)?.value ?? null
@@ -467,23 +634,41 @@ function targetValueFor(object: RhythmObject, s: RhythmScenario, unit: TimeUnit,
   return null
 }
 
-function readoutFor(object: RhythmObject, value: number | null, target: number | null, point: { partial: boolean; planned: boolean; entryDays: number; state: TimeState }, operator?: string): string {
+function readoutFor(
+  object: RhythmObject,
+  value: number | null,
+  target: number | null,
+  point: { partial: boolean; planned: boolean; entryDays: number; state: TimeState },
+  operator?: string
+): string {
   const unitLabel = object.unit ? ` ${object.unit}` : ''
   if (value === null) {
     if (point.planned) return point.state === 'future' ? 'Plan' : 'Plan bez zapisanego wykonania'
     return 'Brak zapisu'
   }
   const limit = operator === 'max' || operator === 'lte'
-  const base = target === null ? `${fmt(value)}${unitLabel}` : `${fmt(value)} / ${fmt(target)}${unitLabel}${limit ? ' (limit)' : ''}`
+  const base =
+    target === null
+      ? `${fmt(value)}${unitLabel}`
+      : `${fmt(value)} / ${fmt(target)}${unitLabel}${limit ? ' (limit)' : ''}`
   const over = limit && target !== null && value > target ? ' · ponad limit' : ''
   const partial = point.partial ? ' · część tygodnia' : ''
-  const days = object.target?.entryDays ? ` · ${point.entryDays} / ${object.target.entryDays.value} dni z wpisem` : ''
+  const days = object.target?.entryDays
+    ? ` · ${point.entryDays} / ${object.target.entryDays.value} dni z wpisem`
+    : ''
   return `${base}${over}${partial}${days}`
 }
 
-export function seriesFor(s: RhythmScenario, object: RhythmObject, units: TimeUnit[], scale: Scale, focusRef: string): SeriesProjection {
+export function seriesFor(
+  s: RhythmScenario,
+  object: RhythmObject,
+  units: TimeUnit[],
+  scale: Scale,
+  focusRef: string
+): SeriesProjection {
   const markKind = resolveMarkKind(object, scale)
-  const operator = object.target?.kind === 'count' ? object.target.operator : object.target?.operator
+  const operator =
+    object.target?.kind === 'count' ? object.target.operator : object.target?.operator
   const allEntries = s.entries.filter(e => e.objectKey === object.key && e.dayRef <= s.clock)
   const allAssignments = s.assignments.filter(a => a.objectKey === object.key)
 
@@ -495,15 +680,26 @@ export function seriesFor(s: RhythmScenario, object: RhythmObject, units: TimeUn
     const entryDays = new Set(entries.filter(isRecorded).map(e => e.dayRef)).size
     const planned = assignments.length > 0
     const point: SeriesPoint = {
-      unitRef: unit.ref, state: unit.state, partial: unit.partial, value, target, planned,
-      sourceIds: [...entries.map(e => e.id), ...assignments.map(a => a.id)], entryDays,
+      unitRef: unit.ref,
+      state: unit.state,
+      partial: unit.partial,
+      value,
+      target,
+      planned,
+      sourceIds: [...entries.map(e => e.id), ...assignments.map(a => a.id)],
+      entryDays,
       readout: '',
     }
     if (markKind === 'slots') {
       const done = value ?? 0
       point.doneCount = done
-      point.slotCount = Math.max(target ?? 0, done, assignments.filter(a => a.scope.kind === 'day').length)
-      const missing: DayWell = unit.state === 'future' ? 'future' : unit.state === 'current' ? 'today' : 'missed'
+      point.slotCount = Math.max(
+        target ?? 0,
+        done,
+        assignments.filter(a => a.scope.kind === 'day').length
+      )
+      const missing: DayWell =
+        unit.state === 'future' ? 'future' : unit.state === 'current' ? 'today' : 'missed'
       point.slotWells = point.slotCount
         ? Array.from({ length: point.slotCount }, (_, i) => (i < done ? 'done' : missing))
         : ['none']
@@ -516,8 +712,16 @@ export function seriesFor(s: RhythmScenario, object: RhythmObject, units: TimeUn
     }
     if (supportsFineGrain(markKind)) {
       point.samples = subUnitsOf(unit, s.clock).map(slice => ({
-        ref: slice.ref, label: slice.label, future: slice.bounds.start > s.clock,
-        value: slice.bounds.start > s.clock ? null : aggregate(object, entries.filter(e => inBounds(e.dayRef, slice.bounds))),
+        ref: slice.ref,
+        label: slice.label,
+        future: slice.bounds.start > s.clock,
+        value:
+          slice.bounds.start > s.clock
+            ? null
+            : aggregate(
+                object,
+                entries.filter(e => inBounds(e.dayRef, slice.bounds))
+              ),
       }))
     }
     point.readout = readoutFor(object, value, target, point, operator)
@@ -531,32 +735,75 @@ export function seriesFor(s: RhythmScenario, object: RhythmObject, units: TimeUn
     const monthEntries = allEntries.filter(e => inBounds(e.dayRef, bounds))
     const value = aggregate(object, monthEntries)
     const target = effectiveTarget(s, object, monthRef)?.value ?? null
-    const readout = readoutFor(object, value, target, { partial: false, planned: allAssignments.some(a => a.scope.kind === 'month' && a.scope.ref === monthRef), entryDays: new Set(monthEntries.map(e => e.dayRef)).size, state: timeState(bounds, s.clock) }, operator)
+    const readout = readoutFor(
+      object,
+      value,
+      target,
+      {
+        partial: false,
+        planned: allAssignments.some(a => a.scope.kind === 'month' && a.scope.ref === monthRef),
+        entryDays: new Set(monthEntries.map(e => e.dayRef)).size,
+        state: timeState(bounds, s.clock),
+      },
+      operator
+    )
     periodTotal = { value, target, readout }
   }
 
   let periodPlan: SeriesProjection['periodPlan']
   if (scale !== 'year' && !periodTotal) {
-    const scoped = allAssignments.filter(a => !a.cancelled && a.scope.kind === scale && a.scope.ref === focusRef)
+    const scoped = allAssignments.filter(
+      a => !a.cancelled && a.scope.kind === scale && a.scope.ref === focusRef
+    )
     if (scoped.length) {
       const bounds = getPeriodBounds(focusRef as PeriodRef)
-      const monthRef = scale === 'month' ? (focusRef as MonthRef) : getPeriodRefsForDate(addDaysToDayRef(bounds.start, 3)).month
-      const value = aggregate(object, allEntries.filter(e => inBounds(e.dayRef, bounds)))
+      const monthRef =
+        scale === 'month'
+          ? (focusRef as MonthRef)
+          : getPeriodRefsForDate(addDaysToDayRef(bounds.start, 3)).month
+      const value = aggregate(
+        object,
+        allEntries.filter(e => inBounds(e.dayRef, bounds))
+      )
       // cel okresu tylko, gdy kadencja obiektu odpowiada skali (jak w komórkach)
       const target = (scale === 'week' ? object.cadence === 'weekly' : object.cadence === 'monthly')
-        ? (effectiveTarget(s, object, monthRef, scale === 'week' ? (focusRef as WeekRef) : undefined)?.value ?? null)
+        ? (effectiveTarget(
+            s,
+            object,
+            monthRef,
+            scale === 'week' ? (focusRef as WeekRef) : undefined
+          )?.value ?? null)
         : null
       const state = timeState(bounds, s.clock)
       const limit = operator === 'max' || operator === 'lte'
       const met = value !== null && (target === null || (limit ? value <= target : value >= target))
-      const status: PeriodPlanStatus = value === null
-        ? (state === 'past' ? 'unrecorded' : 'planned')
-        : met ? 'done' : state === 'past' ? 'short' : 'partial'
+      const status: PeriodPlanStatus =
+        value === null
+          ? state === 'past'
+            ? 'unrecorded'
+            : 'planned'
+          : met
+            ? 'done'
+            : state === 'past'
+              ? 'short'
+              : 'partial'
       const unitLabel = object.unit ? ` ${object.unit}` : ''
-      const readout = value === null
-        ? (state === 'past' ? 'bez zapisu' : 'w planie')
-        : target === null ? `${fmt(value)}${unitLabel}` : `${fmt(value)} / ${fmt(target)}${unitLabel}${limit ? ' (limit)' : ''}`
-      periodPlan = { count: scoped.length, value, target, status, label: scale === 'week' ? 'cały tydzień' : 'cały miesiąc', readout }
+      const readout =
+        value === null
+          ? state === 'past'
+            ? 'bez zapisu'
+            : 'w planie'
+          : target === null
+            ? `${fmt(value)}${unitLabel}`
+            : `${fmt(value)} / ${fmt(target)}${unitLabel}${limit ? ' (limit)' : ''}`
+      periodPlan = {
+        count: scoped.length,
+        value,
+        target,
+        status,
+        label: scale === 'week' ? 'cały tydzień' : 'cały miesiąc',
+        readout,
+      }
     }
   }
 
@@ -564,20 +811,34 @@ export function seriesFor(s: RhythmScenario, object: RhythmObject, units: TimeUn
   let axis = { min: 0, max: maxValue }
   if (markKind === 'rating-point' && object.ratingScale) axis = { ...object.ratingScale }
   else if (markKind === 'point') {
-    const values = [...points.map(p => p.value), ...points.flatMap(p => (p.samples ?? []).map(sample => sample.value)), ...points.map(p => p.target), periodTotal?.target ?? null].filter((v): v is number => v !== null)
+    const values = [
+      ...points.map(p => p.value),
+      ...points.flatMap(p => (p.samples ?? []).map(sample => sample.value)),
+      ...points.map(p => p.target),
+      periodTotal?.target ?? null,
+    ].filter((v): v is number => v !== null)
     if (values.length) {
-      const lo = Math.min(...values); const hi = Math.max(...values)
+      const lo = Math.min(...values)
+      const hi = Math.max(...values)
       const pad = hi === lo ? Math.max(1, Math.abs(hi) * 0.02) : (hi - lo) * 0.35
       axis = { min: lo - pad, max: hi + pad }
     }
   }
-  const fineMax = Math.max(1, ...points.flatMap(p => (p.samples ?? []).map(sample => sample.value ?? 0)))
+  const fineMax = Math.max(
+    1,
+    ...points.flatMap(p => (p.samples ?? []).map(sample => sample.value ?? 0))
+  )
   return {
     axis,
     fineMax,
     objectKey: object.key,
     label: object.title,
-    sublabel: object.family === 'keyResult' ? goalTitle(s, object) : object.family === 'intention' ? 'intencja tygodnia' : undefined,
+    sublabel:
+      object.family === 'keyResult'
+        ? goalTitle(s, object)
+        : object.family === 'intention'
+          ? 'intencja tygodnia'
+          : undefined,
     unit: object.unit,
     entryMode: object.entryMode,
     cadence: object.cadence,
@@ -594,10 +855,15 @@ export function seriesFor(s: RhythmScenario, object: RhythmObject, units: TimeUn
 }
 
 /** Obiekty aktywne w okresie (przypisanie lub wpis w którejkolwiek jednostce). */
-export function activeInPeriod(s: RhythmScenario, objects: RhythmObject[], units: TimeUnit[]): RhythmObject[] {
-  return objects.filter(o =>
-    s.entries.some(e => e.objectKey === o.key && units.some(u => entryInUnit(e, u)))
-    || s.assignments.some(a => a.objectKey === o.key && units.some(u => assignmentInUnit(a, u))),
+export function activeInPeriod(
+  s: RhythmScenario,
+  objects: RhythmObject[],
+  units: TimeUnit[]
+): RhythmObject[] {
+  return objects.filter(
+    o =>
+      s.entries.some(e => e.objectKey === o.key && units.some(u => entryInUnit(e, u))) ||
+      s.assignments.some(a => a.objectKey === o.key && units.some(u => assignmentInUnit(a, u)))
   )
 }
 
@@ -612,7 +878,11 @@ export interface FocusProjection {
 export function focusForUnit(s: RhythmScenario, unit: TimeUnit): FocusProjection {
   if (unit.kind === 'month') {
     const plan = s.monthPlans.find(p => p.monthRef === unit.ref)
-    return { unitRef: unit.ref, priorityKeys: plan?.topPriorityKeys ?? [], source: plan ? 'month-plan' : 'none' }
+    return {
+      unitRef: unit.ref,
+      priorityKeys: plan?.topPriorityKeys ?? [],
+      source: plan ? 'month-plan' : 'none',
+    }
   }
   if (unit.kind === 'week') {
     const plan = s.weekPlans.find(p => p.weekRef === unit.ref)
@@ -628,24 +898,45 @@ export function focusForUnit(s: RhythmScenario, unit: TimeUnit): FocusProjection
 }
 
 /** Kierunki okresu: fokus okresu (miesiąc: topPriorityKeys; rok: suma miesięcy), potem reszta aktywnych z relacjami. */
-export function directionsForPeriod(s: RhythmScenario, scale: Scale, ref: string, units: TimeUnit[]): { focus: RhythmPriority[]; rest: RhythmPriority[] } {
+export function directionsForPeriod(
+  s: RhythmScenario,
+  scale: Scale,
+  ref: string,
+  units: TimeUnit[]
+): { focus: RhythmPriority[]; rest: RhythmPriority[] } {
   const focusKeys: string[] = []
-  const addKey = (k: string) => { if (!focusKeys.includes(k)) focusKeys.push(k) }
+  const addKey = (k: string) => {
+    if (!focusKeys.includes(k)) focusKeys.push(k)
+  }
   if (scale === 'month') s.monthPlans.find(p => p.monthRef === ref)?.topPriorityKeys.forEach(addKey)
-  else if (scale === 'year') s.monthPlans.filter(p => p.monthRef.startsWith(ref)).forEach(p => p.topPriorityKeys.forEach(addKey))
+  else if (scale === 'year')
+    s.monthPlans
+      .filter(p => p.monthRef.startsWith(ref))
+      .forEach(p => p.topPriorityKeys.forEach(addKey))
   else {
     const weekPlan = s.weekPlans.find(p => p.weekRef === ref)
-    weekPlan?.topObjectKeys.forEach(k => { const o = objectByKey(s, k); if (o) priorityKeysOf(s, o).forEach(addKey) })
+    weekPlan?.topObjectKeys.forEach(k => {
+      const o = objectByKey(s, k)
+      if (o) priorityKeysOf(s, o).forEach(addKey)
+    })
     const thursday = addDaysToDayRef(getPeriodBounds(ref as PeriodRef).start, 3)
-    s.monthPlans.find(p => p.monthRef === getPeriodRefsForDate(thursday).month)?.topPriorityKeys.forEach(addKey)
+    s.monthPlans
+      .find(p => p.monthRef === getPeriodRefsForDate(thursday).month)
+      ?.topPriorityKeys.forEach(addKey)
   }
   const ordered = [...s.priorities].sort((a, b) => {
-    const ai = focusKeys.indexOf(a.key); const bi = focusKeys.indexOf(b.key)
+    const ai = focusKeys.indexOf(a.key)
+    const bi = focusKeys.indexOf(b.key)
     return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi)
   })
   if (!focusKeys.length) {
-    const withRelations = ordered.filter(p => p.status === 'active' && activeInPeriod(s, objectsForPriority(s, p.key), units).length)
-    return { focus: withRelations.slice(0, 3), rest: ordered.filter(p => !withRelations.slice(0, 3).includes(p)) }
+    const withRelations = ordered.filter(
+      p => p.status === 'active' && activeInPeriod(s, objectsForPriority(s, p.key), units).length
+    )
+    return {
+      focus: withRelations.slice(0, 3),
+      rest: ordered.filter(p => !withRelations.slice(0, 3).includes(p)),
+    }
   }
   const focus = ordered.filter(p => focusKeys.includes(p.key))
   return { focus, rest: ordered.filter(p => !focusKeys.includes(p.key)) }
@@ -674,7 +965,11 @@ export function reflectionForUnit(s: RhythmScenario, unit: TimeUnit): Reflection
 }
 
 /** Ocena własna oglądanego okresu — wiersz okresu (miesiąc: kompas, tydzień: Wysiłek/Stan). Rok: brak. */
-export function ownReflection(s: RhythmScenario, scale: Scale, ref: string): ReflectionProjection | null {
+export function ownReflection(
+  s: RhythmScenario,
+  scale: Scale,
+  ref: string
+): ReflectionProjection | null {
   if (scale === 'month') {
     const r = s.monthlyReflections.find(x => x.monthRef === ref)
     return { unitRef: ref, exists: !!r, status: r?.status ?? 'none', monthly: r }
@@ -686,7 +981,15 @@ export function ownReflection(s: RhythmScenario, scale: Scale, ref: string): Ref
   return null
 }
 
-const WEEKDAYS_ON = ['w niedzielę', 'w poniedziałek', 'we wtorek', 'w środę', 'w czwartek', 'w piątek', 'w sobotę']
+const WEEKDAYS_ON = [
+  'w niedzielę',
+  'w poniedziałek',
+  'we wtorek',
+  'w środę',
+  'w czwartek',
+  'w piątek',
+  'w sobotę',
+]
 
 /** „zapisana w niedzielę, 27 września” — dzień tygodnia w bierniku, rok tylko gdy inny niż rok okresu. */
 export function savedOnLabel(iso: string, periodRef: string): string | null {
@@ -699,16 +1002,35 @@ export function savedOnLabel(iso: string, periodRef: string): string | null {
 /* ------------------------------------------------------------------ rytuały okresu */
 
 export type RitualKind = 'plan' | 'reflection'
-export interface RitualAction { kind: RitualKind; label: string; icon: string; hint: string }
+export interface RitualAction {
+  kind: RitualKind
+  label: string
+  icon: string
+  hint: string
+}
 
 /**
  * Akcje okresu w nagłówku kalendarza: przeszły → tylko refleksja (napisz / edytuj); bieżący → plan i refleksja;
  * przyszły → tylko plan. Rok ma wyłącznie plan roku.
  */
-export function ritualActions(scale: Scale, state: TimeState, reflectionExists: boolean): RitualAction[] {
+export function ritualActions(
+  scale: Scale,
+  state: TimeState,
+  reflectionExists: boolean
+): RitualAction[] {
   const periodWord = scale === 'week' ? 'tydzień' : scale === 'month' ? 'miesiąc' : 'rok'
-  const plan = (label: string): RitualAction => ({ kind: 'plan', label, icon: `mg-${scale === 'year' ? 'yearly' : scale === 'month' ? 'monthly' : 'weekly'}-planning`, hint: `Otwórz planowanie na ${periodWord} od kroku przypisań` })
-  const reflect = (label: string): RitualAction => ({ kind: 'reflection', label, icon: scale === 'month' ? 'mg-monthly-reflection' : 'mg-weekly-reflection', hint: `Otwórz rytuał refleksji: ${periodWord}` })
+  const plan = (label: string): RitualAction => ({
+    kind: 'plan',
+    label,
+    icon: `mg-${scale === 'year' ? 'yearly' : scale === 'month' ? 'monthly' : 'weekly'}-planning`,
+    hint: `Otwórz planowanie na ${periodWord} od kroku przypisań`,
+  })
+  const reflect = (label: string): RitualAction => ({
+    kind: 'reflection',
+    label,
+    icon: scale === 'month' ? 'mg-monthly-reflection' : 'mg-weekly-reflection',
+    hint: `Otwórz rytuał refleksji: ${periodWord}`,
+  })
   if (scale === 'year') return [plan('Plan roku')]
   if (state === 'future') return [plan(scale === 'week' ? 'Zaplanuj tydzień' : 'Zaplanuj miesiąc')]
   if (state === 'current') return [plan('Plan'), reflect('Refleksja')]
@@ -727,7 +1049,10 @@ export const ENTRY_KINDS: { id: EntryKind; label: string; icon: string }[] = [
 export interface EntriesProjection {
   unitRef: string
   any: boolean
-  kinds: Record<EntryKind, { count: number; days: number; daySlots: boolean[] | null; daysInUnit: number }>
+  kinds: Record<
+    EntryKind,
+    { count: number; days: number; daySlots: boolean[] | null; daysInUnit: number }
+  >
 }
 
 function recordsIn<T extends { dayRef: DayRef }>(list: T[], unit: TimeUnit): T[] {
@@ -738,13 +1063,27 @@ export function entriesForUnit(s: RhythmScenario, unit: TimeUnit): EntriesProjec
   const build = (list: { dayRef: DayRef }[]) => {
     const inUnit = recordsIn(list, unit)
     const days = new Set(inUnit.map(r => r.dayRef))
-    const daySlots = unit.kind === 'week'
-      ? daysBetween(unit.fullBounds.start, unit.fullBounds.end).map(d => days.has(d))
-      : null
-    return { count: inUnit.length, days: days.size, daySlots, daysInUnit: daysBetween(unit.visibleBounds.start, unit.visibleBounds.end).length }
+    const daySlots =
+      unit.kind === 'week'
+        ? daysBetween(unit.fullBounds.start, unit.fullBounds.end).map(d => days.has(d))
+        : null
+    return {
+      count: inUnit.length,
+      days: days.size,
+      daySlots,
+      daysInUnit: daysBetween(unit.visibleBounds.start, unit.visibleBounds.end).length,
+    }
   }
-  const kinds = { journal: build(s.journal), emotion: build(s.emotions), exercise: build(s.exercises) }
-  return { unitRef: unit.ref, any: kinds.journal.count + kinds.emotion.count + kinds.exercise.count > 0, kinds }
+  const kinds = {
+    journal: build(s.journal),
+    emotion: build(s.emotions),
+    exercise: build(s.exercises),
+  }
+  return {
+    unitRef: unit.ref,
+    any: kinds.journal.count + kinds.emotion.count + kinds.exercise.count > 0,
+    kinds,
+  }
 }
 
 /* ------------------------------------------------------------------ panel */
@@ -764,49 +1103,108 @@ export interface PanelActivity {
 }
 
 export function entryStateLabel(state: EntryState): string {
-  return state === 'done' ? 'Wykonane' : state === 'skipped' ? 'Pominięte' : state === 'unrecorded' ? 'Plan bez zapisu' : state === 'planned' ? 'Plan' : 'Anulowane'
+  return state === 'done'
+    ? 'Wykonane'
+    : state === 'skipped'
+      ? 'Pominięte'
+      : state === 'unrecorded'
+        ? 'Plan bez zapisu'
+        : state === 'planned'
+          ? 'Plan'
+          : 'Anulowane'
 }
 
 function valueLabelFor(object: RhythmObject, entry: RhythmEntry): string | undefined {
   if (entry.skipped) return undefined
   if (object.entryMode === 'multi-completion') {
-    const items = (object.multiItems ?? []).filter(i => entry.checkedItemIds?.includes(i.id)).map(i => i.label)
+    const items = (object.multiItems ?? [])
+      .filter(i => entry.checkedItemIds?.includes(i.id))
+      .map(i => i.label)
     return `${items.join(', ')}${multiDayMet(object, entry) ? '' : ' · bez progu'}`
   }
   if (typeof entry.value === 'number') {
-    if (object.entryMode === 'rating') return `${fmt(entry.value)} / ${object.ratingScale?.max ?? 10}`
+    if (object.entryMode === 'rating')
+      return `${fmt(entry.value)} / ${object.ratingScale?.max ?? 10}`
     return `${fmt(entry.value)}${object.unit ? ` ${object.unit}` : ''}`
   }
   return undefined
 }
 
-export function activitiesFor(s: RhythmScenario, objects: RhythmObject[], unit: TimeUnit): { dated: PanelActivity[]; scoped: PanelActivity[]; observations: PanelActivity[] } {
+export function activitiesFor(
+  s: RhythmScenario,
+  objects: RhythmObject[],
+  unit: TimeUnit
+): { dated: PanelActivity[]; scoped: PanelActivity[]; observations: PanelActivity[] } {
   const dated: PanelActivity[] = []
   const scoped: PanelActivity[] = []
   const observations: PanelActivity[] = []
   for (const object of objects) {
     const entries = s.entries.filter(e => e.objectKey === object.key && entryInUnit(e, unit))
-    const assignments = s.assignments.filter(a => a.objectKey === object.key && assignmentInUnit(a, unit))
+    const assignments = s.assignments.filter(
+      a => a.objectKey === object.key && assignmentInUnit(a, unit)
+    )
     const target = object.evidenceRole === 'observation' ? observations : dated
     for (const entry of entries) {
-      target.push({ id: entry.id, objectKey: object.key, title: object.title, sublabel: goalTitle(s, object), icon: object.icon, dayRef: entry.dayRef, state: entry.skipped ? 'skipped' : 'done', valueLabel: valueLabelFor(object, entry), movable: false })
+      target.push({
+        id: entry.id,
+        objectKey: object.key,
+        title: object.title,
+        sublabel: goalTitle(s, object),
+        icon: object.icon,
+        dayRef: entry.dayRef,
+        state: entry.skipped ? 'skipped' : 'done',
+        valueLabel: valueLabelFor(object, entry),
+        movable: false,
+      })
     }
     for (const a of assignments) {
       if (a.scope.kind === 'day') {
         if (entries.some(e => e.dayRef === a.scope.ref)) continue
         const pending = a.scope.ref >= s.clock
-        dated.push({ id: a.id, objectKey: object.key, title: object.title, sublabel: goalTitle(s, object), icon: object.icon, dayRef: a.scope.ref, state: a.cancelled ? 'cancelled' : pending ? 'planned' : 'unrecorded', assignmentId: a.id, movable: a.scope.ref > s.clock && !a.cancelled })
+        dated.push({
+          id: a.id,
+          objectKey: object.key,
+          title: object.title,
+          sublabel: goalTitle(s, object),
+          icon: object.icon,
+          dayRef: a.scope.ref,
+          state: a.cancelled ? 'cancelled' : pending ? 'planned' : 'unrecorded',
+          assignmentId: a.id,
+          movable: a.scope.ref > s.clock && !a.cancelled,
+        })
       } else {
         const bounds = getPeriodBounds(a.scope.ref)
-        const scopeLabel = a.scope.kind === 'week' ? `Na tydzień ${rangeLabel(bounds)}` : `Na miesiąc ${MONTHS_PL[monthIndex(a.scope.ref)]}`
+        const scopeLabel =
+          a.scope.kind === 'week'
+            ? `Na tydzień ${rangeLabel(bounds)}`
+            : `Na miesiąc ${MONTHS_PL[monthIndex(a.scope.ref)]}`
         // status planu bez dnia wynika z jego własnego zakresu (tydzień/miesiąc), nie z oglądanej jednostki
-        const hasEntries = s.entries.some(e => e.objectKey === object.key && isRecorded(e) && inBounds(e.dayRef, bounds))
+        const hasEntries = s.entries.some(
+          e => e.objectKey === object.key && isRecorded(e) && inBounds(e.dayRef, bounds)
+        )
         const pending = bounds.end >= s.clock
-        scoped.push({ id: a.id, objectKey: object.key, title: object.title, sublabel: goalTitle(s, object), icon: object.icon, scopeLabel, state: a.cancelled ? 'cancelled' : hasEntries ? 'done' : pending ? 'planned' : 'unrecorded', assignmentId: a.id, movable: false })
+        scoped.push({
+          id: a.id,
+          objectKey: object.key,
+          title: object.title,
+          sublabel: goalTitle(s, object),
+          icon: object.icon,
+          scopeLabel,
+          state: a.cancelled
+            ? 'cancelled'
+            : hasEntries
+              ? 'done'
+              : pending
+                ? 'planned'
+                : 'unrecorded',
+          assignmentId: a.id,
+          movable: false,
+        })
       }
     }
   }
-  const byDate = (a: PanelActivity, b: PanelActivity) => (a.dayRef ?? '').localeCompare(b.dayRef ?? '')
+  const byDate = (a: PanelActivity, b: PanelActivity) =>
+    (a.dayRef ?? '').localeCompare(b.dayRef ?? '')
   return { dated: dated.sort(byDate), scoped, observations: observations.sort(byDate) }
 }
 
@@ -824,16 +1222,27 @@ export function focusDetail(s: RhythmScenario, unit: TimeUnit): FocusDetail {
   if (unit.kind === 'week') {
     const plan = s.weekPlans.find(p => p.weekRef === unit.ref)
     const monthTop = s.monthPlans.find(p => p.monthRef === unit.monthRef)?.topPriorityKeys ?? []
-    const objects = (plan?.topObjectKeys ?? []).map(k => objectByKey(s, k)).filter((o): o is RhythmObject => !!o).map(object => ({ object, priorityKeys: priorityKeysOf(s, object) }))
-    const drift = objects.filter(({ priorityKeys }) => !priorityKeys.some(k => monthTop.includes(k))).map(x => x.object)
+    const objects = (plan?.topObjectKeys ?? [])
+      .map(k => objectByKey(s, k))
+      .filter((o): o is RhythmObject => !!o)
+      .map(object => ({ object, priorityKeys: priorityKeysOf(s, object) }))
+    const drift = objects
+      .filter(({ priorityKeys }) => !priorityKeys.some(k => monthTop.includes(k)))
+      .map(x => x.object)
     return { priorities, objects, drift, source: focus.source }
   }
   return { priorities, objects: [], drift: [], source: focus.source }
 }
 
-export function journalIn(s: RhythmScenario, unit: TimeUnit): RhythmJournalRecord[] { return recordsIn(s.journal, unit) }
-export function emotionsIn(s: RhythmScenario, unit: TimeUnit): RhythmEmotionRecord[] { return recordsIn(s.emotions, unit) }
-export function exercisesIn(s: RhythmScenario, unit: TimeUnit): RhythmExerciseRecord[] { return recordsIn(s.exercises, unit) }
+export function journalIn(s: RhythmScenario, unit: TimeUnit): RhythmJournalRecord[] {
+  return recordsIn(s.journal, unit)
+}
+export function emotionsIn(s: RhythmScenario, unit: TimeUnit): RhythmEmotionRecord[] {
+  return recordsIn(s.emotions, unit)
+}
+export function exercisesIn(s: RhythmScenario, unit: TimeUnit): RhythmExerciseRecord[] {
+  return recordsIn(s.exercises, unit)
+}
 
 export function truncate(text: string, max = 90): string {
   return text.length <= max ? text : `${text.slice(0, max - 1).trimEnd()}…`
@@ -841,7 +1250,10 @@ export function truncate(text: string, max = 90): string {
 
 /* ------------------------------------------------------------------ statystyki okresu (podsumowanie) */
 
-export interface Ratio { done: number; total: number }
+export interface Ratio {
+  done: number
+  total: number
+}
 
 /** Rodziny obiektów w podsumowaniu: cele (KR), nawyki, trackery, intencje. */
 export type FamilyGroup = 'goal' | 'habit' | 'tracker' | 'intention'
@@ -852,7 +1264,15 @@ export const FAMILY_GROUPS: { id: FamilyGroup; label: string; icon: string }[] =
   { id: 'intention', label: 'Intencje', icon: 'lightbulb' },
 ]
 function familyGroupOf(object: RhythmObject): FamilyGroup | null {
-  return object.family === 'keyResult' ? 'goal' : object.family === 'habit' ? 'habit' : object.family === 'tracker' ? 'tracker' : object.family === 'intention' ? 'intention' : null
+  return object.family === 'keyResult'
+    ? 'goal'
+    : object.family === 'habit'
+      ? 'habit'
+      : object.family === 'tracker'
+        ? 'tracker'
+        : object.family === 'intention'
+          ? 'intention'
+          : null
 }
 
 export interface FamilyStat extends Ratio {
@@ -877,7 +1297,17 @@ function targetMet(value: number | null, target: number | null, operator?: strin
 function fullWeekUnit(weekRef: WeekRef, clock: DayRef): TimeUnit {
   const bounds = getPeriodBounds(weekRef)
   const monthRef = getPeriodRefsForDate(addDaysToDayRef(bounds.start, 3)).month
-  return { ref: weekRef, kind: 'week', label: rangeLabel(bounds), fullBounds: bounds, visibleBounds: bounds, partial: false, state: timeState(bounds, clock), monthRef, weekRef }
+  return {
+    ref: weekRef,
+    kind: 'week',
+    label: rangeLabel(bounds),
+    fullBounds: bounds,
+    visibleBounds: bounds,
+    partial: false,
+    state: timeState(bounds, clock),
+    monthRef,
+    weekRef,
+  }
 }
 
 /**
@@ -887,21 +1317,36 @@ function fullWeekUnit(weekRef: WeekRef, clock: DayRef): TimeUnit {
  *  - gdy nie ma jeszcze zamkniętej jednostki (bieżący tydzień): zapisane / zaplanowane działania dnia do zegara;
  *  - bez celu (obserwacje, nawyki bez celu): jednostki z zapisem / jednostki, które już się zaczęły.
  */
-export function objectCompletion(s: RhythmScenario, object: RhythmObject, scale: Scale, ref: string, units: TimeUnit[]): { ratio: Ratio; basis: CompletionBasis } {
+export function objectCompletion(
+  s: RhythmScenario,
+  object: RhythmObject,
+  scale: Scale,
+  ref: string,
+  units: TimeUnit[]
+): { ratio: Ratio; basis: CompletionBasis } {
   const bounds = getPeriodBounds(ref as PeriodRef)
   const clock = s.clock
-  const operator = object.target?.kind === 'count' ? object.target.operator : object.target?.operator
+  const operator =
+    object.target?.kind === 'count' ? object.target.operator : object.target?.operator
   if (object.target) {
     let met = 0
     let checked = 0
     if (object.cadence === 'weekly') {
       const weekRefs = new Set<WeekRef>()
       if (scale === 'week') weekRefs.add(ref as WeekRef)
-      else for (const u of units) {
-        if (u.kind === 'week') weekRefs.add(u.ref as WeekRef)
-        else getChildPeriods(u.ref as MonthRef).forEach(w => weekRefs.add(w))
-      }
-      const weekUnits = [...weekRefs].map(w => fullWeekUnit(w, clock)).filter(u => u.state === 'past' && u.fullBounds.end >= bounds.start && u.fullBounds.start <= bounds.end)
+      else
+        for (const u of units) {
+          if (u.kind === 'week') weekRefs.add(u.ref as WeekRef)
+          else getChildPeriods(u.ref as MonthRef).forEach(w => weekRefs.add(w))
+        }
+      const weekUnits = [...weekRefs]
+        .map(w => fullWeekUnit(w, clock))
+        .filter(
+          u =>
+            u.state === 'past' &&
+            u.fullBounds.end >= bounds.start &&
+            u.fullBounds.start <= bounds.end
+        )
       for (const u of weekUnits) {
         const series = seriesFor(s, object, [u], 'month', u.monthRef)
         const p = series.points[0]
@@ -910,14 +1355,32 @@ export function objectCompletion(s: RhythmScenario, object: RhythmObject, scale:
         if (targetMet(p.value, p.target, series.operator)) met++
       }
     } else {
-      const monthRefs: MonthRef[] = scale === 'year' ? units.filter(u => u.state === 'past').map(u => u.ref as MonthRef) : scale === 'month' && timeState(bounds, clock) === 'past' ? [ref as MonthRef] : []
+      const monthRefs: MonthRef[] =
+        scale === 'year'
+          ? units.filter(u => u.state === 'past').map(u => u.ref as MonthRef)
+          : scale === 'month' && timeState(bounds, clock) === 'past'
+            ? [ref as MonthRef]
+            : []
       for (const monthRef of monthRefs) {
         const series = seriesFor(s, object, unitsFor('month', monthRef, clock), 'month', monthRef)
         const t = series.periodTotal
         if (!t || t.target === null) continue
         const mb = getPeriodBounds(monthRef)
-        const monthUnit: TimeUnit = { ref: monthRef, kind: 'month', label: '', fullBounds: mb, visibleBounds: mb, partial: false, state: timeState(mb, clock), monthRef }
-        if (t.value === null && !s.assignments.some(a => a.objectKey === object.key && assignmentInUnit(a, monthUnit))) continue
+        const monthUnit: TimeUnit = {
+          ref: monthRef,
+          kind: 'month',
+          label: '',
+          fullBounds: mb,
+          visibleBounds: mb,
+          partial: false,
+          state: timeState(mb, clock),
+          monthRef,
+        }
+        if (
+          t.value === null &&
+          !s.assignments.some(a => a.objectKey === object.key && assignmentInUnit(a, monthUnit))
+        )
+          continue
         checked++
         if (targetMet(t.value, t.target, operator)) met++
       }
@@ -927,20 +1390,40 @@ export function objectCompletion(s: RhythmScenario, object: RhythmObject, scale:
     let planned = 0
     let done = 0
     for (const a of s.assignments) {
-      if (a.cancelled || a.objectKey !== object.key || a.scope.kind !== 'day' || !inBounds(a.scope.ref, bounds) || a.scope.ref > clock) continue
+      if (
+        a.cancelled ||
+        a.objectKey !== object.key ||
+        a.scope.kind !== 'day' ||
+        !inBounds(a.scope.ref, bounds) ||
+        a.scope.ref > clock
+      )
+        continue
       planned++
-      if (s.entries.some(e => e.objectKey === object.key && isRecorded(e) && e.dayRef === a.scope.ref)) done++
+      if (
+        s.entries.some(e => e.objectKey === object.key && isRecorded(e) && e.dayRef === a.scope.ref)
+      )
+        done++
     }
     if (planned) return { ratio: { done, total: planned }, basis: 'actions' }
     return { ratio: { done: 0, total: 0 }, basis: 'none' }
   }
   /* bez celu: obecność zapisu w jednostkach, które już się zaczęły */
   const started = units.filter(u => u.visibleBounds.start <= clock)
-  const withEntry = started.filter(u => s.entries.some(e => e.objectKey === object.key && isRecorded(e) && entryInUnit(e, u))).length
-  return { ratio: { done: withEntry, total: started.length }, basis: started.length ? 'presence' : 'none' }
+  const withEntry = started.filter(u =>
+    s.entries.some(e => e.objectKey === object.key && isRecorded(e) && entryInUnit(e, u))
+  ).length
+  return {
+    ratio: { done: withEntry, total: started.length },
+    basis: started.length ? 'presence' : 'none',
+  }
 }
 
-export function periodStats(s: RhythmScenario, scale: Scale, ref: string, units: TimeUnit[]): PeriodStats {
+export function periodStats(
+  s: RhythmScenario,
+  scale: Scale,
+  ref: string,
+  units: TimeUnit[]
+): PeriodStats {
   const periodUnits = scale === 'week' ? [fullWeekUnit(ref as WeekRef, s.clock)] : units
   const objects = activeInPeriod(s, measurableObjects(s), periodUnits)
   const families = {} as Record<FamilyGroup, FamilyStat>
@@ -959,7 +1442,10 @@ export function periodStats(s: RhythmScenario, scale: Scale, ref: string, units:
   let reflections: Ratio | null = null
   if (scale !== 'week') {
     const past = units.filter(u => u.state === 'past')
-    reflections = { done: past.filter(u => reflectionForUnit(s, u).exists).length, total: past.length }
+    reflections = {
+      done: past.filter(u => reflectionForUnit(s, u).exists).length,
+      total: past.length,
+    }
   }
   return { families, reflections }
 }
@@ -988,18 +1474,47 @@ function mean(values: (number | null)[]): number | null {
   return nums.length ? nums.reduce((a, b) => a + b, 0) / nums.length : null
 }
 
-export function periodRating(s: RhythmScenario, scale: Scale, ref: string, units: TimeUnit[]): PeriodRating {
+export function periodRating(
+  s: RhythmScenario,
+  scale: Scale,
+  ref: string,
+  units: TimeUnit[]
+): PeriodRating {
   if (scale === 'year') {
     const past = units.filter(u => u.state === 'past')
-    const records = past.map(u => reflectionForUnit(s, u).monthly).filter((r): r is RhythmMonthlyReflection => !!r)
+    const records = past
+      .map(u => reflectionForUnit(s, u).monthly)
+      .filter((r): r is RhythmMonthlyReflection => !!r)
     const compass = COMPASS.map((_, i) => mean(records.map(r => r.compass[i] ?? null)))
-    return { scale, exists: records.length > 0, status: records.length ? 'done' : 'none', compass, mean: mean(compass), months: { done: records.length, total: past.length } }
+    return {
+      scale,
+      exists: records.length > 0,
+      status: records.length ? 'done' : 'none',
+      compass,
+      mean: mean(compass),
+      months: { done: records.length, total: past.length },
+    }
   }
   const own = ownReflection(s, scale, ref)
   if (!own?.exists) return { scale, exists: false, status: 'none', mean: null }
-  if (own.monthly) return { scale, exists: true, status: own.status, compass: own.monthly.compass, mean: mean(own.monthly.compass) }
+  if (own.monthly)
+    return {
+      scale,
+      exists: true,
+      status: own.status,
+      compass: own.monthly.compass,
+      mean: mean(own.monthly.compass),
+    }
   const w = own.weekly!
-  return { scale, exists: true, status: own.status, load: w.load, state: w.state, mean: mean(w.state), meanLoad: mean(w.load) }
+  return {
+    scale,
+    exists: true,
+    status: own.status,
+    load: w.load,
+    state: w.state,
+    mean: mean(w.state),
+    meanLoad: mean(w.load),
+  }
 }
 
 /* ------------------------------------------------------------------ obciążenie i stan w serii tygodni */
@@ -1012,9 +1527,14 @@ export function areaSeriesFor(s: RhythmScenario, weekRefs: readonly WeekRef[]): 
       key,
       weekRefs.map(weekRef => {
         const r = byWeek.get(weekRef)
-        return { weekRef, label: weekPointLabel(weekRef), load: toRating(r?.load[i] ?? null), state: toRating(r?.state[i] ?? null) }
+        return {
+          weekRef,
+          label: weekPointLabel(weekRef),
+          load: toRating(r?.load[i] ?? null),
+          state: toRating(r?.state[i] ?? null),
+        }
       }),
-    ]),
+    ])
   ) as AreaSeries
 }
 
@@ -1029,7 +1549,10 @@ export function yearWeekRefs(yearRef: string): WeekRef[] {
   const out: WeekRef[] = []
   for (const monthRef of getChildPeriods(yearRef as YearRef)) {
     for (const weekRef of getChildPeriods(monthRef)) {
-      if (!seen.has(weekRef)) { seen.add(weekRef); out.push(weekRef) }
+      if (!seen.has(weekRef)) {
+        seen.add(weekRef)
+        out.push(weekRef)
+      }
     }
   }
   return out

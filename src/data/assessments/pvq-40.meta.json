@@ -346,111 +346,61 @@
     {
       "id": "selfDirection",
       "labelKey": "assessments.pvq40.scales.selfDirection",
-      "itemIds": [
-        "pvq40_001",
-        "pvq40_002",
-        "pvq40_003",
-        "pvq40_004"
-      ],
+      "itemIds": ["pvq40_001", "pvq40_002", "pvq40_003", "pvq40_004"],
       "minAnswered": 4
     },
     {
       "id": "stimulation",
       "labelKey": "assessments.pvq40.scales.stimulation",
-      "itemIds": [
-        "pvq40_005",
-        "pvq40_006",
-        "pvq40_007",
-        "pvq40_008"
-      ],
+      "itemIds": ["pvq40_005", "pvq40_006", "pvq40_007", "pvq40_008"],
       "minAnswered": 4
     },
     {
       "id": "hedonism",
       "labelKey": "assessments.pvq40.scales.hedonism",
-      "itemIds": [
-        "pvq40_009",
-        "pvq40_010",
-        "pvq40_011",
-        "pvq40_012"
-      ],
+      "itemIds": ["pvq40_009", "pvq40_010", "pvq40_011", "pvq40_012"],
       "minAnswered": 4
     },
     {
       "id": "achievement",
       "labelKey": "assessments.pvq40.scales.achievement",
-      "itemIds": [
-        "pvq40_013",
-        "pvq40_014",
-        "pvq40_015",
-        "pvq40_016"
-      ],
+      "itemIds": ["pvq40_013", "pvq40_014", "pvq40_015", "pvq40_016"],
       "minAnswered": 4
     },
     {
       "id": "power",
       "labelKey": "assessments.pvq40.scales.power",
-      "itemIds": [
-        "pvq40_017",
-        "pvq40_018",
-        "pvq40_019",
-        "pvq40_020"
-      ],
+      "itemIds": ["pvq40_017", "pvq40_018", "pvq40_019", "pvq40_020"],
       "minAnswered": 4
     },
     {
       "id": "security",
       "labelKey": "assessments.pvq40.scales.security",
-      "itemIds": [
-        "pvq40_021",
-        "pvq40_022",
-        "pvq40_023",
-        "pvq40_024"
-      ],
+      "itemIds": ["pvq40_021", "pvq40_022", "pvq40_023", "pvq40_024"],
       "minAnswered": 4
     },
     {
       "id": "conformity",
       "labelKey": "assessments.pvq40.scales.conformity",
-      "itemIds": [
-        "pvq40_025",
-        "pvq40_026",
-        "pvq40_027",
-        "pvq40_028"
-      ],
+      "itemIds": ["pvq40_025", "pvq40_026", "pvq40_027", "pvq40_028"],
       "minAnswered": 4
     },
     {
       "id": "tradition",
       "labelKey": "assessments.pvq40.scales.tradition",
-      "itemIds": [
-        "pvq40_029",
-        "pvq40_030",
-        "pvq40_031",
-        "pvq40_032"
-      ],
+      "itemIds": ["pvq40_029", "pvq40_030", "pvq40_031", "pvq40_032"],
       "minAnswered": 4
     },
     {
       "id": "benevolence",
       "labelKey": "assessments.pvq40.scales.benevolence",
-      "itemIds": [
-        "pvq40_033",
-        "pvq40_034",
-        "pvq40_035",
-        "pvq40_036"
-      ],
+      "itemIds": ["pvq40_033", "pvq40_034", "pvq40_035", "pvq40_036"],
       "minAnswered": 4
     },
     {
       "id": "universalism",
       "labelKey": "assessments.pvq40.scales.universalism",
-      "itemIds": [
-        "pvq40_037",
-        "pvq40_038",
-        "pvq40_039",
-        "pvq40_040"
-      ],
+      "itemIds": ["pvq40_037", "pvq40_038", "pvq40_039", "pvq40_040"],
       "minAnswered": 4
     }
   ],

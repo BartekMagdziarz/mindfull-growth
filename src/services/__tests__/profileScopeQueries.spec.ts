@@ -18,8 +18,9 @@ import type { WeekRef } from '@/domain/period'
 
 vi.mock('@/services/foundationCompleteness', () => ({
   computeFoundationStatuses: vi.fn(() => []),
-  foundationCompletionCount: vi.fn((statuses: Array<{ state: string }>) =>
-    statuses.filter((s) => s.state === 'completed' || s.state === 'outdated').length,
+  foundationCompletionCount: vi.fn(
+    (statuses: Array<{ state: string }>) =>
+      statuses.filter(s => s.state === 'completed' || s.state === 'outdated').length
   ),
   loadFoundationSourceData: vi.fn(async () => {}),
 }))
@@ -54,7 +55,7 @@ describe('queryScopePreview', () => {
     // the [SCOPE]…[END OF DATA] scaffolding even when no records match — so it's
     // a small non-zero number, and no data type contributes any tokens.
     expect(result.approxTokens).toBeGreaterThan(0)
-    expect(Object.values(result.tokensByType).some((n) => (n ?? 0) > 0)).toBe(false)
+    expect(Object.values(result.tokensByType).some(n => (n ?? 0) > 0)).toBe(false)
   })
 
   it('counts journal and emotion logs inside the range only', async () => {
@@ -257,8 +258,8 @@ describe('queryScopePreview', () => {
     // the archived one is excluded.
     expect(result.countsByType.planning).toBe(2)
     expect((result.objectIdsByType.planning ?? []).slice().sort()).toEqual(['la1', 'la2'])
-    const planningHeaders = result.headers.filter((h) => h.type === 'planning')
-    expect(planningHeaders.map((h) => h.title).sort()).toEqual(['Health', 'Work'])
+    const planningHeaders = result.headers.filter(h => h.type === 'planning')
+    expect(planningHeaders.map(h => h.title).sort()).toEqual(['Health', 'Work'])
   })
 
   it('counts completed and outdated foundation tiles', async () => {
@@ -309,7 +310,7 @@ describe('queryScopePreview', () => {
     expect(result.countsByType.foundation).toBe(4)
     expect(result.objectIdsByType.foundation).toHaveLength(4)
     expect(result.headers).toHaveLength(4)
-    expect(result.headers.every((h) => h.type === 'foundation')).toBe(true)
+    expect(result.headers.every(h => h.type === 'foundation')).toBe(true)
   })
 
   it('counts weekly reflections in range when the store is populated', async () => {

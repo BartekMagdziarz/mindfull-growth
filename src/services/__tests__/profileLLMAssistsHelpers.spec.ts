@@ -49,9 +49,7 @@ function makeBundle(overrides: Partial<ExerciseSessionBundle>): ExerciseSessionB
 
 describe('summariseExerciseSession', () => {
   it('prefixes the type and date-only portion of createdAt', () => {
-    const summary = summariseExerciseSession(
-      makeBundle({ raw: { situation: 'Tough morning.' } }),
-    )
+    const summary = summariseExerciseSession(makeBundle({ raw: { situation: 'Tough morning.' } }))
     expect(summary.startsWith('thoughtRecord on 2026-04-12.')).toBe(true)
   })
 
@@ -63,7 +61,7 @@ describe('summariseExerciseSession', () => {
           situation: 'Presentation at 10am.',
           hotThought: 'I will fail.',
         },
-      }),
+      })
     )
     expect(summary).toContain('Presentation at 10am.')
     expect(summary).not.toContain('I will fail.')
@@ -73,7 +71,7 @@ describe('summariseExerciseSession', () => {
     const summary = summariseExerciseSession(
       makeBundle({
         raw: { freeformReflection: 'Felt calmer after the walk.' },
-      }),
+      })
     )
     expect(summary).toContain('Felt calmer after the walk.')
   })
@@ -82,7 +80,7 @@ describe('summariseExerciseSession', () => {
     const summary = summariseExerciseSession(
       makeBundle({
         raw: { randomField: 'ignored', numberField: 42 },
-      }),
+      })
     )
     expect(summary).toContain('(no free-text details recorded)')
   })
@@ -95,14 +93,14 @@ describe('summariseExerciseSession', () => {
           hotThought: '',
           reflection: 'Something worth quoting.',
         },
-      }),
+      })
     )
     expect(summary).toContain('Something worth quoting.')
   })
 
   it('handles createdAt that is already date-only', () => {
     const summary = summariseExerciseSession(
-      makeBundle({ createdAt: '2026-04-12', raw: { note: 'Hello.' } }),
+      makeBundle({ createdAt: '2026-04-12', raw: { note: 'Hello.' } })
     )
     expect(summary).toContain('2026-04-12')
   })
@@ -182,7 +180,9 @@ describe('buildPlanningSnapshot', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(priorityDexieRepository.listAll).mockResolvedValue([])
-    vi.mocked(planningStateDexieRepository.listDailyMeasurementEntriesForDayRange).mockResolvedValue([])
+    vi.mocked(
+      planningStateDexieRepository.listDailyMeasurementEntriesForDayRange
+    ).mockResolvedValue([])
   })
 
   it('returns empty arrays and empty snapshot when repositories return nothing', async () => {
@@ -223,12 +223,10 @@ describe('buildPlanningSnapshot', () => {
 
     const snapshot = await buildPlanningSnapshot()
 
-    expect(snapshot.activeGoals.map((g) => g.title)).toEqual(['Ship MVP'])
-    expect(snapshot.activeKeyResults.map((k) => k.title)).toEqual([
-      '10 users onboarded',
-    ])
-    expect(snapshot.activeHabits.map((h) => h.title)).toEqual(['Morning walk'])
-    expect(snapshot.activeTrackers.map((t) => t.title)).toEqual(['Weight'])
+    expect(snapshot.activeGoals.map(g => g.title)).toEqual(['Ship MVP'])
+    expect(snapshot.activeKeyResults.map(k => k.title)).toEqual(['10 users onboarded'])
+    expect(snapshot.activeHabits.map(h => h.title)).toEqual(['Morning walk'])
+    expect(snapshot.activeTrackers.map(t => t.title)).toEqual(['Weight'])
 
     expect(snapshot.snapshot).toContain('Active goals')
     expect(snapshot.snapshot).toContain('- Ship MVP')
@@ -270,8 +268,27 @@ describe('buildPlanningSnapshot', () => {
           learned: 'Trzy razy w tygodniu to realny rytm.',
           followUp: { kind: 'habit', note: 'Treningi zostają.' },
           keyResults: [
-            { id: 'kr1', title: '3 treningi', entryMode: 'completion', cadence: 'weekly', evaluation: 'met', monthsMet: 5, monthsPlanned: 6, months: [], lastReadout: '16/21 tyg.' },
-            { id: 'kr2', title: 'Rozciąganie', entryMode: 'completion', cadence: 'weekly', evaluation: 'missed', monthsMet: 0, monthsPlanned: 6, months: [] },
+            {
+              id: 'kr1',
+              title: '3 treningi',
+              entryMode: 'completion',
+              cadence: 'weekly',
+              evaluation: 'met',
+              monthsMet: 5,
+              monthsPlanned: 6,
+              months: [],
+              lastReadout: '16/21 tyg.',
+            },
+            {
+              id: 'kr2',
+              title: 'Rozciąganie',
+              entryMode: 'completion',
+              cadence: 'weekly',
+              evaluation: 'missed',
+              monthsMet: 0,
+              monthsPlanned: 6,
+              months: [],
+            },
           ],
         }),
       },
@@ -281,7 +298,9 @@ describe('buildPlanningSnapshot', () => {
         title: `Stary cel ${index}`,
         status: 'completed',
         updatedAt: 'x',
-        closingReflection: reflection(`2026-0${1 + (index % 3)}-1${index % 10}`, { outcome: 'abandoned' }),
+        closingReflection: reflection(`2026-0${1 + (index % 3)}-1${index % 10}`, {
+          outcome: 'abandoned',
+        }),
       })),
     ]
     vi.mocked(goalDexieRepository.listAll).mockResolvedValue(goals as never)
@@ -292,14 +311,25 @@ describe('buildPlanningSnapshot', () => {
     const snapshot = await buildPlanningSnapshot()
 
     expect(snapshot.closedGoals).toHaveLength(12)
-    expect(snapshot.closedGoals[0]).toMatchObject({ id: 'g-main', outcome: 'partial', closedAt: '2026-10-04' })
-    expect(snapshot.activeGoals.map((g) => g.title)).toEqual(['Hiszpański B1'])
+    expect(snapshot.closedGoals[0]).toMatchObject({
+      id: 'g-main',
+      outcome: 'partial',
+      closedAt: '2026-10-04',
+    })
+    expect(snapshot.activeGoals.map(g => g.title)).toEqual(['Hiszpański B1'])
 
     const text = snapshot.snapshot
-    const section = text.slice(text.indexOf('Closed goal reflections:'), text.indexOf('Active goals:'))
-    expect(section).toContain('- [2026-04-01 → 2026-09-30, closed 2026-10-04] Blok treningowy — partly achieved')
+    const section = text.slice(
+      text.indexOf('Closed goal reflections:'),
+      text.indexOf('Active goals:')
+    )
+    expect(section).toContain(
+      '- [2026-04-01 → 2026-09-30, closed 2026-10-04] Blok treningowy — partly achieved'
+    )
     expect(section).toContain('  Key results: 3 treningi — met (16/21 tyg.); Rozciąganie — missed')
-    expect(section).toContain('  Success definition: "Trzy treningi tygodniowo" → partly. Przysiad tak, ciągłość nie.')
+    expect(section).toContain(
+      '  Success definition: "Trzy treningi tygodniowo" → partly. Przysiad tak, ciągłość nie.'
+    )
     expect(section).toContain('  Confidence: 8/10 at the start, 6/10 in hindsight.')
     expect(section).toContain('  Obstacles expected: Sezon urlopowy')
     expect(section).toContain('  Obstacles that showed up: Delegacje.')
@@ -320,7 +350,7 @@ describe('buildPlanningSnapshot', () => {
     vi.mocked(priorityDexieRepository.listAll).mockResolvedValue([])
 
     const snapshot = await buildPlanningSnapshot()
-    expect(snapshot.activeHabits.map((h) => h.title)).toEqual(['Legacy habit'])
+    expect(snapshot.activeHabits.map(h => h.title)).toEqual(['Legacy habit'])
   })
 
   it('survives an individual repository failure and logs a warning', async () => {
@@ -335,7 +365,7 @@ describe('buildPlanningSnapshot', () => {
 
     const snapshot = await buildPlanningSnapshot()
 
-    expect(snapshot.activeGoals.map((g) => g.title)).toEqual(['Ship MVP'])
+    expect(snapshot.activeGoals.map(g => g.title)).toEqual(['Ship MVP'])
     expect(snapshot.activeKeyResults).toEqual([])
     expect(warn).toHaveBeenCalled()
     warn.mockRestore()
@@ -362,8 +392,9 @@ describe('buildPlanningSnapshot', () => {
     ])
     vi.mocked(trackerDexieRepository.listAll).mockResolvedValue([])
     vi.mocked(priorityDexieRepository.listAll).mockResolvedValue([])
-    vi.mocked(planningStateDexieRepository.listDailyMeasurementEntriesForDayRange)
-      .mockRejectedValue(new Error('entry boom'))
+    vi.mocked(
+      planningStateDexieRepository.listDailyMeasurementEntriesForDayRange
+    ).mockRejectedValue(new Error('entry boom'))
 
     const snapshot = await buildPlanningSnapshot()
 
@@ -423,7 +454,9 @@ describe('buildPlanningSnapshot', () => {
       } as never,
     ])
     vi.mocked(priorityDexieRepository.listAll).mockResolvedValue([])
-    vi.mocked(planningStateDexieRepository.listDailyMeasurementEntriesForDayRange).mockResolvedValue([
+    vi.mocked(
+      planningStateDexieRepository.listDailyMeasurementEntriesForDayRange
+    ).mockResolvedValue([
       {
         id: 'h1-2026-03-18',
         createdAt: '2026-03-18T08:00:00.000Z',

@@ -14,8 +14,8 @@ import {
 
 describe('reflection matrix', () => {
   it('covers every weekly rating key exactly once (bijection)', () => {
-    const cellFields = REFLECTION_MATRIX_AREAS.flatMap((area) =>
-      MATRIX_SECTIONS.map((section) => area.fields[section])
+    const cellFields = REFLECTION_MATRIX_AREAS.flatMap(area =>
+      MATRIX_SECTIONS.map(section => area.fields[section])
     )
     expect(cellFields).toHaveLength(WEEKLY_RATING_KEYS.length)
     expect(new Set(cellFields).size).toBe(cellFields.length)
@@ -31,7 +31,7 @@ describe('reflection matrix', () => {
   })
 
   it('keeps the canonical area display order', () => {
-    expect(REFLECTION_MATRIX_AREAS.map((a) => a.key)).toEqual([
+    expect(REFLECTION_MATRIX_AREAS.map(a => a.key)).toEqual([
       'body',
       'emotions',
       'tasks',

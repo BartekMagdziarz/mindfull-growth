@@ -1,7 +1,11 @@
 <template>
   <div class="space-y-6">
     <!-- Step indicator dots -->
-    <ExerciseStepper :labels="stepLabels" :current="currentVisualStep" @go="goToStepByIndex($event)" />
+    <ExerciseStepper
+      :labels="stepLabels"
+      :current="currentVisualStep"
+      @go="goToStepByIndex($event)"
+    />
 
     <!-- Step 1: Intro -->
     <Transition
@@ -12,7 +16,9 @@
     >
       <div v-if="currentStep === 'intro'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.behavioralActivation.intro.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.behavioralActivation.intro.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.behavioralActivation.intro.description') }}
           </p>
@@ -23,15 +29,21 @@
             <div class="space-y-2">
               <div class="flex items-start gap-3">
                 <span class="exercise-pill px-3 py-1 text-xs flex-shrink-0">1</span>
-                <p class="text-sm text-on-surface">{{ t('exerciseWizards.behavioralActivation.intro.step1') }}</p>
+                <p class="text-sm text-on-surface">
+                  {{ t('exerciseWizards.behavioralActivation.intro.step1') }}
+                </p>
               </div>
               <div class="flex items-start gap-3">
                 <span class="exercise-pill px-3 py-1 text-xs flex-shrink-0">2</span>
-                <p class="text-sm text-on-surface">{{ t('exerciseWizards.behavioralActivation.intro.step2') }}</p>
+                <p class="text-sm text-on-surface">
+                  {{ t('exerciseWizards.behavioralActivation.intro.step2') }}
+                </p>
               </div>
               <div class="flex items-start gap-3">
                 <span class="exercise-pill px-3 py-1 text-xs flex-shrink-0">3</span>
-                <p class="text-sm text-on-surface">{{ t('exerciseWizards.behavioralActivation.intro.step3') }}</p>
+                <p class="text-sm text-on-surface">
+                  {{ t('exerciseWizards.behavioralActivation.intro.step3') }}
+                </p>
               </div>
             </div>
           </div>
@@ -53,13 +65,17 @@
     >
       <div v-if="currentStep === 'mood-baseline'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.behavioralActivation.moodBaseline.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.behavioralActivation.moodBaseline.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.behavioralActivation.moodBaseline.description') }}
           </p>
           <ExerciseStepWhy :text="tg('exerciseWizards.behavioralActivation.moodBaseline.why')" />
           <div class="space-y-2">
-            <label class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.behavioralActivation.moodBaseline.overallMoodLabel') }}</label>
+            <label class="text-sm font-medium text-on-surface">{{
+              t('exerciseWizards.behavioralActivation.moodBaseline.overallMoodLabel')
+            }}</label>
             <ExerciseScaleRow
               v-model="overallMoodStart"
               :min="0"
@@ -71,20 +87,24 @@
           </div>
 
           <div class="space-y-2 pt-2">
-          <h3 class="text-sm font-semibold text-on-surface">{{ t('exerciseWizards.behavioralActivation.moodBaseline.weekStartTitle') }}</h3>
-          <p class="text-sm text-on-surface-variant">
-            {{ t('exerciseWizards.behavioralActivation.moodBaseline.weekStartDescription') }}
-          </p>
-          <input
-            v-model="weekStartDate"
-            type="date"
-            class="neo-input neo-focus w-full p-2.5 text-sm"
-          />
+            <h3 class="text-sm font-semibold text-on-surface">
+              {{ t('exerciseWizards.behavioralActivation.moodBaseline.weekStartTitle') }}
+            </h3>
+            <p class="text-sm text-on-surface-variant">
+              {{ t('exerciseWizards.behavioralActivation.moodBaseline.weekStartDescription') }}
+            </p>
+            <input
+              v-model="weekStartDate"
+              type="date"
+              class="neo-input neo-focus w-full p-2.5 text-sm"
+            />
           </div>
         </AppCard>
 
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'intro'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'intro'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton variant="filled" @click="currentStep = 'plan-activities'">
             {{ t('common.buttons.next') }}
           </AppButton>
@@ -101,7 +121,9 @@
     >
       <div v-if="currentStep === 'plan-activities'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.behavioralActivation.planActivities.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.behavioralActivation.planActivities.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.behavioralActivation.planActivities.description') }}
           </p>
@@ -110,16 +132,22 @@
           <!-- Add activity form -->
           <div class="neo-surface p-4 space-y-3">
             <div class="space-y-1">
-              <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.behavioralActivation.planActivities.activityNameLabel') }}</label>
+              <label class="text-xs font-medium text-on-surface-variant">{{
+                t('exerciseWizards.behavioralActivation.planActivities.activityNameLabel')
+              }}</label>
               <input
                 v-model="newActivityName"
                 class="neo-input neo-focus w-full p-2.5 text-sm"
-                :placeholder="t('exerciseWizards.behavioralActivation.planActivities.activityNamePlaceholder')"
+                :placeholder="
+                  t('exerciseWizards.behavioralActivation.planActivities.activityNamePlaceholder')
+                "
               />
             </div>
 
             <div class="space-y-1">
-              <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.behavioralActivation.planActivities.categoryLabel') }}</label>
+              <label class="text-xs font-medium text-on-surface-variant">{{
+                t('exerciseWizards.behavioralActivation.planActivities.categoryLabel')
+              }}</label>
               <div class="flex flex-wrap gap-2">
                 <button
                   v-for="cat in categories"
@@ -131,17 +159,16 @@
                   ]"
                   @click="newActivityCategory = cat.id"
                 >
-                  <span
-                    class="inline-block w-2 h-2 rounded-full mr-1.5"
-                    :class="cat.dotClass"
-                  />
+                  <span class="inline-block w-2 h-2 rounded-full mr-1.5" :class="cat.dotClass" />
                   {{ cat.label }}
                 </button>
               </div>
             </div>
 
             <div class="space-y-1">
-              <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.behavioralActivation.planActivities.scheduledDateLabel') }}</label>
+              <label class="text-xs font-medium text-on-surface-variant">{{
+                t('exerciseWizards.behavioralActivation.planActivities.scheduledDateLabel')
+              }}</label>
               <input
                 v-model="newActivityDate"
                 type="date"
@@ -150,11 +177,7 @@
             </div>
 
             <div class="flex justify-end">
-              <AppButton
-                variant="tonal"
-                :disabled="!canAddActivity"
-                @click="addActivity"
-              >
+              <AppButton variant="tonal" :disabled="!canAddActivity" @click="addActivity">
                 <AppIcon name="add" class="text-base" />
                 {{ t('exerciseWizards.behavioralActivation.planActivities.addActivity') }}
               </AppButton>
@@ -170,7 +193,11 @@
                 @click="handleSuggestActivities"
               >
                 <AppIcon name="auto_awesome" class="text-base" />
-                {{ isSuggestLoading ? t('exerciseWizards.behavioralActivation.planActivities.suggestLoading') : t('exerciseWizards.behavioralActivation.planActivities.suggestLabel') }}
+                {{
+                  isSuggestLoading
+                    ? t('exerciseWizards.behavioralActivation.planActivities.suggestLoading')
+                    : t('exerciseWizards.behavioralActivation.planActivities.suggestLabel')
+                }}
               </AppButton>
               <ProfileContextToggle v-model="useProfileSuggest" />
             </div>
@@ -193,11 +220,7 @@
             </span>
           </h3>
           <div class="grid gap-3 sm:grid-cols-2 items-start">
-            <AppCard
-              v-for="(act, idx) in activities"
-              :key="act.id"
-              padding="md"
-            >
+            <AppCard v-for="(act, idx) in activities" :key="act.id" padding="md">
               <div class="flex justify-between items-start group">
                 <div class="flex-1 space-y-1">
                   <div class="flex items-center gap-2">
@@ -231,11 +254,20 @@
           v-if="activities.length > 0 && activities.length < 3"
           class="text-xs text-on-surface-variant text-center"
         >
-          {{ tp(3 - activities.length, 'exerciseWizards.behavioralActivation.planActivities.addMore.one', 'exerciseWizards.behavioralActivation.planActivities.addMore.few', 'exerciseWizards.behavioralActivation.planActivities.addMore.many') }}
+          {{
+            tp(
+              3 - activities.length,
+              'exerciseWizards.behavioralActivation.planActivities.addMore.one',
+              'exerciseWizards.behavioralActivation.planActivities.addMore.few',
+              'exerciseWizards.behavioralActivation.planActivities.addMore.many'
+            )
+          }}
         </p>
 
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'mood-baseline'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'mood-baseline'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton
             variant="filled"
             :disabled="activities.length < 3"
@@ -256,7 +288,9 @@
     >
       <div v-if="currentStep === 'summary'" class="space-y-4">
         <AppCard variant="raised" padding="lg" class="space-y-5">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.behavioralActivation.summary.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.behavioralActivation.summary.title') }}
+          </h2>
 
           <!-- Week info -->
           <div class="space-y-1">
@@ -279,13 +313,11 @@
           <!-- Activities grouped by category -->
           <div class="space-y-3">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-              {{ t('exerciseWizards.behavioralActivation.summary.activities') }} ({{ activities.length }})
+              {{ t('exerciseWizards.behavioralActivation.summary.activities') }} ({{
+                activities.length
+              }})
             </p>
-            <div
-              v-for="group in groupedActivities"
-              :key="group.category"
-              class="space-y-2"
-            >
+            <div v-for="group in groupedActivities" :key="group.category" class="space-y-2">
               <div class="flex items-center gap-2">
                 <span
                   class="inline-block px-2 py-0.5 text-xs font-medium rounded-full"
@@ -293,9 +325,7 @@
                 >
                   {{ getCategoryLabel(group.category) }}
                 </span>
-                <span class="text-xs text-on-surface-variant">
-                  ({{ group.items.length }})
-                </span>
+                <span class="text-xs text-on-surface-variant"> ({{ group.items.length }}) </span>
               </div>
               <div class="neo-embedded p-3 space-y-1.5">
                 <div
@@ -315,17 +345,15 @@
 
         <!-- Track activities section -->
         <AppCard padding="lg" class="space-y-4">
-          <h3 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.behavioralActivation.summary.trackTitle') }}</h3>
+          <h3 class="text-base font-semibold text-on-surface">
+            {{ t('exerciseWizards.behavioralActivation.summary.trackTitle') }}
+          </h3>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.behavioralActivation.summary.trackDescription') }}
           </p>
 
           <div class="space-y-3">
-            <div
-              v-for="act in activities"
-              :key="act.id"
-              class="neo-surface p-3 space-y-2"
-            >
+            <div v-for="act in activities" :key="act.id" class="neo-surface p-3 space-y-2">
               <div class="flex items-center gap-3">
                 <button
                   type="button"
@@ -366,8 +394,12 @@
                 <div v-if="act.completed" class="pl-8 space-y-2">
                   <div class="space-y-1">
                     <div class="flex items-center justify-between">
-                      <label class="text-xs text-on-surface-variant">{{ t('exerciseWizards.behavioralActivation.summary.moodBefore') }}</label>
-                      <span class="text-xs font-semibold text-primary">{{ act.moodBefore ?? '-' }}/10</span>
+                      <label class="text-xs text-on-surface-variant">{{
+                        t('exerciseWizards.behavioralActivation.summary.moodBefore')
+                      }}</label>
+                      <span class="text-xs font-semibold text-primary"
+                        >{{ act.moodBefore ?? '-' }}/10</span
+                      >
                     </div>
                     <input
                       :value="act.moodBefore ?? 5"
@@ -381,8 +413,12 @@
                   </div>
                   <div class="space-y-1">
                     <div class="flex items-center justify-between">
-                      <label class="text-xs text-on-surface-variant">{{ t('exerciseWizards.behavioralActivation.summary.moodAfter') }}</label>
-                      <span class="text-xs font-semibold text-primary">{{ act.moodAfter ?? '-' }}/10</span>
+                      <label class="text-xs text-on-surface-variant">{{
+                        t('exerciseWizards.behavioralActivation.summary.moodAfter')
+                      }}</label>
+                      <span class="text-xs font-semibold text-primary"
+                        >{{ act.moodAfter ?? '-' }}/10</span
+                      >
                     </div>
                     <input
                       :value="act.moodAfter ?? 5"
@@ -401,15 +437,15 @@
         </AppCard>
 
         <!-- LLM Assist: Week Review -->
-        <AppCard v-if="activities.some((a) => a.completed)" padding="lg" class="space-y-3">
+        <AppCard v-if="activities.some(a => a.completed)" padding="lg" class="space-y-3">
           <div class="flex flex-wrap items-center gap-2">
-            <AppButton
-              variant="tonal"
-              :disabled="isReviewLoading"
-              @click="handleReviewWeek"
-            >
+            <AppButton variant="tonal" :disabled="isReviewLoading" @click="handleReviewWeek">
               <AppIcon name="auto_awesome" class="text-base" />
-              {{ isReviewLoading ? t('exerciseWizards.behavioralActivation.summary.reviewLoading') : t('exerciseWizards.behavioralActivation.summary.reviewLabel') }}
+              {{
+                isReviewLoading
+                  ? t('exerciseWizards.behavioralActivation.summary.reviewLoading')
+                  : t('exerciseWizards.behavioralActivation.summary.reviewLabel')
+              }}
             </AppButton>
             <ProfileContextToggle v-model="useProfileReviewWeek" />
           </div>
@@ -424,7 +460,9 @@
 
         <!-- Optional notes -->
         <AppCard padding="lg" class="space-y-3">
-          <h3 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.behavioralActivation.summary.notesTitle') }}</h3>
+          <h3 class="text-base font-semibold text-on-surface">
+            {{ t('exerciseWizards.behavioralActivation.summary.notesTitle') }}
+          </h3>
           <textarea
             v-model="notes"
             rows="3"
@@ -434,7 +472,9 @@
         </AppCard>
 
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'plan-activities'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'plan-activities'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton variant="filled" @click="handleSave">
             {{ t('exerciseWizards.behavioralActivation.summary.savePlan') }}
           </AppButton>
@@ -498,19 +538,44 @@ function goToStepByIndex(idx: number) {
 
 // ─── Category Definitions ────────────────────────────────────────────────────
 const categories = computed(() => [
-  { id: 'pleasure' as ActivityCategory, label: t('exerciseWizards.behavioralActivation.planActivities.categories.pleasure'), colorClass: ACTIVITY_CATEGORY_CLASSES.pleasure.color, dotClass: ACTIVITY_CATEGORY_CLASSES.pleasure.dot },
-  { id: 'mastery' as ActivityCategory, label: t('exerciseWizards.behavioralActivation.planActivities.categories.mastery'), colorClass: ACTIVITY_CATEGORY_CLASSES.mastery.color, dotClass: ACTIVITY_CATEGORY_CLASSES.mastery.dot },
-  { id: 'social' as ActivityCategory, label: t('exerciseWizards.behavioralActivation.planActivities.categories.social'), colorClass: ACTIVITY_CATEGORY_CLASSES.social.color, dotClass: ACTIVITY_CATEGORY_CLASSES.social.dot },
-  { id: 'physical' as ActivityCategory, label: t('exerciseWizards.behavioralActivation.planActivities.categories.physical'), colorClass: ACTIVITY_CATEGORY_CLASSES.physical.color, dotClass: ACTIVITY_CATEGORY_CLASSES.physical.dot },
-  { id: 'values-aligned' as ActivityCategory, label: t('exerciseWizards.behavioralActivation.planActivities.categories.values'), colorClass: ACTIVITY_CATEGORY_CLASSES['values-aligned'].color, dotClass: ACTIVITY_CATEGORY_CLASSES['values-aligned'].dot },
+  {
+    id: 'pleasure' as ActivityCategory,
+    label: t('exerciseWizards.behavioralActivation.planActivities.categories.pleasure'),
+    colorClass: ACTIVITY_CATEGORY_CLASSES.pleasure.color,
+    dotClass: ACTIVITY_CATEGORY_CLASSES.pleasure.dot,
+  },
+  {
+    id: 'mastery' as ActivityCategory,
+    label: t('exerciseWizards.behavioralActivation.planActivities.categories.mastery'),
+    colorClass: ACTIVITY_CATEGORY_CLASSES.mastery.color,
+    dotClass: ACTIVITY_CATEGORY_CLASSES.mastery.dot,
+  },
+  {
+    id: 'social' as ActivityCategory,
+    label: t('exerciseWizards.behavioralActivation.planActivities.categories.social'),
+    colorClass: ACTIVITY_CATEGORY_CLASSES.social.color,
+    dotClass: ACTIVITY_CATEGORY_CLASSES.social.dot,
+  },
+  {
+    id: 'physical' as ActivityCategory,
+    label: t('exerciseWizards.behavioralActivation.planActivities.categories.physical'),
+    colorClass: ACTIVITY_CATEGORY_CLASSES.physical.color,
+    dotClass: ACTIVITY_CATEGORY_CLASSES.physical.dot,
+  },
+  {
+    id: 'values-aligned' as ActivityCategory,
+    label: t('exerciseWizards.behavioralActivation.planActivities.categories.values'),
+    colorClass: ACTIVITY_CATEGORY_CLASSES['values-aligned'].color,
+    dotClass: ACTIVITY_CATEGORY_CLASSES['values-aligned'].dot,
+  },
 ])
 
 function getCategoryColorClass(cat: ActivityCategory): string {
-  return categories.value.find((c) => c.id === cat)?.colorClass ?? ''
+  return categories.value.find(c => c.id === cat)?.colorClass ?? ''
 }
 
 function getCategoryLabel(cat: ActivityCategory): string {
-  return categories.value.find((c) => c.id === cat)?.label ?? cat
+  return categories.value.find(c => c.id === cat)?.label ?? cat
 }
 
 // ─── Form State ──────────────────────────────────────────────────────────────
@@ -562,7 +627,7 @@ async function handleSuggestActivities() {
     const { suggestActivities } = await import('@/services/cbtLLMAssists')
     suggestResult.value = await suggestActivities({
       overallMood: overallMoodStart.value,
-      existingActivities: activities.map((a) => ({
+      existingActivities: activities.map(a => ({
         activity: a.activity,
         category: a.category,
       })),
@@ -588,7 +653,7 @@ async function handleReviewWeek() {
     const { reviewActivationWeek } = await import('@/services/cbtLLMAssists')
     reviewResult.value = await reviewActivationWeek({
       overallMoodStart: overallMoodStart.value,
-      activities: activities.map((a) => ({
+      activities: activities.map(a => ({
         activity: a.activity,
         category: a.category,
         completed: a.completed,
@@ -610,7 +675,7 @@ const groupedActivities = computed(() => {
   const groups: { category: ActivityCategory; items: BehavioralActivationActivity[] }[] = []
 
   for (const cat of categories.value) {
-    const items = activities.filter((a) => a.category === cat.id)
+    const items = activities.filter(a => a.category === cat.id)
     if (items.length > 0) {
       groups.push({ category: cat.id, items })
     }
@@ -623,7 +688,7 @@ const groupedActivities = computed(() => {
 function handleSave() {
   const payload: CreateBehavioralActivationPayload = {
     weekStartDate: weekStartDate.value,
-    activities: activities.map((a) => ({
+    activities: activities.map(a => ({
       ...a,
       moodBefore: a.completed ? a.moodBefore : undefined,
       moodAfter: a.completed ? a.moodAfter : undefined,

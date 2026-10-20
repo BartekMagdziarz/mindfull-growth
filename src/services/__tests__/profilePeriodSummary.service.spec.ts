@@ -1,10 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { resetDatabase } from '@/__tests__/utils/dbTestUtils'
 import { profilePeriodSummaryDexieRepository } from '@/repositories/profilePeriodSummaryDexieRepository'
-import {
-  buildPeriodDigestContent,
-  getPeriodDigest,
-} from '../profilePeriodSummary.service'
+import { buildPeriodDigestContent, getPeriodDigest } from '../profilePeriodSummary.service'
 import { getPeriodBounds } from '@/utils/periods'
 import type { WeekRef } from '@/domain/period'
 import type { JournalEntry } from '@/domain/journal'
@@ -38,9 +35,19 @@ vi.mock('@/stores/emotion.store', () => ({
 vi.mock('@/stores/tag.store', () => ({
   useTagStore: () => ({
     getPeopleTagById: (id: string) =>
-      (({ p1: { id: 'p1', name: 'Anna' }, p2: { id: 'p2', name: 'Marek' } }) as Record<string, unknown>)[id],
+      (
+        ({ p1: { id: 'p1', name: 'Anna' }, p2: { id: 'p2', name: 'Marek' } }) as Record<
+          string,
+          unknown
+        >
+      )[id],
     getContextTagById: (id: string) =>
-      (({ c1: { id: 'c1', name: 'work' }, c2: { id: 'c2', name: 'family' } }) as Record<string, unknown>)[id],
+      (
+        ({ c1: { id: 'c1', name: 'work' }, c2: { id: 'c2', name: 'family' } }) as Record<
+          string,
+          unknown
+        >
+      )[id],
   }),
 }))
 
@@ -54,7 +61,7 @@ function jEntry(
   body: string,
   peopleTagIds: string[] = [],
   contextTagIds: string[] = [],
-  updatedAt = createdAt,
+  updatedAt = createdAt
 ): JournalEntry {
   return { id, createdAt, updatedAt, body, peopleTagIds, contextTagIds } as unknown as JournalEntry
 }
@@ -62,12 +69,22 @@ function eLog(
   id: string,
   createdAt: string,
   emotionIds: string[],
-  updatedAt = createdAt,
+  updatedAt = createdAt
 ): EmotionLog {
   return { id, createdAt, updatedAt, emotionIds } as unknown as EmotionLog
 }
-function bundle(id: string, type: string, createdAt: string, updatedAt = createdAt): ExerciseSessionBundle {
-  return { id, type, createdAt, raw: { id, createdAt, updatedAt } } as unknown as ExerciseSessionBundle
+function bundle(
+  id: string,
+  type: string,
+  createdAt: string,
+  updatedAt = createdAt
+): ExerciseSessionBundle {
+  return {
+    id,
+    type,
+    createdAt,
+    raw: { id, createdAt, updatedAt },
+  } as unknown as ExerciseSessionBundle
 }
 
 const ALL = { journal: true, emotionLogs: true, exerciseSessions: true }
@@ -77,7 +94,13 @@ describe('buildPeriodDigestContent', () => {
     const records = {
       journal: [
         jEntry('j1', at(bounds.end), 'Tense 1:1 with my manager about scope', ['p1'], ['c1']),
-        jEntry('j2', at(bounds.start, '09:00:00.000Z'), 'Long walk cleared my head today and I felt much better', ['p2'], ['c2']),
+        jEntry(
+          'j2',
+          at(bounds.start, '09:00:00.000Z'),
+          'Long walk cleared my head today and I felt much better',
+          ['p2'],
+          ['c2']
+        ),
         jEntry('j3', at(bounds.start), 'third entry body text', [], []),
       ],
       logs: [eLog('l1', at(bounds.end), ['e1', 'e2']), eLog('l2', at(bounds.start), ['e1', 'e3'])],
@@ -131,13 +154,13 @@ describe('buildPeriodDigestContent', () => {
 
   it('returns null for a period with no activity', () => {
     expect(
-      buildPeriodDigestContent(WEEK, 1, { journal: [], logs: [], exercises: [] }, ALL),
+      buildPeriodDigestContent(WEEK, 1, { journal: [], logs: [], exercises: [] }, ALL)
     ).toBeNull()
   })
 
   it('compresses a large period ≥10× vs raw', () => {
     const journal = Array.from({ length: 30 }, (_, i) =>
-      jEntry(`j${i}`, at(bounds.start), 'word '.repeat(120), ['p1'], ['c1']),
+      jEntry(`j${i}`, at(bounds.start), 'word '.repeat(120), ['p1'], ['c1'])
     )
     const rawChars = journal.reduce((s, e) => s + e.body.length, 0)
     const content = buildPeriodDigestContent(WEEK, 1, { journal, logs: [], exercises: [] }, ALL)!

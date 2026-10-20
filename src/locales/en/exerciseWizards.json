@@ -2043,13 +2043,7 @@
         "ariaLabel": "Body location picker"
       },
       "tsibp": {
-        "labels": [
-          "T",
-          "S",
-          "I",
-          "B",
-          "N"
-        ]
+        "labels": ["T", "S", "I", "B", "N"]
       },
       "bodyLocations": {
         "head": "Head",
@@ -2806,11 +2800,7 @@
       "distressedWarning": "Being seen sometimes brings up more feeling — that's normal and not a sign something went wrong. If this persists, consider sharing with a therapist who can provide deeper support.",
       "thankProtectors": "Thank the protectors who allowed this. They showed courage too.",
       "promiseLabel": "Would you like to promise this part something? (optional)",
-      "promiseChips": [
-        "I’ll come back to you.",
-        "I’ll remember you.",
-        "You can call me."
-      ],
+      "promiseChips": ["I’ll come back to you.", "I’ll remember you.", "You can call me."],
       "promisePlaceholder": "Your promise..."
     },
     "reflection": {

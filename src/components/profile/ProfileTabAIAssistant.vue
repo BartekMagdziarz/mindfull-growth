@@ -1,33 +1,26 @@
 <template>
-  <section
-    id="ai-settings"
-    class="neo-raised flex flex-col gap-[18px]"
-    style="padding: 24px"
-  >
+  <section id="ai-settings" class="neo-raised flex flex-col gap-[18px]" style="padding: 24px">
     <!-- Header row -->
     <div class="flex items-start justify-between gap-[14px] flex-wrap">
       <div class="min-w-0 flex-1">
         <h3 class="text-base font-bold m-0" style="color: var(--mg-color-ink)">
           {{ t('profile.aiSettings.title') }}
         </h3>
-        <p
-          class="text-[12px] m-0 mt-[2px] max-w-[500px]"
-          style="color: var(--mg-color-muted)"
-        >
+        <p class="text-[12px] m-0 mt-[2px] max-w-[500px]" style="color: var(--mg-color-muted)">
           {{ t('profile.aiSettings.description') }}
         </p>
       </div>
       <span
         class="neo-pill px-3 py-[6px] text-[11px] font-bold gap-[6px]"
-        :style="{ color: isConnected
-          ? 'rgb(var(--status-good))'
-          : 'rgb(var(--status-warn))' }"
+        :style="{ color: isConnected ? 'rgb(var(--status-good))' : 'rgb(var(--status-warn))' }"
         aria-live="polite"
       >
         <span aria-hidden="true">●</span>
-        <span>{{ isConnected
-          ? t('profile.aiSettings.statusConnected')
-          : t('profile.aiSettings.statusNotConfigured') }}</span>
+        <span>{{
+          isConnected
+            ? t('profile.aiSettings.statusConnected')
+            : t('profile.aiSettings.statusNotConfigured')
+        }}</span>
       </span>
     </div>
 
@@ -35,10 +28,9 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-[14px]">
       <!-- Provider -->
       <div>
-        <label
-          for="aiProvider"
-          class="field-label block mb-[6px]"
-        >{{ t('profile.aiSettings.providerLabel') }}</label>
+        <label for="aiProvider" class="field-label block mb-[6px]">{{
+          t('profile.aiSettings.providerLabel')
+        }}</label>
         <select
           id="aiProvider"
           v-model="aiProvider"
@@ -54,10 +46,9 @@
 
       <!-- Model -->
       <div>
-        <label
-          for="aiModel"
-          class="field-label block mb-[6px]"
-        >{{ t('profile.aiSettings.modelLabel') }}</label>
+        <label for="aiModel" class="field-label block mb-[6px]">{{
+          t('profile.aiSettings.modelLabel')
+        }}</label>
         <input
           id="aiModel"
           v-model="aiModel"
@@ -78,15 +69,10 @@
         class="md:col-span-2 grid grid-cols-1 gap-[14px] md:grid-cols-2 md:items-center"
       >
         <div>
-          <label
-            for="reasoningEffort"
-            class="field-label block mb-[6px]"
-          >{{ t('profile.aiSettings.reasoningEffortLabel') }}</label>
-          <select
-            id="reasoningEffort"
-            v-model="reasoningEffort"
-            class="neo-input w-full px-4 py-3"
-          >
+          <label for="reasoningEffort" class="field-label block mb-[6px]">{{
+            t('profile.aiSettings.reasoningEffortLabel')
+          }}</label>
+          <select id="reasoningEffort" v-model="reasoningEffort" class="neo-input w-full px-4 py-3">
             <option value="none">{{ t('profile.aiSettings.reasoningEfforts.none') }}</option>
             <option value="low">{{ t('profile.aiSettings.reasoningEfforts.low') }}</option>
             <option value="medium">{{ t('profile.aiSettings.reasoningEfforts.medium') }}</option>
@@ -94,18 +80,19 @@
           </select>
         </div>
         <p class="text-[12px] m-0" style="color: var(--mg-color-muted)">
-          {{ aiProvider === 'openai'
-            ? t('profile.aiSettings.reasoningEffortHintOpenai')
-            : t('profile.aiSettings.reasoningEffortHint') }}
+          {{
+            aiProvider === 'openai'
+              ? t('profile.aiSettings.reasoningEffortHintOpenai')
+              : t('profile.aiSettings.reasoningEffortHint')
+          }}
         </p>
       </div>
 
       <!-- Base URL -->
       <div>
-        <label
-          for="baseUrl"
-          class="field-label block mb-[6px]"
-        >{{ t('profile.aiSettings.baseUrlLabel') }}</label>
+        <label for="baseUrl" class="field-label block mb-[6px]">{{
+          t('profile.aiSettings.baseUrlLabel')
+        }}</label>
         <input
           id="baseUrl"
           v-model="baseUrl"
@@ -122,10 +109,9 @@
 
       <!-- API key -->
       <div>
-        <label
-          for="apiKey"
-          class="field-label block mb-[6px]"
-        >{{ t('profile.aiSettings.apiKeyLabel') }}</label>
+        <label for="apiKey" class="field-label block mb-[6px]">{{
+          t('profile.aiSettings.apiKeyLabel')
+        }}</label>
         <div class="flex gap-2">
           <input
             id="apiKey"
@@ -149,19 +135,15 @@
             class="hover:underline"
             style="color: var(--mg-color-primary-strong)"
           >
-            {{ t('profile.aiSettings.apiKeyHintLink') }}
-          </a>.
+            {{ t('profile.aiSettings.apiKeyHintLink') }} </a
+          >.
         </p>
       </div>
     </div>
 
     <!-- Save row -->
     <div class="flex justify-end">
-      <AppButton
-        variant="filled"
-        :disabled="!canSave"
-        @click="handleSave"
-      >
+      <AppButton variant="filled" :disabled="!canSave" @click="handleSave">
         <span v-if="isSaving">{{ t('common.saving') }}</span>
         <span v-else>{{ t('common.buttons.save') }}</span>
       </AppButton>
@@ -215,12 +197,7 @@ const canSave = computed(() => {
 const isConnected = computed(() => canSave.value)
 
 function isAIProviderId(value: unknown): value is AIProviderId {
-  return (
-    value === 'openai' ||
-    value === 'ollama' ||
-    value === 'mlx' ||
-    value === 'custom'
-  )
+  return value === 'openai' || value === 'ollama' || value === 'mlx' || value === 'custom'
 }
 
 function parseStoredAISettings(raw: string): AIProviderSettings | null {
@@ -257,14 +234,8 @@ function applyAISettings(settings: AIProviderSettings) {
 }
 
 function validateAISettings() {
-  baseUrlError.value =
-    baseUrl.value.trim().length === 0
-      ? t('profile.aiSettings.baseUrlError')
-      : ''
-  modelError.value =
-    aiModel.value.trim().length === 0
-      ? t('profile.aiSettings.modelError')
-      : ''
+  baseUrlError.value = baseUrl.value.trim().length === 0 ? t('profile.aiSettings.baseUrlError') : ''
+  modelError.value = aiModel.value.trim().length === 0 ? t('profile.aiSettings.modelError') : ''
   apiKeyError.value =
     aiProvider.value === 'openai' && apiKey.value.trim().length === 0
       ? t('profile.aiSettings.apiKeyRequiredError')
@@ -272,12 +243,7 @@ function validateAISettings() {
 }
 
 function isReasoningEffort(value: unknown): value is ReasoningEffort {
-  return (
-    value === 'none' ||
-    value === 'low' ||
-    value === 'medium' ||
-    value === 'high'
-  )
+  return value === 'none' || value === 'low' || value === 'medium' || value === 'high'
 }
 
 function handleProviderChange() {
@@ -308,21 +274,13 @@ async function handleSave() {
         ? { reasoningEffort: reasoningEffort.value }
         : {}),
     }
-    await userSettingsDexieRepository.set(
-      AI_PROVIDER_SETTINGS_KEY,
-      JSON.stringify(settings),
-    )
+    await userSettingsDexieRepository.set(AI_PROVIDER_SETTINGS_KEY, JSON.stringify(settings))
     if (settings.provider === 'openai' && settings.apiKey) {
-      await userSettingsDexieRepository.set(
-        LEGACY_OPENAI_API_KEY,
-        settings.apiKey,
-      )
+      await userSettingsDexieRepository.set(LEGACY_OPENAI_API_KEY, settings.apiKey)
     }
     props.showSnackbar(t('profile.aiSettings.saved'))
   } catch (error) {
-    const message = error instanceof Error
-      ? error.message
-      : t('profile.aiSettings.saveFailed')
+    const message = error instanceof Error ? error.message : t('profile.aiSettings.saveFailed')
     props.showSnackbar(message)
     console.error('Error saving AI provider settings:', error)
   } finally {
@@ -332,18 +290,12 @@ async function handleSave() {
 
 onMounted(async () => {
   try {
-    const existingSettings = await userSettingsDexieRepository.get(
-      AI_PROVIDER_SETTINGS_KEY,
-    )
-    const parsedSettings = existingSettings
-      ? parseStoredAISettings(existingSettings)
-      : null
+    const existingSettings = await userSettingsDexieRepository.get(AI_PROVIDER_SETTINGS_KEY)
+    const parsedSettings = existingSettings ? parseStoredAISettings(existingSettings) : null
     if (parsedSettings) {
       applyAISettings(parsedSettings)
     } else {
-      const existingKey = await userSettingsDexieRepository.get(
-        LEGACY_OPENAI_API_KEY,
-      )
+      const existingKey = await userSettingsDexieRepository.get(LEGACY_OPENAI_API_KEY)
       applyAISettings({
         ...AI_PROVIDER_PRESETS.openai,
         ...(existingKey ? { apiKey: existingKey } : {}),

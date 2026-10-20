@@ -67,7 +67,10 @@ describe('RichVerificationScenario', () => {
       'ritual-year',
     ])
     expect(scenario.presets.today[0].baselinePath).toContain('/today/')
-    expect(scenario.presets.calendar.map(preset => preset.baselinePath)).toEqual(['/calendar/month/2026-07', '/calendar/month/2026-06'])
+    expect(scenario.presets.calendar.map(preset => preset.baselinePath)).toEqual([
+      '/calendar/month/2026-07',
+      '/calendar/month/2026-06',
+    ])
     expect(scenario.presets['calendar-year'][0].baselinePath).toBe('/calendar/year/2026')
     expect(scenario.presets['calendar-month'].map(preset => preset.baselinePath)).toEqual([
       '/calendar/stream/2026-07',
@@ -80,8 +83,12 @@ describe('RichVerificationScenario', () => {
     expect(scenario.presets['ritual-week'].map(preset => preset.id)).toEqual(['plan', 'reflect'])
     expect(scenario.presets['ritual-month'].map(preset => preset.id)).toEqual(['plan', 'reflect'])
     expect(scenario.presets['ritual-year'].map(preset => preset.id)).toEqual(['plan'])
-    expect(scenario.presets['ritual-week'][0].baselinePath).toBe('/calendar/week/2026-W28?action=plan')
-    expect(scenario.presets['ritual-month'][0].baselinePath).toBe('/calendar/month/2026-07?action=plan')
+    expect(scenario.presets['ritual-week'][0].baselinePath).toBe(
+      '/calendar/week/2026-W28?action=plan'
+    )
+    expect(scenario.presets['ritual-month'][0].baselinePath).toBe(
+      '/calendar/month/2026-07?action=plan'
+    )
     expect(scenario.presets['ritual-year'][0].baselinePath).toBe('/calendar/year/2026?action=plan')
   })
 

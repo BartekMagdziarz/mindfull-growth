@@ -55,7 +55,7 @@ export async function verifyPassword(password: string, storedHash: string): Prom
     const salt = new Uint8Array(
       atob(saltBase64)
         .split('')
-        .map((c) => c.charCodeAt(0))
+        .map(c => c.charCodeAt(0))
     )
 
     // Hash the provided password with the same salt

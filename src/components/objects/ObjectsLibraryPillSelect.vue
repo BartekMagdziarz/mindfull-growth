@@ -30,10 +30,7 @@
         </button>
       </div>
 
-      <div
-        v-if="open"
-        class="mg-v2-popover absolute left-0 right-0 z-20 mt-2 p-2"
-      >
+      <div v-if="open" class="mg-v2-popover absolute left-0 right-0 z-20 mt-2 p-2">
         <div v-if="options.length === 0" class="px-2 py-2 text-xs text-on-surface-variant">
           {{ emptyLabel }}
         </div>
@@ -90,7 +87,7 @@ const open = ref(false)
 const rootRef = ref<HTMLElement | null>(null)
 
 const selectedOptions = computed(() =>
-  props.options.filter((option) => props.modelValue.includes(option.id)),
+  props.options.filter(option => props.modelValue.includes(option.id))
 )
 
 onMounted(() => {
@@ -115,15 +112,15 @@ function toggleOption(id: string): void {
   emit(
     'update:modelValue',
     props.modelValue.includes(id)
-      ? props.modelValue.filter((value) => value !== id)
-      : [...props.modelValue, id],
+      ? props.modelValue.filter(value => value !== id)
+      : [...props.modelValue, id]
   )
 }
 
 function removeOption(id: string): void {
   emit(
     'update:modelValue',
-    props.modelValue.filter((value) => value !== id),
+    props.modelValue.filter(value => value !== id)
   )
 }
 

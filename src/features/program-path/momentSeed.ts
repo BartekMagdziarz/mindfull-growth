@@ -33,16 +33,23 @@ function text(value: unknown): string {
 
 export function momentSeedFrom(entry: MicroExerciseEntry): MomentSeed {
   const compass = entry.responses.compass
-  const picked = typeof compass === 'string' ? compass : Array.isArray(compass) ? compass[0] : undefined
+  const picked =
+    typeof compass === 'string' ? compass : Array.isArray(compass) ? compass[0] : undefined
   const reaction =
-    typeof picked === 'string' && (SHAME_REACTIONS as readonly string[]).includes(picked) ? (picked as ShameReaction) : undefined
+    typeof picked === 'string' && (SHAME_REACTIONS as readonly string[]).includes(picked)
+      ? (picked as ShameReaction)
+      : undefined
   const about = text(entry.responses.about)
   const strength = entry.responses.strength
   return {
     entryId: entry.id,
     createdAt: entry.createdAt,
     situation: text(entry.responses.situation),
-    criticThought: text(['anger', 'anxiety'].includes(String(entry.responses.kind)) ? entry.responses.thought : entry.responses.criticSaid),
+    criticThought: text(
+      ['anger', 'anxiety'].includes(String(entry.responses.kind))
+        ? entry.responses.thought
+        : entry.responses.criticSaid
+    ),
     kindVoice: text(entry.responses.kindVoice),
     ...(reaction ? { reaction } : {}),
     ...(about ? { about } : {}),
@@ -51,9 +58,13 @@ export function momentSeedFrom(entry: MicroExerciseEntry): MomentSeed {
 }
 
 /** The path's moments a picker offers: newest first, moments only (no calm-day notes). */
-export function pickableMoments(entries: readonly MicroExerciseEntry[], kind: MomentKind, limit = 12): MicroExerciseEntry[] {
+export function pickableMoments(
+  entries: readonly MicroExerciseEntry[],
+  kind: MomentKind,
+  limit = 12
+): MicroExerciseEntry[] {
   return [...entries]
-    .filter((entry) => isMoment(entry, kind) && hadMoment(entry))
+    .filter(entry => isMoment(entry, kind) && hadMoment(entry))
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
     .slice(0, limit)
 }
@@ -61,13 +72,18 @@ export function pickableMoments(entries: readonly MicroExerciseEntry[], kind: Mo
 /** The latest "reasonable demand" written in "O czym jest ten wstyd?" (`shame-or-guilt.fairDemand`). */
 export function latestFairDemand(entries: readonly MicroExerciseEntry[]): string {
   const entry = [...entries]
-    .filter((candidate) => candidate.exerciseSlug === 'shame-or-guilt' && text(candidate.responses.fairDemand))
+    .filter(
+      candidate =>
+        candidate.exerciseSlug === 'shame-or-guilt' && text(candidate.responses.fairDemand)
+    )
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0]
   return entry ? text(entry.responses.fairDemand) : ''
 }
 
 /** The latest critic sentence written in a shame moment. */
 export function latestCriticThought(entries: readonly MicroExerciseEntry[]): string {
-  const entry = pickableMoments(entries, 'shame', Infinity).find((candidate) => text(candidate.responses.criticSaid))
+  const entry = pickableMoments(entries, 'shame', Infinity).find(candidate =>
+    text(candidate.responses.criticSaid)
+  )
   return entry ? text(entry.responses.criticSaid) : ''
 }

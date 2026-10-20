@@ -14,7 +14,10 @@ describe('ExerciseStepWhy', () => {
     const disc = render(ExerciseStepWhy, { props: { text: 'Because.' }, global: { stubs } })
     expect(disc.container.querySelector('.exercise-step-why__disc')).not.toBeNull()
     expect(disc.container.querySelector('details.exercise-step-why')).toBeNull()
-    const details = render(ExerciseStepWhy, { props: { text: 'Because.', variant: 'details' }, global: { stubs } })
+    const details = render(ExerciseStepWhy, {
+      props: { text: 'Because.', variant: 'details' },
+      global: { stubs },
+    })
     expect(details.container.querySelector('details.exercise-step-why')).not.toBeNull()
     expect(details.container.querySelector('.exercise-step-why__disc')).toBeNull()
   })

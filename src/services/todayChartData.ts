@@ -1,6 +1,10 @@
 import type { DayRef, PeriodRef } from '@/domain/period'
 import type { MeasurementTarget } from '@/domain/planning'
-import type { DailyMeasurementEntry, MeasurementDayAssignment, MeasurementSubjectType } from '@/domain/planningState'
+import type {
+  DailyMeasurementEntry,
+  MeasurementDayAssignment,
+  MeasurementSubjectType,
+} from '@/domain/planningState'
 import type {
   MeasureableSubject,
   MeasurementEvaluationStatus,
@@ -92,7 +96,7 @@ function dayOfMonthLabel(dayRef: DayRef): string {
 function filterSubjectEntries(
   rawEntries: DailyMeasurementEntry[],
   subjectType: MeasurementSubjectType,
-  subjectId: string,
+  subjectId: string
 ): DailyMeasurementEntry[] {
   if (!rawEntries) return []
   return rawEntries.filter(e => e.subjectType === subjectType && e.subjectId === subjectId)
@@ -100,7 +104,7 @@ function filterSubjectEntries(
 
 function filterEntriesInPeriod(
   entries: DailyMeasurementEntry[],
-  periodRef: PeriodRef,
+  periodRef: PeriodRef
 ): DailyMeasurementEntry[] {
   return entries.filter(e => containsDay(periodRef, e.dayRef))
 }
@@ -108,7 +112,7 @@ function filterEntriesInPeriod(
 function filterAssignments(
   allDayAssignments: MeasurementDayAssignment[],
   subjectType: MeasurementSubjectType,
-  subjectId: string,
+  subjectId: string
 ): MeasurementDayAssignment[] {
   if (!allDayAssignments) return []
   return allDayAssignments.filter(a => a.subjectType === subjectType && a.subjectId === subjectId)
@@ -116,7 +120,7 @@ function filterAssignments(
 
 function filterAssignmentsInPeriod(
   assignments: MeasurementDayAssignment[],
-  periodRef: PeriodRef,
+  periodRef: PeriodRef
 ): MeasurementDayAssignment[] {
   return assignments.filter(a => containsDay(periodRef, a.dayRef))
 }
@@ -132,7 +136,7 @@ function isToday(dayRef: DayRef, todayDayRef: DayRef): boolean {
 function entryValueForDay(
   entries: DailyMeasurementEntry[],
   dayRef: DayRef,
-  entryMode: string,
+  entryMode: string
 ): number | undefined {
   const entry = entries.find(e => e.dayRef === dayRef)
   if (!entry) return undefined
@@ -159,11 +163,11 @@ export function buildCompletionSlots(
   planning: MeasurementPlanningSummary,
   contextPeriodRef: PeriodRef,
   todayDayRef: DayRef,
-  locale: string,
+  locale: string
 ): TodayCompletionSlot[] {
   const entries = filterEntriesInPeriod(
     filterSubjectEntries(rawEntries, subjectType, subject.id),
-    contextPeriodRef,
+    contextPeriodRef
   )
   const entryDaySet = new Set(entries.map(e => e.dayRef))
   const scope = getScheduleScope(planning)
@@ -172,7 +176,7 @@ export function buildCompletionSlots(
     // One slot per scheduled day in the period
     const assignments = filterAssignmentsInPeriod(
       filterAssignments(allDayAssignments, subjectType, subject.id),
-      contextPeriodRef,
+      contextPeriodRef
     )
     const scheduledDays = [...new Set(assignments.map(a => a.dayRef))].sort()
 
@@ -210,7 +214,7 @@ export function buildCompletionSlots(
 function resolveCompletionState(
   hasEntry: boolean,
   today: boolean,
-  future: boolean,
+  future: boolean
 ): TodayCompletionState {
   if (today) return hasEntry ? 'today-done' : 'today-pending'
   // Future slot with an entry still reads as `done` — the entry exists.
@@ -225,7 +229,7 @@ function buildTargetCountSlots(
   targetCount: number,
   contextPeriodRef: PeriodRef,
   todayDayRef: DayRef,
-  locale: string,
+  locale: string
 ): TodayCompletionSlot[] {
   const isWeekly = isWeeklyPeriod(contextPeriodRef)
   const sortedEntries = [...entries].sort((a, b) => a.dayRef.localeCompare(b.dayRef))
@@ -306,7 +310,7 @@ function buildTrackerCompletionSlots(
   entries: DailyMeasurementEntry[],
   contextPeriodRef: PeriodRef,
   todayDayRef: DayRef,
-  locale: string,
+  locale: string
 ): TodayCompletionSlot[] {
   const isWeekly = isWeeklyPeriod(contextPeriodRef)
   const sorted = [...entries].sort((a, b) => a.dayRef.localeCompare(b.dayRef))
@@ -353,11 +357,11 @@ export function buildDailyBarSlots(
   planning: MeasurementPlanningSummary,
   contextPeriodRef: PeriodRef,
   todayDayRef: DayRef,
-  locale: string,
+  locale: string
 ): TodayDaySlot[] {
   const entries = filterEntriesInPeriod(
     filterSubjectEntries(rawEntries, subjectType, subject.id),
-    contextPeriodRef,
+    contextPeriodRef
   )
   const scope = getScheduleScope(planning)
 
@@ -380,7 +384,7 @@ export function buildDailyBarSlots(
     // Slots for each scheduled day in the month
     const assignments = filterAssignmentsInPeriod(
       filterAssignments(allDayAssignments, subjectType, subject.id),
-      contextPeriodRef,
+      contextPeriodRef
     )
     const scheduledDays = [...new Set(assignments.map(a => a.dayRef))].sort()
 
@@ -422,9 +426,7 @@ export function buildDailyBarSlots(
  * TODO: Consider lifting filterToScheduledSlots into per-component logic
  * for uniform specific-days filtering across all Today visualizations.
  */
-export function filterToScheduledSlots<T extends { isScheduled: boolean }>(
-  slots: T[],
-): T[] {
+export function filterToScheduledSlots<T extends { isScheduled: boolean }>(slots: T[]): T[] {
   if (!slots.some(s => s.isScheduled)) return slots
   return slots.filter(s => s.isScheduled)
 }
@@ -438,11 +440,11 @@ export function buildValueLineSlots(
   rawEntries: DailyMeasurementEntry[],
   contextPeriodRef: PeriodRef,
   todayDayRef: DayRef,
-  locale: string,
+  locale: string
 ): TodayDaySlot[] {
   const entries = filterEntriesInPeriod(
     filterSubjectEntries(rawEntries, subjectType, subject.id),
-    contextPeriodRef,
+    contextPeriodRef
   )
 
   if (isWeeklyPeriod(contextPeriodRef)) {
@@ -477,7 +479,7 @@ export function buildValueLineSlots(
  */
 export function buildAggregateData(
   subject: MeasureableSubject,
-  measurement: MeasurementSummary,
+  measurement: MeasurementSummary
 ): TodayAggregateData | undefined {
   const target = 'target' in subject ? subject.target : undefined
   if (!target) return undefined
@@ -504,7 +506,13 @@ export function buildAggregateData(
       break
   }
 
-  const scaleMax = computeScaleMax(currentValue, targetValue, target, subject.ratingScale, subject.ratingScaleMin)
+  const scaleMax = computeScaleMax(
+    currentValue,
+    targetValue,
+    target,
+    subject.ratingScale,
+    subject.ratingScaleMin
+  )
 
   let status: TodayAggregateData['status']
   if (measurement.evaluationStatus === 'met') {
@@ -533,7 +541,7 @@ function computeScaleMax(
   targetValue: number,
   target: MeasurementTarget,
   ratingScale?: number,
-  ratingScaleMin?: number,
+  ratingScaleMin?: number
 ): number {
   if (target.kind === 'rating') {
     const max = ratingScale ?? Math.max(currentValue, targetValue, 5)
@@ -546,10 +554,14 @@ function computeScaleMax(
 
 function formatOperatorSymbol(operator: TodayAggregateData['operator']): string {
   switch (operator) {
-    case 'min': return '>='
-    case 'max': return '<='
-    case 'gte': return '>='
-    case 'lte': return '<='
+    case 'min':
+      return '>='
+    case 'max':
+      return '<='
+    case 'gte':
+      return '>='
+    case 'lte':
+      return '<='
   }
 }
 
@@ -561,7 +573,7 @@ function formatHoverLabel(
   currentValue: number,
   targetValue: number,
   operator: TodayAggregateData['operator'],
-  aggregation: TodayAggregateData['aggregation'],
+  aggregation: TodayAggregateData['aggregation']
 ): string {
   const prefix = aggregation === 'average' ? 'avg: ' : aggregation === 'last' ? 'last: ' : ''
   const opSymbol = formatOperatorSymbol(operator)
@@ -574,7 +586,7 @@ function formatHoverLabel(
  * so empty months show the neutral rendering instead of a "missed" error color.
  */
 function mapStatus(
-  evaluationStatus: MeasurementEvaluationStatus | undefined,
+  evaluationStatus: MeasurementEvaluationStatus | undefined
 ): 'met' | 'missed' | 'in-progress' {
   if (evaluationStatus === 'met') return 'met'
   if (evaluationStatus === 'missed') return 'missed'
@@ -588,7 +600,7 @@ function mapStatus(
  */
 export function buildCounterRingData(
   subject: MeasureableSubject,
-  measurement: MeasurementSummary,
+  measurement: MeasurementSummary
 ): TodayCounterRingData | undefined {
   if (!('target' in subject) || !subject.target) return undefined
   const { target } = subject
@@ -620,7 +632,7 @@ export function buildValueSparklineData(
   contextPeriodRef: PeriodRef,
   todayDayRef: DayRef,
   measurement: MeasurementSummary,
-  locale: string,
+  locale: string
 ): TodayValueSparklineData {
   const points = buildValueLineSlots(
     subject,
@@ -628,7 +640,7 @@ export function buildValueSparklineData(
     rawEntries,
     contextPeriodRef,
     todayDayRef,
-    locale,
+    locale
   )
   const target = 'target' in subject ? subject.target : undefined
   const hasData = measurement.entryCount > 0
@@ -637,11 +649,7 @@ export function buildValueSparklineData(
   let aggregationLabel: 'avg' | 'last' | 'sum' = 'last'
   if (target?.kind === 'value') {
     aggregationLabel =
-      target.aggregation === 'sum'
-        ? 'sum'
-        : target.aggregation === 'average'
-          ? 'avg'
-          : 'last'
+      target.aggregation === 'sum' ? 'sum' : target.aggregation === 'average' ? 'avg' : 'last'
   }
 
   return {
@@ -660,7 +668,7 @@ export function buildValueSparklineData(
  */
 export function buildRatingSmoothData(
   subject: MeasureableSubject,
-  measurement: MeasurementSummary,
+  measurement: MeasurementSummary
 ): TodayRatingSmoothData {
   const target = 'target' in subject ? subject.target : undefined
   const hasRatingTarget = target?.kind === 'rating'
@@ -696,7 +704,7 @@ export function buildSummaryNumberData(
   _subjectType: MeasurementSubjectType,
   _rawEntries: DailyMeasurementEntry[],
   _contextPeriodRef: PeriodRef,
-  measurement: MeasurementSummary,
+  measurement: MeasurementSummary
 ): TodaySummaryNumberData {
   if (subject.entryMode === 'completion') {
     return {

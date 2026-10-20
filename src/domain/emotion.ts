@@ -56,10 +56,7 @@ export interface QuadrantDisplayConfig {
 
 type Translator = (key: string, params?: Record<string, string | number>) => string
 
-export function getQuadrantDisplayConfig(
-  quadrant: Quadrant,
-  t: Translator
-): QuadrantDisplayConfig {
+export function getQuadrantDisplayConfig(quadrant: Quadrant, t: Translator): QuadrantDisplayConfig {
   switch (quadrant) {
     case 'high-energy-low-pleasantness':
       return {
@@ -116,9 +113,7 @@ export const QUADRANTS_IN_ORDER: readonly Quadrant[] = [
  * Returns an empty object when no quadrant is selected, so the host card
  * falls back to its own neumorphic background.
  */
-export function getQuadrantTintStyle(
-  quadrant: Quadrant | null
-): Record<string, string> {
+export function getQuadrantTintStyle(quadrant: Quadrant | null): Record<string, string> {
   if (!quadrant) return {}
   return {
     background: `linear-gradient(145deg, var(--color-quadrant-${quadrant}-tint), var(--color-quadrant-${quadrant}-tint-soft))`,
@@ -156,4 +151,3 @@ export function getQuadrantChipStyle(quadrant: Quadrant): Record<string, string>
       '-2px -2px 4px rgb(var(--neo-shadow-light) / 0.6), 2px 2px 4px rgb(var(--neo-shadow-dark) / 0.2)',
   }
 }
-

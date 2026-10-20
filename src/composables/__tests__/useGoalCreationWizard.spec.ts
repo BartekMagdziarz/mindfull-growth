@@ -30,7 +30,7 @@ function createRepoMock() {
     createWithKeyResults: vi.fn(
       async (
         goal: CreateGoalPayload,
-        keyResults: Omit<CreateKeyResultPayload, 'goalId'>[],
+        keyResults: Omit<CreateKeyResultPayload, 'goalId'>[]
       ): Promise<{ goal: Goal; keyResults: KeyResult[] }> => ({
         goal: {
           id: 'goal-1',
@@ -45,7 +45,7 @@ function createRepoMock() {
           goalId: 'goal-1',
           ...kr,
         })) as KeyResult[],
-      }),
+      })
     ),
     update: vi.fn(
       async (id: string, data: UpdateGoalPayload): Promise<Goal> =>
@@ -59,7 +59,7 @@ function createRepoMock() {
           lifeAreaIds: [],
           title: '',
           ...data,
-        }) as Goal,
+        }) as Goal
     ),
   }
 }
@@ -73,7 +73,7 @@ function createKrRepoMock() {
           createdAt: '2026-02-01T00:00:00.000Z',
           updatedAt: '2026-02-01T00:00:00.000Z',
           ...data,
-        }) as KeyResult,
+        }) as KeyResult
     ),
     update: vi.fn(
       async (id: string, data: UpdateKeyResultPayload): Promise<KeyResult> =>
@@ -89,7 +89,7 @@ function createKrRepoMock() {
           cadence: 'weekly',
           target: { kind: 'count', operator: 'min', value: 1 },
           ...data,
-        }) as KeyResult,
+        }) as KeyResult
     ),
     delete: vi.fn(async () => {}),
   }
@@ -364,10 +364,7 @@ describe('useGoalCreationWizard', () => {
 
       wizard.loadForEdit({
         goal: makeGoal(),
-        keyResults: [
-          makeKr({ id: 'kr-keep' }),
-          makeKr({ id: 'kr-drop', title: 'Old KR' }),
-        ],
+        keyResults: [makeKr({ id: 'kr-keep' }), makeKr({ id: 'kr-drop', title: 'Old KR' })],
         goalMonthRefs: [],
         krPeriodRefsByKrId: { 'kr-keep': [], 'kr-drop': ['2026-W22'] },
       })
@@ -378,7 +375,7 @@ describe('useGoalCreationWizard', () => {
 
       expect(krRepo.delete).toHaveBeenCalledWith('kr-drop')
       expect(unlinkMeasurementPeriod).toHaveBeenCalledWith(
-        expect.objectContaining({ periodRef: '2026-W22', subjectId: 'kr-drop' }),
+        expect.objectContaining({ periodRef: '2026-W22', subjectId: 'kr-drop' })
       )
     })
 
@@ -421,10 +418,10 @@ describe('useGoalCreationWizard', () => {
       await wizard.save()
 
       expect(linkMeasurementPeriod).toHaveBeenCalledWith(
-        expect.objectContaining({ periodRef: '2026-W23', subjectId: 'kr-existing-1' }),
+        expect.objectContaining({ periodRef: '2026-W23', subjectId: 'kr-existing-1' })
       )
       expect(unlinkMeasurementPeriod).toHaveBeenCalledWith(
-        expect.objectContaining({ periodRef: '2026-W22', subjectId: 'kr-existing-1' }),
+        expect.objectContaining({ periodRef: '2026-W22', subjectId: 'kr-existing-1' })
       )
     })
 

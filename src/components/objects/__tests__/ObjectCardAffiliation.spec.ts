@@ -30,7 +30,10 @@ describe('ObjectCardAffiliation', () => {
   it('draws priorities first, then life areas, and opens the matching category on click', async () => {
     const { emitted } = renderRow({ priorityIds: ['pr-1'], lifeAreaIds: ['la-1'] })
     const buttons = screen.getAllByRole('button')
-    expect(buttons.map((button) => button.getAttribute('aria-label'))).toEqual(['2026 · Fitness', 'Health'])
+    expect(buttons.map(button => button.getAttribute('aria-label'))).toEqual([
+      '2026 · Fitness',
+      'Health',
+    ])
     expect(buttons[0]).toHaveClass('mg-v2-glyph--pencil')
     expect(buttons[1]).not.toHaveClass('mg-v2-glyph--pencil')
 

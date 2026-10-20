@@ -54,10 +54,7 @@
     <slot />
 
     <div v-if="open && showConfirm" class="mt-auto flex justify-end">
-      <AppButton
-        :disabled="confirmDisabled || saving"
-        @click="$emit('confirm')"
-      >
+      <AppButton :disabled="confirmDisabled || saving" @click="$emit('confirm')">
         {{ saving ? savingLabel : confirmLabel }}
       </AppButton>
     </div>

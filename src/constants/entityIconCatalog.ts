@@ -9,7 +9,7 @@ function createOption(
   id: string,
   materialIcon: string,
   label: string,
-  search: string[] = [],
+  search: string[] = []
 ): EntityIconOption {
   return {
     id,
@@ -93,7 +93,7 @@ const LEGACY_ICON_ID_MAP: Record<string, string> = {
   paintbrush: 'palette',
 }
 
-const ENTITY_ICON_MAP = new Map(ENTITY_ICON_OPTIONS.map((icon) => [icon.id, icon]))
+const ENTITY_ICON_MAP = new Map(ENTITY_ICON_OPTIONS.map(icon => [icon.id, icon]))
 
 export function getEntityIconOption(iconId?: string): EntityIconOption | undefined {
   if (!iconId) return undefined

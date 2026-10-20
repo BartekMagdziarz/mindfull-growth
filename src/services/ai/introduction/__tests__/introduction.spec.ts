@@ -186,7 +186,9 @@ describe('broad introduction', () => {
     const template = new UserDatabase(id)
     const schema = Object.fromEntries(
       template.tables
-        .filter(t => !['companionIntroductions', 'historyDigests', 'journalDrafts'].includes(t.name))
+        .filter(
+          t => !['companionIntroductions', 'historyDigests', 'journalDrafts'].includes(t.name)
+        )
         .map(t => [t.name, [t.schema.primKey.src, ...t.schema.indexes.map(i => i.src)].join(',')])
     )
     template.close()

@@ -9,7 +9,7 @@
       <button
         type="button"
         class="neo-icon-scale-arrow absolute -left-8"
-        :class="{ 'invisible': currentLevel <= 1 }"
+        :class="{ invisible: currentLevel <= 1 }"
         :aria-label="`${label}: decrease`"
         tabindex="-1"
         @click="decrease"
@@ -25,7 +25,11 @@
         :aria-label="`${label}: ${currentLevel}/5`"
         @click="advance"
       >
-        <AppIcon class="material-symbols-outlined" style="font-size: 5rem;" :name="icons[currentLevel - 1]" />
+        <AppIcon
+          class="material-symbols-outlined"
+          style="font-size: 5rem"
+          :name="icons[currentLevel - 1]"
+        />
         <span class="mt-1 text-lg font-semibold leading-tight">{{ currentLevel }}/5</span>
       </button>
 
@@ -33,7 +37,7 @@
       <button
         type="button"
         class="neo-icon-scale-arrow absolute -right-8"
-        :class="{ 'invisible': currentLevel >= 5 }"
+        :class="{ invisible: currentLevel >= 5 }"
         :aria-label="`${label}: increase`"
         tabindex="-1"
         @click="increase"

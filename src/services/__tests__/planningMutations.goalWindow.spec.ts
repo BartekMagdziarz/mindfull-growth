@@ -151,8 +151,13 @@ describe('moveGoalTargetDate', () => {
       subjectId: keyResultId,
     })
     expect(
-      (await planningStateDexieRepository.getMeasurementMonthState(OCTOBER, 'keyResult', keyResultId))
-        ?.activityState
+      (
+        await planningStateDexieRepository.getMeasurementMonthState(
+          OCTOBER,
+          'keyResult',
+          keyResultId
+        )
+      )?.activityState
     ).toBe('active')
   })
 

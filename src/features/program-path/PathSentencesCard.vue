@@ -1,5 +1,9 @@
 <template>
-  <section v-if="sentences.length" class="mg-v2-surface mg-v2-surface--raised-sm pp-card" :aria-label="title">
+  <section
+    v-if="sentences.length"
+    class="mg-v2-surface mg-v2-surface--raised-sm pp-card"
+    :aria-label="title"
+  >
     <header class="pp-card__head">
       <span>{{ title }}</span>
       <button v-if="sentences.length > 2" type="button" class="pp-link" @click="showAll = !showAll">
@@ -7,7 +11,10 @@
       </button>
     </header>
     <ul class="quotes">
-      <li v-for="sentence in sentences.slice(0, showAll ? undefined : 2)" :key="sentence.entryId + sentence.source">
+      <li
+        v-for="sentence in sentences.slice(0, showAll ? undefined : 2)"
+        :key="sentence.entryId + sentence.source"
+      >
         „{{ sentence.text }}”
       </li>
     </ul>
@@ -27,10 +34,15 @@ import { collectOwnSentences } from '@/domain/momentsProgress'
  * the surface, the rest behind "Wszystkie". No sources, no dates. The anger
  * path shows its requests and return promises as "Moje słowa".
  */
-const props = withDefaults(defineProps<{ entries: readonly MicroExerciseEntry[]; kind?: MomentFamilyKind }>(), { kind: 'shame' })
+const props = withDefaults(
+  defineProps<{ entries: readonly MicroExerciseEntry[]; kind?: MomentFamilyKind }>(),
+  { kind: 'shame' }
+)
 const { t } = useT()
 const showAll = ref(false)
-const title = computed(() => (props.kind === 'anger' ? t('programs.ui.wordsTitle') : t('programs.ui.sentencesTitle')))
+const title = computed(() =>
+  props.kind === 'anger' ? t('programs.ui.wordsTitle') : t('programs.ui.sentencesTitle')
+)
 const sentences = computed(() => collectOwnSentences(props.entries, Infinity, props.kind))
 </script>
 

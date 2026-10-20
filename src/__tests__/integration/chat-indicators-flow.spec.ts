@@ -68,10 +68,6 @@ describe('Chat Indicators Flow Integration', () => {
     const loaded = await chatStore.loadChatSession(entry.id, savedSession.id)
     expect(loaded).not.toBeNull()
     expect(chatStore.currentChatSession?.id).toBe(savedSession.id)
-    expect(chatStore.currentChatSession?.messages.length).toBe(
-      savedSession.messages.length
-    )
+    expect(chatStore.currentChatSession?.messages.length).toBe(savedSession.messages.length)
   })
 })
-
-

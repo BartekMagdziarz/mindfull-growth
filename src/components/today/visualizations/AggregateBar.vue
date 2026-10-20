@@ -15,7 +15,11 @@
       />
     </div>
     <!-- Value label -->
-    <span v-if="!hideValue" class="shrink-0 text-[10px] font-semibold tabular-nums" :class="textClass">
+    <span
+      v-if="!hideValue"
+      class="shrink-0 text-[10px] font-semibold tabular-nums"
+      :class="textClass"
+    >
       {{ formatNumber(data.currentValue) }}
     </span>
   </div>
@@ -51,9 +55,12 @@ const fillClass = computed(() => {
 
 const textClass = computed(() => {
   switch (props.data.status) {
-    case 'met': return 'text-primary'
-    case 'missed': return 'text-error'
-    default: return 'text-on-surface-variant'
+    case 'met':
+      return 'text-primary'
+    case 'missed':
+      return 'text-error'
+    default:
+      return 'text-on-surface-variant'
   }
 })
 

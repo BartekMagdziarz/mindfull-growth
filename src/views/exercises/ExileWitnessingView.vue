@@ -8,7 +8,9 @@
 
     <!-- Past Witnessings -->
     <div class="mt-10 space-y-4">
-      <div class="mg-v2-section-head"><h2>{{ t('exercises.views.pastWitnessings') }}</h2></div>
+      <div class="mg-v2-section-head">
+        <h2>{{ t('exercises.views.pastWitnessings') }}</h2>
+      </div>
 
       <template v-if="sortedWitnessings.length">
         <AppCard
@@ -19,8 +21,13 @@
           class="space-y-2"
         >
           <div class="flex items-center justify-between">
-            <span class="text-sm font-medium text-on-surface">{{ formatDate(entry.createdAt) }}</span>
-            <span class="exercise-pill text-xs px-2 py-0.5 font-semibold" :class="postStateBadgeClass(entry.postSessionState)">
+            <span class="text-sm font-medium text-on-surface">{{
+              formatDate(entry.createdAt)
+            }}</span>
+            <span
+              class="exercise-pill text-xs px-2 py-0.5 font-semibold"
+              :class="postStateBadgeClass(entry.postSessionState)"
+            >
               {{ postStateLabel(entry.postSessionState) }}
             </span>
           </div>
@@ -28,13 +35,17 @@
           <!-- Exile -->
           <div class="flex items-center gap-2">
             <span class="text-xs text-on-surface-variant">{{ t('exercises.views.exile') }}</span>
-            <span class="text-xs font-medium text-on-surface">{{ getPartName(entry.exilePartId) }}</span>
+            <span class="text-xs font-medium text-on-surface">{{
+              getPartName(entry.exilePartId)
+            }}</span>
             <PartRoleBadge role="exile" />
           </div>
 
           <!-- Protectors -->
           <div v-if="entry.protectorPartIds.length" class="flex items-center gap-1 flex-wrap">
-            <span class="text-xs text-on-surface-variant">{{ t('exercises.views.protectors') }}</span>
+            <span class="text-xs text-on-surface-variant">{{
+              t('exercises.views.protectors')
+            }}</span>
             <span
               v-for="pid in entry.protectorPartIds"
               :key="pid"
@@ -98,19 +109,27 @@ function formatDate(isoString: string): string {
 
 function postStateLabel(state: IFSExilePostState): string {
   switch (state) {
-    case 'calmer': return t('exercises.views.postStateCalmer')
-    case 'same': return t('exercises.views.postStateSame')
-    case 'more-distressed': return t('exercises.views.postStateMoreDistressed')
-    default: return state
+    case 'calmer':
+      return t('exercises.views.postStateCalmer')
+    case 'same':
+      return t('exercises.views.postStateSame')
+    case 'more-distressed':
+      return t('exercises.views.postStateMoreDistressed')
+    default:
+      return state
   }
 }
 
 function postStateBadgeClass(state: IFSExilePostState): string {
   switch (state) {
-    case 'calmer': return 'bg-status-good-soft text-status-good-on'
-    case 'same': return 'bg-neu-base text-on-surface-variant'
-    case 'more-distressed': return 'bg-status-warn-soft text-status-warn-on'
-    default: return 'bg-neu-base text-on-surface-variant'
+    case 'calmer':
+      return 'bg-status-good-soft text-status-good-on'
+    case 'same':
+      return 'bg-neu-base text-on-surface-variant'
+    case 'more-distressed':
+      return 'bg-status-warn-soft text-status-warn-on'
+    default:
+      return 'bg-neu-base text-on-surface-variant'
   }
 }
 </script>

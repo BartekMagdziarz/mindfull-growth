@@ -34,7 +34,7 @@ class MigrationTestDatabase extends Dexie {
       .stores({
         emotionLogs: 'id',
       })
-      .upgrade(async (trans) => {
+      .upgrade(async trans => {
         try {
           const entries = await trans.table('journalEntries').toArray()
           for (const entry of entries) {
@@ -76,7 +76,7 @@ class FailingMigrationDatabase extends Dexie {
       .stores({
         emotionLogs: 'id',
       })
-      .upgrade(async (trans) => {
+      .upgrade(async trans => {
         const entries = await trans.table('journalEntries').toArray()
         if (entries.length > 0) {
           const entry = entries[0]
@@ -93,28 +93,28 @@ class FailingMigrationDatabase extends Dexie {
 }
 
 describe('Migration edge cases', () => {
-let dbName: string
-const openDatabases: Dexie[] = []
+  let dbName: string
+  const openDatabases: Dexie[] = []
 
-function trackDb<T extends Dexie>(db: T): T {
-  openDatabases.push(db)
-  return db
-}
+  function trackDb<T extends Dexie>(db: T): T {
+    openDatabases.push(db)
+    return db
+  }
 
   beforeEach(() => {
     dbName = `MigrationEdge_${Date.now()}_${Math.random()}`
   })
 
-afterEach(async () => {
-  for (const instance of openDatabases) {
-    try {
-      instance.close()
-    } catch {
-      // ignore
+  afterEach(async () => {
+    for (const instance of openDatabases) {
+      try {
+        instance.close()
+      } catch {
+        // ignore
+      }
     }
-  }
-  openDatabases.length = 0
-  await Dexie.delete(dbName)
+    openDatabases.length = 0
+    await Dexie.delete(dbName)
   })
 
   it('migrates directly from version 1 to version 3 without data loss', async () => {
@@ -141,7 +141,7 @@ afterEach(async () => {
 
     const entries = await migratedDb.journalEntries.toArray()
     expect(entries).toHaveLength(2)
-    entries.forEach((entry) => {
+    entries.forEach(entry => {
       expect(entry.emotionIds).toEqual([])
       expect(entry.peopleTagIds).toEqual([])
       expect(entry.contextTagIds).toEqual([])
@@ -223,7 +223,7 @@ afterEach(async () => {
 
     const entries = await migratedDb.journalEntries.toArray()
     expect(entries).toHaveLength(120)
-    entries.forEach((entry) => {
+    entries.forEach(entry => {
       expect(entry.emotionIds).toEqual([])
       expect(entry.peopleTagIds).toEqual([])
       expect(entry.contextTagIds).toEqual([])
@@ -256,5 +256,3 @@ afterEach(async () => {
     await dbSecondOpen.close()
   })
 })
-
-

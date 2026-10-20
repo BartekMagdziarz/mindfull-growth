@@ -15,7 +15,7 @@ describe('useSerializedSave', () => {
     let maxConcurrent = 0
     const pending: Array<() => void> = []
     const write = () =>
-      new Promise<void>((resolve) => {
+      new Promise<void>(resolve => {
         inFlight++
         maxConcurrent = Math.max(maxConcurrent, inFlight)
         observed.push(current) // capture the source-of-truth at write time
@@ -58,11 +58,11 @@ describe('useSerializedSave', () => {
     let current = 0
     let flushed = -1
     let release!: () => void
-    const gate = new Promise<void>((r) => (release = r))
+    const gate = new Promise<void>(r => (release = r))
     let firstStarted = false
 
     const write = () =>
-      new Promise<void>((resolve) => {
+      new Promise<void>(resolve => {
         const value = current
         if (!firstStarted) {
           firstStarted = true

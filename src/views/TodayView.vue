@@ -39,10 +39,7 @@
           />
 
           <JournalCard :state="journalState" />
-          <EmotionCard
-            :target="DAILY_EMOTION_TARGET"
-            :logs="todayEmotionLogs"
-          />
+          <EmotionCard :target="DAILY_EMOTION_TARGET" :logs="todayEmotionLogs" />
           <ExerciseCard
             :day-ref="bundleDayRef"
             :is-today="wellnessIsToday"
@@ -65,7 +62,9 @@
         <aside class="zone-b">
           <section v-if="store.intentionItems.length > 0" class="zb-section neo-raised">
             <header class="zb-section__head">
-              <span class="zb-section__label">{{ t('planning.today.columns.weeklyIntentions') }}</span>
+              <span class="zb-section__label">{{
+                t('planning.today.columns.weeklyIntentions')
+              }}</span>
             </header>
             <div v-for="(item, itemIndex) in store.intentionItems" :key="item.key">
               <div v-if="itemIndex !== 0" class="zb-section__divider" />
@@ -98,14 +97,8 @@
                 v-for="(group, groupIndex) in store.goalGroupedKrItems"
                 :key="group.goal.id"
               >
-                <div
-                  v-for="(item, itemIndex) in group.items"
-                  :key="item.key"
-                >
-                  <div
-                    v-if="!(groupIndex === 0 && itemIndex === 0)"
-                    class="zb-section__divider"
-                  />
+                <div v-for="(item, itemIndex) in group.items" :key="item.key">
+                  <div v-if="!(groupIndex === 0 && itemIndex === 0)" class="zb-section__divider" />
                   <TodayItemRow
                     :item="item"
                     :today-day-ref="bundleDayRef"
@@ -147,7 +140,7 @@
                   @open-object="openObject(item)"
                   @open-context="openPeriod(item.contextPeriodRef)"
                   @toggle-completion="handleToggleCompletion(item)"
-                @toggle-multi-item="handleToggleMultiItem(item, $event)"
+                  @toggle-multi-item="handleToggleMultiItem(item, $event)"
                   @save-entry="handleSaveEntry(item, $event)"
                   @clear-entry="handleClearEntry(item)"
                   @hide="handleHide(item)"
@@ -178,7 +171,7 @@
                   @open-object="openObject(item)"
                   @open-context="openPeriod(item.contextPeriodRef)"
                   @toggle-completion="handleToggleCompletion(item)"
-                @toggle-multi-item="handleToggleMultiItem(item, $event)"
+                  @toggle-multi-item="handleToggleMultiItem(item, $event)"
                   @save-entry="handleSaveEntry(item, $event)"
                   @clear-entry="handleClearEntry(item)"
                   @hide="handleHide(item)"
@@ -319,7 +312,7 @@ const deleteDialogMessage = computed(() => {
 
 // Flatten grouped KR items into a single list for the Przegląd grid
 const overviewGoalItems = computed<TodayItem[]>(() =>
-  store.goalGroupedKrItems.flatMap((g) => g.items),
+  store.goalGroupedKrItems.flatMap(g => g.items)
 )
 
 // Reference date the wellness cards calculate against (= visible bundle day).
@@ -338,37 +331,35 @@ const journalEntryDays = computed<Set<string>>(() => {
 })
 
 const journalState = computed<'empty' | 'done'>(() =>
-  journalEntryDays.value.has(toLocalDateKey(wellnessReferenceDate.value)) ? 'done' : 'empty',
+  journalEntryDays.value.has(toLocalDateKey(wellnessReferenceDate.value)) ? 'done' : 'empty'
 )
 
 // --- Ćwiczenia / Exercises card data -------------------------------------
 const exerciseDayCompletions = computed(() =>
-  exerciseCompletionsStore.completionsForDay(bundleDayRef.value),
+  exerciseCompletionsStore.completionsForDay(bundleDayRef.value)
 )
 
 // Historical days show that day's record without CTAs (design §4.6).
-const wellnessIsToday = computed(
-  () => bundleDayRef.value === getPeriodRefsForDate(new Date()).day,
-)
+const wellnessIsToday = computed(() => bundleDayRef.value === getPeriodRefsForDate(new Date()).day)
 
 // Due + overdue plans — the tile is a today-only CTA (design §4.4/§4.6).
 const duePlanItems = computed(() =>
-  wellnessIsToday.value ? exercisePlanStore.dueItems(bundleDayRef.value) : [],
+  wellnessIsToday.value ? exercisePlanStore.dueItems(bundleDayRef.value) : []
 )
 
 // Active program paths — the tile is a today-only surface (design §4.5/§4.6).
 const activeEnrollments = computed(() =>
-  wellnessIsToday.value ? programEnrollmentStore.activeEnrollments : [],
+  wellnessIsToday.value ? programEnrollmentStore.activeEnrollments : []
 )
 
 // --- Emocje / Emotions card data ----------------------------------------
 const todayEmotionLogs = computed<EmotionDonutLog[]>(() => {
   const todayKey = toLocalDateKey(wellnessReferenceDate.value)
   const logs = emotionLogStore.logs
-    .filter((l) => l.createdAt.slice(0, 10) === todayKey)
+    .filter(l => l.createdAt.slice(0, 10) === todayKey)
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
 
-  return logs.map((log) => {
+  return logs.map(log => {
     const counts: Record<Quadrant, number> = {
       'high-energy-high-pleasantness': 0,
       'high-energy-low-pleasantness': 0,
@@ -600,7 +591,7 @@ async function handleNextDay(): Promise<void> {
 
 watch(
   () => store.bundle?.dayRef,
-  (currentDayRef) => {
+  currentDayRef => {
     if (!currentDayRef || !props.dayRef || currentDayRef === props.dayRef) {
       return
     }
@@ -660,7 +651,7 @@ watch(
 .zb-section__label {
   font-size: 10px;
   font-weight: 600;
-  letter-spacing: 0.10em;
+  letter-spacing: 0.1em;
   color: rgb(var(--neo-muted));
   text-transform: uppercase;
 }
@@ -668,12 +659,7 @@ watch(
 .zb-section__divider {
   height: 1px;
   margin: 0 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgb(var(--neo-border) / 0.45),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgb(var(--neo-border) / 0.45), transparent);
 }
 
 .zb-section__empty {

@@ -126,5 +126,5 @@ export function getAssessmentScorer(assessmentId: AssessmentId): AssessmentScore
 }
 
 export function listAssessmentDefinitions(): AssessmentDefinition[] {
-  return Object.values(assessmentRegistry).map((entry) => entry.definition)
+  return Object.values(assessmentRegistry).map(entry => entry.definition)
 }

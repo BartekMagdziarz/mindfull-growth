@@ -52,7 +52,7 @@ function buildWizardStub(
     editingPerSection: Partial<Record<ProfileSectionId, boolean>>
     hasUnsavedEdits: boolean
     regenerateResult: { confirmationNeeded: boolean }
-  }> = {},
+  }> = {}
 ): WizardStub {
   const sections: ProfileSections = {
     ...createEmptySections(),
@@ -67,14 +67,12 @@ function buildWizardStub(
         acc[id] = overrides.editingPerSection?.[id] ?? false
         return acc
       },
-      {} as Record<ProfileSectionId, boolean>,
-    ),
+      {} as Record<ProfileSectionId, boolean>
+    )
   )
   const hasUnsavedEdits = computed(() => overrides.hasUnsavedEdits ?? false)
 
-  const regenerate = vi.fn(
-    async () => overrides.regenerateResult ?? { confirmationNeeded: false },
-  )
+  const regenerate = vi.fn(async () => overrides.regenerateResult ?? { confirmationNeeded: false })
 
   return {
     editedSections,
@@ -110,9 +108,7 @@ describe('ProfileReviewStep', () => {
     const wizard = buildWizardStub()
     render(ProfileReviewStep, { props: { wizard: asWizard(wizard) } })
     for (const id of PROFILE_SECTION_IDS) {
-      expect(
-        document.querySelector(`[data-test-section="${id}"]`),
-      ).toBeTruthy()
+      expect(document.querySelector(`[data-test-section="${id}"]`)).toBeTruthy()
     }
     expect(screen.getByText('Summary')).toBeInTheDocument()
     expect(screen.getByText('Recent arc')).toBeInTheDocument()
@@ -121,20 +117,14 @@ describe('ProfileReviewStep', () => {
   it('shows the empty-section note when a section has no text', () => {
     const wizard = buildWizardStub({ sections: { summary: '' } })
     render(ProfileReviewStep, { props: { wizard: asWizard(wizard) } })
-    const summary = document.querySelector(
-      '[data-test-section="summary"]',
-    ) as HTMLElement
-    expect(
-      within(summary).getByText('No observations in the selected data.'),
-    ).toBeInTheDocument()
+    const summary = document.querySelector('[data-test-section="summary"]') as HTMLElement
+    expect(within(summary).getByText('No observations in the selected data.')).toBeInTheDocument()
   })
 
   it('clicking the per-section edit button calls toggleEditSection', async () => {
     const wizard = buildWizardStub({ sections: { summary: 'Hello' } })
     render(ProfileReviewStep, { props: { wizard: asWizard(wizard) } })
-    const btn = document.querySelector(
-      '[data-test-toggle-section="summary"]',
-    ) as HTMLButtonElement
+    const btn = document.querySelector('[data-test-toggle-section="summary"]') as HTMLButtonElement
     await fireEvent.click(btn)
     expect(wizard.toggleEditSection).toHaveBeenCalledWith('summary')
   })
@@ -145,9 +135,7 @@ describe('ProfileReviewStep', () => {
       editingPerSection: { summary: true },
     })
     render(ProfileReviewStep, { props: { wizard: asWizard(wizard) } })
-    const textarea = document.querySelector(
-      '[data-test-textarea="summary"]',
-    ) as HTMLTextAreaElement
+    const textarea = document.querySelector('[data-test-textarea="summary"]') as HTMLTextAreaElement
     expect(textarea).toBeTruthy()
     expect(textarea.value).toBe('Existing text')
 
@@ -161,18 +149,14 @@ describe('ProfileReviewStep', () => {
       props: { wizard: asWizard(wizard) },
     })
 
-    const editAll = document.querySelector(
-      '[data-test-edit-all]',
-    ) as HTMLButtonElement
+    const editAll = document.querySelector('[data-test-edit-all]') as HTMLButtonElement
     await fireEvent.click(editAll)
     expect(wizard.enterEditAllMode).toHaveBeenCalledTimes(1)
 
     // Simulate the parent flipping the flag via the store action
     wizard.editingAll.value = true
     await rerender({ wizard: asWizard(wizard) })
-    const done = document.querySelector(
-      '[data-test-done-editing]',
-    ) as HTMLButtonElement
+    const done = document.querySelector('[data-test-done-editing]') as HTMLButtonElement
     await fireEvent.click(done)
     expect(wizard.exitEditAllMode).toHaveBeenCalledTimes(1)
   })
@@ -183,9 +167,7 @@ describe('ProfileReviewStep', () => {
     })
     render(ProfileReviewStep, { props: { wizard: asWizard(wizard) } })
 
-    const regenBtn = document.querySelector(
-      '[data-test-regenerate]',
-    ) as HTMLButtonElement
+    const regenBtn = document.querySelector('[data-test-regenerate]') as HTMLButtonElement
     await fireEvent.click(regenBtn)
 
     expect(wizard.regenerate).toHaveBeenCalledTimes(1)
@@ -200,9 +182,7 @@ describe('ProfileReviewStep', () => {
     })
     render(ProfileReviewStep, { props: { wizard: asWizard(wizard) } })
 
-    const regenBtn = document.querySelector(
-      '[data-test-regenerate]',
-    ) as HTMLButtonElement
+    const regenBtn = document.querySelector('[data-test-regenerate]') as HTMLButtonElement
     await fireEvent.click(regenBtn)
 
     // Dialog is teleported to <body>; check via role.

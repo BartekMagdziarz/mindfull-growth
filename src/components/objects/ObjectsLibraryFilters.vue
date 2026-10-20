@@ -1,6 +1,9 @@
 <template>
   <div class="flex flex-wrap items-center justify-end gap-2">
-    <label class="objects-filters-v2__search relative" :class="query.q ? 'objects-filters-v2__search--filled' : ''">
+    <label
+      class="objects-filters-v2__search relative"
+      :class="query.q ? 'objects-filters-v2__search--filled' : ''"
+    >
       <span class="sr-only">{{ searchLabel }}</span>
       <AppIcon
         name="search"
@@ -52,7 +55,10 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import ObjectsPeriodSelect from '@/components/objects/ObjectsPeriodSelect.vue'
 import ObjectsFiltersPopover from '@/components/objects/ObjectsFiltersPopover.vue'
 import type { PeriodRef } from '@/domain/period'
-import type { ObjectsLibraryFilterOption, ObjectsLibraryQuery } from '@/services/objectsLibraryQueries'
+import type {
+  ObjectsLibraryFilterOption,
+  ObjectsLibraryQuery,
+} from '@/services/objectsLibraryQueries'
 
 defineProps<{
   query: ObjectsLibraryQuery

@@ -7,7 +7,12 @@
  */
 
 import { sendMessage, type ChatMessage } from '@/services/llmService'
-import type { MeaningPathwayItem, MountainRangeEvent, SocraticFocus, TragicTriadFocus } from '@/domain/exercises'
+import type {
+  MeaningPathwayItem,
+  MountainRangeEvent,
+  SocraticFocus,
+  TragicTriadFocus,
+} from '@/domain/exercises'
 import type { LocaleId } from '@/services/locale.service'
 import { getLogotherapyPrompts } from '@/services/prompts'
 import type { LogotherapyPromptModule } from '@/services/prompts/types'
@@ -25,16 +30,18 @@ function buildThreePathwaysContext(
     lifeAreaNames?: string[]
     coreValues?: string[]
   },
-  labels: LogotherapyPromptModule['labels'],
+  labels: LogotherapyPromptModule['labels']
 ): string {
   const parts: string[] = []
 
   const formatItems = (items: MeaningPathwayItem[]) =>
-    items.map((item, i) => {
-      let line = `${i + 1}. ${item.description} (${labels.engagement}: ${item.engagementRating}/5)`
-      if (item.lifeAreaId) line += ` ${labels.linkedToLifeArea}`
-      return line
-    }).join('\n')
+    items
+      .map((item, i) => {
+        let line = `${i + 1}. ${item.description} (${labels.engagement}: ${item.engagementRating}/5)`
+        if (item.lifeAreaId) line += ` ${labels.linkedToLifeArea}`
+        return line
+      })
+      .join('\n')
 
   parts.push(`${labels.creativeValues}:\n${formatItems(params.creativeValues)}`)
   parts.push(`${labels.experientialValues}:\n${formatItems(params.experientialValues)}`)
@@ -58,7 +65,7 @@ function buildMountainRangeContext(
     valleyPatterns?: string
     coreValues?: string[]
   },
-  labels: LogotherapyPromptModule['labels'],
+  labels: LogotherapyPromptModule['labels']
 ): string {
   const parts: string[] = []
 
@@ -66,11 +73,15 @@ function buildMountainRangeContext(
   const valleys = params.events.filter(e => e.type === 'valley')
 
   if (peaks.length) {
-    parts.push(`${labels.peaksGreatestMeaning}:\n${peaks.map((p, i) => `${i + 1}. ${labels.ageYear} ${p.ageOrYear}: ${p.description}${p.reflection ? ` — "${p.reflection}"` : ''}`).join('\n')}`)
+    parts.push(
+      `${labels.peaksGreatestMeaning}:\n${peaks.map((p, i) => `${i + 1}. ${labels.ageYear} ${p.ageOrYear}: ${p.description}${p.reflection ? ` — "${p.reflection}"` : ''}`).join('\n')}`
+    )
   }
 
   if (valleys.length) {
-    parts.push(`${labels.valleysDeepestStruggle}:\n${valleys.map((v, i) => `${i + 1}. ${labels.ageYear} ${v.ageOrYear}: ${v.description}${v.reflection ? ` — "${v.reflection}"` : ''}`).join('\n')}`)
+    parts.push(
+      `${labels.valleysDeepestStruggle}:\n${valleys.map((v, i) => `${i + 1}. ${labels.ageYear} ${v.ageOrYear}: ${v.description}${v.reflection ? ` — "${v.reflection}"` : ''}`).join('\n')}`
+    )
   }
 
   if (params.peakPatterns) parts.push(`${labels.userPeakPatterns}: ${params.peakPatterns}`)
@@ -87,7 +98,7 @@ function buildParadoxicalIntentionContext(
     userAttempt?: string
     previousMessages?: ChatMessage[]
   },
-  labels: LogotherapyPromptModule['labels'],
+  labels: LogotherapyPromptModule['labels']
 ): string {
   const parts: string[] = []
   parts.push(`${labels.fear}: ${params.fear}`)
@@ -103,7 +114,7 @@ function buildAttitudinalShiftContext(
     belief: string
     previousMessages?: ChatMessage[]
   },
-  labels: LogotherapyPromptModule['labels'],
+  labels: LogotherapyPromptModule['labels']
 ): string {
   return `${labels.becauseStatement}: "${params.belief}"`
 }
@@ -114,7 +125,7 @@ function buildSocraticDialogueContext(
     customFocus?: string
     contextSummary?: string
   },
-  labels: LogotherapyPromptModule['labels'],
+  labels: LogotherapyPromptModule['labels']
 ): string {
   const parts: string[] = []
   if (params.focus === 'custom' && params.customFocus) {
@@ -134,13 +145,15 @@ function buildTragicOptimismContext(
     freeWriting?: string
     guidedAnswers?: string[]
   },
-  labels: LogotherapyPromptModule['labels'],
+  labels: LogotherapyPromptModule['labels']
 ): string {
   const parts: string[] = []
   parts.push(`${labels.focus}: ${params.focus}`)
   if (params.freeWriting) parts.push(`${labels.freeWriting}:\n${params.freeWriting}`)
   if (params.guidedAnswers?.length) {
-    parts.push(`${labels.guidedAnswers}:\n${params.guidedAnswers.map((a, i) => `${i + 1}. ${a}`).join('\n')}`)
+    parts.push(
+      `${labels.guidedAnswers}:\n${params.guidedAnswers.map((a, i) => `${i + 1}. ${a}`).join('\n')}`
+    )
   }
   return parts.join('\n\n')
 }
@@ -151,7 +164,7 @@ function buildLegacyLetterContext(
     coreValues?: string[]
     purposeStatement?: string
   },
-  labels: LogotherapyPromptModule['labels'],
+  labels: LogotherapyPromptModule['labels']
 ): string {
   const parts: string[] = []
   parts.push(`${labels.legacyLetter}:\n${params.letterText}`)
@@ -180,10 +193,9 @@ export async function synthesizeThreePathways(params: {
   const prompts = getLogotherapyPrompts(params.locale)
   const context = buildThreePathwaysContext(params, prompts.labels)
   const messages: ChatMessage[] = [{ role: 'user', content: context }]
-  const systemPrompt = await withProfileContextSystemPrompt(
-    prompts.THREE_PATHWAYS_SYNTHESIS,
-    { useProfile: params.useProfile ?? false },
-  )
+  const systemPrompt = await withProfileContextSystemPrompt(prompts.THREE_PATHWAYS_SYNTHESIS, {
+    useProfile: params.useProfile ?? false,
+  })
   return sendMessage(messages, systemPrompt)
 }
 
@@ -202,10 +214,9 @@ export async function synthesizeMountainRange(params: {
   const prompts = getLogotherapyPrompts(params.locale)
   const context = buildMountainRangeContext(params, prompts.labels)
   const messages: ChatMessage[] = [{ role: 'user', content: context }]
-  const systemPrompt = await withProfileContextSystemPrompt(
-    prompts.MOUNTAIN_RANGE_SYNTHESIS,
-    { useProfile: params.useProfile ?? false },
-  )
+  const systemPrompt = await withProfileContextSystemPrompt(prompts.MOUNTAIN_RANGE_SYNTHESIS, {
+    useProfile: params.useProfile ?? false,
+  })
   return sendMessage(messages, systemPrompt)
 }
 
@@ -227,10 +238,9 @@ export async function craftParadoxicalIntention(params: {
     ...(params.previousMessages ?? []),
     { role: 'user' as const, content: context },
   ]
-  const systemPrompt = await withProfileContextSystemPrompt(
-    prompts.PARADOXICAL_INTENTION_CRAFT,
-    { useProfile: params.useProfile ?? false },
-  )
+  const systemPrompt = await withProfileContextSystemPrompt(prompts.PARADOXICAL_INTENTION_CRAFT, {
+    useProfile: params.useProfile ?? false,
+  })
   return sendMessage(messages, systemPrompt)
 }
 
@@ -250,10 +260,9 @@ export async function reframeAttitudinalShift(params: {
     ...(params.previousMessages ?? []),
     { role: 'user' as const, content: context },
   ]
-  const systemPrompt = await withProfileContextSystemPrompt(
-    prompts.ATTITUDINAL_SHIFT_REFRAME,
-    { useProfile: params.useProfile ?? false },
-  )
+  const systemPrompt = await withProfileContextSystemPrompt(prompts.ATTITUDINAL_SHIFT_REFRAME, {
+    useProfile: params.useProfile ?? false,
+  })
   return sendMessage(messages, systemPrompt)
 }
 
@@ -276,9 +285,10 @@ export async function socraticDialogueTurn(params: {
 }): Promise<string> {
   const prompts = getLogotherapyPrompts(params.locale)
 
-  const baseSystemPrompt = params.focus === 'custom'
-    ? `${prompts.SOCRATIC_DIALOGUE_MEANING}\n\n${prompts.labels.customFocus}: ${params.customFocus ?? prompts.labels.generalMeaningExploration}`
-    : prompts.socraticPrompts[params.focus] ?? prompts.SOCRATIC_DIALOGUE_MEANING
+  const baseSystemPrompt =
+    params.focus === 'custom'
+      ? `${prompts.SOCRATIC_DIALOGUE_MEANING}\n\n${prompts.labels.customFocus}: ${params.customFocus ?? prompts.labels.generalMeaningExploration}`
+      : (prompts.socraticPrompts[params.focus] ?? prompts.SOCRATIC_DIALOGUE_MEANING)
 
   const contextPreamble = buildSocraticDialogueContext(params, prompts.labels)
   const messages: ChatMessage[] = []
@@ -298,10 +308,9 @@ export async function socraticDialogueTurn(params: {
     messages[0] = { role: 'user', content: `${contextPreamble}\n\n${params.userMessage}` }
   }
 
-  const systemPrompt = await withProfileContextSystemPrompt(
-    baseSystemPrompt,
-    { useProfile: params.useProfile ?? false },
-  )
+  const systemPrompt = await withProfileContextSystemPrompt(baseSystemPrompt, {
+    useProfile: params.useProfile ?? false,
+  })
   return sendMessage(messages, systemPrompt)
 }
 
@@ -330,10 +339,9 @@ export async function tragicOptimismTurn(params: {
     messages.push({ role: 'user', content: `${context}\n\n${params.userMessage}` })
   }
 
-  const systemPrompt = await withProfileContextSystemPrompt(
-    baseSystemPrompt,
-    { useProfile: params.useProfile ?? false },
-  )
+  const systemPrompt = await withProfileContextSystemPrompt(baseSystemPrompt, {
+    useProfile: params.useProfile ?? false,
+  })
   return sendMessage(messages, systemPrompt)
 }
 
@@ -361,9 +369,8 @@ export async function legacyLetterDiscuss(params: {
     messages.push({ role: 'user', content: `${context}\n\n${params.userMessage}` })
   }
 
-  const systemPrompt = await withProfileContextSystemPrompt(
-    prompts.LEGACY_LETTER_DISCUSS,
-    { useProfile: params.useProfile ?? false },
-  )
+  const systemPrompt = await withProfileContextSystemPrompt(prompts.LEGACY_LETTER_DISCUSS, {
+    useProfile: params.useProfile ?? false,
+  })
   return sendMessage(messages, systemPrompt)
 }

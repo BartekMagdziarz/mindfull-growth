@@ -57,7 +57,7 @@ const props = withDefaults(
     /** All intentions of the month's weeks — feed the plan-vs-execution "Intencje" ring. */
     weeklyIntentions?: WeeklyIntention[]
   }>(),
-  { kontekstActions: true, hasPlan: false, weeklyIntentions: () => [] },
+  { kontekstActions: true, hasPlan: false, weeklyIntentions: () => [] }
 )
 
 const emit = defineEmits<{
@@ -71,7 +71,7 @@ const planSummary = computed(() =>
     props.rawEntries,
     props.monthRef,
     props.todayDayRef,
-    props.weeklyIntentions,
-  ),
+    props.weeklyIntentions
+  )
 )
 </script>

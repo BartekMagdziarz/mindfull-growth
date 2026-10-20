@@ -14,15 +14,14 @@ async function resetDatabase(page: Page) {
   await page.goto('/')
   await page.evaluate(async () => {
     const deleteDatabase = (name: string) =>
-      new Promise<void>((resolve) => {
+      new Promise<void>(resolve => {
         const deleteRequest = indexedDB.deleteDatabase(name)
         deleteRequest.onsuccess = () => setTimeout(resolve, 100)
         deleteRequest.onerror = () => resolve()
         deleteRequest.onblocked = () => setTimeout(resolve, 100)
       })
 
-    const databases =
-      typeof indexedDB.databases === 'function' ? await indexedDB.databases() : []
+    const databases = typeof indexedDB.databases === 'function' ? await indexedDB.databases() : []
 
     for (const database of databases) {
       if (database.name) {
@@ -53,7 +52,7 @@ async function signUp(page: Page) {
   await page.getByRole('button', { name: /^(Create Account|Utwórz konto)$/ }).click()
   // Signup now lands on the Today view; journal-page assertions happen after
   // the explicit goto('/journal') in each flow.
-  await page.waitForURL((url) => url.pathname === '/today', { timeout: 5000 })
+  await page.waitForURL(url => url.pathname === '/today', { timeout: 5000 })
 }
 
 async function selectEmotion(
@@ -86,7 +85,7 @@ async function removeEmotion(page: Page, enName: string, plName: string) {
 async function gotoHistory(page: Page, type: 'journal' | 'emotion-log') {
   await page.goto(`/history?type=${type}`)
   await page.waitForURL(
-    (url) => url.pathname === '/history' && url.searchParams.get('type') === type,
+    url => url.pathname === '/history' && url.searchParams.get('type') === type,
     { timeout: 5000 }
   )
 }
@@ -109,7 +108,7 @@ async function createJournalEntry(
 ) {
   // /journal now redirects straight to the free-form editor (no mode picker).
   await page.goto('/journal')
-  await page.waitForURL((url) => url.pathname === '/journal/edit', { timeout: 5000 })
+  await page.waitForURL(url => url.pathname === '/journal/edit', { timeout: 5000 })
 
   await expect(page.getByRole('button', { name: saveButtonName })).toBeDisabled()
 
@@ -126,7 +125,7 @@ async function createJournalEntry(
   await page.getByRole('button', { name: saveButtonName }).click()
   // Post-save navigation lands back on the editor (/journal redirects to
   // /journal/edit) with a cleared form — that's the "saved" signal.
-  await page.waitForURL((url) => url.pathname === '/journal/edit', { timeout: 5000 })
+  await page.waitForURL(url => url.pathname === '/journal/edit', { timeout: 5000 })
   await expect(page.getByLabel(/journal entry|wpis w dzienniku/i)).toHaveValue('')
 }
 
@@ -155,7 +154,7 @@ test.describe('Journal Flow', () => {
     await expect(page.getByText(happyText)).toBeVisible()
 
     await page.getByRole('heading', { name: 'Daily Reflection' }).click()
-    await page.waitForURL((url) => /^\/journal\/[^/]+\/edit$/.test(url.pathname), {
+    await page.waitForURL(url => /^\/journal\/[^/]+\/edit$/.test(url.pathname), {
       timeout: 5000,
     })
 
@@ -165,7 +164,7 @@ test.describe('Journal Flow', () => {
     await selectEmotion(page, LOW_PLEASANT_QUADRANT, CALM_FAMILY, CALM_EMOTION)
     await addTag(page, 'people', 'Dad')
     await page.getByRole('button', { name: saveButtonName }).click()
-    await page.waitForURL((url) => url.pathname === '/journal/edit', { timeout: 5000 })
+    await page.waitForURL(url => url.pathname === '/journal/edit', { timeout: 5000 })
 
     await gotoHistory(page, 'journal')
     await expect(page.getByRole('heading', { name: 'Edited Reflection' })).toBeVisible()
@@ -174,9 +173,14 @@ test.describe('Journal Flow', () => {
     await expect(page.getByText('Dad', { exact: true })).toBeVisible()
 
     await page
-      .getByRole('button', { name: /^(Delete journal entry|Usuń wpis dziennika): Edited Reflection$/ })
+      .getByRole('button', {
+        name: /^(Delete journal entry|Usuń wpis dziennika): Edited Reflection$/,
+      })
       .click()
-    await page.getByRole('dialog').getByRole('button', { name: /^(Delete|Usuń)$/ }).click()
+    await page
+      .getByRole('dialog')
+      .getByRole('button', { name: /^(Delete|Usuń)$/ })
+      .click()
     await expect(page.getByRole('heading', { name: 'Edited Reflection' })).toHaveCount(0)
   })
 
@@ -191,9 +195,14 @@ test.describe('Journal Flow', () => {
 
     await gotoHistory(page, 'journal')
     await page
-      .getByRole('button', { name: /^(Delete journal entry|Usuń wpis dziennika): Cancelable Entry$/ })
+      .getByRole('button', {
+        name: /^(Delete journal entry|Usuń wpis dziennika): Cancelable Entry$/,
+      })
       .click()
-    await page.getByRole('dialog').getByRole('button', { name: /^(Cancel|Anuluj)$/ }).click()
+    await page
+      .getByRole('dialog')
+      .getByRole('button', { name: /^(Cancel|Anuluj)$/ })
+      .click()
     await expect(page.getByRole('heading', { name: 'Cancelable Entry' })).toBeVisible()
     await expect(page.getByText('Body that should stay.')).toBeVisible()
   })

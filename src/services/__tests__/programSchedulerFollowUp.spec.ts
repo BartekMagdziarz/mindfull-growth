@@ -34,7 +34,9 @@ const FOLLOW_UP: ProgramDefinition = {
 }
 
 vi.mock('@/data/programCatalog', () => ({
-  getProgramDefinition: vi.fn((slug: string) => (slug === 'follow-up-path' ? FOLLOW_UP : undefined)),
+  getProgramDefinition: vi.fn((slug: string) =>
+    slug === 'follow-up-path' ? FOLLOW_UP : undefined
+  ),
 }))
 
 vi.mock('@/repositories/exercisePlanDexieRepository', () => ({
@@ -232,8 +234,12 @@ describe('practice overrides', () => {
   it('effectivePractice applies a positive override and ignores a missing or zero one', () => {
     const practice = FOLLOW_UP.practices![0]!
     expect(effectivePractice(practice, {}).everyDays).toBe(2)
-    expect(effectivePractice(practice, { practiceOverrides: { breath: { everyDays: 3 } } }).everyDays).toBe(3)
-    expect(effectivePractice(practice, { practiceOverrides: { breath: { everyDays: 0 } } }).everyDays).toBe(2)
+    expect(
+      effectivePractice(practice, { practiceOverrides: { breath: { everyDays: 3 } } }).everyDays
+    ).toBe(3)
+    expect(
+      effectivePractice(practice, { practiceOverrides: { breath: { everyDays: 0 } } }).everyDays
+    ).toBe(2)
   })
 
   it('schedules the next occurrence with the overridden rhythm', async () => {

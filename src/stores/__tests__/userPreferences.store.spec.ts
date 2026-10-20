@@ -33,7 +33,7 @@ describe('useUserPreferencesStore', () => {
   })
 
   it('loads a valid theme preference from storage', async () => {
-    vi.mocked(userSettingsDexieRepository.get).mockImplementation(async (key) => {
+    vi.mocked(userSettingsDexieRepository.get).mockImplementation(async key => {
       if (key === 'preferences.theme') return 'sky-mist'
       return undefined
     })
@@ -45,7 +45,7 @@ describe('useUserPreferencesStore', () => {
   })
 
   it('falls back to current when stored theme is invalid', async () => {
-    vi.mocked(userSettingsDexieRepository.get).mockImplementation(async (key) => {
+    vi.mocked(userSettingsDexieRepository.get).mockImplementation(async key => {
       if (key === 'preferences.theme') return 'midnight'
       return undefined
     })
@@ -63,7 +63,7 @@ describe('useUserPreferencesStore', () => {
 
     expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
       'preferences.theme',
-      'sunrise-cloud',
+      'sunrise-cloud'
     )
     expect(store.themePreference).toBe('sunrise-cloud')
   })
@@ -73,10 +73,7 @@ describe('useUserPreferencesStore', () => {
 
     await store.setLocale('pl')
 
-    expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
-      'preferences.locale',
-      'pl',
-    )
+    expect(userSettingsDexieRepository.set).toHaveBeenCalledWith('preferences.locale', 'pl')
     expect(store.locale).toBe('pl')
   })
 
@@ -90,12 +87,10 @@ describe('useUserPreferencesStore', () => {
     })
 
     it("loads the stored 'true' value as the boolean true", async () => {
-      vi.mocked(userSettingsDexieRepository.get).mockImplementation(
-        async (key) => {
-          if (key === 'preferences.profileContext.default') return 'true'
-          return undefined
-        },
-      )
+      vi.mocked(userSettingsDexieRepository.get).mockImplementation(async key => {
+        if (key === 'preferences.profileContext.default') return 'true'
+        return undefined
+      })
 
       const store = useUserPreferencesStore()
       await store.loadPreferences()
@@ -104,12 +99,10 @@ describe('useUserPreferencesStore', () => {
     })
 
     it("loads the stored 'false' value as the boolean false", async () => {
-      vi.mocked(userSettingsDexieRepository.get).mockImplementation(
-        async (key) => {
-          if (key === 'preferences.profileContext.default') return 'false'
-          return undefined
-        },
-      )
+      vi.mocked(userSettingsDexieRepository.get).mockImplementation(async key => {
+        if (key === 'preferences.profileContext.default') return 'false'
+        return undefined
+      })
 
       const store = useUserPreferencesStore()
       await store.loadPreferences()
@@ -118,12 +111,10 @@ describe('useUserPreferencesStore', () => {
     })
 
     it('falls back to the default when the stored value is an unexpected string', async () => {
-      vi.mocked(userSettingsDexieRepository.get).mockImplementation(
-        async (key) => {
-          if (key === 'preferences.profileContext.default') return 'maybe'
-          return undefined
-        },
-      )
+      vi.mocked(userSettingsDexieRepository.get).mockImplementation(async key => {
+        if (key === 'preferences.profileContext.default') return 'maybe'
+        return undefined
+      })
 
       const store = useUserPreferencesStore()
       await store.loadPreferences()
@@ -138,7 +129,7 @@ describe('useUserPreferencesStore', () => {
 
       expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
         'preferences.profileContext.default',
-        'true',
+        'true'
       )
       expect(store.profileContextDefault).toBe(true)
     })
@@ -150,7 +141,7 @@ describe('useUserPreferencesStore', () => {
 
       expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
         'preferences.profileContext.default',
-        'false',
+        'false'
       )
       expect(store.profileContextDefault).toBe(false)
     })
@@ -158,13 +149,11 @@ describe('useUserPreferencesStore', () => {
     it('coerces truthy/falsy inputs to strict booleans before storing', async () => {
       const store = useUserPreferencesStore()
 
-      await store.setProfileContextDefault(
-        1 as unknown as boolean,
-      )
+      await store.setProfileContextDefault(1 as unknown as boolean)
 
       expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
         'preferences.profileContext.default',
-        'true',
+        'true'
       )
       expect(store.profileContextDefault).toBe(true)
     })
@@ -180,12 +169,10 @@ describe('useUserPreferencesStore', () => {
     })
 
     it("loads the stored 'false' value as the boolean false", async () => {
-      vi.mocked(userSettingsDexieRepository.get).mockImplementation(
-        async (key) => {
-          if (key === 'preferences.profileContext.defaultJournal') return 'false'
-          return undefined
-        },
-      )
+      vi.mocked(userSettingsDexieRepository.get).mockImplementation(async key => {
+        if (key === 'preferences.profileContext.defaultJournal') return 'false'
+        return undefined
+      })
 
       const store = useUserPreferencesStore()
       await store.loadPreferences()
@@ -193,25 +180,23 @@ describe('useUserPreferencesStore', () => {
       expect(store.profileContextDefaultJournal).toBe(false)
     })
 
-    it("persists value changes via setProfileContextDefaultJournal", async () => {
+    it('persists value changes via setProfileContextDefaultJournal', async () => {
       const store = useUserPreferencesStore()
 
       await store.setProfileContextDefaultJournal(false)
 
       expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
         'preferences.profileContext.defaultJournal',
-        'false',
+        'false'
       )
       expect(store.profileContextDefaultJournal).toBe(false)
     })
 
     it('does not migrate the legacy chat preference into the journal default', async () => {
-      vi.mocked(userSettingsDexieRepository.get).mockImplementation(
-        async (key) => {
-          if (key === 'preferences.chat.includeProfile') return 'false'
-          return undefined
-        },
-      )
+      vi.mocked(userSettingsDexieRepository.get).mockImplementation(async key => {
+        if (key === 'preferences.chat.includeProfile') return 'false'
+        return undefined
+      })
 
       const store = useUserPreferencesStore()
       await store.loadPreferences()
@@ -223,12 +208,10 @@ describe('useUserPreferencesStore', () => {
 
   describe('legacy preference migration', () => {
     it("migrates 'true' from legacy chat preference into profileContextDefault and deletes the old key", async () => {
-      vi.mocked(userSettingsDexieRepository.get).mockImplementation(
-        async (key) => {
-          if (key === 'preferences.chat.includeProfile') return 'true'
-          return undefined
-        },
-      )
+      vi.mocked(userSettingsDexieRepository.get).mockImplementation(async key => {
+        if (key === 'preferences.chat.includeProfile') return 'true'
+        return undefined
+      })
 
       const store = useUserPreferencesStore()
       await store.loadPreferences()
@@ -236,20 +219,18 @@ describe('useUserPreferencesStore', () => {
       expect(store.profileContextDefault).toBe(true)
       expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
         'preferences.profileContext.default',
-        'true',
+        'true'
       )
       expect(userSettingsDexieRepository.delete).toHaveBeenCalledWith(
-        'preferences.chat.includeProfile',
+        'preferences.chat.includeProfile'
       )
     })
 
     it("migrates 'false' from legacy chat preference and preserves user's prior off-choice", async () => {
-      vi.mocked(userSettingsDexieRepository.get).mockImplementation(
-        async (key) => {
-          if (key === 'preferences.chat.includeProfile') return 'false'
-          return undefined
-        },
-      )
+      vi.mocked(userSettingsDexieRepository.get).mockImplementation(async key => {
+        if (key === 'preferences.chat.includeProfile') return 'false'
+        return undefined
+      })
 
       const store = useUserPreferencesStore()
       await store.loadPreferences()
@@ -257,21 +238,19 @@ describe('useUserPreferencesStore', () => {
       expect(store.profileContextDefault).toBe(false)
       expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
         'preferences.profileContext.default',
-        'false',
+        'false'
       )
       expect(userSettingsDexieRepository.delete).toHaveBeenCalledWith(
-        'preferences.chat.includeProfile',
+        'preferences.chat.includeProfile'
       )
     })
 
-    it("does not migrate when the new key already has a value", async () => {
-      vi.mocked(userSettingsDexieRepository.get).mockImplementation(
-        async (key) => {
-          if (key === 'preferences.profileContext.default') return 'false'
-          if (key === 'preferences.chat.includeProfile') return 'true'
-          return undefined
-        },
-      )
+    it('does not migrate when the new key already has a value', async () => {
+      vi.mocked(userSettingsDexieRepository.get).mockImplementation(async key => {
+        if (key === 'preferences.profileContext.default') return 'false'
+        if (key === 'preferences.chat.includeProfile') return 'true'
+        return undefined
+      })
 
       const store = useUserPreferencesStore()
       await store.loadPreferences()
@@ -279,7 +258,7 @@ describe('useUserPreferencesStore', () => {
       // New key wins — legacy value is ignored.
       expect(store.profileContextDefault).toBe(false)
       expect(userSettingsDexieRepository.delete).not.toHaveBeenCalledWith(
-        'preferences.chat.includeProfile',
+        'preferences.chat.includeProfile'
       )
     })
   })
@@ -307,21 +286,17 @@ describe('useUserPreferencesStore', () => {
     })
 
     it('loads a stored dismissal timestamp', async () => {
-      vi.mocked(userSettingsDexieRepository.get).mockImplementation(
-        async (key) => {
-          if (key === 'profile.foundationRefreshDismissedAt') {
-            return '2026-05-01T12:00:00.000Z'
-          }
-          return undefined
-        },
-      )
+      vi.mocked(userSettingsDexieRepository.get).mockImplementation(async key => {
+        if (key === 'profile.foundationRefreshDismissedAt') {
+          return '2026-05-01T12:00:00.000Z'
+        }
+        return undefined
+      })
 
       const store = useUserPreferencesStore()
       await store.loadPreferences()
 
-      expect(store.foundationRefreshDismissedAt).toBe(
-        '2026-05-01T12:00:00.000Z',
-      )
+      expect(store.foundationRefreshDismissedAt).toBe('2026-05-01T12:00:00.000Z')
     })
 
     it('persists a dismissal timestamp and updates the ref', async () => {
@@ -331,11 +306,9 @@ describe('useUserPreferencesStore', () => {
 
       expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
         'profile.foundationRefreshDismissedAt',
-        '2026-05-01T12:00:00.000Z',
+        '2026-05-01T12:00:00.000Z'
       )
-      expect(store.foundationRefreshDismissedAt).toBe(
-        '2026-05-01T12:00:00.000Z',
-      )
+      expect(store.foundationRefreshDismissedAt).toBe('2026-05-01T12:00:00.000Z')
     })
 
     it('removes the dismissal timestamp when set to undefined', async () => {
@@ -345,7 +318,7 @@ describe('useUserPreferencesStore', () => {
       await store.setFoundationRefreshDismissedAt(undefined)
 
       expect(userSettingsDexieRepository.delete).toHaveBeenCalledWith(
-        'profile.foundationRefreshDismissedAt',
+        'profile.foundationRefreshDismissedAt'
       )
       expect(store.foundationRefreshDismissedAt).toBeUndefined()
     })
@@ -357,7 +330,7 @@ describe('useUserPreferencesStore', () => {
       await store.clearFoundationRefreshDismissedAt()
 
       expect(userSettingsDexieRepository.delete).toHaveBeenCalledWith(
-        'profile.foundationRefreshDismissedAt',
+        'profile.foundationRefreshDismissedAt'
       )
       expect(store.foundationRefreshDismissedAt).toBeUndefined()
     })

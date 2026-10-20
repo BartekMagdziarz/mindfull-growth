@@ -1,7 +1,5 @@
 <template>
-  <article
-    class="group/card mg-v2-surface mg-v2-surface--raised-sm p-3.5"
-  >
+  <article class="group/card mg-v2-surface mg-v2-surface--raised-sm p-3.5">
     <div class="space-y-3">
       <div class="flex items-center gap-2">
         <IconPicker
@@ -63,7 +61,11 @@
                   class="block w-full px-3 py-2 text-left text-xs font-medium text-on-surface hover:bg-primary-soft/30"
                   @click="handleArchive"
                 >
-                  {{ item.status === 'active' ? t('planning.objects.actions.pause') : t('planning.objects.actions.activate') }}
+                  {{
+                    item.status === 'active'
+                      ? t('planning.objects.actions.pause')
+                      : t('planning.objects.actions.activate')
+                  }}
                 </button>
                 <button
                   type="button"
@@ -95,26 +97,33 @@
           :empty-label="t('planning.objects.timeline.addLink')"
           @open="openLinks"
         />
-            <div
-              v-if="linksOpen"
-              class="mg-v2-popover absolute left-0 z-20 mt-1 max-h-56 min-w-[190px] overflow-y-auto p-1"
-              @click.stop
-            >
-              <button
-                v-for="option in lifeAreaOptions"
-                :key="option.id"
-                type="button"
-                class="flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-left text-[11px] font-medium text-on-surface hover:bg-primary-soft/30"
-                @click="emitFieldChange('toggleLifeArea', option.id)"
-              >
-                <AppIcon v-if="item.lifeAreaIds?.includes(option.id)" name="check" class="text-xs text-primary" />
-                <span v-else class="h-3 w-3" />
-                <span class="min-w-0 flex-1 truncate">{{ option.label }}</span>
-              </button>
-              <div v-if="lifeAreaOptions.length === 0" class="px-3 py-2 text-xs text-on-surface-variant">
-                {{ t('planning.objects.filters.noOptions') }}
-              </div>
-            </div>
+        <div
+          v-if="linksOpen"
+          class="mg-v2-popover absolute left-0 z-20 mt-1 max-h-56 min-w-[190px] overflow-y-auto p-1"
+          @click.stop
+        >
+          <button
+            v-for="option in lifeAreaOptions"
+            :key="option.id"
+            type="button"
+            class="flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-left text-[11px] font-medium text-on-surface hover:bg-primary-soft/30"
+            @click="emitFieldChange('toggleLifeArea', option.id)"
+          >
+            <AppIcon
+              v-if="item.lifeAreaIds?.includes(option.id)"
+              name="check"
+              class="text-xs text-primary"
+            />
+            <span v-else class="h-3 w-3" />
+            <span class="min-w-0 flex-1 truncate">{{ option.label }}</span>
+          </button>
+          <div
+            v-if="lifeAreaOptions.length === 0"
+            class="px-3 py-2 text-xs text-on-surface-variant"
+          >
+            {{ t('planning.objects.filters.noOptions') }}
+          </div>
+        </div>
       </div>
 
       <!-- Years as stepper dots on a pencil line; click edits linked years -->
@@ -136,7 +145,9 @@
       </div>
 
       <label class="mg-v2-field-wrap gap-1">
-        <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('planning.objects.form.whyNow') }}</span>
+        <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{
+          t('planning.objects.form.whyNow')
+        }}</span>
         <textarea
           ref="whyNowRef"
           v-model="whyNow"
@@ -147,7 +158,9 @@
       </label>
 
       <label class="mg-v2-field-wrap gap-1">
-        <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('planning.objects.form.desiredDirection') }}</span>
+        <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{
+          t('planning.objects.form.desiredDirection')
+        }}</span>
         <textarea
           ref="desiredDirectionRef"
           v-model="desiredDirection"
@@ -158,7 +171,9 @@
       </label>
 
       <label class="mg-v2-field-wrap gap-1">
-        <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('planning.objects.form.tradeoffs') }}</span>
+        <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{
+          t('planning.objects.form.tradeoffs')
+        }}</span>
         <textarea
           ref="tradeoffsRef"
           v-model="tradeoffs"
@@ -169,7 +184,9 @@
       </label>
 
       <label class="mg-v2-field-wrap gap-1">
-        <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('planning.objects.form.progressSignals') }}</span>
+        <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{
+          t('planning.objects.form.progressSignals')
+        }}</span>
         <textarea
           ref="progressSignalsRef"
           v-model="progressSignals"
@@ -181,7 +198,9 @@
       </label>
 
       <label class="mg-v2-field-wrap gap-1">
-        <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('planning.objects.form.riskSignals') }}</span>
+        <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{
+          t('planning.objects.form.riskSignals')
+        }}</span>
         <textarea
           ref="riskSignalsRef"
           v-model="riskSignals"
@@ -192,9 +211,14 @@
         />
       </label>
 
-      <section v-if="item.status === 'closed'" class="mg-v2-surface mg-v2-surface--flat space-y-2 p-2.5">
+      <section
+        v-if="item.status === 'closed'"
+        class="mg-v2-surface mg-v2-surface--flat space-y-2 p-2.5"
+      >
         <label class="mg-v2-field-wrap gap-1">
-          <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('planning.objects.form.closedAt') }}</span>
+          <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{
+            t('planning.objects.form.closedAt')
+          }}</span>
           <input
             ref="closedAtRef"
             v-model="closedAt"
@@ -205,7 +229,9 @@
           />
         </label>
         <label class="mg-v2-field-wrap gap-1">
-          <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('planning.objects.form.closingSummary') }}</span>
+          <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{
+            t('planning.objects.form.closingSummary')
+          }}</span>
           <textarea
             ref="closingSummaryRef"
             v-model="closingSummary"
@@ -216,7 +242,10 @@
         </label>
         <div class="grid gap-2 sm:grid-cols-3">
           <label class="mg-v2-field-wrap gap-1">
-            <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('planning.objects.form.workedWell') }}</span>
+            <span
+              class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant"
+              >{{ t('planning.objects.form.workedWell') }}</span
+            >
             <textarea
               ref="workedWellRef"
               v-model="workedWell"
@@ -226,7 +255,10 @@
             />
           </label>
           <label class="mg-v2-field-wrap gap-1">
-            <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('planning.objects.form.wasDifficult') }}</span>
+            <span
+              class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant"
+              >{{ t('planning.objects.form.wasDifficult') }}</span
+            >
             <textarea
               ref="wasDifficultRef"
               v-model="wasDifficult"
@@ -236,7 +268,10 @@
             />
           </label>
           <label class="mg-v2-field-wrap gap-1">
-            <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('planning.objects.form.learned') }}</span>
+            <span
+              class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant"
+              >{{ t('planning.objects.form.learned') }}</span
+            >
             <textarea
               ref="learnedRef"
               v-model="learned"
@@ -255,7 +290,9 @@
           class="mg-v2-surface mg-v2-surface--flat px-2 py-1.5 text-center"
         >
           <div class="text-sm font-semibold tabular-nums text-on-surface">{{ metric.value }}</div>
-          <div class="truncate text-[9px] font-medium uppercase text-on-surface-variant">{{ metric.label }}</div>
+          <div class="truncate text-[9px] font-medium uppercase text-on-surface-variant">
+            {{ metric.label }}
+          </div>
         </div>
       </div>
 
@@ -283,7 +320,10 @@ import type { YearRef } from '@/domain/period'
 import type { LinkedYear } from '@/components/objects/PriorityYearsDropdown.vue'
 import { useEditableField } from '@/composables/useEditableField'
 import { useT } from '@/composables/useT'
-import type { ObjectsLibraryFilterOption, ObjectsLibraryListItem } from '@/services/objectsLibraryQueries'
+import type {
+  ObjectsLibraryFilterOption,
+  ObjectsLibraryListItem,
+} from '@/services/objectsLibraryQueries'
 
 const props = defineProps<{
   item: ObjectsLibraryListItem
@@ -316,68 +356,112 @@ function signalsToText(signals: string[] | undefined): string {
 const TITLE_DELAY_MS = 400
 const TEXT_DELAY_MS = 500
 
-const { value: title, inputRef: titleRef, flush: flushTitle } = useEditableField({
+const {
+  value: title,
+  inputRef: titleRef,
+  flush: flushTitle,
+} = useEditableField({
   source: () => props.item.title,
-  commit: (value) => emitFieldChange('title', value),
+  commit: value => emitFieldChange('title', value),
   delay: TITLE_DELAY_MS,
 })
 
-const { value: whyNow, inputRef: whyNowRef, flush: flushWhyNow } = useEditableField({
+const {
+  value: whyNow,
+  inputRef: whyNowRef,
+  flush: flushWhyNow,
+} = useEditableField({
   source: () => props.item.whyNow,
-  commit: (value) => emitFieldChange('whyNow', value),
+  commit: value => emitFieldChange('whyNow', value),
   delay: TEXT_DELAY_MS,
 })
 
-const { value: desiredDirection, inputRef: desiredDirectionRef, flush: flushDesiredDirection } = useEditableField({
+const {
+  value: desiredDirection,
+  inputRef: desiredDirectionRef,
+  flush: flushDesiredDirection,
+} = useEditableField({
   source: () => props.item.desiredDirection,
-  commit: (value) => emitFieldChange('desiredDirection', value),
+  commit: value => emitFieldChange('desiredDirection', value),
   delay: TEXT_DELAY_MS,
 })
 
-const { value: tradeoffs, inputRef: tradeoffsRef, flush: flushTradeoffs } = useEditableField({
+const {
+  value: tradeoffs,
+  inputRef: tradeoffsRef,
+  flush: flushTradeoffs,
+} = useEditableField({
   source: () => props.item.tradeoffs,
-  commit: (value) => emitFieldChange('tradeoffs', value),
+  commit: value => emitFieldChange('tradeoffs', value),
   delay: TEXT_DELAY_MS,
 })
 
-const { value: progressSignals, inputRef: progressSignalsRef, flush: flushProgressSignals } = useEditableField<string[], string>({
+const {
+  value: progressSignals,
+  inputRef: progressSignalsRef,
+  flush: flushProgressSignals,
+} = useEditableField<string[], string>({
   source: () => props.item.progressSignals,
   format: signalsToText,
-  commit: (value) => emitFieldChange('progressSignals', value),
+  commit: value => emitFieldChange('progressSignals', value),
 })
 
-const { value: riskSignals, inputRef: riskSignalsRef, flush: flushRiskSignals } = useEditableField<string[], string>({
+const {
+  value: riskSignals,
+  inputRef: riskSignalsRef,
+  flush: flushRiskSignals,
+} = useEditableField<string[], string>({
   source: () => props.item.riskSignals,
   format: signalsToText,
-  commit: (value) => emitFieldChange('riskSignals', value),
+  commit: value => emitFieldChange('riskSignals', value),
 })
 
-const { value: closedAt, inputRef: closedAtRef, flush: flushClosedAt } = useEditableField({
+const {
+  value: closedAt,
+  inputRef: closedAtRef,
+  flush: flushClosedAt,
+} = useEditableField({
   source: () => props.item.closingReflection?.closedAt,
-  commit: (value) => emitFieldChange('closingReflection.closedAt', value),
+  commit: value => emitFieldChange('closingReflection.closedAt', value),
 })
 
-const { value: closingSummary, inputRef: closingSummaryRef, flush: flushClosingSummary } = useEditableField({
+const {
+  value: closingSummary,
+  inputRef: closingSummaryRef,
+  flush: flushClosingSummary,
+} = useEditableField({
   source: () => props.item.closingReflection?.summary,
-  commit: (value) => emitFieldChange('closingReflection.summary', value),
+  commit: value => emitFieldChange('closingReflection.summary', value),
   delay: TEXT_DELAY_MS,
 })
 
-const { value: workedWell, inputRef: workedWellRef, flush: flushWorkedWell } = useEditableField({
+const {
+  value: workedWell,
+  inputRef: workedWellRef,
+  flush: flushWorkedWell,
+} = useEditableField({
   source: () => props.item.closingReflection?.workedWell,
-  commit: (value) => emitFieldChange('closingReflection.workedWell', value),
+  commit: value => emitFieldChange('closingReflection.workedWell', value),
   delay: TEXT_DELAY_MS,
 })
 
-const { value: wasDifficult, inputRef: wasDifficultRef, flush: flushWasDifficult } = useEditableField({
+const {
+  value: wasDifficult,
+  inputRef: wasDifficultRef,
+  flush: flushWasDifficult,
+} = useEditableField({
   source: () => props.item.closingReflection?.wasDifficult,
-  commit: (value) => emitFieldChange('closingReflection.wasDifficult', value),
+  commit: value => emitFieldChange('closingReflection.wasDifficult', value),
   delay: TEXT_DELAY_MS,
 })
 
-const { value: learned, inputRef: learnedRef, flush: flushLearned } = useEditableField({
+const {
+  value: learned,
+  inputRef: learnedRef,
+  flush: flushLearned,
+} = useEditableField({
   source: () => props.item.closingReflection?.learned,
-  commit: (value) => emitFieldChange('closingReflection.learned', value),
+  commit: value => emitFieldChange('closingReflection.learned', value),
   delay: TEXT_DELAY_MS,
 })
 
@@ -387,11 +471,11 @@ const menuOpen = ref(false)
 const linksOpen = ref(false)
 
 const linkedYears = computed<LinkedYear[]>(() =>
-  (props.item.years ?? []).map((year) => ({ yearRef: year, displayLabel: year })),
+  (props.item.years ?? []).map(year => ({ yearRef: year, displayLabel: year }))
 )
 
 const yearsWindow = computed(() =>
-  computeYearsWindow((props.item.years ?? []) as YearRef[], new Date()),
+  computeYearsWindow((props.item.years ?? []) as YearRef[], new Date())
 )
 
 const yearsRef = ref<InstanceType<typeof PriorityYearsDropdown> | null>(null)
@@ -409,7 +493,7 @@ function openYears(): void {
 // Status is quiet: shown as text only when it is not the default "active".
 const statusLabel = computed(() => {
   if (props.item.status === 'active') return null
-  const opt = props.statusOptions.find((o) => o.value === props.item.status)
+  const opt = props.statusOptions.find(o => o.value === props.item.status)
   return opt?.label ?? props.item.status
 })
 
@@ -422,7 +506,10 @@ const linkedMetrics = computed(() => [
   { label: t('planning.objects.families.goals'), value: props.item.linkedCounts?.goals ?? 0 },
   { label: t('planning.objects.families.habits'), value: props.item.linkedCounts?.habits ?? 0 },
   { label: t('planning.objects.families.trackers'), value: props.item.linkedCounts?.trackers ?? 0 },
-  { label: t('planning.objects.families.intentions'), value: props.item.linkedCounts?.intentions ?? 0 },
+  {
+    label: t('planning.objects.families.intentions'),
+    value: props.item.linkedCounts?.intentions ?? 0,
+  },
 ])
 
 function handleArchive(): void {
@@ -447,14 +534,14 @@ function handleOutsideClick(event: MouseEvent): void {
 
 watch(
   () => props.isNew,
-  (isNew) => {
+  isNew => {
     if (isNew) {
       void nextTick(() => {
         titleRef.value?.focus()
       })
     }
   },
-  { immediate: true },
+  { immediate: true }
 )
 
 onMounted(() => {

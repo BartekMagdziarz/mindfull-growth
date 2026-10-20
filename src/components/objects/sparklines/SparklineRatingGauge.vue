@@ -88,7 +88,7 @@ const props = withDefaults(
     cadence: 'weekly' | 'monthly' | 'daily'
     compact?: boolean
   }>(),
-  { compact: false },
+  { compact: false }
 )
 
 const { locale } = useT()
@@ -100,7 +100,7 @@ const visiblePoints = computed(() => getVisiblePoints(props.points, props.cadenc
 
 // Scale max: round up to nearest 5, at least 10
 const scaleMax = computed(() => {
-  const allValues = visiblePoints.value.flatMap((p) => [p.actualValue ?? 0, p.targetValue ?? 0])
+  const allValues = visiblePoints.value.flatMap(p => [p.actualValue ?? 0, p.targetValue ?? 0])
   const raw = Math.max(10, ...allValues)
   return Math.ceil(raw / 5) * 5
 })

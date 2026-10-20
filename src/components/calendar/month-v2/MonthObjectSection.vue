@@ -66,13 +66,22 @@
           <span>{{ weekGroupLabel(group.key) }}</span>
         </p>
 
-        <div v-for="row in group.rows" :key="row.key" class="month-section__row" :data-row-key="row.key">
+        <div
+          v-for="row in group.rows"
+          :key="row.key"
+          class="month-section__row"
+          :data-row-key="row.key"
+        >
           <button
             type="button"
             class="month-section__row-label neo-focus"
             :title="row.title"
             @click="
-              emit('openObject', { type: row.subjectType, id: row.subjectId, homeWeekRef: row.homeWeekRef })
+              emit('openObject', {
+                type: row.subjectType,
+                id: row.subjectId,
+                homeWeekRef: row.homeWeekRef,
+              })
             "
           >
             <EntityIcon :icon="row.icon" size="xs" />
@@ -165,7 +174,8 @@ function rowSubline(row: MonthV2Row): string | null {
   const parts: string[] = []
   const summary = row.monthSummary
   if (row.cadence === 'monthly' && summary?.actualValue !== undefined) {
-    const target = summary.target?.value !== undefined ? `/${formatValue(summary.target.value)}` : ''
+    const target =
+      summary.target?.value !== undefined ? `/${formatValue(summary.target.value)}` : ''
     parts.push(
       t('planning.calendar.monthV2.monthResult', {
         value: `${formatValue(summary.actualValue)}${target}`,

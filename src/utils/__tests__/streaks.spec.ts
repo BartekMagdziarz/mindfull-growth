@@ -21,11 +21,7 @@ describe('computeStreak', () => {
   })
 
   it('counts consecutive days ending today', () => {
-    const timestamps = [
-      localNoon(2026, 3, 18),
-      localNoon(2026, 3, 19),
-      localNoon(2026, 3, 20),
-    ]
+    const timestamps = [localNoon(2026, 3, 18), localNoon(2026, 3, 19), localNoon(2026, 3, 20)]
     expect(computeStreak(timestamps, ref)).toBe(3)
   })
 
@@ -41,10 +37,7 @@ describe('computeStreak', () => {
   })
 
   it('counts streak ending yesterday when today has no entry', () => {
-    const timestamps = [
-      localNoon(2026, 3, 18),
-      localNoon(2026, 3, 19),
-    ]
+    const timestamps = [localNoon(2026, 3, 18), localNoon(2026, 3, 19)]
     expect(computeStreak(timestamps, ref)).toBe(2)
   })
 
@@ -84,7 +77,7 @@ describe('computeWeeklyStreak', () => {
 
   it('counts consecutive weeks ending in the current week', () => {
     const timestamps = [
-      localNoon(2026, 3, 4),  // week of 2026-03-02
+      localNoon(2026, 3, 4), // week of 2026-03-02
       localNoon(2026, 3, 11), // week of 2026-03-09
       localNoon(2026, 3, 17), // week of 2026-03-16
     ]
@@ -103,7 +96,7 @@ describe('computeWeeklyStreak', () => {
 
   it('counts streak ending last week when current week is empty', () => {
     const timestamps = [
-      localNoon(2026, 3, 9),  // week of 2026-03-09
+      localNoon(2026, 3, 9), // week of 2026-03-09
       localNoon(2026, 3, 11), // week of 2026-03-09 (same)
     ]
     expect(computeWeeklyStreak(timestamps, ref)).toBe(1)

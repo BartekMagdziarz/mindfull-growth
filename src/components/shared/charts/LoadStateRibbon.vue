@@ -1,29 +1,80 @@
 <template>
-  <figure class="ls-ribbon" :class="{ 'ls-ribbon--thin': thin, 'ls-ribbon--quiet': quiet }" role="img" :aria-label="aria">
-    <svg :viewBox="`0 0 ${W} ${H}`" preserveAspectRatio="none" class="ls-ribbon__svg" aria-hidden="true">
+  <figure
+    class="ls-ribbon"
+    :class="{ 'ls-ribbon--thin': thin, 'ls-ribbon--quiet': quiet }"
+    role="img"
+    :aria-label="aria"
+  >
+    <svg
+      :viewBox="`0 0 ${W} ${H}`"
+      preserveAspectRatio="none"
+      class="ls-ribbon__svg"
+      aria-hidden="true"
+    >
       <defs>
         <filter :id="washId" x="-5%" y="-30%" width="110%" height="160%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.02 0.09" numOctaves="2" :seed="seed % 50" result="noise" />
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="7" xChannelSelector="R" yChannelSelector="G" />
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.02 0.09"
+            numOctaves="2"
+            :seed="seed % 50"
+            result="noise"
+          />
+          <feDisplacementMap
+            in="SourceGraphic"
+            in2="noise"
+            scale="7"
+            xChannelSelector="R"
+            yChannelSelector="G"
+          />
           <feGaussianBlur stdDeviation="1.2 0.8" />
         </filter>
         <!-- smooth transitions: one horizontal gradient with a stop at the centre of every rated week -->
         <linearGradient :id="gradId" gradientUnits="userSpaceOnUse" x1="0" y1="0" :x2="W" y2="0">
-          <stop v-for="stop in gradientStops" :key="stop.offset" :offset="stop.offset" :style="{ stopColor: stop.color }" />
+          <stop
+            v-for="stop in gradientStops"
+            :key="stop.offset"
+            :offset="stop.offset"
+            :style="{ stopColor: stop.color }"
+          />
         </linearGradient>
       </defs>
 
       <!-- ruled paper: 1 · 3 · 5 -->
-      <line v-for="n in [1, 3, 5]" :key="n" :x1="0" :x2="W" :y1="y(n)" :y2="y(n)" class="ls-ribbon__rule" />
+      <line
+        v-for="n in [1, 3, 5]"
+        :key="n"
+        :x1="0"
+        :x2="W"
+        :y1="y(n)"
+        :y2="y(n)"
+        class="ls-ribbon__rule"
+      />
 
       <!-- watercolour between the two curves, one piece per unbroken run of rated weeks -->
       <g class="ls-ribbon__wash" :filter="`url(#${washId})`">
-        <path v-for="seg in segments" :key="`a-${seg.from}`" :d="seg.area" :style="{ fill: `url(#${gradId})` }" class="ls-ribbon__band" />
+        <path
+          v-for="seg in segments"
+          :key="`a-${seg.from}`"
+          :d="seg.area"
+          :style="{ fill: `url(#${gradId})` }"
+          class="ls-ribbon__band"
+        />
       </g>
 
       <!-- pencil = load, ink = state -->
-      <path v-for="seg in segments" :key="`l-${seg.from}`" :d="seg.load" class="ls-ribbon__line ls-ribbon__line--load" />
-      <path v-for="seg in segments" :key="`s-${seg.from}`" :d="seg.state" class="ls-ribbon__line ls-ribbon__line--state" />
+      <path
+        v-for="seg in segments"
+        :key="`l-${seg.from}`"
+        :d="seg.load"
+        class="ls-ribbon__line ls-ribbon__line--load"
+      />
+      <path
+        v-for="seg in segments"
+        :key="`s-${seg.from}`"
+        :d="seg.state"
+        class="ls-ribbon__line ls-ribbon__line--state"
+      />
 
       <!-- hover / click zones -->
       <rect
@@ -39,10 +90,19 @@
         @click="emit('select', p.weekRef)"
       />
     </svg>
-    <div v-if="!quiet && hover !== null" class="ls-ribbon__tip" :style="{ left: `${(x(hover) / W) * 100}%` }">
+    <div
+      v-if="!quiet && hover !== null"
+      class="ls-ribbon__tip"
+      :style="{ left: `${(x(hover) / W) * 100}%` }"
+    >
       <b>{{ points[hover].label }}</b>
       <template v-if="points[hover].load != null && points[hover].state != null">
-        <span :style="{ background: pairColor(points[hover].load, points[hover].state), color: pairInk(points[hover].load, points[hover].state) }">
+        <span
+          :style="{
+            background: pairColor(points[hover].load, points[hover].state),
+            color: pairInk(points[hover].load, points[hover].state),
+          }"
+        >
           {{ QUADRANT_LABELS[classifyPair(points[hover].load, points[hover].state).quadrant] }}
         </span>
         <small>obciążenie {{ points[hover].load }} · stan {{ points[hover].state }}</small>
@@ -77,7 +137,7 @@ const props = withDefaults(
     /** Axis label every N points; defaults by point count (1 / 2 / 4). */
     tickEvery?: number
   }>(),
-  { label: '', height: 64, showAxis: false, thin: false, quiet: false, tickEvery: 0 },
+  { label: '', height: 64, showAxis: false, thin: false, quiet: false, tickEvery: 0 }
 )
 
 const emit = defineEmits<{ select: [weekRef: WeekRef] }>()
@@ -95,7 +155,9 @@ const x = (i: number) => step.value * i + step.value / 2
 const y = (v: number) => H.value - padY - ((v - 1) / 4) * (H.value - padY * 2)
 
 const hover = ref<number | null>(null)
-const tickStep = computed(() => props.tickEvery || (props.points.length > 16 ? 4 : props.points.length > 8 ? 2 : 1))
+const tickStep = computed(
+  () => props.tickEvery || (props.points.length > 16 ? 4 : props.points.length > 8 ? 2 : 1)
+)
 
 const rated = (p: WeekPoint) => p.load != null && p.state != null
 

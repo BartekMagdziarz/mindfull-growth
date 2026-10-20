@@ -40,7 +40,11 @@ export function useAutoResizeTextarea(
   }
 
   function autoResize(event?: Event) {
-    if (event && event.target instanceof HTMLTextAreaElement && event.target !== textareaRef.value) {
+    if (
+      event &&
+      event.target instanceof HTMLTextAreaElement &&
+      event.target !== textareaRef.value
+    ) {
       // Direct event handler called from a different element — still resize the bound one
     }
     resize()

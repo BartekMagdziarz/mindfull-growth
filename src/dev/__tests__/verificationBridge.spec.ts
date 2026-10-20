@@ -27,7 +27,7 @@ describe('verification bridge contract', () => {
     const reset = vi.fn(async () => undefined)
     const response = await answerVerifyBridgeRequest(
       { type: 'mindful-growth:verify:status-request', requestId: 'status-1' },
-      { getMeta: () => meta, reset },
+      { getMeta: () => meta, reset }
     )
 
     expect(response).toEqual({
@@ -43,7 +43,7 @@ describe('verification bridge contract', () => {
     const reset = vi.fn(async () => undefined)
     const response = await answerVerifyBridgeRequest(
       { type: 'mindful-growth:verify:reset-request', requestId: 'reset-1' },
-      { getMeta: () => meta, reset },
+      { getMeta: () => meta, reset }
     )
 
     expect(reset).toHaveBeenCalledOnce()

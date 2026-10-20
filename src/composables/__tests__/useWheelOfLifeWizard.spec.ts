@@ -48,7 +48,7 @@ describe('useWheelOfLifeWizard', () => {
     await wizard.initialize()
 
     expect(wizard.areas.value[0].visionSnapshot).toBe('Strong and energized')
-    expect(wizard.steps.value.map((step) => step.id)).toHaveLength(3)
+    expect(wizard.steps.value.map(step => step.id)).toHaveLength(3)
 
     wizard.rateArea(0, 8)
     wizard.setAreaPositiveInfluences(0, 'Weekly routines are finally sticking')
@@ -122,7 +122,7 @@ describe('useWheelOfLifeWizard', () => {
           positiveInfluences: 'Updated positive context',
           negativeInfluences: 'Updated negative context',
         },
-      }),
+      })
     )
   })
 
@@ -145,7 +145,7 @@ describe('useWheelOfLifeWizard', () => {
     const wizard = useWheelOfLifeWizard({ mode: 'standalone' })
     await wizard.initialize()
 
-    expect(wizard.steps.value.map((step) => step.id)).toEqual([
+    expect(wizard.steps.value.map(step => step.id)).toEqual([
       'intro',
       expect.stringMatching(/^rate-/),
       expect.stringMatching(/^rate-/),

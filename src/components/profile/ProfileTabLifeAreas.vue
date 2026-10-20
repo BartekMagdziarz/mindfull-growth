@@ -1,18 +1,12 @@
 <template>
-  <section
-    class="neo-raised"
-    style="padding: 24px"
-  >
+  <section class="neo-raised" style="padding: 24px">
     <!-- Header row -->
     <div class="flex items-start justify-between mb-[14px] gap-[14px]">
       <div class="min-w-0">
         <h3 class="text-base font-bold m-0" style="color: var(--mg-color-ink)">
           {{ t('profile.lifeAreas.title') }}
         </h3>
-        <p
-          class="text-[12px] m-0 mt-[2px] max-w-[460px]"
-          style="color: var(--mg-color-muted)"
-        >
+        <p class="text-[12px] m-0 mt-[2px] max-w-[460px]" style="color: var(--mg-color-muted)">
           {{ t('profile.lifeAreas.tabDescription') }}
         </p>
       </div>
@@ -27,26 +21,16 @@
     </div>
 
     <!-- Areas grid -->
-    <div
-      v-if="areas.length > 0"
-      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[10px]"
-    >
+    <div v-if="areas.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[10px]">
       <div
         v-for="(area, index) in areas"
         :key="area.id"
         class="neo-inset flex items-center gap-[10px]"
         style="padding: 12px"
       >
-        <span
-          class="area-dot flex-shrink-0"
-          :style="dotStyle(area, index)"
-          aria-hidden="true"
-        />
+        <span class="area-dot flex-shrink-0" :style="dotStyle(area, index)" aria-hidden="true" />
         <div class="flex-1 min-w-0">
-          <div
-            class="text-[13px] font-bold truncate"
-            style="color: var(--mg-color-ink)"
-          >
+          <div class="text-[13px] font-bold truncate" style="color: var(--mg-color-ink)">
             {{ area.name }}
           </div>
           <div
@@ -60,11 +44,7 @@
       </div>
     </div>
 
-    <div
-      v-else
-      class="text-[13px] py-4 text-center"
-      style="color: var(--mg-color-muted)"
-    >
+    <div v-else class="text-[13px] py-4 text-center" style="color: var(--mg-color-muted)">
       {{ t('profile.lifeAreas.noAreas') }}
     </div>
 
@@ -78,7 +58,8 @@
         class="material-symbols-outlined text-[16px]"
         style="color: var(--mg-color-primary-strong)"
         aria-hidden="true"
-       name="explore" />
+        name="explore"
+      />
       <span>
         {{ t('profile.lifeAreas.areasDefined', { n: areas.length }) }}
         <template v-if="recentlyAddedName">
@@ -112,9 +93,7 @@ const areas = computed<LifeArea[]>(() => lifeAreaStore.activeLifeAreas)
 
 const recentlyAddedName = computed(() => {
   if (areas.value.length === 0) return ''
-  const newest = [...areas.value].sort((a, b) =>
-    b.createdAt.localeCompare(a.createdAt),
-  )[0]
+  const newest = [...areas.value].sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0]
   return newest?.name ?? ''
 })
 

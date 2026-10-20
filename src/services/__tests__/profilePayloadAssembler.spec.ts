@@ -209,8 +209,16 @@ describe('assembleProfilePayload', () => {
       body: 'OLDEST_MARKER ' + 'x'.repeat(3000),
       createdAt: '2026-03-20T00:00:00.000Z',
     })
-    await journal.createEntry({ title: 'mid1', body: 'x'.repeat(3000), createdAt: '2026-03-27T00:00:00.000Z' })
-    await journal.createEntry({ title: 'mid2', body: 'x'.repeat(3000), createdAt: '2026-04-03T00:00:00.000Z' })
+    await journal.createEntry({
+      title: 'mid1',
+      body: 'x'.repeat(3000),
+      createdAt: '2026-03-27T00:00:00.000Z',
+    })
+    await journal.createEntry({
+      title: 'mid2',
+      body: 'x'.repeat(3000),
+      createdAt: '2026-04-03T00:00:00.000Z',
+    })
     await journal.createEntry({
       title: 'newest',
       body: 'NEWEST_MARKER ' + 'x'.repeat(3000),
@@ -227,7 +235,7 @@ describe('assembleProfilePayload', () => {
         locale: 'en',
         maxPromptTokens: 3000, // ~2 of the 4 entries (each ~1219 tok at chars/2.5)
       },
-      NOW_MS,
+      NOW_MS
     )
 
     // The conservative cost model holds end-to-end: the reassembled estimate fits.
@@ -283,7 +291,7 @@ describe('assembleProfilePayload', () => {
         locale: 'en',
         maxPromptTokens: 100_000, // raw fits comfortably → no tiering
       },
-      NOW_MS,
+      NOW_MS
     )
 
     expect(assembled.text).not.toContain('[SUMMARIZED HISTORY]')
@@ -321,11 +329,11 @@ describe('assembleProfilePayload', () => {
     // no longer fits → tiering activates, while the tiny digest fits comfortably.
     const raw = await assembleProfilePayload(
       { ...base, dataTypes: [...base.dataTypes], maxPromptTokens: null },
-      NOW_MS,
+      NOW_MS
     )
     const assembled = await assembleProfilePayload(
       { ...base, dataTypes: [...base.dataTypes], maxPromptTokens: raw.approxTokens - 1 },
-      NOW_MS,
+      NOW_MS
     )
 
     // Recent entry stays raw + verbatim.
@@ -360,16 +368,16 @@ describe('assembleProfilePayload', () => {
     // Self-calibrate a pressured budget so tiering activates (see test above).
     const raw = await assembleProfilePayload(
       { ...base, dataTypes: [...base.dataTypes], maxPromptTokens: null },
-      NOW_MS,
+      NOW_MS
     )
     const budget = raw.approxTokens - 1
     const a = await assembleProfilePayload(
       { ...base, dataTypes: [...base.dataTypes], maxPromptTokens: budget },
-      NOW_MS,
+      NOW_MS
     )
     const b = await assembleProfilePayload(
       { ...base, dataTypes: [...base.dataTypes], maxPromptTokens: budget },
-      NOW_MS,
+      NOW_MS
     )
     expect(a.text).toContain('[SUMMARIZED HISTORY]')
     expect(a.text).toBe(b.text)
@@ -406,11 +414,11 @@ describe('assembleProfilePayload', () => {
     // Pressure the budget so tiering activates (self-calibrated, see above).
     const raw = await assembleProfilePayload(
       { ...base, dataTypes: [...base.dataTypes], maxPromptTokens: null },
-      NOW_MS,
+      NOW_MS
     )
     const assembled = await assembleProfilePayload(
       { ...base, dataTypes: [...base.dataTypes], maxPromptTokens: raw.approxTokens - 1 },
-      NOW_MS,
+      NOW_MS
     )
 
     // Tiering ran (the older record is summarized) ...

@@ -2,7 +2,10 @@ import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import type { DailyMeasurementEntry } from '@/domain/planningState'
 import type { Habit, KeyResult, WeeklyIntention } from '@/domain/planning'
 import type { MonthObjectItem } from '@/services/reflectionDataQueries'
-import { applyMeasurementTargetOverride, buildMeasurementSummary } from '@/services/measurementProgress'
+import {
+  applyMeasurementTargetOverride,
+  buildMeasurementSummary,
+} from '@/services/measurementProgress'
 import { getChildPeriods, getPeriodBounds } from '@/utils/periods'
 import { classifyWeek, tallyWeekStates } from '@/domain/weeklyCadence'
 
@@ -38,14 +41,14 @@ export function buildMonthlyPlanSummary(
   rawEntries: DailyMeasurementEntry[],
   monthRef: MonthRef,
   todayDayRef: DayRef,
-  weeklyIntentions: WeeklyIntention[] = [],
+  weeklyIntentions: WeeklyIntention[] = []
 ): MonthPlanSummary {
   const keyResults: MonthPlanRowSummary = { total: 0, met: 0 }
   const habits: MonthPlanRowSummary = { total: 0, met: 0 }
   const intentions: MonthPlanRowSummary = { total: 0, met: 0 }
 
   const weeks = getChildPeriods(monthRef) as WeekRef[]
-  const startedWeeks = weeks.filter((weekRef) => {
+  const startedWeeks = weeks.filter(weekRef => {
     const start = getPeriodBounds(weekRef).start as DayRef
     return start <= todayDayRef
   })
@@ -65,9 +68,9 @@ export function buildMonthlyPlanSummary(
 
     if (item.weekEvaluations) {
       const tally = tallyWeekStates(
-        item.weekEvaluations.map((week) =>
-          classifyWeek(week.weekRef, week.planned, week.measurement.evaluationStatus, todayDayRef),
-        ),
+        item.weekEvaluations.map(week =>
+          classifyWeek(week.weekRef, week.planned, week.measurement.evaluationStatus, todayDayRef)
+        )
       )
       row.total += tally.planned
       row.met += tally.met

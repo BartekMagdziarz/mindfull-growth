@@ -5,23 +5,50 @@ import type { Priority } from '@/domain/planning'
 import type { TodayMeasurementItem } from '@/services/todayViewQueries'
 import NextDayCompass from '../NextDayCompass.vue'
 
-const priorities = ['Ruch', 'Strumień', 'Bliscy'].map((title, index) => ({ id: `p${index}`, title, years: ['2026'], status: 'active', lifeAreaIds: [], progressSignals: [], riskSignals: [], createdAt: '', updatedAt: '' })) as unknown as Priority[]
-const focus = { kind: 'measurement', key: 'habit:h1', panelType: 'habit', subject: { title: 'Rozciąganie' }, priorityIds: [] } as unknown as TodayMeasurementItem
+const priorities = ['Ruch', 'Strumień', 'Bliscy'].map((title, index) => ({
+  id: `p${index}`,
+  title,
+  years: ['2026'],
+  status: 'active',
+  lifeAreaIds: [],
+  progressSignals: [],
+  riskSignals: [],
+  createdAt: '',
+  updatedAt: '',
+})) as unknown as Priority[]
+const focus = {
+  kind: 'measurement',
+  key: 'habit:h1',
+  panelType: 'habit',
+  subject: { title: 'Rozciąganie' },
+  priorityIds: [],
+} as unknown as TodayMeasurementItem
 
 describe('NextDayCompass', () => {
   beforeEach(() => setActivePinia(createPinia()))
 
   it('renders month directions then week focuses, with blue/lavender/rose tones only', () => {
-    const wrapper = mount(NextDayCompass, { props: { priorities, focusItems: [focus], selectedKey: null } })
+    const wrapper = mount(NextDayCompass, {
+      props: { priorities, focusItems: [focus], selectedKey: null },
+    })
     const tiles = wrapper.findAll('.next-day-compass__tile')
 
-    expect(tiles.map(tile => tile.find('small').text())).toEqual(['Ruch', 'Strumień', 'Bliscy', 'Rozciąganie'])
-    expect(tiles.slice(0, 3).map(tile => tile.classes().find(cls => cls.startsWith('tone-')))).toEqual(['tone-blue', 'tone-lavender', 'tone-rose'])
+    expect(tiles.map(tile => tile.find('small').text())).toEqual([
+      'Ruch',
+      'Strumień',
+      'Bliscy',
+      'Rozciąganie',
+    ])
+    expect(
+      tiles.slice(0, 3).map(tile => tile.classes().find(cls => cls.startsWith('tone-')))
+    ).toEqual(['tone-blue', 'tone-lavender', 'tone-rose'])
     expect(wrapper.html()).not.toMatch(/mint|amber/)
   })
 
   it('emits hover previews and pin selections with compass keys', async () => {
-    const wrapper = mount(NextDayCompass, { props: { priorities, focusItems: [focus], selectedKey: 'priority:p1' } })
+    const wrapper = mount(NextDayCompass, {
+      props: { priorities, focusItems: [focus], selectedKey: 'priority:p1' },
+    })
     const tiles = wrapper.findAll('.next-day-compass__tile')
 
     expect(tiles[1].attributes('aria-pressed')).toBe('true')

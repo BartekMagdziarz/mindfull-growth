@@ -11,7 +11,9 @@
       :key="`head:${column.key}`"
       class="flex flex-col items-center gap-0.5 pb-1"
     >
-      <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-on-surface-variant">
+      <span
+        class="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-on-surface-variant"
+      >
         {{ column.label }}
         <span
           v-if="column.marker"
@@ -23,7 +25,9 @@
         {{ column.sublabel }}
       </span>
     </div>
-    <div class="pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-on-surface-variant">
+    <div
+      class="pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-on-surface-variant"
+    >
       {{ targetLabel }}
     </div>
     <div />

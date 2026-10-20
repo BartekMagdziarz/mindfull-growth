@@ -21,30 +21,42 @@ describe('computeMonthlyFocus (pure)', () => {
   it('rolls picks under their linked active priority across weeks', () => {
     const picks = new Map<WeekRef, ResolvedPick[]>([
       [W1, [{ subjectType: 'habit', subjectId: 'h1', title: 'Medytacja', priorityIds: ['P'] }]],
-      [W2, [
-        { subjectType: 'habit', subjectId: 'h1', title: 'Medytacja', priorityIds: ['P'] },
-        { subjectType: 'keyResult', subjectId: 'k1', title: 'KR1', priorityIds: ['P'] },
-      ]],
+      [
+        W2,
+        [
+          { subjectType: 'habit', subjectId: 'h1', title: 'Medytacja', priorityIds: ['P'] },
+          { subjectType: 'keyResult', subjectId: 'k1', title: 'KR1', priorityIds: ['P'] },
+        ],
+      ],
     ])
     const r = computeMonthlyFocus([W1, W2], picks, ['P'])
 
     expect(r.perPriority).toHaveLength(1)
     const p = r.perPriority[0]
     expect(p.focusWeekRefs).toEqual([W1, W2])
-    expect(p.objects.map((o) => o.subjectId).sort()).toEqual(['h1', 'k1'])
-    expect(p.objects.find((o) => o.subjectId === 'h1')?.weekRefs).toEqual([W1, W2])
+    expect(p.objects.map(o => o.subjectId).sort()).toEqual(['h1', 'k1'])
+    expect(p.objects.find(o => o.subjectId === 'h1')?.weekRefs).toEqual([W1, W2])
     expect(r.drift).toHaveLength(0)
   })
 
   it('sends unlinked picks to drift (unlinked=true)', () => {
     const picks = new Map<WeekRef, ResolvedPick[]>([
-      [W1, [{ subjectType: 'weeklyIntention', subjectId: 'i1', title: 'Wstawanie', priorityIds: [] }]],
+      [
+        W1,
+        [{ subjectType: 'weeklyIntention', subjectId: 'i1', title: 'Wstawanie', priorityIds: [] }],
+      ],
     ])
     const r = computeMonthlyFocus([W1], picks, ['P'])
 
     expect(r.perPriority[0].objects).toHaveLength(0)
     expect(r.drift).toEqual([
-      { subjectType: 'weeklyIntention', subjectId: 'i1', title: 'Wstawanie', weekRefs: [W1], unlinked: true },
+      {
+        subjectType: 'weeklyIntention',
+        subjectId: 'i1',
+        title: 'Wstawanie',
+        weekRefs: [W1],
+        unlinked: true,
+      },
     ])
   })
 
@@ -74,24 +86,57 @@ describe('getMonthlyFocusConfrontation (loader)', () => {
 
   it('resolves KR via goal, habit + intention directly, and drifts unlinked picks', async () => {
     const priority = await priorityDexieRepository.create({
-      title: 'Zdrowie', years: ['2026'] as YearRef[], status: 'active', lifeAreaIds: [], progressSignals: [], riskSignals: [],
+      title: 'Zdrowie',
+      years: ['2026'] as YearRef[],
+      status: 'active',
+      lifeAreaIds: [],
+      progressSignals: [],
+      riskSignals: [],
     })
     const goal = await goalDexieRepository.create({
-      title: 'Cel', isActive: true, status: 'open', priorityIds: [priority.id], lifeAreaIds: [],
+      title: 'Cel',
+      isActive: true,
+      status: 'open',
+      priorityIds: [priority.id],
+      lifeAreaIds: [],
     })
     const kr = await keyResultDexieRepository.create({
-      goalId: goal.id, title: 'KR', isActive: true, status: 'open', entryMode: 'completion', cadence: 'weekly', target: countTarget,
+      goalId: goal.id,
+      title: 'KR',
+      isActive: true,
+      status: 'open',
+      entryMode: 'completion',
+      cadence: 'weekly',
+      target: countTarget,
     })
     const linkedHabit = await habitDexieRepository.create({
-      title: 'Medytacja', isActive: true, status: 'open', priorityIds: [priority.id], lifeAreaIds: [], entryMode: 'completion', cadence: 'weekly', target: countTarget,
+      title: 'Medytacja',
+      isActive: true,
+      status: 'open',
+      priorityIds: [priority.id],
+      lifeAreaIds: [],
+      entryMode: 'completion',
+      cadence: 'weekly',
+      target: countTarget,
     })
     const unlinkedHabit = await habitDexieRepository.create({
-      title: 'Luźny nawyk', isActive: true, status: 'open', priorityIds: [], lifeAreaIds: [], entryMode: 'completion', cadence: 'weekly', target: countTarget,
+      title: 'Luźny nawyk',
+      isActive: true,
+      status: 'open',
+      priorityIds: [],
+      lifeAreaIds: [],
+      entryMode: 'completion',
+      cadence: 'weekly',
+      target: countTarget,
     })
 
     const week = getChildPeriods(MONTH)[1]
     const intention = await createWeeklyIntention({
-      weekRef: week, title: 'Wstawanie 6:00', entryMode: 'completion', target: countTarget, priorityIds: [priority.id],
+      weekRef: week,
+      title: 'Wstawanie 6:00',
+      entryMode: 'completion',
+      target: countTarget,
+      priorityIds: [priority.id],
     })
 
     await setWeekTopPriorities(week, [
@@ -103,10 +148,10 @@ describe('getMonthlyFocusConfrontation (loader)', () => {
 
     const result = await getMonthlyFocusConfrontation(MONTH, [priority.id])
 
-    const focus = result.perPriority.find((p) => p.priorityId === priority.id)
+    const focus = result.perPriority.find(p => p.priorityId === priority.id)
     expect(focus?.focusWeekRefs).toContain(week)
-    expect(focus?.objects.map((o) => o.subjectId).sort()).toEqual(
-      [kr.id, linkedHabit.id, intention.id].sort(),
+    expect(focus?.objects.map(o => o.subjectId).sort()).toEqual(
+      [kr.id, linkedHabit.id, intention.id].sort()
     )
 
     expect(result.drift).toHaveLength(1)

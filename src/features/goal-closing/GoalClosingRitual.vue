@@ -5,10 +5,14 @@
     :period-title="goal?.title ?? '…'"
     :steps="steps"
     :current="current"
-    :count="currentStepId === 'verdict' ? windowLabel : currentStepId === 'mirror' ? mirrorLabel : ''"
+    :count="
+      currentStepId === 'verdict' ? windowLabel : currentStepId === 'mirror' ? mirrorLabel : ''
+    "
     :saving="isSaving"
     :finished="saved"
-    :status-label="saved ? 'Zamknięty' : editing ? 'Edycja podsumowania' : 'Szkic · zapis przy „Zamknij cel”'"
+    :status-label="
+      saved ? 'Zamknięty' : editing ? 'Edycja podsumowania' : 'Szkic · zapis przy „Zamknij cel”'
+    "
     finish-label="Zamknij cel"
     finished-label="Zamknięty"
     :alternate-label="editing ? undefined : 'Zamknij bez wniosków'"
@@ -18,7 +22,9 @@
     @alternate="handleFinishQuick"
   >
     <p v-if="loading" class="qr-empty" role="status">Zbieram fakty o celu…</p>
-    <p v-else-if="loadError" class="qr-mutation-error" role="alert">Nie udało się wczytać celu: {{ loadError }}</p>
+    <p v-else-if="loadError" class="qr-mutation-error" role="alert">
+      Nie udało się wczytać celu: {{ loadError }}
+    </p>
 
     <template v-else-if="goal && snapshot">
       <!-- 1 · Facts and verdict -->
@@ -41,13 +47,17 @@
                 role="columnheader"
                 :title="column.title"
                 :aria-label="column.title"
-              >{{ column.label }}</span>
+                >{{ column.label }}</span
+              >
               <span role="columnheader" aria-label="Łącznie">Σ</span>
             </div>
             <div v-for="row in table.rows" :key="row.item.id" class="gc-table-row" role="row">
               <span class="gc-row-name" role="cell">
                 <AppIcon name="flag" />
-                <span><strong :title="row.item.title">{{ row.item.title }}</strong><small>{{ describeKeyResult(row.item) }}</small></span>
+                <span
+                  ><strong :title="row.item.title">{{ row.item.title }}</strong
+                  ><small>{{ describeKeyResult(row.item) }}</small></span
+                >
               </span>
               <span
                 v-for="cell in row.cells"
@@ -64,16 +74,29 @@
               </span>
               <span class="gc-result" role="cell">
                 <b>{{ row.item.lastReadout ?? '—' }}</b>
-                <small v-if="row.item.evaluation !== 'no-data'">{{ row.item.evaluation === 'met' ? 'osiągnięty' : 'nieosiągnięty' }}</small>
+                <small v-if="row.item.evaluation !== 'no-data'">{{
+                  row.item.evaluation === 'met' ? 'osiągnięty' : 'nieosiągnięty'
+                }}</small>
               </span>
             </div>
           </div>
         </template>
-        <p v-else class="qr-empty">Ten cel nie ma rezultatów kluczowych w planie — werdykt bez podpowiedzi.</p>
+        <p v-else class="qr-empty">
+          Ten cel nie ma rezultatów kluczowych w planie — werdykt bez podpowiedzi.
+        </p>
 
         <p class="gc-facts">
-          <span><b>{{ snapshot.weeksPlanned }}</b> {{ plural(snapshot.weeksPlanned, 'tydzień', 'tygodnie', 'tygodni') }} w planie</span>
-          <span v-if="snapshot.keyResultSnapshots.length"><b>{{ metCount }}</b> z {{ snapshot.keyResultSnapshots.length }} {{ plural(snapshot.keyResultSnapshots.length, 'rezultatu', 'rezultatów', 'rezultatów') }} {{ metCount === 1 ? 'osiągnięty' : 'osiągnięte' }}</span>
+          <span
+            ><b>{{ snapshot.weeksPlanned }}</b>
+            {{ plural(snapshot.weeksPlanned, 'tydzień', 'tygodnie', 'tygodni') }} w planie</span
+          >
+          <span v-if="snapshot.keyResultSnapshots.length"
+            ><b>{{ metCount }}</b> z {{ snapshot.keyResultSnapshots.length }}
+            {{
+              plural(snapshot.keyResultSnapshots.length, 'rezultatu', 'rezultatów', 'rezultatów')
+            }}
+            {{ metCount === 1 ? 'osiągnięty' : 'osiągnięte' }}</span
+          >
           <span v-for="note in hiddenNotes" :key="note">{{ note }}</span>
         </p>
 
@@ -93,7 +116,12 @@
             >
               <span class="qr-check"><AppIcon v-if="outcome === option.value" name="check" /></span>
               <span>
-                <strong>{{ option.title }}<em v-if="suggestion === option.value && !editing" class="gc-hint">podpowiedź</em></strong>
+                <strong
+                  >{{ option.title
+                  }}<em v-if="suggestion === option.value && !editing" class="gc-hint"
+                    >podpowiedź</em
+                  ></strong
+                >
                 <small>{{ option.hint }}</small>
               </span>
             </button>
@@ -101,27 +129,48 @@
         </div>
 
         <div v-if="!editing" class="gc-deadline">
-          <button type="button" class="qr-quiet" :aria-expanded="deadlineOpen" @click="deadlineOpen = !deadlineOpen">
+          <button
+            type="button"
+            class="qr-quiet"
+            :aria-expanded="deadlineOpen"
+            @click="deadlineOpen = !deadlineOpen"
+          >
             <AppIcon name="event_upcoming" />To jeszcze nie koniec · <b>Przesuń termin</b>
           </button>
-          <div v-if="deadlineOpen" class="gc-deadline-form" role="group" aria-label="Przesunięcie terminu celu">
+          <div
+            v-if="deadlineOpen"
+            class="gc-deadline-form"
+            role="group"
+            aria-label="Przesunięcie terminu celu"
+          >
             <label>
               <span>Nowy termin</span>
               <input v-model="deadlineDate" type="date" :min="todayRef" />
             </label>
-            <button type="button" class="qr-primary" :disabled="isSaving" @click="handleMoveDeadline">Przesuń termin</button>
-            <p>Cel zostaje otwarty, bez podsumowania. Miesiące do nowej daty zostaną dopięte do planu.</p>
+            <button
+              type="button"
+              class="qr-primary"
+              :disabled="isSaving"
+              @click="handleMoveDeadline"
+            >
+              Przesuń termin
+            </button>
+            <p>
+              Cel zostaje otwarty, bez podsumowania. Miesiące do nowej daty zostaną dopięte do
+              planu.
+            </p>
           </div>
         </div>
 
         <details class="qr-help">
           <summary aria-label="Jak czytać wyniki?">?</summary>
           <p>
-            Każda kropka to jeden okres, do którego rezultat był przypisany: tydzień dla rezultatów tygodniowych,
-            miesiąc dla miesięcznych. Kolumny to okresy, w których przypisany był choć jeden rezultat; puste pole =
-            rezultat nie był wtedy przypisany. Wypełniona = osiągnięty, różowy obrys = nieosiągnięty, niebieski obrys
-            = przypisany bez zapisów, przerywany obrys = okres jeszcze trwa i nie liczy się do wyniku. Tydzień na
-            przełomie miesięcy liczy się raz. Podpowiedź wyniku bierze pod uwagę tylko rezultaty, które miały dane.
+            Każda kropka to jeden okres, do którego rezultat był przypisany: tydzień dla rezultatów
+            tygodniowych, miesiąc dla miesięcznych. Kolumny to okresy, w których przypisany był choć
+            jeden rezultat; puste pole = rezultat nie był wtedy przypisany. Wypełniona = osiągnięty,
+            różowy obrys = nieosiągnięty, niebieski obrys = przypisany bez zapisów, przerywany obrys
+            = okres jeszcze trwa i nie liczy się do wyniku. Tydzień na przełomie miesięcy liczy się
+            raz. Podpowiedź wyniku bierze pod uwagę tylko rezultaty, które miały dane.
           </p>
         </details>
       </section>
@@ -148,7 +197,12 @@
                 {{ option.label }}
               </button>
             </div>
-            <textarea v-model="draft.successNote" rows="2" aria-label="Komentarz do definicji sukcesu" placeholder="Jedno zdanie, jeśli trzeba" />
+            <textarea
+              v-model="draft.successNote"
+              rows="2"
+              aria-label="Komentarz do definicji sukcesu"
+              placeholder="Jedno zdanie, jeśli trzeba"
+            />
           </div>
         </div>
 
@@ -173,11 +227,27 @@
                   now: draft.confidenceInHindsight !== null && value <= draft.confidenceInHindsight,
                   then: value <= goal.confidenceRating,
                 }"
-                @click="draft.confidenceInHindsight = draft.confidenceInHindsight === value ? null : value"
+                @click="
+                  draft.confidenceInHindsight = draft.confidenceInHindsight === value ? null : value
+                "
               />
-              <small>wtedy {{ goal.confidenceRating }}<template v-if="draft.confidenceInHindsight !== null"> · dziś {{ draft.confidenceInHindsight }}</template></small>
+              <small
+                >wtedy {{ goal.confidenceRating
+                }}<template v-if="draft.confidenceInHindsight !== null">
+                  · dziś {{ draft.confidenceInHindsight }}</template
+                ></small
+              >
             </div>
-            <textarea v-model="draft.confidenceNote" rows="2" aria-label="Komentarz do pewności" :placeholder="masculine ? 'Co dziś powiedziałbyś sobie z tamtego dnia?' : 'Co dziś powiedziałabyś sobie z tamtego dnia?'" />
+            <textarea
+              v-model="draft.confidenceNote"
+              rows="2"
+              aria-label="Komentarz do pewności"
+              :placeholder="
+                masculine
+                  ? 'Co dziś powiedziałbyś sobie z tamtego dnia?'
+                  : 'Co dziś powiedziałabyś sobie z tamtego dnia?'
+              "
+            />
           </div>
         </div>
 
@@ -188,7 +258,11 @@
           </div>
           <div class="gc-now">
             <span class="gc-label">Które wystąpiły, a co zaskoczyło?</span>
-            <textarea v-model="draft.obstaclesHit" rows="3" aria-label="Przeszkody, które wystąpiły" />
+            <textarea
+              v-model="draft.obstaclesHit"
+              rows="3"
+              aria-label="Przeszkody, które wystąpiły"
+            />
           </div>
         </div>
       </section>
@@ -205,7 +279,9 @@
           <textarea v-model="draft.wasDifficult" rows="3" />
         </label>
         <label class="gc-field">
-          <span class="gc-label">{{ masculine ? 'Czego się nauczyłem' : 'Czego się nauczyłam' }}</span>
+          <span class="gc-label">{{
+            masculine ? 'Czego się nauczyłem' : 'Czego się nauczyłam'
+          }}</span>
           <textarea v-model="draft.learned" rows="3" />
         </label>
       </section>
@@ -224,23 +300,42 @@
               class="qr-choice-pick"
               role="radio"
               :aria-checked="draft.followUpKind === option.value"
-              @click="draft.followUpKind = draft.followUpKind === option.value ? null : option.value"
+              @click="
+                draft.followUpKind = draft.followUpKind === option.value ? null : option.value
+              "
             >
-              <span class="qr-check"><AppIcon v-if="draft.followUpKind === option.value" name="check" /></span>
-              <span><strong>{{ option.title }}</strong><small>{{ option.hint }}</small></span>
+              <span class="qr-check"
+                ><AppIcon v-if="draft.followUpKind === option.value" name="check"
+              /></span>
+              <span
+                ><strong>{{ option.title }}</strong
+                ><small>{{ option.hint }}</small></span
+              >
             </button>
           </div>
         </div>
 
-        <div v-if="draft.followUpKind === 'habit'" class="gc-sub" role="group" aria-label="Które rezultaty zostają jako nawyki">
-          <p v-if="!snapshot.keyResults.length" class="qr-empty">Ten cel nie ma rezultatów do przeniesienia.</p>
+        <div
+          v-if="draft.followUpKind === 'habit'"
+          class="gc-sub"
+          role="group"
+          aria-label="Które rezultaty zostają jako nawyki"
+        >
+          <p v-if="!snapshot.keyResults.length" class="qr-empty">
+            Ten cel nie ma rezultatów do przeniesienia.
+          </p>
           <label v-for="keyResult in snapshot.keyResults" :key="keyResult.id" class="gc-sub-row">
             <input
               type="checkbox"
               :checked="draft.habitKeyResultIds.includes(keyResult.id)"
               @change="toggleHabitKeyResult(keyResult.id)"
             />
-            <span><strong>{{ keyResult.title }}</strong><small> · {{ describeKeyResult(keyResult) }} · ten sam priorytet i obszar</small></span>
+            <span
+              ><strong>{{ keyResult.title }}</strong
+              ><small>
+                · {{ describeKeyResult(keyResult) }} · ten sam priorytet i obszar</small
+              ></span
+            >
             <em v-if="draft.habitKeyResultIds.includes(keyResult.id)">→ nawyk</em>
           </label>
         </div>
@@ -248,8 +343,15 @@
           Po zamknięciu wrócisz do biblioteki celów — nowy cel zakładasz tam, w kreatorze.
         </p>
 
-        <textarea v-model="draft.followUpNote" rows="2" aria-label="Notatka o tym, co dalej" placeholder="Jedno zdanie o tym, co dalej (opcjonalnie)" />
-        <p v-if="saveError" class="qr-mutation-error" role="alert">Nie udało się zamknąć celu: {{ saveError }}</p>
+        <textarea
+          v-model="draft.followUpNote"
+          rows="2"
+          aria-label="Notatka o tym, co dalej"
+          placeholder="Jedno zdanie o tym, co dalej (opcjonalnie)"
+        />
+        <p v-if="saveError" class="qr-mutation-error" role="alert">
+          Nie udało się zamknąć celu: {{ saveError }}
+        </p>
       </section>
     </template>
   </QuietRitualShell>
@@ -258,7 +360,14 @@
 <script setup lang="ts">
 import { computed, toRef } from 'vue'
 import type { MonthRef } from '@/domain/period'
-import type { GoalClosingKeyResultSnapshot, GoalClosingMonthState, GoalFollowUpKind, GoalOutcome, GoalSuccessMet, KeyResult } from '@/domain/planning'
+import type {
+  GoalClosingKeyResultSnapshot,
+  GoalClosingMonthState,
+  GoalFollowUpKind,
+  GoalOutcome,
+  GoalSuccessMet,
+  KeyResult,
+} from '@/domain/planning'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import QuietRitualShell from '@/features/quiet-ritual/QuietRitualShell.vue'
@@ -291,9 +400,30 @@ const ritual = useGoalClosingRitual(toRef(props, 'goalId'), {
   openDeadline: computed(() => Boolean(props.openDeadline)),
 })
 const {
-  snapshot, goal, loading, loadError, editing, draft, outcome, suggestion, steps, current, currentStepId,
-  months, overdueDays, todayRef, isSaving, saved, saveError, deadlineOpen, deadlineDate,
-  go, toggleHabitKeyResult, finish, finishQuick, moveDeadline,
+  snapshot,
+  goal,
+  loading,
+  loadError,
+  editing,
+  draft,
+  outcome,
+  suggestion,
+  steps,
+  current,
+  currentStepId,
+  months,
+  overdueDays,
+  todayRef,
+  isSaving,
+  saved,
+  saveError,
+  deadlineOpen,
+  deadlineDate,
+  go,
+  toggleHabitKeyResult,
+  finish,
+  finishQuick,
+  moveDeadline,
 } = ritual
 
 const MAX_VISIBLE_MONTHS = 12
@@ -330,9 +460,15 @@ const ENTRY_MODE_LABEL: Record<KeyResult['entryMode'], string> = {
   'multi-completion': 'checklista',
 }
 
-const outcomeOptions = computed(() => GOAL_OUTCOME_ORDER.map((value) => ({ value, ...OUTCOME_COPY[value] })))
-const weeklyItems = computed(() => (snapshot.value?.keyResultSnapshots ?? []).filter((item) => item.weeks))
-const monthlyItems = computed(() => (snapshot.value?.keyResultSnapshots ?? []).filter((item) => !item.weeks))
+const outcomeOptions = computed(() =>
+  GOAL_OUTCOME_ORDER.map(value => ({ value, ...OUTCOME_COPY[value] }))
+)
+const weeklyItems = computed(() =>
+  (snapshot.value?.keyResultSnapshots ?? []).filter(item => item.weeks)
+)
+const monthlyItems = computed(() =>
+  (snapshot.value?.keyResultSnapshots ?? []).filter(item => !item.weeks)
+)
 
 /**
  * The shared axis of each table: only periods at least one key result was
@@ -340,26 +476,37 @@ const monthlyItems = computed(() => (snapshot.value?.keyResultSnapshots ?? []).f
  */
 const assignedWeeks = computed(() => {
   const assigned = new Set(
-    weeklyItems.value.flatMap((item) => (item.weeks ?? []).filter((week) => week.state !== 'unplanned').map((week) => week.weekRef)),
+    weeklyItems.value.flatMap(item =>
+      (item.weeks ?? []).filter(week => week.state !== 'unplanned').map(week => week.weekRef)
+    )
   )
-  return (snapshot.value?.weeks ?? []).filter((weekRef) => assigned.has(weekRef))
+  return (snapshot.value?.weeks ?? []).filter(weekRef => assigned.has(weekRef))
 })
 const assignedMonths = computed(() => {
   const assigned = new Set(
-    monthlyItems.value.flatMap((item) => item.months.filter((month) => month.state !== 'unplanned').map((month) => month.monthRef)),
+    monthlyItems.value.flatMap(item =>
+      item.months.filter(month => month.state !== 'unplanned').map(month => month.monthRef)
+    )
   )
-  return months.value.filter((monthRef) => assigned.has(monthRef))
+  return months.value.filter(monthRef => assigned.has(monthRef))
 })
 const visibleWeeks = computed(() => assignedWeeks.value.slice(-MAX_VISIBLE_WEEKS))
 const visibleMonths = computed(() => assignedMonths.value.slice(-MAX_VISIBLE_MONTHS))
 
-interface FactColumn { ref: string; label: string; title: string }
+interface FactColumn {
+  ref: string
+  label: string
+  title: string
+}
 interface FactTable {
   key: 'weekly' | 'monthly'
   heading: string
   ariaLabel: string
   columns: FactColumn[]
-  rows: { item: GoalClosingKeyResultSnapshot; cells: (FactColumn & { state: GoalClosingMonthState })[] }[]
+  rows: {
+    item: GoalClosingKeyResultSnapshot
+    cells: (FactColumn & { state: GoalClosingMonthState })[]
+  }[]
 }
 
 /**
@@ -386,17 +533,17 @@ const factTables = computed<FactTable[]>(() => {
       heading: mixed ? 'Rezultat tygodniowy' : 'Rezultat kluczowy',
       ariaLabel: 'Rezultaty tygodniowe tydzień po tygodniu',
       columns,
-      rows: weeklyItems.value.map((item) => ({
+      rows: weeklyItems.value.map(item => ({
         item,
-        cells: columns.map((column) => ({
+        cells: columns.map(column => ({
           ...column,
-          state: item.weeks?.find((week) => week.weekRef === column.ref)?.state ?? 'unplanned',
+          state: item.weeks?.find(week => week.weekRef === column.ref)?.state ?? 'unplanned',
         })),
       })),
     })
   }
   if (monthlyItems.value.length) {
-    const columns = visibleMonths.value.map((monthRef) => ({
+    const columns = visibleMonths.value.map(monthRef => ({
       ref: monthRef,
       label: monthShort(monthRef),
       title: formatMonthTitle(monthRef, 'pl-PL'),
@@ -406,11 +553,11 @@ const factTables = computed<FactTable[]>(() => {
       heading: mixed ? 'Rezultat miesięczny' : 'Rezultat kluczowy',
       ariaLabel: 'Rezultaty miesięczne miesiąc po miesiącu',
       columns,
-      rows: monthlyItems.value.map((item) => ({
+      rows: monthlyItems.value.map(item => ({
         item,
-        cells: columns.map((column) => ({
+        cells: columns.map(column => ({
           ...column,
-          state: item.months.find((month) => month.monthRef === column.ref)?.state ?? 'unplanned',
+          state: item.months.find(month => month.monthRef === column.ref)?.state ?? 'unplanned',
         })),
       })),
     })
@@ -421,27 +568,37 @@ const factTables = computed<FactTable[]>(() => {
 const hiddenNotes = computed(() => {
   const notes: string[] = []
   if (assignedWeeks.value.length > visibleWeeks.value.length) {
-    notes.push(`pokazuję ostatnie ${visibleWeeks.value.length} z ${assignedWeeks.value.length} tygodni`)
+    notes.push(
+      `pokazuję ostatnie ${visibleWeeks.value.length} z ${assignedWeeks.value.length} tygodni`
+    )
   }
   if (assignedMonths.value.length > visibleMonths.value.length) {
-    notes.push(`pokazuję ostatnie ${visibleMonths.value.length} z ${assignedMonths.value.length} miesięcy`)
+    notes.push(
+      `pokazuję ostatnie ${visibleMonths.value.length} z ${assignedMonths.value.length} miesięcy`
+    )
   }
   return notes
 })
-const metCount = computed(() => snapshot.value?.keyResultSnapshots.filter((item) => item.evaluation === 'met').length ?? 0)
+const metCount = computed(
+  () => snapshot.value?.keyResultSnapshots.filter(item => item.evaluation === 'met').length ?? 0
+)
 
 const windowLabel = computed(() => {
   if (!goal.value) return ''
   const start = goal.value.startDate ?? (months.value[0] ? `${months.value[0]}-01` : undefined)
   const parts: string[] = []
-  if (start && goal.value.targetDate) parts.push(`${formatDay(start)} → ${formatDay(goal.value.targetDate)}`)
+  if (start && goal.value.targetDate)
+    parts.push(`${formatDay(start)} → ${formatDay(goal.value.targetDate)}`)
   else if (goal.value.targetDate) parts.push(`termin ${formatDay(goal.value.targetDate)}`)
   const late = overdueDays.value
-  if (late !== null && late > 0) parts.push(`${late} ${plural(late, 'dzień', 'dni', 'dni')} po terminie`)
+  if (late !== null && late > 0)
+    parts.push(`${late} ${plural(late, 'dzień', 'dni', 'dni')} po terminie`)
   else if (late === 0) parts.push('termin dziś')
   return parts.join(' · ')
 })
-const mirrorLabel = computed(() => (goal.value ? `z kreatora · ${formatDay(goal.value.createdAt.slice(0, 10))}` : ''))
+const mirrorLabel = computed(() =>
+  goal.value ? `z kreatora · ${formatDay(goal.value.createdAt.slice(0, 10))}` : ''
+)
 
 function monthShort(monthRef: MonthRef): string {
   return new Intl.DateTimeFormat('pl-PL', { month: 'short' })

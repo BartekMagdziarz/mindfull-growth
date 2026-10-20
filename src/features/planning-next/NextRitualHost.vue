@@ -1,5 +1,8 @@
 <template>
-  <div class="planning-next__ritual-adapter" :class="{ 'planning-next__ritual-adapter--quiet': quiet }">
+  <div
+    class="planning-next__ritual-adapter"
+    :class="{ 'planning-next__ritual-adapter--quiet': quiet }"
+  >
     <AnnualPlanningWizard
       v-if="scale === 'year'"
       :year-ref="periodRef as YearRef"
@@ -89,7 +92,7 @@ const props = withDefaults(
     action: 'plan' | 'reflect'
     variant?: 'quiet' | 'classic'
   }>(),
-  { variant: 'quiet' },
+  { variant: 'quiet' }
 )
 
 defineEmits<{

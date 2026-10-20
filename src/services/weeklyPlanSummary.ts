@@ -19,7 +19,7 @@ export function buildWeeklyPlanSummary(
   items: WeekObjectItem[],
   rawEntries: DailyMeasurementEntry[],
   weekRef: WeekRef,
-  weeklyIntentions: WeeklyIntention[] = [],
+  weeklyIntentions: WeeklyIntention[] = []
 ): WeekPlanSummary {
   const keyResults: WeekPlanRowSummary = { total: 0, met: 0 }
   const habits: WeekPlanRowSummary = { total: 0, met: 0 }

@@ -4,7 +4,7 @@
   <div
     class="next-day-add"
     @mouseenter="hovering = true"
-    @mouseleave="hovering = false; activeGroup = null"
+    @mouseleave="onMouseLeave"
     @keydown.esc.stop="close"
     @focusout="onFocusOut"
   >
@@ -20,7 +20,12 @@
     >
       <AppIcon name="add" />
     </button>
-    <div v-if="isOpen" class="next-day-add__menu" role="menu" :aria-label="t('planning.today.actions.addToPlan')">
+    <div
+      v-if="isOpen"
+      class="next-day-add__menu"
+      role="menu"
+      :aria-label="t('planning.today.actions.addToPlan')"
+    >
       <div class="next-day-add__types">
         <button
           v-for="group in groups"
@@ -38,7 +43,12 @@
           <AppIcon name="chevron_right" />
         </button>
       </div>
-      <div v-if="currentGroup" class="next-day-add__items" role="menu" :aria-label="currentGroup.label">
+      <div
+        v-if="currentGroup"
+        class="next-day-add__items"
+        role="menu"
+        :aria-label="currentGroup.label"
+      >
         <button
           v-for="candidate in currentGroup.items"
           :key="candidate.key"
@@ -75,9 +85,16 @@ const hovering = ref(false)
 const pinned = ref(false)
 const activeGroup = ref<string | null>(null)
 const isOpen = computed(() => (hovering.value || pinned.value) && props.groups.length > 0)
-const currentGroup = computed(() => props.groups.find(group => group.id === activeGroup.value) ?? null)
+const currentGroup = computed(
+  () => props.groups.find(group => group.id === activeGroup.value) ?? null
+)
 
-const PANEL_TYPE_ICONS: Record<string, string> = { habit: 'loop', tracker: 'monitoring', keyResult: 'flag', weeklyIntention: 'target' }
+const PANEL_TYPE_ICONS: Record<string, string> = {
+  habit: 'loop',
+  tracker: 'monitoring',
+  keyResult: 'flag',
+  weeklyIntention: 'target',
+}
 
 function candidateIcon(candidate: TodayAddCandidate): string {
   const subject = candidate.subject as { icon?: string }
@@ -97,6 +114,14 @@ function pick(candidate: TodayAddCandidate) {
 
 function onFocusOut(event: FocusEvent) {
   const wrap = event.currentTarget as HTMLElement
-  if (!(event.relatedTarget instanceof Node) || !wrap.contains(event.relatedTarget)) pinned.value = false
+  if (!(event.relatedTarget instanceof Node) || !wrap.contains(event.relatedTarget))
+    pinned.value = false
+}
+
+// Multi-statement inline handlers do not survive prettier's semi: false (the
+// template parser needs the semicolons), so they live here as functions.
+function onMouseLeave(): void {
+  hovering.value = false
+  activeGroup.value = null
 }
 </script>

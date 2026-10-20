@@ -20,14 +20,10 @@
           </button>
         </div>
         <div class="flex-1 space-y-1.5 overflow-y-auto">
-          <div
-            v-for="(line, idx) in getLines(cat.key)"
-            :key="idx"
-            class="flex items-start gap-1.5"
-          >
+          <div v-for="(line, idx) in getLines(cat.key)" :key="idx" class="flex items-start gap-1.5">
             <span class="shrink-0 pt-1 text-xs text-on-surface-variant">&#x2022;</span>
             <textarea
-              :ref="(el) => setLineRef(cat.key, idx, el as HTMLTextAreaElement | null)"
+              :ref="el => setLineRef(cat.key, idx, el as HTMLTextAreaElement | null)"
               :value="line"
               rows="1"
               class="neo-input block w-full resize-none rounded-lg px-2 py-1 text-sm leading-snug text-on-surface"
@@ -52,7 +48,11 @@
         class="neo-card flex min-h-[12rem] w-full flex-col items-center justify-center gap-2 rounded-3xl transition-shadow hover:shadow-neu-raised"
         @click="expand(cat.key)"
       >
-        <AppIcon :name="cat.icon" class="text-[rgb(var(--neo-accent-start))]" style="font-size: 4rem;" />
+        <AppIcon
+          :name="cat.icon"
+          class="text-[rgb(var(--neo-accent-start))]"
+          style="font-size: 4rem"
+        />
         <span class="text-sm font-semibold text-on-surface">{{ cat.label }}</span>
       </button>
     </div>

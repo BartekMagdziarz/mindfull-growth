@@ -3,7 +3,9 @@
     <div class="flex items-center justify-between">
       <label :for="inputId" class="text-sm font-medium text-on-surface">{{ label }}</label>
       <!-- The row of tiles shows the value itself; only the range needs a readout. -->
-      <span v-if="!discrete" class="text-sm font-semibold text-primary">{{ modelValue }}/{{ max }}</span>
+      <span v-if="!discrete" class="text-sm font-semibold text-primary"
+        >{{ modelValue }}/{{ max }}</span
+      >
     </div>
     <ExerciseScaleRow
       v-if="discrete"
@@ -26,7 +28,10 @@
         class="exercise-rating w-full cursor-pointer"
         @input="$emit('update:modelValue', Number(($event.target as HTMLInputElement).value))"
       />
-      <div v-if="!compact || lowLabel || highLabel" class="flex justify-between text-xs text-on-surface-variant">
+      <div
+        v-if="!compact || lowLabel || highLabel"
+        class="flex justify-between text-xs text-on-surface-variant"
+      >
         <span>{{ lowLabel ?? min }}</span>
         <span>{{ highLabel ?? max }}</span>
       </div>
@@ -57,7 +62,7 @@ const props = withDefaults(
     min: 1,
     max: 10,
     compact: false,
-  },
+  }
 )
 
 defineEmits<{

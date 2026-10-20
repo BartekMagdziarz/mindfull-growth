@@ -1,7 +1,11 @@
 <template>
   <div class="space-y-6">
     <!-- Step indicator dots -->
-    <ExerciseStepper :labels="stepLabels" :current="currentVisualStep" @go="goToStepByIndex($event)" />
+    <ExerciseStepper
+      :labels="stepLabels"
+      :current="currentVisualStep"
+      @go="goToStepByIndex($event)"
+    />
 
     <!-- Step 1: Intro -->
     <Transition
@@ -12,7 +16,9 @@
     >
       <div v-if="currentStep === 'intro'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.legacyLetter.intro.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.legacyLetter.intro.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.legacyLetter.intro.description') }}
           </p>
@@ -36,7 +42,9 @@
           </div>
         </AppCard>
         <div class="flex justify-end">
-          <AppButton variant="filled" @click="currentStep = 'warmup'">{{ t('common.buttons.start') }}</AppButton>
+          <AppButton variant="filled" @click="currentStep = 'warmup'">{{
+            t('common.buttons.start')
+          }}</AppButton>
         </div>
       </div>
     </Transition>
@@ -50,7 +58,9 @@
     >
       <div v-if="currentStep === 'warmup'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.legacyLetter.warmup.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.legacyLetter.warmup.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.legacyLetter.warmup.description') }}
           </p>
@@ -85,7 +95,9 @@
           </div>
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'intro'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'intro'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton
             variant="filled"
             :disabled="filledPromptCount < 2"
@@ -106,7 +118,9 @@
     >
       <div v-if="currentStep === 'write'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.legacyLetter.write.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.legacyLetter.write.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.legacyLetter.write.description') }}
           </p>
@@ -149,7 +163,9 @@
           </div>
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'warmup'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'warmup'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton
             variant="filled"
             :disabled="letterText.trim().length < 100"
@@ -170,7 +186,9 @@
     >
       <div v-if="currentStep === 'reflect'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.legacyLetter.reflect.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.legacyLetter.reflect.title') }}
+          </h2>
 
           <!-- Path choice (only show if no chat started yet) -->
           <div v-if="!showChat && messages.length === 0" class="space-y-3">
@@ -220,7 +238,9 @@
                     <div
                       class="animate-spin w-4 h-4 border-2 border-on-surface-variant border-t-transparent rounded-full"
                     ></div>
-                    <span class="text-sm">{{ t('exerciseWizards.legacyLetter.reflect.thinking') }}</span>
+                    <span class="text-sm">{{
+                      t('exerciseWizards.legacyLetter.reflect.thinking')
+                    }}</span>
                   </div>
                 </div>
               </div>
@@ -259,7 +279,9 @@
             <!-- Exchange status -->
             <div class="flex items-center justify-between">
               <p class="text-xs text-on-surface-variant">
-                {{ t('exerciseWizards.legacyLetter.reflect.exchangeCount', { count: exchangeCount }) }}
+                {{
+                  t('exerciseWizards.legacyLetter.reflect.exchangeCount', { count: exchangeCount })
+                }}
               </p>
               <AppButton variant="tonal" @click="finishChat">
                 {{ t('exerciseWizards.legacyLetter.reflect.finishButton') }}
@@ -284,8 +306,12 @@
         </AppCard>
 
         <div v-if="showReflectionInput" class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'write'">{{ t('common.buttons.back') }}</AppButton>
-          <AppButton variant="filled" @click="currentStep = 'summary'">{{ t('common.buttons.next') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'write'">{{
+            t('common.buttons.back')
+          }}</AppButton>
+          <AppButton variant="filled" @click="currentStep = 'summary'">{{
+            t('common.buttons.next')
+          }}</AppButton>
         </div>
       </div>
     </Transition>
@@ -299,7 +325,9 @@
     >
       <div v-if="currentStep === 'summary'" class="space-y-4">
         <AppCard variant="raised" padding="lg" class="space-y-6">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.legacyLetter.summary.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.legacyLetter.summary.title') }}
+          </h2>
 
           <!-- Letter text -->
           <div class="neo-embedded p-4">
@@ -310,11 +338,13 @@
 
           <!-- Warm-up reflections -->
           <div v-if="filledPromptCount > 0">
-            <h3 class="text-sm font-semibold text-on-surface mb-2">{{ t('exerciseWizards.legacyLetter.summary.warmupHeader') }}</h3>
+            <h3 class="text-sm font-semibold text-on-surface mb-2">
+              {{ t('exerciseWizards.legacyLetter.summary.warmupHeader') }}
+            </h3>
             <div class="space-y-2">
               <div
                 v-for="prompt in warmUpPromptList.filter(
-                  (p) => selectedPromptKeys.has(p) && warmUpResponses[p]?.trim(),
+                  p => selectedPromptKeys.has(p) && warmUpResponses[p]?.trim()
                 )"
                 :key="prompt"
                 class="neo-surface rounded-xl p-3"
@@ -327,7 +357,9 @@
 
           <!-- Reflection -->
           <div v-if="reflectionInsight.trim()">
-            <h3 class="text-sm font-semibold text-on-surface mb-2">{{ t('exerciseWizards.legacyLetter.summary.reflectionHeader') }}</h3>
+            <h3 class="text-sm font-semibold text-on-surface mb-2">
+              {{ t('exerciseWizards.legacyLetter.summary.reflectionHeader') }}
+            </h3>
             <p class="text-sm text-on-surface-variant">{{ reflectionInsight }}</p>
           </div>
 
@@ -354,7 +386,9 @@
           </div>
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'reflect'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'reflect'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton variant="filled" @click="handleSave">{{ t('common.buttons.save') }}</AppButton>
         </div>
       </div>
@@ -448,7 +482,7 @@ function togglePrompt(prompt: string) {
 
 const filledPromptCount = computed(() => {
   return warmUpPromptList.value.filter(
-    (p) => selectedPromptKeys.value.has(p) && warmUpResponses[p]?.trim(),
+    p => selectedPromptKeys.value.has(p) && warmUpResponses[p]?.trim()
   ).length
 })
 
@@ -524,7 +558,8 @@ async function sendFirstMessage() {
 
     await scrollToBottom()
   } catch (err) {
-    llmError.value = err instanceof Error ? err.message : t('exerciseWizards.legacyLetter.errors.startFailed')
+    llmError.value =
+      err instanceof Error ? err.message : t('exerciseWizards.legacyLetter.errors.startFailed')
   } finally {
     isLlmLoading.value = false
   }
@@ -549,7 +584,7 @@ async function handleSend() {
   try {
     const { legacyLetterDiscuss } = await import('@/services/logotherapyLLMAssists')
 
-    const previousMessages = messages.value.slice(0, -1).map((m) => ({
+    const previousMessages = messages.value.slice(0, -1).map(m => ({
       role: m.role as 'user' | 'assistant',
       content: m.content,
     }))
@@ -572,7 +607,8 @@ async function handleSend() {
 
     await scrollToBottom()
   } catch (err) {
-    llmError.value = err instanceof Error ? err.message : t('exerciseWizards.legacyLetter.errors.responseFailed')
+    llmError.value =
+      err instanceof Error ? err.message : t('exerciseWizards.legacyLetter.errors.responseFailed')
     messages.value.pop()
   } finally {
     isLlmLoading.value = false
@@ -607,7 +643,7 @@ function handleSave() {
     emotionIdsAfter: emotionIdsAfter.value.length > 0 ? [...emotionIdsAfter.value] : undefined,
     emotionFamilyIdsAfter:
       emotionFamilyIdsAfter.value.length > 0 ? [...emotionFamilyIdsAfter.value] : undefined,
-    messages: messages.value.length > 0 ? messages.value.map((m) => ({ ...m })) : undefined,
+    messages: messages.value.length > 0 ? messages.value.map(m => ({ ...m })) : undefined,
     reflectionInsight: reflectionInsight.value.trim() || undefined,
     llmAssistUsed: llmAssistUsed.value || undefined,
     notes: notes.value.trim() || undefined,

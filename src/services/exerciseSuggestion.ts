@@ -45,9 +45,9 @@ function interleaveByCategory(entries: ExerciseCatalogEntry[]): ExerciseCatalogE
 
 function rankedCandidates(
   dayRef: DayRef,
-  completions: ExerciseCompletion[],
+  completions: ExerciseCompletion[]
 ): ExerciseCatalogEntry[] {
-  const candidates = EXERCISE_CATALOG.filter((entry) => entry.micro)
+  const candidates = EXERCISE_CATALOG.filter(entry => entry.micro)
 
   const lastDayBySlug = new Map<string, string>()
   const lastCompletedBySlug = new Map<string, string>()
@@ -64,7 +64,7 @@ function rankedCandidates(
 
   // dayRef−2 and later count as "recent"; dayRef−3 is eligible again.
   const cutoff = addDaysToDayRef(dayRef, -(EXCLUDE_WINDOW_DAYS - 1))
-  let eligible = candidates.filter((entry) => {
+  let eligible = candidates.filter(entry => {
     const last = lastDayBySlug.get(entry.slug)
     return !last || last < cutoff
   })
@@ -72,26 +72,29 @@ function rankedCandidates(
   if (eligible.length === 0) eligible = candidates
 
   const neverDone = interleaveByCategory(
-    eligible.filter((entry) => !lastCompletedBySlug.has(entry.slug)),
+    eligible.filter(entry => !lastCompletedBySlug.has(entry.slug))
   )
   const doneLongestAgoFirst = interleaveByCategory(
     eligible
-      .filter((entry) => lastCompletedBySlug.has(entry.slug))
+      .filter(entry => lastCompletedBySlug.has(entry.slug))
       .sort((a, b) =>
-        lastCompletedBySlug.get(a.slug)!.localeCompare(lastCompletedBySlug.get(b.slug)!),
-      ),
+        lastCompletedBySlug.get(a.slug)!.localeCompare(lastCompletedBySlug.get(b.slug)!)
+      )
   )
 
   // Day-seeded rotation varies which never-done entry leads (they have
   // no history to rank by); cyrb53 returns base36 of a 53-bit int.
   const seed = parseInt(cyrb53(dayRef), 36)
-  return [...rotate(neverDone, neverDone.length ? seed % neverDone.length : 0), ...doneLongestAgoFirst]
+  return [
+    ...rotate(neverDone, neverDone.length ? seed % neverDone.length : 0),
+    ...doneLongestAgoFirst,
+  ]
 }
 
 export function suggestExercise(
   dayRef: DayRef,
   completions: ExerciseCompletion[],
-  offset = 0,
+  offset = 0
 ): ExerciseCatalogEntry | null {
   const ranked = rankedCandidates(dayRef, completions)
   if (ranked.length === 0) return null
@@ -99,9 +102,6 @@ export function suggestExercise(
 }
 
 /** Pool size for the same inputs — lets "pokaż inne" wrap the offset. */
-export function suggestionPoolSize(
-  dayRef: DayRef,
-  completions: ExerciseCompletion[],
-): number {
+export function suggestionPoolSize(dayRef: DayRef, completions: ExerciseCompletion[]): number {
   return rankedCandidates(dayRef, completions).length
 }

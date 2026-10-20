@@ -183,7 +183,11 @@ describe('dismissShamePart', () => {
 describe('shamePartByReaction', () => {
   it('finds the part by tag regardless of its current name', () => {
     const parts = [
-      part({ id: 'a', name: 'Mój krytyk', tags: ['shame-compass:attackSelf', 'program:shame-compassion'] }),
+      part({
+        id: 'a',
+        name: 'Mój krytyk',
+        tags: ['shame-compass:attackSelf', 'program:shame-compassion'],
+      }),
       part({ id: 'b', name: 'Ukrywający' }),
     ]
     expect(shamePartByReaction(parts, 'attackSelf')?.id).toBe('a')

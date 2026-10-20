@@ -11,7 +11,12 @@ function makeItem(key: string): WeekObjectItem {
     subjectType,
     subject: { id, title: `Object ${id}` },
     planning: { scheduleScope: 'whole-week', scheduledDayRefs: [] },
-    measurement: { entryMode: 'completion', cadence: 'weekly', entryCount: 0, periodRef: '2026-W10' },
+    measurement: {
+      entryMode: 'completion',
+      cadence: 'weekly',
+      entryCount: 0,
+      periodRef: '2026-W10',
+    },
     sortOrder: 0,
   } as unknown as WeekObjectItem
 }

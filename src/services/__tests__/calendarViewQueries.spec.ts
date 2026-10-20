@@ -109,7 +109,7 @@ describe('calendarViewQueries', () => {
     })
 
     const summary = await getCalendarYearSummary(yearRef)
-    const march = summary.months.find((item) => item.monthRef === monthRef)
+    const march = summary.months.find(item => item.monthRef === monthRef)
 
     expect(march).toMatchObject({
       hasPlan: true,
@@ -178,7 +178,7 @@ describe('calendarViewQueries', () => {
     })
 
     const summary = await getCalendarYearSummary(yearRef)
-    const march = summary.months.find((item) => item.monthRef === monthRef)
+    const march = summary.months.find(item => item.monthRef === monthRef)
 
     expect(march!.goalGroups).toHaveLength(1)
     const krPill = march!.goalGroups[0].pills[0]
@@ -206,7 +206,11 @@ describe('calendarViewQueries', () => {
       target: { kind: 'count', operator: 'min', value: 2 },
       status: 'open',
     })
-    await planningStateDexieRepository.upsertGoalMonthState({ monthRef, goalId: goal.id, activityState: 'active' })
+    await planningStateDexieRepository.upsertGoalMonthState({
+      monthRef,
+      goalId: goal.id,
+      activityState: 'active',
+    })
     await planningStateDexieRepository.upsertMeasurementMonthState({
       monthRef,
       subjectType: 'keyResult',
@@ -224,7 +228,14 @@ describe('calendarViewQueries', () => {
       })
     }
     // W10 met; W11 met but not assigned; W13 met only thanks to its April day.
-    for (const dayRef of ['2026-03-09', '2026-03-10', '2026-03-16', '2026-03-17', '2026-03-31', '2026-04-01']) {
+    for (const dayRef of [
+      '2026-03-09',
+      '2026-03-10',
+      '2026-03-16',
+      '2026-03-17',
+      '2026-03-31',
+      '2026-04-01',
+    ]) {
       await planningStateDexieRepository.upsertDailyMeasurementEntry({
         subjectType: 'keyResult',
         subjectId: keyResult.id,
@@ -234,8 +245,7 @@ describe('calendarViewQueries', () => {
     }
 
     const summary = await getCalendarYearSummary(yearRef)
-    const pill = summary.months.find((item) => item.monthRef === monthRef)!.goalGroups[0].pills[0]
+    const pill = summary.months.find(item => item.monthRef === monthRef)!.goalGroups[0].pills[0]
     expect(pill).toMatchObject({ cadence: 'weekly', weeksMet: 2, weeksTotal: 2 })
   })
-
 })

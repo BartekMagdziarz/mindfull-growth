@@ -12,7 +12,8 @@
         :key="item.id"
         :class="`is-${item.evaluation}`"
         :title="item.lastReadout"
-      >{{ item.title }}</span>
+        >{{ item.title }}</span
+      >
     </p>
 
     <p v-if="lead && !expanded" class="gc-summary__lead">
@@ -22,10 +23,22 @@
     <dl v-if="expanded" class="gc-summary__full">
       <template v-if="reflection.successMet">
         <dt>{{ t('planning.goalClosing.summary.successDefinition') }}</dt>
-        <dd>{{ t('planning.goalClosing.summary.successMet.' + reflection.successMet) }}<template v-if="reflection.successNote"> — {{ reflection.successNote }}</template></dd>
+        <dd>
+          {{ t('planning.goalClosing.summary.successMet.' + reflection.successMet)
+          }}<template v-if="reflection.successNote"> — {{ reflection.successNote }}</template>
+        </dd>
       </template>
-      <template v-if="reflection.confidenceInHindsight !== undefined && confidenceThen !== undefined">
-        <dt>{{ t('planning.goalClosing.summary.confidence', { then: confidenceThen, now: reflection.confidenceInHindsight }) }}</dt>
+      <template
+        v-if="reflection.confidenceInHindsight !== undefined && confidenceThen !== undefined"
+      >
+        <dt>
+          {{
+            t('planning.goalClosing.summary.confidence', {
+              then: confidenceThen,
+              now: reflection.confidenceInHindsight,
+            })
+          }}
+        </dt>
         <dd v-if="reflection.confidenceNote">{{ reflection.confidenceNote }}</dd>
       </template>
       <template v-if="reflection.obstaclesHit">
@@ -52,9 +65,15 @@
 
     <p class="gc-summary__actions">
       <button v-if="hasMore" type="button" :aria-expanded="expanded" @click="expanded = !expanded">
-        {{ expanded ? t('planning.goalClosing.actions.collapse') : t('planning.goalClosing.actions.showAll') }}
+        {{
+          expanded
+            ? t('planning.goalClosing.actions.collapse')
+            : t('planning.goalClosing.actions.showAll')
+        }}
       </button>
-      <button type="button" @click="openRitual">{{ t('planning.goalClosing.actions.editInRitual') }}</button>
+      <button type="button" @click="openRitual">
+        {{ t('planning.goalClosing.actions.editInRitual') }}
+      </button>
     </p>
   </section>
 </template>
@@ -81,15 +100,23 @@ const expanded = ref(false)
 const lead = computed(() => {
   const r = props.reflection
   if (r.learned) return { label: tg('planning.goalClosing.summary.learned'), text: r.learned }
-  if (r.workedWell) return { label: t('planning.goalClosing.summary.workedWell'), text: r.workedWell }
-  if (r.wasDifficult) return { label: t('planning.goalClosing.summary.wasDifficult'), text: r.wasDifficult }
+  if (r.workedWell)
+    return { label: t('planning.goalClosing.summary.workedWell'), text: r.workedWell }
+  if (r.wasDifficult)
+    return { label: t('planning.goalClosing.summary.wasDifficult'), text: r.wasDifficult }
   return null
 })
 
 const hasMore = computed(() => {
   const r = props.reflection
   return Boolean(
-    r.successMet || r.confidenceInHindsight !== undefined || r.obstaclesHit || r.workedWell || r.wasDifficult || r.learned || r.followUp,
+    r.successMet ||
+    r.confidenceInHindsight !== undefined ||
+    r.obstaclesHit ||
+    r.workedWell ||
+    r.wasDifficult ||
+    r.learned ||
+    r.followUp
   )
 })
 

@@ -1,7 +1,10 @@
 <template>
   <header
     class="mg-v2-page-head"
-    :class="{ 'mg-v2-page-head--no-back': !backTo, 'mg-v2-page-head--icon': icon || $slots.leading }"
+    :class="{
+      'mg-v2-page-head--no-back': !backTo,
+      'mg-v2-page-head--icon': icon || $slots.leading,
+    }"
   >
     <button
       v-if="backTo"
@@ -52,7 +55,7 @@ const props = withDefaults(
     backTo?: RouteLocationRaw | (() => void)
     backLabel?: string
   }>(),
-  { eyebrow: '', description: '', icon: '', backTo: undefined, backLabel: '' },
+  { eyebrow: '', description: '', icon: '', backTo: undefined, backLabel: '' }
 )
 
 const router = useRouter()

@@ -18,11 +18,7 @@
         <!-- Emotion volume as a proportional fill: quadrant shares split the
              cell horizontally, intensity scales with the day's session count
              relative to the month's busiest day. -->
-        <span
-          v-if="day.emotionCount > 0"
-          class="month-mini__fill"
-          :style="emotionFillStyle(day)"
-        />
+        <span v-if="day.emotionCount > 0" class="month-mini__fill" :style="emotionFillStyle(day)" />
         <span class="month-mini__num">{{ dayNumber(day.dayRef) }}</span>
         <span class="month-mini__markers">
           <AppIcon v-if="day.journalWritten" name="menu_book" class="month-mini__icon" />
@@ -80,12 +76,12 @@ function dayNumber(dayRef: string): number {
  */
 function emotionFillStyle(day: MonthV2ActivityDay): Record<string, string> {
   const entries = (Object.keys(day.quadrantCounts) as Quadrant[])
-    .map((quadrant) => ({ quadrant, count: day.quadrantCounts[quadrant] }))
-    .filter((entry) => entry.count > 0)
+    .map(quadrant => ({ quadrant, count: day.quadrantCounts[quadrant] }))
+    .filter(entry => entry.count > 0)
   const total = entries.reduce((sum, entry) => sum + entry.count, 0)
 
   let acc = 0
-  const stops = entries.map((entry) => {
+  const stops = entries.map(entry => {
     const from = (acc / total) * 100
     acc += entry.count
     const to = (acc / total) * 100

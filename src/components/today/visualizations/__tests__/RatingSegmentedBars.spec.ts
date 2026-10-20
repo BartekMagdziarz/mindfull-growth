@@ -7,7 +7,7 @@ import type { DayRef } from '@/domain/period'
 function makeSlot(
   dayRef: string,
   value: number | undefined,
-  overrides: Partial<TodayDaySlot> = {},
+  overrides: Partial<TodayDaySlot> = {}
 ): TodayDaySlot {
   return {
     dayRef: dayRef as DayRef,
@@ -28,7 +28,7 @@ function valueBars(container: Element): SVGPathElement[] {
 }
 
 function baselineBars(container: Element): SVGRectElement[] {
-  return Array.from(container.querySelectorAll('svg rect')).filter((r) => {
+  return Array.from(container.querySelectorAll('svg rect')).filter(r => {
     return Number((r as SVGRectElement).getAttribute('height')) === 2
   }) as SVGRectElement[]
 }
@@ -178,8 +178,8 @@ describe('RatingSegmentedBars', () => {
     })
 
     const lowestH = barHeight(valueBars(lowestC)[0])
-    const emptyBaselines = Array.from(emptyC.querySelectorAll('svg rect')).map((r) =>
-      Number((r as SVGRectElement).getAttribute('height')),
+    const emptyBaselines = Array.from(emptyC.querySelectorAll('svg rect')).map(r =>
+      Number((r as SVGRectElement).getAttribute('height'))
     )
 
     expect(lowestH).toBeGreaterThan(8)

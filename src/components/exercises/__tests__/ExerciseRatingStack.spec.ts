@@ -17,7 +17,9 @@ describe('ExerciseRatingStack', () => {
     expect(container.querySelectorAll('[role="radio"]')).toHaveLength(5)
     expect(container.querySelectorAll('[aria-checked="true"]')).toHaveLength(0)
     expect(container.querySelector('output')?.textContent?.trim()).toBe('')
-    const [minus, plus] = Array.from(container.querySelectorAll<HTMLButtonElement>('.exercise-stack__step'))
+    const [minus, plus] = Array.from(
+      container.querySelectorAll<HTMLButtonElement>('.exercise-stack__step')
+    )
     expect(minus!.disabled).toBe(true)
     expect(plus!.disabled).toBe(false)
   })
@@ -25,7 +27,13 @@ describe('ExerciseRatingStack', () => {
   it('fills from the bottom up to the picked bar and shows the value', () => {
     const { container } = mount(3)
     const bars = Array.from(container.querySelectorAll('[role="radio"]'))
-    expect(bars.map((b) => b.classList.contains('is-filled'))).toEqual([true, true, true, false, false])
+    expect(bars.map(b => b.classList.contains('is-filled'))).toEqual([
+      true,
+      true,
+      true,
+      false,
+      false,
+    ])
     expect(bars[2]!.getAttribute('aria-checked')).toBe('true')
     expect(container.querySelector('output')?.textContent?.trim()).toBe('3')
   })

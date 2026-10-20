@@ -1,7 +1,14 @@
 <template>
-  <section class="mg-v2-surface mg-v2-surface--raised-sm pp-card" :aria-label="headLabel" data-testid="path-practices">
+  <section
+    class="mg-v2-surface mg-v2-surface--raised-sm pp-card"
+    :aria-label="headLabel"
+    data-testid="path-practices"
+  >
     <header class="pp-card__head">
-      <span>{{ headLabel }} <small v-if="mode === 'return'">{{ t('programs.ui.returnNote') }}</small></span>
+      <span
+        >{{ headLabel }}
+        <small v-if="mode === 'return'">{{ t('programs.ui.returnNote') }}</small></span
+      >
       <span class="pp-card__links">
         <button
           v-if="responseEntry"
@@ -27,15 +34,27 @@
     </header>
 
     <div v-if="tiles.length" class="pp-tile-grid">
-      <article v-for="tile in tiles" :key="tile.key" class="pp-tile pp-tile--mist" :data-testid="tile.testId">
+      <article
+        v-for="tile in tiles"
+        :key="tile.key"
+        class="pp-tile pp-tile--mist"
+        :data-testid="tile.testId"
+      >
         <header class="pp-tile__head">
           <strong class="pp-tile__title">{{ tile.title }}</strong>
           <span
             v-if="tile.wells"
             class="pp-wells pp-tile__mark"
-            :aria-label="t('programs.week.doneOf', { done: tile.wells.done, target: tile.wells.target })"
+            :aria-label="
+              t('programs.week.doneOf', { done: tile.wells.done, target: tile.wells.target })
+            "
           >
-            <i v-for="n in tile.wells.target" :key="n" class="mg-well pp-well pp-well--sm" :class="{ 'mg-well--done': n <= tile.wells.done }" />
+            <i
+              v-for="n in tile.wells.target"
+              :key="n"
+              class="mg-well pp-well pp-well--sm"
+              :class="{ 'mg-well--done': n <= tile.wells.done }"
+            />
           </span>
         </header>
         <p v-if="tile.what" class="pp-tile__what">{{ tile.what }}</p>
@@ -49,14 +68,24 @@
           >
             {{ tile.action.label }}
           </button>
-          <button v-if="tile.change" type="button" class="pp-link" :aria-expanded="worldOpen" @click="worldOpen = !worldOpen">
+          <button
+            v-if="tile.change"
+            type="button"
+            class="pp-link"
+            :aria-expanded="worldOpen"
+            @click="worldOpen = !worldOpen"
+          >
             {{ worldOpen ? t('programs.ui.keep') : t('programs.ui.change') }}
           </button>
         </footer>
       </article>
     </div>
 
-    <div v-if="worldOpen && options && enrollment.status === 'active'" class="pp-world" data-testid="path-world-choice">
+    <div
+      v-if="worldOpen && options && enrollment.status === 'active'"
+      class="pp-world"
+      data-testid="path-world-choice"
+    >
       <ProgramTaskChoice
         v-model="chosenKey"
         :program="program"
@@ -68,8 +97,12 @@
         :name="`program-task-path-${enrollment.id}`"
       />
       <div class="pp-chips">
-        <button type="button" class="pp-chip" :disabled="busy || worldBusy" @click="accept">{{ t('programs.week.addThisWeek') }}</button>
-        <button type="button" class="pp-chip" :disabled="busy || worldBusy" @click="decline">{{ t('programs.week.decline') }}</button>
+        <button type="button" class="pp-chip" :disabled="busy || worldBusy" @click="accept">
+          {{ t('programs.week.addThisWeek') }}
+        </button>
+        <button type="button" class="pp-chip" :disabled="busy || worldBusy" @click="decline">
+          {{ t('programs.week.decline') }}
+        </button>
       </div>
     </div>
 
@@ -80,13 +113,21 @@
           <dd>{{ field.value }}</dd>
         </template>
       </dl>
-      <p v-if="responseText('unblendSentence')"><em>„{{ responseText('unblendSentence') }}”</em></p>
-      <p v-if="responseText('sentence')"><em>„{{ responseText('sentence') }}”</em></p>
+      <p v-if="responseText('unblendSentence')">
+        <em>„{{ responseText('unblendSentence') }}”</em>
+      </p>
+      <p v-if="responseText('sentence')">
+        <em>„{{ responseText('sentence') }}”</em>
+      </p>
       <p v-if="responseMoves">{{ responseMoves }}</p>
-      <RouterLink v-if="momentRoute" :to="momentRoute" class="pp-chip">{{ t('programs.ui.saveAsMoment') }}</RouterLink>
+      <RouterLink v-if="momentRoute" :to="momentRoute" class="pp-chip">{{
+        t('programs.ui.saveAsMoment')
+      }}</RouterLink>
     </div>
     <div v-if="letterOpen && letter" class="pp-quote">
-      <p><em>„{{ letter }}”</em></p>
+      <p>
+        <em>„{{ letter }}”</em>
+      </p>
     </div>
   </section>
 </template>
@@ -160,34 +201,45 @@ const letterOpen = ref(Boolean(props.letterOpen && props.letter))
 // Opening the quote is what "reading" means — once per visit is enough for the marker.
 watch(
   () => letterOpen.value && Boolean(props.letter),
-  (open) => {
+  open => {
     if (open) emit('letterOpened')
   },
-  { immediate: true },
+  { immediate: true }
 )
 const worldOpen = ref(false)
 const worldBusy = ref(false)
 
 const headLabel = computed(() =>
-  props.mode === 'paused' ? t('programs.ui.nowPaused') : props.mode === 'return' ? t('programs.ui.returnTitle') : t('programs.ui.practicesCard'),
+  props.mode === 'paused'
+    ? t('programs.ui.nowPaused')
+    : props.mode === 'return'
+      ? t('programs.ui.returnTitle')
+      : t('programs.ui.practicesCard')
 )
 
 // ── Personal plan / map (from the old "Teraz" card) ──
 const isPausePlan = computed(() => props.responseEntry?.exerciseSlug === 'pause-plan')
 const isAnxietyMap = computed(() => props.responseEntry?.exerciseSlug === 'anxiety-map')
-const personalLabels = computed(() => (isAnxietyMap.value ? 'programs.anxiety-approach.mapLabels' : 'programs.anger-signal.planLabels'))
+const personalLabels = computed(() =>
+  isAnxietyMap.value ? 'programs.anxiety-approach.mapLabels' : 'programs.anger-signal.planLabels'
+)
 const personalFields = computed(() =>
-  (isAnxietyMap.value ? ['withoutFear', 'avoidance', 'safetyBehaviors'] : ['earlySigns', 'ifThen', 'returnPromise'])
-    .map((key) => {
+  (isAnxietyMap.value
+    ? ['withoutFear', 'avoidance', 'safetyBehaviors']
+    : ['earlySigns', 'ifThen', 'returnPromise']
+  )
+    .map(key => {
       const response = props.responseEntry?.responses[key]
       const value = Array.isArray(response)
-        ? response.filter((item): item is string => typeof item === 'string' && Boolean(item.trim())).join(' · ')
+        ? response
+            .filter((item): item is string => typeof item === 'string' && Boolean(item.trim()))
+            .join(' · ')
         : typeof response === 'string'
           ? response.trim()
           : ''
       return { key, value }
     })
-    .filter((field) => field.value),
+    .filter(field => field.value)
 )
 function responseText(step: string): string {
   const value = props.responseEntry?.responses[step]
@@ -198,17 +250,19 @@ const responseMoves = computed(() => {
   if (!Array.isArray(moves)) return ''
   return moves
     .filter((move): move is string => typeof move === 'string')
-    .map((move) => tg(`exerciseWizards.micro.shameResponse.move.options.${move}`))
-    .filter((label) => !label.startsWith('exerciseWizards.'))
+    .map(move => tg(`exerciseWizards.micro.shameResponse.move.options.${move}`))
+    .filter(label => !label.startsWith('exerciseWizards.'))
     .join(' · ')
 })
-const momentRoute = computed(() => (props.program.momentKind ? `/exercises/micro/moment-${props.program.momentKind}` : null))
+const momentRoute = computed(() =>
+  props.program.momentKind ? `/exercises/micro/moment-${props.program.momentKind}` : null
+)
 
 // ── Tiles ──
 const todayRef = computed<DayRef>(() => getPeriodRefsForDate(new Date()).day)
 const practiceTiles = computed<PracticeTile[]>(() =>
   derivePracticeStates(props.program, props.enrollment, planStore.items)
-    .filter((state) => state.state === 'active')
+    .filter(state => state.state === 'active')
     .map(({ practice, pendingItem }) => {
       const entry = getCatalogEntry(practice.exerciseSlug)
       const due = Boolean(pendingItem && pendingItem.dayRef <= todayRef.value)
@@ -220,17 +274,26 @@ const practiceTiles = computed<PracticeTile[]>(() =>
         title: entry ? t(`exercises.cards.${entry.i18nKey}.title`) : practice.exerciseSlug,
         what: entry ? tg(`exercises.cards.${entry.i18nKey}.description`) : '',
         action: entry
-          ? { label: isMoment ? t('programs.ui.logMomentShort') : t('programs.ui.open'), run: () => void router.push(entry.route) }
+          ? {
+              label: isMoment ? t('programs.ui.logMomentShort') : t('programs.ui.open'),
+              run: () => void router.push(entry.route),
+            }
           : undefined,
         // Only a due occurrence: completing a future one early would not tick it.
         disabled: !isMoment && !due,
       }
-    }),
+    })
 )
-const momentSlug = computed(() => (props.program.momentKind ? `moment-${props.program.momentKind}` : null))
+const momentSlug = computed(() =>
+  props.program.momentKind ? `moment-${props.program.momentKind}` : null
+)
 /** Momenty as a tile of its own only when the path does not already run them as a practice. */
 const momentTile = computed<PracticeTile | null>(() => {
-  if (!momentSlug.value || (props.program.practices ?? []).some((practice) => practice.exerciseSlug === momentSlug.value)) return null
+  if (
+    !momentSlug.value ||
+    (props.program.practices ?? []).some(practice => practice.exerciseSlug === momentSlug.value)
+  )
+    return null
   const entry = getCatalogEntry(momentSlug.value)
   if (!entry) return null
   return {
@@ -245,28 +308,37 @@ const momentTile = computed<PracticeTile | null>(() => {
 // ── The week's real-world task ──
 const thisWeek = computed<WeekRef>(() => getPeriodRefsForDate(new Date()).week)
 const hasTasks = computed(() => Boolean(props.program.weeklyTasks?.length))
-const options = computed(() => (hasTasks.value ? proposeWeeklyTaskOptions(props.program, props.enrollment, thisWeek.value) : null))
+const options = computed(() =>
+  hasTasks.value ? proposeWeeklyTaskOptions(props.program, props.enrollment, thisWeek.value) : null
+)
 const state = ref<WeekTaskState | null>(null)
 const chosenKey = ref('')
 watch(
   options,
-  (next) => {
-    const known = next && [...next.current, ...next.earlier].some((task) => task.key === chosenKey.value)
+  next => {
+    const known =
+      next && [...next.current, ...next.earlier].some(task => task.key === chosenKey.value)
     if (!known) chosenKey.value = next?.suggested.key ?? ''
   },
-  { immediate: true },
+  { immediate: true }
 )
 const chosenTask = computed(() =>
   options.value
-    ? ([...options.value.current, ...options.value.earlier].find((task) => task.key === chosenKey.value) ?? options.value.suggested)
-    : null,
+    ? ([...options.value.current, ...options.value.earlier].find(
+        task => task.key === chosenKey.value
+      ) ?? options.value.suggested)
+    : null
 )
 async function load(): Promise<void> {
   if (!hasTasks.value) return
   state.value = await weekTaskState(props.program, props.enrollment, thisWeek.value)
 }
 onMounted(() => void load())
-watch(() => [props.enrollment.id, props.enrollment.weekLog], () => void load(), { deep: true })
+watch(
+  () => [props.enrollment.id, props.enrollment.weekLog],
+  () => void load(),
+  { deep: true }
+)
 
 const taskTitle = (key: string) => tg(`${props.program.i18nKey}.tasks.${key}.title`)
 const taskWhy = (key: string) => tg(`${props.program.i18nKey}.tasks.${key}.why`)
@@ -279,7 +351,10 @@ const worldTile = computed<PracticeTile | null>(() => {
       testId: 'path-world',
       title: current.intention.title,
       what: current.task ? taskWhy(current.task.key) : '',
-      wells: { done: current.doneCount, target: current.intention.target.value ?? current.task?.times ?? 1 },
+      wells: {
+        done: current.doneCount,
+        target: current.intention.target.value ?? current.task?.times ?? 1,
+      },
     }
   }
   if (current?.entry) return null
@@ -296,7 +371,11 @@ const worldTile = computed<PracticeTile | null>(() => {
 })
 const tiles = computed<PracticeTile[]>(() => {
   if (props.mode === 'return') return []
-  return [...practiceTiles.value, ...(momentTile.value ? [momentTile.value] : []), ...(worldTile.value ? [worldTile.value] : [])]
+  return [
+    ...practiceTiles.value,
+    ...(momentTile.value ? [momentTile.value] : []),
+    ...(worldTile.value ? [worldTile.value] : []),
+  ]
 })
 
 async function accept(): Promise<void> {
@@ -322,7 +401,9 @@ async function decline(): Promise<void> {
   if (!task) return
   worldBusy.value = true
   try {
-    enrollmentStore.applyUpdate(await declineWeeklyTask(props.enrollment.id, thisWeek.value, task.key))
+    enrollmentStore.applyUpdate(
+      await declineWeeklyTask(props.enrollment.id, thisWeek.value, task.key)
+    )
     worldOpen.value = false
   } finally {
     worldBusy.value = false

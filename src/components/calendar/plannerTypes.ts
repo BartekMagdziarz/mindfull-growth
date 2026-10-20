@@ -1,6 +1,10 @@
 import type { MeasurementEntryMode, MeasurementTarget } from '@/domain/planning'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
-import type { MeasurementMonthState, MeasurementSubjectType, MeasurementWeekState } from '@/domain/planningState'
+import type {
+  MeasurementMonthState,
+  MeasurementSubjectType,
+  MeasurementWeekState,
+} from '@/domain/planningState'
 
 /**
  * Planner rows cover every measurable subject. Week-scoped intentions only ever

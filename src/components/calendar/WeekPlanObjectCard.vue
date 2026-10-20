@@ -32,12 +32,14 @@ const emit = defineEmits<{
 const { t } = useT()
 
 const isIntention = computed(() => props.candidate.subjectType === 'weeklyIntention')
-const modeLabel = computed(() => t(`planning.objects.targetSentence.mode.${props.candidate.entryMode}`))
+const modeLabel = computed(() =>
+  t(`planning.objects.targetSentence.mode.${props.candidate.entryMode}`)
+)
 const targetSummary = computed(() => formatMeasurementTargetSummary(props.candidate.target, t))
 
 const expanded = ref(false)
 const hasDetails = computed(
-  () => Boolean(props.candidate.parentGoalTitle) || Boolean(props.candidate.description),
+  () => Boolean(props.candidate.parentGoalTitle) || Boolean(props.candidate.description)
 )
 
 // Inline edit (intentions only) — local draft committed on save.
@@ -195,10 +197,16 @@ function onMeasurement(m: { entryMode: MeasurementEntryMode; target: Measurement
           class="space-y-1.5 border-t border-neu-border/15 pt-2 text-xs text-on-surface-variant"
         >
           <p v-if="candidate.parentGoalTitle" class="flex items-center gap-1.5">
-            <EntityIcon v-if="candidate.parentGoalIcon" :icon="candidate.parentGoalIcon" size="xs" />
+            <EntityIcon
+              v-if="candidate.parentGoalIcon"
+              :icon="candidate.parentGoalIcon"
+              size="xs"
+            />
             <span class="min-w-0 truncate">{{ candidate.parentGoalTitle }}</span>
           </p>
-          <p v-if="candidate.description" class="whitespace-pre-line">{{ candidate.description }}</p>
+          <p v-if="candidate.description" class="whitespace-pre-line">
+            {{ candidate.description }}
+          </p>
         </div>
       </Transition>
     </template>

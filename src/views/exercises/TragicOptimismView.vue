@@ -8,13 +8,11 @@
 
     <!-- Past entries -->
     <div v-if="tragicOptimismStore.sortedEntries.length > 0" class="mt-8">
-      <div class="mg-v2-section-head"><h2>{{ t('exercises.views.pastEntries') }}</h2></div>
+      <div class="mg-v2-section-head">
+        <h2>{{ t('exercises.views.pastEntries') }}</h2>
+      </div>
       <div class="space-y-3">
-        <AppCard
-          v-for="entry in tragicOptimismStore.sortedEntries"
-          :key="entry.id"
-          padding="md"
-        >
+        <AppCard v-for="entry in tragicOptimismStore.sortedEntries" :key="entry.id" padding="md">
           <div class="flex justify-between items-start">
             <div class="flex-1">
               <div class="flex items-center gap-2 mb-1">
@@ -22,10 +20,7 @@
                   {{ getFocusLabel(entry.focus) }}
                 </span>
               </div>
-              <p
-                v-if="entry.insightMeaning"
-                class="text-sm text-on-surface-variant line-clamp-2"
-              >
+              <p v-if="entry.insightMeaning" class="text-sm text-on-surface-variant line-clamp-2">
                 {{ entry.insightMeaning }}
               </p>
               <p class="text-xs text-on-surface-variant mt-1">

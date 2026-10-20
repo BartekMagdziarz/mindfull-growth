@@ -1,9 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import type {
-  ChatSession,
-  ChatMessage,
-  ChatIntention,
-} from '../chatSession'
+import type { ChatSession, ChatMessage, ChatIntention } from '../chatSession'
 import {
   CHAT_INTENTIONS,
   isValidChatIntention,
@@ -23,7 +19,7 @@ describe('ChatSession Domain Model', () => {
         CHAT_INTENTIONS.CUSTOM,
       ]
 
-      intentions.forEach((intention) => {
+      intentions.forEach(intention => {
         expect(intention).toBeDefined()
         expect(typeof intention).toBe('string')
       })
@@ -121,9 +117,7 @@ describe('ChatSession Domain Model', () => {
     describe('isValidChatIntention', () => {
       it('returns true for valid intention values', () => {
         expect(isValidChatIntention(CHAT_INTENTIONS.REFLECT)).toBe(true)
-        expect(isValidChatIntention(CHAT_INTENTIONS.HELP_SEE_DIFFERENTLY)).toBe(
-          true
-        )
+        expect(isValidChatIntention(CHAT_INTENTIONS.HELP_SEE_DIFFERENTLY)).toBe(true)
         expect(isValidChatIntention(CHAT_INTENTIONS.PROACTIVE)).toBe(true)
         expect(isValidChatIntention(CHAT_INTENTIONS.THINKING_TRAPS)).toBe(true)
         expect(isValidChatIntention(CHAT_INTENTIONS.CUSTOM)).toBe(true)
@@ -159,31 +153,21 @@ describe('ChatSession Domain Model', () => {
       })
 
       it('does not include customPrompt when intention is not custom', () => {
-        const session = createChatSession(
-          'journal-123',
-          CHAT_INTENTIONS.REFLECT
-        )
+        const session = createChatSession('journal-123', CHAT_INTENTIONS.REFLECT)
 
         expect(session.customPrompt).toBeUndefined()
       })
 
       it('includes customPrompt when intention is custom and prompt is provided', () => {
         const customPrompt = 'Help me think about this differently'
-        const session = createChatSession(
-          'journal-123',
-          CHAT_INTENTIONS.CUSTOM,
-          customPrompt
-        )
+        const session = createChatSession('journal-123', CHAT_INTENTIONS.CUSTOM, customPrompt)
 
         expect(session.intention).toBe(CHAT_INTENTIONS.CUSTOM)
         expect(session.customPrompt).toBe(customPrompt)
       })
 
       it('does not include customPrompt when intention is custom but prompt is not provided', () => {
-        const session = createChatSession(
-          'journal-123',
-          CHAT_INTENTIONS.CUSTOM
-        )
+        const session = createChatSession('journal-123', CHAT_INTENTIONS.CUSTOM)
 
         expect(session.intention).toBe(CHAT_INTENTIONS.CUSTOM)
         expect(session.customPrompt).toBeUndefined()
@@ -262,10 +246,7 @@ describe('ChatSession Domain Model', () => {
 
     it('JournalEntry can have multiple chat sessions', () => {
       const chatSession1 = createChatSession('entry-3', CHAT_INTENTIONS.REFLECT)
-      const chatSession2 = createChatSession(
-        'entry-3',
-        CHAT_INTENTIONS.HELP_SEE_DIFFERENTLY
-      )
+      const chatSession2 = createChatSession('entry-3', CHAT_INTENTIONS.HELP_SEE_DIFFERENTLY)
 
       const entry: JournalEntry = {
         id: 'entry-3',
@@ -277,9 +258,7 @@ describe('ChatSession Domain Model', () => {
 
       expect(entry.chatSessions).toHaveLength(2)
       expect(entry.chatSessions?.[0].intention).toBe(CHAT_INTENTIONS.REFLECT)
-      expect(entry.chatSessions?.[1].intention).toBe(
-        CHAT_INTENTIONS.HELP_SEE_DIFFERENTLY
-      )
+      expect(entry.chatSessions?.[1].intention).toBe(CHAT_INTENTIONS.HELP_SEE_DIFFERENTLY)
     })
 
     it('TypeScript correctly infers types when accessing chatSessions', () => {
@@ -310,4 +289,3 @@ describe('ChatSession Domain Model', () => {
     })
   })
 })
-

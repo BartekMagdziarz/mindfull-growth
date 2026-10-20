@@ -1,7 +1,11 @@
 <template>
   <div class="space-y-6">
     <!-- Step indicator dots -->
-    <ExerciseStepper :labels="stepLabels" :current="currentVisualStep" @go="goToStepByIndex($event)" />
+    <ExerciseStepper
+      :labels="stepLabels"
+      :current="currentVisualStep"
+      @go="goToStepByIndex($event)"
+    />
 
     <!-- Step 1: Intro -->
     <Transition
@@ -12,7 +16,9 @@
     >
       <div v-if="currentStep === 'intro'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.coreBeliefs.intro.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.coreBeliefs.intro.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.coreBeliefs.intro.description') }}
           </p>
@@ -21,11 +27,23 @@
               {{ t('exerciseWizards.coreBeliefs.intro.techniqueName') }}
             </p>
             <div class="flex items-center gap-3 text-sm text-on-surface">
-              <span class="exercise-pill px-3 py-1 text-xs">{{ t('exerciseWizards.coreBeliefs.intro.flowSituation') }}</span>
-              <AppIcon name="arrow_downward" class="text-base text-on-surface-variant flex-shrink-0" />
-              <span class="exercise-pill px-3 py-1 text-xs">{{ t('exerciseWizards.coreBeliefs.intro.flowAutomaticThought') }}</span>
-              <AppIcon name="arrow_downward" class="text-base text-on-surface-variant flex-shrink-0" />
-              <span class="exercise-pill px-3 py-1 text-xs">{{ t('exerciseWizards.coreBeliefs.intro.flowCoreBelief') }}</span>
+              <span class="exercise-pill px-3 py-1 text-xs">{{
+                t('exerciseWizards.coreBeliefs.intro.flowSituation')
+              }}</span>
+              <AppIcon
+                name="arrow_downward"
+                class="text-base text-on-surface-variant flex-shrink-0"
+              />
+              <span class="exercise-pill px-3 py-1 text-xs">{{
+                t('exerciseWizards.coreBeliefs.intro.flowAutomaticThought')
+              }}</span>
+              <AppIcon
+                name="arrow_downward"
+                class="text-base text-on-surface-variant flex-shrink-0"
+              />
+              <span class="exercise-pill px-3 py-1 text-xs">{{
+                t('exerciseWizards.coreBeliefs.intro.flowCoreBelief')
+              }}</span>
             </div>
             <p class="text-xs text-on-surface-variant leading-relaxed">
               {{ t('exerciseWizards.coreBeliefs.intro.techniqueDescription') }}
@@ -49,7 +67,9 @@
     >
       <div v-if="currentStep === 'starting-thought'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.coreBeliefs.startingThought.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.coreBeliefs.startingThought.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.coreBeliefs.startingThought.description') }}
           </p>
@@ -61,7 +81,9 @@
             class="neo-input neo-focus w-full p-3 text-sm resize-none"
           />
           <div class="space-y-1">
-            <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.coreBeliefs.startingThought.sourceLabel') }}</label>
+            <label class="text-xs font-medium text-on-surface-variant">{{
+              t('exerciseWizards.coreBeliefs.startingThought.sourceLabel')
+            }}</label>
             <div class="flex gap-2">
               <button
                 v-for="src in sourceTypes"
@@ -79,7 +101,9 @@
           </div>
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'intro'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'intro'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton
             variant="filled"
             :disabled="!startingThought.trim()"
@@ -100,7 +124,9 @@
     >
       <div v-if="currentStep === 'downward-arrow'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.coreBeliefs.downwardArrow.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.coreBeliefs.downwardArrow.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.coreBeliefs.downwardArrow.description') }}
           </p>
@@ -110,7 +136,9 @@
           <div class="space-y-3">
             <!-- Starting thought -->
             <div class="exercise-quote">
-              <span class="exercise-quote__label">{{ t('exerciseWizards.coreBeliefs.downwardArrow.startingThoughtLabel') }}</span>
+              <span class="exercise-quote__label">{{
+                t('exerciseWizards.coreBeliefs.downwardArrow.startingThoughtLabel')
+              }}</span>
               <span class="exercise-quote__text">„{{ startingThought }}”</span>
             </div>
 
@@ -120,7 +148,9 @@
                 <AppIcon name="arrow_downward" class="text-base text-on-surface-variant" />
               </div>
               <div class="neo-embedded p-3">
-                <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-1">
+                <p
+                  class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-1"
+                >
                   {{ t('exerciseWizards.coreBeliefs.downwardArrow.layerLabel', { n: idx + 1 }) }}
                 </p>
                 <p class="text-sm text-on-surface">"{{ answer }}"</p>
@@ -171,7 +201,11 @@
                 @click="handleDeepenerAssist"
               >
                 <AppIcon name="auto_awesome" class="text-base" />
-                {{ isDeepenerLoading ? t('exerciseWizards.coreBeliefs.downwardArrow.deepenerLoading') : t('exerciseWizards.coreBeliefs.downwardArrow.deepenerLabel') }}
+                {{
+                  isDeepenerLoading
+                    ? t('exerciseWizards.coreBeliefs.downwardArrow.deepenerLoading')
+                    : t('exerciseWizards.coreBeliefs.downwardArrow.deepenerLabel')
+                }}
               </AppButton>
               <ProfileContextToggle v-model="useProfileDeepener" />
             </div>
@@ -182,7 +216,9 @@
           </div>
         </AppCard>
         <div class="flex justify-start">
-          <AppButton variant="text" @click="currentStep = 'starting-thought'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'starting-thought'">{{
+            t('common.buttons.back')
+          }}</AppButton>
         </div>
       </div>
     </Transition>
@@ -196,7 +232,9 @@
     >
       <div v-if="currentStep === 'core-belief'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.coreBeliefs.coreBelief.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.coreBeliefs.coreBelief.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.coreBeliefs.coreBelief.description') }}
           </p>
@@ -210,7 +248,9 @@
         </AppCard>
 
         <AppCard padding="lg" class="space-y-3">
-          <h3 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.coreBeliefs.coreBelief.categoryTitle') }}</h3>
+          <h3 class="text-base font-semibold text-on-surface">
+            {{ t('exerciseWizards.coreBeliefs.coreBelief.categoryTitle') }}
+          </h3>
           <div class="space-y-2">
             <button
               v-for="cat in beliefCategories"
@@ -226,9 +266,7 @@
                 <div
                   class="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0"
                   :class="
-                    beliefCategory === cat.value
-                      ? 'border-primary bg-primary'
-                      : 'border-outline'
+                    beliefCategory === cat.value ? 'border-primary bg-primary' : 'border-outline'
                   "
                 >
                   <div
@@ -251,7 +289,9 @@
           </h3>
           <div class="space-y-2">
             <div class="flex items-center justify-between">
-              <label class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.coreBeliefs.coreBelief.believabilityLabel') }}</label>
+              <label class="text-sm font-medium text-on-surface">{{
+                t('exerciseWizards.coreBeliefs.coreBelief.believabilityLabel')
+              }}</label>
               <span class="text-sm font-semibold text-primary">{{ believabilityBefore }}%</span>
             </div>
             <input
@@ -270,7 +310,9 @@
         </AppCard>
 
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'downward-arrow'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'downward-arrow'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton
             variant="filled"
             :disabled="!coreBelief.trim() || !beliefCategory"
@@ -291,9 +333,13 @@
     >
       <div v-if="currentStep === 'evidence-for'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.coreBeliefs.evidenceFor.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.coreBeliefs.evidenceFor.title') }}
+          </h2>
           <div class="exercise-quote">
-            <span class="exercise-quote__label">{{ t('exerciseWizards.coreBeliefs.evidenceFor.coreBeliefLabel') }}</span>
+            <span class="exercise-quote__label">{{
+              t('exerciseWizards.coreBeliefs.evidenceFor.coreBeliefLabel')
+            }}</span>
             <span class="exercise-quote__text">„{{ coreBelief }}”</span>
           </div>
           <p class="text-sm text-on-surface-variant">
@@ -329,7 +375,9 @@
           </div>
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'core-belief'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'core-belief'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton variant="filled" @click="currentStep = 'evidence-against'">
             {{ t('common.buttons.next') }}
           </AppButton>
@@ -346,9 +394,13 @@
     >
       <div v-if="currentStep === 'evidence-against'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.coreBeliefs.evidenceAgainst.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.coreBeliefs.evidenceAgainst.title') }}
+          </h2>
           <div class="exercise-quote">
-            <span class="exercise-quote__label">{{ t('exerciseWizards.coreBeliefs.evidenceAgainst.coreBeliefLabel') }}</span>
+            <span class="exercise-quote__label">{{
+              t('exerciseWizards.coreBeliefs.evidenceAgainst.coreBeliefLabel')
+            }}</span>
             <span class="exercise-quote__text">„{{ coreBelief }}”</span>
           </div>
           <p class="text-sm text-on-surface-variant">
@@ -384,7 +436,9 @@
           </div>
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'evidence-for'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'evidence-for'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton variant="filled" @click="currentStep = 'alternative'">
             {{ t('common.buttons.next') }}
           </AppButton>
@@ -401,7 +455,9 @@
     >
       <div v-if="currentStep === 'alternative'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.coreBeliefs.alternative.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.coreBeliefs.alternative.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.coreBeliefs.alternative.description') }}
           </p>
@@ -414,15 +470,14 @@
                 {{ t('exerciseWizards.coreBeliefs.alternative.evidenceForLabel') }}
               </p>
               <ul class="space-y-1">
-                <li
-                  v-for="item in filledEvidenceFor"
-                  :key="item"
-                  class="text-xs text-on-surface"
-                >
+                <li v-for="item in filledEvidenceFor" :key="item" class="text-xs text-on-surface">
                   &#8226; {{ item }}
                 </li>
               </ul>
-              <p v-if="filledEvidenceFor.length === 0" class="text-xs text-on-surface-variant italic">
+              <p
+                v-if="filledEvidenceFor.length === 0"
+                class="text-xs text-on-surface-variant italic"
+              >
                 {{ t('exerciseWizards.coreBeliefs.alternative.noEvidenceListed') }}
               </p>
             </div>
@@ -439,7 +494,10 @@
                   &#8226; {{ item }}
                 </li>
               </ul>
-              <p v-if="filledEvidenceAgainst.length === 0" class="text-xs text-on-surface-variant italic">
+              <p
+                v-if="filledEvidenceAgainst.length === 0"
+                class="text-xs text-on-surface-variant italic"
+              >
                 {{ t('exerciseWizards.coreBeliefs.alternative.noEvidenceListed') }}
               </p>
             </div>
@@ -461,18 +519,24 @@
                 @click="handleAlternativeAssist"
               >
                 <AppIcon name="auto_awesome" class="text-base" />
-                {{ isAlternativeLoading ? t('exerciseWizards.coreBeliefs.alternative.llmLoading') : t('exerciseWizards.coreBeliefs.alternative.llmLabel') }}
+                {{
+                  isAlternativeLoading
+                    ? t('exerciseWizards.coreBeliefs.alternative.llmLoading')
+                    : t('exerciseWizards.coreBeliefs.alternative.llmLabel')
+                }}
               </AppButton>
               <ProfileContextToggle v-model="useProfileAlternative" />
             </div>
             <div v-if="alternativeMessages.length > 0" class="space-y-2">
-              <div
-                v-for="(msg, idx) in alternativeMessages"
-                :key="idx"
-                class="neo-panel p-3"
-              >
-                <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-1">
-                  {{ msg.role === 'assistant' ? t('exerciseWizards.coreBeliefs.alternative.suggestion') : t('exerciseWizards.coreBeliefs.alternative.you') }}
+              <div v-for="(msg, idx) in alternativeMessages" :key="idx" class="neo-panel p-3">
+                <p
+                  class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-1"
+                >
+                  {{
+                    msg.role === 'assistant'
+                      ? t('exerciseWizards.coreBeliefs.alternative.suggestion')
+                      : t('exerciseWizards.coreBeliefs.alternative.you')
+                  }}
                 </p>
                 <p class="text-sm text-on-surface whitespace-pre-line">{{ msg.content }}</p>
                 <button
@@ -507,7 +571,9 @@
 
         <!-- Re-rate believability -->
         <AppCard padding="lg" class="space-y-4">
-          <h3 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.coreBeliefs.alternative.rerateTitle') }}</h3>
+          <h3 class="text-base font-semibold text-on-surface">
+            {{ t('exerciseWizards.coreBeliefs.alternative.rerateTitle') }}
+          </h3>
 
           <div class="space-y-3">
             <div class="space-y-2">
@@ -536,7 +602,9 @@
                 <label class="text-sm font-medium text-on-surface">
                   {{ t('exerciseWizards.coreBeliefs.alternative.alternativeBeliefLabel') }}
                 </label>
-                <span class="text-sm font-semibold text-primary">{{ alternativeBeliefBelievability }}%</span>
+                <span class="text-sm font-semibold text-primary"
+                  >{{ alternativeBeliefBelievability }}%</span
+                >
               </div>
               <input
                 v-model.number="alternativeBeliefBelievability"
@@ -555,7 +623,9 @@
         </AppCard>
 
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'evidence-against'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'evidence-against'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton
             variant="filled"
             :disabled="!alternativeBelief.trim()"
@@ -576,7 +646,9 @@
     >
       <div v-if="currentStep === 'summary'" class="space-y-4">
         <AppCard variant="raised" padding="lg" class="space-y-5">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.coreBeliefs.summary.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.coreBeliefs.summary.title') }}
+          </h2>
 
           <!-- Downward Arrow Chain -->
           <div class="space-y-2">
@@ -585,8 +657,15 @@
             </p>
             <div class="neo-surface p-3 space-y-2">
               <p class="text-sm text-on-surface italic">"{{ startingThought }}"</p>
-              <div v-for="(answer, answerIdx) in downwardArrowSteps" :key="answerIdx" class="flex items-center gap-2">
-                <AppIcon name="arrow_downward" class="text-xs text-on-surface-variant flex-shrink-0" />
+              <div
+                v-for="(answer, answerIdx) in downwardArrowSteps"
+                :key="answerIdx"
+                class="flex items-center gap-2"
+              >
+                <AppIcon
+                  name="arrow_downward"
+                  class="text-xs text-on-surface-variant flex-shrink-0"
+                />
                 <p class="text-sm text-on-surface">"{{ answer }}"</p>
               </div>
             </div>
@@ -608,15 +687,14 @@
                 {{ t('exerciseWizards.coreBeliefs.summary.evidenceFor') }}
               </p>
               <ul class="space-y-1">
-                <li
-                  v-for="item in filledEvidenceFor"
-                  :key="item"
-                  class="text-xs text-on-surface"
-                >
+                <li v-for="item in filledEvidenceFor" :key="item" class="text-xs text-on-surface">
                   &#8226; {{ item }}
                 </li>
               </ul>
-              <p v-if="filledEvidenceFor.length === 0" class="text-xs text-on-surface-variant italic">
+              <p
+                v-if="filledEvidenceFor.length === 0"
+                class="text-xs text-on-surface-variant italic"
+              >
                 {{ t('exerciseWizards.coreBeliefs.summary.noneListed') }}
               </p>
             </div>
@@ -633,7 +711,10 @@
                   &#8226; {{ item }}
                 </li>
               </ul>
-              <p v-if="filledEvidenceAgainst.length === 0" class="text-xs text-on-surface-variant italic">
+              <p
+                v-if="filledEvidenceAgainst.length === 0"
+                class="text-xs text-on-surface-variant italic"
+              >
                 {{ t('exerciseWizards.coreBeliefs.summary.noneListed') }}
               </p>
             </div>
@@ -654,22 +735,34 @@
             </p>
             <div class="flex items-center gap-4">
               <div class="flex-1 text-center">
-                <p class="text-xs text-on-surface-variant mb-1">{{ t('exerciseWizards.coreBeliefs.summary.originalBefore') }}</p>
+                <p class="text-xs text-on-surface-variant mb-1">
+                  {{ t('exerciseWizards.coreBeliefs.summary.originalBefore') }}
+                </p>
                 <p class="text-2xl font-bold text-on-surface">{{ believabilityBefore }}%</p>
               </div>
               <AppIcon name="arrow_forward" class="text-xl text-on-surface-variant flex-shrink-0" />
               <div class="flex-1 text-center">
-                <p class="text-xs text-on-surface-variant mb-1">{{ t('exerciseWizards.coreBeliefs.summary.originalAfter') }}</p>
+                <p class="text-xs text-on-surface-variant mb-1">
+                  {{ t('exerciseWizards.coreBeliefs.summary.originalAfter') }}
+                </p>
                 <p
                   class="text-2xl font-bold"
-                  :class="believabilityAfter < believabilityBefore ? 'text-success' : believabilityAfter > believabilityBefore ? 'text-error' : 'text-on-surface'"
+                  :class="
+                    believabilityAfter < believabilityBefore
+                      ? 'text-success'
+                      : believabilityAfter > believabilityBefore
+                        ? 'text-error'
+                        : 'text-on-surface'
+                  "
                 >
                   {{ believabilityAfter }}%
                 </p>
               </div>
             </div>
             <div class="text-center mt-2">
-              <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.coreBeliefs.summary.alternativeBeliefRating') }}</p>
+              <p class="text-xs text-on-surface-variant">
+                {{ t('exerciseWizards.coreBeliefs.summary.alternativeBeliefRating') }}
+              </p>
               <p class="text-xl font-bold text-primary">{{ alternativeBeliefBelievability }}%</p>
             </div>
             <p
@@ -677,13 +770,23 @@
               class="text-center text-sm"
               :class="believabilityDelta < 0 ? 'text-success' : 'text-on-surface-variant'"
             >
-              {{ believabilityDelta < 0 ? t('exerciseWizards.coreBeliefs.summary.decreaseInBelief', { value: Math.abs(believabilityDelta) }) : t('exerciseWizards.coreBeliefs.summary.increaseInBelief', { value: believabilityDelta }) }}
+              {{
+                believabilityDelta < 0
+                  ? t('exerciseWizards.coreBeliefs.summary.decreaseInBelief', {
+                      value: Math.abs(believabilityDelta),
+                    })
+                  : t('exerciseWizards.coreBeliefs.summary.increaseInBelief', {
+                      value: believabilityDelta,
+                    })
+              }}
             </p>
           </div>
         </AppCard>
 
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'alternative'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'alternative'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton variant="filled" @click="handleSave">
             {{ t('common.buttons.save') }}
           </AppButton>
@@ -767,9 +870,18 @@ const startingThought = ref('')
 const sourceType = ref<'manual' | 'thought-record' | 'journal' | undefined>(undefined)
 
 const sourceTypes = computed(() => [
-  { value: 'manual' as const, label: t('exerciseWizards.coreBeliefs.startingThought.sourceTypes.manual') },
-  { value: 'thought-record' as const, label: t('exerciseWizards.coreBeliefs.startingThought.sourceTypes.thoughtRecord') },
-  { value: 'journal' as const, label: t('exerciseWizards.coreBeliefs.startingThought.sourceTypes.journal') },
+  {
+    value: 'manual' as const,
+    label: t('exerciseWizards.coreBeliefs.startingThought.sourceTypes.manual'),
+  },
+  {
+    value: 'thought-record' as const,
+    label: t('exerciseWizards.coreBeliefs.startingThought.sourceTypes.thoughtRecord'),
+  },
+  {
+    value: 'journal' as const,
+    label: t('exerciseWizards.coreBeliefs.startingThought.sourceTypes.journal'),
+  },
 ])
 
 // Downward Arrow
@@ -821,7 +933,7 @@ const beliefCategories = computed(() => [
 ])
 
 const categoryLabel = computed(() => {
-  const cat = beliefCategories.value.find((c) => c.value === beliefCategory.value)
+  const cat = beliefCategories.value.find(c => c.value === beliefCategory.value)
   return cat?.label ?? ''
 })
 
@@ -829,8 +941,8 @@ const categoryLabel = computed(() => {
 const evidenceFor = reactive<string[]>([''])
 const evidenceAgainst = reactive<string[]>([''])
 
-const filledEvidenceFor = computed(() => evidenceFor.filter((e) => e.trim().length > 0))
-const filledEvidenceAgainst = computed(() => evidenceAgainst.filter((e) => e.trim().length > 0))
+const filledEvidenceFor = computed(() => evidenceFor.filter(e => e.trim().length > 0))
+const filledEvidenceAgainst = computed(() => evidenceAgainst.filter(e => e.trim().length > 0))
 
 // Alternative Belief
 const alternativeBelief = ref('')
@@ -838,12 +950,13 @@ const alternativeBeliefBelievability = ref(50)
 
 watch(
   () => props.seed,
-  (seed) => {
+  seed => {
     if (!seed) return
     if (seed.thought && !startingThought.value.trim()) startingThought.value = seed.thought
-    if (seed.alternative && !alternativeBelief.value.trim()) alternativeBelief.value = seed.alternative
+    if (seed.alternative && !alternativeBelief.value.trim())
+      alternativeBelief.value = seed.alternative
   },
-  { immediate: true },
+  { immediate: true }
 )
 
 // Believability comparison

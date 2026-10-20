@@ -11,7 +11,9 @@
     :data-test-foundation-item="status.id"
   >
     <div class="flex items-center justify-between gap-3">
-      <span class="neo-icon-circle flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
+      <span
+        class="neo-icon-circle flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
+      >
         <AppIcon :name="iconName" class="text-xl text-primary" />
       </span>
       <span class="neo-pill px-2.5 py-1 text-xs" :class="pillClass">
@@ -33,7 +35,9 @@
         type="button"
         class="neo-pill flex flex-col items-start gap-0.5 rounded-xl px-3 py-2 text-left transition-all duration-200 hover:-translate-y-px active:translate-y-0"
         :aria-label="`${title}: ${variant.label}`"
-        @click="emit('navigate', { routeName: variant.routeName, routeParams: variant.routeParams })"
+        @click="
+          emit('navigate', { routeName: variant.routeName, routeParams: variant.routeParams })
+        "
       >
         <span class="text-sm font-medium text-on-surface">{{ variant.label }}</span>
         <span class="text-xs text-on-surface-variant">{{ variant.hint }}</span>
@@ -52,7 +56,9 @@
     @click="emit('navigate', { routeName: status.routeName, routeParams: status.routeParams })"
   >
     <div class="flex items-center justify-between gap-3">
-      <span class="neo-icon-circle flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
+      <span
+        class="neo-icon-circle flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
+      >
         <AppIcon :name="iconName" class="text-xl text-primary" />
       </span>
       <span class="neo-pill px-2.5 py-1 text-xs" :class="pillClass">
@@ -80,10 +86,7 @@
 import { computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
-import type {
-  FoundationItemId,
-  FoundationItemStatus,
-} from '@/services/foundationCompleteness'
+import type { FoundationItemId, FoundationItemStatus } from '@/services/foundationCompleteness'
 
 const props = defineProps<{
   status: FoundationItemStatus
@@ -121,28 +124,32 @@ const VARIANT_KEY: Record<string, 'quick' | 'deep'> = {
 }
 
 const showVariantChooser = computed(
-  () => Boolean(props.status.variants?.length) && props.status.state === 'not-started',
+  () => Boolean(props.status.variants?.length) && props.status.state === 'not-started'
 )
 
 const variantOptions = computed(() =>
-  (props.status.variants ?? []).map((variant) => {
+  (props.status.variants ?? []).map(variant => {
     const key = VARIANT_KEY[variant.assessmentId] ?? 'quick'
     return {
       assessmentId: variant.assessmentId,
       routeName: variant.routeName,
       routeParams: variant.routeParams,
-      label: t(`profile.psychologicalProfile.foundation.items.${props.status.id}.variants.${key}.label`),
-      hint: t(`profile.psychologicalProfile.foundation.items.${props.status.id}.variants.${key}.hint`),
+      label: t(
+        `profile.psychologicalProfile.foundation.items.${props.status.id}.variants.${key}.label`
+      ),
+      hint: t(
+        `profile.psychologicalProfile.foundation.items.${props.status.id}.variants.${key}.hint`
+      ),
     }
-  }),
+  })
 )
 
 const title = computed(() =>
-  t(`profile.psychologicalProfile.foundation.items.${props.status.id}.title`),
+  t(`profile.psychologicalProfile.foundation.items.${props.status.id}.title`)
 )
 
 const description = computed(() =>
-  t(`profile.psychologicalProfile.foundation.items.${props.status.id}.description`),
+  t(`profile.psychologicalProfile.foundation.items.${props.status.id}.description`)
 )
 
 const iconName = computed(() => iconByItem[props.status.id])

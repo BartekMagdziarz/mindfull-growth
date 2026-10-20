@@ -6,7 +6,7 @@ import { getProgramDefinition } from '@/data/programCatalog'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 
 const SHAME = getProgramDefinition('shame-compassion')!
-const task = (key: string) => SHAME.weeklyTasks!.find((candidate) => candidate.key === key)!
+const task = (key: string) => SHAME.weeklyTasks!.find(candidate => candidate.key === key)!
 
 const stubs = { AppIcon: { template: '<i />' } }
 

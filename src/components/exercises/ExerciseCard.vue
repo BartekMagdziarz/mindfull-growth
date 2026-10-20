@@ -33,10 +33,7 @@
 import { computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
-import {
-  EXERCISE_CATEGORY_TINT_STYLE,
-  type ExerciseCategory,
-} from '@/constants/exerciseColorRoles'
+import { EXERCISE_CATEGORY_TINT_STYLE, type ExerciseCategory } from '@/constants/exerciseColorRoles'
 
 const { t } = useT()
 
@@ -59,7 +56,7 @@ defineEmits<{
 }>()
 
 const tintStyle = computed(() =>
-  props.category ? EXERCISE_CATEGORY_TINT_STYLE[props.category] : undefined,
+  props.category ? EXERCISE_CATEGORY_TINT_STYLE[props.category] : undefined
 )
 
 const lastCompletedLabel = computed(() => {

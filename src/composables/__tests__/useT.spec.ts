@@ -131,7 +131,7 @@ describe('useT', () => {
 
       const { tg } = useT()
       expect(tg('assessments.ipipVia.items.ipipvia_14')).toBe(
-        'W ostatnim miesiącu pomogłam sąsiadowi.',
+        'W ostatnim miesiącu pomogłam sąsiadowi.'
       )
       const rrq01 = tg('assessments.rrq.items.rrq_01')
       expect(rrq01).toContain('wolałabym')
@@ -144,7 +144,7 @@ describe('useT', () => {
 
       const { tg } = useT()
       expect(tg('assessments.ipipVia.items.ipipvia_14')).toBe(
-        'W ostatnim miesiącu pomogłem sąsiadowi.',
+        'W ostatnim miesiącu pomogłem sąsiadowi.'
       )
     })
 
@@ -154,7 +154,7 @@ describe('useT', () => {
 
       const { tg } = useT()
       expect(tg('assessments.ipipVia.items.ipipvia_01')).toBe(
-        'Świat wydaje mi się bardzo interesującym miejscem.',
+        'Świat wydaje mi się bardzo interesującym miejscem.'
       )
     })
 
@@ -176,7 +176,7 @@ describe('useT', () => {
 
       const { tg } = useT()
       expect(tg('assessments.ipipVia.items.ipipvia_14')).toBe(
-        'I helped a neighbor in the last month.',
+        'I helped a neighbor in the last month.'
       )
     })
   })

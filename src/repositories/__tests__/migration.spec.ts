@@ -58,7 +58,7 @@ class TestDatabaseV3 extends Dexie {
       .stores({
         emotionLogs: 'id',
       })
-      .upgrade(async (trans) => {
+      .upgrade(async trans => {
         // Migration: Add emotionIds, peopleTagIds, contextTagIds fields to existing journal entries
         try {
           const entries = await trans.table('journalEntries').toArray()
@@ -78,9 +78,16 @@ class TestDatabaseV3 extends Dexie {
               // Create updated entry with all fields, using existing values or defaults
               const migratedEntry: JournalEntry = {
                 ...entry,
-                emotionIds: 'emotionIds' in entry && entry.emotionIds !== undefined ? entry.emotionIds : [],
-                peopleTagIds: 'peopleTagIds' in entry && entry.peopleTagIds !== undefined ? entry.peopleTagIds : [],
-                contextTagIds: 'contextTagIds' in entry && entry.contextTagIds !== undefined ? entry.contextTagIds : [],
+                emotionIds:
+                  'emotionIds' in entry && entry.emotionIds !== undefined ? entry.emotionIds : [],
+                peopleTagIds:
+                  'peopleTagIds' in entry && entry.peopleTagIds !== undefined
+                    ? entry.peopleTagIds
+                    : [],
+                contextTagIds:
+                  'contextTagIds' in entry && entry.contextTagIds !== undefined
+                    ? entry.contextTagIds
+                    : [],
               }
 
               await trans.table('journalEntries').put(migratedEntry)
@@ -554,7 +561,7 @@ class TestDatabaseV4 extends Dexie {
       .stores({
         emotionLogs: 'id',
       })
-      .upgrade(async (trans) => {
+      .upgrade(async trans => {
         // Migration: Add emotionIds, peopleTagIds, contextTagIds fields to existing journal entries
         try {
           const entries = await trans.table('journalEntries').toArray()
@@ -613,7 +620,7 @@ class TestDatabaseV5 extends Dexie {
       .stores({
         emotionLogs: 'id',
       })
-      .upgrade(async (trans) => {
+      .upgrade(async trans => {
         // Migration: Add emotionIds, peopleTagIds, contextTagIds fields to existing journal entries
         try {
           const entries = await trans.table('journalEntries').toArray()
@@ -648,7 +655,7 @@ class TestDatabaseV5 extends Dexie {
     this.version(4).stores({
       userSettings: 'key',
     })
-    this.version(5).upgrade(async (trans) => {
+    this.version(5).upgrade(async trans => {
       // Migration: Add chatSessions field to existing journal entries
       try {
         const entries = await trans.table('journalEntries').toArray()

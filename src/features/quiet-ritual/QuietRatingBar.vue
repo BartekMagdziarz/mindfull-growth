@@ -1,7 +1,13 @@
 <template>
   <article
     class="qr-axis"
-    :class="{ 'qr-axis--row': layout === 'row', 'qr-axis--effort': effort, 'qr-axis--compact': compact, 'qr-axis--load': tone === 'load', 'qr-axis--paired': !!fillColor }"
+    :class="{
+      'qr-axis--row': layout === 'row',
+      'qr-axis--effort': effort,
+      'qr-axis--compact': compact,
+      'qr-axis--load': tone === 'load',
+      'qr-axis--paired': !!fillColor,
+    }"
     :style="fillColor ? { '--qr-fill': fillColor } : undefined"
   >
     <header>
@@ -13,25 +19,46 @@
     </header>
     <!-- Symmetric column: value above, drawn bar centred, −/+ side by side below. -->
     <div v-if="layout === 'row'" class="qr-row-body">
-      <div class="qr-scale qr-scale--row" role="group" :aria-label="label"
-        @keydown.left.prevent="step(-1)" @keydown.right.prevent="step(1)"
+      <div
+        class="qr-scale qr-scale--row"
+        role="group"
+        :aria-label="label"
+        @keydown.left.prevent="step(-1)"
+        @keydown.right.prevent="step(1)"
         @keydown.delete.prevent="emit('update:modelValue', null)"
-        @keydown.backspace.prevent="emit('update:modelValue', null)">
-        <button v-for="n in 5" :key="n" type="button"
-          :aria-label="`${label}: ${n} z 5`" :aria-pressed="modelValue === n"
+        @keydown.backspace.prevent="emit('update:modelValue', null)"
+      >
+        <button
+          v-for="n in 5"
+          :key="n"
+          type="button"
+          :aria-label="`${label}: ${n} z 5`"
+          :aria-pressed="modelValue === n"
           :class="{ filled: modelValue === n, ghost: modelValue == null && previous === n }"
-          :title="modelValue == null && previous === n ? `${previousLabel}: ${previous}` : `${n} z 5`"
-          @click="emit('update:modelValue', modelValue === n ? null : n)">{{ n }}</button>
+          :title="
+            modelValue == null && previous === n ? `${previousLabel}: ${previous}` : `${n} z 5`
+          "
+          @click="emit('update:modelValue', modelValue === n ? null : n)"
+        >
+          {{ n }}
+        </button>
       </div>
-      <div class="qr-row-ends" aria-hidden="true"><span>{{ lowLabel }}</span><span>{{ highLabel }}</span></div>
+      <div class="qr-row-ends" aria-hidden="true">
+        <span>{{ lowLabel }}</span
+        ><span>{{ highLabel }}</span>
+      </div>
     </div>
     <div v-else class="qr-bar-body">
-      <output :aria-label="`${label}: ${modelValue ?? 'bez oceny'}`" :class="{ 'qr-bar-value--empty': modelValue == null }">
+      <output
+        :aria-label="`${label}: ${modelValue ?? 'bez oceny'}`"
+        :class="{ 'qr-bar-value--empty': modelValue == null }"
+      >
         {{ modelValue ?? '' }}
       </output>
       <div class="qr-bar-stack">
         <div class="qr-bar-ends" aria-hidden="true">
-          <span>{{ highLabel }}</span><span>{{ lowLabel }}</span>
+          <span>{{ highLabel }}</span
+          ><span>{{ lowLabel }}</span>
         </div>
         <div
           class="qr-scale qr-scale--vertical"
@@ -105,7 +132,15 @@ const props = withDefaults(
     highLabel?: string
     lowLabel?: string
   }>(),
-  { layout: 'column', effort: false, compact: false, tone: 'default', fillColor: null, previous: null, previousLabel: 'Poprzednio' },
+  {
+    layout: 'column',
+    effort: false,
+    compact: false,
+    tone: 'default',
+    fillColor: null,
+    previous: null,
+    previousLabel: 'Poprzednio',
+  }
 )
 
 const emit = defineEmits<{ 'update:modelValue': [value: number | null] }>()

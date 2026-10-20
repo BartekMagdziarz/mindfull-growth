@@ -1,7 +1,11 @@
 <template>
   <div class="space-y-6">
     <!-- Step indicator dots -->
-    <ExerciseStepper :labels="stepLabels" :current="currentVisualStep" @go="goToStepByIndex($event)" />
+    <ExerciseStepper
+      :labels="stepLabels"
+      :current="currentVisualStep"
+      @go="goToStepByIndex($event)"
+    />
 
     <!-- Step 1: Intro -->
     <Transition
@@ -12,7 +16,9 @@
     >
       <div v-if="currentStep === 'intro'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.attitudinalShift.intro.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.attitudinalShift.intro.title') }}
+          </h2>
           <div class="neo-embedded p-3">
             <p class="text-xs text-on-surface-variant italic">
               "{{ t('exerciseWizards.attitudinalShift.intro.quote') }}"
@@ -28,13 +34,17 @@
             </p>
             <div class="space-y-2">
               <div class="flex items-start gap-2">
-                <span class="text-xs font-semibold text-error mt-0.5">{{ t('exerciseWizards.attitudinalShift.intro.exampleBeforeLabel') }}</span>
+                <span class="text-xs font-semibold text-error mt-0.5">{{
+                  t('exerciseWizards.attitudinalShift.intro.exampleBeforeLabel')
+                }}</span>
                 <p class="text-sm text-on-surface">
                   "{{ tg('exerciseWizards.attitudinalShift.intro.exampleBefore') }}"
                 </p>
               </div>
               <div class="flex items-start gap-2">
-                <span class="text-xs font-semibold text-primary mt-0.5">{{ t('exerciseWizards.attitudinalShift.intro.exampleAfterLabel') }}</span>
+                <span class="text-xs font-semibold text-primary mt-0.5">{{
+                  t('exerciseWizards.attitudinalShift.intro.exampleAfterLabel')
+                }}</span>
                 <p class="text-sm text-on-surface">
                   "{{ tg('exerciseWizards.attitudinalShift.intro.exampleAfter') }}"
                 </p>
@@ -55,7 +65,9 @@
           </div>
         </AppCard>
         <div class="flex justify-end">
-          <AppButton variant="filled" @click="currentStep = 'statements'">{{ t('common.buttons.start') }}</AppButton>
+          <AppButton variant="filled" @click="currentStep = 'statements'">{{
+            t('common.buttons.start')
+          }}</AppButton>
         </div>
       </div>
     </Transition>
@@ -69,7 +81,9 @@
     >
       <div v-if="currentStep === 'statements'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.attitudinalShift.statements.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.attitudinalShift.statements.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ tg('exerciseWizards.attitudinalShift.statements.description') }}
           </p>
@@ -99,7 +113,9 @@
             class="space-y-2 neo-surface p-3 rounded-xl"
           >
             <div class="flex items-start gap-2">
-              <span class="text-xs font-semibold text-on-surface-variant mt-2">{{ index + 1 }}.</span>
+              <span class="text-xs font-semibold text-on-surface-variant mt-2"
+                >{{ index + 1 }}.</span
+              >
               <div class="flex-1">
                 <textarea
                   v-model="statement.belief"
@@ -118,17 +134,15 @@
               </button>
             </div>
           </div>
-          <AppButton
-            v-if="statements.length < 5"
-            variant="text"
-            @click="addStatement"
-          >
+          <AppButton v-if="statements.length < 5" variant="text" @click="addStatement">
             <AppIcon name="add" class="text-base mr-1" />
             {{ t('exerciseWizards.attitudinalShift.statements.addAnother') }}
           </AppButton>
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'intro'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'intro'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton
             variant="filled"
             :disabled="filledStatements.length < 3"
@@ -150,31 +164,42 @@
       <div v-if="currentStep === 'shift'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
           <div class="flex items-center justify-between">
-            <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.attitudinalShift.shift.title') }}</h2>
+            <h2 class="text-lg font-semibold text-on-surface">
+              {{ t('exerciseWizards.attitudinalShift.shift.title') }}
+            </h2>
             <span class="text-xs text-on-surface-variant">
-              {{ t('exerciseWizards.attitudinalShift.shift.counter', { current: currentStatementIndex + 1, total: filledStatements.length }) }}
+              {{
+                t('exerciseWizards.attitudinalShift.shift.counter', {
+                  current: currentStatementIndex + 1,
+                  total: filledStatements.length,
+                })
+              }}
             </span>
           </div>
 
           <!-- The statement being worked on: context of the question, so plain text -->
           <div class="exercise-quote">
-            <span class="exercise-quote__label">{{ tg('exerciseWizards.attitudinalShift.shift.acknowledgment') }}</span>
+            <span class="exercise-quote__label">{{
+              tg('exerciseWizards.attitudinalShift.shift.acknowledgment')
+            }}</span>
             <span class="exercise-quote__text">„{{ currentStatement.belief }}”</span>
           </div>
 
           <!-- LLM assist -->
           <div class="space-y-2">
-            <div v-if="!currentLlmResponse && !isLlmLoading" class="flex flex-wrap items-center gap-2">
-              <AppButton
-                variant="tonal"
-                @click="handleReframeAssist"
-              >
+            <div
+              v-if="!currentLlmResponse && !isLlmLoading"
+              class="flex flex-wrap items-center gap-2"
+            >
+              <AppButton variant="tonal" @click="handleReframeAssist">
                 <AppIcon name="auto_awesome" class="text-base mr-1" />
                 {{ t('exerciseWizards.attitudinalShift.shift.helpButton') }}
               </AppButton>
               <ProfileContextToggle v-model="useProfileReframe" />
             </div>
-            <div v-if="isLlmLoading" class="text-sm text-on-surface-variant">{{ t('exerciseWizards.attitudinalShift.shift.thinking') }}</div>
+            <div v-if="isLlmLoading" class="text-sm text-on-surface-variant">
+              {{ t('exerciseWizards.attitudinalShift.shift.thinking') }}
+            </div>
             <div v-if="currentLlmResponse" class="neo-panel p-4">
               <p class="text-sm text-on-surface whitespace-pre-wrap">{{ currentLlmResponse }}</p>
             </div>
@@ -219,12 +244,10 @@
           </div>
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'statements'">{{ t('common.buttons.back') }}</AppButton>
-          <AppButton
-            variant="filled"
-            :disabled="!allReframed"
-            @click="currentStep = 'review'"
-          >
+          <AppButton variant="text" @click="currentStep = 'statements'">{{
+            t('common.buttons.back')
+          }}</AppButton>
+          <AppButton variant="filled" :disabled="!allReframed" @click="currentStep = 'review'">
             {{ t('common.buttons.next') }}
           </AppButton>
         </div>
@@ -240,7 +263,9 @@
     >
       <div v-if="currentStep === 'review'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.attitudinalShift.review.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.attitudinalShift.review.title') }}
+          </h2>
           <div class="space-y-4">
             <div
               v-for="statement in filledStatements"
@@ -248,11 +273,15 @@
               class="grid grid-cols-2 gap-3"
             >
               <div class="neo-embedded p-3">
-                <p class="text-xs font-semibold text-on-surface-variant mb-1">{{ t('exerciseWizards.attitudinalShift.review.beforeHeader') }}</p>
+                <p class="text-xs font-semibold text-on-surface-variant mb-1">
+                  {{ t('exerciseWizards.attitudinalShift.review.beforeHeader') }}
+                </p>
                 <p class="text-sm text-on-surface-variant">{{ statement.belief }}</p>
               </div>
               <div class="neo-surface p-3 rounded-xl border-l-2 border-primary/30">
-                <p class="text-xs font-semibold text-primary mb-1">{{ t('exerciseWizards.attitudinalShift.review.afterHeader') }}</p>
+                <p class="text-xs font-semibold text-primary mb-1">
+                  {{ t('exerciseWizards.attitudinalShift.review.afterHeader') }}
+                </p>
                 <p class="text-sm text-on-surface">{{ statement.reframe }}</p>
               </div>
             </div>
@@ -284,8 +313,12 @@
           </div>
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'shift'">{{ t('common.buttons.back') }}</AppButton>
-          <AppButton variant="filled" @click="currentStep = 'summary'">{{ t('common.buttons.next') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'shift'">{{
+            t('common.buttons.back')
+          }}</AppButton>
+          <AppButton variant="filled" @click="currentStep = 'summary'">{{
+            t('common.buttons.next')
+          }}</AppButton>
         </div>
       </div>
     </Transition>
@@ -299,7 +332,9 @@
     >
       <div v-if="currentStep === 'summary'" class="space-y-4">
         <AppCard variant="raised" padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.attitudinalShift.summary.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.attitudinalShift.summary.title') }}
+          </h2>
 
           <!-- All statement pairs -->
           <div class="space-y-3">
@@ -316,10 +351,16 @@
           <!-- Reflections -->
           <div v-if="surpriseReflection || truestReflection" class="space-y-1">
             <p v-if="surpriseReflection" class="text-xs text-on-surface-variant">
-              <span class="font-semibold">{{ t('exerciseWizards.attitudinalShift.summary.surprisedLabel') }}</span> {{ surpriseReflection }}
+              <span class="font-semibold">{{
+                t('exerciseWizards.attitudinalShift.summary.surprisedLabel')
+              }}</span>
+              {{ surpriseReflection }}
             </p>
             <p v-if="truestReflection" class="text-xs text-on-surface-variant">
-              <span class="font-semibold">{{ t('exerciseWizards.attitudinalShift.summary.trueSelfLabel') }}</span> {{ truestReflection }}
+              <span class="font-semibold">{{
+                t('exerciseWizards.attitudinalShift.summary.trueSelfLabel')
+              }}</span>
+              {{ truestReflection }}
             </p>
           </div>
 
@@ -348,11 +389,7 @@
           <!-- Optional commitment -->
           <div class="space-y-2">
             <label class="flex items-center gap-3 text-sm text-on-surface cursor-pointer">
-              <input
-                v-model="wantsCommitment"
-                type="checkbox"
-                class="neo-checkbox"
-              />
+              <input v-model="wantsCommitment" type="checkbox" class="neo-checkbox" />
               {{ t('exerciseWizards.attitudinalShift.summary.commitmentCheckbox') }}
             </label>
             <select
@@ -360,18 +397,17 @@
               v-model="commitmentStatementIndex"
               class="neo-input neo-focus w-full p-2 text-sm"
             >
-              <option
-                v-for="(statement, idx) in filledStatements"
-                :key="statement.id"
-                :value="idx"
-              >
-                {{ (statement.reframe ?? '').slice(0, 60) }}{{ (statement.reframe ?? '').length > 60 ? '...' : '' }}
+              <option v-for="(statement, idx) in filledStatements" :key="statement.id" :value="idx">
+                {{ (statement.reframe ?? '').slice(0, 60)
+                }}{{ (statement.reframe ?? '').length > 60 ? '...' : '' }}
               </option>
             </select>
           </div>
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'review'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'review'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton variant="filled" @click="handleSave">{{ t('common.buttons.save') }}</AppButton>
         </div>
       </div>
@@ -476,9 +512,9 @@ const shadowBeliefs = computed<ShadowBeliefItem[]>(() => {
   const latest = shadowBeliefsStore.latestBeliefs
   if (!latest) return []
   return latest.beliefs
-    .map((b) => b.belief)
-    .filter((text) => text.trim().length > 0)
-    .map((text) => ({
+    .map(b => b.belief)
+    .filter(text => text.trim().length > 0)
+    .map(text => ({
       text,
       sourceId: latest.id,
     }))
@@ -487,8 +523,10 @@ const shadowBeliefs = computed<ShadowBeliefItem[]>(() => {
 function addFromShadowBelief(belief: ShadowBeliefItem) {
   if (statements.length < 5) {
     // Find first empty statement or add new
-    const empty = statements.find((s) => !s.belief.trim())
-    const template = t('exerciseWizards.attitudinalShift.shadowTemplate', { belief: belief.text.toLowerCase() })
+    const empty = statements.find(s => !s.belief.trim())
+    const template = t('exerciseWizards.attitudinalShift.shadowTemplate', {
+      belief: belief.text.toLowerCase(),
+    })
     if (empty) {
       empty.belief = template
       empty.shadowBeliefId = belief.sourceId
@@ -501,14 +539,12 @@ function addFromShadowBelief(belief: ShadowBeliefItem) {
 // ─── Carousel State ──────────────────────────────────────────────────────────
 const currentStatementIndex = ref(0)
 
-const filledStatements = computed(() =>
-  statements.filter((s) => s.belief.trim().length > 0),
-)
+const filledStatements = computed(() => statements.filter(s => s.belief.trim().length > 0))
 
 const currentStatement = computed(() => filledStatements.value[currentStatementIndex.value])
 
 const allReframed = computed(() =>
-  filledStatements.value.every((s) => (s.reframe ?? '').trim().length > 0),
+  filledStatements.value.every(s => (s.reframe ?? '').trim().length > 0)
 )
 
 function enterShiftStep() {
@@ -546,7 +582,10 @@ async function handleReframeAssist() {
     llmResponses.set(currentStatement.value.id, response)
     llmAssistUsed.value = true
   } catch (err) {
-    llmError.value = err instanceof Error ? err.message : t('exerciseWizards.attitudinalShift.errors.reframeFailed')
+    llmError.value =
+      err instanceof Error
+        ? err.message
+        : t('exerciseWizards.attitudinalShift.errors.reframeFailed')
   } finally {
     isLlmLoading.value = false
   }
@@ -554,7 +593,7 @@ async function handleReframeAssist() {
 
 // ─── Save ────────────────────────────────────────────────────────────────────
 function handleSave() {
-  const payloadStatements: BecauseStatement[] = filledStatements.value.map((s) => ({
+  const payloadStatements: BecauseStatement[] = filledStatements.value.map(s => ({
     id: s.id,
     belief: s.belief.trim(),
     reframe: s.reframe.trim() || undefined,

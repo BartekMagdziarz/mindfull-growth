@@ -1,8 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import {
-  getSystemPrompt,
-  constructJournalEntryContext,
-} from '../chatPrompts'
+import { getSystemPrompt, constructJournalEntryContext } from '../chatPrompts'
 import type { ChatIntention } from '@/domain/chatSession'
 import { CHAT_INTENTIONS } from '@/domain/chatSession'
 import type { JournalEntry } from '@/domain/journal'
@@ -100,7 +97,7 @@ describe('chatPrompts', () => {
         CHAT_INTENTIONS.CUSTOM,
       ]
 
-      intentions.forEach((intention) => {
+      intentions.forEach(intention => {
         const prompt = getSystemPrompt(intention)
         expect(prompt).toBeTruthy()
         expect(typeof prompt).toBe('string')
@@ -494,5 +491,4 @@ describe('chatPrompts', () => {
       expect(context).toContain('Unicode: 你好')
     })
   })
-
 })

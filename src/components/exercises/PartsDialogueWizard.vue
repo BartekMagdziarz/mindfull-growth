@@ -15,7 +15,9 @@
       <template v-if="currentStep === 'part-select'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-lg font-bold text-on-surface">{{ t('exerciseWizards.partsDialogue.partSelect.title') }}</h2>
+            <h2 class="text-lg font-bold text-on-surface">
+              {{ t('exerciseWizards.partsDialogue.partSelect.title') }}
+            </h2>
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.partsDialogue.partSelect.description') }}
             </p>
@@ -40,9 +42,15 @@
       <template v-else-if="currentStep === 'intention'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.partsDialogue.intention.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.partsDialogue.intention.title') }}
+            </h2>
             <p class="text-sm text-on-surface-variant">
-              {{ t('exerciseWizards.partsDialogue.intention.description', { partName: selectedPartName }) }}
+              {{
+                t('exerciseWizards.partsDialogue.intention.description', {
+                  partName: selectedPartName,
+                })
+              }}
             </p>
             <ExerciseStepWhy :text="tg('exerciseWizards.partsDialogue.intention.why')" />
 
@@ -51,7 +59,11 @@
                 v-for="chip in intentionChips"
                 :key="chip"
                 class="exercise-pill text-xs px-3 py-1.5 neo-focus transition-all"
-                :class="intention === chip ? 'bg-primary/20 text-primary shadow-neu-pressed' : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'"
+                :class="
+                  intention === chip
+                    ? 'bg-primary/20 text-primary shadow-neu-pressed'
+                    : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'
+                "
                 @click="intention = chip"
               >
                 {{ chip }}
@@ -67,18 +79,28 @@
 
             <!-- Magic question: who is about to write — Self or another part? -->
             <div class="space-y-2 pt-2">
-              <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.partsDialogue.intention.selfCheckQuestion') }}</p>
+              <p class="text-sm font-medium text-on-surface">
+                {{ t('exerciseWizards.partsDialogue.intention.selfCheckQuestion') }}
+              </p>
               <div class="flex flex-wrap gap-2">
                 <button
                   class="exercise-pill text-xs px-3 py-1.5 neo-focus transition-all"
-                  :class="selfCheckPassed === true ? 'bg-primary/20 text-primary shadow-neu-pressed' : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'"
+                  :class="
+                    selfCheckPassed === true
+                      ? 'bg-primary/20 text-primary shadow-neu-pressed'
+                      : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'
+                  "
                   @click="selfCheckPassed = true"
                 >
                   {{ t('exerciseWizards.partsDialogue.intention.selfCheckSelf') }}
                 </button>
                 <button
                   class="exercise-pill text-xs px-3 py-1.5 neo-focus transition-all"
-                  :class="selfCheckPassed === false ? 'bg-status-warn-soft text-status-warn-on shadow-neu-pressed' : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'"
+                  :class="
+                    selfCheckPassed === false
+                      ? 'bg-status-warn-soft text-status-warn-on shadow-neu-pressed'
+                      : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'
+                  "
                   @click="selfCheckPassed = false"
                 >
                   {{ t('exerciseWizards.partsDialogue.intention.selfCheckReactive') }}
@@ -104,7 +126,9 @@
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
             <h2 class="text-base font-semibold text-on-surface">
-              {{ t('exerciseWizards.partsDialogue.dialogue.title', { partName: selectedPartName }) }}
+              {{
+                t('exerciseWizards.partsDialogue.dialogue.title', { partName: selectedPartName })
+              }}
             </h2>
             <ExerciseStepWhy :text="tg('exerciseWizards.partsDialogue.dialogue.why')" />
 
@@ -112,21 +136,36 @@
             <div class="flex gap-2">
               <button
                 class="flex-1 neo-focus rounded-xl py-2 text-sm font-medium transition-all"
-                :class="currentSpeaker === 'self'
-                  ? 'neo-surface shadow-neu-pressed bg-primary/10 text-primary'
-                  : 'neo-surface shadow-neu-raised-sm text-on-surface-variant hover:-translate-y-px'"
+                :class="
+                  currentSpeaker === 'self'
+                    ? 'neo-surface shadow-neu-pressed bg-primary/10 text-primary'
+                    : 'neo-surface shadow-neu-raised-sm text-on-surface-variant hover:-translate-y-px'
+                "
                 @click="currentSpeaker = 'self'"
               >
                 {{ t('exerciseWizards.partsDialogue.dialogue.speakers.self') }}
               </button>
               <button
                 class="flex-1 neo-focus rounded-xl py-2 text-sm font-medium transition-all"
-                :class="currentSpeaker === 'part'
-                  ? 'neo-surface shadow-neu-pressed text-on-surface' + (selectedPartRole === 'manager' ? ' bg-ifs-manager-soft' : selectedPartRole === 'firefighter' ? ' bg-ifs-firefighter-soft' : selectedPartRole === 'exile' ? ' bg-ifs-exile-soft' : ' bg-neu-base')
-                  : 'neo-surface shadow-neu-raised-sm text-on-surface-variant hover:-translate-y-px'"
+                :class="
+                  currentSpeaker === 'part'
+                    ? 'neo-surface shadow-neu-pressed text-on-surface' +
+                      (selectedPartRole === 'manager'
+                        ? ' bg-ifs-manager-soft'
+                        : selectedPartRole === 'firefighter'
+                          ? ' bg-ifs-firefighter-soft'
+                          : selectedPartRole === 'exile'
+                            ? ' bg-ifs-exile-soft'
+                            : ' bg-neu-base')
+                    : 'neo-surface shadow-neu-raised-sm text-on-surface-variant hover:-translate-y-px'
+                "
                 @click="currentSpeaker = 'part'"
               >
-                {{ t('exerciseWizards.partsDialogue.dialogue.speakers.part', { partName: selectedPartName }) }}
+                {{
+                  t('exerciseWizards.partsDialogue.dialogue.speakers.part', {
+                    partName: selectedPartName,
+                  })
+                }}
               </button>
             </div>
 
@@ -146,7 +185,11 @@
             <div ref="chatContainer" class="space-y-3 max-h-96 overflow-y-auto p-2">
               <div v-if="!messages.length" class="text-center py-8">
                 <p class="text-sm text-on-surface-variant">
-                  {{ t('exerciseWizards.partsDialogue.dialogue.emptyState', { partName: selectedPartName }) }}
+                  {{
+                    t('exerciseWizards.partsDialogue.dialogue.emptyState', {
+                      partName: selectedPartName,
+                    })
+                  }}
                 </p>
               </div>
 
@@ -165,7 +208,13 @@
               <textarea
                 v-model="messageInput"
                 rows="2"
-                :placeholder="currentSpeaker === 'self' ? t('exerciseWizards.partsDialogue.dialogue.selfPlaceholder') : t('exerciseWizards.partsDialogue.dialogue.partPlaceholder', { partName: selectedPartName })"
+                :placeholder="
+                  currentSpeaker === 'self'
+                    ? t('exerciseWizards.partsDialogue.dialogue.selfPlaceholder')
+                    : t('exerciseWizards.partsDialogue.dialogue.partPlaceholder', {
+                        partName: selectedPartName,
+                      })
+                "
                 class="neo-input w-full p-3 text-sm resize-none"
                 @keydown.enter.exact.prevent="handleAddMessage"
               />
@@ -186,7 +235,11 @@
                 :disabled="isLoadingAssist || messages.length === 0"
                 @click="handleRequestAssist"
               >
-                {{ isLoadingAssist ? t('exerciseWizards.partsDialogue.dialogue.assistLoading') : t('exerciseWizards.partsDialogue.dialogue.assistButton') }}
+                {{
+                  isLoadingAssist
+                    ? t('exerciseWizards.partsDialogue.dialogue.assistLoading')
+                    : t('exerciseWizards.partsDialogue.dialogue.assistButton')
+                }}
               </AppButton>
               <ProfileContextToggle v-model="useProfileAssist" />
             </div>
@@ -198,9 +251,16 @@
               leave-active-class="transition-all duration-150"
               leave-to-class="opacity-0 -translate-y-2"
             >
-              <div v-if="llmSuggestion" class="neo-surface shadow-neu-raised-sm rounded-xl p-4 space-y-3">
+              <div
+                v-if="llmSuggestion"
+                class="neo-surface shadow-neu-raised-sm rounded-xl p-4 space-y-3"
+              >
                 <p class="text-xs font-medium text-on-surface-variant">
-                  {{ t('exerciseWizards.partsDialogue.dialogue.partMightSay', { partName: selectedPartName }) }}
+                  {{
+                    t('exerciseWizards.partsDialogue.dialogue.partMightSay', {
+                      partName: selectedPartName,
+                    })
+                  }}
                 </p>
                 <textarea
                   v-model="editableSuggestion"
@@ -208,8 +268,12 @@
                   class="neo-input w-full p-3 text-sm resize-none"
                 />
                 <div class="flex gap-2 justify-end">
-                  <AppButton variant="text" @click="discardSuggestion()">{{ t('exerciseWizards.partsDialogue.dialogue.discard') }}</AppButton>
-                  <AppButton variant="filled" @click="handleAcceptSuggestion">{{ t('exerciseWizards.partsDialogue.dialogue.accept') }}</AppButton>
+                  <AppButton variant="text" @click="discardSuggestion()">{{
+                    t('exerciseWizards.partsDialogue.dialogue.discard')
+                  }}</AppButton>
+                  <AppButton variant="filled" @click="handleAcceptSuggestion">{{
+                    t('exerciseWizards.partsDialogue.dialogue.accept')
+                  }}</AppButton>
                 </div>
               </div>
             </Transition>
@@ -230,7 +294,9 @@
       <template v-else-if="currentStep === 'insights'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.partsDialogue.insights.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.partsDialogue.insights.title') }}
+            </h2>
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.partsDialogue.insights.description') }}
             </p>
@@ -256,8 +322,13 @@
               leave-active-class="transition-all duration-150"
               leave-to-class="opacity-0 -translate-y-2"
             >
-              <div v-if="showInsightForm" class="neo-surface shadow-neu-raised-sm rounded-xl p-4 space-y-3">
-                <h3 class="text-sm font-semibold text-on-surface">{{ t('exerciseWizards.partsDialogue.insights.tagThisMoment') }}</h3>
+              <div
+                v-if="showInsightForm"
+                class="neo-surface shadow-neu-raised-sm rounded-xl p-4 space-y-3"
+              >
+                <h3 class="text-sm font-semibold text-on-surface">
+                  {{ t('exerciseWizards.partsDialogue.insights.tagThisMoment') }}
+                </h3>
                 <textarea
                   v-model="insightContent"
                   rows="2"
@@ -269,14 +340,20 @@
                     v-for="tag in insightTags"
                     :key="tag.value"
                     class="exercise-pill text-xs px-2 py-1 neo-focus transition-all"
-                    :class="insightTag === tag.value ? `${tag.activeClass} shadow-neu-pressed` : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'"
+                    :class="
+                      insightTag === tag.value
+                        ? `${tag.activeClass} shadow-neu-pressed`
+                        : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'
+                    "
                     @click="insightTag = tag.value"
                   >
                     {{ tag.label }}
                   </button>
                 </div>
                 <div class="flex gap-2 justify-end">
-                  <AppButton variant="text" @click="closeInsightForm()">{{ t('common.buttons.cancel') }}</AppButton>
+                  <AppButton variant="text" @click="closeInsightForm()">{{
+                    t('common.buttons.cancel')
+                  }}</AppButton>
                   <AppButton
                     variant="filled"
                     :disabled="!insightContent.trim() || !insightTag"
@@ -290,7 +367,9 @@
 
             <!-- Saved insights -->
             <div v-if="insights.length" class="space-y-2">
-              <h3 class="text-sm font-semibold text-on-surface">{{ t('exerciseWizards.partsDialogue.insights.savedInsights') }}</h3>
+              <h3 class="text-sm font-semibold text-on-surface">
+                {{ t('exerciseWizards.partsDialogue.insights.savedInsights') }}
+              </h3>
               <IFSInsightCard
                 v-for="insight in insights"
                 :key="insight.id"
@@ -314,41 +393,62 @@
       <template v-else-if="currentStep === 'summary'">
         <div class="space-y-6">
           <AppCard variant="raised" padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.partsDialogue.summary.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.partsDialogue.summary.title') }}
+            </h2>
 
             <!-- Review -->
             <div class="space-y-3">
               <div class="flex items-center gap-2">
-                <span class="text-sm text-on-surface-variant">{{ t('exerciseWizards.partsDialogue.summary.sections.part') }}</span>
+                <span class="text-sm text-on-surface-variant">{{
+                  t('exerciseWizards.partsDialogue.summary.sections.part')
+                }}</span>
                 <span class="text-sm font-medium text-on-surface">{{ selectedPartName }}</span>
                 <PartRoleBadge v-if="selectedPartRole" :role="selectedPartRole" />
               </div>
 
               <div class="neo-surface p-3 rounded-lg grid grid-cols-3 gap-3">
                 <div>
-                  <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.partsDialogue.summary.sections.messages') }}</p>
+                  <p class="text-xs text-on-surface-variant">
+                    {{ t('exerciseWizards.partsDialogue.summary.sections.messages') }}
+                  </p>
                   <p class="text-lg font-bold text-primary">{{ messages.length }}</p>
                 </div>
                 <div>
-                  <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.partsDialogue.summary.sections.insights') }}</p>
+                  <p class="text-xs text-on-surface-variant">
+                    {{ t('exerciseWizards.partsDialogue.summary.sections.insights') }}
+                  </p>
                   <p class="text-lg font-bold text-primary">{{ insights.length }}</p>
                 </div>
                 <div>
-                  <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.partsDialogue.summary.sections.aiAssist') }}</p>
-                  <p class="text-lg font-bold" :class="llmAssistUsed ? 'text-status-warn' : 'text-on-surface-variant'">
-                    {{ llmAssistUsed ? t('exerciseWizards.partsDialogue.summary.sections.yes') : t('exerciseWizards.partsDialogue.summary.sections.no') }}
+                  <p class="text-xs text-on-surface-variant">
+                    {{ t('exerciseWizards.partsDialogue.summary.sections.aiAssist') }}
+                  </p>
+                  <p
+                    class="text-lg font-bold"
+                    :class="llmAssistUsed ? 'text-status-warn' : 'text-on-surface-variant'"
+                  >
+                    {{
+                      llmAssistUsed
+                        ? t('exerciseWizards.partsDialogue.summary.sections.yes')
+                        : t('exerciseWizards.partsDialogue.summary.sections.no')
+                    }}
                   </p>
                 </div>
               </div>
 
               <div>
-                <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.partsDialogue.summary.sections.intention') }}</p>
+                <p class="text-xs text-on-surface-variant">
+                  {{ t('exerciseWizards.partsDialogue.summary.sections.intention') }}
+                </p>
                 <p class="text-sm text-on-surface">{{ intention }}</p>
               </div>
             </div>
 
             <div class="space-y-1">
-              <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.partsDialogue.summary.summaryLabel') }}</label>
+              <label class="text-xs font-medium text-on-surface-variant">{{
+                t('exerciseWizards.partsDialogue.summary.summaryLabel')
+              }}</label>
               <textarea
                 v-model="summary"
                 rows="3"
@@ -358,7 +458,9 @@
             </div>
 
             <div class="space-y-1">
-              <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.partsDialogue.summary.notesLabel') }}</label>
+              <label class="text-xs font-medium text-on-surface-variant">{{
+                t('exerciseWizards.partsDialogue.summary.notesLabel')
+              }}</label>
               <textarea
                 v-model="notes"
                 rows="2"
@@ -371,7 +473,11 @@
           <div class="flex justify-between">
             <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
             <AppButton variant="filled" :disabled="isSaving" @click="handleSave">
-              {{ isSaving ? t('exerciseWizards.partsDialogue.summary.saving') : t('exerciseWizards.partsDialogue.summary.saveButton') }}
+              {{
+                isSaving
+                  ? t('exerciseWizards.partsDialogue.summary.saving')
+                  : t('exerciseWizards.partsDialogue.summary.saveButton')
+              }}
             </AppButton>
           </div>
         </div>
@@ -391,15 +497,15 @@ import PartRoleBadge from '@/components/exercises/ifs/PartRoleBadge.vue'
 import PartDialogueBubble from '@/components/exercises/ifs/PartDialogueBubble.vue'
 import IFSInsightCard from '@/components/exercises/ifs/IFSInsightCard.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
-import { usePartsDialogueWizard, type PartsDialogueStep } from '@/composables/usePartsDialogueWizard'
+import {
+  usePartsDialogueWizard,
+  type PartsDialogueStep,
+} from '@/composables/usePartsDialogueWizard'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import type { IFSInsight } from '@/domain/exercises'
-import {
-  IFS_ROLE_STROKE_VAR,
-  INSIGHT_TAG_CLASSES,
-} from '@/constants/exerciseColorRoles'
+import { IFS_ROLE_STROKE_VAR, INSIGHT_TAG_CLASSES } from '@/constants/exerciseColorRoles'
 
 const { t, tg, tList } = useT()
 
@@ -411,9 +517,7 @@ const partStore = useIFSPartStore()
 const userPreferencesStore = useUserPreferencesStore()
 const useProfileAssist = ref(userPreferencesStore.profileContextDefault)
 
-const STEPS: PartsDialogueStep[] = [
-  'part-select', 'intention', 'dialogue', 'insights', 'summary',
-]
+const STEPS: PartsDialogueStep[] = ['part-select', 'intention', 'dialogue', 'insights', 'summary']
 
 const stepLabels = computed(() => [
   t('exerciseWizards.partsDialogue.steps.partSelect'),
@@ -453,8 +557,10 @@ const {
 } = usePartsDialogueWizard()
 
 // Part helpers
-const selectedPart = computed(() => partId.value ? partStore.getPartById(partId.value) : null)
-const selectedPartName = computed(() => selectedPart.value?.name ?? t('exerciseWizards.partsDialogue.partSelect.defaultName'))
+const selectedPart = computed(() => (partId.value ? partStore.getPartById(partId.value) : null))
+const selectedPartName = computed(
+  () => selectedPart.value?.name ?? t('exerciseWizards.partsDialogue.partSelect.defaultName')
+)
 const selectedPartRole = computed(() => selectedPart.value?.role ?? null)
 const selectedPartColor = computed(() => {
   const role = selectedPart.value?.role
@@ -466,7 +572,9 @@ const selectedPartColor = computed(() => {
 const intentionChips = computed(() => tList('exerciseWizards.partsDialogue.intention.chips'))
 
 // Suggested questions
-const suggestedQuestions = computed(() => tList('exerciseWizards.partsDialogue.dialogue.suggestedQuestions'))
+const suggestedQuestions = computed(() =>
+  tList('exerciseWizards.partsDialogue.dialogue.suggestedQuestions')
+)
 
 // Message input
 const messageInput = ref('')
@@ -488,7 +596,7 @@ function scrollToBottom() {
 // LLM assist
 const editableSuggestion = ref('')
 
-watch(llmSuggestion, (val) => {
+watch(llmSuggestion, val => {
   editableSuggestion.value = val
 })
 
@@ -512,14 +620,40 @@ const insightContent = ref('')
 const insightTag = ref<IFSInsight['tag'] | null>(null)
 const bookmarkedIndices = ref(new Set<number>())
 
-const insightTags = computed((): { value: IFSInsight['tag']; label: string; activeClass: string }[] => [
-  { value: 'core-fear', label: t('exerciseWizards.partsDialogue.insights.insightTags.coreFear'), activeClass: INSIGHT_TAG_CLASSES['core-fear'] },
-  { value: 'need', label: t('exerciseWizards.partsDialogue.insights.insightTags.need'), activeClass: INSIGHT_TAG_CLASSES.need },
-  { value: 'positive-intention', label: t('exerciseWizards.partsDialogue.insights.insightTags.positiveIntention'), activeClass: INSIGHT_TAG_CLASSES['positive-intention'] },
-  { value: 'memory', label: t('exerciseWizards.partsDialogue.insights.insightTags.memory'), activeClass: INSIGHT_TAG_CLASSES.memory },
-  { value: 'belief', label: t('exerciseWizards.partsDialogue.insights.insightTags.belief'), activeClass: INSIGHT_TAG_CLASSES.belief },
-  { value: 'other', label: t('exerciseWizards.partsDialogue.insights.insightTags.other'), activeClass: 'bg-neu-base text-on-surface' },
-])
+const insightTags = computed(
+  (): { value: IFSInsight['tag']; label: string; activeClass: string }[] => [
+    {
+      value: 'core-fear',
+      label: t('exerciseWizards.partsDialogue.insights.insightTags.coreFear'),
+      activeClass: INSIGHT_TAG_CLASSES['core-fear'],
+    },
+    {
+      value: 'need',
+      label: t('exerciseWizards.partsDialogue.insights.insightTags.need'),
+      activeClass: INSIGHT_TAG_CLASSES.need,
+    },
+    {
+      value: 'positive-intention',
+      label: t('exerciseWizards.partsDialogue.insights.insightTags.positiveIntention'),
+      activeClass: INSIGHT_TAG_CLASSES['positive-intention'],
+    },
+    {
+      value: 'memory',
+      label: t('exerciseWizards.partsDialogue.insights.insightTags.memory'),
+      activeClass: INSIGHT_TAG_CLASSES.memory,
+    },
+    {
+      value: 'belief',
+      label: t('exerciseWizards.partsDialogue.insights.insightTags.belief'),
+      activeClass: INSIGHT_TAG_CLASSES.belief,
+    },
+    {
+      value: 'other',
+      label: t('exerciseWizards.partsDialogue.insights.insightTags.other'),
+      activeClass: 'bg-neu-base text-on-surface',
+    },
+  ]
+)
 
 function openInsightForm(messageIdx: number) {
   if (bookmarkedIndices.value.has(messageIdx)) {

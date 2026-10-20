@@ -51,11 +51,16 @@ const description = computed(() => {
 const practiceLabel = computed(() => {
   const practices = props.program.practices ?? []
   if (practices.length === 0) return ''
-  const everyDays = Math.min(...practices.map((practice) => practice.everyDays))
+  const everyDays = Math.min(...practices.map(practice => practice.everyDays))
   const rhythm =
     everyDays === 1
       ? t('programs.ui.everyDay')
-      : tp(everyDays, 'programs.ui.everyNDays.one', 'programs.ui.everyNDays.few', 'programs.ui.everyNDays.many')
+      : tp(
+          everyDays,
+          'programs.ui.everyNDays.one',
+          'programs.ui.everyNDays.few',
+          'programs.ui.everyNDays.many'
+        )
   return t('programs.ui.practiceMeta', { rhythm })
 })
 
@@ -64,8 +69,8 @@ const stepsLabel = computed(() =>
     props.program.steps.length,
     'programs.ui.stepsCount.one',
     'programs.ui.stepsCount.few',
-    'programs.ui.stepsCount.many',
-  ),
+    'programs.ui.stepsCount.many'
+  )
 )
 
 const weeksLabel = computed(() =>
@@ -73,8 +78,8 @@ const weeksLabel = computed(() =>
     props.program.estimatedWeeks,
     'programs.ui.weeksCount.one',
     'programs.ui.weeksCount.few',
-    'programs.ui.weeksCount.many',
-  ),
+    'programs.ui.weeksCount.many'
+  )
 )
 
 /** Status is a quiet word in the meta line; progress "n/m" counts walked
@@ -96,6 +101,6 @@ const statusLabel = computed(() => {
 })
 
 const statusClass = computed(() =>
-  props.enrollment?.status === 'paused' ? 'mg-v2-meta__warn' : 'mg-v2-meta__status',
+  props.enrollment?.status === 'paused' ? 'mg-v2-meta__warn' : 'mg-v2-meta__status'
 )
 </script>

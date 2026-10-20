@@ -1,13 +1,19 @@
 import { expect, test } from '@playwright/test'
 import { getPeriodRefsForDate } from '../src/utils/periods'
 
-test('restarting a path leaves only the new approach in this week’s reflection', async ({ page }) => {
+test('restarting a path leaves only the new approach in this week’s reflection', async ({
+  page,
+}) => {
   test.setTimeout(120_000)
   const week = getPeriodRefsForDate(new Date()).week
   await page.goto('/')
-  await page.waitForFunction(() => window.localStorage.getItem('mindfull_growth_verification_seed_version') !== null, null, {
-    timeout: 90_000,
-  })
+  await page.waitForFunction(
+    () => window.localStorage.getItem('mindfull_growth_verification_seed_version') !== null,
+    null,
+    {
+      timeout: 90_000,
+    }
+  )
   await expect(page).not.toHaveURL(/login/)
 
   const openReflection = async () => {

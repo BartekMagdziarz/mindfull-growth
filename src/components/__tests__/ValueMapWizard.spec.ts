@@ -16,7 +16,8 @@ describe('ValueMapWizard', () => {
           AppButton: {
             props: ['disabled', 'variant'],
             emits: ['click'],
-            template: '<button type="button" :disabled="disabled" @click="$emit(\'click\')"><slot /></button>',
+            template:
+              '<button type="button" :disabled="disabled" @click="$emit(\'click\')"><slot /></button>',
           },
         },
       },
@@ -40,7 +41,8 @@ describe('ValueMapWizard', () => {
           AppButton: {
             props: ['disabled', 'variant'],
             emits: ['click'],
-            template: '<button type="button" :disabled="disabled" @click="$emit(\'click\')"><slot /></button>',
+            template:
+              '<button type="button" :disabled="disabled" @click="$emit(\'click\')"><slot /></button>',
           },
         },
       },

@@ -24,12 +24,13 @@ function makeHabit(entryMode: MeasurementEntryMode): Habit {
     cadence: 'weekly',
     entryMode,
     target: { kind: 'count', operator: 'min', value: 3 },
-    multiItems: entryMode === 'multi-completion'
-      ? [
-          { id: 'wake', label: 'Pobudka', weight: 1 },
-          { id: 'train', label: 'Trening', icon: 'fitness_center', weight: 1 },
-        ]
-      : undefined,
+    multiItems:
+      entryMode === 'multi-completion'
+        ? [
+            { id: 'wake', label: 'Pobudka', weight: 1 },
+            { id: 'train', label: 'Trening', icon: 'fitness_center', weight: 1 },
+          ]
+        : undefined,
     status: 'open',
   }
 }
@@ -37,7 +38,7 @@ function makeHabit(entryMode: MeasurementEntryMode): Habit {
 function makeEntry(
   subjectId: string,
   value: number | null,
-  checkedItemIds?: string[],
+  checkedItemIds?: string[]
 ): DailyMeasurementEntry {
   return {
     id: `entry-${subjectId}`,
@@ -51,7 +52,10 @@ function makeEntry(
   }
 }
 
-function makeItem(entryMode: MeasurementEntryMode, entry?: DailyMeasurementEntry): TodayMeasurementItem {
+function makeItem(
+  entryMode: MeasurementEntryMode,
+  entry?: DailyMeasurementEntry
+): TodayMeasurementItem {
   const subject = makeHabit(entryMode)
   const measurement: MeasurementSummary = {
     entryMode,
@@ -215,12 +219,28 @@ describe('NextDayItemRow — stage, tray and highlight (inline-stage port)', () 
 
   it('shows the icon tray for a context item (hide + open) and the scheduling tray for a scheduled one', async () => {
     const context = mountRow(makeItem('completion'))
-    const contextLabels = context.findAll('.ndi__tray button').map(button => button.attributes('title'))
-    expect(contextLabels).toEqual(['Przenieś na jutro', 'Przenieś na dzień', 'Ukryj na dziś', 'Otwórz obiekt'])
+    const contextLabels = context
+      .findAll('.ndi__tray button')
+      .map(button => button.attributes('title'))
+    expect(contextLabels).toEqual([
+      'Przenieś na jutro',
+      'Przenieś na dzień',
+      'Ukryj na dziś',
+      'Otwórz obiekt',
+    ])
 
     const scheduled = mountRow(makeScheduledItem(makeEntry('habit-completion', null)))
-    const scheduledLabels = scheduled.findAll('.ndi__tray button').map(button => button.attributes('title'))
-    expect(scheduledLabels).toEqual(['Przenieś na jutro', 'Przenieś na dzień', 'Usuń z dziś', 'Wyczyść wpis', 'Otwórz obiekt', 'Usuń'])
+    const scheduledLabels = scheduled
+      .findAll('.ndi__tray button')
+      .map(button => button.attributes('title'))
+    expect(scheduledLabels).toEqual([
+      'Przenieś na jutro',
+      'Przenieś na dzień',
+      'Usuń z dziś',
+      'Wyczyść wpis',
+      'Otwórz obiekt',
+      'Usuń',
+    ])
 
     await scheduled.findAll('.ndi__tray button')[0].trigger('click')
     await scheduled.findAll('.ndi__tray button')[1].trigger('click')
@@ -233,13 +253,26 @@ describe('NextDayItemRow — stage, tray and highlight (inline-stage port)', () 
 
   it('staged: labelled actions replace the tray, the entry control stays, no strip without history', () => {
     const wrapper = mount(NextDayItemRow, {
-      props: { item: makeItem('completion'), todayDayRef: TODAY, rawEntries: [], allDayAssignments: [], staged: true },
+      props: {
+        item: makeItem('completion'),
+        todayDayRef: TODAY,
+        rawEntries: [],
+        allDayAssignments: [],
+        staged: true,
+      },
     })
 
     expect(wrapper.classes()).toContain('ndi--staged')
     expect(wrapper.classes()).not.toContain('ndi--history')
-    expect(wrapper.findAll('.ndi__actions button').map(button => button.text())).toEqual(['Jutro', 'Dzień', 'Ukryj', 'Otwórz'])
-    expect(wrapper.findAll('.ndi__actions button').map(button => button.attributes('data-flip'))).toEqual(['tomorrow', 'day', 'hide', 'open'])
+    expect(wrapper.findAll('.ndi__actions button').map(button => button.text())).toEqual([
+      'Jutro',
+      'Dzień',
+      'Ukryj',
+      'Otwórz',
+    ])
+    expect(
+      wrapper.findAll('.ndi__actions button').map(button => button.attributes('data-flip'))
+    ).toEqual(['tomorrow', 'day', 'hide', 'open'])
     expect(wrapper.find('.ndi__tray').exists()).toBe(false)
     expect(wrapper.find('.ndi__strip').exists()).toBe(false)
     expect(wrapper.find('button.ndi__well--button').exists()).toBe(true)
@@ -249,8 +282,13 @@ describe('NextDayItemRow — stage, tray and highlight (inline-stage port)', () 
   it('staged with history: six past days end in the live disc, missed days are rose, readings fill', () => {
     // Daily points from calendarChartData: an entry → value + 'no-target', none → 'no-data';
     // "missed" is an assigned day without an entry.
-    const point = (key: string, status: 'no-target' | 'no-data' | 'missed', value?: number, target?: number, assigned = false) =>
-      ({ key, label: key, status, value, target, current: false, assigned })
+    const point = (
+      key: string,
+      status: 'no-target' | 'no-data' | 'missed',
+      value?: number,
+      target?: number,
+      assigned = false
+    ) => ({ key, label: key, status, value, target, current: false, assigned })
     const history = [
       point('2026-03-06', 'no-target', 1),
       point('2026-03-07', 'no-data', undefined, undefined, true),
@@ -261,13 +299,27 @@ describe('NextDayItemRow — stage, tray and highlight (inline-stage port)', () 
       { ...point(TODAY, 'no-data'), current: true },
     ]
     const wrapper = mount(NextDayItemRow, {
-      props: { item: makeItem('completion'), todayDayRef: TODAY, rawEntries: [], allDayAssignments: [], staged: true, history },
+      props: {
+        item: makeItem('completion'),
+        todayDayRef: TODAY,
+        rawEntries: [],
+        allDayAssignments: [],
+        staged: true,
+        history,
+      },
     })
 
     expect(wrapper.classes()).toContain('ndi--history')
     const days = wrapper.findAll('.ndi__day')
     expect(days).toHaveLength(6)
-    expect(days.map(day => day.find('.ndi__dot').classes().find(cls => cls.startsWith('is-')))).toEqual(['is-done', 'is-missed', 'is-empty', 'is-done', 'is-missed', 'is-done'])
+    expect(
+      days.map(day =>
+        day
+          .find('.ndi__dot')
+          .classes()
+          .find(cls => cls.startsWith('is-'))
+      )
+    ).toEqual(['is-done', 'is-missed', 'is-empty', 'is-done', 'is-missed', 'is-done'])
     expect(days[0].find('.ndi__dot').classes()).toContain('mg-well--done')
     expect(days.map(day => day.find('small').text())).toEqual(['p', 's', 'n', 'p', 'w', 'ś'])
     expect(days[0].attributes('title')).toBe('piątek, 6 marca')
@@ -277,10 +329,22 @@ describe('NextDayItemRow — stage, tray and highlight (inline-stage port)', () 
     expect(wrapper.find('button.ndi__well--button').exists()).toBe(true)
 
     const counter = mount(NextDayItemRow, {
-      props: { item: makeItem('counter'), todayDayRef: TODAY, rawEntries: [], allDayAssignments: [], staged: true, history: [
-        point('2026-03-06', 'no-target', 8, 8), point('2026-03-07', 'missed', 4, 8), point('2026-03-08', 'no-data'),
-        point('2026-03-09', 'no-target', 8, 8), point('2026-03-10', 'missed', 2, 8), point('2026-03-11', 'no-target', 8, 8), { ...point(TODAY, 'no-data'), current: true },
-      ] },
+      props: {
+        item: makeItem('counter'),
+        todayDayRef: TODAY,
+        rawEntries: [],
+        allDayAssignments: [],
+        staged: true,
+        history: [
+          point('2026-03-06', 'no-target', 8, 8),
+          point('2026-03-07', 'missed', 4, 8),
+          point('2026-03-08', 'no-data'),
+          point('2026-03-09', 'no-target', 8, 8),
+          point('2026-03-10', 'missed', 2, 8),
+          point('2026-03-11', 'no-target', 8, 8),
+          { ...point(TODAY, 'no-data'), current: true },
+        ],
+      },
     })
     const dots = counter.findAll('.ndi__dot')
     expect(dots[0].text()).toBe('8')
@@ -292,8 +356,24 @@ describe('NextDayItemRow — stage, tray and highlight (inline-stage port)', () 
   })
 
   it('maps lit and dim to modifier classes', () => {
-    const lit = mount(NextDayItemRow, { props: { item: makeItem('counter'), todayDayRef: TODAY, rawEntries: [], allDayAssignments: [], lit: true } })
-    const dim = mount(NextDayItemRow, { props: { item: makeItem('counter'), todayDayRef: TODAY, rawEntries: [], allDayAssignments: [], dim: true } })
+    const lit = mount(NextDayItemRow, {
+      props: {
+        item: makeItem('counter'),
+        todayDayRef: TODAY,
+        rawEntries: [],
+        allDayAssignments: [],
+        lit: true,
+      },
+    })
+    const dim = mount(NextDayItemRow, {
+      props: {
+        item: makeItem('counter'),
+        todayDayRef: TODAY,
+        rawEntries: [],
+        allDayAssignments: [],
+        dim: true,
+      },
+    })
 
     expect(lit.classes()).toContain('ndi--lit')
     expect(dim.classes()).toContain('ndi--dim')

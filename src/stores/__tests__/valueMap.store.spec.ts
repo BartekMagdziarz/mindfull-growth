@@ -120,7 +120,7 @@ describe('useValueMapStore', () => {
           { lifeAreaId: 'area-1', valueIds: ['autonomy'] },
           { lifeAreaId: 'area-2', valueIds: [] },
         ],
-      }),
+      })
     ).resolves.toEqual(created)
     expect(store.error).toBeNull()
   })
@@ -141,7 +141,7 @@ describe('useValueMapStore', () => {
         coreValues: ['Autonomy', 'Honesty', 'Growth'],
         globalConflicts: [],
         lifeAreaAssignments: [],
-      }),
+      })
     ).rejects.toThrow('between 5 and 10')
   })
 })

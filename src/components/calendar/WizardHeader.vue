@@ -28,11 +28,7 @@
       <span class="text-xs font-medium text-on-surface-variant">
         {{ stepLabels[stepIndex] }}
       </span>
-      <AppButton
-        variant="text"
-        :aria-label="t('common.buttons.close')"
-        @click="emit('close')"
-      >
+      <AppButton variant="text" :aria-label="t('common.buttons.close')" @click="emit('close')">
         <AppIcon name="close" class="text-lg" />
       </AppButton>
     </div>
@@ -55,7 +51,7 @@ const props = withDefaults(
     /** aria-label for the progress-dot group. */
     progressLabel: string
   }>(),
-  { subtitle: '', lockedSteps: () => [] },
+  { subtitle: '', lockedSteps: () => [] }
 )
 
 const emit = defineEmits<{

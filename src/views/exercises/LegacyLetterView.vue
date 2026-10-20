@@ -8,13 +8,11 @@
 
     <!-- Past letters -->
     <div v-if="legacyLetterStore.sortedLetters.length > 0" class="mt-8">
-      <div class="mg-v2-section-head"><h2>{{ t('exercises.views.pastLetters') }}</h2></div>
+      <div class="mg-v2-section-head">
+        <h2>{{ t('exercises.views.pastLetters') }}</h2>
+      </div>
       <div class="space-y-3">
-        <AppCard
-          v-for="letter in legacyLetterStore.sortedLetters"
-          :key="letter.id"
-          padding="md"
-        >
+        <AppCard v-for="letter in legacyLetterStore.sortedLetters" :key="letter.id" padding="md">
           <div class="flex justify-between items-start">
             <div class="flex-1 min-w-0">
               <p class="text-sm text-on-surface-variant line-clamp-2">

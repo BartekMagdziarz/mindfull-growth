@@ -12,7 +12,9 @@
             </p>
           </div>
           <div class="flex items-center gap-2">
-            <span class="rounded-full bg-primary-soft px-2 py-1 text-xs font-medium text-on-surface">
+            <span
+              class="rounded-full bg-primary-soft px-2 py-1 text-xs font-medium text-on-surface"
+            >
               {{ latestEntry.item.score }}/10
             </span>
             <span
@@ -25,10 +27,7 @@
           </div>
         </div>
 
-        <p
-          v-if="latestEntry.item.note"
-          class="mt-3 text-sm text-on-surface-variant"
-        >
+        <p v-if="latestEntry.item.note" class="mt-3 text-sm text-on-surface-variant">
           {{ latestEntry.item.note }}
         </p>
 
@@ -74,10 +73,7 @@
       </div>
     </div>
 
-    <p
-      v-else
-      class="text-sm text-on-surface-variant text-center py-4"
-    >
+    <p v-else class="text-sm text-on-surface-variant text-center py-4">
       {{ t('lifeAreas.linkedEntities.emptyState') }}
     </p>
   </div>
@@ -106,7 +102,7 @@ onMounted(async () => {
 })
 
 const historyEntries = computed(() =>
-  getLifeAreaAssessmentHistoryEntries(assessmentStore.assessments, props.lifeArea.id),
+  getLifeAreaAssessmentHistoryEntries(assessmentStore.assessments, props.lifeArea.id)
 )
 
 const latestEntry = computed(() => historyEntries.value[0] ?? null)
@@ -117,7 +113,7 @@ const latestDelta = computed(() => {
   return getLifeAreaAssessmentDelta(
     latestEntry.value.assessment,
     previousEntry.value?.assessment,
-    props.lifeArea.id,
+    props.lifeArea.id
   )
 })
 

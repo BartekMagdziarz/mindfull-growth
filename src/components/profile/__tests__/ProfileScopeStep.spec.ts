@@ -48,9 +48,7 @@ describe('ProfileScopeStep', () => {
       },
     })
 
-    const checkbox = document.querySelector(
-      '[data-test-type="journal"]',
-    ) as HTMLInputElement
+    const checkbox = document.querySelector('[data-test-type="journal"]') as HTMLInputElement
     await fireEvent.click(checkbox)
 
     const events = emitted()['update:dataTypes'] as unknown[][]
@@ -68,7 +66,7 @@ describe('ProfileScopeStep', () => {
     })
 
     const checkbox = document.querySelector(
-      '[data-test-type="weeklyReflections"]',
+      '[data-test-type="weeklyReflections"]'
     ) as HTMLInputElement
     await fireEvent.click(checkbox)
 

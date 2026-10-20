@@ -200,7 +200,9 @@ export const useProgramEnrollmentStore = defineStore('programEnrollment', () => 
   async function undoStep(id: string): Promise<ProgramEnrollment> {
     const operation = sessionScope.capture()
     operation.assertCurrent()
-    const { enrollment, removedPlanIds, planItem, practices } = await operation.wait(undoLastStepService(id))
+    const { enrollment, removedPlanIds, planItem, practices } = await operation.wait(
+      undoLastStepService(id)
+    )
     applyUpdate(enrollment)
     mirrorRemovals(removedPlanIds)
     mirrorPlanItem(planItem)
@@ -209,10 +211,15 @@ export const useProgramEnrollmentStore = defineStore('programEnrollment', () => 
   }
 
   /** Dose check decided: rhythm overrides written, practice items reconciled and mirrored. */
-  async function applyPracticeOverrides(id: string, overrides: Record<string, { everyDays: number }>): Promise<void> {
+  async function applyPracticeOverrides(
+    id: string,
+    overrides: Record<string, { everyDays: number }>
+  ): Promise<void> {
     const operation = sessionScope.capture()
     operation.assertCurrent()
-    const { enrollment, practices } = await operation.wait(setPracticeOverridesService(id, overrides))
+    const { enrollment, practices } = await operation.wait(
+      setPracticeOverridesService(id, overrides)
+    )
     applyUpdate(enrollment)
     mirrorPractices(practices)
   }
@@ -224,7 +231,9 @@ export const useProgramEnrollmentStore = defineStore('programEnrollment', () => 
     const current = enrollments.value.find(enrollment => enrollment.id === id)
     if (!current || current.readCards?.includes(cardKey)) return
     const updated = await operation.wait(
-      programEnrollmentDexieRepository.update(id, { readCards: [...(current.readCards ?? []), cardKey] })
+      programEnrollmentDexieRepository.update(id, {
+        readCards: [...(current.readCards ?? []), cardKey],
+      })
     )
     applyUpdate(updated)
   }
@@ -236,7 +245,9 @@ export const useProgramEnrollmentStore = defineStore('programEnrollment', () => 
     const current = enrollments.value.find(enrollment => enrollment.id === id)
     if (!current?.futureLetter || current.futureLetter.readAt) return
     const updated = await operation.wait(
-      programEnrollmentDexieRepository.update(id, { futureLetter: { ...current.futureLetter, readAt: new Date().toISOString() } })
+      programEnrollmentDexieRepository.update(id, {
+        futureLetter: { ...current.futureLetter, readAt: new Date().toISOString() },
+      })
     )
     applyUpdate(updated)
   }

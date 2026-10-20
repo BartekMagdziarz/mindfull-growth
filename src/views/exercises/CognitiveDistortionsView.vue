@@ -9,7 +9,9 @@
     <!-- Past assessments -->
     <template v-if="distortionStore.sortedAssessments.length > 0">
       <div class="mt-10 space-y-4">
-        <div class="mg-v2-section-head"><h2>{{ t('exercises.views.pastAssessments') }}</h2></div>
+        <div class="mg-v2-section-head">
+          <h2>{{ t('exercises.views.pastAssessments') }}</h2>
+        </div>
         <AppCard
           v-for="assessment in distortionStore.sortedAssessments"
           :key="assessment.id"

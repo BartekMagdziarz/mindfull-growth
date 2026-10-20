@@ -8,7 +8,7 @@ export function programStepTitle(
   t: (key: string) => string,
   programI18nKey: string | undefined,
   stepIndex: number | undefined,
-  fallback: string,
+  fallback: string
 ): string {
   if (!programI18nKey || stepIndex === undefined || stepIndex < 0) return fallback
   const key = `${programI18nKey}.steps.step${stepIndex + 1}.title`

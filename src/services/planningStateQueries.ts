@@ -1,5 +1,13 @@
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
-import type { Goal, Initiative, Habit, KeyResult, MeasurementTarget, Tracker, WeeklyIntention } from '@/domain/planning'
+import type {
+  Goal,
+  Initiative,
+  Habit,
+  KeyResult,
+  MeasurementTarget,
+  Tracker,
+  WeeklyIntention,
+} from '@/domain/planning'
 import type {
   DailyMeasurementEntry,
   GoalMonthState,
@@ -27,7 +35,12 @@ import {
 } from '@/services/measurementProgress'
 import { loadPlanningCoreObjects } from '@/services/planningObjectCollections'
 import { loadPlanningCached } from '@/services/planningQueryCache'
-import { getChildPeriods, getPeriodBounds, getPeriodRefsForDate, getWeekOverlappingMonths } from '@/utils/periods'
+import {
+  getChildPeriods,
+  getPeriodBounds,
+  getPeriodRefsForDate,
+  getWeekOverlappingMonths,
+} from '@/utils/periods'
 
 export type WeekMeasurementPlacement = 'planned' | 'assigned' | 'unassigned'
 
@@ -230,37 +243,37 @@ const weekReflectionBundleCache = new Map<
 type SubjectMap = Map<string, MeasureableSubject>
 
 function isMonthCadencedPlanningItem(
-  item: MonthMeasurementPlanningItem,
+  item: MonthMeasurementPlanningItem
 ): item is MonthCadencedPlanningItem {
   return item.subjectType !== 'tracker'
 }
 
 function isMonthTrackerPlanningItem(
-  item: MonthMeasurementPlanningItem,
+  item: MonthMeasurementPlanningItem
 ): item is MonthTrackerPlanningItem {
   return item.subjectType === 'tracker'
 }
 
 function isWeekCadencedPlanningItem(
-  item: WeekMeasurementPlanningItem,
+  item: WeekMeasurementPlanningItem
 ): item is WeekCadencedPlanningItem {
   return item.subjectType !== 'tracker'
 }
 
 function isWeekTrackerPlanningItem(
-  item: WeekMeasurementPlanningItem,
+  item: WeekMeasurementPlanningItem
 ): item is WeekTrackerPlanningItem {
   return item.subjectType === 'tracker'
 }
 
 function isWeekCadencedReflectionItem(
-  item: WeekMeasurementReflectionItem,
+  item: WeekMeasurementReflectionItem
 ): item is WeekCadencedReflectionItem {
   return item.subjectType !== 'tracker'
 }
 
 function isWeekTrackerReflectionItem(
-  item: WeekMeasurementReflectionItem,
+  item: WeekMeasurementReflectionItem
 ): item is WeekTrackerReflectionItem {
   return item.subjectType === 'tracker'
 }
@@ -270,7 +283,7 @@ function buildSubjectKey(subjectType: MeasurementSubjectType, subjectId: string)
 }
 
 function groupBySubject<T extends { subjectType: MeasurementSubjectType; subjectId: string }>(
-  items: T[],
+  items: T[]
 ): Map<string, T[]> {
   const grouped = new Map<string, T[]>()
 
@@ -288,13 +301,13 @@ function buildSubjectMap(
   keyResults: KeyResult[],
   habits: Habit[],
   trackers: Tracker[],
-  weeklyIntentions: WeeklyIntention[],
+  weeklyIntentions: WeeklyIntention[]
 ): SubjectMap {
   return new Map(
-    [...keyResults, ...habits, ...trackers, ...weeklyIntentions].map((subject) => [
+    [...keyResults, ...habits, ...trackers, ...weeklyIntentions].map(subject => [
       buildSubjectKey(resolveSubjectType(subject), subject.id),
       subject,
-    ]),
+    ])
   )
 }
 
@@ -348,12 +361,12 @@ function isInitiativePlanInWeek(planState: InitiativePlanState, weekRef: WeekRef
 function buildPlanningSummary(
   monthState: MeasurementMonthState | undefined,
   weekState: MeasurementWeekState | undefined,
-  dayAssignments: MeasurementDayAssignment[],
+  dayAssignments: MeasurementDayAssignment[]
 ): MeasurementPlanningSummary {
   return {
     activityState: weekState?.activityState ?? monthState?.activityState,
     scheduleScope: weekState?.scheduleScope ?? monthState?.scheduleScope,
-    scheduledDayRefs: sortDayRefs(dayAssignments.map((assignment) => assignment.dayRef)),
+    scheduledDayRefs: sortDayRefs(dayAssignments.map(assignment => assignment.dayRef)),
     successNote: weekState?.successNote ?? monthState?.successNote,
   }
 }
@@ -368,14 +381,18 @@ export function resolvePlannedWeekRefs(
   monthScope: MeasurementMonthState['scheduleScope'] | undefined,
   weekStates: MeasurementWeekState[],
   dayAssignments: MeasurementDayAssignment[],
-  cadence: 'weekly' | 'monthly' = 'monthly',
+  cadence: 'weekly' | 'monthly' = 'monthly'
 ): WeekRef[] {
   const monthWeeks = getChildPeriods(monthRef) as WeekRef[]
   if (cadence === 'weekly') {
-    return monthWeeks.filter(weekRef => isWeeklySubjectPlannedInWeek(weekRef, monthScope, weekStates, dayAssignments))
+    return monthWeeks.filter(weekRef =>
+      isWeeklySubjectPlannedInWeek(weekRef, monthScope, weekStates, dayAssignments)
+    )
   }
   if (monthScope === 'whole-month') return monthWeeks
-  return monthWeeks.filter(weekRef => hasExplicitPlacementInWeek(monthRef, weekRef, weekStates, dayAssignments))
+  return monthWeeks.filter(weekRef =>
+    hasExplicitPlacementInWeek(monthRef, weekRef, weekStates, dayAssignments)
+  )
 }
 
 /**
@@ -388,18 +405,19 @@ function isWeeklySubjectPlannedInWeek(
   weekRef: WeekRef,
   monthScope: MeasurementMonthState['scheduleScope'] | undefined,
   weekStates: MeasurementWeekState[],
-  dayAssignments: MeasurementDayAssignment[],
+  dayAssignments: MeasurementDayAssignment[]
 ): boolean {
   const weekState = weekStates.find(state => state.weekRef === weekRef && !state.sourceMonthRef)
   if (weekState) return weekState.activityState === 'active'
-  if (dayAssignments.some(assignment => getPeriodRefsForDate(assignment.dayRef).week === weekRef)) return true
+  if (dayAssignments.some(assignment => getPeriodRefsForDate(assignment.dayRef).week === weekRef))
+    return true
   return monthScope === 'whole-month'
 }
 
 function hasExplicitMonthPlacement(
   monthRef: MonthRef,
   weekStates: MeasurementWeekState[],
-  dayAssignments: MeasurementDayAssignment[],
+  dayAssignments: MeasurementDayAssignment[]
 ): boolean {
   return (
     weekStates.some(
@@ -407,7 +425,8 @@ function hasExplicitMonthPlacement(
         state.sourceMonthRef === monthRef &&
         state.activityState === 'active' &&
         state.scheduleScope !== 'unassigned'
-    ) || dayAssignments.some(assignment => getPeriodRefsForDate(assignment.dayRef).month === monthRef)
+    ) ||
+    dayAssignments.some(assignment => getPeriodRefsForDate(assignment.dayRef).month === monthRef)
   )
 }
 
@@ -415,7 +434,7 @@ function hasExplicitPlacementInWeek(
   monthRef: MonthRef,
   weekRef: WeekRef,
   weekStates: MeasurementWeekState[],
-  dayAssignments: MeasurementDayAssignment[],
+  dayAssignments: MeasurementDayAssignment[]
 ): boolean {
   return (
     weekStates.some(
@@ -437,23 +456,25 @@ function resolveMonthMeasurementPeriod(
   monthRef: MonthRef,
   weekStates: MeasurementWeekState[],
   dayAssignments: MeasurementDayAssignment[],
-  entries: DailyMeasurementEntry[],
+  entries: DailyMeasurementEntry[]
 ): WeekRef | MonthRef | undefined {
   if (subject.cadence === 'monthly') {
     return monthRef
   }
 
   const candidateWeeks = new Set<WeekRef>()
-  weekStates.forEach((state) => candidateWeeks.add(state.weekRef))
-  dayAssignments.forEach((assignment) => candidateWeeks.add(getPeriodRefsForDate(assignment.dayRef).week))
-  entries.forEach((entry) => candidateWeeks.add(getPeriodRefsForDate(entry.dayRef).week))
+  weekStates.forEach(state => candidateWeeks.add(state.weekRef))
+  dayAssignments.forEach(assignment =>
+    candidateWeeks.add(getPeriodRefsForDate(assignment.dayRef).week)
+  )
+  entries.forEach(entry => candidateWeeks.add(getPeriodRefsForDate(entry.dayRef).week))
 
   return candidateWeeks.size === 1 ? [...candidateWeeks][0] : undefined
 }
 
 function placementFromState(
   scheduleScope: MeasurementPlanningSummary['scheduleScope'],
-  hasScheduledDays: boolean,
+  hasScheduledDays: boolean
 ): WeekMeasurementPlacement | undefined {
   switch (scheduleScope) {
     case 'specific-days':
@@ -469,12 +490,14 @@ function placementFromState(
 }
 
 function sortMeasurementItems<T extends { subject: MeasureableSubject; sourceMonthRef?: MonthRef }>(
-  items: T[],
+  items: T[]
 ): T[] {
   return [...items].sort((left, right) => {
     const leftMonth = left.sourceMonthRef ?? ''
     const rightMonth = right.sourceMonthRef ?? ''
-    return left.subject.title.localeCompare(right.subject.title) || leftMonth.localeCompare(rightMonth)
+    return (
+      left.subject.title.localeCompare(right.subject.title) || leftMonth.localeCompare(rightMonth)
+    )
   })
 }
 
@@ -490,31 +513,45 @@ function getMonthEntryBounds(monthRef: MonthRef): { start: DayRef; end: DayRef }
 }
 
 function getMonthContextBounds(monthRefs: MonthRef[]): { start: DayRef; end: DayRef } {
-  const bounds = monthRefs.map((monthRef) => getPeriodBounds(monthRef))
+  const bounds = monthRefs.map(monthRef => getPeriodBounds(monthRef))
   return {
-    start: bounds.map((item) => item.start).sort()[0] as DayRef,
-    end: bounds.map((item) => item.end).sort().at(-1) as DayRef,
+    start: bounds.map(item => item.start).sort()[0] as DayRef,
+    end: bounds
+      .map(item => item.end)
+      .sort()
+      .at(-1) as DayRef,
   }
 }
 
-async function loadMonthPlanningDependencies(monthRef: MonthRef): Promise<PlanningStateDependencies> {
+async function loadMonthPlanningDependencies(
+  monthRef: MonthRef
+): Promise<PlanningStateDependencies> {
   const monthEntryBounds = getMonthEntryBounds(monthRef)
-  const [goalMonthStates, measurementMonthStates, measurementWeekStates, measurementDayAssignments, dailyMeasurementEntries, initiativePlanStates, objects] =
-    await Promise.all([
-      planningStateDexieRepository.listGoalMonthStatesForMonths([monthRef]),
-      planningStateDexieRepository.listMeasurementMonthStatesForMonths([monthRef]),
-      planningStateDexieRepository.listMeasurementWeekStatesForWeeks(getChildPeriods(monthRef) as WeekRef[]),
-      planningStateDexieRepository.listMeasurementDayAssignmentsForDayRange(
-        monthEntryBounds.start,
-        monthEntryBounds.end,
-      ),
-      planningStateDexieRepository.listDailyMeasurementEntriesForDayRange(
-        monthEntryBounds.start,
-        monthEntryBounds.end,
-      ),
-      planningStateDexieRepository.listInitiativePlanStates(),
-      loadPlanningCoreObjects(),
-    ])
+  const [
+    goalMonthStates,
+    measurementMonthStates,
+    measurementWeekStates,
+    measurementDayAssignments,
+    dailyMeasurementEntries,
+    initiativePlanStates,
+    objects,
+  ] = await Promise.all([
+    planningStateDexieRepository.listGoalMonthStatesForMonths([monthRef]),
+    planningStateDexieRepository.listMeasurementMonthStatesForMonths([monthRef]),
+    planningStateDexieRepository.listMeasurementWeekStatesForWeeks(
+      getChildPeriods(monthRef) as WeekRef[]
+    ),
+    planningStateDexieRepository.listMeasurementDayAssignmentsForDayRange(
+      monthEntryBounds.start,
+      monthEntryBounds.end
+    ),
+    planningStateDexieRepository.listDailyMeasurementEntriesForDayRange(
+      monthEntryBounds.start,
+      monthEntryBounds.end
+    ),
+    planningStateDexieRepository.listInitiativePlanStates(),
+    loadPlanningCoreObjects(),
+  ])
 
   return {
     goalMonthStates,
@@ -537,23 +574,31 @@ async function loadWeekPlanningDependencies(weekRef: WeekRef): Promise<PlanningS
   const overlappingMonthRefs = getWeekOverlappingMonths(weekRef)
   const weekBounds = getPeriodBounds(weekRef)
   const monthContextBounds = getMonthContextBounds(overlappingMonthRefs)
-  const [goalMonthStates, measurementMonthStates, measurementWeekStates, measurementDayAssignments, dailyMeasurementEntries, initiativePlanStates, objects, weeklyIntentions] =
-    await Promise.all([
-      planningStateDexieRepository.listGoalMonthStatesForMonths(overlappingMonthRefs),
-      planningStateDexieRepository.listMeasurementMonthStatesForMonths(overlappingMonthRefs),
-      planningStateDexieRepository.listMeasurementWeekStatesForWeeks([weekRef]),
-      planningStateDexieRepository.listMeasurementDayAssignmentsForDayRange(
-        weekBounds.start,
-        weekBounds.end,
-      ),
-      planningStateDexieRepository.listDailyMeasurementEntriesForDayRange(
-        monthContextBounds.start,
-        monthContextBounds.end,
-      ),
-      planningStateDexieRepository.listInitiativePlanStates(),
-      loadPlanningCoreObjects(),
-      weeklyIntentionDexieRepository.listByWeek(weekRef),
-    ])
+  const [
+    goalMonthStates,
+    measurementMonthStates,
+    measurementWeekStates,
+    measurementDayAssignments,
+    dailyMeasurementEntries,
+    initiativePlanStates,
+    objects,
+    weeklyIntentions,
+  ] = await Promise.all([
+    planningStateDexieRepository.listGoalMonthStatesForMonths(overlappingMonthRefs),
+    planningStateDexieRepository.listMeasurementMonthStatesForMonths(overlappingMonthRefs),
+    planningStateDexieRepository.listMeasurementWeekStatesForWeeks([weekRef]),
+    planningStateDexieRepository.listMeasurementDayAssignmentsForDayRange(
+      weekBounds.start,
+      weekBounds.end
+    ),
+    planningStateDexieRepository.listDailyMeasurementEntriesForDayRange(
+      monthContextBounds.start,
+      monthContextBounds.end
+    ),
+    planningStateDexieRepository.listInitiativePlanStates(),
+    loadPlanningCoreObjects(),
+    weeklyIntentionDexieRepository.listByWeek(weekRef),
+  ])
 
   return {
     goalMonthStates,
@@ -578,30 +623,32 @@ export async function getMonthPlanningBundle(monthRef: MonthRef): Promise<MonthP
       loadMonthPlanningDependencies(monthRef),
     ])
 
-    const visibleGoals = new Map(deps.goals.filter((goal) => goal.isActive).map((goal) => [goal.id, goal]))
+    const visibleGoals = new Map(
+      deps.goals.filter(goal => goal.isActive).map(goal => [goal.id, goal])
+    )
     const goalItems = deps.goalMonthStates
-      .filter((state) => state.monthRef === monthRef)
-      .flatMap((state) => {
+      .filter(state => state.monthRef === monthRef)
+      .flatMap(state => {
         const goal = visibleGoals.get(state.goalId)
         return goal ? [{ goal, state }] : []
       })
 
     const subjectMap = buildSubjectMap(
-      deps.keyResults.filter((subject) => subject.isActive),
-      deps.habits.filter((subject) => subject.isActive),
-      deps.trackers.filter((subject) => subject.isActive),
-      deps.weeklyIntentions.filter((subject) => subject.isActive),
+      deps.keyResults.filter(subject => subject.isActive),
+      deps.habits.filter(subject => subject.isActive),
+      deps.trackers.filter(subject => subject.isActive),
+      deps.weeklyIntentions.filter(subject => subject.isActive)
     )
-    const monthStates = deps.measurementMonthStates.filter((state) => state.monthRef === monthRef)
-    const weekStates = deps.measurementWeekStates.filter((state) =>
+    const monthStates = deps.measurementMonthStates.filter(state => state.monthRef === monthRef)
+    const weekStates = deps.measurementWeekStates.filter(state =>
       state.sourceMonthRef
         ? state.sourceMonthRef === monthRef
-        : getWeekOverlappingMonths(state.weekRef).includes(monthRef),
+        : getWeekOverlappingMonths(state.weekRef).includes(monthRef)
     )
-    const dayAssignments = deps.measurementDayAssignments.filter((assignment) =>
-      isDayAssignmentInMonth(assignment, monthRef),
+    const dayAssignments = deps.measurementDayAssignments.filter(assignment =>
+      isDayAssignmentInMonth(assignment, monthRef)
     )
-    const entries = deps.dailyMeasurementEntries.filter((entry) => isEntryInMonth(entry, monthRef))
+    const entries = deps.dailyMeasurementEntries.filter(entry => isEntryInMonth(entry, monthRef))
 
     const monthStatesBySubject = groupBySubject(monthStates)
     const weekStatesBySubject = groupBySubject(weekStates)
@@ -610,10 +657,12 @@ export async function getMonthPlanningBundle(monthRef: MonthRef): Promise<MonthP
     const entriesBySubject = groupBySubject(entries)
     const allEntriesBySubject = groupBySubject(deps.dailyMeasurementEntries)
     const subjectKeys = new Set<string>([
-      ...monthStates.map((state) => buildSubjectKey(state.subjectType, state.subjectId)),
-      ...weekStates.map((state) => buildSubjectKey(state.subjectType, state.subjectId)),
-      ...dayAssignments.map((assignment) => buildSubjectKey(assignment.subjectType, assignment.subjectId)),
-      ...entries.map((entry) => buildSubjectKey(entry.subjectType, entry.subjectId)),
+      ...monthStates.map(state => buildSubjectKey(state.subjectType, state.subjectId)),
+      ...weekStates.map(state => buildSubjectKey(state.subjectType, state.subjectId)),
+      ...dayAssignments.map(assignment =>
+        buildSubjectKey(assignment.subjectType, assignment.subjectId)
+      ),
+      ...entries.map(entry => buildSubjectKey(entry.subjectType, entry.subjectId)),
     ])
 
     const monthMeasurementItems: MonthMeasurementPlanningItem[] = []
@@ -637,14 +686,26 @@ export async function getMonthPlanningBundle(monthRef: MonthRef): Promise<MonthP
         monthRef,
         subjectWeekStates,
         subjectDayAssignments,
-        subjectEntries,
+        subjectEntries
       )
       const subjectType = resolveSubjectType(effectiveSubject)
       // Weekly subjects are placed per whole week, so a boundary week reads its
       // day assignments from both months (the month filter would cut them).
-      const plannedWeekRefs = subject.cadence === 'weekly'
-        ? resolvePlannedWeekRefs(monthRef, monthState.scheduleScope, subjectWeekStates, allDayAssignmentsBySubject.get(key) ?? [], 'weekly')
-        : resolvePlannedWeekRefs(monthRef, monthState.scheduleScope, subjectWeekStates, subjectDayAssignments)
+      const plannedWeekRefs =
+        subject.cadence === 'weekly'
+          ? resolvePlannedWeekRefs(
+              monthRef,
+              monthState.scheduleScope,
+              subjectWeekStates,
+              allDayAssignmentsBySubject.get(key) ?? [],
+              'weekly'
+            )
+          : resolvePlannedWeekRefs(
+              monthRef,
+              monthState.scheduleScope,
+              subjectWeekStates,
+              subjectDayAssignments
+            )
       const weekTargetOverrides: Partial<Record<WeekRef, MeasurementTarget>> = {}
       for (const state of subjectWeekStates) {
         if (state.targetOverride) {
@@ -655,7 +716,7 @@ export async function getMonthPlanningBundle(monthRef: MonthRef): Promise<MonthP
         planning: {
           activityState: monthState.activityState,
           scheduleScope: monthState.scheduleScope,
-          scheduledDayRefs: sortDayRefs(subjectDayAssignments.map((assignment) => assignment.dayRef)),
+          scheduledDayRefs: sortDayRefs(subjectDayAssignments.map(assignment => assignment.dayRef)),
           successNote: monthState.successNote,
         },
         measurement: measurementPeriodRef
@@ -665,26 +726,28 @@ export async function getMonthPlanningBundle(monthRef: MonthRef): Promise<MonthP
                 weekOverride: weekTargetOverrides[measurementPeriodRef as WeekRef],
               }),
               allEntriesBySubject.get(key) ?? [],
-              measurementPeriodRef,
+              measurementPeriodRef
             )
           : undefined,
-        relatedWeekCount: new Set(subjectWeekStates.map((state) => state.weekRef)).size,
+        relatedWeekCount: new Set(subjectWeekStates.map(state => state.weekRef)).size,
         plannedWeekRefs,
-        weekTargetOverrides: Object.keys(weekTargetOverrides).length > 0 ? weekTargetOverrides : undefined,
-        weekEvaluations: subject.cadence === 'weekly'
-          ? (getChildPeriods(monthRef) as WeekRef[]).map((weekRef) => ({
-              weekRef,
-              planned: plannedWeekRefs.includes(weekRef),
-              measurement: buildMeasurementSummary(
-                applyMeasurementTargetCascade(subject, weekRef, {
-                  monthOverride: monthState.targetOverride,
-                  weekOverride: weekTargetOverrides[weekRef],
-                }),
-                allEntriesBySubject.get(key) ?? [],
+        weekTargetOverrides:
+          Object.keys(weekTargetOverrides).length > 0 ? weekTargetOverrides : undefined,
+        weekEvaluations:
+          subject.cadence === 'weekly'
+            ? (getChildPeriods(monthRef) as WeekRef[]).map(weekRef => ({
                 weekRef,
-              ),
-            }))
-          : undefined,
+                planned: plannedWeekRefs.includes(weekRef),
+                measurement: buildMeasurementSummary(
+                  applyMeasurementTargetCascade(subject, weekRef, {
+                    monthOverride: monthState.targetOverride,
+                    weekOverride: weekTargetOverrides[weekRef],
+                  }),
+                  allEntriesBySubject.get(key) ?? [],
+                  weekRef
+                ),
+              }))
+            : undefined,
       }
 
       if (subjectType === 'tracker') {
@@ -706,11 +769,13 @@ export async function getMonthPlanningBundle(monthRef: MonthRef): Promise<MonthP
     const measurementItems = sortMeasurementItems(monthMeasurementItems)
 
     const visibleInitiatives = new Map(
-      deps.initiatives.filter((initiative) => initiative.isActive).map((initiative) => [initiative.id, initiative]),
+      deps.initiatives
+        .filter(initiative => initiative.isActive)
+        .map(initiative => [initiative.id, initiative])
     )
     const initiativeItems = deps.initiativePlanStates
-      .filter((planState) => isInitiativePlanInMonth(planState, monthRef))
-      .flatMap((planState) => {
+      .filter(planState => isInitiativePlanInMonth(planState, monthRef))
+      .flatMap(planState => {
         const initiative = visibleInitiatives.get(planState.initiativeId)
         return initiative ? [{ initiative, planState }] : []
       })
@@ -738,7 +803,7 @@ function buildWeeklyPlanningItem(
   periodRef: WeekRef | MonthRef,
   sourceMonthRef?: MonthRef,
   asOfDayRef?: DayRef,
-  weekMeasurement?: MeasurementSummary,
+  weekMeasurement?: MeasurementSummary
 ): WeekMeasurementPlanningItem | undefined {
   const planning = buildPlanningSummary(monthState, weekState, dayAssignments)
   const placement = placementFromState(planning.scheduleScope, dayAssignments.length > 0)
@@ -769,12 +834,12 @@ function buildWeeklyReflectionItem(
   periodRef: WeekRef | MonthRef,
   sourceMonthRef?: MonthRef,
   asOfDayRef?: DayRef,
-  weekMeasurement?: MeasurementSummary,
+  weekMeasurement?: MeasurementSummary
 ): WeekMeasurementReflectionItem | undefined {
   const planning = buildPlanningSummary(monthState, weekState, dayAssignments)
   const isScheduled = Boolean(
     placementFromState(planning.scheduleScope, dayAssignments.length > 0) &&
-      planning.activityState === 'active'
+    planning.activityState === 'active'
   )
 
   if (!isScheduled && weekEntries.length === 0) {
@@ -795,304 +860,335 @@ function buildWeeklyReflectionItem(
 
 export async function getWeekRelevantObjects(
   weekRef: WeekRef,
-  asOfDayRef?: DayRef,
+  asOfDayRef?: DayRef
 ): Promise<WeekRelevantObjects> {
-  return loadPlanningCached(weekRelevantObjectsCache, `${weekRef}:${asOfDayRef ?? '-'}`, async () => {
-    const overlappingMonthRefs = getWeekOverlappingMonths(weekRef)
-    const deps = await loadWeekPlanningDependencies(weekRef)
+  return loadPlanningCached(
+    weekRelevantObjectsCache,
+    `${weekRef}:${asOfDayRef ?? '-'}`,
+    async () => {
+      const overlappingMonthRefs = getWeekOverlappingMonths(weekRef)
+      const deps = await loadWeekPlanningDependencies(weekRef)
 
-    const subjectMap = buildSubjectMap(
-      deps.keyResults.filter((subject) => subject.isActive),
-      deps.habits.filter((subject) => subject.isActive),
-      deps.trackers.filter((subject) => subject.isActive),
-      deps.weeklyIntentions.filter((subject) => subject.isActive),
-    )
+      const subjectMap = buildSubjectMap(
+        deps.keyResults.filter(subject => subject.isActive),
+        deps.habits.filter(subject => subject.isActive),
+        deps.trackers.filter(subject => subject.isActive),
+        deps.weeklyIntentions.filter(subject => subject.isActive)
+      )
 
-    const relevantMonthStates = deps.measurementMonthStates.filter((state) =>
-      overlappingMonthRefs.includes(state.monthRef),
-    )
-    const relevantWeekStates = deps.measurementWeekStates.filter((state) => state.weekRef === weekRef)
-    const relevantDayAssignments = deps.measurementDayAssignments.filter((assignment) =>
-      isDayAssignmentInWeek(assignment, weekRef),
-    )
-    const relevantWeekEntries = deps.dailyMeasurementEntries.filter((entry) => isEntryInWeek(entry, weekRef))
+      const relevantMonthStates = deps.measurementMonthStates.filter(state =>
+        overlappingMonthRefs.includes(state.monthRef)
+      )
+      const relevantWeekStates = deps.measurementWeekStates.filter(
+        state => state.weekRef === weekRef
+      )
+      const relevantDayAssignments = deps.measurementDayAssignments.filter(assignment =>
+        isDayAssignmentInWeek(assignment, weekRef)
+      )
+      const relevantWeekEntries = deps.dailyMeasurementEntries.filter(entry =>
+        isEntryInWeek(entry, weekRef)
+      )
 
-    const monthStatesBySubject = groupBySubject(relevantMonthStates)
-    const weekStatesBySubject = groupBySubject(relevantWeekStates)
-    const dayAssignmentsBySubject = groupBySubject(relevantDayAssignments)
-    const weekEntriesBySubject = groupBySubject(relevantWeekEntries)
-    const allEntriesBySubject = groupBySubject(deps.dailyMeasurementEntries)
-    const subjectKeys = new Set<string>([
-      ...relevantMonthStates.map((state) => buildSubjectKey(state.subjectType, state.subjectId)),
-      ...relevantWeekStates.map((state) => buildSubjectKey(state.subjectType, state.subjectId)),
-      ...relevantDayAssignments.map((assignment) => buildSubjectKey(assignment.subjectType, assignment.subjectId)),
-      ...relevantWeekEntries.map((entry) => buildSubjectKey(entry.subjectType, entry.subjectId)),
-    ])
+      const monthStatesBySubject = groupBySubject(relevantMonthStates)
+      const weekStatesBySubject = groupBySubject(relevantWeekStates)
+      const dayAssignmentsBySubject = groupBySubject(relevantDayAssignments)
+      const weekEntriesBySubject = groupBySubject(relevantWeekEntries)
+      const allEntriesBySubject = groupBySubject(deps.dailyMeasurementEntries)
+      const subjectKeys = new Set<string>([
+        ...relevantMonthStates.map(state => buildSubjectKey(state.subjectType, state.subjectId)),
+        ...relevantWeekStates.map(state => buildSubjectKey(state.subjectType, state.subjectId)),
+        ...relevantDayAssignments.map(assignment =>
+          buildSubjectKey(assignment.subjectType, assignment.subjectId)
+        ),
+        ...relevantWeekEntries.map(entry => buildSubjectKey(entry.subjectType, entry.subjectId)),
+      ])
 
-    const planningItems: WeekMeasurementPlanningItem[] = []
-    const reflectionItems: WeekMeasurementReflectionItem[] = []
+      const planningItems: WeekMeasurementPlanningItem[] = []
+      const reflectionItems: WeekMeasurementReflectionItem[] = []
 
-    for (const key of subjectKeys) {
-      const subject = subjectMap.get(key)
-      if (!subject) {
-        continue
-      }
-
-      const subjectType = resolveSubjectType(subject)
-      const monthStates = monthStatesBySubject.get(key) ?? []
-      const weekStates = weekStatesBySubject.get(key) ?? []
-      const dayAssignments = dayAssignmentsBySubject.get(key) ?? []
-      const weekEntries = weekEntriesBySubject.get(key) ?? []
-      const allEntries = allEntriesBySubject.get(key) ?? []
-
-      if (subject.cadence === 'monthly') {
-        const contextMonthRefs = new Set<MonthRef>([
-          ...monthStates.map((state) => state.monthRef),
-          ...weekStates.flatMap((state) => (state.sourceMonthRef ? [state.sourceMonthRef] : [])),
-          ...dayAssignments.map((assignment) => getPeriodRefsForDate(assignment.dayRef).month),
-          ...weekEntries.map((entry) => getPeriodRefsForDate(entry.dayRef).month),
-        ])
-
-        for (const monthRef of [...contextMonthRefs].filter((month) => overlappingMonthRefs.includes(month))) {
-          const monthState = monthStates.find(
-            (state) => state.monthRef === monthRef && state.activityState === 'active',
-          )
-          if (!monthState) {
-            continue
-          }
-
-          const explicitMonthPlacement = hasExplicitMonthPlacement(monthRef, weekStates, dayAssignments)
-          const explicitWeekPlacement = hasExplicitPlacementInWeek(
-            monthRef,
-            weekRef,
-            weekStates,
-            dayAssignments,
-          )
-          if (explicitMonthPlacement && !explicitWeekPlacement) {
-            continue
-          }
-
-          const weekState = weekStates.find((state) => state.sourceMonthRef === monthRef)
-          const weekAssignments = dayAssignments.filter((assignment) => {
-            const refs = getPeriodRefsForDate(assignment.dayRef)
-            return refs.month === monthRef && refs.week === weekRef
-          })
-          const monthWeekEntries = weekEntries.filter(
-            (entry) => getPeriodRefsForDate(entry.dayRef).month === monthRef,
-          )
-          const effectiveSubject = applyMeasurementTargetOverride(subject, monthState.targetOverride)
-          const weekMeasurement = weekState?.targetOverride
-            ? buildMeasurementSummary(
-                applyMeasurementTargetOverride(subject, weekState.targetOverride),
-                allEntries,
-                weekRef,
-                asOfDayRef,
-              )
-            : undefined
-
-          const planningItem = buildWeeklyPlanningItem(
-            effectiveSubject,
-            subjectType,
-            allEntries,
-            monthState,
-            weekState,
-            weekAssignments,
-            monthRef,
-            monthRef,
-            asOfDayRef,
-            weekMeasurement,
-          )
-          if (planningItem) {
-            planningItems.push(planningItem)
-          }
-
-          const reflectionItem = buildWeeklyReflectionItem(
-            effectiveSubject,
-            subjectType,
-            allEntries,
-            monthWeekEntries,
-            monthState,
-            weekState,
-            weekAssignments,
-            monthRef,
-            monthRef,
-            asOfDayRef,
-            weekMeasurement,
-          )
-          if (reflectionItem) {
-            reflectionItems.push(reflectionItem)
-          }
+      for (const key of subjectKeys) {
+        const subject = subjectMap.get(key)
+        if (!subject) {
+          continue
         }
 
-        continue
+        const subjectType = resolveSubjectType(subject)
+        const monthStates = monthStatesBySubject.get(key) ?? []
+        const weekStates = weekStatesBySubject.get(key) ?? []
+        const dayAssignments = dayAssignmentsBySubject.get(key) ?? []
+        const weekEntries = weekEntriesBySubject.get(key) ?? []
+        const allEntries = allEntriesBySubject.get(key) ?? []
+
+        if (subject.cadence === 'monthly') {
+          const contextMonthRefs = new Set<MonthRef>([
+            ...monthStates.map(state => state.monthRef),
+            ...weekStates.flatMap(state => (state.sourceMonthRef ? [state.sourceMonthRef] : [])),
+            ...dayAssignments.map(assignment => getPeriodRefsForDate(assignment.dayRef).month),
+            ...weekEntries.map(entry => getPeriodRefsForDate(entry.dayRef).month),
+          ])
+
+          for (const monthRef of [...contextMonthRefs].filter(month =>
+            overlappingMonthRefs.includes(month)
+          )) {
+            const monthState = monthStates.find(
+              state => state.monthRef === monthRef && state.activityState === 'active'
+            )
+            if (!monthState) {
+              continue
+            }
+
+            const explicitMonthPlacement = hasExplicitMonthPlacement(
+              monthRef,
+              weekStates,
+              dayAssignments
+            )
+            const explicitWeekPlacement = hasExplicitPlacementInWeek(
+              monthRef,
+              weekRef,
+              weekStates,
+              dayAssignments
+            )
+            if (explicitMonthPlacement && !explicitWeekPlacement) {
+              continue
+            }
+
+            const weekState = weekStates.find(state => state.sourceMonthRef === monthRef)
+            const weekAssignments = dayAssignments.filter(assignment => {
+              const refs = getPeriodRefsForDate(assignment.dayRef)
+              return refs.month === monthRef && refs.week === weekRef
+            })
+            const monthWeekEntries = weekEntries.filter(
+              entry => getPeriodRefsForDate(entry.dayRef).month === monthRef
+            )
+            const effectiveSubject = applyMeasurementTargetOverride(
+              subject,
+              monthState.targetOverride
+            )
+            const weekMeasurement = weekState?.targetOverride
+              ? buildMeasurementSummary(
+                  applyMeasurementTargetOverride(subject, weekState.targetOverride),
+                  allEntries,
+                  weekRef,
+                  asOfDayRef
+                )
+              : undefined
+
+            const planningItem = buildWeeklyPlanningItem(
+              effectiveSubject,
+              subjectType,
+              allEntries,
+              monthState,
+              weekState,
+              weekAssignments,
+              monthRef,
+              monthRef,
+              asOfDayRef,
+              weekMeasurement
+            )
+            if (planningItem) {
+              planningItems.push(planningItem)
+            }
+
+            const reflectionItem = buildWeeklyReflectionItem(
+              effectiveSubject,
+              subjectType,
+              allEntries,
+              monthWeekEntries,
+              monthState,
+              weekState,
+              weekAssignments,
+              monthRef,
+              monthRef,
+              asOfDayRef,
+              weekMeasurement
+            )
+            if (reflectionItem) {
+              reflectionItems.push(reflectionItem)
+            }
+          }
+
+          continue
+        }
+
+        const activeMonthState = monthStates.find(state => state.activityState === 'active')
+        if (!activeMonthState) {
+          continue
+        }
+
+        const weekState = weekStates.find(state => !state.sourceMonthRef)
+        const effectiveSubject = applyMeasurementTargetCascade(subject, weekRef, {
+          monthOverride: activeMonthState.targetOverride,
+          weekOverride: weekState?.targetOverride,
+        })
+
+        const planningItem = buildWeeklyPlanningItem(
+          effectiveSubject,
+          subjectType,
+          allEntries,
+          activeMonthState,
+          weekState,
+          dayAssignments,
+          weekRef,
+          undefined,
+          asOfDayRef
+        )
+        if (planningItem) {
+          planningItems.push(planningItem)
+        }
+
+        const reflectionItem = buildWeeklyReflectionItem(
+          effectiveSubject,
+          subjectType,
+          allEntries,
+          weekEntries,
+          activeMonthState,
+          weekState,
+          dayAssignments,
+          weekRef,
+          undefined,
+          asOfDayRef
+        )
+        if (reflectionItem) {
+          reflectionItems.push(reflectionItem)
+        }
       }
 
-      const activeMonthState = monthStates.find((state) => state.activityState === 'active')
-      if (!activeMonthState) {
-        continue
-      }
+      const visibleInitiatives = new Map(
+        deps.initiatives
+          .filter(initiative => initiative.isActive)
+          .map(initiative => [initiative.id, initiative])
+      )
+      const planningInitiatives = deps.initiativePlanStates.flatMap(planState => {
+        const initiative = visibleInitiatives.get(planState.initiativeId)
+        if (!initiative) {
+          return []
+        }
 
-      const weekState = weekStates.find((state) => !state.sourceMonthRef)
-      const effectiveSubject = applyMeasurementTargetCascade(subject, weekRef, {
-        monthOverride: activeMonthState.targetOverride,
-        weekOverride: weekState?.targetOverride,
+        const placement = planState.dayRef
+          ? 'assigned'
+          : planState.weekRef === weekRef
+            ? 'planned'
+            : planState.monthRef && overlappingMonthRefs.includes(planState.monthRef)
+              ? 'unassigned'
+              : undefined
+
+        return placement
+          ? [{ initiative, planState, placement: placement as WeekMeasurementPlacement }]
+          : []
       })
 
-      const planningItem = buildWeeklyPlanningItem(
-        effectiveSubject,
-        subjectType,
-        allEntries,
-        activeMonthState,
-        weekState,
-        dayAssignments,
-        weekRef,
-        undefined,
-        asOfDayRef,
+      const reflectionInitiatives = planningInitiatives
+        .filter(item => isInitiativePlanInWeek(item.planState, weekRef))
+        .map(item => ({ initiative: item.initiative, planState: item.planState }))
+
+      const visibleGoals = new Map(
+        deps.goals.filter(goal => goal.isActive).map(goal => [goal.id, goal])
       )
-      if (planningItem) {
-        planningItems.push(planningItem)
-      }
-
-      const reflectionItem = buildWeeklyReflectionItem(
-        effectiveSubject,
-        subjectType,
-        allEntries,
-        weekEntries,
-        activeMonthState,
-        weekState,
-        dayAssignments,
-        weekRef,
-        undefined,
-        asOfDayRef,
+      const goalMonthStateMap = new Map(
+        deps.goalMonthStates
+          .filter(state => overlappingMonthRefs.includes(state.monthRef))
+          .map(state => [`${state.goalId}:${state.monthRef}`, state])
       )
-      if (reflectionItem) {
-        reflectionItems.push(reflectionItem)
+      const reflectionGoalIds = new Set<string>()
+      for (const item of reflectionItems) {
+        if (item.subjectType === 'keyResult' && 'goalId' in item.subject) {
+          reflectionGoalIds.add(item.subject.goalId)
+        }
+      }
+      for (const item of reflectionInitiatives) {
+        if (item.initiative.goalId) {
+          reflectionGoalIds.add(item.initiative.goalId)
+        }
+      }
+
+      const goalItems = [...reflectionGoalIds].flatMap(goalId => {
+        const goal = visibleGoals.get(goalId)
+        if (!goal) {
+          return []
+        }
+
+        const monthStates = overlappingMonthRefs
+          .map(monthRef => goalMonthStateMap.get(`${goalId}:${monthRef}`))
+          .filter((state): state is GoalMonthState => Boolean(state))
+
+        return monthStates.length > 0 ? [{ goal, monthStates }] : []
+      })
+
+      return {
+        weekRef,
+        overlappingMonthRefs,
+        rawEntries: deps.dailyMeasurementEntries,
+        planning: {
+          measurementItems: sortMeasurementItems(planningItems),
+          cadencedItems: sortMeasurementItems(planningItems.filter(isWeekCadencedPlanningItem)),
+          trackerItems: sortMeasurementItems(planningItems.filter(isWeekTrackerPlanningItem)),
+          initiativeItems: [...planningInitiatives].sort((left, right) =>
+            left.initiative.title.localeCompare(right.initiative.title)
+          ),
+        },
+        reflection: {
+          goalItems,
+          measurementItems: sortMeasurementItems(reflectionItems),
+          cadencedItems: sortMeasurementItems(reflectionItems.filter(isWeekCadencedReflectionItem)),
+          trackerItems: sortMeasurementItems(reflectionItems.filter(isWeekTrackerReflectionItem)),
+          initiativeItems: reflectionInitiatives.sort((left, right) =>
+            left.initiative.title.localeCompare(right.initiative.title)
+          ),
+        },
       }
     }
-
-    const visibleInitiatives = new Map(
-      deps.initiatives.filter((initiative) => initiative.isActive).map((initiative) => [initiative.id, initiative]),
-    )
-    const planningInitiatives = deps.initiativePlanStates.flatMap((planState) => {
-      const initiative = visibleInitiatives.get(planState.initiativeId)
-      if (!initiative) {
-        return []
-      }
-
-      const placement = planState.dayRef
-        ? 'assigned'
-        : planState.weekRef === weekRef
-          ? 'planned'
-          : planState.monthRef && overlappingMonthRefs.includes(planState.monthRef)
-            ? 'unassigned'
-            : undefined
-
-      return placement
-        ? [{ initiative, planState, placement: placement as WeekMeasurementPlacement }]
-        : []
-    })
-
-    const reflectionInitiatives = planningInitiatives
-      .filter((item) => isInitiativePlanInWeek(item.planState, weekRef))
-      .map((item) => ({ initiative: item.initiative, planState: item.planState }))
-
-    const visibleGoals = new Map(deps.goals.filter((goal) => goal.isActive).map((goal) => [goal.id, goal]))
-    const goalMonthStateMap = new Map(
-      deps.goalMonthStates
-        .filter((state) => overlappingMonthRefs.includes(state.monthRef))
-        .map((state) => [`${state.goalId}:${state.monthRef}`, state]),
-    )
-    const reflectionGoalIds = new Set<string>()
-    for (const item of reflectionItems) {
-      if (item.subjectType === 'keyResult' && 'goalId' in item.subject) {
-        reflectionGoalIds.add(item.subject.goalId)
-      }
-    }
-    for (const item of reflectionInitiatives) {
-      if (item.initiative.goalId) {
-        reflectionGoalIds.add(item.initiative.goalId)
-      }
-    }
-
-    const goalItems = [...reflectionGoalIds].flatMap((goalId) => {
-      const goal = visibleGoals.get(goalId)
-      if (!goal) {
-        return []
-      }
-
-      const monthStates = overlappingMonthRefs
-        .map((monthRef) => goalMonthStateMap.get(`${goalId}:${monthRef}`))
-        .filter((state): state is GoalMonthState => Boolean(state))
-
-      return monthStates.length > 0 ? [{ goal, monthStates }] : []
-    })
-
-    return {
-      weekRef,
-      overlappingMonthRefs,
-      rawEntries: deps.dailyMeasurementEntries,
-      planning: {
-        measurementItems: sortMeasurementItems(planningItems),
-        cadencedItems: sortMeasurementItems(planningItems.filter(isWeekCadencedPlanningItem)),
-        trackerItems: sortMeasurementItems(planningItems.filter(isWeekTrackerPlanningItem)),
-        initiativeItems: [...planningInitiatives].sort((left, right) =>
-          left.initiative.title.localeCompare(right.initiative.title),
-        ),
-      },
-      reflection: {
-        goalItems,
-        measurementItems: sortMeasurementItems(reflectionItems),
-        cadencedItems: sortMeasurementItems(reflectionItems.filter(isWeekCadencedReflectionItem)),
-        trackerItems: sortMeasurementItems(reflectionItems.filter(isWeekTrackerReflectionItem)),
-        initiativeItems: reflectionInitiatives.sort((left, right) =>
-          left.initiative.title.localeCompare(right.initiative.title),
-        ),
-      },
-    }
-  })
+  )
 }
 
 export async function getWeekPlanningBundle(
   weekRef: WeekRef,
-  asOfDayRef?: DayRef,
+  asOfDayRef?: DayRef
 ): Promise<WeekPlanningBundle> {
-  return loadPlanningCached(weekPlanningBundleCache, `${weekRef}:${asOfDayRef ?? '-'}`, async () => {
-    const [weekPlan, relevant] = await Promise.all([
-      periodPlanDexieRepository.getWeekPlan(weekRef),
-      getWeekRelevantObjects(weekRef, asOfDayRef),
-    ])
+  return loadPlanningCached(
+    weekPlanningBundleCache,
+    `${weekRef}:${asOfDayRef ?? '-'}`,
+    async () => {
+      const [weekPlan, relevant] = await Promise.all([
+        periodPlanDexieRepository.getWeekPlan(weekRef),
+        getWeekRelevantObjects(weekRef, asOfDayRef),
+      ])
 
-    return {
-      weekRef,
-      overlappingMonthRefs: relevant.overlappingMonthRefs,
-      weekPlan,
-      relevant: relevant.planning,
-      rawEntries: relevant.rawEntries,
+      return {
+        weekRef,
+        overlappingMonthRefs: relevant.overlappingMonthRefs,
+        weekPlan,
+        relevant: relevant.planning,
+        rawEntries: relevant.rawEntries,
+      }
     }
-  })
+  )
 }
 
 export async function getWeekReflectionBundle(
   weekRef: WeekRef,
-  asOfDayRef?: DayRef,
+  asOfDayRef?: DayRef
 ): Promise<WeekReflectionBundle> {
-  return loadPlanningCached(weekReflectionBundleCache, `${weekRef}:${asOfDayRef ?? '-'}`, async () => {
-    const [weekPlan, periodReflection, objectReflections, relevant] = await Promise.all([
-      periodPlanDexieRepository.getWeekPlan(weekRef),
-      reflectionDexieRepository.getPeriodReflection('week', weekRef),
-      reflectionDexieRepository.listPeriodObjectReflections(),
-      getWeekRelevantObjects(weekRef, asOfDayRef),
-    ])
+  return loadPlanningCached(
+    weekReflectionBundleCache,
+    `${weekRef}:${asOfDayRef ?? '-'}`,
+    async () => {
+      const [weekPlan, periodReflection, objectReflections, relevant] = await Promise.all([
+        periodPlanDexieRepository.getWeekPlan(weekRef),
+        reflectionDexieRepository.getPeriodReflection('week', weekRef),
+        reflectionDexieRepository.listPeriodObjectReflections(),
+        getWeekRelevantObjects(weekRef, asOfDayRef),
+      ])
 
-    return {
-      weekRef,
-      overlappingMonthRefs: relevant.overlappingMonthRefs,
-      weekPlan,
-      periodReflection,
-      objectReflections: objectReflections.filter(
-        (item) => item.periodType === 'week' && item.periodRef === weekRef,
-      ),
-      relevant: relevant.reflection,
+      return {
+        weekRef,
+        overlappingMonthRefs: relevant.overlappingMonthRefs,
+        weekPlan,
+        periodReflection,
+        objectReflections: objectReflections.filter(
+          item => item.periodType === 'week' && item.periodRef === weekRef
+        ),
+        relevant: relevant.reflection,
+      }
     }
-  })
+  )
 }

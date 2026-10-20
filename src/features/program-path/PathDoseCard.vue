@@ -1,7 +1,15 @@
 <template>
-  <section class="mg-v2-surface mg-v2-surface--raised-sm pp-card" :aria-label="t('programs.dose.title')" data-testid="path-dose">
-    <header class="pp-card__head"><span>{{ t('programs.dose.title') }}</span></header>
-    <p class="dose__lead">{{ tg(proposal.kind === 'none' ? 'programs.dose.leadNone' : 'programs.dose.leadTooMuch') }}</p>
+  <section
+    class="mg-v2-surface mg-v2-surface--raised-sm pp-card"
+    :aria-label="t('programs.dose.title')"
+    data-testid="path-dose"
+  >
+    <header class="pp-card__head">
+      <span>{{ t('programs.dose.title') }}</span>
+    </header>
+    <p class="dose__lead">
+      {{ tg(proposal.kind === 'none' ? 'programs.dose.leadNone' : 'programs.dose.leadTooMuch') }}
+    </p>
     <ul class="dose__list">
       <li v-for="item in rows" :key="item.slug">
         <AppIcon :name="item.icon" />
@@ -9,12 +17,21 @@
         <small>{{ item.change }}</small>
       </li>
     </ul>
-    <p v-if="proposal.kind === 'none'" class="pp-muted">{{ t('programs.dose.cardHint', { card: t('programKnowledge.notIndulgence.title') }) }}</p>
+    <p v-if="proposal.kind === 'none'" class="pp-muted">
+      {{ t('programs.dose.cardHint', { card: t('programKnowledge.notIndulgence.title') }) }}
+    </p>
     <div class="pp-chips">
-      <button type="button" class="pp-chip pp-chip--primary" :disabled="busy" @click="emit('apply')">
+      <button
+        type="button"
+        class="pp-chip pp-chip--primary"
+        :disabled="busy"
+        @click="emit('apply')"
+      >
         {{ t(proposal.kind === 'none' ? 'programs.dose.applyNone' : 'programs.dose.applyTooMuch') }}
       </button>
-      <button type="button" class="pp-chip" :disabled="busy" @click="emit('keep')">{{ t('programs.dose.keep') }}</button>
+      <button type="button" class="pp-chip" :disabled="busy" @click="emit('keep')">
+        {{ t('programs.dose.keep') }}
+      </button>
     </div>
   </section>
 </template>
@@ -36,10 +53,17 @@ const emit = defineEmits<{ apply: []; keep: [] }>()
 const { t, tg, tp } = useT()
 
 const every = (days: number) =>
-  days === 1 ? t('programs.ui.everyDay') : tp(days, 'programs.ui.everyNDays.one', 'programs.ui.everyNDays.few', 'programs.ui.everyNDays.many')
+  days === 1
+    ? t('programs.ui.everyDay')
+    : tp(
+        days,
+        'programs.ui.everyNDays.one',
+        'programs.ui.everyNDays.few',
+        'programs.ui.everyNDays.many'
+      )
 
 const rows = computed(() =>
-  props.proposal.items.map((item) => {
+  props.proposal.items.map(item => {
     const entry = getCatalogEntry(item.slug)
     return {
       slug: item.slug,
@@ -47,7 +71,7 @@ const rows = computed(() =>
       title: entry ? t(`exercises.cards.${entry.i18nKey}.title`) : item.slug,
       change: `${every(item.from)} → ${every(item.to)}`,
     }
-  }),
+  })
 )
 </script>
 

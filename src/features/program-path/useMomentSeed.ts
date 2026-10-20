@@ -16,7 +16,7 @@ export function useMomentSeed() {
   const seed = computed<MomentSeed | null>(() => {
     const id = route.query.momentId
     if (typeof id !== 'string' || !id) return null
-    const entry = entryStore.entries.find((candidate) => candidate.id === id)
+    const entry = entryStore.entries.find(candidate => candidate.id === id)
     return entry ? momentSeedFrom(entry) : null
   })
   return { seed, entryStore }

@@ -1,10 +1,5 @@
 <template>
-  <div
-    :class="[
-      'flex',
-      speaker === 'self' ? 'justify-end' : 'justify-start',
-    ]"
-  >
+  <div :class="['flex', speaker === 'self' ? 'justify-end' : 'justify-start']">
     <div
       :class="[
         'relative max-w-[85%] rounded-2xl px-4 py-3 group',
@@ -16,7 +11,11 @@
       :style="speaker === 'part' && partColor ? { borderLeftColor: partColor } : {}"
     >
       <p class="text-xs font-medium text-on-surface-variant mb-1">
-        {{ speaker === 'self' ? t('exerciseWizards.shared.ifs.dialogueBubble.self') : partName ?? t('exerciseWizards.shared.ifs.dialogueBubble.partFallback') }}
+        {{
+          speaker === 'self'
+            ? t('exerciseWizards.shared.ifs.dialogueBubble.self')
+            : (partName ?? t('exerciseWizards.shared.ifs.dialogueBubble.partFallback'))
+        }}
       </p>
       <p class="text-sm text-on-surface whitespace-pre-wrap">{{ message.content }}</p>
       <p class="text-[10px] text-on-surface-variant/60 mt-1.5">
@@ -25,7 +24,9 @@
       <button
         v-if="speaker === 'part'"
         class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity neo-focus rounded-full p-1"
-        :class="isBookmarked ? 'text-primary' : 'text-on-surface-variant/40 hover:text-on-surface-variant'"
+        :class="
+          isBookmarked ? 'text-primary' : 'text-on-surface-variant/40 hover:text-on-surface-variant'
+        "
         @click="$emit('bookmark')"
       >
         <AppIcon name="bookmark" class="text-base" :class="isBookmarked ? 'fill-current' : ''" />

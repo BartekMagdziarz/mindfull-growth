@@ -1,10 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { buildUserContext } from '../userContext'
-import {
-  PROFILE_SECTION_IDS,
-  type ProfileSections,
-  type UserProfile,
-} from '@/domain/userProfile'
+import { PROFILE_SECTION_IDS, type ProfileSections, type UserProfile } from '@/domain/userProfile'
 
 function emptySections(): ProfileSections {
   return {
@@ -20,10 +16,7 @@ function emptySections(): ProfileSections {
   }
 }
 
-function makeProfile(
-  sections: Partial<ProfileSections> = {},
-  note?: string,
-): UserProfile {
+function makeProfile(sections: Partial<ProfileSections> = {}, note?: string): UserProfile {
   return {
     id: 'p1',
     createdAt: '2026-01-01T00:00:00.000Z',
@@ -66,9 +59,7 @@ describe('buildUserContext', () => {
   })
 
   it('renders header and the single populated section without stray labels', () => {
-    const out = buildUserContext(
-      makeProfile({ summary: 'Curious, reflective.' }),
-    )
+    const out = buildUserContext(makeProfile({ summary: 'Curious, reflective.' }))
     expect(out).toContain('## User Profile Context')
     expect(out).toContain('### Summary')
     expect(out).toContain('Curious, reflective.')
@@ -78,9 +69,7 @@ describe('buildUserContext', () => {
   })
 
   it('renders the note on the second line when present', () => {
-    const out = buildUserContext(
-      makeProfile({ summary: 'S' }, 'Q1 review'),
-    )
+    const out = buildUserContext(makeProfile({ summary: 'S' }, 'Q1 review'))
     const lines = out.split('\n')
     expect(lines[0]).toBe('## User Profile Context')
     expect(lines[1]).toBe('_Note: Q1 review_')
@@ -90,9 +79,7 @@ describe('buildUserContext', () => {
     const withoutNote = buildUserContext(makeProfile({ summary: 'S' }))
     expect(withoutNote).not.toContain('_Note:')
 
-    const whitespaceNote = buildUserContext(
-      makeProfile({ summary: 'S' }, '   \t '),
-    )
+    const whitespaceNote = buildUserContext(makeProfile({ summary: 'S' }, '   \t '))
     expect(whitespaceNote).not.toContain('_Note:')
   })
 
@@ -117,16 +104,14 @@ describe('buildUserContext', () => {
       out.indexOf('### Suggested Directions'),
     ]
     // Every header was found...
-    expect(positions.every((p) => p >= 0)).toBe(true)
+    expect(positions.every(p => p >= 0)).toBe(true)
     // ...and they appear strictly increasing, i.e. canonical order.
     const sorted = [...positions].sort((a, b) => a - b)
     expect(positions).toEqual(sorted)
   })
 
   it('trims whitespace from section bodies but keeps internal formatting', () => {
-    const out = buildUserContext(
-      makeProfile({ summary: '  Curious.\n  Reflective.\n  ' }),
-    )
+    const out = buildUserContext(makeProfile({ summary: '  Curious.\n  Reflective.\n  ' }))
     // Body is trimmed at the edges.
     expect(out).toContain('Curious.\n  Reflective.')
     // Leading whitespace ahead of "Curious." is gone.
@@ -134,10 +119,7 @@ describe('buildUserContext', () => {
   })
 
   it('produces a deterministic output for identical input', () => {
-    const profile = makeProfile(
-      { summary: 'S', values: 'V', challenges: 'C' },
-      'A note',
-    )
+    const profile = makeProfile({ summary: 'S', values: 'V', challenges: 'C' }, 'A note')
     const a = buildUserContext(profile)
     const b = buildUserContext(profile)
     expect(a).toBe(b)

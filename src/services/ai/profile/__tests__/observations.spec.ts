@@ -396,29 +396,25 @@ describe('broader observation sources', () => {
 
 it('uses measurement days rather than backfill time for distinct evidence episodes', async () => {
   const db = getTestDatabase()
-  await db
-    .table('habits')
-    .put({
-      id: 'habit',
-      title: 'Spacer',
-      createdAt: '2026-01-01T12:00:00Z',
-      updatedAt: '2026-01-01T12:00:00Z',
-    })
+  await db.table('habits').put({
+    id: 'habit',
+    title: 'Spacer',
+    createdAt: '2026-01-01T12:00:00Z',
+    updatedAt: '2026-01-01T12:00:00Z',
+  })
   for (const [id, dayRef, value] of [
     ['m1', '2026-09-03', 1],
     ['m2', '2026-09-04', 0],
   ] as const)
-    await db
-      .table('dailyMeasurementEntries')
-      .put({
-        id,
-        subjectType: 'habit',
-        subjectId: 'habit',
-        dayRef,
-        value,
-        createdAt: '2026-09-25T12:00:00Z',
-        updatedAt: '2026-09-25T12:00:00Z',
-      })
+    await db.table('dailyMeasurementEntries').put({
+      id,
+      subjectType: 'habit',
+      subjectId: 'habit',
+      dayRef,
+      value,
+      createdAt: '2026-09-25T12:00:00Z',
+      updatedAt: '2026-09-25T12:00:00Z',
+    })
   const transport = model((candidate, payload) => {
     candidate.support = ['m1', 'm2'].map(
       id => payload.evidence.find((e: any) => e.citation.ref.id === id && e.field === 'value').id

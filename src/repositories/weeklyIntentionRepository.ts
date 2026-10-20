@@ -6,11 +6,10 @@ import type {
 import type { WeekRef } from '@/domain/period'
 import type { PlanningObjectRepository } from './planningObjectRepository'
 
-export interface WeeklyIntentionRepository
-  extends PlanningObjectRepository<
-    WeeklyIntention,
-    CreateWeeklyIntentionPayload,
-    UpdateWeeklyIntentionPayload
-  > {
+export interface WeeklyIntentionRepository extends PlanningObjectRepository<
+  WeeklyIntention,
+  CreateWeeklyIntentionPayload,
+  UpdateWeeklyIntentionPayload
+> {
   listByWeek(weekRef: WeekRef): Promise<WeeklyIntention[]>
 }

@@ -9,12 +9,15 @@
 </template>
 
 <script setup lang="ts">
-withDefaults(defineProps<{
-  done?: boolean
-  value?: string | number
-  label: string
-}>(), {
-  done: false,
-  value: '',
-})
+withDefaults(
+  defineProps<{
+    done?: boolean
+    value?: string | number
+    label: string
+  }>(),
+  {
+    done: false,
+    value: '',
+  }
+)
 </script>

@@ -57,7 +57,7 @@ const props = withDefaults(
     hasEntry?: boolean
     isPending?: boolean
   }>(),
-  { hasEntry: true, isPending: false },
+  { hasEntry: true, isPending: false }
 )
 
 const emit = defineEmits<{
@@ -73,12 +73,12 @@ const justSubmitted = ref(false)
 
 const { value: draftValue } = useEditableField<number, string>({
   source: () => props.currentValue,
-  format: (v) => (v ? formatValue(v) : ''),
+  format: v => (v ? formatValue(v) : ''),
   isFocused: () =>
     typeof document !== 'undefined' && document.activeElement === inlineInputRef.value,
 })
 
-watch(showInlineEdit, async (show) => {
+watch(showInlineEdit, async show => {
   if (show) {
     draftValue.value = formatValue(props.currentValue)
     await nextTick()

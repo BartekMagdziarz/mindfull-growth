@@ -20,7 +20,8 @@ const numberStyle = computed(() => {
   if (props.day.isToday) {
     return {
       color: '#fff',
-      background: 'linear-gradient(135deg, rgb(var(--stream-accent-soft, 142 188 240)), rgb(var(--stream-accent, 112 168 232)))',
+      background:
+        'linear-gradient(135deg, rgb(var(--stream-accent-soft, 142 188 240)), rgb(var(--stream-accent, 112 168 232)))',
       width: '28px',
       height: '28px',
       borderRadius: '9999px',
@@ -58,7 +59,7 @@ const emoRingStyle = computed(() => {
   }
   const total = props.day.emotionSegments.reduce((sum, seg) => sum + seg.weight, 0) || 1
   let acc = 0
-  const stops = props.day.emotionSegments.map((seg) => {
+  const stops = props.day.emotionSegments.map(seg => {
     const start = (acc / total) * 360
     acc += seg.weight
     const end = (acc / total) * 360
@@ -77,7 +78,9 @@ const emoCountStyle = computed(() => ({
       : 'rgb(var(--stream-ink, 15 39 69))',
 }))
 
-const emoCountText = computed(() => (props.day.emotionCount === 0 ? '—' : String(props.day.emotionCount)))
+const emoCountText = computed(() =>
+  props.day.emotionCount === 0 ? '—' : String(props.day.emotionCount)
+)
 
 const exerciseBoxStyle = computed(() => {
   if (props.day.exerciseCount > 0) {
@@ -99,7 +102,7 @@ const exerciseCountStyle = computed(() => ({
 }))
 
 const exerciseCountText = computed(() =>
-  props.day.exerciseCount === 0 ? '—' : String(props.day.exerciseCount),
+  props.day.exerciseCount === 0 ? '—' : String(props.day.exerciseCount)
 )
 </script>
 
@@ -113,8 +116,12 @@ const exerciseCountText = computed(() =>
     <div class="stream-day__indicators">
       <div class="stream-day__indicator">
         <span class="stream-day__journal" :style="journalBoxStyle">
-          <AppIcon class="material-symbols-outlined" :style="journalIconStyle" aria-hidden="true"
-             name="edit_note" />
+          <AppIcon
+            class="material-symbols-outlined"
+            :style="journalIconStyle"
+            aria-hidden="true"
+            name="edit_note"
+          />
         </span>
         <span class="stream-day__indicator-name">{{ journalLabel }}</span>
       </div>
@@ -128,7 +135,9 @@ const exerciseCountText = computed(() =>
       </div>
       <div class="stream-day__indicator">
         <span class="stream-day__exercise" :style="exerciseBoxStyle">
-          <span class="stream-day__exercise-count" :style="exerciseCountStyle">{{ exerciseCountText }}</span>
+          <span class="stream-day__exercise-count" :style="exerciseCountStyle">{{
+            exerciseCountText
+          }}</span>
         </span>
         <span class="stream-day__indicator-name">{{ exercisesLabel }}</span>
       </div>

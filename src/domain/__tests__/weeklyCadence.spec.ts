@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import type { DayRef, WeekRef } from '@/domain/period'
-import { classifyWeek, statusFromWeekTally, tallyWeekStates, weekPhase } from '@/domain/weeklyCadence'
+import {
+  classifyWeek,
+  statusFromWeekTally,
+  tallyWeekStates,
+  weekPhase,
+} from '@/domain/weeklyCadence'
 
 // 2026-W39 = Mon 28 Sep … Sun 4 Oct (weeks count from the year's first Monday).
 const W38 = '2026-W38' as WeekRef
@@ -26,7 +31,15 @@ describe('weeklyCadence', () => {
   })
 
   it('counts only decided assigned weeks', () => {
-    const tally = tallyWeekStates(['met', 'missed', 'no-data', 'ongoing', 'future', 'unplanned', 'met'])
+    const tally = tallyWeekStates([
+      'met',
+      'missed',
+      'no-data',
+      'ongoing',
+      'future',
+      'unplanned',
+      'met',
+    ])
     expect(tally).toEqual({ met: 2, planned: 4, missed: 1, ongoing: 1 })
   })
 

@@ -11,11 +11,7 @@
       <div
         class="grid aspect-square grid-cols-2 grid-rows-2 gap-1 rounded-2xl bg-neu-base p-1.5 shadow-neu-pressed-sm"
       >
-        <div
-          v-for="q in quadrantTiles"
-          :key="q.key"
-          class="flex items-center justify-center"
-        >
+        <div v-for="q in quadrantTiles" :key="q.key" class="flex items-center justify-center">
           <div
             class="flex items-center justify-center rounded-xl text-sm font-semibold shadow-neu-raised-sm"
             :style="{
@@ -97,8 +93,8 @@ const monthBounds = computed(() => {
 
 const monthLogs = computed(() =>
   emotionLogStore.sortedLogs.filter(
-    (log) => log.createdAt >= monthBounds.value.startISO && log.createdAt <= monthBounds.value.endISO,
-  ),
+    log => log.createdAt >= monthBounds.value.startISO && log.createdAt <= monthBounds.value.endISO
+  )
 )
 
 const quadrantCounts = computed<Record<Quadrant, number>>(() => {

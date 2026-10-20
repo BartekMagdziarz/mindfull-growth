@@ -54,7 +54,7 @@ const defaultFormat = <TStored, TInput>(stored: TStored | undefined): TInput =>
   (stored == null ? '' : String(stored)) as unknown as TInput
 
 export function useEditableField<TStored, TInput = string>(
-  options: UseEditableFieldOptions<TStored, TInput>,
+  options: UseEditableFieldOptions<TStored, TInput>
 ): UseEditableFieldReturn<TInput> {
   const { source, commit, delay } = options
   const format = (options.format ?? defaultFormat) as (s: TStored | undefined) => TInput
@@ -67,7 +67,7 @@ export function useEditableField<TStored, TInput = string>(
   let pendingValue: TInput | undefined
   let suppressDraftWatch = false
 
-  watch(source, (next) => {
+  watch(source, next => {
     const focused = options.isFocused
       ? options.isFocused()
       : typeof document !== 'undefined' &&
@@ -84,7 +84,7 @@ export function useEditableField<TStored, TInput = string>(
     suppressDraftWatch = false
   })
 
-  watch(value, (next) => {
+  watch(value, next => {
     if (suppressDraftWatch) return
     if (!commit) return
 

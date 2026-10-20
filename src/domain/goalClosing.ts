@@ -34,12 +34,12 @@ export interface GoalClosingMonthsVerdict {
  *   over all planned periods reaches GOAL_CLOSING_MET_SHARE.
  */
 export function evaluateClosingMonths(
-  months: readonly { state: GoalClosingMonthState }[],
+  months: readonly { state: GoalClosingMonthState }[]
 ): GoalClosingMonthsVerdict {
-  const planned = months.filter((month) => month.state !== 'unplanned' && month.state !== 'ongoing')
+  const planned = months.filter(month => month.state !== 'unplanned' && month.state !== 'ongoing')
   const monthsPlanned = planned.length
-  const monthsMet = planned.filter((month) => month.state === 'met').length
-  const decided = planned.filter((month) => month.state !== 'no-data')
+  const monthsMet = planned.filter(month => month.state === 'met').length
+  const decided = planned.filter(month => month.state !== 'no-data')
   if (decided.length === 0) {
     return { evaluation: 'no-data', monthsMet, monthsPlanned }
   }
@@ -53,11 +53,11 @@ export function evaluateClosingMonths(
  * plan count; with none, nothing is suggested and the user picks unaided.
  */
 export function suggestGoalOutcome(
-  keyResults: readonly Pick<GoalClosingKeyResultSnapshot, 'evaluation'>[],
+  keyResults: readonly Pick<GoalClosingKeyResultSnapshot, 'evaluation'>[]
 ): GoalOutcome | null {
-  const decided = keyResults.filter((item) => item.evaluation !== 'no-data')
+  const decided = keyResults.filter(item => item.evaluation !== 'no-data')
   if (decided.length === 0) return null
-  const met = decided.filter((item) => item.evaluation === 'met').length
+  const met = decided.filter(item => item.evaluation === 'met').length
   if (met === decided.length) return 'achieved'
   if (met === 0) return 'missed'
   return 'partial'
@@ -65,7 +65,7 @@ export function suggestGoalOutcome(
 
 /** The mirror step exists only when the creation wizard left something to mirror. */
 export function goalHasStartMirror(
-  goal: Pick<Goal, 'successDefinition' | 'confidenceRating' | 'obstacles'>,
+  goal: Pick<Goal, 'successDefinition' | 'confidenceRating' | 'obstacles'>
 ): boolean {
   return Boolean(goal.successDefinition || goal.confidenceRating !== undefined || goal.obstacles)
 }

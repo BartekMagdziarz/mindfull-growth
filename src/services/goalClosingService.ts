@@ -18,7 +18,12 @@ import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepositor
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import type { MeasurementEvaluationStatus } from '@/services/measurementProgress'
 import { getMonthPlanningBundle, getWeekPlanningBundle } from '@/services/planningStateQueries'
-import { addDaysToDayRef, getChildPeriods, getPeriodBounds, getPeriodRefsForDate } from '@/utils/periods'
+import {
+  addDaysToDayRef,
+  getChildPeriods,
+  getPeriodBounds,
+  getPeriodRefsForDate,
+} from '@/utils/periods'
 import { periodsInDateRange } from '@/utils/periodSchedule'
 
 /**
@@ -87,7 +92,7 @@ interface ClosingWindow {
 function closingPeriodState(
   status: MeasurementEvaluationStatus,
   periodEnd: DayRef,
-  today: DayRef,
+  today: DayRef
 ): GoalClosingMonthState {
   if (status === 'met') return 'met'
   return periodEnd >= today ? 'ongoing' : status
@@ -105,7 +110,7 @@ function closingPeriodState(
  */
 async function snapshotKeyResult(
   keyResult: KeyResult,
-  window: ClosingWindow,
+  window: ClosingWindow
 ): Promise<GoalClosingKeyResultSnapshot> {
   let lastValue: number | undefined
 
@@ -116,16 +121,17 @@ async function snapshotKeyResult(
     for (const monthRef of window.months) {
       const bundle = await getMonthPlanningBundle(monthRef)
       const item = bundle.measurementItems.find(
-        (candidate) => candidate.subjectType === 'keyResult' && candidate.subject.id === keyResult.id,
+        candidate => candidate.subjectType === 'keyResult' && candidate.subject.id === keyResult.id
       )
-      item?.plannedWeekRefs.forEach((weekRef) => assigned.add(weekRef))
+      item?.plannedWeekRefs.forEach(weekRef => assigned.add(weekRef))
     }
 
     const weekStates: { weekRef: WeekRef; state: GoalClosingMonthState }[] = []
     for (const weekRef of window.weeks) {
       const item = assigned.has(weekRef)
         ? (await getWeekPlanningBundle(weekRef, window.today)).relevant.cadencedItems.find(
-            (candidate) => candidate.subjectType === 'keyResult' && candidate.subject.id === keyResult.id,
+            candidate =>
+              candidate.subjectType === 'keyResult' && candidate.subject.id === keyResult.id
           )
         : undefined
       if (!item) {
@@ -135,14 +141,23 @@ async function snapshotKeyResult(
       if (item.measurement.actualValue !== undefined) lastValue = item.measurement.actualValue
       weekStates.push({
         weekRef,
-        state: closingPeriodState(item.measurement.evaluationStatus ?? 'no-data', getPeriodBounds(weekRef).end, window.today),
+        state: closingPeriodState(
+          item.measurement.evaluationStatus ?? 'no-data',
+          getPeriodBounds(weekRef).end,
+          window.today
+        ),
       })
     }
 
     const verdict = evaluateClosingMonths(weekStates)
-    const lastReadout = keyResult.entryMode === 'value' || keyResult.entryMode === 'rating'
-      ? lastValue === undefined ? undefined : formatReadoutNumber(lastValue)
-      : verdict.monthsPlanned > 0 ? `${verdict.monthsMet}/${verdict.monthsPlanned} tyg.` : undefined
+    const lastReadout =
+      keyResult.entryMode === 'value' || keyResult.entryMode === 'rating'
+        ? lastValue === undefined
+          ? undefined
+          : formatReadoutNumber(lastValue)
+        : verdict.monthsPlanned > 0
+          ? `${verdict.monthsMet}/${verdict.monthsPlanned} tyg.`
+          : undefined
 
     return {
       id: keyResult.id,
@@ -164,7 +179,7 @@ async function snapshotKeyResult(
   for (const monthRef of window.months) {
     const bundle = await getMonthPlanningBundle(monthRef)
     const item = bundle.measurementItems.find(
-      (candidate) => candidate.subjectType === 'keyResult' && candidate.subject.id === keyResult.id,
+      candidate => candidate.subjectType === 'keyResult' && candidate.subject.id === keyResult.id
     )
     if (!item) {
       monthStates.push({ monthRef, state: 'unplanned' })
@@ -173,7 +188,11 @@ async function snapshotKeyResult(
     if (item.measurement?.actualValue !== undefined) lastValue = item.measurement.actualValue
     monthStates.push({
       monthRef,
-      state: closingPeriodState(item.measurement?.evaluationStatus ?? 'no-data', getPeriodBounds(monthRef).end, window.today),
+      state: closingPeriodState(
+        item.measurement?.evaluationStatus ?? 'no-data',
+        getPeriodBounds(monthRef).end,
+        window.today
+      ),
     })
   }
 
@@ -204,7 +223,7 @@ async function snapshotKeyResult(
  */
 async function countPlannedWeeks(
   snapshots: GoalClosingKeyResultSnapshot[],
-  window: ClosingWindow,
+  window: ClosingWindow
 ): Promise<number> {
   const started = new Set(window.weeks)
   const planned = new Set<string>()
@@ -213,7 +232,9 @@ async function countPlannedWeeks(
       if (week.state !== 'unplanned') planned.add(week.weekRef)
     }
   }
-  const monthlyIds = new Set(snapshots.filter((item) => item.cadence === 'monthly').map((item) => item.id))
+  const monthlyIds = new Set(
+    snapshots.filter(item => item.cadence === 'monthly').map(item => item.id)
+  )
   if (monthlyIds.size) {
     for (const monthRef of window.months) {
       const bundle = await getMonthPlanningBundle(monthRef)
@@ -232,8 +253,8 @@ async function countPlannedWeeks(
 async function resolveGoalMonths(goal: Goal): Promise<MonthRef[]> {
   const states = await planningStateDexieRepository.listGoalMonthStates()
   const active = states
-    .filter((state) => state.goalId === goal.id && state.activityState === 'active')
-    .map((state) => state.monthRef)
+    .filter(state => state.goalId === goal.id && state.activityState === 'active')
+    .map(state => state.monthRef)
   if (active.length) return [...new Set(active)].sort()
   if (goal.startDate && goal.targetDate) {
     return periodsInDateRange(goal.startDate, goal.targetDate, 'monthly') as MonthRef[]
@@ -247,11 +268,13 @@ export async function buildGoalClosingSnapshot(goalId: string): Promise<GoalClos
     throw new Error(`Goal with id ${goalId} not found`)
   }
   const keyResults = (await keyResultDexieRepository.listAll()).filter(
-    (item) => item.goalId === goalId && item.isActive,
+    item => item.goalId === goalId && item.isActive
   )
   const today = todayRef()
   // Only what has happened: months and weeks that started by today.
-  const months = (await resolveGoalMonths(goal)).filter((monthRef) => getPeriodBounds(monthRef).start <= today)
+  const months = (await resolveGoalMonths(goal)).filter(
+    monthRef => getPeriodBounds(monthRef).start <= today
+  )
   const weekSet = new Set<WeekRef>()
   for (const monthRef of months) {
     for (const weekRef of getChildPeriods(monthRef) as WeekRef[]) {
@@ -294,7 +317,7 @@ function habitPayloadFromKeyResult(keyResult: KeyResult, goal: Goal) {
 export async function closeGoal(
   goalId: string,
   draft: GoalClosingDraft,
-  snapshot?: GoalClosingSnapshot,
+  snapshot?: GoalClosingSnapshot
 ): Promise<GoalClosingResult> {
   const snap = snapshot ?? (await buildGoalClosingSnapshot(goalId))
   const { goal } = snap
@@ -302,11 +325,13 @@ export async function closeGoal(
 
   const alreadyCreated = new Set(goal.closingReflection?.followUp?.createdHabitIds ?? [])
   const createdHabits: Habit[] = []
-  const wantsHabits = draft.followUp?.kind === 'habit' ? draft.habitFromKeyResultIds ?? [] : []
+  const wantsHabits = draft.followUp?.kind === 'habit' ? (draft.habitFromKeyResultIds ?? []) : []
   for (const keyResultId of wantsHabits) {
-    const keyResult = snap.keyResults.find((item) => item.id === keyResultId)
+    const keyResult = snap.keyResults.find(item => item.id === keyResultId)
     if (!keyResult) continue
-    createdHabits.push(await habitDexieRepository.create(habitPayloadFromKeyResult(keyResult, goal)))
+    createdHabits.push(
+      await habitDexieRepository.create(habitPayloadFromKeyResult(keyResult, goal))
+    )
   }
 
   for (const keyResult of snap.keyResults) {
@@ -319,7 +344,7 @@ export async function closeGoal(
     ? {
         kind: draft.followUp.kind,
         note: draft.followUp.note,
-        createdHabitIds: [...alreadyCreated, ...createdHabits.map((habit) => habit.id)],
+        createdHabitIds: [...alreadyCreated, ...createdHabits.map(habit => habit.id)],
       }
     : undefined
 
@@ -348,13 +373,20 @@ export async function closeGoal(
 }
 
 /** „Później” on the invite: keep the goal open and quiet for a week. */
-export async function deferGoalClosing(goalId: string, days = GOAL_CLOSING_DEFER_DAYS): Promise<Goal> {
-  return goalDexieRepository.update(goalId, { closingDeferredUntil: addDaysToDayRef(todayRef(), days) })
+export async function deferGoalClosing(
+  goalId: string,
+  days = GOAL_CLOSING_DEFER_DAYS
+): Promise<Goal> {
+  return goalDexieRepository.update(goalId, {
+    closingDeferredUntil: addDaysToDayRef(todayRef(), days),
+  })
 }
 
 /** Back to „Otwarty”: drops the reflection, reopens the goal's key results. */
 export async function reopenGoal(goalId: string): Promise<Goal> {
-  const keyResults = (await keyResultDexieRepository.listAll()).filter((item) => item.goalId === goalId)
+  const keyResults = (await keyResultDexieRepository.listAll()).filter(
+    item => item.goalId === goalId
+  )
   for (const keyResult of keyResults) {
     if (keyResult.status !== 'open') {
       await keyResultDexieRepository.update(keyResult.id, { status: 'open' })

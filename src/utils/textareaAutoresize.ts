@@ -53,7 +53,7 @@ function attach(el: AutoresizeTextarea): void {
 }
 
 function attachToAll(root: ParentNode): void {
-  root.querySelectorAll('textarea').forEach((el) => attach(el as AutoresizeTextarea))
+  root.querySelectorAll('textarea').forEach(el => attach(el as AutoresizeTextarea))
 }
 
 function patchValueSetter(): void {
@@ -91,9 +91,9 @@ export function setupTextareaAutoresize(): void {
 
   const init = () => {
     attachToAll(document)
-    const observer = new MutationObserver((mutations) => {
+    const observer = new MutationObserver(mutations => {
       for (const m of mutations) {
-        m.addedNodes.forEach((node) => {
+        m.addedNodes.forEach(node => {
           if (node instanceof HTMLTextAreaElement) {
             attach(node as AutoresizeTextarea)
           } else if (node instanceof Element) {

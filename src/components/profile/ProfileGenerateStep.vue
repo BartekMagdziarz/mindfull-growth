@@ -38,11 +38,7 @@
           </p>
         </div>
       </div>
-      <AppButton
-        variant="filled"
-        data-test-go-to-settings
-        @click="emit('goToSettings')"
-      >
+      <AppButton variant="filled" data-test-go-to-settings @click="emit('goToSettings')">
         {{ t('profile.psychologicalProfile.wizard.generate.missingApiKey.cta') }}
       </AppButton>
     </section>
@@ -76,10 +72,7 @@
       data-test-generate-state="empty-response"
     >
       <div class="flex items-start gap-3">
-        <AppIcon
-          name="sentiment_dissatisfied"
-          class="text-2xl text-on-surface-variant mt-0.5"
-        />
+        <AppIcon name="sentiment_dissatisfied" class="text-2xl text-on-surface-variant mt-0.5" />
         <div class="min-w-0 flex-1">
           <h2 class="text-base font-semibold text-on-surface">
             {{ t('profile.psychologicalProfile.wizard.generate.emptyResponse.title') }}
@@ -129,11 +122,7 @@
     </section>
 
     <!-- Idle (should rarely render — the view flips us to in-flight immediately) -->
-    <section
-      v-else
-      class="neo-surface rounded-3xl p-8 text-center"
-      data-test-generate-state="idle"
-    >
+    <section v-else class="neo-surface rounded-3xl p-8 text-center" data-test-generate-state="idle">
       <p class="text-sm text-on-surface-variant">
         {{ t('profile.psychologicalProfile.wizard.generate.inFlight') }}
       </p>

@@ -1,9 +1,6 @@
 <template>
   <section
-    :class="[
-      'neo-card overflow-hidden p-6 text-center md:p-8',
-      compact ? 'rounded-[1.9rem]' : '',
-    ]"
+    :class="['neo-card overflow-hidden p-6 text-center md:p-8', compact ? 'rounded-[1.9rem]' : '']"
   >
     <div class="neo-surface rounded-[1.8rem] px-6 py-10">
       <p

@@ -142,7 +142,7 @@ describe('assessmentsDexieRepository', () => {
     const latest = await assessmentsDexieRepository.getLatestCompletedAttempt('hexaco-60')
     const previous = await assessmentsDexieRepository.getPreviousCompletedAttempt(
       'hexaco-60',
-      secondCompleted.completedAt,
+      secondCompleted.completedAt
     )
 
     expect(latest?.id).toBe(secondCompleted.id)

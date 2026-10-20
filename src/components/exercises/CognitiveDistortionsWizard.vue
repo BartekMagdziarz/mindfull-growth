@@ -32,7 +32,9 @@
       <!-- Learning Step 1: Intro -->
       <template v-if="step === 0">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.cognitiveDistortions.learningIntro.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.cognitiveDistortions.learningIntro.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.cognitiveDistortions.learningIntro.description1') }}
           </p>
@@ -53,13 +55,22 @@
           <div class="flex items-center justify-between">
             <h2 class="text-lg font-semibold text-on-surface">{{ currentDistortion.name }}</h2>
             <span class="text-xs font-medium text-on-surface-variant">
-              {{ t('exerciseWizards.cognitiveDistortions.carousel.ofCount', { current: carouselIndex + 1, total: distortions.length }) }}
+              {{
+                t('exerciseWizards.cognitiveDistortions.carousel.ofCount', {
+                  current: carouselIndex + 1,
+                  total: distortions.length,
+                })
+              }}
             </span>
           </div>
 
           <!-- Aliases -->
           <p v-if="currentDistortion.aliases.length" class="text-xs text-on-surface-variant italic">
-            {{ t('exerciseWizards.cognitiveDistortions.carousel.alsoKnownAs', { aliases: currentDistortion.aliases.join(', ') }) }}
+            {{
+              t('exerciseWizards.cognitiveDistortions.carousel.alsoKnownAs', {
+                aliases: currentDistortion.aliases.join(', '),
+              })
+            }}
           </p>
 
           <!-- Definition -->
@@ -69,29 +80,31 @@
 
           <!-- Example -->
           <div class="neo-embedded p-4">
-            <p class="text-xs font-semibold text-on-surface-variant mb-1">{{ t('exerciseWizards.cognitiveDistortions.carousel.example') }}</p>
+            <p class="text-xs font-semibold text-on-surface-variant mb-1">
+              {{ t('exerciseWizards.cognitiveDistortions.carousel.example') }}
+            </p>
             <p class="text-sm text-on-surface italic">{{ currentDistortion.example }}</p>
           </div>
 
           <!-- Sounds like -->
           <div>
-            <p class="text-xs font-semibold text-on-surface-variant mb-1">{{ t('exerciseWizards.cognitiveDistortions.carousel.soundsLike') }}</p>
+            <p class="text-xs font-semibold text-on-surface-variant mb-1">
+              {{ t('exerciseWizards.cognitiveDistortions.carousel.soundsLike') }}
+            </p>
             <p class="text-sm text-on-surface">{{ currentDistortion.soundsLike }}</p>
           </div>
 
           <!-- Reality check -->
           <div>
-            <p class="text-xs font-semibold text-on-surface-variant mb-1">{{ t('exerciseWizards.cognitiveDistortions.carousel.realityCheck') }}</p>
+            <p class="text-xs font-semibold text-on-surface-variant mb-1">
+              {{ t('exerciseWizards.cognitiveDistortions.carousel.realityCheck') }}
+            </p>
             <p class="text-sm text-on-surface">{{ currentDistortion.realityCheck }}</p>
           </div>
         </AppCard>
 
         <div class="flex justify-between">
-          <AppButton
-            variant="text"
-            :disabled="carouselIndex === 0"
-            @click="carouselIndex--"
-          >
+          <AppButton variant="text" :disabled="carouselIndex === 0" @click="carouselIndex--">
             {{ t('exerciseWizards.cognitiveDistortions.carousel.previous') }}
           </AppButton>
           <AppButton
@@ -101,11 +114,7 @@
           >
             {{ t('common.buttons.next') }}
           </AppButton>
-          <AppButton
-            v-else
-            variant="filled"
-            @click="step = 2"
-          >
+          <AppButton v-else variant="filled" @click="step = 2">
             {{ t('exerciseWizards.cognitiveDistortions.carousel.selfCheckButton') }}
           </AppButton>
         </div>
@@ -114,7 +123,9 @@
       <!-- Learning Step 3: Self-Check -->
       <template v-if="step === 2">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.cognitiveDistortions.selfCheck.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.cognitiveDistortions.selfCheck.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.cognitiveDistortions.selfCheck.description') }}
           </p>
@@ -137,25 +148,31 @@
         <!-- Personal reflections per selected distortion -->
         <template v-if="learningDraft.recognizedIds.size > 0">
           <AppCard padding="lg" class="space-y-4">
-            <h3 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.cognitiveDistortions.selfCheck.personalReflections') }}</h3>
+            <h3 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.cognitiveDistortions.selfCheck.personalReflections') }}
+            </h3>
             <p class="text-sm text-on-surface-variant">
-              {{ t('exerciseWizards.cognitiveDistortions.selfCheck.personalReflectionsDescription') }}
+              {{
+                t('exerciseWizards.cognitiveDistortions.selfCheck.personalReflectionsDescription')
+              }}
             </p>
             <div class="space-y-3">
-              <div
-                v-for="id in sortedRecognizedIds"
-                :key="id"
-                class="space-y-1"
-              >
+              <div v-for="id in sortedRecognizedIds" :key="id" class="space-y-1">
                 <label class="text-xs font-semibold text-on-surface-variant">
                   {{ distortionById(id)?.name }}
                 </label>
                 <textarea
                   :value="learningDraft.personalExamples[id] ?? ''"
                   rows="2"
-                  :placeholder="t('exerciseWizards.cognitiveDistortions.selfCheck.personalExamplePlaceholder')"
+                  :placeholder="
+                    t('exerciseWizards.cognitiveDistortions.selfCheck.personalExamplePlaceholder')
+                  "
                   class="neo-input w-full p-2 text-sm resize-none"
-                  @input="learningDraft.personalExamples[id] = ($event.target as HTMLTextAreaElement).value"
+                  @input="
+                    learningDraft.personalExamples[id] = (
+                      $event.target as HTMLTextAreaElement
+                    ).value
+                  "
                 />
               </div>
             </div>
@@ -177,17 +194,20 @@
       <!-- Learning Step 4: Summary -->
       <template v-if="step === 3">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.cognitiveDistortions.learningSummary.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.cognitiveDistortions.learningSummary.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
-            {{ tg('exerciseWizards.cognitiveDistortions.learningSummary.recognizedCount', { recognized: learningDraft.recognizedIds.size, total: distortions.length }) }}
+            {{
+              tg('exerciseWizards.cognitiveDistortions.learningSummary.recognizedCount', {
+                recognized: learningDraft.recognizedIds.size,
+                total: distortions.length,
+              })
+            }}
           </p>
 
           <div class="space-y-3">
-            <div
-              v-for="id in sortedRecognizedIds"
-              :key="id"
-              class="neo-embedded p-3 space-y-1"
-            >
+            <div v-for="id in sortedRecognizedIds" :key="id" class="neo-embedded p-3 space-y-1">
               <p class="text-sm font-semibold text-on-surface">{{ distortionById(id)?.name }}</p>
               <p
                 v-if="learningDraft.personalExamples[id]"
@@ -215,7 +235,9 @@
       <!-- Applied Step 1: Enter Thought -->
       <template v-if="step === 0">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.cognitiveDistortions.appliedThought.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.cognitiveDistortions.appliedThought.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.cognitiveDistortions.appliedThought.description') }}
           </p>
@@ -223,7 +245,9 @@
 
           <!-- Source type (manual only for now) -->
           <div class="flex items-center gap-2">
-            <span class="exercise-pill px-3 py-1 text-xs font-medium exercise-pill--primary">{{ t('exerciseWizards.cognitiveDistortions.appliedThought.manualLabel') }}</span>
+            <span class="exercise-pill px-3 py-1 text-xs font-medium exercise-pill--primary">{{
+              t('exerciseWizards.cognitiveDistortions.appliedThought.manualLabel')
+            }}</span>
           </div>
 
           <textarea
@@ -234,11 +258,7 @@
           />
         </AppCard>
         <div class="flex justify-end">
-          <AppButton
-            variant="filled"
-            :disabled="!appliedDraft.thought.trim()"
-            @click="step = 1"
-          >
+          <AppButton variant="filled" :disabled="!appliedDraft.thought.trim()" @click="step = 1">
             {{ t('exerciseWizards.cognitiveDistortions.appliedThought.analyseButton') }}
           </AppButton>
         </div>
@@ -247,11 +267,15 @@
       <!-- Applied Step 2: Select Distortions -->
       <template v-if="step === 1">
         <AppCard padding="lg" class="space-y-3">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.cognitiveDistortions.appliedDistortions.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.cognitiveDistortions.appliedDistortions.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.cognitiveDistortions.appliedDistortions.description') }}
           </p>
-          <ExerciseStepWhy :text="tg('exerciseWizards.cognitiveDistortions.appliedDistortions.why')" />
+          <ExerciseStepWhy
+            :text="tg('exerciseWizards.cognitiveDistortions.appliedDistortions.why')"
+          />
           <div class="neo-embedded p-3">
             <p class="text-sm text-on-surface italic">"{{ appliedDraft.thought }}"</p>
           </div>
@@ -264,9 +288,7 @@
             :key="d.id"
             type="button"
             class="text-left p-4 transition-all neo-focus"
-            :class="appliedDraft.selectedIds.has(d.id)
-              ? 'neo-selector--active'
-              : 'neo-selector'"
+            :class="appliedDraft.selectedIds.has(d.id) ? 'neo-selector--active' : 'neo-selector'"
             @click="toggleAppliedDistortion(d.id)"
           >
             <p class="text-sm font-semibold text-on-surface">{{ d.name }}</p>
@@ -277,22 +299,26 @@
         <!-- Explanation fields for selected distortions -->
         <template v-if="appliedDraft.selectedIds.size > 0">
           <AppCard padding="lg" class="space-y-4">
-            <h3 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.cognitiveDistortions.appliedDistortions.whyApply') }}</h3>
+            <h3 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.cognitiveDistortions.appliedDistortions.whyApply') }}
+            </h3>
             <div class="space-y-3">
-              <div
-                v-for="id in sortedAppliedIds"
-                :key="id"
-                class="space-y-1"
-              >
+              <div v-for="id in sortedAppliedIds" :key="id" class="space-y-1">
                 <label class="text-xs font-semibold text-on-surface-variant">
                   {{ distortionById(id)?.name }}
                 </label>
                 <textarea
                   :value="appliedDraft.explanations[id] ?? ''"
                   rows="2"
-                  :placeholder="t('exerciseWizards.cognitiveDistortions.appliedDistortions.explanationPlaceholder')"
+                  :placeholder="
+                    t(
+                      'exerciseWizards.cognitiveDistortions.appliedDistortions.explanationPlaceholder'
+                    )
+                  "
                   class="neo-input w-full p-2 text-sm resize-none"
-                  @input="appliedDraft.explanations[id] = ($event.target as HTMLTextAreaElement).value"
+                  @input="
+                    appliedDraft.explanations[id] = ($event.target as HTMLTextAreaElement).value
+                  "
                 />
               </div>
             </div>
@@ -302,22 +328,21 @@
         <!-- LLM Assist -->
         <AppCard padding="lg" class="space-y-3">
           <div class="flex flex-wrap items-center gap-2">
-            <AppButton
-              variant="tonal"
-              :disabled="llmLoading"
-              @click="handleLLMAssist"
-            >
+            <AppButton variant="tonal" :disabled="llmLoading" @click="handleLLMAssist">
               <AppIcon name="auto_awesome" class="text-xl" />
-              {{ llmLoading ? t('exerciseWizards.cognitiveDistortions.appliedDistortions.llmLoading') : t('exerciseWizards.cognitiveDistortions.appliedDistortions.llmLabel') }}
+              {{
+                llmLoading
+                  ? t('exerciseWizards.cognitiveDistortions.appliedDistortions.llmLoading')
+                  : t('exerciseWizards.cognitiveDistortions.appliedDistortions.llmLabel')
+              }}
             </AppButton>
             <ProfileContextToggle v-model="useProfileSpot" />
           </div>
 
-          <div
-            v-if="llmResponse"
-            class="neo-panel mt-3"
-          >
-            <p class="text-xs font-semibold text-on-surface-variant mb-2">{{ t('exerciseWizards.cognitiveDistortions.appliedDistortions.aiSuggestions') }}</p>
+          <div v-if="llmResponse" class="neo-panel mt-3">
+            <p class="text-xs font-semibold text-on-surface-variant mb-2">
+              {{ t('exerciseWizards.cognitiveDistortions.appliedDistortions.aiSuggestions') }}
+            </p>
             <p class="text-sm text-on-surface whitespace-pre-line">{{ llmResponse }}</p>
           </div>
         </AppCard>
@@ -337,7 +362,9 @@
       <!-- Applied Step 3: Results + Save -->
       <template v-if="step === 2">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.cognitiveDistortions.appliedResults.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.cognitiveDistortions.appliedResults.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.cognitiveDistortions.appliedResults.description') }}
           </p>
@@ -347,26 +374,23 @@
           </div>
 
           <div class="space-y-4 mt-2">
-            <div
-              v-for="id in sortedAppliedIds"
-              :key="id"
-              class="neo-embedded p-3 space-y-2"
-            >
+            <div v-for="id in sortedAppliedIds" :key="id" class="neo-embedded p-3 space-y-2">
               <p class="text-sm font-semibold text-on-surface">{{ distortionById(id)?.name }}</p>
-              <p
-                v-if="appliedDraft.explanations[id]"
-                class="text-xs text-on-surface-variant"
-              >
+              <p v-if="appliedDraft.explanations[id]" class="text-xs text-on-surface-variant">
                 {{ appliedDraft.explanations[id] }}
               </p>
 
               <!-- Reframe field -->
               <div class="space-y-1 mt-1">
-                <label class="text-xs font-semibold text-on-surface-variant">{{ t('exerciseWizards.cognitiveDistortions.appliedResults.reframe') }}</label>
+                <label class="text-xs font-semibold text-on-surface-variant">{{
+                  t('exerciseWizards.cognitiveDistortions.appliedResults.reframe')
+                }}</label>
                 <textarea
                   :value="appliedDraft.reframes[id] ?? ''"
                   rows="2"
-                  :placeholder="tg('exerciseWizards.cognitiveDistortions.appliedResults.reframePlaceholder')"
+                  :placeholder="
+                    tg('exerciseWizards.cognitiveDistortions.appliedResults.reframePlaceholder')
+                  "
                   class="neo-input w-full p-2 text-sm resize-none"
                   @input="appliedDraft.reframes[id] = ($event.target as HTMLTextAreaElement).value"
                 />
@@ -377,7 +401,9 @@
 
         <!-- Notes -->
         <AppCard padding="lg" class="space-y-3">
-          <h3 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.cognitiveDistortions.appliedResults.additionalNotes') }}</h3>
+          <h3 class="text-base font-semibold text-on-surface">
+            {{ t('exerciseWizards.cognitiveDistortions.appliedResults.additionalNotes') }}
+          </h3>
           <textarea
             v-model="appliedDraft.notes"
             rows="3"
@@ -421,13 +447,25 @@ const { t, tg, locale } = useT()
 const userPreferencesStore = useUserPreferencesStore()
 const useProfileSpot = ref(userPreferencesStore.profileContextDefault)
 
-type DistortionTranslation = { name: string; aliases: string[]; definition: string; example: string; soundsLike: string; realityCheck: string }
-const translationsByLocale: Record<string, Record<string, DistortionTranslation>> = { en: enDistortions, pl: plDistortions }
+type DistortionTranslation = {
+  name: string
+  aliases: string[]
+  definition: string
+  example: string
+  soundsLike: string
+  realityCheck: string
+}
+const translationsByLocale: Record<string, Record<string, DistortionTranslation>> = {
+  en: enDistortions,
+  pl: plDistortions,
+}
 
 const distortions = computed<CognitiveDistortion[]>(() => {
   const loc = translationsByLocale[locale.value] ?? translationsByLocale['en']
-  return distortionsMeta.map((meta) => {
-    const trans = (loc as Record<string, DistortionTranslation>)[meta.id] ?? (translationsByLocale['en'] as Record<string, DistortionTranslation>)[meta.id]
+  return distortionsMeta.map(meta => {
+    const trans =
+      (loc as Record<string, DistortionTranslation>)[meta.id] ??
+      (translationsByLocale['en'] as Record<string, DistortionTranslation>)[meta.id]
     return {
       id: meta.id,
       name: trans?.name ?? meta.id,
@@ -461,7 +499,7 @@ const appliedStepLabels = computed(() => [
 ])
 
 const currentStepLabels = computed(() =>
-  mode.value === 'learning' ? learningStepLabels.value : appliedStepLabels.value,
+  mode.value === 'learning' ? learningStepLabels.value : appliedStepLabels.value
 )
 
 function switchMode(newMode: 'learning' | 'applied') {
@@ -469,10 +507,9 @@ function switchMode(newMode: 'learning' | 'applied') {
   step.value = 0
 }
 
-
 // ── Helpers ──────────────────────────────────────────────────────────────
 function distortionById(id: string): CognitiveDistortion | undefined {
-  return distortions.value.find((d) => d.id === id)
+  return distortions.value.find(d => d.id === id)
 }
 
 // ── Learning mode state ──────────────────────────────────────────────────
@@ -486,7 +523,7 @@ const learningDraft = reactive({
 })
 
 const sortedRecognizedIds = computed(() =>
-  distortions.value.filter((d) => learningDraft.recognizedIds.has(d.id)).map((d) => d.id),
+  distortions.value.filter(d => learningDraft.recognizedIds.has(d.id)).map(d => d.id)
 )
 
 function toggleRecognized(id: string) {
@@ -527,7 +564,7 @@ const llmResponse = ref('')
 const llmUsed = ref(false)
 
 const sortedAppliedIds = computed(() =>
-  distortions.value.filter((d) => appliedDraft.selectedIds.has(d.id)).map((d) => d.id),
+  distortions.value.filter(d => appliedDraft.selectedIds.has(d.id)).map(d => d.id)
 )
 
 function toggleAppliedDistortion(id: string) {
@@ -544,7 +581,11 @@ async function handleLLMAssist() {
   if (!appliedDraft.thought.trim()) return
   llmLoading.value = true
   try {
-    llmResponse.value = await spotDistortions({ thought: appliedDraft.thought, locale: locale.value, useProfile: useProfileSpot.value })
+    llmResponse.value = await spotDistortions({
+      thought: appliedDraft.thought,
+      locale: locale.value,
+      useProfile: useProfileSpot.value,
+    })
     llmUsed.value = true
   } catch (err) {
     console.error('LLM assist failed:', err)
@@ -555,13 +596,11 @@ async function handleLLMAssist() {
 }
 
 function handleAppliedSave() {
-  const identifiedDistortions: IdentifiedDistortion[] = [...appliedDraft.selectedIds].map(
-    (id) => ({
-      distortionId: id,
-      explanation: appliedDraft.explanations[id]?.trim() ?? '',
-      reframe: appliedDraft.reframes[id]?.trim() || undefined,
-    }),
-  )
+  const identifiedDistortions: IdentifiedDistortion[] = [...appliedDraft.selectedIds].map(id => ({
+    distortionId: id,
+    explanation: appliedDraft.explanations[id]?.trim() ?? '',
+    reframe: appliedDraft.reframes[id]?.trim() || undefined,
+  }))
 
   const payload: CreateDistortionAssessmentPayload = {
     mode: 'applied',

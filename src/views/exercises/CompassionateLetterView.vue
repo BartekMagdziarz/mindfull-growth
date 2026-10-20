@@ -8,7 +8,9 @@
 
     <!-- Past letters section -->
     <div v-if="compassionateLetterStore.sortedLetters.length > 0" class="mt-8">
-      <div class="mg-v2-section-head"><h2>{{ t('exercises.views.pastLetters') }}</h2></div>
+      <div class="mg-v2-section-head">
+        <h2>{{ t('exercises.views.pastLetters') }}</h2>
+      </div>
       <div class="space-y-3">
         <AppCard
           v-for="letter in compassionateLetterStore.sortedLetters"
@@ -44,7 +46,11 @@ import { useMomentSeed } from '@/features/program-path/useMomentSeed'
 const { t, locale } = useT()
 // Launched from a path moment (`?momentId=`): the situation and the critic's sentence prefill the letter.
 const { seed } = useMomentSeed()
-const wizardSeed = computed(() => (seed.value ? { situation: seed.value.situation, criticThought: seed.value.criticThought } : undefined))
+const wizardSeed = computed(() =>
+  seed.value
+    ? { situation: seed.value.situation, criticThought: seed.value.criticThought }
+    : undefined
+)
 const compassionateLetterStore = useCompassionateLetterStore()
 const saved = ref(false)
 

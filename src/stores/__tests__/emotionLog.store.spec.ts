@@ -79,7 +79,7 @@ describe('useEmotionLogStore', () => {
     it('sets loading state during request and clears after completion', async () => {
       const store = useEmotionLogStore()
       let resolvePromise: (value: EmotionLog[]) => void
-      const pendingPromise = new Promise<EmotionLog[]>((resolve) => {
+      const pendingPromise = new Promise<EmotionLog[]>(resolve => {
         resolvePromise = resolve
       })
 
@@ -214,9 +214,7 @@ describe('useEmotionLogStore', () => {
       const payload = {}
 
       await expect(
-        store.createLog(
-          payload as Omit<EmotionLog, 'id' | 'createdAt' | 'updatedAt'>
-        )
+        store.createLog(payload as Omit<EmotionLog, 'id' | 'createdAt' | 'updatedAt'>)
       ).rejects.toThrow(VALIDATION_ERROR_MESSAGE)
       expect(store.logs).toHaveLength(0)
       expect(store.error).toBe(VALIDATION_ERROR_MESSAGE)
@@ -232,9 +230,7 @@ describe('useEmotionLogStore', () => {
 
       vi.mocked(emotionLogDexieRepository.create).mockRejectedValue(error)
 
-      await expect(
-        store.createLog(payload)
-      ).rejects.toThrow('Write failed')
+      await expect(store.createLog(payload)).rejects.toThrow('Write failed')
 
       expect(store.error).toBe(error.message)
       expect(store.logs).toHaveLength(0)
@@ -278,9 +274,7 @@ describe('useEmotionLogStore', () => {
         emotionIds: [],
       }
 
-      await expect(store.updateLog(log as EmotionLog)).rejects.toThrow(
-        VALIDATION_ERROR_MESSAGE
-      )
+      await expect(store.updateLog(log as EmotionLog)).rejects.toThrow(VALIDATION_ERROR_MESSAGE)
       expect(store.error).toBe(VALIDATION_ERROR_MESSAGE)
       expect(emotionLogDexieRepository.update).not.toHaveBeenCalled()
     })
@@ -394,8 +388,7 @@ describe('useEmotionLogStore', () => {
       store.logs = logs
 
       const sorted = store.sortedLogs
-      expect(sorted.map((log) => log.id)).toEqual(['newest', 'middle', 'oldest'])
+      expect(sorted.map(log => log.id)).toEqual(['newest', 'middle', 'oldest'])
     })
   })
 })
-

@@ -39,7 +39,10 @@ import { authDexieRepository } from '@/repositories/authDexieRepository'
 import { emotionLogDexieRepository } from '@/repositories/emotionLogDexieRepository'
 import { exerciseCompletionDexieRepository } from '@/repositories/exerciseCompletionDexieRepository'
 import { exercisePlanDexieRepository } from '@/repositories/exercisePlanDexieRepository'
-import { gradedExposureHierarchyDexieRepository, ifsPartDexieRepository } from '@/repositories/exercisesDexieRepository'
+import {
+  gradedExposureHierarchyDexieRepository,
+  ifsPartDexieRepository,
+} from '@/repositories/exercisesDexieRepository'
 import { programEnrollmentDexieRepository } from '@/repositories/programEnrollmentDexieRepository'
 import { createPayloadForReaction } from '@/services/shamePartsService'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
@@ -58,7 +61,10 @@ import { weeklyIntentionDexieRepository } from '@/repositories/weeklyIntentionDe
 import { getAssessmentRegistryEntry } from '@/services/assessments/registry'
 import { hashPassword } from '@/services/crypto.service'
 import { saveDraftToDB } from '@/services/draftStorage'
-import { setMonthTopPriorities, setMonthlyPriorityAssessment } from '@/services/monthlyPriorityService'
+import {
+  setMonthTopPriorities,
+  setMonthlyPriorityAssessment,
+} from '@/services/monthlyPriorityService'
 import { createActiveLink } from '@/services/priorityLinkService'
 import { PRIORITY_CREATOR_DRAFT_KEY } from '@/composables/usePriorityCreatorRitual'
 import {
@@ -138,7 +144,7 @@ export async function runVerificationSeed(options: RunVerificationSeedOptions = 
   invalidatePlanningQueryCache()
   window.localStorage.setItem(
     SEED_MARKER_KEY,
-    fixtureMarkerValue(buildRichVerificationScenario().meta),
+    fixtureMarkerValue(buildRichVerificationScenario().meta)
   )
   console.log('[verificationSeed] ✅ Seed complete.')
 
@@ -314,7 +320,7 @@ async function addEntries(
   subjectType: MeasurementSubjectType,
   subjectId: string,
   days: DayRef[],
-  value: number | null,
+  value: number | null
 ): Promise<void> {
   await Promise.all(
     days.map(dayRef =>
@@ -323,8 +329,8 @@ async function addEntries(
         subjectId,
         dayRef,
         value,
-      }),
-    ),
+      })
+    )
   )
 }
 
@@ -332,7 +338,7 @@ async function addMultiEntries(
   subjectType: MeasurementSubjectType,
   subjectId: string,
   days: DayRef[],
-  checkedItemIds: string[],
+  checkedItemIds: string[]
 ): Promise<void> {
   await Promise.all(
     days.map(dayRef =>
@@ -342,8 +348,8 @@ async function addMultiEntries(
         dayRef,
         value: null,
         checkedItemIds,
-      }),
-    ),
+      })
+    )
   )
 }
 
@@ -394,7 +400,7 @@ export async function seedVerificationData(): Promise<void> {
   const upToToday = (days: DayRef[]): DayRef[] => days.filter(day => day <= todayRef)
 
   console.log(
-    `[verificationSeed] Seeding ${scenario.meta.profileId}: months ${closedMonths[0]}…${currentMonth}, weeks ${pastWeeks[0]}…${currentWeek}`,
+    `[verificationSeed] Seeding ${scenario.meta.profileId}: months ${closedMonths[0]}…${currentMonth}, weeks ${pastWeeks[0]}…${currentWeek}`
   )
 
   // ── 1. Life areas ──────────────────────────────────────────────────────────
@@ -411,8 +417,8 @@ export async function seedVerificationData(): Promise<void> {
         reflectionSignals: area.signals,
         isActive: true,
         sortOrder: index + 1,
-      }),
-    ),
+      })
+    )
   )
 
   // ── 2. Priorities (4 active — stays under the 5-active limit) ─────────────
@@ -423,23 +429,27 @@ export async function seedVerificationData(): Promise<void> {
     ['relationships', areaRelations.id],
     ['learning', areaGrowth.id],
   ])
-  const createdPriorities = await Promise.all(scenario.priorities.map(async priority => ({
-    key: priority.key,
-    record: await priorityDexieRepository.create({
-      title: priority.title,
-      years: [refs.year],
-      status: 'active',
-      lifeAreaIds: [lifeAreaIdByPriorityKey.get(priority.key)!],
-      whyNow: priority.whyNow,
-      desiredDirection: priority.desiredDirection,
-      progressSignals: priority.progressSignals,
-      riskSignals: priority.riskSignals,
-    }),
-  })))
-  const priorityByKey = new Map(createdPriorities.map(priority => {
-    semanticIds.registerPriority(priority.key, priority.record.id)
-    return [priority.key, priority.record]
-  }))
+  const createdPriorities = await Promise.all(
+    scenario.priorities.map(async priority => ({
+      key: priority.key,
+      record: await priorityDexieRepository.create({
+        title: priority.title,
+        years: [refs.year],
+        status: 'active',
+        lifeAreaIds: [lifeAreaIdByPriorityKey.get(priority.key)!],
+        whyNow: priority.whyNow,
+        desiredDirection: priority.desiredDirection,
+        progressSignals: priority.progressSignals,
+        riskSignals: priority.riskSignals,
+      }),
+    }))
+  )
+  const priorityByKey = new Map(
+    createdPriorities.map(priority => {
+      semanticIds.registerPriority(priority.key, priority.record.id)
+      return [priority.key, priority.record]
+    })
+  )
   const p1 = priorityByKey.get('movement')!
   const p2 = priorityByKey.get('stream')!
   const p3 = priorityByKey.get('relationships')!
@@ -459,27 +469,33 @@ export async function seedVerificationData(): Promise<void> {
 
   // ── 3. Goals ───────────────────────────────────────────────────────────────
 
-  const g1 = rememberObject('goal-10k', await goalDexieRepository.create({
-    title: fixtureObject('goal-10k').title,
-    isActive: true,
-    status: 'open',
-    priorityIds: priorityIdsFor('goal-10k'),
-    lifeAreaIds: [areaHealth.id],
-    // Deadlines feed the day's calendar markers and the „Najbliżej” list.
-    targetDate: addDaysToDayRef(todayRef, 12),
-    successDefinition: 'Ciągły bieg 10 km w spokojnym tempie, bez marszobiegu.',
-    whyMatters: 'Konkretny, mierzalny dowód, że kondycja wróciła.',
-  }))
-  const g2 = rememberObject('goal-mvp', await goalDexieRepository.create({
-    title: fixtureObject('goal-mvp').title,
-    isActive: true,
-    status: 'open',
-    priorityIds: priorityIdsFor('goal-mvp'),
-    lifeAreaIds: [areaWork.id],
-    targetDate: addDaysToDayRef(todayRef, 4),
-    successDefinition: 'Działająca wersja z kluczowymi przepływami u pierwszych użytkowników.',
-    whyMatters: 'Bez wydania nie ma informacji zwrotnej.',
-  }))
+  const g1 = rememberObject(
+    'goal-10k',
+    await goalDexieRepository.create({
+      title: fixtureObject('goal-10k').title,
+      isActive: true,
+      status: 'open',
+      priorityIds: priorityIdsFor('goal-10k'),
+      lifeAreaIds: [areaHealth.id],
+      // Deadlines feed the day's calendar markers and the „Najbliżej” list.
+      targetDate: addDaysToDayRef(todayRef, 12),
+      successDefinition: 'Ciągły bieg 10 km w spokojnym tempie, bez marszobiegu.',
+      whyMatters: 'Konkretny, mierzalny dowód, że kondycja wróciła.',
+    })
+  )
+  const g2 = rememberObject(
+    'goal-mvp',
+    await goalDexieRepository.create({
+      title: fixtureObject('goal-mvp').title,
+      isActive: true,
+      status: 'open',
+      priorityIds: priorityIdsFor('goal-mvp'),
+      lifeAreaIds: [areaWork.id],
+      targetDate: addDaysToDayRef(todayRef, 4),
+      successDefinition: 'Działająca wersja z kluczowymi przepływami u pierwszych użytkowników.',
+      whyMatters: 'Bez wydania nie ma informacji zwrotnej.',
+    })
+  )
 
   // ── 4. Activate goals in every month touched by the seeded periods ────────
   // (KR month states require an active GoalMonthState; weekly linking below
@@ -496,165 +512,204 @@ export async function seedVerificationData(): Promise<void> {
 
   // ── 5. Key results, habits, trackers ──────────────────────────────────────
 
-  const kr1 = rememberObject('kr-runs', await keyResultDexieRepository.create({
-    title: fixtureObject('kr-runs').title,
-    isActive: true,
-    status: 'open',
-    goalId: g1.id,
-    cadence: 'weekly',
-    entryMode: 'completion',
-    target: { kind: 'count', operator: 'min', value: 3 },
-  }))
-  const kr2 = rememberObject('kr-distance', await keyResultDexieRepository.create({
-    title: fixtureObject('kr-distance').title,
-    isActive: true,
-    status: 'open',
-    goalId: g1.id,
-    cadence: 'weekly',
-    entryMode: 'value',
-    target: { kind: 'value', aggregation: 'sum', operator: 'gte', value: 15 },
-  }))
-  const kr3 = rememberObject('kr-functions', await keyResultDexieRepository.create({
-    title: fixtureObject('kr-functions').title,
-    isActive: true,
-    status: 'open',
-    goalId: g2.id,
-    cadence: 'monthly',
-    entryMode: 'counter',
-    target: { kind: 'count', operator: 'min', value: 2 },
-  }))
-  const kr4 = rememberObject('kr-deep-work', await keyResultDexieRepository.create({
-    title: fixtureObject('kr-deep-work').title,
-    isActive: true,
-    status: 'open',
-    goalId: g2.id,
-    cadence: 'weekly',
-    entryMode: 'completion',
-    target: { kind: 'count', operator: 'min', value: 4 },
-  }))
+  const kr1 = rememberObject(
+    'kr-runs',
+    await keyResultDexieRepository.create({
+      title: fixtureObject('kr-runs').title,
+      isActive: true,
+      status: 'open',
+      goalId: g1.id,
+      cadence: 'weekly',
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 3 },
+    })
+  )
+  const kr2 = rememberObject(
+    'kr-distance',
+    await keyResultDexieRepository.create({
+      title: fixtureObject('kr-distance').title,
+      isActive: true,
+      status: 'open',
+      goalId: g1.id,
+      cadence: 'weekly',
+      entryMode: 'value',
+      target: { kind: 'value', aggregation: 'sum', operator: 'gte', value: 15 },
+    })
+  )
+  const kr3 = rememberObject(
+    'kr-functions',
+    await keyResultDexieRepository.create({
+      title: fixtureObject('kr-functions').title,
+      isActive: true,
+      status: 'open',
+      goalId: g2.id,
+      cadence: 'monthly',
+      entryMode: 'counter',
+      target: { kind: 'count', operator: 'min', value: 2 },
+    })
+  )
+  const kr4 = rememberObject(
+    'kr-deep-work',
+    await keyResultDexieRepository.create({
+      title: fixtureObject('kr-deep-work').title,
+      isActive: true,
+      status: 'open',
+      goalId: g2.id,
+      cadence: 'weekly',
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 4 },
+    })
+  )
 
-  const h1 = rememberObject('habit-stretch', await habitDexieRepository.create({
-    title: fixtureObject('habit-stretch').title,
-    isActive: true,
-    status: 'open',
-    cadence: 'weekly',
-    entryMode: 'completion',
-    target: { kind: 'count', operator: 'min', value: 5 },
-    priorityIds: priorityIdsFor('habit-stretch'),
-    lifeAreaIds: [areaHealth.id],
-  }))
-  const h2 = rememberObject('habit-dinner', await habitDexieRepository.create({
-    title: fixtureObject('habit-dinner').title,
-    isActive: true,
-    status: 'open',
-    cadence: 'weekly',
-    entryMode: 'completion',
-    target: { kind: 'count', operator: 'min', value: 3 },
-    priorityIds: priorityIdsFor('habit-dinner'),
-    lifeAreaIds: [areaRelations.id],
-  }))
-  const h3 = rememberObject('habit-reading', await habitDexieRepository.create({
-    title: fixtureObject('habit-reading').title,
-    isActive: true,
-    status: 'open',
-    cadence: 'weekly',
-    entryMode: 'completion',
-    target: { kind: 'count', operator: 'min', value: 4 },
-    priorityIds: priorityIdsFor('habit-reading'),
-    lifeAreaIds: [areaGrowth.id],
-  }))
+  const h1 = rememberObject(
+    'habit-stretch',
+    await habitDexieRepository.create({
+      title: fixtureObject('habit-stretch').title,
+      isActive: true,
+      status: 'open',
+      cadence: 'weekly',
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 5 },
+      priorityIds: priorityIdsFor('habit-stretch'),
+      lifeAreaIds: [areaHealth.id],
+    })
+  )
+  const h2 = rememberObject(
+    'habit-dinner',
+    await habitDexieRepository.create({
+      title: fixtureObject('habit-dinner').title,
+      isActive: true,
+      status: 'open',
+      cadence: 'weekly',
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 3 },
+      priorityIds: priorityIdsFor('habit-dinner'),
+      lifeAreaIds: [areaRelations.id],
+    })
+  )
+  const h3 = rememberObject(
+    'habit-reading',
+    await habitDexieRepository.create({
+      title: fixtureObject('habit-reading').title,
+      isActive: true,
+      status: 'open',
+      cadence: 'weekly',
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 4 },
+      priorityIds: priorityIdsFor('habit-reading'),
+      lifeAreaIds: [areaGrowth.id],
+    })
+  )
   // entryDays min: "średnia ≥ 3 I loguj ≥ 5 dni" — missed weeks log a single
   // good rating, so the primary metric is met while presence fails.
-  const h4 = rememberObject('habit-routine', await habitDexieRepository.create({
-    title: fixtureObject('habit-routine').title,
-    isActive: true,
-    status: 'open',
-    cadence: 'weekly',
-    entryMode: 'rating',
-    target: {
-      kind: 'rating',
-      aggregation: 'average',
-      operator: 'gte',
-      value: 3,
-      entryDays: { operator: 'min', value: 5 },
-    },
-    ratingScaleMin: 1,
-    ratingScale: 5,
-    priorityIds: priorityIdsFor('habit-routine'),
-    lifeAreaIds: [areaHealth.id],
-  }))
+  const h4 = rememberObject(
+    'habit-routine',
+    await habitDexieRepository.create({
+      title: fixtureObject('habit-routine').title,
+      isActive: true,
+      status: 'open',
+      cadence: 'weekly',
+      entryMode: 'rating',
+      target: {
+        kind: 'rating',
+        aggregation: 'average',
+        operator: 'gte',
+        value: 3,
+        entryDays: { operator: 'min', value: 5 },
+      },
+      ratingScaleMin: 1,
+      ratingScale: 5,
+      priorityIds: priorityIdsFor('habit-routine'),
+      lifeAreaIds: [areaHealth.id],
+    })
+  )
   // entryDays max: track satisfaction but play at most 3 days — missed weeks
   // log 4 days, so the metric holds while the limit is exceeded.
-  const h5 = rememberObject('habit-gaming', await habitDexieRepository.create({
-    title: fixtureObject('habit-gaming').title,
-    isActive: true,
-    status: 'open',
-    cadence: 'weekly',
-    entryMode: 'rating',
-    target: {
-      kind: 'rating',
-      aggregation: 'average',
-      operator: 'gte',
-      value: 3,
-      entryDays: { operator: 'max', value: 3 },
-    },
-    ratingScaleMin: 1,
-    ratingScale: 5,
-    priorityIds: priorityIdsFor('habit-gaming'),
-    lifeAreaIds: [areaGrowth.id],
-  }))
+  const h5 = rememberObject(
+    'habit-gaming',
+    await habitDexieRepository.create({
+      title: fixtureObject('habit-gaming').title,
+      isActive: true,
+      status: 'open',
+      cadence: 'weekly',
+      entryMode: 'rating',
+      target: {
+        kind: 'rating',
+        aggregation: 'average',
+        operator: 'gte',
+        value: 3,
+        entryDays: { operator: 'max', value: 3 },
+      },
+      ratingScaleMin: 1,
+      ratingScale: 5,
+      priorityIds: priorityIdsFor('habit-gaming'),
+      lifeAreaIds: [areaGrowth.id],
+    })
+  )
 
   // Multi-completion: 3 weighted items, explicit threshold 3 of 4 pts — the
   // stack chart shows full (met), partial and empty days side by side.
-  const h6 = rememberObject('habit-checklist', await habitDexieRepository.create({
-    title: fixtureObject('habit-checklist').title,
-    isActive: true,
-    status: 'open',
-    cadence: 'weekly',
-    entryMode: 'multi-completion',
-    target: { kind: 'count', operator: 'min', value: 4 },
-    multiItems: [
-      { id: 'wake', label: 'Pobudka 6:00', icon: 'alarm', weight: 1 },
-      { id: 'meditate', label: 'Medytacja', icon: 'self_improvement', weight: 1 },
-      { id: 'train', label: 'Trening', icon: 'fitness_center', weight: 2 },
-    ],
-    multiDailyThreshold: 3,
-    priorityIds: priorityIdsFor('habit-checklist'),
-    lifeAreaIds: [areaHealth.id],
-  }))
+  const h6 = rememberObject(
+    'habit-checklist',
+    await habitDexieRepository.create({
+      title: fixtureObject('habit-checklist').title,
+      isActive: true,
+      status: 'open',
+      cadence: 'weekly',
+      entryMode: 'multi-completion',
+      target: { kind: 'count', operator: 'min', value: 4 },
+      multiItems: [
+        { id: 'wake', label: 'Pobudka 6:00', icon: 'alarm', weight: 1 },
+        { id: 'meditate', label: 'Medytacja', icon: 'self_improvement', weight: 1 },
+        { id: 'train', label: 'Trening', icon: 'fitness_center', weight: 2 },
+      ],
+      multiDailyThreshold: 3,
+      priorityIds: priorityIdsFor('habit-checklist'),
+      lifeAreaIds: [areaHealth.id],
+    })
+  )
 
-  const t1 = rememberObject('tracker-sleep', await trackerDexieRepository.create({
-    title: fixtureObject('tracker-sleep').title,
-    isActive: true,
-    status: 'open',
-    cadence: 'weekly',
-    entryMode: 'rating',
-    priorityIds: priorityIdsFor('tracker-sleep'),
-    lifeAreaIds: [areaHealth.id],
-  }))
-  const t2 = rememberObject('tracker-coffee', await trackerDexieRepository.create({
-    title: fixtureObject('tracker-coffee').title,
-    isActive: true,
-    status: 'open',
-    cadence: 'weekly',
-    entryMode: 'counter',
-    priorityIds: priorityIdsFor('tracker-coffee'),
-    lifeAreaIds: [areaWork.id],
-  }))
+  const t1 = rememberObject(
+    'tracker-sleep',
+    await trackerDexieRepository.create({
+      title: fixtureObject('tracker-sleep').title,
+      isActive: true,
+      status: 'open',
+      cadence: 'weekly',
+      entryMode: 'rating',
+      priorityIds: priorityIdsFor('tracker-sleep'),
+      lifeAreaIds: [areaHealth.id],
+    })
+  )
+  const t2 = rememberObject(
+    'tracker-coffee',
+    await trackerDexieRepository.create({
+      title: fixtureObject('tracker-coffee').title,
+      isActive: true,
+      status: 'open',
+      cadence: 'weekly',
+      entryMode: 'counter',
+      priorityIds: priorityIdsFor('tracker-coffee'),
+      lifeAreaIds: [areaWork.id],
+    })
+  )
   // Multi-completion tracker (no target): default threshold = all active items.
-  const t3 = rememberObject('tracker-evening', await trackerDexieRepository.create({
-    title: fixtureObject('tracker-evening').title,
-    isActive: true,
-    status: 'open',
-    cadence: 'weekly',
-    entryMode: 'multi-completion',
-    multiItems: [
-      { id: 'no-screens', label: 'Bez ekranów po 22', icon: 'mobile_off', weight: 1 },
-      { id: 'journal', label: 'Wieczorny dziennik', icon: 'edit_note', weight: 1 },
-    ],
-    priorityIds: priorityIdsFor('tracker-evening'),
-    lifeAreaIds: [areaHealth.id],
-  }))
+  const t3 = rememberObject(
+    'tracker-evening',
+    await trackerDexieRepository.create({
+      title: fixtureObject('tracker-evening').title,
+      isActive: true,
+      status: 'open',
+      cadence: 'weekly',
+      entryMode: 'multi-completion',
+      multiItems: [
+        { id: 'no-screens', label: 'Bez ekranów po 22', icon: 'mobile_off', weight: 1 },
+        { id: 'journal', label: 'Wieczorny dziennik', icon: 'edit_note', weight: 1 },
+      ],
+      priorityIds: priorityIdsFor('tracker-evening'),
+      lifeAreaIds: [areaHealth.id],
+    })
+  )
 
   console.log('[verificationSeed] Created planning objects')
 
@@ -678,7 +733,11 @@ export async function seedVerificationData(): Promise<void> {
   // Fixed weekday placement per subject (0=Mon … 6=Sun) — feeds the ritual's
   // "days" step and the stream week view. toggleMeasurementDayAssignment is a
   // TOGGLE: safe only because the seed always starts from a fresh database.
-  const dayAssignments: Array<{ subjectType: MeasurementSubjectType; id: string; offsets: number[] }> = [
+  const dayAssignments: Array<{
+    subjectType: MeasurementSubjectType
+    id: string
+    offsets: number[]
+  }> = [
     { subjectType: 'habit', id: h1.id, offsets: [0, 2, 4] },
     { subjectType: 'habit', id: h2.id, offsets: [4, 5, 6] },
     { subjectType: 'habit', id: h3.id, offsets: [0, 1, 2, 3] },
@@ -713,37 +772,37 @@ export async function seedVerificationData(): Promise<void> {
       'keyResult',
       kr1.id,
       upToToday(weekDays(weekRef, isMet(weekIdx, 0) ? [1, 3, 5] : [1])),
-      null,
+      null
     )
     await addEntries(
       'keyResult',
       kr2.id,
       upToToday(weekDays(weekRef, isMet(weekIdx, 1) ? [1, 3, 5] : [1, 3])),
-      isMet(weekIdx, 1) ? 6 : 4,
+      isMet(weekIdx, 1) ? 6 : 4
     )
     await addEntries(
       'keyResult',
       kr4.id,
       upToToday(weekDays(weekRef, isMet(weekIdx, 2) ? [0, 1, 2, 3] : [0, 1])),
-      null,
+      null
     )
     await addEntries(
       'habit',
       h1.id,
       upToToday(weekDays(weekRef, isMet(weekIdx, 1) ? [0, 1, 2, 3, 4] : [0, 2])),
-      null,
+      null
     )
     await addEntries(
       'habit',
       h2.id,
       upToToday(weekDays(weekRef, isMet(weekIdx, 2) ? [4, 5, 6] : [5])),
-      null,
+      null
     )
     await addEntries(
       'habit',
       h3.id,
       upToToday(weekDays(weekRef, isMet(weekIdx, 0) ? [0, 1, 2, 3] : [0, 3])),
-      null,
+      null
     )
     // h4 (entryDays min 5): met weeks log 5 days of "4"; missed weeks a single "3"
     // → primaryMet ∧ ¬presenceMet.
@@ -751,7 +810,7 @@ export async function seedVerificationData(): Promise<void> {
       'habit',
       h4.id,
       upToToday(weekDays(weekRef, isMet(weekIdx, 0) ? [0, 1, 2, 3, 4] : [2])),
-      isMet(weekIdx, 0) ? 4 : 3,
+      isMet(weekIdx, 0) ? 4 : 3
     )
     // h5 (entryDays max 3): met weeks stay within the 3-day limit; missed weeks
     // log 4 days of good ratings → primaryMet ∧ ¬presenceMet (limit exceeded).
@@ -759,29 +818,26 @@ export async function seedVerificationData(): Promise<void> {
       'habit',
       h5.id,
       upToToday(weekDays(weekRef, isMet(weekIdx, 1) ? [1, 3] : [1, 2, 4, 5])),
-      4,
+      4
     )
     // h6 (multi, threshold 3/4 pts): met weeks = 4 full days + 1 partial
     // (2 pts, amber); missed weeks = 2 low-point partials + 1 met day.
     if (isMet(weekIdx, 2)) {
-      await addMultiEntries(
-        'habit',
-        h6.id,
-        upToToday(weekDays(weekRef, [0, 1, 2, 3])),
-        ['wake', 'meditate', 'train'],
-      )
+      await addMultiEntries('habit', h6.id, upToToday(weekDays(weekRef, [0, 1, 2, 3])), [
+        'wake',
+        'meditate',
+        'train',
+      ])
       await addMultiEntries('habit', h6.id, upToToday(weekDays(weekRef, [4])), ['wake', 'meditate'])
     } else {
       await addMultiEntries('habit', h6.id, upToToday(weekDays(weekRef, [1, 3])), ['wake'])
       await addMultiEntries('habit', h6.id, upToToday(weekDays(weekRef, [5])), ['wake', 'train'])
     }
     // t3 (multi tracker, all-items threshold): alternating full and partial days.
-    await addMultiEntries(
-      'tracker',
-      t3.id,
-      upToToday(weekDays(weekRef, [0, 2])),
-      ['no-screens', 'journal'],
-    )
+    await addMultiEntries('tracker', t3.id, upToToday(weekDays(weekRef, [0, 2])), [
+      'no-screens',
+      'journal',
+    ])
     await addMultiEntries('tracker', t3.id, upToToday(weekDays(weekRef, [4])), ['journal'])
     for (const [dayIdx, dayRef] of upToToday(weekDays(weekRef, [0, 2, 4, 6])).entries()) {
       await addEntries('tracker', t1.id, [dayRef], 2 + ((weekIdx + dayIdx) % 4))
@@ -812,7 +868,7 @@ export async function seedVerificationData(): Promise<void> {
       'keyResult',
       kr3.id,
       offsets.map(offset => addDaysToDayRef(monthStart(monthRef), offset)),
-      1,
+      1
     )
   }
   await addEntries('keyResult', kr3.id, upToToday([monthStart(currentMonth)]), 1)
@@ -826,105 +882,139 @@ export async function seedVerificationData(): Promise<void> {
   const currentMonthWeeks = getChildPeriods(currentMonth) as WeekRef[]
 
   // Weekly value/average with gte — line chart, average aggregation.
-  const kr5 = rememberObject('kr-sleep', await keyResultDexieRepository.create({
-    title: fixtureObject('kr-sleep').title,
-    isActive: true,
-    status: 'open',
-    goalId: g1.id,
-    cadence: 'weekly',
-    entryMode: 'value',
-    target: { kind: 'value', aggregation: 'average', operator: 'gte', value: 7 },
-  }))
+  const kr5 = rememberObject(
+    'kr-sleep',
+    await keyResultDexieRepository.create({
+      title: fixtureObject('kr-sleep').title,
+      isActive: true,
+      status: 'open',
+      goalId: g1.id,
+      cadence: 'weekly',
+      entryMode: 'value',
+      target: { kind: 'value', aggregation: 'average', operator: 'gte', value: 7 },
+    })
+  )
   // Weekly value/last with lte + deliberately long title (layout stress).
-  const kr6 = rememberObject('kr-weight', await keyResultDexieRepository.create({
-    title: fixtureObject('kr-weight').title,
-    isActive: true,
-    status: 'open',
-    goalId: g1.id,
-    cadence: 'weekly',
-    entryMode: 'value',
-    target: { kind: 'value', aggregation: 'last', operator: 'lte', value: 80 },
-  }))
+  const kr6 = rememberObject(
+    'kr-weight',
+    await keyResultDexieRepository.create({
+      title: fixtureObject('kr-weight').title,
+      isActive: true,
+      status: 'open',
+      goalId: g1.id,
+      cadence: 'weekly',
+      entryMode: 'value',
+      target: { kind: 'value', aggregation: 'last', operator: 'lte', value: 80 },
+    })
+  )
   // Orphan KR: the data layer requires an active GoalMonthState before a KR
   // can be linked, so the orphan is produced the only way it can happen for
   // real — the goal gets archived AFTER its KR was planned. Month bundles then
   // drop the goal (isActive filter) while the KR stays → "Pozostałe rezultaty".
-  const g3 = rememberObject('goal-orphan', await goalDexieRepository.create({
-    title: fixtureObject('goal-orphan').title,
-    isActive: true,
-    priorityIds: [],
-    lifeAreaIds: [areaGrowth.id],
-    status: 'open',
-  }))
+  const g3 = rememberObject(
+    'goal-orphan',
+    await goalDexieRepository.create({
+      title: fixtureObject('goal-orphan').title,
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [areaGrowth.id],
+      status: 'open',
+    })
+  )
   for (const monthRef of monthSet) {
     await linkGoalToMonth(g3.id, monthRef)
   }
-  const kr7 = rememberObject('kr-orphan', await keyResultDexieRepository.create({
-    title: fixtureObject('kr-orphan').title,
-    isActive: true,
-    status: 'open',
-    goalId: g3.id,
-    cadence: 'weekly',
-    entryMode: 'completion',
-    target: { kind: 'count', operator: 'min', value: 2 },
-  }))
+  const kr7 = rememberObject(
+    'kr-orphan',
+    await keyResultDexieRepository.create({
+      title: fixtureObject('kr-orphan').title,
+      isActive: true,
+      status: 'open',
+      goalId: g3.id,
+      cadence: 'weekly',
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 2 },
+    })
+  )
   // Weekly counter with a MAX primary target (limit, not floor).
-  const h7 = rememberObject('habit-coffee-max', await habitDexieRepository.create({
-    title: fixtureObject('habit-coffee-max').title,
-    isActive: true,
-    status: 'open',
-    cadence: 'weekly',
-    entryMode: 'counter',
-    target: { kind: 'count', operator: 'max', value: 10 },
-    priorityIds: priorityIdsFor('habit-coffee-max'),
-    lifeAreaIds: [areaHealth.id],
-  }))
+  const h7 = rememberObject(
+    'habit-coffee-max',
+    await habitDexieRepository.create({
+      title: fixtureObject('habit-coffee-max').title,
+      isActive: true,
+      status: 'open',
+      cadence: 'weekly',
+      entryMode: 'counter',
+      target: { kind: 'count', operator: 'max', value: 10 },
+      priorityIds: priorityIdsFor('habit-coffee-max'),
+      lifeAreaIds: [areaHealth.id],
+    })
+  )
   // Monthly multi-completion (default all-items threshold) with entries in the
   // month's boundary week — the out-of-month day must not leak into July.
-  const h8 = rememberObject('habit-deep-clean', await habitDexieRepository.create({
-    title: fixtureObject('habit-deep-clean').title,
-    isActive: true,
-    status: 'open',
-    cadence: 'monthly',
-    entryMode: 'multi-completion',
-    target: { kind: 'count', operator: 'min', value: 4 },
-    multiItems: [
-      { id: 'plan', label: 'Plan strefy', icon: 'checklist', weight: 1 },
-      { id: 'do', label: 'Sprzątnięta strefa', icon: 'cleaning_services', weight: 1 },
-    ],
-    priorityIds: priorityIdsFor('habit-deep-clean'),
-    lifeAreaIds: [areaRelations.id],
-  }))
+  const h8 = rememberObject(
+    'habit-deep-clean',
+    await habitDexieRepository.create({
+      title: fixtureObject('habit-deep-clean').title,
+      isActive: true,
+      status: 'open',
+      cadence: 'monthly',
+      entryMode: 'multi-completion',
+      target: { kind: 'count', operator: 'min', value: 4 },
+      multiItems: [
+        { id: 'plan', label: 'Plan strefy', icon: 'checklist', weight: 1 },
+        { id: 'do', label: 'Sprzątnięta strefa', icon: 'cleaning_services', weight: 1 },
+      ],
+      priorityIds: priorityIdsFor('habit-deep-clean'),
+      lifeAreaIds: [areaRelations.id],
+    })
+  )
   // Monthly completion with target > 7 and specific-days placement that starts
   // in the month's boundary week.
-  const h9 = rememberObject('habit-monthly-move', await habitDexieRepository.create({
-    title: fixtureObject('habit-monthly-move').title,
-    isActive: true,
-    status: 'open',
-    cadence: 'monthly',
-    entryMode: 'completion',
-    target: { kind: 'count', operator: 'min', value: 12 },
-    priorityIds: priorityIdsFor('habit-monthly-move'),
-    lifeAreaIds: [areaHealth.id],
-  }))
+  const h9 = rememberObject(
+    'habit-monthly-move',
+    await habitDexieRepository.create({
+      title: fixtureObject('habit-monthly-move').title,
+      isActive: true,
+      status: 'open',
+      cadence: 'monthly',
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 12 },
+      priorityIds: priorityIdsFor('habit-monthly-move'),
+      lifeAreaIds: [areaHealth.id],
+    })
+  )
   // Retired historical habit: placed and logged only in past weeks — stays
   // visible in history, is not editable in planners.
-  const h10 = rememberObject('habit-retired', await habitDexieRepository.create({
-    title: fixtureObject('habit-retired').title,
-    isActive: true,
-    status: 'retired',
-    cadence: 'weekly',
-    entryMode: 'completion',
-    target: { kind: 'count', operator: 'min', value: 2 },
-    priorityIds: [],
-    lifeAreaIds: [areaGrowth.id],
-  }))
+  const h10 = rememberObject(
+    'habit-retired',
+    await habitDexieRepository.create({
+      title: fixtureObject('habit-retired').title,
+      isActive: true,
+      status: 'retired',
+      cadence: 'weekly',
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 2 },
+      priorityIds: [],
+      lifeAreaIds: [areaGrowth.id],
+    })
+  )
 
   for (const [weekIdx, weekRef] of allWeeks.entries()) {
     for (const id of [kr5.id, kr6.id, kr7.id]) {
-      await linkMeasurementPeriod({ subjectType: 'keyResult', subjectId: id, cadence: 'weekly', periodRef: weekRef })
+      await linkMeasurementPeriod({
+        subjectType: 'keyResult',
+        subjectId: id,
+        cadence: 'weekly',
+        periodRef: weekRef,
+      })
     }
-    await linkMeasurementPeriod({ subjectType: 'habit', subjectId: h7.id, cadence: 'weekly', periodRef: weekRef })
+    await linkMeasurementPeriod({
+      subjectType: 'habit',
+      subjectId: h7.id,
+      cadence: 'weekly',
+      periodRef: weekRef,
+    })
 
     // kr5: sleep hours on 4 days — met weeks average 7.5, missed 6.5.
     for (const [dayIdx, dayRef] of upToToday(weekDays(weekRef, [0, 2, 4, 6])).entries()) {
@@ -932,9 +1022,19 @@ export async function seedVerificationData(): Promise<void> {
     }
     // kr6: two weigh-ins; the LAST one decides (79.4 ≤ 80 met, 81.2 missed).
     await addEntries('keyResult', kr6.id, upToToday(weekDays(weekRef, [1])), 80.5)
-    await addEntries('keyResult', kr6.id, upToToday(weekDays(weekRef, [4])), isMet(weekIdx, 1) ? 79.4 : 81.2)
+    await addEntries(
+      'keyResult',
+      kr6.id,
+      upToToday(weekDays(weekRef, [4])),
+      isMet(weekIdx, 1) ? 79.4 : 81.2
+    )
     // kr7: orphan KR logs twice on met weeks.
-    await addEntries('keyResult', kr7.id, upToToday(weekDays(weekRef, isMet(weekIdx, 2) ? [2, 5] : [2])), null)
+    await addEntries(
+      'keyResult',
+      kr7.id,
+      upToToday(weekDays(weekRef, isMet(weekIdx, 2) ? [2, 5] : [2])),
+      null
+    )
     // h7: coffee counter — met weeks total 8 (within limit), missed 12 (over).
     for (const dayRef of upToToday(weekDays(weekRef, [0, 2, 4]))) {
       await addEntries('habit', h7.id, [dayRef], isMet(weekIdx, 2) ? 3 : 4)
@@ -958,7 +1058,8 @@ export async function seedVerificationData(): Promise<void> {
     icon: 'fitness_center',
     startDate: monthStart(windowMonths[0]),
     targetDate: addDaysToDayRef(todayRef, -4),
-    successDefinition: 'Trzy treningi tygodniowo bez przerw dłuższych niż tydzień, przysiad 100 kg na koniec.',
+    successDefinition:
+      'Trzy treningi tygodniowo bez przerw dłuższych niż tydzień, przysiad 100 kg na koniec.',
     whyMatters: 'Siła jest fundamentem pod bieganie i pod plecy, które ostatnio dają znać.',
     confidenceRating: 8,
     achievabilityRationale: 'Mam już nawyk z zeszłego roku, trzeba tylko dołożyć ciężary.',
@@ -988,10 +1089,20 @@ export async function seedVerificationData(): Promise<void> {
   })
   for (const [weekIdx, weekRef] of pastWeeks.entries()) {
     for (const id of [kr8.id, kr9.id]) {
-      await linkMeasurementPeriod({ subjectType: 'keyResult', subjectId: id, cadence: 'weekly', periodRef: weekRef })
+      await linkMeasurementPeriod({
+        subjectType: 'keyResult',
+        subjectId: id,
+        cadence: 'weekly',
+        periodRef: weekRef,
+      })
     }
     // Sessions: Mon/Wed/Fri, every fourth week only two → three of four weeks met.
-    await addEntries('keyResult', kr8.id, weekDays(weekRef, weekIdx % 4 === 3 ? [0, 4] : [0, 2, 4]), null)
+    await addEntries(
+      'keyResult',
+      kr8.id,
+      weekDays(weekRef, weekIdx % 4 === 3 ? [0, 4] : [0, 2, 4]),
+      null
+    )
     // Stretching: logged in the first two weeks only → missed, then no data.
     if (weekIdx < 2) {
       await addEntries('keyResult', kr9.id, weekDays(weekRef, [0, 1, 2]), null)
@@ -1010,30 +1121,47 @@ export async function seedVerificationData(): Promise<void> {
 
   // h10: only the older half of past weeks (retired since).
   for (const weekRef of pastWeeks.slice(0, Math.ceil(pastWeeks.length / 2))) {
-    await linkMeasurementPeriod({ subjectType: 'habit', subjectId: h10.id, cadence: 'weekly', periodRef: weekRef })
+    await linkMeasurementPeriod({
+      subjectType: 'habit',
+      subjectId: h10.id,
+      cadence: 'weekly',
+      periodRef: weekRef,
+    })
     await addEntries('habit', h10.id, weekDays(weekRef, [1, 3]), null)
   }
 
   // Monthly-cadence coverage: h8 (multi) and h9 (specific-days, target > 7).
   for (const monthRef of [monthM1, currentMonth]) {
-    await linkMeasurementPeriod({ subjectType: 'habit', subjectId: h8.id, cadence: 'monthly', periodRef: monthRef })
-    await linkMeasurementPeriod({ subjectType: 'habit', subjectId: h9.id, cadence: 'monthly', periodRef: monthRef })
+    await linkMeasurementPeriod({
+      subjectType: 'habit',
+      subjectId: h8.id,
+      cadence: 'monthly',
+      periodRef: monthRef,
+    })
+    await linkMeasurementPeriod({
+      subjectType: 'habit',
+      subjectId: h9.id,
+      cadence: 'monthly',
+      periodRef: monthRef,
+    })
   }
   // h8 entries: boundary-week days of the current month (in-month only) + one
   // partial mid-month; previous month gets two full days.
   const currentMonthStart = monthStart(currentMonth)
   await addMultiEntries('habit', h8.id, upToToday([currentMonthStart]), ['plan', 'do'])
-  await addMultiEntries('habit', h8.id, upToToday([addDaysToDayRef(currentMonthStart, 1)]), ['plan'])
+  await addMultiEntries('habit', h8.id, upToToday([addDaysToDayRef(currentMonthStart, 1)]), [
+    'plan',
+  ])
   await addMultiEntries(
     'habit',
     h8.id,
     [addDaysToDayRef(monthStart(monthM1), 5), addDaysToDayRef(monthStart(monthM1), 12)],
-    ['plan', 'do'],
+    ['plan', 'do']
   )
   // h9: specific days across the current month (starting in the boundary week),
   // roughly half of them logged.
   const h9Days = [0, 2, 4, 7, 9, 11, 14, 16, 18, 21, 23, 25].map(offset =>
-    addDaysToDayRef(currentMonthStart, offset),
+    addDaysToDayRef(currentMonthStart, offset)
   )
   for (const dayRef of h9Days) {
     await toggleMeasurementDayAssignment({
@@ -1164,8 +1292,10 @@ export async function seedVerificationData(): Promise<void> {
   const GAP_WEEK_INDEX = pastWeeks.length > 3 ? pastWeeks.length - 3 : -1
   for (const [weekIdx, weekRef] of pastWeeks.entries()) {
     if (weekIdx === GAP_WEEK_INDEX) continue
-    const load = (area: number): number => clampRating(LOAD_STORY[(weekIdx + area) % LOAD_STORY.length])
-    const state = (area: number): number => clampRating(STATE_STORY[(weekIdx + area) % STATE_STORY.length])
+    const load = (area: number): number =>
+      clampRating(LOAD_STORY[(weekIdx + area) % LOAD_STORY.length])
+    const state = (area: number): number =>
+      clampRating(STATE_STORY[(weekIdx + area) % STATE_STORY.length])
     // The actions column is history only (D10): still written so the classic wizard reads a full record.
     const action = (dim: number): number => clampRating(2 + ((weekIdx + dim) % 4))
     await structuredReflectionDexieRepository.upsertWeekly({
@@ -1198,14 +1328,22 @@ export async function seedVerificationData(): Promise<void> {
   // links on `stream` so its card shows the "Do dokończenia" checklist, and a
   // half-finished ritual draft so the resume banner appears.
 
-  await createActiveLink(p1.id, { subjectType: 'goal', subjectId: g1.id }, {
-    contribution: 'Bieganie to najprostszy dowód, że kondycja wraca.',
-    expectedSignal: 'Ciągły bieg 10 km bez marszobiegu',
-  })
-  await createActiveLink(p1.id, { subjectType: 'habit', subjectId: h1.id }, {
-    contribution: 'Rozciąganie chroni przed kontuzją przy większym kilometrażu.',
-    expectedSignal: 'Brak przeciążeń mimo częstszych biegów',
-  })
+  await createActiveLink(
+    p1.id,
+    { subjectType: 'goal', subjectId: g1.id },
+    {
+      contribution: 'Bieganie to najprostszy dowód, że kondycja wraca.',
+      expectedSignal: 'Ciągły bieg 10 km bez marszobiegu',
+    }
+  )
+  await createActiveLink(
+    p1.id,
+    { subjectType: 'habit', subjectId: h1.id },
+    {
+      contribution: 'Rozciąganie chroni przed kontuzją przy większym kilometrażu.',
+      expectedSignal: 'Brak przeciążeń mimo częstszych biegów',
+    }
+  )
   // Legacy-style link: linked but never described (needsEnrichment).
   await priorityLinkDexieRepository.create({
     priorityId: p3.id,
@@ -1234,23 +1372,26 @@ export async function seedVerificationData(): Promise<void> {
     validFrom: p2.createdAt,
   })
 
-  await saveDraftToDB(PRIORITY_CREATOR_DRAFT_KEY, JSON.stringify({
-    stepIndex: 1,
-    form: {
-      title: 'Więcej spokoju finansowego',
-      whyNow: 'Chcę przestać odkładać decyzje o budżecie na później.',
-      direction: 'Świadome wydatki i poduszka bezpieczeństwa bez presji.',
-      influence: 'Regularny przegląd wydatków, rozmowy, automatyczne odkładanie.',
-      notControlled: 'Inflacja i nieprzewidziane wydatki.',
-      tradeoffs: '',
-      endingType: 'open',
-      endingDescription: '',
-    },
-    progressSignals: ['Miesiąc domknięty na plusie'],
-    riskSignals: [],
-    proposals: [],
-    savedAt: `${refs.day}T09:00:00.000Z`,
-  }))
+  await saveDraftToDB(
+    PRIORITY_CREATOR_DRAFT_KEY,
+    JSON.stringify({
+      stepIndex: 1,
+      form: {
+        title: 'Więcej spokoju finansowego',
+        whyNow: 'Chcę przestać odkładać decyzje o budżecie na później.',
+        direction: 'Świadome wydatki i poduszka bezpieczeństwa bez presji.',
+        influence: 'Regularny przegląd wydatków, rozmowy, automatyczne odkładanie.',
+        notControlled: 'Inflacja i nieprzewidziane wydatki.',
+        tradeoffs: '',
+        endingType: 'open',
+        endingDescription: '',
+      },
+      progressSignals: ['Miesiąc domknięty na plusie'],
+      riskSignals: [],
+      proposals: [],
+      savedAt: `${refs.day}T09:00:00.000Z`,
+    })
+  )
 
   // ── 11. Month plans, priority assessments, monthly reflections ────────────
 
@@ -1297,9 +1438,10 @@ export async function seedVerificationData(): Promise<void> {
     await setMonthlyPriorityAssessment(monthRef, p1.id, {
       effort: 2 + (monthIndex % 3),
       verdict: monthIndex % 3 === 2 ? 'adjust' : 'continue',
-      note: monthIndex % 2 === 0
-        ? 'Rytm stopniowo się stabilizował.'
-        : 'Potrzebna była lżejsza wersja planu.',
+      note:
+        monthIndex % 2 === 0
+          ? 'Rytm stopniowo się stabilizował.'
+          : 'Potrzebna była lżejsza wersja planu.',
     })
     await setMonthlyPriorityAssessment(monthRef, p2.id, {
       effort: 3 + (monthIndex % 2),
@@ -1381,7 +1523,7 @@ export async function seedVerificationData(): Promise<void> {
   })
 
   console.log(
-    `[verificationSeed] Created ${journalIdx + 1} journal entries and ${emotionIdx + 1} emotion logs`,
+    `[verificationSeed] Created ${journalIdx + 1} journal entries and ${emotionIdx + 1} emotion logs`
   )
 
   // ── 13. Exercise completions + micro entries ────────────────────────────────
@@ -1499,7 +1641,15 @@ export async function seedVerificationData(): Promise<void> {
   })
   // v2 (2026-10-18): seven steps done (week 1 with "Mój znak", week 2, the thought record of week 3), the experiment due today.
   const anxietyStepDays = [16, 16, 15, 14, 13, 10, 4] as const
-  const anxietyStepSlugs = ['gad-7', 'ius-12', 'anxiety-map', 'my-sign', 'worry-tree', 'cognitive-distortions', 'thought-record'] as const
+  const anxietyStepSlugs = [
+    'gad-7',
+    'ius-12',
+    'anxiety-map',
+    'my-sign',
+    'worry-tree',
+    'cognitive-distortions',
+    'thought-record',
+  ] as const
   for (const [index, slug] of anxietyStepSlugs.entries()) {
     const dayRef = addDaysToDayRef(todayRef, -anxietyStepDays[index]!)
     await exerciseCompletionDexieRepository.create({
@@ -1525,8 +1675,14 @@ export async function seedVerificationData(): Promise<void> {
       situations: ['Telefon do urzędu', 'Spotkanie z nowym zespołem'],
       bodySigns: ['kołatanie serca', 'ścisk w żołądku'],
       reactionKinds: ['postpone', 'check'],
-      avoidance: ['Odkładam telefony do urzędów', 'Omijam spotkania, na których trzeba się przedstawić'],
-      safetyBehaviors: ['Sprawdzam maila kilka razy przed wysłaniem', 'Pytam żonę, czy na pewno dobrze napisałem'],
+      avoidance: [
+        'Odkładam telefony do urzędów',
+        'Omijam spotkania, na których trzeba się przedstawić',
+      ],
+      safetyBehaviors: [
+        'Sprawdzam maila kilka razy przed wysłaniem',
+        'Pytam żonę, czy na pewno dobrze napisałem',
+      ],
       cost: 'Sprawy leżą tygodniami, a ja i tak o nich myślę.',
       withoutFear: 'Załatwiać sprawy od razu i poznawać ludzi bez przygotowywania każdego zdania.',
     },
@@ -1543,13 +1699,68 @@ export async function seedVerificationData(): Promise<void> {
   })
   // Anxiety Moments v2: the quick five (reaction · noticed · moves · strength), prose optional.
   const anxietyMoments = [
-    { daysAgo: 13, anxietyReaction: 'postpone', noticed: 'hours', anxietyResponse: ['nothing'], anxietyStrength: 4, situation: 'Miałem zadzwonić do urzędu, przełożyłem na jutro.', thought: 'Na pewno zapytają o coś, czego nie będę wiedział.' },
-    { daysAgo: 11, anxietyReaction: 'check', noticed: 'soon', anxietyResponse: ['named'], anxietyStrength: 3, situation: 'Trzy razy sprawdziłem maila do szefa przed wysłaniem.', thought: 'Jeśli będzie błąd, uzna mnie za niechluja.' },
-    { daysAgo: 9, anxietyReaction: 'worry', noticed: 'hours', anxietyResponse: ['postponed', 'breath'], anxietyStrength: 4, situation: 'Wieczorem łańcuch „a co jeśli” o wynikach badań.' },
-    { daysAgo: 7, anxietyReaction: 'approach', noticed: 'during', anxietyResponse: ['prediction', 'anyway'], anxietyStrength: 3, situation: 'Przedstawiłem się na spotkaniu nowego zespołu.', thought: 'Zatnę się i wszyscy to zobaczą.', outcome: 'Zaciąłem się raz. Nikt nie zareagował.' },
-    { daysAgo: 5, anxietyReaction: 'check', noticed: 'during', anxietyResponse: ['noCheck'], anxietyStrength: 2, situation: 'Wysłałem wiadomość po jednym sprawdzeniu.' },
-    { daysAgo: 3, anxietyReaction: 'postpone', noticed: 'soon', anxietyResponse: ['named', 'step'], anxietyStrength: 3, situation: 'Znów odłożyłem telefon, ale zapisałem go na jutro rano.' },
-    { daysAgo: 1, anxietyReaction: 'approach', noticed: 'during', anxietyResponse: ['breath', 'prediction', 'anyway'], anxietyStrength: 3, situation: 'Zadzwoniłem do urzędu.', thought: 'Będą niemili i odłożą słuchawkę.', outcome: 'Pani była znudzona, ale wszystko wyjaśniła.' },
+    {
+      daysAgo: 13,
+      anxietyReaction: 'postpone',
+      noticed: 'hours',
+      anxietyResponse: ['nothing'],
+      anxietyStrength: 4,
+      situation: 'Miałem zadzwonić do urzędu, przełożyłem na jutro.',
+      thought: 'Na pewno zapytają o coś, czego nie będę wiedział.',
+    },
+    {
+      daysAgo: 11,
+      anxietyReaction: 'check',
+      noticed: 'soon',
+      anxietyResponse: ['named'],
+      anxietyStrength: 3,
+      situation: 'Trzy razy sprawdziłem maila do szefa przed wysłaniem.',
+      thought: 'Jeśli będzie błąd, uzna mnie za niechluja.',
+    },
+    {
+      daysAgo: 9,
+      anxietyReaction: 'worry',
+      noticed: 'hours',
+      anxietyResponse: ['postponed', 'breath'],
+      anxietyStrength: 4,
+      situation: 'Wieczorem łańcuch „a co jeśli” o wynikach badań.',
+    },
+    {
+      daysAgo: 7,
+      anxietyReaction: 'approach',
+      noticed: 'during',
+      anxietyResponse: ['prediction', 'anyway'],
+      anxietyStrength: 3,
+      situation: 'Przedstawiłem się na spotkaniu nowego zespołu.',
+      thought: 'Zatnę się i wszyscy to zobaczą.',
+      outcome: 'Zaciąłem się raz. Nikt nie zareagował.',
+    },
+    {
+      daysAgo: 5,
+      anxietyReaction: 'check',
+      noticed: 'during',
+      anxietyResponse: ['noCheck'],
+      anxietyStrength: 2,
+      situation: 'Wysłałem wiadomość po jednym sprawdzeniu.',
+    },
+    {
+      daysAgo: 3,
+      anxietyReaction: 'postpone',
+      noticed: 'soon',
+      anxietyResponse: ['named', 'step'],
+      anxietyStrength: 3,
+      situation: 'Znów odłożyłem telefon, ale zapisałem go na jutro rano.',
+    },
+    {
+      daysAgo: 1,
+      anxietyReaction: 'approach',
+      noticed: 'during',
+      anxietyResponse: ['breath', 'prediction', 'anyway'],
+      anxietyStrength: 3,
+      situation: 'Zadzwoniłem do urzędu.',
+      thought: 'Będą niemili i odłożą słuchawkę.',
+      outcome: 'Pani była znudzona, ale wszystko wyjaśniła.',
+    },
   ] as const
   for (const moment of anxietyMoments) {
     const dayRef = addDaysToDayRef(todayRef, -moment.daysAgo)
@@ -1608,7 +1819,10 @@ export async function seedVerificationData(): Promise<void> {
       exerciseSlug: 'worry-postponement',
       createdAt: `${dayRef}T19:30:00.000Z`,
       responses: {
-        worries: ['Czy zdążę z raportem', 'Rozmowa z szefem w czwartek', 'Wyniki badań'].slice(0, 1 + (index % 3)),
+        worries: ['Czy zdążę z raportem', 'Rozmowa z szefem w czwartek', 'Wyniki badań'].slice(
+          0,
+          1 + (index % 3)
+        ),
         stillMatters: stillMatters[index]!,
       },
     })
@@ -1663,11 +1877,11 @@ export async function seedVerificationData(): Promise<void> {
       responseValue: gadAnswers[index]!,
       reverseFlagAtTime: item.reverse,
       scoringKeyVersion: gadEntry.definition.scoringKeyVersion,
-    })),
+    }))
   )
   await assessmentsDexieRepository.completeAttempt(
     gadAttempt.id,
-    gadEntry.scorer.score({ definition: gadEntry.definition, responses: gadResponses }),
+    gadEntry.scorer.score({ definition: gadEntry.definition, responses: gadResponses })
   )
 
   await programEnrollmentDexieRepository.update(anxietyEnrollment.id, {
@@ -1682,12 +1896,28 @@ export async function seedVerificationData(): Promise<void> {
 
   // Two closed weeks with an accepted real-world task + reflection answers.
   const pathWeeks = [
-    { daysAgo: 14, taskKey: 'noticeAvoidance', title: 'Zauważ sytuacje, w których coś omijasz albo się zabezpieczasz', times: 3, done: [13, 11], severity: '4' },
-    { daysAgo: 7, taskKey: 'predictionCheck', title: 'Zapisz przewidywanie przed trudną sytuacją i sprawdź je po niej', times: 2, done: [6, 4], severity: '3' },
+    {
+      daysAgo: 14,
+      taskKey: 'noticeAvoidance',
+      title: 'Zauważ sytuacje, w których coś omijasz albo się zabezpieczasz',
+      times: 3,
+      done: [13, 11],
+      severity: '4',
+    },
+    {
+      daysAgo: 7,
+      taskKey: 'predictionCheck',
+      title: 'Zapisz przewidywanie przed trudną sytuacją i sprawdź je po niej',
+      times: 2,
+      done: [6, 4],
+      severity: '3',
+    },
   ] as const
   const weekLog = []
   for (const week of pathWeeks) {
-    const weekRef = getPeriodRefsForDate(new Date(`${addDaysToDayRef(todayRef, -week.daysAgo)}T12:00:00`)).week
+    const weekRef = getPeriodRefsForDate(
+      new Date(`${addDaysToDayRef(todayRef, -week.daysAgo)}T12:00:00`)
+    ).week
     if (weekRef === refs.week) continue
     const intention = await createWeeklyIntention({
       weekRef,
@@ -1706,7 +1936,12 @@ export async function seedVerificationData(): Promise<void> {
         value: null,
       })
     }
-    weekLog.push({ weekRef, taskKey: week.taskKey, decision: 'accepted' as const, intentionId: intention.id })
+    weekLog.push({
+      weekRef,
+      taskKey: week.taskKey,
+      decision: 'accepted' as const,
+      intentionId: intention.id,
+    })
     const reflection = await structuredReflectionDexieRepository.getWeekly(weekRef)
     if (reflection) {
       await structuredReflectionDexieRepository.upsertWeekly({
@@ -1719,7 +1954,9 @@ export async function seedVerificationData(): Promise<void> {
               ? 'Zauważyłem, że odkładam telefony i sprawdzam maile po kilka razy.'
               : 'Przewidywałem katastrofę na spotkaniu. Było trudno, ale nikt nie zauważył mojego stresu.',
           [`program.${anxietyEnrollment.id}.phase`]:
-            week.taskKey === 'noticeAvoidance' ? 'Najczęściej unikam telefonów do urzędów.' : 'Sprawdziły się może w jednej trzeciej.',
+            week.taskKey === 'noticeAvoidance'
+              ? 'Najczęściej unikam telefonów do urzędów.'
+              : 'Sprawdziły się może w jednej trzeciej.',
         },
       })
     }
@@ -1740,15 +1977,39 @@ export async function seedVerificationData(): Promise<void> {
   await gradedExposureHierarchyDexieRepository.create({
     fearTarget: 'Telefony do urzędów i obcych osób',
     ultimateGoal: 'Załatwiać sprawy telefonicznie bez odkładania',
-    safetyBehaviors: ['Scenariusz rozmowy na kartce', 'Sprawdzanie godzin kilka razy', 'Proszenie kogoś, żeby zadzwonił'],
+    safetyBehaviors: [
+      'Scenariusz rozmowy na kartce',
+      'Sprawdzanie godzin kilka razy',
+      'Proszenie kogoś, żeby zadzwonił',
+    ],
     items: [
-      { id: crypto.randomUUID(), situation: 'Zadzwonić do apteki z pytaniem o lek', sudsRating: 30, completed: true, attempts: [attempt(20, 35, 40, 15), attempt(18, 25, 30, 10)] },
-      { id: crypto.randomUUID(), situation: 'Umówić wizytę u lekarza przez telefon', sudsRating: 50, completed: false, attempts: [attempt(12, 55, 65, 35)] },
-      { id: crypto.randomUUID(), situation: 'Zadzwonić do urzędu w sprawie wniosku', sudsRating: 75, completed: false, attempts: [] },
+      {
+        id: crypto.randomUUID(),
+        situation: 'Zadzwonić do apteki z pytaniem o lek',
+        sudsRating: 30,
+        completed: true,
+        attempts: [attempt(20, 35, 40, 15), attempt(18, 25, 30, 10)],
+      },
+      {
+        id: crypto.randomUUID(),
+        situation: 'Umówić wizytę u lekarza przez telefon',
+        sudsRating: 50,
+        completed: false,
+        attempts: [attempt(12, 55, 65, 35)],
+      },
+      {
+        id: crypto.randomUUID(),
+        situation: 'Zadzwonić do urzędu w sprawie wniosku',
+        sudsRating: 75,
+        completed: false,
+        attempts: [],
+      },
     ],
   })
 
-  console.log('[verificationSeed] Created 1 problem-path enrollment (anxiety-approach v2, step 8/22, 2 practices, 7 moments)')
+  console.log(
+    '[verificationSeed] Created 1 problem-path enrollment (anxiety-approach v2, step 8/22, 2 practices, 7 moments)'
+  )
 
   // ── 16b. Anger path v2 (ideas/html-plans/2026-10-18-anger-anxiety-paths-v2.html) ──
   // Enrolled 18 days ago, six steps done (barometer, map, sign, pause plan,
@@ -1780,14 +2041,24 @@ export async function seedVerificationData(): Promise<void> {
         responseValue: answers[index] ?? answers[answers.length - 1] ?? 2,
         reverseFlagAtTime: item.reverse,
         scoringKeyVersion: registry.definition.scoringKeyVersion,
-      })),
+      }))
     )
-    await assessmentsDexieRepository.completeAttempt(attempt.id, registry.scorer.score({ definition: registry.definition, responses }))
+    await assessmentsDexieRepository.completeAttempt(
+      attempt.id,
+      registry.scorer.score({ definition: registry.definition, responses })
+    )
     return attempt
   }
   const angerBaseline = await seedAttempt('anger-barometer', [3, 3, 2, 3, 2])
   const angerStepDays = [18, 17, 16, 14, 11, 8] as const
-  const angerStepSlugs = ['anger-barometer', 'anger-map', 'my-sign', 'pause-plan', 'cognitive-distortions', 'thought-record'] as const
+  const angerStepSlugs = [
+    'anger-barometer',
+    'anger-map',
+    'my-sign',
+    'pause-plan',
+    'cognitive-distortions',
+    'thought-record',
+  ] as const
   for (const [index, slug] of angerStepSlugs.entries()) {
     const dayRef = addDaysToDayRef(todayRef, -angerStepDays[index]!)
     await exerciseCompletionDexieRepository.create({
@@ -1838,14 +2109,77 @@ export async function seedVerificationData(): Promise<void> {
     },
   })
   const angerMoments = [
-    { daysAgo: 16, angerReaction: 'outburst', noticed: 'later', angerResponse: ['nothing'], angerStrength: 5, situation: 'Krzyknąłem na syna za rozlane mleko.', thought: 'Nigdy nie uważa.' },
-    { daysAgo: 13, angerReaction: 'sharp', noticed: 'hours', angerResponse: ['named'], angerStrength: 3, situation: 'Sarkazm, gdy żona zapytała o rachunki.', thought: 'Znowu ja mam wszystko pamiętać.' },
-    { daysAgo: 11, angerReaction: 'silence', noticed: 'hours', angerResponse: ['breath'], angerStrength: 3, situation: 'Przemilczałem uwagę kolegi na stand-upie i gotowałem się do wieczora.' },
-    { daysAgo: 9, angerReaction: 'pause', noticed: 'during', angerResponse: ['named', 'pause', 'announce'], angerStrength: 4, situation: 'Przerwano mi w połowie zdania; powiedziałem, że potrzebuję minuty.', thought: 'Nie szanują mojego czasu.', need: ['respect'] },
-    { daysAgo: 7, angerReaction: 'sharp', noticed: 'soon', angerResponse: ['breath', 'altThought'], angerStrength: 3, situation: 'Ostry ton do kuriera, który spóźnił się godzinę.', thought: 'Robi to specjalnie.' },
-    { daysAgo: 5, angerReaction: 'selfBlame', noticed: 'hours', angerResponse: ['named'], angerStrength: 3, situation: 'Po kłótni cały wieczór obwiniałem siebie.' },
-    { daysAgo: 3, angerReaction: 'pause', noticed: 'during', angerResponse: ['pause', 'returned', 'request'], angerStrength: 3, situation: 'Bałagan w salonie; wyszedłem na minutę i poprosiłem o sprzątnięcie przed bajką.', need: ['order', 'cooperation'] },
-    { daysAgo: 1, angerReaction: 'sharp', noticed: 'soon', angerResponse: ['named', 'altThought'], angerStrength: 2, situation: 'Przytyk do żony o spóźnienie; po chwili pomyślałem, że korki nie są jej winą.', thought: 'Zawsze się spóźnia.' },
+    {
+      daysAgo: 16,
+      angerReaction: 'outburst',
+      noticed: 'later',
+      angerResponse: ['nothing'],
+      angerStrength: 5,
+      situation: 'Krzyknąłem na syna za rozlane mleko.',
+      thought: 'Nigdy nie uważa.',
+    },
+    {
+      daysAgo: 13,
+      angerReaction: 'sharp',
+      noticed: 'hours',
+      angerResponse: ['named'],
+      angerStrength: 3,
+      situation: 'Sarkazm, gdy żona zapytała o rachunki.',
+      thought: 'Znowu ja mam wszystko pamiętać.',
+    },
+    {
+      daysAgo: 11,
+      angerReaction: 'silence',
+      noticed: 'hours',
+      angerResponse: ['breath'],
+      angerStrength: 3,
+      situation: 'Przemilczałem uwagę kolegi na stand-upie i gotowałem się do wieczora.',
+    },
+    {
+      daysAgo: 9,
+      angerReaction: 'pause',
+      noticed: 'during',
+      angerResponse: ['named', 'pause', 'announce'],
+      angerStrength: 4,
+      situation: 'Przerwano mi w połowie zdania; powiedziałem, że potrzebuję minuty.',
+      thought: 'Nie szanują mojego czasu.',
+      need: ['respect'],
+    },
+    {
+      daysAgo: 7,
+      angerReaction: 'sharp',
+      noticed: 'soon',
+      angerResponse: ['breath', 'altThought'],
+      angerStrength: 3,
+      situation: 'Ostry ton do kuriera, który spóźnił się godzinę.',
+      thought: 'Robi to specjalnie.',
+    },
+    {
+      daysAgo: 5,
+      angerReaction: 'selfBlame',
+      noticed: 'hours',
+      angerResponse: ['named'],
+      angerStrength: 3,
+      situation: 'Po kłótni cały wieczór obwiniałem siebie.',
+    },
+    {
+      daysAgo: 3,
+      angerReaction: 'pause',
+      noticed: 'during',
+      angerResponse: ['pause', 'returned', 'request'],
+      angerStrength: 3,
+      situation: 'Bałagan w salonie; wyszedłem na minutę i poprosiłem o sprzątnięcie przed bajką.',
+      need: ['order', 'cooperation'],
+    },
+    {
+      daysAgo: 1,
+      angerReaction: 'sharp',
+      noticed: 'soon',
+      angerResponse: ['named', 'altThought'],
+      angerStrength: 2,
+      situation: 'Przytyk do żony o spóźnienie; po chwili pomyślałem, że korki nie są jej winą.',
+      thought: 'Zawsze się spóźnia.',
+    },
   ] as const
   const angerMomentIds: string[] = []
   for (const moment of angerMoments) {
@@ -1923,9 +2257,18 @@ export async function seedVerificationData(): Promise<void> {
     })
   }
   await programEnrollmentDexieRepository.update(angerEnrollment.id, {
-    weekLog: [{ weekRef: refs.week, taskKey: 'altThought', decision: 'accepted', intentionId: angerIntention.id }],
+    weekLog: [
+      {
+        weekRef: refs.week,
+        taskKey: 'altThought',
+        decision: 'accepted',
+        intentionId: angerIntention.id,
+      },
+    ],
   })
-  console.log(`[verificationSeed] Created 1 problem-path enrollment (anger-signal v2, step 7/19, ${angerMomentIds.length} moments)`)
+  console.log(
+    `[verificationSeed] Created 1 problem-path enrollment (anger-signal v2, step 7/19, ${angerMomentIds.length} moments)`
+  )
 
   // ── 17. Shame path v3 (ideas/html-plans/2026-10-04-shame-path-v3.html) ──
   // Enrolled 24 days ago, nine steps done (two measures, map, sign, safe
@@ -2004,7 +2347,8 @@ export async function seedVerificationData(): Promise<void> {
       place: 'Pomost nad jeziorem o świcie, ciepłe deski, cisza i zapach wody.',
       anchor: ['ciepło na dłoniach', 'słowo „pomost”'],
       resistance: ['lazy', 'unfamiliar'],
-      resistanceReply: 'Ludzie, którzy są dla siebie dobrzy, nie przestają się starać. Przestają się bać.',
+      resistanceReply:
+        'Ludzie, którzy są dla siebie dobrzy, nie przestają się starać. Przestają się bać.',
       helpful: 4,
     },
   })
@@ -2046,14 +2390,95 @@ export async function seedVerificationData(): Promise<void> {
     },
   })
   const shameMoments = [
-    { daysAgo: 20, situation: 'Nie znałem skrótu na spotkaniu zespołu i udawałem, że wiem.', compass: 'withdraw', noticed: 'later', response: ['nothing'], strength: 4, about: 'demand', criticSaid: 'Wszyscy to wiedzą, tylko nie ty.', kindVoice: 'Nikt nie zna wszystkich skrótów. Mogłeś zapytać.' },
-    { daysAgo: 17, situation: 'Zapomniałem oddzwonić do mamy, choć obiecałem.', compass: 'attackSelf', noticed: 'hours', response: ['repair', 'named'], strength: 3, about: 'act', criticSaid: 'Zawsze zawodzisz bliskich.', kindVoice: 'Zapomniałeś raz. Zadzwoń dziś.' },
-    { daysAgo: 14, situation: 'Nie dostałem projektu, o który prosiłem.', compass: 'withdraw', noticed: 'hours', response: ['breath'], strength: 4, about: 'event', criticSaid: 'Widocznie nie jesteś dość dobry.', kindVoice: 'To boli. Nie musisz tego zamieniać w wyrok.' },
-    { daysAgo: 11, situation: 'Rozpłakałem się przy koledze po trudnej rozmowie.', compass: 'avoid', noticed: 'soon', response: ['named', 'question', 'sentence'], strength: 5, about: 'demand', criticSaid: 'Faceci nie płaczą w pracy.', kindVoice: 'Płakałeś, bo było ciężko. Kolega został.' },
-    { daysAgo: 8, situation: 'Poprosiłem o pomoc przy konfiguracji, którą „powinienem umieć”.', compass: 'attackSelf', noticed: 'soon', response: ['unblend', 'question', 'contact', 'test'], strength: 3, about: 'demand', criticSaid: 'Po tylu latach nie umiesz tego sam?', kindVoice: 'Poprosiłeś i dostałeś pomoc. Tak to działa.' },
-    { daysAgo: 6, situation: 'Przemilczałem błąd w raporcie, zamiast powiedzieć od razu.', compass: 'withdraw', noticed: 'hours', response: ['breath', 'repair'], strength: 3, about: 'act', criticSaid: 'Tchórz.', kindVoice: 'Powiedziałeś następnego dnia. To się liczy.' },
-    { daysAgo: 3, situation: 'Kolega zażartował z mojej prezentacji; odgryzłem się ostro.', compass: 'attackOthers', noticed: 'soon', response: ['named', 'breath'], strength: 4, about: 'demand', criticSaid: 'Nie dasz sobie wejść na głowę, bo zobaczą, że jesteś słaby.', kindVoice: 'Zabolało. Możesz to powiedzieć zamiast gryźć.' },
-    { daysAgo: 1, situation: 'Zadałem „głupie” pytanie na spotkaniu i zostałem w rozmowie.', compass: 'none', noticed: 'during', response: ['breath', 'unblend', 'sentence', 'contact'], strength: 2, about: 'demand', criticSaid: 'Teraz wszyscy wiedzą, że nie nadążasz.', kindVoice: 'Zapytałeś i nikt nie mrugnął. Zostałeś.', nextTime: 'Zapytać wcześniej, zanim urośnie.' },
+    {
+      daysAgo: 20,
+      situation: 'Nie znałem skrótu na spotkaniu zespołu i udawałem, że wiem.',
+      compass: 'withdraw',
+      noticed: 'later',
+      response: ['nothing'],
+      strength: 4,
+      about: 'demand',
+      criticSaid: 'Wszyscy to wiedzą, tylko nie ty.',
+      kindVoice: 'Nikt nie zna wszystkich skrótów. Mogłeś zapytać.',
+    },
+    {
+      daysAgo: 17,
+      situation: 'Zapomniałem oddzwonić do mamy, choć obiecałem.',
+      compass: 'attackSelf',
+      noticed: 'hours',
+      response: ['repair', 'named'],
+      strength: 3,
+      about: 'act',
+      criticSaid: 'Zawsze zawodzisz bliskich.',
+      kindVoice: 'Zapomniałeś raz. Zadzwoń dziś.',
+    },
+    {
+      daysAgo: 14,
+      situation: 'Nie dostałem projektu, o który prosiłem.',
+      compass: 'withdraw',
+      noticed: 'hours',
+      response: ['breath'],
+      strength: 4,
+      about: 'event',
+      criticSaid: 'Widocznie nie jesteś dość dobry.',
+      kindVoice: 'To boli. Nie musisz tego zamieniać w wyrok.',
+    },
+    {
+      daysAgo: 11,
+      situation: 'Rozpłakałem się przy koledze po trudnej rozmowie.',
+      compass: 'avoid',
+      noticed: 'soon',
+      response: ['named', 'question', 'sentence'],
+      strength: 5,
+      about: 'demand',
+      criticSaid: 'Faceci nie płaczą w pracy.',
+      kindVoice: 'Płakałeś, bo było ciężko. Kolega został.',
+    },
+    {
+      daysAgo: 8,
+      situation: 'Poprosiłem o pomoc przy konfiguracji, którą „powinienem umieć”.',
+      compass: 'attackSelf',
+      noticed: 'soon',
+      response: ['unblend', 'question', 'contact', 'test'],
+      strength: 3,
+      about: 'demand',
+      criticSaid: 'Po tylu latach nie umiesz tego sam?',
+      kindVoice: 'Poprosiłeś i dostałeś pomoc. Tak to działa.',
+    },
+    {
+      daysAgo: 6,
+      situation: 'Przemilczałem błąd w raporcie, zamiast powiedzieć od razu.',
+      compass: 'withdraw',
+      noticed: 'hours',
+      response: ['breath', 'repair'],
+      strength: 3,
+      about: 'act',
+      criticSaid: 'Tchórz.',
+      kindVoice: 'Powiedziałeś następnego dnia. To się liczy.',
+    },
+    {
+      daysAgo: 3,
+      situation: 'Kolega zażartował z mojej prezentacji; odgryzłem się ostro.',
+      compass: 'attackOthers',
+      noticed: 'soon',
+      response: ['named', 'breath'],
+      strength: 4,
+      about: 'demand',
+      criticSaid: 'Nie dasz sobie wejść na głowę, bo zobaczą, że jesteś słaby.',
+      kindVoice: 'Zabolało. Możesz to powiedzieć zamiast gryźć.',
+    },
+    {
+      daysAgo: 1,
+      situation: 'Zadałem „głupie” pytanie na spotkaniu i zostałem w rozmowie.',
+      compass: 'none',
+      noticed: 'during',
+      response: ['breath', 'unblend', 'sentence', 'contact'],
+      strength: 2,
+      about: 'demand',
+      criticSaid: 'Teraz wszyscy wiedzą, że nie nadążasz.',
+      kindVoice: 'Zapytałeś i nikt nie mrugnął. Zostałeś.',
+      nextTime: 'Zapytać wcześniej, zanim urośnie.',
+    },
   ] as const
   const shameMomentIds: string[] = []
   for (const moment of shameMoments) {
@@ -2096,7 +2521,11 @@ export async function seedVerificationData(): Promise<void> {
   await microExerciseEntryDexieRepository.create({
     exerciseSlug: 'moments',
     createdAt: `${addDaysToDayRef(todayRef, -5)}T19:00:00.000Z`,
-    responses: { kind: 'shame', hadMoment: 'none', quietDay: 'Rozmowa z siostrą, przy której nie muszę niczego udawać.' },
+    responses: {
+      kind: 'shame',
+      hadMoment: 'none',
+      quietDay: 'Rozmowa z siostrą, przy której nie muszę niczego udawać.',
+    },
   })
   await exercisePlanDexieRepository.create({
     exerciseSlug: 'moment-shame',
@@ -2139,9 +2568,18 @@ export async function seedVerificationData(): Promise<void> {
     })
   }
   await programEnrollmentDexieRepository.update(shameEnrollment.id, {
-    weekLog: [{ weekRef: refs.week, taskKey: 'useResponse', decision: 'accepted', intentionId: shameIntention.id }],
+    weekLog: [
+      {
+        weekRef: refs.week,
+        taskKey: 'useResponse',
+        decision: 'accepted',
+        intentionId: shameIntention.id,
+      },
+    ],
   })
-  console.log(`[verificationSeed] Created 1 problem-path enrollment (shame-compassion v3, step 10/27, ${shameMomentIds.length} moments)`)
+  console.log(
+    `[verificationSeed] Created 1 problem-path enrollment (shame-compassion v3, step 10/27, ${shameMomentIds.length} moments)`
+  )
 
   // ── 18. A CLOSED shame path (the earlier run, "Zacznij od nowa" afterwards) ──
   // Closed 50 days ago on the maintenance plan, so Powrót (56 days) is six days
@@ -2174,5 +2612,7 @@ export async function seedVerificationData(): Promise<void> {
     })),
     futureLetter: { entryId: letterEntry.id, showAt: addDaysToDayRef(todayRef, -23) },
   })
-  console.log('[verificationSeed] Created 1 closed problem-path enrollment (shame-compassion v3, letter waiting, Powrót in 6 days)')
+  console.log(
+    '[verificationSeed] Created 1 closed problem-path enrollment (shame-compassion v3, letter waiting, Powrót in 6 days)'
+  )
 }

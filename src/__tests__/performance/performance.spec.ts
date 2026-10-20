@@ -88,7 +88,7 @@ describe('Performance benchmarks', () => {
 
     const ids = Array.from({ length: 200 }, () => EMOTION_ID)
     const start = performance.now()
-    ids.forEach((id) => {
+    ids.forEach(id => {
       emotionStore.getEmotionById(id)
     })
     const duration = performance.now() - start

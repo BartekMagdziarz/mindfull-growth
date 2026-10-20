@@ -45,14 +45,14 @@ describe('weeklyIntentionService', () => {
 
     const relevant = await getWeekRelevantObjects(WEEK)
     const item = relevant.planning.measurementItems.find(
-      (m) => m.subjectType === 'weeklyIntention' && m.subject.id === intention.id,
+      m => m.subjectType === 'weeklyIntention' && m.subject.id === intention.id
     )
     expect(item).toBeTruthy()
 
     const otherWeek = await getWeekRelevantObjects(OTHER_WEEK)
-    expect(
-      otherWeek.planning.measurementItems.some((m) => m.subjectType === 'weeklyIntention'),
-    ).toBe(false)
+    expect(otherWeek.planning.measurementItems.some(m => m.subjectType === 'weeklyIntention')).toBe(
+      false
+    )
   })
 
   it('links an intention to the chosen priorities (M5b picker)', async () => {

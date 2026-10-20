@@ -12,7 +12,13 @@ import {
 } from '@/services/goalClosingService'
 import { linkGoalToMonth, linkMeasurementPeriod } from '@/services/planningMutations'
 import { resetPlanningTestData } from '@/test/planningTestUtils'
-import { addDaysToDayRef, getChildPeriods, getPeriodBounds, getPeriodRefsForDate, parsePeriodRef } from '@/utils/periods'
+import {
+  addDaysToDayRef,
+  getChildPeriods,
+  getPeriodBounds,
+  getPeriodRefsForDate,
+  parsePeriodRef,
+} from '@/utils/periods'
 
 const JULY = parsePeriodRef('2026-07') as MonthRef
 const AUGUST = parsePeriodRef('2026-08') as MonthRef
@@ -32,7 +38,7 @@ async function addEntries(subjectId: string, days: DayRef[], value: number | nul
 /** Mon/Wed/Fri of a week. */
 function threeDays(weekRef: WeekRef): DayRef[] {
   const monday = getPeriodBounds(weekRef).start
-  return [0, 2, 4].map((offset) => addDaysToDayRef(monday, offset))
+  return [0, 2, 4].map(offset => addDaysToDayRef(monday, offset))
 }
 
 async function seedGoal() {
@@ -75,7 +81,12 @@ async function seedGoal() {
   for (const monthRef of [JULY, AUGUST]) {
     for (const weekRef of getChildPeriods(monthRef) as WeekRef[]) {
       for (const subjectId of [sessions.id, stretching.id]) {
-        await linkMeasurementPeriod({ subjectType: 'keyResult', subjectId, cadence: 'weekly', periodRef: weekRef })
+        await linkMeasurementPeriod({
+          subjectType: 'keyResult',
+          subjectId,
+          cadence: 'weekly',
+          periodRef: weekRef,
+        })
       }
       await addEntries(sessions.id, threeDays(weekRef))
     }
@@ -90,7 +101,7 @@ beforeEach(async () => {
 
 /** Distinct weeks overlapping the given months, oldest first. */
 function distinctWeeks(months: MonthRef[]): WeekRef[] {
-  return [...new Set(months.flatMap((monthRef) => getChildPeriods(monthRef) as WeekRef[]))].sort()
+  return [...new Set(months.flatMap(monthRef => getChildPeriods(monthRef) as WeekRef[]))].sort()
 }
 
 describe('buildGoalClosingSnapshot', () => {
@@ -110,15 +121,19 @@ describe('buildGoalClosingSnapshot', () => {
     expect(snapshot.weeks).toEqual(weeks)
     expect(snapshot.weeksPlanned).toBe(weeks.length)
 
-    const sessionsSnap = snapshot.keyResultSnapshots.find((item) => item.id === sessions.id)!
+    const sessionsSnap = snapshot.keyResultSnapshots.find(item => item.id === sessions.id)!
     expect(sessionsSnap.months).toEqual([])
-    expect(sessionsSnap.weeks?.map((week) => week.weekRef)).toEqual(weeks)
-    expect(sessionsSnap.weeks?.every((week) => week.state === 'met')).toBe(true)
-    expect(sessionsSnap).toMatchObject({ evaluation: 'met', weeksMet: weeks.length, weeksPlanned: weeks.length })
+    expect(sessionsSnap.weeks?.map(week => week.weekRef)).toEqual(weeks)
+    expect(sessionsSnap.weeks?.every(week => week.state === 'met')).toBe(true)
+    expect(sessionsSnap).toMatchObject({
+      evaluation: 'met',
+      weeksMet: weeks.length,
+      weeksPlanned: weeks.length,
+    })
     expect(sessionsSnap.lastReadout).toBe(`${weeks.length}/${weeks.length} tyg.`)
 
-    const stretchingSnap = snapshot.keyResultSnapshots.find((item) => item.id === stretching.id)!
-    expect(stretchingSnap.weeks?.every((week) => week.state === 'no-data')).toBe(true)
+    const stretchingSnap = snapshot.keyResultSnapshots.find(item => item.id === stretching.id)!
+    expect(stretchingSnap.weeks?.every(week => week.state === 'no-data')).toBe(true)
     expect(stretchingSnap.evaluation).toBe('no-data')
   })
 
@@ -149,9 +164,17 @@ describe('buildGoalClosingSnapshot', () => {
     const monthOnly = await create('Tylko aktywny w miesiącu')
     const julyWeeks = getChildPeriods(JULY) as WeekRef[]
     for (const weekRef of [julyWeeks[1], julyWeeks[3]]) {
-      await linkMeasurementPeriod({ subjectType: 'keyResult', subjectId: picked.id, cadence: 'weekly', periodRef: weekRef })
+      await linkMeasurementPeriod({
+        subjectType: 'keyResult',
+        subjectId: picked.id,
+        cadence: 'weekly',
+        periodRef: weekRef,
+      })
     }
-    await addEntries(picked.id, [getPeriodBounds(julyWeeks[1]).start, getPeriodBounds(julyWeeks[2]).start])
+    await addEntries(picked.id, [
+      getPeriodBounds(julyWeeks[1]).start,
+      getPeriodBounds(julyWeeks[2]).start,
+    ])
     // Active in July but never placed in a week: listed under „Pozostałe”, not assigned.
     await planningStateDexieRepository.upsertMeasurementMonthState({
       monthRef: JULY,
@@ -163,16 +186,16 @@ describe('buildGoalClosingSnapshot', () => {
     await addEntries(monthOnly.id, [getPeriodBounds(julyWeeks[1]).start])
 
     const snapshot = await buildGoalClosingSnapshot(goal.id)
-    const pickedSnap = snapshot.keyResultSnapshots.find((item) => item.id === picked.id)!
-    expect(pickedSnap.weeks?.filter((week) => week.state !== 'unplanned')).toEqual([
+    const pickedSnap = snapshot.keyResultSnapshots.find(item => item.id === picked.id)!
+    expect(pickedSnap.weeks?.filter(week => week.state !== 'unplanned')).toEqual([
       { weekRef: julyWeeks[1], state: 'met' },
       { weekRef: julyWeeks[3], state: 'no-data' },
     ])
     // the entry in the unassigned week 3 does not count
     expect(pickedSnap).toMatchObject({ weeksMet: 1, weeksPlanned: 2, lastReadout: '1/2 tyg.' })
 
-    const monthOnlySnap = snapshot.keyResultSnapshots.find((item) => item.id === monthOnly.id)!
-    expect(monthOnlySnap.weeks?.every((week) => week.state === 'unplanned')).toBe(true)
+    const monthOnlySnap = snapshot.keyResultSnapshots.find(item => item.id === monthOnly.id)!
+    expect(monthOnlySnap.weeks?.every(week => week.state === 'unplanned')).toBe(true)
     expect(monthOnlySnap.evaluation).toBe('no-data')
     expect(snapshot.weeksPlanned).toBe(2)
   })
@@ -186,12 +209,18 @@ describe('buildGoalClosingSnapshot', () => {
 
     const currentWeek = getPeriodRefsForDate('2026-08-12').week
     expect(snapshot.weeks.at(-1)).toBe(currentWeek)
-    expect(snapshot.weeks.every((weekRef) => getPeriodBounds(weekRef).start <= '2026-08-12')).toBe(true)
+    expect(snapshot.weeks.every(weekRef => getPeriodBounds(weekRef).start <= '2026-08-12')).toBe(
+      true
+    )
 
-    const sessionsSnap = snapshot.keyResultSnapshots.find((item) => item.id === sessions.id)!
+    const sessionsSnap = snapshot.keyResultSnapshots.find(item => item.id === sessions.id)!
     expect(sessionsSnap.weeks?.at(-1)).toEqual({ weekRef: currentWeek, state: 'ongoing' })
     const finished = snapshot.weeks.length - 1
-    expect(sessionsSnap).toMatchObject({ evaluation: 'met', weeksMet: finished, weeksPlanned: finished })
+    expect(sessionsSnap).toMatchObject({
+      evaluation: 'met',
+      weeksMet: finished,
+      weeksPlanned: finished,
+    })
   })
 
   it('judges monthly key results by their month summary, months that have started only', async () => {
@@ -209,14 +238,19 @@ describe('buildGoalClosingSnapshot', () => {
     })
     await linkGoalToMonth(goal.id, SEPTEMBER)
     for (const monthRef of [JULY, AUGUST, SEPTEMBER]) {
-      await linkMeasurementPeriod({ subjectType: 'keyResult', subjectId: pages.id, cadence: 'monthly', periodRef: monthRef })
+      await linkMeasurementPeriod({
+        subjectType: 'keyResult',
+        subjectId: pages.id,
+        cadence: 'monthly',
+        periodRef: monthRef,
+      })
     }
     await addEntries(pages.id, ['2026-07-10' as DayRef], 120)
     await addEntries(pages.id, ['2026-08-10' as DayRef], 40)
 
     const snapshot = await buildGoalClosingSnapshot(goal.id)
     expect(snapshot.months).toEqual([JULY, AUGUST])
-    const pagesSnap = snapshot.keyResultSnapshots.find((item) => item.id === pages.id)!
+    const pagesSnap = snapshot.keyResultSnapshots.find(item => item.id === pages.id)!
     expect(pagesSnap.weeks).toBeUndefined()
     expect(pagesSnap.months).toEqual([
       { monthRef: JULY, state: 'met' },
@@ -263,8 +297,8 @@ describe('closeGoal', () => {
       window: { startDate: '2026-07-01', targetDate: '2026-09-30' },
     })
     expect(result.goal.closingReflection?.closedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/)
-    expect(result.goal.closingReflection?.keyResults.map((item) => item.id).sort()).toEqual(
-      [sessions.id, stretching.id].sort(),
+    expect(result.goal.closingReflection?.keyResults.map(item => item.id).sort()).toEqual(
+      [sessions.id, stretching.id].sort()
     )
 
     expect(result.createdHabits).toHaveLength(1)
@@ -283,16 +317,20 @@ describe('closeGoal', () => {
     expect(result.goal.closingReflection?.followUp?.createdHabitIds).toEqual([habit.id])
     expect(await habitDexieRepository.getById(habit.id)).toBeTruthy()
 
-    const keyResults = (await keyResultDexieRepository.listAll()).filter((item) => item.goalId === goal.id)
-    expect(keyResults.map((item) => item.status)).toEqual(['completed', 'completed'])
+    const keyResults = (await keyResultDexieRepository.listAll()).filter(
+      item => item.goalId === goal.id
+    )
+    expect(keyResults.map(item => item.status)).toEqual(['completed', 'completed'])
   })
 
   it('maps abandoned to dropped on the goal and its key results', async () => {
     const { goal } = await seedGoal()
     const result = await closeGoal(goal.id, { outcome: 'abandoned' })
     expect(result.goal.status).toBe('dropped')
-    const keyResults = (await keyResultDexieRepository.listAll()).filter((item) => item.goalId === goal.id)
-    expect(keyResults.every((item) => item.status === 'dropped')).toBe(true)
+    const keyResults = (await keyResultDexieRepository.listAll()).filter(
+      item => item.goalId === goal.id
+    )
+    expect(keyResults.every(item => item.status === 'dropped')).toBe(true)
     expect(result.createdHabits).toEqual([])
   })
 
@@ -337,7 +375,9 @@ describe('deferGoalClosing / reopenGoal', () => {
     const reopened = await reopenGoal(goal.id)
     expect(reopened.status).toBe('open')
     expect(reopened.closingReflection).toBeUndefined()
-    const keyResults = (await keyResultDexieRepository.listAll()).filter((item) => item.goalId === goal.id)
-    expect(keyResults.every((item) => item.status === 'open')).toBe(true)
+    const keyResults = (await keyResultDexieRepository.listAll()).filter(
+      item => item.goalId === goal.id
+    )
+    expect(keyResults.every(item => item.status === 'open')).toBe(true)
   })
 })

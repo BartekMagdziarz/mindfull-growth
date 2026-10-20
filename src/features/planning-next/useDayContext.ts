@@ -32,8 +32,16 @@ export function useDayContext(dayRef: Ref<DayRef>) {
     isLoading.value = true
     try {
       const refs = getPeriodRefsForDate(dayRef.value)
-      const rangeStart = [addDaysToDayRef(dayRef.value, -MARKER_REACH_DAYS), addDaysToDayRef(todayRef.value, -OVERDUE_REACH_DAYS)].sort()[0]
-      const rangeEnd = [addDaysToDayRef(dayRef.value, MARKER_REACH_DAYS), addDaysToDayRef(todayRef.value, UPCOMING_HORIZON_DAYS)].sort().at(-1)!
+      const rangeStart = [
+        addDaysToDayRef(dayRef.value, -MARKER_REACH_DAYS),
+        addDaysToDayRef(todayRef.value, -OVERDUE_REACH_DAYS),
+      ].sort()[0]
+      const rangeEnd = [
+        addDaysToDayRef(dayRef.value, MARKER_REACH_DAYS),
+        addDaysToDayRef(todayRef.value, UPCOMING_HORIZON_DAYS),
+      ]
+        .sort()
+        .at(-1)!
       const [monthPlan, activePriorities, loadedMarkers] = await Promise.all([
         periodPlanDexieRepository.getMonthPlan(refs.month),
         getActivePrioritiesForMonth(refs.month),

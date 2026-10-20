@@ -41,7 +41,7 @@ describe('AppNavDock', () => {
     const { container } = await renderDock('/journal')
 
     const items = screen.getAllByText(
-      /Today|Calendar|Objects|Journal|Emotions|History|Exercises|Profile/,
+      /Today|Calendar|Objects|Journal|Emotions|History|Exercises|Profile/
     )
     expect(items[0]).toHaveTextContent('Today')
     expect(items[1]).toHaveTextContent('Calendar')
@@ -54,15 +54,15 @@ describe('AppNavDock', () => {
 
   it.each(['/calendar', '/calendar/day/2026-03-12', '/calendar/week/2026-W11'])(
     'marks Calendar active on %s',
-    async (path) => {
+    async path => {
       await renderDock(path)
 
       expect(screen.getByText('Calendar').closest('a')).toHaveClass('dock-item--active')
       expect(screen.getByText('Today').closest('a')).not.toHaveClass('dock-item--active')
-    },
+    }
   )
 
-  it.each(['/today', '/today/2026-03-12'])('marks Today active on %s', async (path) => {
+  it.each(['/today', '/today/2026-03-12'])('marks Today active on %s', async path => {
     await renderDock(path)
 
     expect(screen.getByText('Today').closest('a')).toHaveClass('dock-item--active')
@@ -71,10 +71,10 @@ describe('AppNavDock', () => {
 
   it.each(['/objects/goals', '/objects/habits', '/objects/priorities/ritual'])(
     'marks Objects active across every object family on %s',
-    async (path) => {
+    async path => {
       await renderDock(path)
 
       expect(screen.getByText('Objects').closest('a')).toHaveClass('dock-item--active')
-    },
+    }
   )
 })

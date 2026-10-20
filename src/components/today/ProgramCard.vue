@@ -6,11 +6,7 @@
       </button>
     </header>
 
-    <div
-      v-for="row in rows"
-      :key="row.enrollment.id"
-      class="dz-program"
-    >
+    <div v-for="row in rows" :key="row.enrollment.id" class="dz-program">
       <button
         v-if="row.due && row.entry"
         type="button"
@@ -29,7 +25,9 @@
           type="button"
           class="dz-program__title neo-focus"
           :aria-label="t('planning.today.wellness.ariaProgramOpen')"
-          @click="router.push({ name: 'program-detail', params: { slug: row.enrollment.programSlug } })"
+          @click="
+            router.push({ name: 'program-detail', params: { slug: row.enrollment.programSlug } })
+          "
         >
           {{ row.title }}
         </button>
@@ -78,22 +76,24 @@ const planStore = useExercisePlanStore()
  * a step, D2).
  */
 const rows = computed(() =>
-  props.enrollments.map((enrollment) => {
+  props.enrollments.map(enrollment => {
     const program = getProgramDefinition(enrollment.programSlug)
     const own = planStore.pendingItems.filter(
-      (candidate) => candidate.source === 'program' && candidate.sourceRef === enrollment.id,
+      candidate => candidate.source === 'program' && candidate.sourceRef === enrollment.id
     )
-    const item = own.find((candidate) => !isPracticeItem(candidate))
+    const item = own.find(candidate => !isPracticeItem(candidate))
     // Practices due today ride along under the step caption.
     const duePractices = own
-      .filter((candidate) => isPracticeItem(candidate) && candidate.dayRef <= props.todayRef)
-      .map((candidate) => {
+      .filter(candidate => isPracticeItem(candidate) && candidate.dayRef <= props.todayRef)
+      .map(candidate => {
         const practiceEntry = getCatalogEntry(candidate.exerciseSlug)
         return {
           id: candidate.id,
           icon: practiceEntry?.icon ?? 'repeat',
           route: practiceEntry?.route ?? '/exercises',
-          title: practiceEntry ? t(`exercises.cards.${practiceEntry.i18nKey}.title`) : candidate.exerciseSlug,
+          title: practiceEntry
+            ? t(`exercises.cards.${practiceEntry.i18nKey}.title`)
+            : candidate.exerciseSlug,
         }
       })
     const due = Boolean(item && item.dayRef <= props.todayRef)
@@ -102,7 +102,9 @@ const rows = computed(() =>
         current: Math.min(enrollment.currentStepIndex + 1, program?.steps.length ?? 0),
         total: program?.steps.length ?? 0,
       }),
-      !due && item ? t('planning.today.wellness.programFrom', { date: formatDay(item.dayRef) }) : '',
+      !due && item
+        ? t('planning.today.wellness.programFrom', { date: formatDay(item.dayRef) })
+        : '',
     ]
       .filter(Boolean)
       .join(' · ')
@@ -115,7 +117,7 @@ const rows = computed(() =>
       caption,
       duePractices,
     }
-  }),
+  })
 )
 
 function formatDay(dayRef: DayRef): string {
@@ -158,7 +160,7 @@ function formatDay(dayRef: DayRef): string {
 .dz-card__label {
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.10em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: rgb(var(--neo-muted));
   background: none;
@@ -188,7 +190,9 @@ function formatDay(dayRef: DayRef): string {
   border: 1px dashed rgb(var(--color-primary) / 0.55);
   color: rgb(var(--color-primary-strong));
   cursor: pointer;
-  transition: transform 200ms ease, border-color 200ms ease;
+  transition:
+    transform 200ms ease,
+    border-color 200ms ease;
 }
 button.dz-program__cta:hover {
   border-color: rgb(var(--color-primary));

@@ -13,7 +13,11 @@
         <template #leading>
           <span
             class="mg-v2-icon-board mg-v2-icon-board--sm mg-v2-icon-board--tinted"
-            :style="area.color ? { '--mg-icon-board-tint': area.color, '--mg-icon-board-tint-mix': '26%' } : undefined"
+            :style="
+              area.color
+                ? { '--mg-icon-board-tint': area.color, '--mg-icon-board-tint-mix': '26%' }
+                : undefined
+            "
             aria-hidden="true"
           >
             <EntityIcon :icon="area.icon" :color="area.color" size="md" :circle="false" />
@@ -23,18 +27,10 @@
           <AppButton variant="outlined" @click="router.push(`/areas/${area.id}/edit`)">
             {{ t('lifeAreas.detail.editButton') }}
           </AppButton>
-          <AppButton
-            v-if="area.isActive"
-            variant="text"
-            @click="handleArchive"
-          >
+          <AppButton v-if="area.isActive" variant="text" @click="handleArchive">
             {{ t('lifeAreas.detail.archiveButton') }}
           </AppButton>
-          <AppButton
-            v-else
-            variant="text"
-            @click="handleReactivate"
-          >
+          <AppButton v-else variant="text" @click="handleReactivate">
             {{ t('lifeAreas.detail.reactivateButton') }}
           </AppButton>
         </template>
@@ -43,24 +39,36 @@
       <!-- Metadata Cards -->
       <div class="space-y-4">
         <AppCard v-if="area.meaning" padding="lg">
-          <h3 class="text-sm font-semibold text-on-surface mb-1">{{ t('lifeAreas.detail.meaningTitle') }}</h3>
+          <h3 class="text-sm font-semibold text-on-surface mb-1">
+            {{ t('lifeAreas.detail.meaningTitle') }}
+          </h3>
           <p class="text-sm text-on-surface-variant">{{ area.meaning }}</p>
         </AppCard>
 
         <AppCard v-if="area.desiredState" padding="lg">
-          <h3 class="text-sm font-semibold text-on-surface mb-1">{{ t('lifeAreas.detail.desiredStateTitle') }}</h3>
+          <h3 class="text-sm font-semibold text-on-surface mb-1">
+            {{ t('lifeAreas.detail.desiredStateTitle') }}
+          </h3>
           <p class="text-sm text-on-surface-variant">{{ area.desiredState }}</p>
         </AppCard>
 
         <AppCard v-if="area.typicalRisks" padding="lg">
-          <h3 class="text-sm font-semibold text-on-surface mb-1">{{ t('lifeAreas.detail.typicalRisksTitle') }}</h3>
+          <h3 class="text-sm font-semibold text-on-surface mb-1">
+            {{ t('lifeAreas.detail.typicalRisksTitle') }}
+          </h3>
           <p class="text-sm text-on-surface-variant">{{ area.typicalRisks }}</p>
         </AppCard>
 
         <AppCard v-if="area.reflectionSignals.length > 0" padding="lg">
-          <h3 class="text-sm font-semibold text-on-surface mb-2">{{ t('lifeAreas.detail.reflectionSignalsTitle') }}</h3>
+          <h3 class="text-sm font-semibold text-on-surface mb-2">
+            {{ t('lifeAreas.detail.reflectionSignalsTitle') }}
+          </h3>
           <ul class="list-disc list-inside space-y-1">
-            <li v-for="(signal, i) in area.reflectionSignals" :key="i" class="text-sm text-on-surface-variant">
+            <li
+              v-for="(signal, i) in area.reflectionSignals"
+              :key="i"
+              class="text-sm text-on-surface-variant"
+            >
               {{ signal }}
             </li>
           </ul>
@@ -68,7 +76,9 @@
 
         <!-- Linked Entities -->
         <AppCard padding="lg">
-          <h3 class="text-sm font-semibold text-on-surface mb-3">{{ t('lifeAreas.detail.linkedDataTitle') }}</h3>
+          <h3 class="text-sm font-semibold text-on-surface mb-3">
+            {{ t('lifeAreas.detail.linkedDataTitle') }}
+          </h3>
           <LifeAreaLinkedEntities :life-area="area" />
         </AppCard>
       </div>
@@ -82,10 +92,7 @@
         >
           {{ t('lifeAreas.detail.deleteButton') }}
         </button>
-        <p
-          v-else
-          class="text-sm text-on-surface-variant"
-        >
+        <p v-else class="text-sm text-on-surface-variant">
           {{ t('lifeAreas.detail.deleteBlockedHistory') }}
         </p>
       </div>
@@ -122,10 +129,7 @@ const canDeletePermanently = computed(() => {
 })
 
 onMounted(async () => {
-  await Promise.all([
-    lifeAreaStore.loadLifeAreas(),
-    lifeAreaAssessmentStore.loadAssessments(),
-  ])
+  await Promise.all([lifeAreaStore.loadLifeAreas(), lifeAreaAssessmentStore.loadAssessments()])
 })
 
 async function handleArchive() {

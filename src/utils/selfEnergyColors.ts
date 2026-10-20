@@ -25,8 +25,8 @@ function parseRgbTriple(raw: string): RgbTriple | null {
     .trim()
     .split(/[\s,]+/)
     .filter(Boolean)
-    .map((n) => Number.parseInt(n, 10))
-  if (parts.length !== 3 || parts.some((n) => Number.isNaN(n))) return null
+    .map(n => Number.parseInt(n, 10))
+  if (parts.length !== 3 || parts.some(n => Number.isNaN(n))) return null
   return [parts[0], parts[1], parts[2]]
 }
 
@@ -59,10 +59,7 @@ export function resetSelfEnergyColorCache(): void {
  * Returns the rgba() color string for a quality at the requested opacity
  * (0..1). Used by the wheel SVG for segment fills and strokes.
  */
-export function getQualityRgba(
-  quality: SelfEnergyQuality,
-  opacity: number,
-): string {
+export function getQualityRgba(quality: SelfEnergyQuality, opacity: number): string {
   const [r, g, b] = readQualityTriple(quality)
   return `rgba(${r}, ${g}, ${b}, ${opacity})`
 }
@@ -73,14 +70,13 @@ export function getQualityVar(quality: SelfEnergyQuality): string {
 }
 
 /** Tailwind class for the quality's text color (used by the wizard summary). */
-export const SELF_ENERGY_QUALITY_TEXT_CLASS: Record<SelfEnergyQuality, string> =
-  {
-    calm: 'text-[rgb(var(--self-calm))]',
-    curiosity: 'text-[rgb(var(--self-curiosity))]',
-    compassion: 'text-[rgb(var(--self-compassion))]',
-    clarity: 'text-[rgb(var(--self-clarity))]',
-    courage: 'text-[rgb(var(--self-courage))]',
-    creativity: 'text-[rgb(var(--self-creativity))]',
-    confidence: 'text-[rgb(var(--self-confidence))]',
-    connection: 'text-[rgb(var(--self-connection))]',
-  }
+export const SELF_ENERGY_QUALITY_TEXT_CLASS: Record<SelfEnergyQuality, string> = {
+  calm: 'text-[rgb(var(--self-calm))]',
+  curiosity: 'text-[rgb(var(--self-curiosity))]',
+  compassion: 'text-[rgb(var(--self-compassion))]',
+  clarity: 'text-[rgb(var(--self-clarity))]',
+  courage: 'text-[rgb(var(--self-courage))]',
+  creativity: 'text-[rgb(var(--self-creativity))]',
+  confidence: 'text-[rgb(var(--self-confidence))]',
+  connection: 'text-[rgb(var(--self-connection))]',
+}

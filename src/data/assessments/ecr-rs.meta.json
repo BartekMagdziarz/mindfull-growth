@@ -17,15 +17,78 @@
     }
   },
   "items": [
-    { "id": "ecrrs_01", "textKey": "assessments.ecrRs.items.ecrrs_01", "scaleId": "avoidance", "reverse": true, "responseMin": 1, "responseMax": 7 },
-    { "id": "ecrrs_02", "textKey": "assessments.ecrRs.items.ecrrs_02", "scaleId": "avoidance", "reverse": true, "responseMin": 1, "responseMax": 7 },
-    { "id": "ecrrs_03", "textKey": "assessments.ecrRs.items.ecrrs_03", "scaleId": "avoidance", "reverse": true, "responseMin": 1, "responseMax": 7 },
-    { "id": "ecrrs_04", "textKey": "assessments.ecrRs.items.ecrrs_04", "scaleId": "avoidance", "reverse": true, "responseMin": 1, "responseMax": 7 },
-    { "id": "ecrrs_05", "textKey": "assessments.ecrRs.items.ecrrs_05", "scaleId": "avoidance", "reverse": false, "responseMin": 1, "responseMax": 7 },
-    { "id": "ecrrs_06", "textKey": "assessments.ecrRs.items.ecrrs_06", "scaleId": "avoidance", "reverse": false, "responseMin": 1, "responseMax": 7 },
-    { "id": "ecrrs_07", "textKey": "assessments.ecrRs.items.ecrrs_07", "scaleId": "anxiety", "reverse": false, "responseMin": 1, "responseMax": 7 },
-    { "id": "ecrrs_08", "textKey": "assessments.ecrRs.items.ecrrs_08", "scaleId": "anxiety", "reverse": false, "responseMin": 1, "responseMax": 7 },
-    { "id": "ecrrs_09", "textKey": "assessments.ecrRs.items.ecrrs_09", "scaleId": "anxiety", "reverse": false, "responseMin": 1, "responseMax": 7 }
+    {
+      "id": "ecrrs_01",
+      "textKey": "assessments.ecrRs.items.ecrrs_01",
+      "scaleId": "avoidance",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 7
+    },
+    {
+      "id": "ecrrs_02",
+      "textKey": "assessments.ecrRs.items.ecrrs_02",
+      "scaleId": "avoidance",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 7
+    },
+    {
+      "id": "ecrrs_03",
+      "textKey": "assessments.ecrRs.items.ecrrs_03",
+      "scaleId": "avoidance",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 7
+    },
+    {
+      "id": "ecrrs_04",
+      "textKey": "assessments.ecrRs.items.ecrrs_04",
+      "scaleId": "avoidance",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 7
+    },
+    {
+      "id": "ecrrs_05",
+      "textKey": "assessments.ecrRs.items.ecrrs_05",
+      "scaleId": "avoidance",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 7
+    },
+    {
+      "id": "ecrrs_06",
+      "textKey": "assessments.ecrRs.items.ecrrs_06",
+      "scaleId": "avoidance",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 7
+    },
+    {
+      "id": "ecrrs_07",
+      "textKey": "assessments.ecrRs.items.ecrrs_07",
+      "scaleId": "anxiety",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 7
+    },
+    {
+      "id": "ecrrs_08",
+      "textKey": "assessments.ecrRs.items.ecrrs_08",
+      "scaleId": "anxiety",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 7
+    },
+    {
+      "id": "ecrrs_09",
+      "textKey": "assessments.ecrRs.items.ecrrs_09",
+      "scaleId": "anxiety",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 7
+    }
   ],
   "scales": [
     {

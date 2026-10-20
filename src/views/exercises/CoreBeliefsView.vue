@@ -8,18 +8,18 @@
 
     <!-- Past entries section -->
     <div v-if="coreBeliefsStore.sortedExplorations.length > 0" class="mt-8">
-      <div class="mg-v2-section-head"><h2>{{ t('exercises.views.pastExplorations') }}</h2></div>
+      <div class="mg-v2-section-head">
+        <h2>{{ t('exercises.views.pastExplorations') }}</h2>
+      </div>
       <div class="space-y-3">
-        <AppCard
-          v-for="entry in coreBeliefsStore.sortedExplorations"
-          :key="entry.id"
-          padding="md"
-        >
+        <AppCard v-for="entry in coreBeliefsStore.sortedExplorations" :key="entry.id" padding="md">
           <div class="flex justify-between items-start">
             <div>
               <p class="text-sm font-medium text-on-surface line-clamp-2">{{ entry.coreBelief }}</p>
               <p class="text-xs text-on-surface-variant mt-1">
-                <span class="exercise-pill px-2 py-0.5 text-xs mr-1.5">{{ categoryLabel(entry.beliefCategory) }}</span>
+                <span class="exercise-pill px-2 py-0.5 text-xs mr-1.5">{{
+                  categoryLabel(entry.beliefCategory)
+                }}</span>
                 &middot; {{ formatDate(entry.createdAt) }}
               </p>
             </div>
@@ -51,8 +51,11 @@ const entryStore = useMicroExerciseEntryStore()
 const seeded = computed(() => route.query.seed === 'fairDemand')
 const wizardSeed = computed(() =>
   seeded.value
-    ? { thought: latestCriticThought(entryStore.entries), alternative: latestFairDemand(entryStore.entries) }
-    : undefined,
+    ? {
+        thought: latestCriticThought(entryStore.entries),
+        alternative: latestFairDemand(entryStore.entries),
+      }
+    : undefined
 )
 const coreBeliefsStore = useCoreBeliefsStore()
 const saved = ref(false)

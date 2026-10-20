@@ -14,7 +14,10 @@ const weekTaskState = vi.fn()
 
 vi.mock('vue-router', () => ({
   useRouter: () => ({ push }),
-  RouterLink: { props: ['to'], template: '<a :href="typeof to === \'string\' ? to : JSON.stringify(to)"><slot /></a>' },
+  RouterLink: {
+    props: ['to'],
+    template: '<a :href="typeof to === \'string\' ? to : JSON.stringify(to)"><slot /></a>',
+  },
 }))
 vi.mock('@/composables/useT', () => ({
   useT: () => ({
@@ -25,9 +28,15 @@ vi.mock('@/composables/useT', () => ({
   }),
 }))
 vi.mock('../useDayWellness', () => ({
-  useDayWellness: () => ({ isToday: ref(true), activeEnrollments: enrollments, ensureLoaded: vi.fn(async () => {}) }),
+  useDayWellness: () => ({
+    isToday: ref(true),
+    activeEnrollments: enrollments,
+    ensureLoaded: vi.fn(async () => {}),
+  }),
 }))
-vi.mock('@/stores/exercisePlan.store', () => ({ useExercisePlanStore: () => ({ pendingItems: [] }) }))
+vi.mock('@/stores/exercisePlan.store', () => ({
+  useExercisePlanStore: () => ({ pendingItems: [] }),
+}))
 vi.mock('@/stores/microExerciseEntry.store', () => ({
   useMicroExerciseEntryStore: () => ({
     get entries() {
@@ -38,9 +47,16 @@ vi.mock('@/stores/microExerciseEntry.store', () => ({
 }))
 vi.mock('@/stores/today.store', () => ({ useTodayStore: () => ({ bundle: null }) }))
 vi.mock('@/features/program-path/useStepLauncher', () => ({
-  useStepLauncher: () => ({ pickerOpen: ref(false), pickerMoments: ref([]), launch, picked: vi.fn() }),
+  useStepLauncher: () => ({
+    pickerOpen: ref(false),
+    pickerMoments: ref([]),
+    launch,
+    picked: vi.fn(),
+  }),
 }))
-vi.mock('@/services/programWeekService', () => ({ weekTaskState: (...args: unknown[]) => weekTaskState(...args) }))
+vi.mock('@/services/programWeekService', () => ({
+  weekTaskState: (...args: unknown[]) => weekTaskState(...args),
+}))
 
 import { getProgramDefinition } from '@/data/programCatalog'
 import { addDaysToDayRef } from '@/utils/periods'
@@ -48,7 +64,11 @@ import NextDayPrograms from '../NextDayPrograms.vue'
 
 const TODAY = '2026-03-12' as DayRef
 
-function enrollment(programSlug: string, currentStepIndex: number, overrides: Partial<ProgramEnrollment> = {}): ProgramEnrollment {
+function enrollment(
+  programSlug: string,
+  currentStepIndex: number,
+  overrides: Partial<ProgramEnrollment> = {}
+): ProgramEnrollment {
   // The last completion sits exactly the current step's gap behind today, so the step is due "today".
   const gap = getProgramDefinition(programSlug)?.steps[currentStepIndex]?.minGapDays ?? 0
   const completedSteps = Array.from({ length: currentStepIndex }, (_, stepIndex) => ({
@@ -75,7 +95,13 @@ function enrollment(programSlug: string, currentStepIndex: number, overrides: Pa
 function mountCard() {
   return mount(NextDayPrograms, {
     props: { dayRef: TODAY },
-    global: { stubs: { AppIcon: true, MomentPickerDialog: true, DsSurface: { template: '<section><slot /></section>' } } },
+    global: {
+      stubs: {
+        AppIcon: true,
+        MomentPickerDialog: true,
+        DsSurface: { template: '<section><slot /></section>' },
+      },
+    },
   })
 }
 
@@ -90,7 +116,10 @@ describe('NextDayPrograms', () => {
   })
 
   it('renders nothing without an active path, and skips paused and closed ones', async () => {
-    enrollments.value = [enrollment('shame-compassion', 9, { status: 'paused' }), enrollment('shame-compassion', 24, { id: 'closed', status: 'completed' })]
+    enrollments.value = [
+      enrollment('shame-compassion', 9, { status: 'paused' }),
+      enrollment('shame-compassion', 24, { id: 'closed', status: 'completed' }),
+    ]
     const wrapper = mountCard()
     await flushPromises()
     expect(wrapper.find('[data-testid="today-path-tile"]').exists()).toBe(false)
@@ -111,7 +140,7 @@ describe('NextDayPrograms', () => {
     expect(phase.find('.ndpath__open').text()).toBe('programsOpen')
     const dots = phase.findAll('.ndpath-dots > i')
     expect(dots).toHaveLength(8)
-    expect(dots.filter((dot) => dot.classes('is-done'))).toHaveLength(3)
+    expect(dots.filter(dot => dot.classes('is-done'))).toHaveLength(3)
     expect(dots[3].classes()).toContain('is-current')
     expect(phase.find('.ndpath-dots').attributes('aria-label')).toBe('programWeekProgress:4/8')
     expect(tile.text()).not.toMatch(/\d\s*z\s*\d/)
@@ -122,7 +151,9 @@ describe('NextDayPrograms', () => {
     await step.trigger('click')
     expect(launch).toHaveBeenCalledWith(expect.objectContaining({ slug: 'shame-compassion' }), 9)
 
-    expect(tile.find('[data-testid="today-path-moment"]').attributes('href')).toBe('/exercises/micro/moment-shame')
+    expect(tile.find('[data-testid="today-path-moment"]').attributes('href')).toBe(
+      '/exercises/micro/moment-shame'
+    )
     expect(tile.find('[data-testid="today-path-task"]').exists()).toBe(false)
     expect(tile.find('[data-testid="today-path-dose"]').exists()).toBe(false)
     expect(wrapper.find('.ndt-card__links').exists()).toBe(false)
@@ -142,22 +173,36 @@ describe('NextDayPrograms', () => {
 
   it('shows the accepted week task as dots with the fraction in the title only, and the rhythm proposal after a heavy dose check', async () => {
     weekTaskState.mockResolvedValue({
-      intention: { id: 'i1', title: 'Nazwij wstyd w chwili, gdy się pojawia', target: { kind: 'count', operator: 'min', value: 3 } },
+      intention: {
+        id: 'i1',
+        title: 'Nazwij wstyd w chwili, gdy się pojawia',
+        target: { kind: 'count', operator: 'min', value: 3 },
+      },
       task: { key: 'useResponse', times: 3 },
       doneCount: 2,
       doneDays: [],
     })
     entries.value = [
-      { id: 'd1', exerciseSlug: 'dose-check', createdAt: '2026-03-10T12:00:00.000Z', responses: { load: 'tooMuch' } } as unknown as MicroExerciseEntry,
+      {
+        id: 'd1',
+        exerciseSlug: 'dose-check',
+        createdAt: '2026-03-10T12:00:00.000Z',
+        responses: { load: 'tooMuch' },
+      } as unknown as MicroExerciseEntry,
     ]
-    enrollments.value = [enrollment('shame-compassion', 9), enrollment('anxiety-approach', 6, { id: 'e-anx' })]
+    enrollments.value = [
+      enrollment('shame-compassion', 9),
+      enrollment('anxiety-approach', 6, { id: 'e-anx' }),
+    ]
     const wrapper = mountCard()
     await flushPromises()
     const tiles = wrapper.findAll('[data-testid="today-path-tile"]')
     expect(tiles).toHaveLength(2)
 
     const task = tiles[0].find('[data-testid="today-path-task"]')
-    expect(task.find('.ndpath__task-text .ndpath__text').text()).toBe('Nazwij wstyd w chwili, gdy się pojawia')
+    expect(task.find('.ndpath__task-text .ndpath__text').text()).toBe(
+      'Nazwij wstyd w chwili, gdy się pojawia'
+    )
     expect(task.findAll('.ndpath__task-dots > i')).toHaveLength(3)
     expect(task.findAll('.ndpath-dots > i.is-done')).toHaveLength(2)
     expect(task.attributes('title')).toBe('taskDays:2/3')

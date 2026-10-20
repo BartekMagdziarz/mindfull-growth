@@ -1,9 +1,6 @@
 <template>
   <!-- Counter: [+] button + tappable count -->
-  <div
-    v-if="entryMode === 'counter'"
-    class="flex items-center gap-1"
-  >
+  <div v-if="entryMode === 'counter'" class="flex items-center gap-1">
     <button
       type="button"
       class="neo-icon-button neo-focus text-xs"
@@ -91,10 +88,7 @@
   </div>
 
   <!-- Value: prominent number input -->
-  <div
-    v-else-if="entryMode === 'value'"
-    class="flex items-center"
-  >
+  <div v-else-if="entryMode === 'value'" class="flex items-center">
     <input
       ref="valueInputRef"
       :value="draftValue"
@@ -126,7 +120,7 @@ const props = withDefaults(
     ratingMin?: number
     ratingMax?: number
   }>(),
-  { isPending: false, ratingMin: 1, ratingMax: 10 },
+  { isPending: false, ratingMin: 1, ratingMax: 10 }
 )
 
 const emit = defineEmits<{
@@ -143,14 +137,14 @@ const justSubmitted = ref(false)
 
 const { value: draftValue } = useEditableField<number, string>({
   source: () => props.currentValue,
-  format: (v) => (v ? formatValue(v) : ''),
+  format: v => (v ? formatValue(v) : ''),
   isFocused: () =>
     typeof document !== 'undefined' &&
     (document.activeElement === inlineInputRef.value ||
       document.activeElement === valueInputRef.value),
 })
 
-watch(showInlineEdit, async (show) => {
+watch(showInlineEdit, async show => {
   if (show) {
     draftValue.value = formatValue(props.currentValue)
     await nextTick()

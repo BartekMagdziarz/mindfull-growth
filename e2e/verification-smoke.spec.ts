@@ -116,7 +116,9 @@ test.describe('verification environment', () => {
     await expect(ritual.getByRole('heading', { name: 'Co wydarzyło się naprawdę?' })).toBeVisible()
   })
 
-  test('rhythm calendar: ratings view draws four area ribbons and the summary shows week ribbons', async ({ page }) => {
+  test('rhythm calendar: ratings view draws four area ribbons and the summary shows week ribbons', async ({
+    page,
+  }) => {
     test.setTimeout(120_000)
     await bootSeededApp(page)
 
@@ -124,7 +126,9 @@ test.describe('verification environment', () => {
     const board = page.locator('.rb-board')
     await expect(board).toBeVisible()
     await expect(board.locator('.rb-series--ribbon')).toHaveCount(4)
-    await expect(board.locator('.rb-series--ribbon').first().locator('.ls-ribbon__line--state').first()).toBeVisible()
+    await expect(
+      board.locator('.rb-series--ribbon').first().locator('.ls-ribbon__line--state').first()
+    ).toBeVisible()
     // The rating card of the month carries the weeks as 2 × 2 area ribbons.
     await expect(page.locator('.ps__multiple')).toHaveCount(4)
   })

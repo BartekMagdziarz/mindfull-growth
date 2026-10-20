@@ -37,11 +37,7 @@
     <!-- Sort Order Toggle -->
     <div class="flex items-center gap-2">
       <span class="mg-v2-page-head__eyebrow">{{ t('history.filters.sort') }}</span>
-      <button
-        type="button"
-        class="mg-v2-pill history-filter"
-        @click="toggleSortOrder"
-      >
+      <button type="button" class="mg-v2-pill history-filter" @click="toggleSortOrder">
         <AppIcon
           :name="sortOrder === 'desc' ? 'arrow_downward' : 'arrow_upward'"
           class="text-base mr-1"

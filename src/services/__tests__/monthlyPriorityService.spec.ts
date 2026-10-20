@@ -17,7 +17,7 @@ const MONTH = parsePeriodRef('2026-06') as MonthRef
 
 function makePriority(
   title: string,
-  opts: { status?: PriorityStatus; years?: YearRef[]; order?: number } = {},
+  opts: { status?: PriorityStatus; years?: YearRef[]; order?: number } = {}
 ) {
   return priorityDexieRepository.create({
     title,
@@ -43,7 +43,7 @@ describe('monthlyPriorityService', () => {
 
     const active = await getActivePrioritiesForMonth(MONTH)
 
-    expect(active.map((p) => p.id)).toEqual([first.id, second.id])
+    expect(active.map(p => p.id)).toEqual([first.id, second.id])
   })
 
   it('lazily creates then updates the month plan top priorities', async () => {
@@ -73,7 +73,7 @@ describe('monthlyPriorityService', () => {
       'month',
       MONTH,
       'priority',
-      priority.id,
+      priority.id
     )
     expect(row?.effort).toBe(4)
     expect(row?.verdict).toBe('continue')
@@ -89,7 +89,7 @@ describe('monthlyPriorityService', () => {
       'month',
       MONTH,
       'priority',
-      priority.id,
+      priority.id
     )
     expect(row?.effort).toBe(2)
     expect(row?.verdict).toBeNull()
@@ -100,13 +100,17 @@ describe('monthlyPriorityService', () => {
     const priority = await makePriority('Career')
     await setMonthlyPriorityAssessment(MONTH, priority.id, { effort: 3 })
 
-    await setMonthlyPriorityAssessment(MONTH, priority.id, { effort: null, verdict: null, note: '' })
+    await setMonthlyPriorityAssessment(MONTH, priority.id, {
+      effort: null,
+      verdict: null,
+      note: '',
+    })
 
     const row = await reflectionDexieRepository.getPeriodObjectReflection(
       'month',
       MONTH,
       'priority',
-      priority.id,
+      priority.id
     )
     expect(row).toBeUndefined()
   })
@@ -119,7 +123,12 @@ describe('monthlyPriorityService', () => {
       observedRiskSignals: ['presja wyniku'],
     })
 
-    const row = await reflectionDexieRepository.getPeriodObjectReflection('month', MONTH, 'priority', priority.id)
+    const row = await reflectionDexieRepository.getPeriodObjectReflection(
+      'month',
+      MONTH,
+      'priority',
+      priority.id
+    )
     expect(row?.observedProgressSignals).toEqual(['więcej spokoju'])
     expect(row?.observedRiskSignals).toEqual(['presja wyniku'])
     // Signals alone are enough content to keep the row.
@@ -138,13 +147,16 @@ describe('monthlyPriorityService', () => {
       observedRiskSignals: [],
     })
 
-    const row = await reflectionDexieRepository.getPeriodObjectReflection('month', MONTH, 'priority', priority.id)
+    const row = await reflectionDexieRepository.getPeriodObjectReflection(
+      'month',
+      MONTH,
+      'priority',
+      priority.id
+    )
     expect(row).toBeUndefined()
   })
 
   it('rejects an assessment for a non-existent priority', async () => {
-    await expect(
-      setMonthlyPriorityAssessment(MONTH, 'missing-id', { effort: 3 }),
-    ).rejects.toThrow()
+    await expect(setMonthlyPriorityAssessment(MONTH, 'missing-id', { effort: 3 })).rejects.toThrow()
   })
 })

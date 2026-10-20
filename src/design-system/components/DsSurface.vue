@@ -5,11 +5,14 @@
 </template>
 
 <script setup lang="ts">
-withDefaults(defineProps<{
-  tag?: 'article' | 'aside' | 'div' | 'main' | 'section'
-  elevation?: 'raised' | 'raised-sm' | 'inset' | 'flat'
-}>(), {
-  tag: 'section',
-  elevation: 'raised',
-})
+withDefaults(
+  defineProps<{
+    tag?: 'article' | 'aside' | 'div' | 'main' | 'section'
+    elevation?: 'raised' | 'raised-sm' | 'inset' | 'flat'
+  }>(),
+  {
+    tag: 'section',
+    elevation: 'raised',
+  }
+)
 </script>

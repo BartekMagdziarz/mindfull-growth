@@ -55,7 +55,7 @@ describe('useLifeAreaStore', () => {
       await store.loadLifeAreas()
 
       expect(store.lifeAreas).toHaveLength(2)
-      expect(store.lifeAreas.map((la) => la.name)).toContain('Health')
+      expect(store.lifeAreas.map(la => la.name)).toContain('Health')
       expect(store.isLoading).toBe(false)
       expect(store.error).toBeNull()
     })
@@ -241,10 +241,14 @@ describe('useLifeAreaStore', () => {
 
       expect(store.lifeAreas.length).toBeGreaterThan(0)
       expect(
-        store.lifeAreas.every((lifeArea) => typeof lifeArea.icon === 'string' && lifeArea.icon.length > 0)
+        store.lifeAreas.every(
+          lifeArea => typeof lifeArea.icon === 'string' && lifeArea.icon.length > 0
+        )
       ).toBe(true)
-      expect(store.lifeAreas.every((lifeArea) => Array.isArray(lifeArea.reflectionSignals))).toBe(true)
-      expect(store.lifeAreas.every((lifeArea) => lifeArea.reflectionSignals.length === 0)).toBe(true)
+      expect(store.lifeAreas.every(lifeArea => Array.isArray(lifeArea.reflectionSignals))).toBe(
+        true
+      )
+      expect(store.lifeAreas.every(lifeArea => lifeArea.reflectionSignals.length === 0)).toBe(true)
     })
   })
 })

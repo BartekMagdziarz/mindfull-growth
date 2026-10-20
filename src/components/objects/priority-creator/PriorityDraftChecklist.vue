@@ -1,5 +1,8 @@
 <template>
-  <section v-if="pendingLinks.length" class="mg-v2-surface mg-v2-surface--flat space-y-3 p-4 text-left">
+  <section
+    v-if="pendingLinks.length"
+    class="mg-v2-surface mg-v2-surface--flat space-y-3 p-4 text-left"
+  >
     <div>
       <p class="flex items-center gap-2 text-sm font-semibold text-on-surface">
         {{ t('planning.priorityRitual.drafts.title') }}
@@ -14,10 +17,17 @@
         :key="link.id"
         class="mg-v2-surface mg-v2-surface--flat flex flex-wrap items-center gap-2 p-3"
       >
-        <AppIcon :name="proposalIcon(link.proposal?.objectType)" class="text-base text-on-surface-variant" />
+        <AppIcon
+          :name="proposalIcon(link.proposal?.objectType)"
+          class="text-base text-on-surface-variant"
+        />
         <span class="min-w-0 flex-1">
-          <span class="block text-xs text-on-surface-variant">{{ proposalTypeLabel(link.proposal?.objectType) }}</span>
-          <span class="block truncate text-sm font-medium text-on-surface">{{ link.proposal?.title }}</span>
+          <span class="block text-xs text-on-surface-variant">{{
+            proposalTypeLabel(link.proposal?.objectType)
+          }}</span>
+          <span class="block truncate text-sm font-medium text-on-surface">{{
+            link.proposal?.title
+          }}</span>
         </span>
         <button
           type="button"
@@ -26,7 +36,11 @@
           @click="handleFinish(link)"
         >
           <AppIcon name="check_circle" class="text-sm" />
-          {{ busyId === link.id ? t('planning.priorityRitual.drafts.creating') : t('planning.priorityRitual.drafts.finish') }}
+          {{
+            busyId === link.id
+              ? t('planning.priorityRitual.drafts.creating')
+              : t('planning.priorityRitual.drafts.finish')
+          }}
         </button>
         <button
           type="button"
@@ -127,8 +141,15 @@ async function handleRemove(link: PriorityLink): Promise<void> {
   }
 }
 
-watch(() => props.priorityId, () => { void load() })
-onMounted(() => { void load() })
+watch(
+  () => props.priorityId,
+  () => {
+    void load()
+  }
+)
+onMounted(() => {
+  void load()
+})
 
 defineExpose({ reload: load })
 </script>

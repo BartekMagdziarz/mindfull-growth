@@ -21,7 +21,7 @@ import { computed } from 'vue'
  */
 const props = withDefaults(
   defineProps<{ modelValue: number; min?: number; max?: number; step?: number }>(),
-  { min: 0, max: 100, step: 1 },
+  { min: 0, max: 100, step: 1 }
 )
 const emit = defineEmits<{ 'update:modelValue': [value: number] }>()
 

@@ -49,12 +49,12 @@ const props = withDefaults(
     maxLabel?: string
     ariaLabel?: string
   }>(),
-  { min: 1, max: 5, minLabel: '', maxLabel: '', ariaLabel: '' },
+  { min: 1, max: 5, minLabel: '', maxLabel: '', ariaLabel: '' }
 )
 const emit = defineEmits<{ 'update:modelValue': [value: number] }>()
 
 const values = computed(() =>
-  Array.from({ length: Math.max(0, props.max - props.min + 1) }, (_, i) => props.min + i),
+  Array.from({ length: Math.max(0, props.max - props.min + 1) }, (_, i) => props.min + i)
 )
 
 function shift(delta: number): void {

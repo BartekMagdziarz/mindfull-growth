@@ -6,7 +6,13 @@ import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieReposit
 import { programEnrollmentDexieRepository } from '@/repositories/programEnrollmentDexieRepository'
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
 import { loadPlanningCoreObjects } from '@/services/planningObjectCollections'
-import { addDaysToDayRef, getNextPeriod, getPeriodBounds, getPeriodRefsForDate, getPreviousPeriod } from '@/utils/periods'
+import {
+  addDaysToDayRef,
+  getNextPeriod,
+  getPeriodBounds,
+  getPeriodRefsForDate,
+  getPreviousPeriod,
+} from '@/utils/periods'
 
 /** Whether the thing the marker points at has already happened (plan/reflection exists, goal completed). */
 export type MarkerState = 'due' | 'done'
@@ -31,8 +37,24 @@ export interface ProgramMarkerRef {
  */
 export type DayMarker =
   | { key: string; kind: 'deadline'; dayRef: DayRef; state: MarkerState; goal: Goal }
-  | { key: string; kind: 'ritual'; dayRef: DayRef; state: MarkerState; ritual: 'week'; action: RitualAction; weekRef: WeekRef }
-  | { key: string; kind: 'ritual'; dayRef: DayRef; state: MarkerState; ritual: 'month'; action: RitualAction; monthRef: MonthRef }
+  | {
+      key: string
+      kind: 'ritual'
+      dayRef: DayRef
+      state: MarkerState
+      ritual: 'week'
+      action: RitualAction
+      weekRef: WeekRef
+    }
+  | {
+      key: string
+      kind: 'ritual'
+      dayRef: DayRef
+      state: MarkerState
+      ritual: 'month'
+      action: RitualAction
+      monthRef: MonthRef
+    }
   | ({ key: string; kind: 'letter'; dayRef: DayRef; state: MarkerState } & ProgramMarkerRef)
   | ({ key: string; kind: 'return'; dayRef: DayRef; state: MarkerState } & ProgramMarkerRef)
 
@@ -77,9 +99,14 @@ function ritualCandidates(todayRef: DayRef): RitualCandidate[] {
     const next = getNextPeriod(current) as typeof current
     const currentBounds = getPeriodBounds(current)
     out.push(
-      { ritual, action: 'reflect', periodRef: previous, dayRef: getPeriodBounds(previous).end as DayRef },
+      {
+        ritual,
+        action: 'reflect',
+        periodRef: previous,
+        dayRef: getPeriodBounds(previous).end as DayRef,
+      },
       { ritual, action: 'plan', periodRef: current, dayRef: currentBounds.start as DayRef },
-      { ritual, action: 'plan', periodRef: next, dayRef: getPeriodBounds(next).start as DayRef },
+      { ritual, action: 'plan', periodRef: next, dayRef: getPeriodBounds(next).start as DayRef }
     )
     if (currentBounds.end === todayRef) {
       out.push({ ritual, action: 'reflect', periodRef: current, dayRef: todayRef })
@@ -91,24 +118,42 @@ function ritualCandidates(todayRef: DayRef): RitualCandidate[] {
 async function ritualDone(candidate: RitualCandidate): Promise<boolean> {
   if (candidate.ritual === 'week') {
     const weekRef = candidate.periodRef as WeekRef
-    const record = candidate.action === 'plan'
-      ? await periodPlanDexieRepository.getWeekPlan(weekRef)
-      : await structuredReflectionDexieRepository.getWeekly(weekRef)
+    const record =
+      candidate.action === 'plan'
+        ? await periodPlanDexieRepository.getWeekPlan(weekRef)
+        : await structuredReflectionDexieRepository.getWeekly(weekRef)
     return Boolean(record)
   }
   const monthRef = candidate.periodRef as MonthRef
-  const record = candidate.action === 'plan'
-    ? await periodPlanDexieRepository.getMonthPlan(monthRef)
-    : await structuredReflectionDexieRepository.getMonthly(monthRef)
+  const record =
+    candidate.action === 'plan'
+      ? await periodPlanDexieRepository.getMonthPlan(monthRef)
+      : await structuredReflectionDexieRepository.getMonthly(monthRef)
   return Boolean(record)
 }
 
 function toRitualMarker(candidate: RitualCandidate, state: MarkerState): DayMarker {
   const key = `ritual:${candidate.ritual}:${candidate.action}:${candidate.periodRef}`
   if (candidate.ritual === 'week') {
-    return { key, kind: 'ritual', dayRef: candidate.dayRef, state, ritual: 'week', action: candidate.action, weekRef: candidate.periodRef as WeekRef }
+    return {
+      key,
+      kind: 'ritual',
+      dayRef: candidate.dayRef,
+      state,
+      ritual: 'week',
+      action: candidate.action,
+      weekRef: candidate.periodRef as WeekRef,
+    }
   }
-  return { key, kind: 'ritual', dayRef: candidate.dayRef, state, ritual: 'month', action: candidate.action, monthRef: candidate.periodRef as MonthRef }
+  return {
+    key,
+    kind: 'ritual',
+    dayRef: candidate.dayRef,
+    state,
+    ritual: 'month',
+    action: candidate.action,
+    monthRef: candidate.periodRef as MonthRef,
+  }
 }
 
 /**
@@ -116,7 +161,11 @@ function toRitualMarker(candidate: RitualCandidate, state: MarkerState): DayMark
  * ahead — it was written "for a harder day"), waiting until read. Once
  * read it sits on the day it was read, so "Minione" keeps it a week from then.
  */
-function letterMarker(program: ProgramDefinition, enrollment: ProgramEnrollment, todayRef: DayRef): DayMarker | null {
+function letterMarker(
+  program: ProgramDefinition,
+  enrollment: ProgramEnrollment,
+  todayRef: DayRef
+): DayMarker | null {
   const letter = enrollment.futureLetter
   if (!letter || enrollment.status === 'abandoned') return null
   if ((letter.showAt as DayRef) > todayRef) return null
@@ -143,8 +192,12 @@ function returnMarker(program: ProgramDefinition, enrollment: ProgramEnrollment)
   if (index === -1) return null
   const anchor = enrollment.completedSteps
     .filter(completed => completed.stepIndex < index)
-    .reduce<string | undefined>((latest, completed) => (!latest || completed.completedAt > latest ? completed.completedAt : latest), undefined)
-  const anchorDay = getPeriodRefsForDate(anchor ?? enrollment.completedAt ?? enrollment.startedAt).day
+    .reduce<
+      string | undefined
+    >((latest, completed) => (!latest || completed.completedAt > latest ? completed.completedAt : latest), undefined)
+  const anchorDay = getPeriodRefsForDate(
+    anchor ?? enrollment.completedAt ?? enrollment.startedAt
+  ).day
   return {
     key: `return:${enrollment.id}`,
     kind: 'return',
@@ -190,11 +243,15 @@ export async function getDayMarkers(range: DayMarkerRange, todayRef: DayRef): Pr
   const markers: DayMarker[] = []
   const graceStart = addDaysToDayRef(todayRef, -DONE_GRACE_DAYS)
   const overdueStart = addDaysToDayRef(todayRef, -OVERDUE_REACH_DAYS)
-  const [{ goals }, pathMarkers] = await Promise.all([loadPlanningCoreObjects(), programMarkers(todayRef)])
+  const [{ goals }, pathMarkers] = await Promise.all([
+    loadPlanningCoreObjects(),
+    programMarkers(todayRef),
+  ])
 
   /** Due markers behind today stay within the overdue reach; everything else must sit in `range`. */
   const keep = (dayRef: DayRef, state: MarkerState): boolean => {
-    const overdue = state === 'due' && dayRef < todayRef && dayRef >= overdueStart && dayRef <= range.end
+    const overdue =
+      state === 'due' && dayRef < todayRef && dayRef >= overdueStart && dayRef <= range.end
     return overdue || inRange(dayRef, range)
   }
 
@@ -210,7 +267,9 @@ export async function getDayMarkers(range: DayMarkerRange, todayRef: DayRef): Pr
     if (keep(marker.dayRef, marker.state)) markers.push(marker)
   }
 
-  const candidates = ritualCandidates(todayRef).filter(candidate => inRange(candidate.dayRef, range))
+  const candidates = ritualCandidates(todayRef).filter(candidate =>
+    inRange(candidate.dayRef, range)
+  )
   const states = await Promise.all(candidates.map(ritualDone))
   candidates.forEach((candidate, index) => {
     markers.push(toRitualMarker(candidate, states[index] ? 'done' : 'due'))

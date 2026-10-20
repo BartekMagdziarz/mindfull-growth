@@ -39,12 +39,7 @@
         <p v-else-if="isFutureMonth" class="kontekst-section kontekst-future">
           {{ t('planning.reflection.review.kontekstFutureMonthHint') }}
         </p>
-        <p
-          v-else
-          class="kontekst-section text-center text-xs text-on-surface-variant/70"
-        >
-          —
-        </p>
+        <p v-else class="kontekst-section text-center text-xs text-on-surface-variant/70">—</p>
       </template>
 
       <template v-else>
@@ -60,10 +55,7 @@
             <span class="kontekst-ai__label">
               {{ t('planning.reflection.review.kontekstAiSummaryTitle') }}
             </span>
-            <AppIcon
-              :name="aiSummaryOpen ? 'expand_less' : 'expand_more'"
-              class="text-xs"
-            />
+            <AppIcon :name="aiSummaryOpen ? 'expand_less' : 'expand_more'" class="text-xs" />
           </button>
           <p v-if="aiSummaryOpen" class="kontekst-ai__body">
             {{ aiSummary }}
@@ -74,11 +66,7 @@
           <div class="kontekst-anchors__title">
             {{ t('planning.reflection.review.kontekstAnchorsTitle') }}
           </div>
-          <div
-            v-for="cat in visibleAnchorCategories"
-            :key="cat.key"
-            class="kontekst-anchor"
-          >
+          <div v-for="cat in visibleAnchorCategories" :key="cat.key" class="kontekst-anchor">
             <button
               type="button"
               class="kontekst-anchor__head neo-focus"
@@ -136,7 +124,7 @@ const props = withDefaults(
     /** When false, hides create/edit buttons (e.g. inside the reflection wizard). */
     showActions?: boolean
   }>(),
-  { showActions: true },
+  { showActions: true }
 )
 
 defineEmits<{
@@ -155,8 +143,8 @@ onMounted(() => {
   }
 })
 
-const reflection = computed<MonthlyReflection | undefined>(
-  () => reflectionStore.getMonthlyByRef(props.monthRef),
+const reflection = computed<MonthlyReflection | undefined>(() =>
+  reflectionStore.getMonthlyByRef(props.monthRef)
 )
 
 const hasReflection = computed(() => reflection.value !== undefined)
@@ -164,14 +152,14 @@ const hasReflection = computed(() => reflection.value !== undefined)
 // Reflection is offered only once the month has started; a stored reflection
 // (e.g. created before navigating ahead) still renders for future months.
 const isFutureMonth = computed(
-  () => (getPeriodBounds(props.monthRef).start as DayRef) > props.todayDayRef,
+  () => (getPeriodBounds(props.monthRef).start as DayRef) > props.todayDayRef
 )
 
 const planHasObjects = computed(
   () =>
     props.planSummary.keyResults.total > 0 ||
     props.planSummary.habits.total > 0 ||
-    props.planSummary.intentions.total > 0,
+    props.planSummary.intentions.total > 0
 )
 
 const planRings = computed<PlanExecutionRing[]>(() => [
@@ -201,10 +189,18 @@ const aiSummaryOpen = ref(false)
 // Anchor categories — kept in sync with MonthlyReflectionWizard.monthlyAnchorCategories
 const anchorCategories = computed(() => [
   { key: 'proudOf', label: t('planning.reflection.monthly.anchors.proudOf'), icon: 'emoji_events' },
-  { key: 'challenges', label: t('planning.reflection.monthly.anchors.challenges'), icon: 'warning' },
+  {
+    key: 'challenges',
+    label: t('planning.reflection.monthly.anchors.challenges'),
+    icon: 'warning',
+  },
   { key: 'growth', label: t('planning.reflection.monthly.anchors.growth'), icon: 'trending_up' },
   { key: 'patterns', label: t('planning.reflection.monthly.anchors.patterns'), icon: 'pattern' },
-  { key: 'carryForward', label: t('planning.reflection.monthly.anchors.carryForward'), icon: 'arrow_forward' },
+  {
+    key: 'carryForward',
+    label: t('planning.reflection.monthly.anchors.carryForward'),
+    icon: 'arrow_forward',
+  },
   { key: 'letGo', label: t('planning.reflection.monthly.anchors.letGo'), icon: 'delete_sweep' },
 ])
 
@@ -212,12 +208,12 @@ function getAnchorLines(key: string): string[] {
   const text = reflection.value?.promptResponses?.[key] ?? ''
   return text
     .split('\n')
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0)
+    .map(line => line.trim())
+    .filter(line => line.length > 0)
 }
 
 const visibleAnchorCategories = computed(() =>
-  anchorCategories.value.filter((cat) => getAnchorLines(cat.key).length > 0),
+  anchorCategories.value.filter(cat => getAnchorLines(cat.key).length > 0)
 )
 
 const anchorOpen = reactive<Record<string, boolean>>({})
@@ -254,12 +250,7 @@ function handleHostClick(_event: MouseEvent) {
   left: 1px;
   right: 1px;
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgb(var(--neo-border) / 0.45),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgb(var(--neo-border) / 0.45), transparent);
   pointer-events: none;
 }
 
@@ -275,7 +266,10 @@ function handleHostClick(_event: MouseEvent) {
   color: rgb(var(--neo-muted));
   cursor: pointer;
   opacity: 0;
-  transition: opacity 150ms ease, color 150ms ease, transform 150ms ease;
+  transition:
+    opacity 150ms ease,
+    color 150ms ease,
+    transform 150ms ease;
   box-shadow:
     -1px -1px 2px rgb(var(--neo-shadow-light) / 0.8),
     1px 1px 2px rgb(var(--neo-shadow-dark) / 0.25);
@@ -380,7 +374,9 @@ function handleHostClick(_event: MouseEvent) {
   box-shadow:
     -1px -1px 2px rgb(var(--neo-shadow-light) / 0.8),
     1px 1px 2px rgb(var(--neo-shadow-dark) / 0.25);
-  transition: transform 150ms ease, box-shadow 150ms ease;
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease;
 }
 
 .kontekst-anchor__head:hover {

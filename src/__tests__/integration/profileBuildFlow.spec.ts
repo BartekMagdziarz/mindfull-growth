@@ -22,19 +22,15 @@ import { initializeStores } from './testUtils'
 import { userSettingsDexieRepository } from '@/repositories/userSettingsDexieRepository'
 import { profileBuildLogDexieRepository } from '@/repositories/profileBuildLogDexieRepository'
 import { userProfileDexieRepository } from '@/repositories/userProfileDexieRepository'
-import {
-  useUserProfileStore,
-  ProfileBuildError,
-} from '@/stores/userProfile.store'
+import { useUserProfileStore, ProfileBuildError } from '@/stores/userProfile.store'
 import { PROFILE_MAX_TOKENS, type UserProfileScope } from '@/domain/userProfile'
 
 // Stub llmService.sendMessage so we can control responses deterministically.
 // Spreading `...actual` preserves DEFAULT_MODEL and other re-exports that the
 // store imports from the same module.
 vi.mock('@/services/llmService', async () => {
-  const actual = await vi.importActual<typeof import('@/services/llmService')>(
-    '@/services/llmService',
-  )
+  const actual =
+    await vi.importActual<typeof import('@/services/llmService')>('@/services/llmService')
   return { ...actual, sendMessage: vi.fn() }
 })
 import {
@@ -125,24 +121,22 @@ describe('Profile build flow integration', () => {
 
     // Report token usage through the diagnostics callback so we can assert the
     // build-log captures it end-to-end (snake_case → camelCase).
-    vi.mocked(sendMessage).mockImplementation(
-      async (_messages, _systemPrompt, options) => {
-        options?.onDiagnostics?.({
-          provider: 'ollama',
-          model: 'gemma4:e4b',
-          timing: {},
-          observed: {
-            reasoningChunks: 0,
-            reasoningCharacters: 0,
-            contentChunks: 0,
-            contentCharacters: 0,
-          },
-          usage: { prompt_tokens: 5000, completion_tokens: 600, total_tokens: 5600 },
-          rawMetadata: {},
-        })
-        return CANNED_SUCCESS_RESPONSE
-      },
-    )
+    vi.mocked(sendMessage).mockImplementation(async (_messages, _systemPrompt, options) => {
+      options?.onDiagnostics?.({
+        provider: 'ollama',
+        model: 'gemma4:e4b',
+        timing: {},
+        observed: {
+          reasoningChunks: 0,
+          reasoningCharacters: 0,
+          contentChunks: 0,
+          contentCharacters: 0,
+        },
+        usage: { prompt_tokens: 5000, completion_tokens: 600, total_tokens: 5600 },
+        rawMetadata: {},
+      })
+      return CANNED_SUCCESS_RESPONSE
+    })
 
     // ---- Build ----
     const result = await userProfileStore.buildProfile(testScope())
@@ -194,9 +188,9 @@ describe('Profile build flow integration', () => {
 
     const userProfileStore = useUserProfileStore()
 
-    await expect(
-      userProfileStore.buildProfile(testScope()),
-    ).rejects.toBeInstanceOf(ProfileBuildError)
+    await expect(userProfileStore.buildProfile(testScope())).rejects.toBeInstanceOf(
+      ProfileBuildError
+    )
 
     // Build log persisted even though the call failed — this is the
     // critical debugging affordance for iterating on the system prompt.
@@ -218,9 +212,7 @@ describe('Profile build flow integration', () => {
 
     const userProfileStore = useUserProfileStore()
 
-    await expect(
-      userProfileStore.buildProfile(testScope()),
-    ).rejects.toMatchObject({
+    await expect(userProfileStore.buildProfile(testScope())).rejects.toMatchObject({
       name: 'ProfileBuildError',
       code: 'missingApiKey',
     })
@@ -241,7 +233,7 @@ describe('Profile build flow integration', () => {
         provider: 'ollama',
         baseUrl: 'http://localhost:11434/v1',
         model: 'gemma4:e4b',
-      }),
+      })
     )
 
     // 20 large entries, one per week going back — relative to "now" so the
@@ -267,7 +259,7 @@ describe('Profile build flow integration', () => {
     // Pre-Pillar-2 this scope threw contextTooLarge; now it builds — recent weeks
     // raw, older weeks condensed into [SUMMARIZED HISTORY].
     const result = await userProfileStore.buildProfile(
-      testScope({ dataTypes: ['journal'], dateRange: { kind: 'preset', preset: 'all' } }),
+      testScope({ dataTypes: ['journal'], dateRange: { kind: 'preset', preset: 'all' } })
     )
 
     expect(result.sections.summary).toContain('Reflective')
@@ -277,9 +269,8 @@ describe('Profile build flow integration', () => {
     const latest = logs[0]
     expect(latest.success).toBe(true)
 
-    const userMsg = (
-      JSON.parse(latest.requestBody) as { messages: { content: string }[] }
-    ).messages[0].content
+    const userMsg = (JSON.parse(latest.requestBody) as { messages: { content: string }[] })
+      .messages[0].content
     // Older periods were summarized, recent ones kept raw, and it fits the budget.
     expect(userMsg).toContain('[SUMMARIZED HISTORY]')
     expect(userMsg).toContain('[JOURNAL ENTRIES]')

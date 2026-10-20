@@ -190,7 +190,9 @@ function pillTarget(rowKey: string) {
         {{ t('planning.weekPlanning.days.empty') }}
       </p>
       <p v-if="planner.mutationError.value" class="mt-2 text-xs text-danger" role="alert">
-        {{ t('planning.weekPlanning.days.deadline.error', { message: planner.mutationError.value }) }}
+        {{
+          t('planning.weekPlanning.days.deadline.error', { message: planner.mutationError.value })
+        }}
       </p>
     </div>
 

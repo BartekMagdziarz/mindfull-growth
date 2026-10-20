@@ -33,15 +33,15 @@ function normalizeSignalText(value: string): string[] {
     new Set(
       value
         .split('\n')
-        .map((line) => line.trim())
-        .filter(Boolean),
-    ),
+        .map(line => line.trim())
+        .filter(Boolean)
+    )
   )
 }
 
 function assessmentItemFromLifeArea(
   lifeArea: LifeArea,
-  existing?: LifeAreaAssessmentItem,
+  existing?: LifeAreaAssessmentItem
 ): LifeAreaAssessmentItem {
   return {
     lifeAreaId: lifeArea.id,
@@ -54,7 +54,7 @@ function assessmentItemFromLifeArea(
 
 function sortLifeAreas(items: LifeArea[]): LifeArea[] {
   return [...items].sort(
-    (left, right) => left.sortOrder - right.sortOrder || left.name.localeCompare(right.name),
+    (left, right) => left.sortOrder - right.sortOrder || left.name.localeCompare(right.name)
   )
 }
 
@@ -63,7 +63,7 @@ function sortPriorities(items: Priority[]): Priority[] {
     (left, right) =>
       (left.order ?? Number.MAX_SAFE_INTEGER) - (right.order ?? Number.MAX_SAFE_INTEGER) ||
       left.title.localeCompare(right.title) ||
-      left.createdAt.localeCompare(right.createdAt),
+      left.createdAt.localeCompare(right.createdAt)
   )
 }
 
@@ -125,7 +125,7 @@ export function useAnnualPlanningWizard(yearRef: Ref<YearRef>) {
     try {
       const updated = await annualPlanDexieRepository.update(
         annualPlan.value.id,
-        serializePlanFields(),
+        serializePlanFields()
       )
       annualPlan.value = updated
     } finally {
@@ -153,8 +153,8 @@ export function useAnnualPlanningWizard(yearRef: Ref<YearRef>) {
     const priorities = await priorityDexieRepository.listAll()
     activePriorities.value = sortPriorities(
       priorities.filter(
-        (priority) => priority.status === 'active' && priority.years.includes(yearRef.value),
-      ),
+        priority => priority.status === 'active' && priority.years.includes(yearRef.value)
+      )
     )
   }
 
@@ -168,12 +168,12 @@ export function useAnnualPlanningWizard(yearRef: Ref<YearRef>) {
     }
 
     const latest = await lifeAreaAssessmentDexieRepository.getLatest()
-    const latestByArea = new Map(latest?.items.map((item) => [item.lifeAreaId, item]))
-    const items = areas.map((area) => assessmentItemFromLifeArea(area, latestByArea.get(area.id)))
+    const latestByArea = new Map(latest?.items.map(item => [item.lifeAreaId, item]))
+    const items = areas.map(area => assessmentItemFromLifeArea(area, latestByArea.get(area.id)))
     const created = await lifeAreaAssessmentDexieRepository.create({
       scope: 'full',
       notes: `Annual planning ${yearRef.value}`,
-      lifeAreaIds: items.map((item) => item.lifeAreaId),
+      lifeAreaIds: items.map(item => item.lifeAreaId),
       items,
     })
     lifeAreaAssessment.value = created
@@ -191,7 +191,9 @@ export function useAnnualPlanningWizard(yearRef: Ref<YearRef>) {
     try {
       const plan = await annualPlanDexieRepository.upsertForYear(yearRef.value)
       hydratePlan(plan)
-      const areas = sortLifeAreas((await lifeAreaDexieRepository.getActive()).filter(area => area.isActive))
+      const areas = sortLifeAreas(
+        (await lifeAreaDexieRepository.getActive()).filter(area => area.isActive)
+      )
       lifeAreas.value = areas
       await ensureLifeAreaAssessment(plan, areas)
       await loadPriorities()
@@ -218,7 +220,7 @@ export function useAnnualPlanningWizard(yearRef: Ref<YearRef>) {
   }
 
   function assessmentItem(lifeAreaId: string): LifeAreaAssessmentItem | undefined {
-    return lifeAreaAssessment.value?.items.find((item) => item.lifeAreaId === lifeAreaId)
+    return lifeAreaAssessment.value?.items.find(item => item.lifeAreaId === lifeAreaId)
   }
 
   async function updateLifeAreaScore(lifeAreaId: string, score: number): Promise<void> {
@@ -226,14 +228,14 @@ export function useAnnualPlanningWizard(yearRef: Ref<YearRef>) {
     if (!assessment) return
     savingKey.value = `area-score:${lifeAreaId}`
     try {
-      const items = assessment.items.map((item) =>
+      const items = assessment.items.map(item =>
         item.lifeAreaId === lifeAreaId
           ? { ...item, score: Math.max(1, Math.min(10, Math.round(score))) }
-          : item,
+          : item
       )
       lifeAreaAssessment.value = await lifeAreaAssessmentDexieRepository.update(assessment.id, {
         items,
-        lifeAreaIds: items.map((item) => item.lifeAreaId),
+        lifeAreaIds: items.map(item => item.lifeAreaId),
       })
     } finally {
       savingKey.value = ''
@@ -243,7 +245,7 @@ export function useAnnualPlanningWizard(yearRef: Ref<YearRef>) {
   async function updateLifeAreaField(
     lifeAreaId: string,
     field: 'meaning' | 'desiredState' | 'typicalRisks' | 'reflectionSignals',
-    value: string,
+    value: string
   ): Promise<void> {
     savingKey.value = `area:${lifeAreaId}:${field}`
     try {
@@ -251,7 +253,7 @@ export function useAnnualPlanningWizard(yearRef: Ref<YearRef>) {
         [field]: field === 'reflectionSignals' ? normalizeSignalText(value) : value,
       } as UpdateLifeAreaPayload)
       lifeAreas.value = sortLifeAreas(
-        lifeAreas.value.map((area) => (area.id === lifeAreaId ? updated : area)),
+        lifeAreas.value.map(area => (area.id === lifeAreaId ? updated : area))
       )
     } finally {
       savingKey.value = ''
@@ -264,9 +266,9 @@ export function useAnnualPlanningWizard(yearRef: Ref<YearRef>) {
   async function updatePriorityField(
     priorityId: string,
     field: string,
-    value: unknown,
+    value: unknown
   ): Promise<void> {
-    const priority = activePriorities.value.find((item) => item.id === priorityId)
+    const priority = activePriorities.value.find(item => item.id === priorityId)
     if (!priority) return
 
     savingKey.value = `priority:${priorityId}:${field}`
@@ -274,7 +276,7 @@ export function useAnnualPlanningWizard(yearRef: Ref<YearRef>) {
       if (field === 'toggleLifeArea') {
         const lifeAreaId = String(value)
         const lifeAreaIds = priority.lifeAreaIds.includes(lifeAreaId)
-          ? priority.lifeAreaIds.filter((id) => id !== lifeAreaId)
+          ? priority.lifeAreaIds.filter(id => id !== lifeAreaId)
           : [...priority.lifeAreaIds, lifeAreaId]
         await priorityDexieRepository.update(priorityId, { lifeAreaIds })
       } else if (field === 'progressSignals' || field === 'riskSignals') {
@@ -284,13 +286,15 @@ export function useAnnualPlanningWizard(yearRef: Ref<YearRef>) {
       } else if (field === 'years') {
         const yearValues = String(value)
           .split(',')
-          .map((item) => item.trim())
+          .map(item => item.trim())
           .filter(Boolean) as YearRef[]
         await priorityDexieRepository.update(priorityId, { years: yearValues })
       } else if (field === 'status') {
         await priorityDexieRepository.update(priorityId, { status: value as PriorityStatus })
       } else {
-        await priorityDexieRepository.update(priorityId, { [field]: value } as UpdatePriorityPayload)
+        await priorityDexieRepository.update(priorityId, {
+          [field]: value,
+        } as UpdatePriorityPayload)
       }
       await loadPriorities()
     } finally {
@@ -321,7 +325,7 @@ export function useAnnualPlanningWizard(yearRef: Ref<YearRef>) {
       narrativeBestHopes,
       executionPlaceholderNote,
     ],
-    schedulePlanSave,
+    schedulePlanSave
   )
 
   watch(
@@ -329,7 +333,7 @@ export function useAnnualPlanningWizard(yearRef: Ref<YearRef>) {
     () => {
       currentStep.value = 'brief'
       void loadAll()
-    },
+    }
   )
 
   onMounted(() => {

@@ -26,7 +26,8 @@ const stubs = {
     props: ['disabled', 'variant'],
     // Declared so the root click is not forwarded a second time as a native listener.
     emits: ['click'],
-    template: '<button type="button" :disabled="disabled" @click="$emit(\'click\')"><slot /></button>',
+    template:
+      '<button type="button" :disabled="disabled" @click="$emit(\'click\')"><slot /></button>',
   },
   EmotionGroupPicker: { template: '<div />' },
   MicroBreathTimer: { template: '<div />' },
@@ -38,7 +39,11 @@ function renderMicro(slug: string, preset: MicroPreset = {}) {
   return render(MicroExerciseRunner, { props: { definition, preset }, global: { stubs } })
 }
 
-function seedEntries(entries: Array<Pick<MicroExerciseEntry, 'exerciseSlug' | 'responses'> & { id?: string; createdAt?: string }>) {
+function seedEntries(
+  entries: Array<
+    Pick<MicroExerciseEntry, 'exerciseSlug' | 'responses'> & { id?: string; createdAt?: string }
+  >
+) {
   const store = useMicroExerciseEntryStore()
   seeded.splice(0, seeded.length)
   seeded.push(
@@ -48,7 +53,7 @@ function seedEntries(entries: Array<Pick<MicroExerciseEntry, 'exerciseSlug' | 'r
       updatedAt: entry.createdAt ?? `2026-09-2${index}T10:00:00.000Z`,
       exerciseSlug: entry.exerciseSlug,
       responses: entry.responses,
-    })),
+    }))
   )
   store.entries = entries.map((entry, index) => ({
     id: entry.id ?? `e${index}`,
@@ -136,7 +141,16 @@ describe('MicroExerciseRunner choice branching (Momenty, anger variant)', () => 
     await fireEvent.click(screen.getByRole('radio', { name: '2' }))
     await fireEvent.click(screen.getByRole('button', { name: 'Save now' }))
     expect(emitted().saved?.[0]).toEqual([
-      { responses: { kind: 'anxiety', hadMoment: 'yes', anxietyReaction: 'check', noticed: 'soon', anxietyResponse: ['noCheck'], anxietyStrength: 2 } },
+      {
+        responses: {
+          kind: 'anxiety',
+          hadMoment: 'yes',
+          anxietyReaction: 'check',
+          noticed: 'soon',
+          anxietyResponse: ['noCheck'],
+          anxietyStrength: 2,
+        },
+      },
     ])
   })
 })
@@ -155,7 +169,7 @@ describe('MicroExerciseRunner: shame branch, hints and entry picks', () => {
     await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → noticed
     await fireEvent.click(screen.getByRole('radio', { name: 'A moment later' }))
     await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → response
-    await fireEvent.click(screen.getByRole('button', { name: "\"That's a part, not me\"" }))
+    await fireEvent.click(screen.getByRole('button', { name: '"That\'s a part, not me"' }))
     expect(screen.queryByRole('button', { name: 'Save now' })).toBeNull()
     await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → strength: everything ahead is optional
     // The stack starts empty, so "Save now" waits for the rating too.
@@ -192,7 +206,9 @@ describe('MicroExerciseRunner: shame branch, hints and entry picks', () => {
     await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → about (optional)
     const demand = screen.getByRole('radio', { name: /Who I should be/ })
     expect(demand.textContent).toContain('check')
-    expect(screen.getByRole('radio', { name: /I don't know yet/ }).querySelector('.micro-choice__hint')).toBeNull()
+    expect(
+      screen.getByRole('radio', { name: /I don't know yet/ }).querySelector('.micro-choice__hint')
+    ).toBeNull()
     expect(container.querySelectorAll('[title]')).toHaveLength(11)
   })
 
@@ -208,8 +224,16 @@ describe('MicroExerciseRunner: shame branch, hints and entry picks', () => {
 
   it('quotes the latest matching entry under the step, only while its "when" holds', async () => {
     seedEntries([
-      { exerciseSlug: 'shame-map', responses: { bodySigns: ['old'] }, createdAt: '2026-09-01T10:00:00.000Z' },
-      { exerciseSlug: 'shame-map', responses: { bodySigns: ['hot face', 'lowered eyes'] }, createdAt: '2026-09-20T10:00:00.000Z' },
+      {
+        exerciseSlug: 'shame-map',
+        responses: { bodySigns: ['old'] },
+        createdAt: '2026-09-01T10:00:00.000Z',
+      },
+      {
+        exerciseSlug: 'shame-map',
+        responses: { bodySigns: ['hot face', 'lowered eyes'] },
+        createdAt: '2026-09-20T10:00:00.000Z',
+      },
     ])
     const { container } = renderMicro('moments', { kind: 'shame' })
     await fireEvent.click(screen.getByRole('radio', { name: 'Yes' }))
@@ -257,16 +281,41 @@ describe('MicroExerciseRunner: shame branch, hints and entry picks', () => {
 
   it('entryPick lists matching moments newest first, saves the picked id and feeds picked hints', async () => {
     seedEntries([
-      { id: 'anger', exerciseSlug: 'moments', responses: { kind: 'anger', hadMoment: 'yes', situation: 'cut off' }, createdAt: '2026-09-25T10:00:00.000Z' },
-      { id: 'quiet', exerciseSlug: 'moments', responses: { kind: 'shame', hadMoment: 'none' }, createdAt: '2026-09-25T11:00:00.000Z' },
-      { id: 's1', exerciseSlug: 'moments', responses: { kind: 'shame', hadMoment: 'yes', situation: 'Asked a question', about: 'demand' }, createdAt: '2026-09-24T10:00:00.000Z' },
-      { id: 's2', exerciseSlug: 'moments', responses: { kind: 'shame', hadMoment: 'yes', situation: 'Cried at work' }, createdAt: '2026-09-25T12:00:00.000Z' },
+      {
+        id: 'anger',
+        exerciseSlug: 'moments',
+        responses: { kind: 'anger', hadMoment: 'yes', situation: 'cut off' },
+        createdAt: '2026-09-25T10:00:00.000Z',
+      },
+      {
+        id: 'quiet',
+        exerciseSlug: 'moments',
+        responses: { kind: 'shame', hadMoment: 'none' },
+        createdAt: '2026-09-25T11:00:00.000Z',
+      },
+      {
+        id: 's1',
+        exerciseSlug: 'moments',
+        responses: {
+          kind: 'shame',
+          hadMoment: 'yes',
+          situation: 'Asked a question',
+          about: 'demand',
+        },
+        createdAt: '2026-09-24T10:00:00.000Z',
+      },
+      {
+        id: 's2',
+        exerciseSlug: 'moments',
+        responses: { kind: 'shame', hadMoment: 'yes', situation: 'Cried at work' },
+        createdAt: '2026-09-25T12:00:00.000Z',
+      },
     ])
     vi.useFakeTimers({ now: new Date('2026-09-26T12:00:00.000Z'), toFake: ['Date'] })
     try {
       const { emitted, container } = renderMicro('shame-or-guilt')
       const cards = screen.getAllByRole('radio')
-      expect(cards.map((card) => card.textContent)).toEqual([
+      expect(cards.map(card => card.textContent)).toEqual([
         expect.stringContaining('Cried at work'),
         expect.stringContaining('Asked a question'),
       ])
@@ -281,11 +330,17 @@ describe('MicroExerciseRunner: shame branch, hints and entry picks', () => {
       expect(hint.textContent).toContain('Asked a question')
       await fireEvent.update(container.querySelector('textarea')!, 'I asked what the acronym meant')
       await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → statement
-      await fireEvent.update(container.querySelector('textarea')!, 'I feel bad because I should have known')
+      await fireEvent.update(
+        container.querySelector('textarea')!,
+        'I feel bad because I should have known'
+      )
       await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → about (multiple)
       await fireEvent.click(screen.getByRole('button', { name: /Who I should be/ }))
       await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → friendTest
-      await fireEvent.update(container.querySelector('textarea')!, 'No, I would tell them it is fine')
+      await fireEvent.update(
+        container.querySelector('textarea')!,
+        'No, I would tell them it is fine'
+      )
       await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → whoseDemand
       await fireEvent.update(container.querySelector('textarea')!, 'School')
       await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → fairDemand
@@ -327,14 +382,20 @@ describe('MicroExerciseRunner v3 features', () => {
     expect(counter.textContent).toContain('0 / 300')
     expect(counter.textContent).toContain('Worth writing a little more')
     await fireEvent.update(container.querySelector('textarea')!, 'short')
-    expect(container.querySelector('[data-testid="micro-minlength"]')!.textContent).toContain('5 / 300')
+    expect(container.querySelector('[data-testid="micro-minlength"]')!.textContent).toContain(
+      '5 / 300'
+    )
     expect(screen.getByRole('button', { name: 'Next' })).toHaveProperty('disabled', false)
   })
 
   it('a prefill fills the field and keeps the step, unlike a preset', async () => {
     const definition = getMicroExercise('moments')!
     const { container } = render(MicroExerciseRunner, {
-      props: { definition, preset: { kind: 'shame' }, prefill: { response: ['breath', 'contact'], situation: 'At lunch' } },
+      props: {
+        definition,
+        preset: { kind: 'shame' },
+        prefill: { response: ['breath', 'contact'], situation: 'At lunch' },
+      },
       global: { stubs },
     })
     await fireEvent.click(screen.getByRole('radio', { name: 'Yes' }))
@@ -346,7 +407,9 @@ describe('MicroExerciseRunner v3 features', () => {
     await fireEvent.click(screen.getByRole('radio', { name: 'Only now' }))
     await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → response: prefilled
     expect(screen.getByRole('button', { name: 'Breath' }).getAttribute('aria-pressed')).toBe('true')
-    expect(screen.getByRole('button', { name: 'A move towards contact' }).getAttribute('aria-pressed')).toBe('true')
+    expect(
+      screen.getByRole('button', { name: 'A move towards contact' }).getAttribute('aria-pressed')
+    ).toBe('true')
     await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → strength
     await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → situation: prefilled, editable
     expect((container.querySelector('textarea') as HTMLTextAreaElement).value).toBe('At lunch')
@@ -359,7 +422,9 @@ describe('MicroExerciseRunner v3 features', () => {
     await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → posture
     await fireEvent.update(container.querySelector('textarea')!, 'Upright')
     await fireEvent.click(screen.getByRole('button', { name: 'Too much for today' }))
-    const saved = (emitted().saved as unknown as Array<[{ responses: Record<string, unknown> }]>)[0]![0]
+    const saved = (
+      emitted().saved as unknown as Array<[{ responses: Record<string, unknown> }]>
+    )[0]![0]
     expect(saved.responses.tooMuchToday).toBe('yes')
     expect(saved.responses.posture).toBe('Upright')
     expect(emitted().tooMuch).toHaveLength(1)
@@ -404,9 +469,11 @@ describe('MicroExerciseRunner v3 features', () => {
       },
     ]
     renderMicro('maintenance-plan')
-    const options = screen.getAllByRole('button').filter((b) => b.classList.contains('micro-choice__option'))
+    const options = screen
+      .getAllByRole('button')
+      .filter(b => b.classList.contains('micro-choice__option'))
     // anger path practices (paced-breathing, moment-anger) then the static plan-for-a-hard-moment
-    expect(options.map((b) => b.textContent?.trim())).toEqual([
+    expect(options.map(b => b.textContent?.trim())).toEqual([
       expect.stringMatching(/breathing/i),
       expect.stringMatching(/moment of anger/i),
       'My plan for a hard moment',
@@ -417,7 +484,9 @@ describe('MicroExerciseRunner v3 features', () => {
 
   it('a full hint quotes the whole letter in "Powrót"', async () => {
     const long = 'A'.repeat(400)
-    seedEntries([{ exerciseSlug: 'letter-to-future-self', responses: { letter: long, returnIn: 'w8' } }])
+    seedEntries([
+      { exerciseSlug: 'letter-to-future-self', responses: { letter: long, returnIn: 'w8' } },
+    ])
     // The path presets the kind (`?kind=`), so the letter is the first visible step.
     const { container } = renderMicro('path-return', { kind: 'shame' })
     const hint = container.querySelector('[data-testid="micro-hint"]')!
@@ -443,7 +512,9 @@ describe('MicroExerciseRunner v3 features', () => {
     await fireEvent.click(screen.getByRole('radio', { name: '5' }))
     expect(screen.getByRole('radio', { name: '5' }).getAttribute('aria-checked')).toBe('true')
     await fireEvent.click(screen.getByRole('button', { name: 'Save now' }))
-    expect(emitted().saved?.[0]).toEqual([expect.objectContaining({ responses: expect.objectContaining({ strength: 5 }) })])
+    expect(emitted().saved?.[0]).toEqual([
+      expect.objectContaining({ responses: expect.objectContaining({ strength: 5 }) }),
+    ])
   })
 
   it('lays choice cells out by option count and hides progress while only one step is known', async () => {
@@ -456,14 +527,20 @@ describe('MicroExerciseRunner v3 features', () => {
     await fireEvent.click(screen.getByRole('radio', { name: 'Yes' }))
     expect(container.querySelector('.micro-steps small')?.textContent).toBe('1/11')
     await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → compass (5)
-    expect(container.querySelector<HTMLElement>('.micro-choice')!.style.getPropertyValue('--micro-cols')).toBe('5')
+    expect(
+      container.querySelector<HTMLElement>('.micro-choice')!.style.getPropertyValue('--micro-cols')
+    ).toBe('5')
     await fireEvent.click(screen.getByRole('radio', { name: /The Hider/ }))
     await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → noticed (4)
-    expect(container.querySelector<HTMLElement>('.micro-choice')!.style.getPropertyValue('--micro-cols')).toBe('4')
+    expect(
+      container.querySelector<HTMLElement>('.micro-choice')!.style.getPropertyValue('--micro-cols')
+    ).toBe('4')
     expect(container.querySelector('.micro-choice--pair')).toBeNull()
     await fireEvent.click(screen.getByRole('radio', { name: 'Hours later' }))
     await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → response (14)
-    expect(container.querySelector<HTMLElement>('.micro-choice')!.style.getPropertyValue('--micro-cols')).toBe('2')
+    expect(
+      container.querySelector<HTMLElement>('.micro-choice')!.style.getPropertyValue('--micro-cols')
+    ).toBe('2')
   })
 
   it('done progress dots lead back to their step; current and future dots are inert', async () => {
@@ -473,7 +550,7 @@ describe('MicroExerciseRunner v3 features', () => {
     await fireEvent.click(screen.getByRole('radio', { name: /The Hider/ }))
     await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → noticed
     const dots = Array.from(container.querySelectorAll<HTMLButtonElement>('.micro-steps button'))
-    expect(dots.map((d) => d.disabled)).toEqual([false, false, ...Array(9).fill(true)])
+    expect(dots.map(d => d.disabled)).toEqual([false, false, ...Array(9).fill(true)])
     expect(dots[2]!.getAttribute('aria-current')).toBe('step')
     expect(container.querySelector('.micro-steps small')?.textContent).toBe('3/11')
     await fireEvent.click(dots[0]!)

@@ -6,20 +6,13 @@
     </h2>
 
     <!-- Empty State Hint -->
-    <p
-      v-if="modelValue.length === 0"
-      class="text-sm text-on-surface-variant italic"
-    >
+    <p v-if="modelValue.length === 0" class="text-sm text-on-surface-variant italic">
       {{ emptyMessage }}
     </p>
 
     <!-- Existing Items -->
     <ul v-if="modelValue.length > 0" class="space-y-2">
-      <li
-        v-for="(item, index) in modelValue"
-        :key="index"
-        class="flex items-start gap-3 group"
-      >
+      <li v-for="(item, index) in modelValue" :key="index" class="flex items-start gap-3 group">
         <span class="text-primary mt-2.5">&#8226;</span>
         <input
           :value="item"

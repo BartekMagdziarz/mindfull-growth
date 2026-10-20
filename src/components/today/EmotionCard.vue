@@ -1,11 +1,7 @@
 <template>
   <article class="em-card neo-raised flex flex-col gap-[10px] p-3">
     <header class="em-card__head">
-      <button
-        type="button"
-        class="em-card__label"
-        @click="router.push('/emotions')"
-      >
+      <button type="button" class="em-card__label" @click="router.push('/emotions')">
         {{ t('planning.today.wellness.emotions') }}
       </button>
       <button
@@ -15,7 +11,17 @@
         :aria-label="t('planning.calendar.wellness.logEmotion')"
         @click.stop="router.push({ name: 'emotions-edit' })"
       >
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.4"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
           <path d="M12 5v14M5 12h14" />
         </svg>
       </button>
@@ -25,9 +31,11 @@
       <button
         type="button"
         class="em-donut__btn neo-focus"
-        :aria-label="logs.length === 0
-          ? t('planning.today.wellness.ariaEmotionsDonutEmpty')
-          : t('planning.today.wellness.ariaEmotionsDonut', { done: logs.length, target })"
+        :aria-label="
+          logs.length === 0
+            ? t('planning.today.wellness.ariaEmotionsDonutEmpty')
+            : t('planning.today.wellness.ariaEmotionsDonut', { done: logs.length, target })
+        "
         @click="router.push({ name: 'emotions-edit' })"
       >
         <svg
@@ -39,7 +47,13 @@
         >
           <defs>
             <filter id="em-arc-shadow" x="-10%" y="-10%" width="120%" height="120%">
-              <feDropShadow dx="0" dy="0.6" stdDeviation="0.5" flood-color="#1e2b40" flood-opacity="0.22" />
+              <feDropShadow
+                dx="0"
+                dy="0.6"
+                stdDeviation="0.5"
+                flood-color="#1e2b40"
+                flood-opacity="0.22"
+              />
             </filter>
           </defs>
           <path
@@ -64,10 +78,7 @@
             />
           </g>
         </svg>
-        <span
-          class="em-donut__center"
-          :class="{ 'em-donut__center--empty': logs.length === 0 }"
-        >
+        <span class="em-donut__center" :class="{ 'em-donut__center--empty': logs.length === 0 }">
           {{ logs.length }}/{{ target }}
         </span>
       </button>
@@ -163,10 +174,7 @@ const donutPaths = computed<{ tracks: DonutTrack[]; arcs: DonutArc[] }>(() => {
       continue
     }
 
-    const total = QUADRANT_ORDER.reduce(
-      (sum, q) => sum + (log.quadrants[q] ?? 0),
-      0,
-    ) || 1
+    const total = QUADRANT_ORDER.reduce((sum, q) => sum + (log.quadrants[q] ?? 0), 0) || 1
 
     let cursor = segStart
     for (const q of QUADRANT_ORDER) {
@@ -201,7 +209,7 @@ const donutPaths = computed<{ tracks: DonutTrack[]; arcs: DonutArc[] }>(() => {
 .em-card__label {
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.10em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: rgb(var(--neo-muted));
   background: none;
@@ -226,7 +234,9 @@ const donutPaths = computed<{ tracks: DonutTrack[]; arcs: DonutArc[] }>(() => {
   place-items: center;
   color: rgb(var(--neo-muted) / 0.8);
   opacity: 0.85;
-  transition: opacity 200ms ease, color 200ms ease;
+  transition:
+    opacity 200ms ease,
+    color 200ms ease;
   border: none;
   cursor: pointer;
 }

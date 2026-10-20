@@ -26,14 +26,28 @@
 
     <!-- Past hierarchies section -->
     <div v-if="exposureStore.sortedHierarchies.length > 0" class="mt-8">
-      <div class="mg-v2-section-head"><h2>{{ t('exercises.views.pastHierarchies') }}</h2></div>
+      <div class="mg-v2-section-head">
+        <h2>{{ t('exercises.views.pastHierarchies') }}</h2>
+      </div>
       <div class="space-y-3">
-        <AppCard v-for="hierarchy in exposureStore.sortedHierarchies" :key="hierarchy.id" padding="md" class="space-y-3">
+        <AppCard
+          v-for="hierarchy in exposureStore.sortedHierarchies"
+          :key="hierarchy.id"
+          padding="md"
+          class="space-y-3"
+        >
           <div class="flex justify-between items-start gap-3">
             <div>
-              <p class="text-sm font-medium text-on-surface line-clamp-2">{{ hierarchy.fearTarget }}</p>
+              <p class="text-sm font-medium text-on-surface line-clamp-2">
+                {{ hierarchy.fearTarget }}
+              </p>
               <p class="text-xs text-on-surface-variant mt-1">
-                {{ t('exercises.views.hierarchyMeta', { steps: hierarchy.items.length, done: hierarchy.items.filter(i => i.completed).length }) }}
+                {{
+                  t('exercises.views.hierarchyMeta', {
+                    steps: hierarchy.items.length,
+                    done: hierarchy.items.filter(i => i.completed).length,
+                  })
+                }}
                 &middot; {{ formatDate(hierarchy.createdAt) }}
               </p>
             </div>
@@ -78,7 +92,7 @@ const newLadderOpen = ref(false)
 const continueHierarchy = computed(() =>
   route.query.continue === 'latest'
     ? [...exposureStore.hierarchies].sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0]
-    : undefined,
+    : undefined
 )
 
 onMounted(() => {

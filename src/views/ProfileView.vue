@@ -21,11 +21,7 @@
     </PageHeader>
 
     <!-- Segmented tab switcher (real tabs: role + aria-selected) -->
-    <nav
-      class="mg-v2-segmented mb-6"
-      role="tablist"
-      :aria-label="t('profile.account.title')"
-    >
+    <nav class="mg-v2-segmented mb-6" role="tablist" :aria-label="t('profile.account.title')">
       <button
         v-for="tab in tabs"
         :key="tab.id"
@@ -47,24 +43,14 @@
       role="tabpanel"
       :aria-labelledby="`profile-tab-${activeTab}`"
     >
-      <ProfileTabAccount
-        v-if="activeTab === 'account'"
-        :show-snackbar="showSnackbar"
-      />
+      <ProfileTabAccount v-if="activeTab === 'account'" :show-snackbar="showSnackbar" />
       <ProfileTabPreferences
         v-else-if="activeTab === 'preferences'"
         :show-snackbar="showSnackbar"
       />
-      <ProfileTabLifeAreas
-        v-else-if="activeTab === 'lifeAreas'"
-      />
-      <ProfileTabPsychProfile
-        v-else-if="activeTab === 'psychProfile'"
-      />
-      <ProfileTabAIAssistant
-        v-else-if="activeTab === 'ai'"
-        :show-snackbar="showSnackbar"
-      />
+      <ProfileTabLifeAreas v-else-if="activeTab === 'lifeAreas'" />
+      <ProfileTabPsychProfile v-else-if="activeTab === 'psychProfile'" />
+      <ProfileTabAIAssistant v-else-if="activeTab === 'ai'" :show-snackbar="showSnackbar" />
     </div>
 
     <div v-if="isDev" class="mt-6 grid gap-4 md:grid-cols-2">
@@ -129,11 +115,11 @@ const userPreferencesStore = useUserPreferencesStore()
 const userProfileStore = useUserProfileStore()
 
 const tabs: Array<{ id: TabId; labelKey: string }> = [
-  { id: 'account',       labelKey: 'profile.tabs.account' },
-  { id: 'preferences',   labelKey: 'profile.tabs.preferences' },
-  { id: 'lifeAreas',     labelKey: 'profile.tabs.lifeAreas' },
-  { id: 'psychProfile',  labelKey: 'profile.tabs.psychProfile' },
-  { id: 'ai',            labelKey: 'profile.tabs.aiAssistant' },
+  { id: 'account', labelKey: 'profile.tabs.account' },
+  { id: 'preferences', labelKey: 'profile.tabs.preferences' },
+  { id: 'lifeAreas', labelKey: 'profile.tabs.lifeAreas' },
+  { id: 'psychProfile', labelKey: 'profile.tabs.psychProfile' },
+  { id: 'ai', labelKey: 'profile.tabs.aiAssistant' },
 ]
 
 // Map URL hash → tab id. Mirrors the contract of the old single-page
@@ -165,10 +151,10 @@ function setActiveTab(next: TabId) {
 
 watch(
   () => route.hash,
-  (next) => {
+  next => {
     const tab = resolveTabFromHash(next)
     if (tab) activeTab.value = tab
-  },
+  }
 )
 
 const username = computed(() => authStore.user?.username ?? '')

@@ -64,13 +64,13 @@ describe('AIPlaygroundView', () => {
         options: {
           onToken?: (token: string) => void
           onDiagnostics?: (value: LLMDiagnostics) => void
-        },
+        }
       ) => {
         options.onToken?.('Streamed ')
         options.onDiagnostics?.(diagnostics)
         options.onToken?.('answer')
         return 'Streamed answer'
-      },
+      }
     )
 
     render(AIPlaygroundView)

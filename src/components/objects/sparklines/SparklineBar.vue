@@ -75,7 +75,7 @@ const props = withDefaults(
     cadence: 'weekly' | 'monthly' | 'daily'
     compact?: boolean
   }>(),
-  { compact: false },
+  { compact: false }
 )
 
 const { locale } = useT()
@@ -87,8 +87,8 @@ const visiblePoints = computed(() => getVisiblePoints(props.points, props.cadenc
 
 const maxValue = computed(() => computeMaxValue(visiblePoints.value))
 
-const hasTarget = computed(() => visiblePoints.value.some((p) => p.targetValue !== undefined))
-const hasAnyData = computed(() => visiblePoints.value.some((p) => p.status !== 'no-data'))
+const hasTarget = computed(() => visiblePoints.value.some(p => p.targetValue !== undefined))
+const hasAnyData = computed(() => visiblePoints.value.some(p => p.status !== 'no-data'))
 const showTargetLine = computed(() => hasTarget.value && hasAnyData.value)
 const targetPath = computed(() =>
   targetStepPath(
@@ -98,8 +98,8 @@ const targetPath = computed(() =>
       targetValue: point.targetValue,
     })),
     maxValue.value,
-    cH.value,
-  ),
+    cH.value
+  )
 )
 
 // Bars use 60% of slot width for more breathing room

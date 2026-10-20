@@ -17,7 +17,14 @@ export type PeriodActivityState = 'active' | 'paused'
 export type MeasurementSubjectType = 'keyResult' | 'habit' | 'tracker' | 'weeklyIntention'
 export type TodayHiddenSubjectType = MeasurementSubjectType | 'initiative'
 export type ReflectionPeriodType = 'month' | 'week'
-export type ReflectionSubjectType = 'goal' | 'keyResult' | 'habit' | 'tracker' | 'initiative' | 'weeklyIntention' | 'priority'
+export type ReflectionSubjectType =
+  | 'goal'
+  | 'keyResult'
+  | 'habit'
+  | 'tracker'
+  | 'initiative'
+  | 'weeklyIntention'
+  | 'priority'
 export type PriorityVerdict = 'continue' | 'adjust' | 'pause' | 'drop'
 export type MonthScheduleScope = 'unassigned' | 'specific-days' | 'whole-month'
 export type WeekScheduleScope = 'unassigned' | 'specific-days' | 'whole-week'
@@ -199,9 +206,23 @@ export type UpdatePeriodObjectReflectionPayload = Partial<
 
 const PERIOD_ACTIVITY_STATES = ['active', 'paused'] as const
 const MEASUREMENT_SUBJECT_TYPES = ['keyResult', 'habit', 'tracker', 'weeklyIntention'] as const
-const TODAY_HIDDEN_SUBJECT_TYPES = ['keyResult', 'habit', 'tracker', 'weeklyIntention', 'initiative'] as const
+const TODAY_HIDDEN_SUBJECT_TYPES = [
+  'keyResult',
+  'habit',
+  'tracker',
+  'weeklyIntention',
+  'initiative',
+] as const
 const REFLECTION_PERIOD_TYPES = ['month', 'week'] as const
-const REFLECTION_SUBJECT_TYPES = ['goal', 'keyResult', 'habit', 'tracker', 'initiative', 'weeklyIntention', 'priority'] as const
+const REFLECTION_SUBJECT_TYPES = [
+  'goal',
+  'keyResult',
+  'habit',
+  'tracker',
+  'initiative',
+  'weeklyIntention',
+  'priority',
+] as const
 const PRIORITY_VERDICTS = ['continue', 'adjust', 'pause', 'drop'] as const
 const MONTH_SCHEDULE_SCOPES = ['unassigned', 'specific-days', 'whole-month'] as const
 const WEEK_SCHEDULE_SCOPES = ['unassigned', 'specific-days', 'whole-week'] as const
@@ -339,10 +360,7 @@ function normalizeSubjectId(value: unknown, fieldName: string, fallback?: string
   return normalizeTrimmedText(value, fieldName, fallback)
 }
 
-function normalizeCheckedItemIds(
-  value: unknown,
-  fallback?: string[]
-): string[] | undefined {
+function normalizeCheckedItemIds(value: unknown, fallback?: string[]): string[] | undefined {
   const source = value === undefined ? fallback : value
   if (source === undefined || source === null) {
     return undefined
@@ -388,9 +406,7 @@ function normalizeNonNegativeInteger(value: unknown, fieldName: string, fallback
   return source
 }
 
-function normalizeEntryDaysCondition(
-  value: unknown
-): MeasurementEntryDaysCondition | undefined {
+function normalizeEntryDaysCondition(value: unknown): MeasurementEntryDaysCondition | undefined {
   if (value === undefined || value === null) {
     return undefined
   }
@@ -559,7 +575,7 @@ function normalizeTopPriorities(
     throw new Error('topPriorities must be an array')
   }
 
-  return source.map((ref) => {
+  return source.map(ref => {
     if (typeof ref !== 'object' || ref === null) {
       throw new Error('topPriorities entries must be objects')
     }
@@ -575,10 +591,7 @@ function normalizeTopPriorities(
   })
 }
 
-function normalizeTopPriorityIds(
-  value: unknown,
-  existing?: string[]
-): string[] | undefined {
+function normalizeTopPriorityIds(value: unknown, existing?: string[]): string[] | undefined {
   const source = value ?? existing
   if (source === undefined) {
     return undefined
@@ -586,7 +599,7 @@ function normalizeTopPriorityIds(
   if (!Array.isArray(source)) {
     throw new Error('topPriorityIds must be an array')
   }
-  return source.map((id) => normalizeTrimmedText(id, 'topPriorityIds entry'))
+  return source.map(id => normalizeTrimmedText(id, 'topPriorityIds entry'))
 }
 
 export function normalizeWeekPlanPayload(
@@ -863,12 +876,12 @@ export function normalizePeriodObjectReflectionPayload(
     observedProgressSignals: normalizeObservedSignals(
       data.observedProgressSignals,
       'observedProgressSignals',
-      existing?.observedProgressSignals,
+      existing?.observedProgressSignals
     ),
     observedRiskSignals: normalizeObservedSignals(
       data.observedRiskSignals,
       'observedRiskSignals',
-      existing?.observedRiskSignals,
+      existing?.observedRiskSignals
     ),
   }
 }
@@ -880,7 +893,7 @@ export function normalizePeriodObjectReflectionPayload(
 function normalizeObservedSignals(
   value: unknown,
   fieldName: string,
-  existing?: string[],
+  existing?: string[]
 ): string[] | undefined {
   const source = value ?? existing
   if (source === undefined) {
@@ -891,13 +904,15 @@ function normalizeObservedSignals(
   }
   const normalized = Array.from(
     new Set(
-      source.map((item) => {
-        if (typeof item !== 'string') {
-          throw new Error(`${fieldName} must contain only strings`)
-        }
-        return item.trim()
-      }).filter(Boolean),
-    ),
+      source
+        .map(item => {
+          if (typeof item !== 'string') {
+            throw new Error(`${fieldName} must contain only strings`)
+          }
+          return item.trim()
+        })
+        .filter(Boolean)
+    )
   )
   return normalized.length > 0 ? normalized : undefined
 }

@@ -73,13 +73,13 @@ const PL_HEADERS: Record<ProfileSectionId, string> = {
 
 function buildHeaderList(locale: LocaleId): ProfileSectionHeader[] {
   const table = locale === 'pl' ? PL_HEADERS : EN_HEADERS
-  return PROFILE_SECTION_IDS.map((id) => ({ id, header: table[id] }))
+  return PROFILE_SECTION_IDS.map(id => ({ id, header: table[id] }))
 }
 
 function enSystemPrompt(headers: ProfileSectionHeader[]): string {
-  const list = headers.map((h) => `   - ## ${h.header}`).join('\n')
+  const list = headers.map(h => `   - ## ${h.header}`).join('\n')
   return [
-    'You are a careful, psychologically literate observer. You are reading a person\'s own notes about their life — journal entries, emotion logs, reflections, and completed therapy-style exercises.',
+    "You are a careful, psychologically literate observer. You are reading a person's own notes about their life — journal entries, emotion logs, reflections, and completed therapy-style exercises.",
     '',
     'Your task is to produce a short, grounded portrait of who this person is *right now*, based only on the data provided. You are writing in the second person ("you") — speaking directly to the person whose data this is.',
     '',
@@ -100,11 +100,8 @@ function enSystemPrompt(headers: ProfileSectionHeader[]): string {
   ].join('\n')
 }
 
-function plSystemPrompt(
-  headers: ProfileSectionHeader[],
-  gender: GrammaticalGender,
-): string {
-  const list = headers.map((h) => `   - ## ${h.header}`).join('\n')
+function plSystemPrompt(headers: ProfileSectionHeader[], gender: GrammaticalGender): string {
+  const list = headers.map(h => `   - ## ${h.header}`).join('\n')
   const personalForm =
     gender === 'feminine'
       ? 'Zwracaj się do osoby bezpośrednio w drugiej osobie liczby pojedynczej, w rodzaju żeńskim (np. "zauważyłaś", "wracasz", "byłaś skupiona").'
@@ -139,13 +136,11 @@ function plSystemPrompt(
  */
 export function getProfilePrompts(
   locale: LocaleId,
-  gender: GrammaticalGender,
+  gender: GrammaticalGender
 ): ProfilePromptModule {
   const sectionHeaders = buildHeaderList(locale)
   const systemPrompt =
-    locale === 'pl'
-      ? plSystemPrompt(sectionHeaders, gender)
-      : enSystemPrompt(sectionHeaders)
+    locale === 'pl' ? plSystemPrompt(sectionHeaders, gender) : enSystemPrompt(sectionHeaders)
   return { systemPrompt, sectionHeaders, locale, gender }
 }
 
@@ -292,7 +287,7 @@ function formatRatings(ratings: Record<string, number | null>): string {
 
 function formatPromptResponses(responses: Record<string, string>): string {
   const entries = Object.entries(responses).filter(
-    ([, v]) => typeof v === 'string' && v.trim().length > 0,
+    ([, v]) => typeof v === 'string' && v.trim().length > 0
   )
   if (entries.length === 0) return ''
   return entries.map(([k, v]) => `  - ${k}: ${v}`).join('\n')
@@ -322,19 +317,13 @@ function formatMonthlyReflection(r: ProfilePayloadMonthlyReflection): string {
  * Assembles the free-text user message for the profile build. Sections with
  * no data are omitted entirely so the prompt stays tight. No truncation.
  */
-export function buildProfilePayload(
-  input: ProfilePayloadInput,
-  locale: LocaleId,
-): string {
+export function buildProfilePayload(input: ProfilePayloadInput, locale: LocaleId): string {
   const lines: string[] = []
 
   lines.push('[SCOPE]')
   lines.push(formatDateRange(input.dateRange, locale))
   if (input.dataTypes.length > 0) {
-    lines.push(
-      (locale === 'pl' ? 'Typy danych: ' : 'Data types: ') +
-        input.dataTypes.join(', '),
-    )
+    lines.push((locale === 'pl' ? 'Typy danych: ' : 'Data types: ') + input.dataTypes.join(', '))
   }
   lines.push('')
 
@@ -392,16 +381,12 @@ export function buildProfilePayload(
       'Older periods as deterministic aggregates (counts + top items, not verbatim). ' +
         'Quadrants: HE-HP=high-energy/pleasant, HE-LP=high-energy/unpleasant, ' +
         'LE-HP=low-energy/pleasant, LE-LP=low-energy/unpleasant.',
-      '',
+      ''
     )
     for (const s of input.summarizedHistory) lines.push(s.content, '')
   }
 
-  if (
-    enabled.has('planning') &&
-    input.lifeAreas &&
-    input.lifeAreas.snapshot.trim().length > 0
-  ) {
+  if (enabled.has('planning') && input.lifeAreas && input.lifeAreas.snapshot.trim().length > 0) {
     lines.push('[LIFE AREAS]')
     lines.push(input.lifeAreas.snapshot, '')
   }
@@ -430,10 +415,7 @@ export function estimateTokens(text: string): number {
 }
 
 /** Bucket a record's ISO `createdAt` into a coarse age band relative to `nowMs`. */
-export function ageBucketOf(
-  createdAt: string | undefined,
-  nowMs: number,
-): ProfileAgeBucket {
+export function ageBucketOf(createdAt: string | undefined, nowMs: number): ProfileAgeBucket {
   if (!createdAt) return 'undated'
   const t = Date.parse(createdAt)
   if (Number.isNaN(t)) return 'undated'
@@ -460,7 +442,7 @@ export interface AssembledPayloadBreakdown extends ProfileEstimateBreakdown {
 export function assembleFromInput(
   input: ProfilePayloadInput,
   locale: LocaleId,
-  nowMs: number,
+  nowMs: number
 ): AssembledPayloadBreakdown {
   const text = buildProfilePayload(input, locale)
   const enabled = new Set(input.dataTypes)
@@ -474,11 +456,7 @@ export function assembleFromInput(
     undated: 0,
   }
 
-  const add = (
-    type: ProfileDataType,
-    createdAt: string | undefined,
-    formatted: string,
-  ): void => {
+  const add = (type: ProfileDataType, createdAt: string | undefined, formatted: string): void => {
     const cost = estimateTokens(formatted)
     if (cost === 0) return
     tokensByType[type] = (tokensByType[type] ?? 0) + cost
@@ -558,9 +536,7 @@ export interface BudgetSelectionResult {
 const PER_RECORD_SCAFFOLD_CHARS = 2
 
 function recordTokens(formatted: string): number {
-  return Math.ceil(
-    (formatted.length + PER_RECORD_SCAFFOLD_CHARS) / NUM_CTX_CHARS_PER_TOKEN,
-  )
+  return Math.ceil((formatted.length + PER_RECORD_SCAFFOLD_CHARS) / NUM_CTX_CHARS_PER_TOKEN)
 }
 
 function parsedTs(createdAt: string | undefined): number {
@@ -576,9 +552,13 @@ interface Costed<T> {
 }
 
 /** Sort newest-first; undated/unparseable sort oldest. Stable on ties. */
-function costSortDesc<T>(records: T[], cost: (r: T) => number, when: (r: T) => string | undefined): Costed<T>[] {
+function costSortDesc<T>(
+  records: T[],
+  cost: (r: T) => number,
+  when: (r: T) => string | undefined
+): Costed<T>[] {
   return records
-    .map((record) => ({ record, cost: cost(record), ts: parsedTs(when(record)) }))
+    .map(record => ({ record, cost: cost(record), ts: parsedTs(when(record)) }))
     .sort((a, b) => (a.ts === b.ts ? 0 : b.ts - a.ts))
 }
 
@@ -604,7 +584,7 @@ function fillByCost<T>(costed: Costed<T>[], cap: number): { kept: T[]; used: num
  */
 export function selectPayloadWithinBudget(
   input: ProfilePayloadInput,
-  maxPromptTokens: number,
+  maxPromptTokens: number
 ): BudgetSelectionResult {
   const enabled = new Set(input.dataTypes)
   const dropped: Partial<Record<ProfileDataType, number>> = {}
@@ -615,7 +595,8 @@ export function selectPayloadWithinBudget(
     mandatoryTokens += estimateTokens(input.foundation.snapshot)
   }
   if (enabled.has('planning')) {
-    if (input.lifeAreas?.snapshot.trim()) mandatoryTokens += estimateTokens(input.lifeAreas.snapshot)
+    if (input.lifeAreas?.snapshot.trim())
+      mandatoryTokens += estimateTokens(input.lifeAreas.snapshot)
     if (input.planning?.snapshot.trim()) mandatoryTokens += estimateTokens(input.planning.snapshot)
   }
   if (mandatoryTokens > maxPromptTokens) {
@@ -638,19 +619,22 @@ export function selectPayloadWithinBudget(
   const reflFill = fillByCost(
     costSortDesc(
       reflTagged,
-      (t) => recordTokens(t.kind === 'weekly' ? formatWeeklyReflection(t.r) : formatMonthlyReflection(t.r)),
-      (t) => t.r.createdAt,
+      t =>
+        recordTokens(
+          t.kind === 'weekly' ? formatWeeklyReflection(t.r) : formatMonthlyReflection(t.r)
+        ),
+      t => t.r.createdAt
     ),
-    remaining,
+    remaining
   )
   remaining -= reflFill.used
   if (enabled.has('weeklyReflections')) {
-    out.weeklyReflections = reflFill.kept.flatMap((t) => (t.kind === 'weekly' ? [t.r] : []))
+    out.weeklyReflections = reflFill.kept.flatMap(t => (t.kind === 'weekly' ? [t.r] : []))
     const d = weekly.length - (out.weeklyReflections?.length ?? 0)
     if (d > 0) dropped.weeklyReflections = d
   }
   if (enabled.has('monthlyReflections')) {
-    out.monthlyReflections = reflFill.kept.flatMap((t) => (t.kind === 'monthly' ? [t.r] : []))
+    out.monthlyReflections = reflFill.kept.flatMap(t => (t.kind === 'monthly' ? [t.r] : []))
     const d = monthly.length - (out.monthlyReflections?.length ?? 0)
     if (d > 0) dropped.monthlyReflections = d
   }
@@ -660,8 +644,12 @@ export function selectPayloadWithinBudget(
   let droppedSummarizedPeriods = 0
   if (input.summarizedHistory && input.summarizedHistory.length > 0) {
     const shFill = fillByCost(
-      costSortDesc(input.summarizedHistory, (s) => recordTokens(s.content), (s) => s.periodEndIso),
-      remaining,
+      costSortDesc(
+        input.summarizedHistory,
+        s => recordTokens(s.content),
+        s => s.periodEndIso
+      ),
+      remaining
     )
     remaining -= shFill.used
     out.summarizedHistory = shFill.kept
@@ -671,8 +659,12 @@ export function selectPayloadWithinBudget(
   // 3. Exercises, newest-first per record.
   const exercises = enabled.has('exerciseSessions') ? (input.exerciseSessions ?? []) : []
   const exFill = fillByCost(
-    costSortDesc(exercises, (s) => recordTokens(formatExercise(s)), (s) => s.createdAt),
-    remaining,
+    costSortDesc(
+      exercises,
+      s => recordTokens(formatExercise(s)),
+      s => s.createdAt
+    ),
+    remaining
   )
   remaining -= exFill.used
   if (enabled.has('exerciseSessions')) {
@@ -684,8 +676,16 @@ export function selectPayloadWithinBudget(
   // 4. Journal 70% / emotion logs 30% of the remainder, with slack donation.
   const journal = enabled.has('journal') ? (input.journalEntries ?? []) : []
   const logs = enabled.has('emotionLogs') ? (input.emotionLogs ?? []) : []
-  const jCosted = costSortDesc(journal, (e) => recordTokens(formatJournalEntry(e)), (e) => e.createdAt)
-  const lCosted = costSortDesc(logs, (l) => recordTokens(formatEmotionLog(l)), (l) => l.createdAt)
+  const jCosted = costSortDesc(
+    journal,
+    e => recordTokens(formatJournalEntry(e)),
+    e => e.createdAt
+  )
+  const lCosted = costSortDesc(
+    logs,
+    l => recordTokens(formatEmotionLog(l)),
+    l => l.createdAt
+  )
 
   const jQuota = Math.floor(remaining * 0.7)
   const lQuota = remaining - jQuota
@@ -711,7 +711,13 @@ export function selectPayloadWithinBudget(
     if (d > 0) dropped.emotionLogs = d
   }
 
-  return { input: out, droppedByType: dropped, droppedSummarizedPeriods, mandatoryTokens, fits: true }
+  return {
+    input: out,
+    droppedByType: dropped,
+    droppedSummarizedPeriods,
+    mandatoryTokens,
+    fits: true,
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -780,7 +786,7 @@ function stripThinkBlocks(raw: string): string {
  */
 export function parseProfileResponse(
   raw: string,
-  promptModule: ProfilePromptModule,
+  promptModule: ProfilePromptModule
 ): ParsedProfileResponse {
   const sections = createEmptySections()
   const extrasChunks: string[] = []

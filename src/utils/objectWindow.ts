@@ -74,7 +74,7 @@ function resolveToday(today: Date | string): DayRef {
  * End = targetDate → last linked month → open.
  */
 export function computeGoalWindow(input: GoalWindowInput, today: Date | string): ObjectWindow {
-  const months = [...(input.monthRefs ?? [])].filter((ref) => MONTH_RE.test(ref)).sort()
+  const months = [...(input.monthRefs ?? [])].filter(ref => MONTH_RE.test(ref)).sort()
   const firstMonth = months[0] as MonthRef | undefined
   const lastMonth = months[months.length - 1] as MonthRef | undefined
 
@@ -131,10 +131,14 @@ export interface YearsWindow {
  * Priority window: one stepper dot per year. Always includes the current
  * year and pads to at least three dots so the strip has a rhythm.
  */
-export function computeYearsWindow(years: YearRef[], today: Date | string, minDots = 3): YearsWindow {
+export function computeYearsWindow(
+  years: YearRef[],
+  today: Date | string,
+  minDots = 3
+): YearsWindow {
   const todayRef = resolveToday(today)
   const currentYear = Number(todayRef.slice(0, 4))
-  const set = new Set<number>(years.map(Number).filter((year) => Number.isFinite(year)))
+  const set = new Set<number>(years.map(Number).filter(year => Number.isFinite(year)))
   set.add(currentYear)
   let next = Math.max(...set) + 1
   while (set.size < minDots) {
@@ -143,9 +147,13 @@ export function computeYearsWindow(years: YearRef[], today: Date | string, minDo
   }
   const sorted = [...set].sort((a, b) => a - b)
 
-  const dots = sorted.map((year) => ({
+  const dots = sorted.map(year => ({
     ref: String(year) as YearRef,
-    state: (year < currentYear ? 'done' : year === currentYear ? 'current' : 'future') as YearDotState,
+    state: (year < currentYear
+      ? 'done'
+      : year === currentYear
+        ? 'current'
+        : 'future') as YearDotState,
   }))
 
   const currentIndex = sorted.indexOf(currentYear)

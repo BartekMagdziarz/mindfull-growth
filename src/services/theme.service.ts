@@ -50,7 +50,7 @@ export function getCachedThemePreference(): ThemeId {
 
 export function applyTheme(
   themeInput: ThemeId | string | null | undefined,
-  options?: { persistCache?: boolean },
+  options?: { persistCache?: boolean }
 ): ThemeId {
   const theme = normalizeThemeId(themeInput)
   setThemeDataAttribute(theme)

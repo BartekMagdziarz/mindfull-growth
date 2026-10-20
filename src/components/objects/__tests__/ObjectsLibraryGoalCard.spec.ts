@@ -72,23 +72,28 @@ describe('ObjectsLibraryGoalCard — timeline visibility', () => {
     { status: 'open', isActive: false },
     { status: 'completed', isActive: false },
     { status: 'dropped', isActive: false },
-  ])('hides the timeline for status=$status, isActive=$isActive even without a closing reflection', (state) => {
-    const { container, queryByText } = renderGoal(goal(state))
-    expect(container.querySelector('.mg-v2-timeline')).toBeNull()
-    expect(queryByText(/overdue/)).not.toBeInTheDocument()
-  })
+  ])(
+    'hides the timeline for status=$status, isActive=$isActive even without a closing reflection',
+    state => {
+      const { container, queryByText } = renderGoal(goal(state))
+      expect(container.querySelector('.mg-v2-timeline')).toBeNull()
+      expect(queryByText(/overdue/)).not.toBeInTheDocument()
+    }
+  )
 
   it('keeps the closing metadata, summary and month editing on a closed goal', async () => {
-    const { container, getByText, getByRole } = renderGoal(goal({
-      status: 'completed',
-      goalClosingReflection: {
-        closedAt: '2026-10-04',
-        outcome: 'achieved',
-        learned: 'A useful lesson',
-        keyResults: [],
-        window: { startDate: '2026-08-01', targetDate: '2026-10-03', weeksPlanned: 9 },
-      },
-    }))
+    const { container, getByText, getByRole } = renderGoal(
+      goal({
+        status: 'completed',
+        goalClosingReflection: {
+          closedAt: '2026-10-04',
+          outcome: 'achieved',
+          learned: 'A useful lesson',
+          keyResults: [],
+          window: { startDate: '2026-08-01', targetDate: '2026-10-03', weeksPlanned: 9 },
+        },
+      })
+    )
 
     expect(getByText('Completed')).toBeInTheDocument()
     expect(getByText('achieved')).toBeInTheDocument()
@@ -98,12 +103,15 @@ describe('ObjectsLibraryGoalCard — timeline visibility', () => {
     expect(getByRole('button', { name: /Goal months/ })).toBeInTheDocument()
   })
 
-  it.each(['completed', 'dropped', 'archived'])('restores the live timeline after reopening or unarchiving a %s goal', async (state) => {
-    const item = goal(state === 'archived' ? { isActive: false } : { status: state })
-    const { container, rerender } = renderGoal(item)
-    expect(container.querySelector('.mg-v2-timeline')).toBeNull()
+  it.each(['completed', 'dropped', 'archived'])(
+    'restores the live timeline after reopening or unarchiving a %s goal',
+    async state => {
+      const item = goal(state === 'archived' ? { isActive: false } : { status: state })
+      const { container, rerender } = renderGoal(item)
+      expect(container.querySelector('.mg-v2-timeline')).toBeNull()
 
-    await rerender({ item: goal() })
-    expect(container.querySelector('.mg-v2-timeline--overdue')).not.toBeNull()
-  })
+      await rerender({ item: goal() })
+      expect(container.querySelector('.mg-v2-timeline--overdue')).not.toBeNull()
+    }
+  )
 })

@@ -28,9 +28,7 @@ describe('CompletionRing', () => {
     })
 
     const progress = container.querySelector('.completion-ring__progress')
-    const [filled] = (progress?.getAttribute('stroke-dasharray') ?? '0 0')
-      .split(' ')
-      .map(Number)
+    const [filled] = (progress?.getAttribute('stroke-dasharray') ?? '0 0').split(' ').map(Number)
 
     expect(filled).toBeCloseTo(CIRCUMFERENCE * 0.8, 4)
   })
@@ -55,9 +53,7 @@ describe('CompletionRing', () => {
     })
 
     const progress = container.querySelector('.completion-ring__progress')
-    const [filled] = (progress?.getAttribute('stroke-dasharray') ?? '0 0')
-      .split(' ')
-      .map(Number)
+    const [filled] = (progress?.getAttribute('stroke-dasharray') ?? '0 0').split(' ').map(Number)
 
     expect(filled).toBeCloseTo(CIRCUMFERENCE, 4)
   })
@@ -74,9 +70,7 @@ describe('CompletionRing', () => {
     expect(getByText('/ 15')).toBeTruthy()
 
     const progress = container.querySelector('.completion-ring__progress')
-    const [filled] = (progress?.getAttribute('stroke-dasharray') ?? '0 0')
-      .split(' ')
-      .map(Number)
+    const [filled] = (progress?.getAttribute('stroke-dasharray') ?? '0 0').split(' ').map(Number)
     expect(filled).toBeCloseTo(CIRCUMFERENCE, 4)
   })
 })

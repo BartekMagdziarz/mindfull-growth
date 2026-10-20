@@ -1,6 +1,12 @@
 import { computed, nextTick, ref, watch } from 'vue'
 import type { Ref } from 'vue'
-import type { Habit, KeyResult, MeasurementEntryDaysCondition, MeasurementTarget, Tracker } from '@/domain/planning'
+import type {
+  Habit,
+  KeyResult,
+  MeasurementEntryDaysCondition,
+  MeasurementTarget,
+  Tracker,
+} from '@/domain/planning'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import type {
   GoalMonthState,
@@ -74,11 +80,7 @@ export function usePlannerState(
     goalSections.value.flatMap(goal => goal.keyResults)
   )
 
-  const allRows = computed(() => [
-    ...keyResultRows.value,
-    ...habitRows.value,
-    ...trackerRows.value,
-  ])
+  const allRows = computed(() => [...keyResultRows.value, ...habitRows.value, ...trackerRows.value])
 
   function formatWeekRange(weekRef: WeekRef): string {
     const { start, end } = getPeriodBounds(weekRef)
@@ -151,9 +153,7 @@ export function usePlannerState(
     const itemIcon = 'icon' in item ? (item as { icon?: string }).icon : undefined
     const resolvedIcon =
       itemIcon ??
-      ('goalId' in item && goalIconMap
-        ? goalIconMap.get((item as KeyResult).goalId)
-        : undefined)
+      ('goalId' in item && goalIconMap ? goalIconMap.get((item as KeyResult).goalId) : undefined)
 
     return {
       id: item.id,
@@ -660,9 +660,7 @@ export function usePlannerState(
       for (const [index, weekRef] of weeks.entries()) {
         const daysShare = daysShares?.[index] ?? 0
         const entryDays =
-          target.entryDays && daysShare >= 1
-            ? { ...target.entryDays, value: daysShare }
-            : undefined
+          target.entryDays && daysShare >= 1 ? { ...target.entryDays, value: daysShare } : undefined
         await updateMeasurementWeekTargetOverride({
           weekRef,
           subjectType: row.subjectType,

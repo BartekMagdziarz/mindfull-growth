@@ -63,7 +63,10 @@
         </button>
       </div>
 
-      <div v-if="props.dateRange.kind === 'custom'" class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div
+        v-if="props.dateRange.kind === 'custom'"
+        class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3"
+      >
         <label class="block">
           <span class="block text-xs text-on-surface-variant mb-1">
             {{ t('profile.psychologicalProfile.wizard.scope.dateRange.start') }}
@@ -235,7 +238,7 @@ function isTypeEnabled(type: ProfileDataType): boolean {
 
 function toggleType(type: ProfileDataType): void {
   const next = props.dataTypes.includes(type)
-    ? props.dataTypes.filter((t) => t !== type)
+    ? props.dataTypes.filter(t => t !== type)
     : [...props.dataTypes, type]
   emit('update:dataTypes', next)
 }
@@ -249,19 +252,13 @@ function selectPreset(preset: ProfileDateRangePreset): void {
   emit('update:dateRange', { kind: 'preset', preset })
 }
 
-const customStart = computed(() =>
-  props.dateRange.kind === 'custom' ? props.dateRange.start : '',
-)
-const customEnd = computed(() =>
-  props.dateRange.kind === 'custom' ? props.dateRange.end : '',
-)
+const customStart = computed(() => (props.dateRange.kind === 'custom' ? props.dateRange.start : ''))
+const customEnd = computed(() => (props.dateRange.kind === 'custom' ? props.dateRange.end : ''))
 
 function selectCustom(): void {
   if (props.dateRange.kind === 'custom') return
   const today = new Date().toISOString().slice(0, 10)
-  const ninetyAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)
-    .toISOString()
-    .slice(0, 10)
+  const ninetyAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
   emit('update:dateRange', { kind: 'custom', start: ninetyAgo, end: today })
 }
 
@@ -282,9 +279,7 @@ function isQuadrantActive(code: EmotionQuadrantCode): boolean {
 
 function toggleQuadrant(code: EmotionQuadrantCode): void {
   const current = props.filters.emotionQuadrants ?? []
-  const next = current.includes(code)
-    ? current.filter((c) => c !== code)
-    : [...current, code]
+  const next = current.includes(code) ? current.filter(c => c !== code) : [...current, code]
   emit('update:filters', { ...props.filters, emotionQuadrants: next })
 }
 
@@ -296,9 +291,7 @@ function isFilterActive(key: TagFilterKey, id: string): boolean {
 
 function toggleFilter(key: TagFilterKey, id: string): void {
   const current = props.filters[key] ?? []
-  const next = current.includes(id)
-    ? current.filter((x) => x !== id)
-    : [...current, id]
+  const next = current.includes(id) ? current.filter(x => x !== id) : [...current, id]
   emit('update:filters', { ...props.filters, [key]: next })
 }
 </script>

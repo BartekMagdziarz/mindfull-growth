@@ -93,13 +93,13 @@
    * quadrant *identifier* (small badges where saturation aids recognition).
    * Updated to match the new `-bottom` for HEHP/LEHP after the blue refresh.
    * --------------------------------------------------------------------- */
-  --color-quadrant-high-energy-high-pleasantness: #85C0FF;
+  --color-quadrant-high-energy-high-pleasantness: #85c0ff;
   --color-quadrant-high-energy-high-pleasantness-top: #aad3ff;
-  --color-quadrant-high-energy-high-pleasantness-bottom: #85C0FF;
+  --color-quadrant-high-energy-high-pleasantness-bottom: #85c0ff;
   --color-quadrant-high-energy-high-pleasantness-tint: #e1efff;
   --color-quadrant-high-energy-high-pleasantness-tint-soft: #edf6ff;
-  --color-quadrant-high-energy-high-pleasantness-border: #5CABFF;
-  --color-quadrant-high-energy-high-pleasantness-selected: #007BFF;
+  --color-quadrant-high-energy-high-pleasantness-border: #5cabff;
+  --color-quadrant-high-energy-high-pleasantness-selected: #007bff;
   --color-quadrant-high-energy-high-pleasantness-text: #003975;
   --color-quadrant-high-energy-low-pleasantness: #ffafcc;
   --color-quadrant-high-energy-low-pleasantness-top: #ffe5ee;
@@ -114,9 +114,9 @@
   --color-quadrant-low-energy-high-pleasantness-bottom: #cce4ff;
   --color-quadrant-low-energy-high-pleasantness-tint: #e9f3ff;
   --color-quadrant-low-energy-high-pleasantness-tint-soft: #f0f7ff;
-  --color-quadrant-low-energy-high-pleasantness-border: #8EC5FF;
-  --color-quadrant-low-energy-high-pleasantness-selected: #5CABFF;
-  --color-quadrant-low-energy-high-pleasantness-text: #004FA3;
+  --color-quadrant-low-energy-high-pleasantness-border: #8ec5ff;
+  --color-quadrant-low-energy-high-pleasantness-selected: #5cabff;
+  --color-quadrant-low-energy-high-pleasantness-text: #004fa3;
   --color-quadrant-low-energy-low-pleasantness: #cdb4db;
   --color-quadrant-low-energy-low-pleasantness-top: #efe6f3;
   --color-quadrant-low-energy-low-pleasantness-bottom: #dccbe6;
@@ -195,7 +195,7 @@
   --rating-pos-2: 157 189 238;
   --rating-pos-3: 132 167 224;
   --rating-pos-4: 111 149 208;
-  --rating-pos-5: 94 132 190;  /* best — soft mid-blue (not navy) */
+  --rating-pos-5: 94 132 190; /* best — soft mid-blue (not navy) */
 
   --rating-neg-1: 250 198 210; /* just below target — pale rose */
   --rating-neg-2: 240 176 192;
@@ -351,13 +351,13 @@
   --color-tertiary-container: 255 244 228;
   --color-on-tertiary-container: 118 76 24;
 
-  --color-quadrant-high-energy-high-pleasantness: #85C0FF;
+  --color-quadrant-high-energy-high-pleasantness: #85c0ff;
   --color-quadrant-high-energy-high-pleasantness-top: #aad3ff;
-  --color-quadrant-high-energy-high-pleasantness-bottom: #85C0FF;
+  --color-quadrant-high-energy-high-pleasantness-bottom: #85c0ff;
   --color-quadrant-high-energy-high-pleasantness-tint: #e1efff;
   --color-quadrant-high-energy-high-pleasantness-tint-soft: #edf6ff;
-  --color-quadrant-high-energy-high-pleasantness-border: #5CABFF;
-  --color-quadrant-high-energy-high-pleasantness-selected: #007BFF;
+  --color-quadrant-high-energy-high-pleasantness-border: #5cabff;
+  --color-quadrant-high-energy-high-pleasantness-selected: #007bff;
   --color-quadrant-high-energy-high-pleasantness-text: #003975;
   --color-quadrant-high-energy-low-pleasantness: #f4bfd2;
   --color-quadrant-high-energy-low-pleasantness-top: #fbeaf0;
@@ -372,9 +372,9 @@
   --color-quadrant-low-energy-high-pleasantness-bottom: #cce4ff;
   --color-quadrant-low-energy-high-pleasantness-tint: #e9f3ff;
   --color-quadrant-low-energy-high-pleasantness-tint-soft: #f0f7ff;
-  --color-quadrant-low-energy-high-pleasantness-border: #8EC5FF;
-  --color-quadrant-low-energy-high-pleasantness-selected: #5CABFF;
-  --color-quadrant-low-energy-high-pleasantness-text: #004FA3;
+  --color-quadrant-low-energy-high-pleasantness-border: #8ec5ff;
+  --color-quadrant-low-energy-high-pleasantness-selected: #5cabff;
+  --color-quadrant-low-energy-high-pleasantness-text: #004fa3;
   --color-quadrant-low-energy-low-pleasantness: #d6c8e5;
   --color-quadrant-low-energy-low-pleasantness-top: #f1edf6;
   --color-quadrant-low-energy-low-pleasantness-bottom: #e2d9ed;

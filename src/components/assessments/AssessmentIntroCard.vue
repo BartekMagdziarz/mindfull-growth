@@ -10,15 +10,17 @@
       <p class="text-sm text-on-surface-variant">
         {{ t(definition.descriptionKey) }}
       </p>
-      <p class="text-xs text-on-surface-variant">
-        ~{{ definition.estimatedMinutes }} min
-      </p>
+      <p class="text-xs text-on-surface-variant">~{{ definition.estimatedMinutes }} min</p>
     </div>
 
     <div v-if="latestCompletedAt" class="neo-embedded p-3 text-xs text-on-surface-variant">
-      <p>{{ t('assessments.common.results.completedAt', { date: formatDate(latestCompletedAt) }) }}</p>
+      <p>
+        {{ t('assessments.common.results.completedAt', { date: formatDate(latestCompletedAt) }) }}
+      </p>
       <p v-if="retakeEligibleAt && !canRetake">
-        {{ t('assessments.common.results.retakeEligibleOn', { date: formatDate(retakeEligibleAt) }) }}
+        {{
+          t('assessments.common.results.retakeEligibleOn', { date: formatDate(retakeEligibleAt) })
+        }}
       </p>
       <p v-else-if="canRetake">
         {{ t('assessments.common.results.retakeAvailable') }}
@@ -26,19 +28,11 @@
     </div>
 
     <div class="flex flex-wrap gap-2">
-      <AppButton
-        v-if="hasInProgress"
-        variant="filled"
-        @click="$emit('resume')"
-      >
+      <AppButton v-if="hasInProgress" variant="filled" @click="$emit('resume')">
         {{ t('assessments.common.flow.resume') }}
       </AppButton>
 
-      <AppButton
-        v-if="!hasInProgress && !hasHistory"
-        variant="filled"
-        @click="$emit('start')"
-      >
+      <AppButton v-if="!hasInProgress && !hasHistory" variant="filled" @click="$emit('start')">
         {{ t('assessments.common.flow.start') }}
       </AppButton>
 

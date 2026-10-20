@@ -25,20 +25,26 @@ export interface WeekPatternParams {
   locale: LocaleId
 }
 
-function describeWeek(label: string, week: MomentsWeekStats, params: WeekPatternParams, prompts: PathPromptModule): string {
+function describeWeek(
+  label: string,
+  week: MomentsWeekStats,
+  params: WeekPatternParams,
+  prompts: PathPromptModule
+): string {
   const l = prompts.labels
   const family = momentFamily(week.kind)
   const parts = (Object.keys(week.byPart) as ReactionKey[])
-    .filter((key) => (week.byPart[key] ?? 0) > 0)
-    .map((key) => {
-      const name = key === family.selfKey ? l.nonePartByKind[family.kind] : (params.partLabels[key] ?? key)
+    .filter(key => (week.byPart[key] ?? 0) > 0)
+    .map(key => {
+      const name =
+        key === family.selfKey ? l.nonePartByKind[family.kind] : (params.partLabels[key] ?? key)
       const strength = week.strength[key]
       const mean = strength?.rated ? ` · ${(strength.sum / strength.rated).toFixed(1)}` : ''
       return `${name} ${week.byPart[key]}×${mean}`
     })
   const noticed = (Object.keys(week.noticed) as NoticedKey[])
-    .filter((key) => week.noticed[key] > 0)
-    .map((key) => `${l.noticing[key]} ${week.noticed[key]}`)
+    .filter(key => week.noticed[key] > 0)
+    .map(key => `${l.noticing[key]} ${week.noticed[key]}`)
   const lines = [
     `${label}:`,
     `${l.path}: ${l.kinds[family.kind]}`,
@@ -53,9 +59,15 @@ function describeWeek(label: string, week: MomentsWeekStats, params: WeekPattern
 export async function describeWeekPattern(params: WeekPatternParams): Promise<string> {
   const prompts = getPathPrompts(params.locale)
   const sections = [describeWeek(prompts.labels.thisWeek, params.week, params, prompts)]
-  if (params.previous) sections.push(describeWeek(prompts.labels.previousWeek, params.previous, params, prompts))
+  if (params.previous)
+    sections.push(describeWeek(prompts.labels.previousWeek, params.previous, params, prompts))
   if (params.kindVoices.length) {
-    sections.push(`${prompts.labels.kindVoices}:\n${params.kindVoices.slice(0, 3).map((text) => `- "${text}"`).join('\n')}`)
+    sections.push(
+      `${prompts.labels.kindVoices}:\n${params.kindVoices
+        .slice(0, 3)
+        .map(text => `- "${text}"`)
+        .join('\n')}`
+    )
   }
   const messages: ChatMessage[] = [{ role: 'user', content: sections.join('\n\n') }]
   return sendMessage(messages, prompts.PATH_WEEK_PATTERN)

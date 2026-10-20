@@ -97,13 +97,19 @@ export interface PairClassification {
  * state: `blend` returns the state-side quadrant with a blend hint, `strict`
  * returns neutral.
  */
-export function classifyPair(load: MaybeRating, state: MaybeRating, midpoint: MidpointMode = 'blend'): PairClassification {
+export function classifyPair(
+  load: MaybeRating,
+  state: MaybeRating,
+  midpoint: MidpointMode = 'blend'
+): PairClassification {
   if (load == null || state == null) return { quadrant: 'neutral' }
   if (state === 3) return { quadrant: 'neutral' }
   const good = isHigh(state)
   if (load === 3) {
     if (midpoint === 'strict') return { quadrant: 'neutral' }
-    return good ? { quadrant: 'ease', blend: ['ease', 'recovery'] } : { quadrant: 'low', blend: ['low', 'strain'] }
+    return good
+      ? { quadrant: 'ease', blend: ['ease', 'recovery'] }
+      : { quadrant: 'low', blend: ['low', 'strain'] }
   }
   if (isHigh(load)) return { quadrant: good ? 'recovery' : 'strain' }
   if (isLow(load)) return { quadrant: good ? 'ease' : 'low' }

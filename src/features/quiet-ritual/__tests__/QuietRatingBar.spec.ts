@@ -16,7 +16,10 @@ describe('QuietRatingBar · symmetric column', () => {
     expect(body.find('output').classes()).toContain('qr-bar-value--empty')
 
     const steps = body.findAll('.qr-bar-steps button')
-    expect(steps.map(b => b.attributes('aria-label'))).toEqual(['Zmniejsz: Balans', 'Zwiększ: Balans'])
+    expect(steps.map(b => b.attributes('aria-label'))).toEqual([
+      'Zmniejsz: Balans',
+      'Zwiększ: Balans',
+    ])
     expect(steps[0].attributes('disabled')).toBeDefined()
 
     await steps[1].trigger('click')
@@ -34,10 +37,15 @@ describe('QuietRatingBar · symmetric column', () => {
     })
     const probe = wrapper.find('.qr-axis > .probe')
     expect(probe.exists()).toBe(true)
-    expect(wrapper.find('.qr-bar-body').element.compareDocumentPosition(probe.element) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(
+      wrapper.find('.qr-bar-body').element.compareDocumentPosition(probe.element) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy()
   })
   it('offers five explicit row choices, clearing and keyboard adjustment', async () => {
-    const wrapper = mount(QuietRatingBar, { props: { modelValue: 2, label: 'Wpływ', layout: 'row' } })
+    const wrapper = mount(QuietRatingBar, {
+      props: { modelValue: 2, label: 'Wpływ', layout: 'row' },
+    })
     expect(wrapper.find('.qr-bar-body').exists()).toBe(false)
     const buttons = wrapper.findAll('.qr-scale--row button')
     expect(buttons.map(b => b.text())).toEqual(['1', '2', '3', '4', '5'])
@@ -48,5 +56,4 @@ describe('QuietRatingBar · symmetric column', () => {
     await buttons[1].trigger('keydown', { key: 'ArrowRight' })
     expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual([3])
   })
-
 })

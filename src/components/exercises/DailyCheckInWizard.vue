@@ -14,8 +14,12 @@
       <template v-if="currentStep === 'select-practice'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-lg font-bold text-on-surface">{{ t('exerciseWizards.dailyCheckIn.selectPractice.title') }}</h2>
-            <p class="text-sm text-on-surface-variant">{{ t('exerciseWizards.dailyCheckIn.selectPractice.subtitle') }}</p>
+            <h2 class="text-lg font-bold text-on-surface">
+              {{ t('exerciseWizards.dailyCheckIn.selectPractice.title') }}
+            </h2>
+            <p class="text-sm text-on-surface-variant">
+              {{ t('exerciseWizards.dailyCheckIn.selectPractice.subtitle') }}
+            </p>
 
             <div class="grid grid-cols-2 gap-3">
               <button
@@ -29,7 +33,10 @@
                 ]"
                 @click="practiceType = practice.type"
               >
-                <div class="rounded-full w-10 h-10 flex items-center justify-center" :class="practice.bgClass">
+                <div
+                  class="rounded-full w-10 h-10 flex items-center justify-center"
+                  :class="practice.bgClass"
+                >
                   <AppIcon :name="practice.icon" class="text-xl" :class="practice.iconClass" />
                 </div>
                 <p class="text-sm font-medium text-on-surface">{{ practice.label }}</p>
@@ -50,13 +57,18 @@
       <!-- Step 2: Practice -->
       <template v-else-if="currentStep === 'practice'">
         <div class="space-y-6">
-
           <!-- Practice A: Weather Report -->
           <template v-if="practiceType === 'weather-report'">
             <AppCard padding="lg" class="space-y-4">
-              <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.dailyCheckIn.practice.weatherReport.title') }}</h2>
-              <p class="text-sm text-on-surface-variant">{{ t('exerciseWizards.dailyCheckIn.practice.weatherReport.description') }}</p>
-              <ExerciseStepWhy :text="tg('exerciseWizards.dailyCheckIn.practice.weatherReport.why')" />
+              <h2 class="text-base font-semibold text-on-surface">
+                {{ t('exerciseWizards.dailyCheckIn.practice.weatherReport.title') }}
+              </h2>
+              <p class="text-sm text-on-surface-variant">
+                {{ t('exerciseWizards.dailyCheckIn.practice.weatherReport.description') }}
+              </p>
+              <ExerciseStepWhy
+                :text="tg('exerciseWizards.dailyCheckIn.practice.weatherReport.why')"
+              />
 
               <!-- Multi-select parts grid -->
               <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -85,26 +97,39 @@
                   class="neo-surface p-3 rounded-xl space-y-2"
                 >
                   <div class="flex items-center gap-2">
-                    <span class="text-sm font-medium text-on-surface">{{ getPartName(ap.partId) }}</span>
+                    <span class="text-sm font-medium text-on-surface">{{
+                      getPartName(ap.partId)
+                    }}</span>
                     <PartRoleBadge v-if="getPartRole(ap.partId)" :role="getPartRole(ap.partId)!" />
                   </div>
                   <div class="flex items-center gap-3">
-                    <span class="text-xs text-on-surface-variant w-16 shrink-0">{{ t('exerciseWizards.dailyCheckIn.practice.weatherReport.intensityLabel') }}</span>
+                    <span class="text-xs text-on-surface-variant w-16 shrink-0">{{
+                      t('exerciseWizards.dailyCheckIn.practice.weatherReport.intensityLabel')
+                    }}</span>
                     <input
                       type="range"
                       min="1"
                       max="10"
                       :value="ap.intensity"
                       class="flex-1 accent-primary"
-                      @input="updatePartIntensity(ap.partId, Number(($event.target as HTMLInputElement).value))"
+                      @input="
+                        updatePartIntensity(
+                          ap.partId,
+                          Number(($event.target as HTMLInputElement).value)
+                        )
+                      "
                     />
-                    <span class="text-xs font-medium text-on-surface w-6 text-right">{{ ap.intensity }}</span>
+                    <span class="text-xs font-medium text-on-surface w-6 text-right">{{
+                      ap.intensity
+                    }}</span>
                   </div>
                   <input
                     type="text"
                     :value="ap.triggerNote ?? ''"
                     class="neo-input w-full p-2 text-xs"
-                    :placeholder="t('exerciseWizards.dailyCheckIn.practice.weatherReport.triggerPlaceholder')"
+                    :placeholder="
+                      t('exerciseWizards.dailyCheckIn.practice.weatherReport.triggerPlaceholder')
+                    "
                     @input="updatePartTrigger(ap.partId, ($event.target as HTMLInputElement).value)"
                   />
                 </div>
@@ -115,9 +140,15 @@
           <!-- Practice B: Gratitude to a Part -->
           <template v-else-if="practiceType === 'gratitude-to-part'">
             <AppCard padding="lg" class="space-y-4">
-              <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.dailyCheckIn.practice.gratitudeToPart.title') }}</h2>
-              <p class="text-sm text-on-surface-variant">{{ t('exerciseWizards.dailyCheckIn.practice.gratitudeToPart.description') }}</p>
-              <ExerciseStepWhy :text="tg('exerciseWizards.dailyCheckIn.practice.gratitudeToPart.why')" />
+              <h2 class="text-base font-semibold text-on-surface">
+                {{ t('exerciseWizards.dailyCheckIn.practice.gratitudeToPart.title') }}
+              </h2>
+              <p class="text-sm text-on-surface-variant">
+                {{ t('exerciseWizards.dailyCheckIn.practice.gratitudeToPart.description') }}
+              </p>
+              <ExerciseStepWhy
+                :text="tg('exerciseWizards.dailyCheckIn.practice.gratitudeToPart.why')"
+              />
 
               <PartSelector
                 v-model="gratitudePartId"
@@ -129,13 +160,23 @@
               <textarea
                 v-model="gratitudeNote"
                 rows="3"
-                :placeholder="t('exerciseWizards.dailyCheckIn.practice.gratitudeToPart.notePlaceholder')"
+                :placeholder="
+                  t('exerciseWizards.dailyCheckIn.practice.gratitudeToPart.notePlaceholder')
+                "
                 class="neo-input w-full p-3 text-sm resize-none"
               />
 
-              <div v-if="gratitudePartId && gratitudeNote.trim()" class="neo-surface p-3 rounded-xl">
+              <div
+                v-if="gratitudePartId && gratitudeNote.trim()"
+                class="neo-surface p-3 rounded-xl"
+              >
                 <p class="text-sm text-on-surface-variant italic">
-                  "{{ t('exerciseWizards.dailyCheckIn.practice.gratitudeToPart.thankYou', { partName: gratitudePartId ? getPartName(gratitudePartId) : '', note: gratitudeNote.trim() }) }}"
+                  "{{
+                    t('exerciseWizards.dailyCheckIn.practice.gratitudeToPart.thankYou', {
+                      partName: gratitudePartId ? getPartName(gratitudePartId) : '',
+                      note: gratitudeNote.trim(),
+                    })
+                  }}"
                 </p>
               </div>
             </AppCard>
@@ -144,17 +185,23 @@
           <!-- Practice C: Self-Energy Moment -->
           <template v-else-if="practiceType === 'self-energy-moment'">
             <AppCard padding="lg" class="space-y-4">
-              <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.dailyCheckIn.practice.selfEnergyMoment.title') }}</h2>
-              <p class="text-sm text-on-surface-variant">{{ t('exerciseWizards.dailyCheckIn.practice.selfEnergyMoment.description') }}</p>
+              <h2 class="text-base font-semibold text-on-surface">
+                {{ t('exerciseWizards.dailyCheckIn.practice.selfEnergyMoment.title') }}
+              </h2>
+              <p class="text-sm text-on-surface-variant">
+                {{ t('exerciseWizards.dailyCheckIn.practice.selfEnergyMoment.description') }}
+              </p>
 
               <div class="flex flex-wrap gap-2">
                 <button
                   v-for="q in allQualities"
                   :key="q"
                   class="exercise-pill px-3 py-1.5 text-sm neo-focus transition-all capitalize"
-                  :class="selfEnergyQuality === q
-                    ? 'bg-primary/15 text-primary font-semibold shadow-neu-pressed'
-                    : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'"
+                  :class="
+                    selfEnergyQuality === q
+                      ? 'bg-primary/15 text-primary font-semibold shadow-neu-pressed'
+                      : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'
+                  "
                   @click="selfEnergyQuality = q"
                 >
                   {{ formatQuality(q) }}
@@ -180,13 +227,21 @@
           <!-- Practice D: Evening Reflection -->
           <template v-else-if="practiceType === 'evening-reflection'">
             <AppCard padding="lg" class="space-y-4">
-              <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.dailyCheckIn.practice.eveningReflection.title') }}</h2>
-              <p class="text-sm text-on-surface-variant">{{ t('exerciseWizards.dailyCheckIn.practice.eveningReflection.description') }}</p>
-              <ExerciseStepWhy :text="tg('exerciseWizards.dailyCheckIn.practice.eveningReflection.why')" />
+              <h2 class="text-base font-semibold text-on-surface">
+                {{ t('exerciseWizards.dailyCheckIn.practice.eveningReflection.title') }}
+              </h2>
+              <p class="text-sm text-on-surface-variant">
+                {{ t('exerciseWizards.dailyCheckIn.practice.eveningReflection.description') }}
+              </p>
+              <ExerciseStepWhy
+                :text="tg('exerciseWizards.dailyCheckIn.practice.eveningReflection.why')"
+              />
 
               <!-- Active parts multi-select -->
               <div>
-                <label class="block text-sm font-medium text-on-surface mb-2">{{ t('exerciseWizards.dailyCheckIn.practice.eveningReflection.activePartsLabel') }}</label>
+                <label class="block text-sm font-medium text-on-surface mb-2">{{
+                  t('exerciseWizards.dailyCheckIn.practice.eveningReflection.activePartsLabel')
+                }}</label>
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   <button
                     v-for="part in partStore.sortedParts"
@@ -214,26 +269,41 @@
                   class="neo-surface p-3 rounded-xl space-y-2"
                 >
                   <div class="flex items-center gap-2">
-                    <span class="text-sm font-medium text-on-surface">{{ getPartName(ap.partId) }}</span>
+                    <span class="text-sm font-medium text-on-surface">{{
+                      getPartName(ap.partId)
+                    }}</span>
                     <PartRoleBadge v-if="getPartRole(ap.partId)" :role="getPartRole(ap.partId)!" />
                   </div>
                   <div class="flex items-center gap-3">
-                    <span class="text-xs text-on-surface-variant w-16 shrink-0">{{ t('exerciseWizards.dailyCheckIn.practice.eveningReflection.intensityLabel') }}</span>
+                    <span class="text-xs text-on-surface-variant w-16 shrink-0">{{
+                      t('exerciseWizards.dailyCheckIn.practice.eveningReflection.intensityLabel')
+                    }}</span>
                     <input
                       type="range"
                       min="1"
                       max="10"
                       :value="ap.intensity"
                       class="flex-1 accent-primary"
-                      @input="updatePartIntensity(ap.partId, Number(($event.target as HTMLInputElement).value))"
+                      @input="
+                        updatePartIntensity(
+                          ap.partId,
+                          Number(($event.target as HTMLInputElement).value)
+                        )
+                      "
                     />
-                    <span class="text-xs font-medium text-on-surface w-6 text-right">{{ ap.intensity }}</span>
+                    <span class="text-xs font-medium text-on-surface w-6 text-right">{{
+                      ap.intensity
+                    }}</span>
                   </div>
                   <input
                     type="text"
                     :value="ap.triggerNote ?? ''"
                     class="neo-input w-full p-2 text-xs"
-                    :placeholder="t('exerciseWizards.dailyCheckIn.practice.eveningReflection.triggerPlaceholder')"
+                    :placeholder="
+                      t(
+                        'exerciseWizards.dailyCheckIn.practice.eveningReflection.triggerPlaceholder'
+                      )
+                    "
                     @input="updatePartTrigger(ap.partId, ($event.target as HTMLInputElement).value)"
                   />
                 </div>
@@ -241,15 +311,19 @@
 
               <!-- Self-leadership rating -->
               <div class="space-y-2">
-                <label class="block text-sm font-medium text-on-surface">{{ tg('exerciseWizards.dailyCheckIn.practice.eveningReflection.responseLabel') }}</label>
+                <label class="block text-sm font-medium text-on-surface">{{
+                  tg('exerciseWizards.dailyCheckIn.practice.eveningReflection.responseLabel')
+                }}</label>
                 <div class="flex flex-wrap gap-2">
                   <button
                     v-for="option in leadershipOptions"
                     :key="option.value"
                     class="exercise-pill px-3 py-1.5 text-sm neo-focus transition-all"
-                    :class="selfLeadershipRating === option.value
-                      ? 'bg-primary/15 text-primary font-semibold shadow-neu-pressed'
-                      : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'"
+                    :class="
+                      selfLeadershipRating === option.value
+                        ? 'bg-primary/15 text-primary font-semibold shadow-neu-pressed'
+                        : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'
+                    "
                     @click="selfLeadershipRating = option.value"
                   >
                     {{ option.label }}
@@ -261,7 +335,11 @@
               <textarea
                 v-model="eveningReflection"
                 rows="3"
-                :placeholder="tg('exerciseWizards.dailyCheckIn.practice.eveningReflection.reflectionPlaceholder')"
+                :placeholder="
+                  tg(
+                    'exerciseWizards.dailyCheckIn.practice.eveningReflection.reflectionPlaceholder'
+                  )
+                "
                 class="neo-input w-full p-3 text-sm resize-none"
               />
 
@@ -269,7 +347,11 @@
               <input
                 v-model="appreciationNote"
                 type="text"
-                :placeholder="t('exerciseWizards.dailyCheckIn.practice.eveningReflection.appreciationPlaceholder')"
+                :placeholder="
+                  t(
+                    'exerciseWizards.dailyCheckIn.practice.eveningReflection.appreciationPlaceholder'
+                  )
+                "
                 class="neo-input w-full p-3 text-sm"
               />
             </AppCard>
@@ -277,7 +359,9 @@
 
           <div class="flex justify-between">
             <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
-            <AppButton variant="filled" :disabled="!canAdvance" @click="nextStep()">{{ t('common.buttons.next') }}</AppButton>
+            <AppButton variant="filled" :disabled="!canAdvance" @click="nextStep()">{{
+              t('common.buttons.next')
+            }}</AppButton>
           </div>
         </div>
       </template>
@@ -286,11 +370,16 @@
       <template v-else-if="currentStep === 'save'">
         <div class="space-y-6">
           <AppCard variant="raised" padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.dailyCheckIn.summary.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.dailyCheckIn.summary.title') }}
+            </h2>
 
             <!-- Practice type badge -->
             <div class="flex items-center gap-2">
-              <span class="exercise-pill text-xs px-2 py-0.5 font-semibold" :class="practiceTypeBadgeClass">
+              <span
+                class="exercise-pill text-xs px-2 py-0.5 font-semibold"
+                :class="practiceTypeBadgeClass"
+              >
                 {{ practiceTypeLabel }}
               </span>
             </div>
@@ -300,26 +389,51 @@
               <template v-if="practiceType === 'weather-report'">
                 <p v-for="ap in activeParts" :key="ap.partId">
                   <span class="font-medium text-on-surface">{{ getPartName(ap.partId) }}</span>
-                  — {{ t('exerciseWizards.dailyCheckIn.summary.intensity', { value: ap.intensity }) }}
+                  —
+                  {{ t('exerciseWizards.dailyCheckIn.summary.intensity', { value: ap.intensity }) }}
                   <span v-if="ap.triggerNote"> · {{ ap.triggerNote }}</span>
                 </p>
               </template>
               <template v-else-if="practiceType === 'gratitude-to-part'">
-                <p class="italic">"{{ t('exerciseWizards.dailyCheckIn.practice.gratitudeToPart.thankYou', { partName: gratitudePartId ? getPartName(gratitudePartId) : '', note: gratitudeNote.trim() }) }}"</p>
+                <p class="italic">
+                  "{{
+                    t('exerciseWizards.dailyCheckIn.practice.gratitudeToPart.thankYou', {
+                      partName: gratitudePartId ? getPartName(gratitudePartId) : '',
+                      note: gratitudeNote.trim(),
+                    })
+                  }}"
+                </p>
               </template>
               <template v-else-if="practiceType === 'self-energy-moment'">
-                <p>{{ t('exerciseWizards.dailyCheckIn.summary.focusedOn', { quality: selfEnergyQuality ? formatQuality(selfEnergyQuality) : '' }) }}</p>
+                <p>
+                  {{
+                    t('exerciseWizards.dailyCheckIn.summary.focusedOn', {
+                      quality: selfEnergyQuality ? formatQuality(selfEnergyQuality) : '',
+                    })
+                  }}
+                </p>
                 <p v-if="microPracticeNotes.trim()">{{ microPracticeNotes.trim() }}</p>
               </template>
               <template v-else-if="practiceType === 'evening-reflection'">
                 <p v-for="ap in activeParts" :key="ap.partId">
                   <span class="font-medium text-on-surface">{{ getPartName(ap.partId) }}</span>
-                  — {{ t('exerciseWizards.dailyCheckIn.summary.intensity', { value: ap.intensity }) }}
+                  —
+                  {{ t('exerciseWizards.dailyCheckIn.summary.intensity', { value: ap.intensity }) }}
                 </p>
                 <p v-if="selfLeadershipRating">
-                  {{ t('exerciseWizards.dailyCheckIn.summary.selfLeadership', { label: selfLeadershipLabel }) }}
+                  {{
+                    t('exerciseWizards.dailyCheckIn.summary.selfLeadership', {
+                      label: selfLeadershipLabel,
+                    })
+                  }}
                 </p>
-                <p v-if="appreciationNote.trim()">{{ t('exerciseWizards.dailyCheckIn.summary.appreciation', { note: appreciationNote.trim() }) }}</p>
+                <p v-if="appreciationNote.trim()">
+                  {{
+                    t('exerciseWizards.dailyCheckIn.summary.appreciation', {
+                      note: appreciationNote.trim(),
+                    })
+                  }}
+                </p>
               </template>
             </div>
 
@@ -330,17 +444,26 @@
                   v-for="day in weekDays"
                   :key="day.label"
                   class="w-6 h-6 rounded-full flex items-center justify-center text-xs"
-                  :class="day.completed
-                    ? 'bg-primary text-on-primary'
-                    : day.isToday
-                      ? 'border-2 border-primary text-primary'
-                      : 'bg-neu-border/20 text-on-surface-variant'"
+                  :class="
+                    day.completed
+                      ? 'bg-primary text-on-primary'
+                      : day.isToday
+                        ? 'border-2 border-primary text-primary'
+                        : 'bg-neu-border/20 text-on-surface-variant'
+                  "
                 >
                   {{ day.label }}
                 </div>
               </div>
               <p class="text-xs text-on-surface-variant text-center">
-                {{ tp(checkInStore.weeklyCheckInCount, 'exerciseWizards.dailyCheckIn.summary.weeklyCheckIns.one', 'exerciseWizards.dailyCheckIn.summary.weeklyCheckIns.few', 'exerciseWizards.dailyCheckIn.summary.weeklyCheckIns.many') }}
+                {{
+                  tp(
+                    checkInStore.weeklyCheckInCount,
+                    'exerciseWizards.dailyCheckIn.summary.weeklyCheckIns.one',
+                    'exerciseWizards.dailyCheckIn.summary.weeklyCheckIns.few',
+                    'exerciseWizards.dailyCheckIn.summary.weeklyCheckIns.many'
+                  )
+                }}
               </p>
             </div>
 
@@ -364,7 +487,14 @@
               </div>
             </div>
             <p v-else class="text-xs text-on-surface-variant text-center">
-              {{ tp(checkInStore.checkInsNeededForWeeklySummary, 'exerciseWizards.dailyCheckIn.summary.moreForSummary.one', 'exerciseWizards.dailyCheckIn.summary.moreForSummary.few', 'exerciseWizards.dailyCheckIn.summary.moreForSummary.many') }}
+              {{
+                tp(
+                  checkInStore.checkInsNeededForWeeklySummary,
+                  'exerciseWizards.dailyCheckIn.summary.moreForSummary.one',
+                  'exerciseWizards.dailyCheckIn.summary.moreForSummary.few',
+                  'exerciseWizards.dailyCheckIn.summary.moreForSummary.many'
+                )
+              }}
             </p>
 
             <!-- Notes -->
@@ -455,15 +585,23 @@ const {
 } = useDailyCheckInWizard()
 
 const allQualities: SelfEnergyQuality[] = [
-  'calm', 'curiosity', 'compassion', 'clarity',
-  'courage', 'creativity', 'confidence', 'connection',
+  'calm',
+  'curiosity',
+  'compassion',
+  'clarity',
+  'courage',
+  'creativity',
+  'confidence',
+  'connection',
 ]
 
 const practiceOptions = computed(() => [
   {
     type: 'weather-report' as IFSDailyCheckInType,
     label: t('exerciseWizards.dailyCheckIn.selectPractice.practices.weatherReport.label'),
-    description: t('exerciseWizards.dailyCheckIn.selectPractice.practices.weatherReport.description'),
+    description: t(
+      'exerciseWizards.dailyCheckIn.selectPractice.practices.weatherReport.description'
+    ),
     duration: t('exerciseWizards.dailyCheckIn.selectPractice.practices.weatherReport.duration'),
     icon: 'cloud',
     bgClass: 'bg-sky-50',
@@ -472,7 +610,9 @@ const practiceOptions = computed(() => [
   {
     type: 'gratitude-to-part' as IFSDailyCheckInType,
     label: t('exerciseWizards.dailyCheckIn.selectPractice.practices.gratitudeToPart.label'),
-    description: t('exerciseWizards.dailyCheckIn.selectPractice.practices.gratitudeToPart.description'),
+    description: t(
+      'exerciseWizards.dailyCheckIn.selectPractice.practices.gratitudeToPart.description'
+    ),
     duration: t('exerciseWizards.dailyCheckIn.selectPractice.practices.gratitudeToPart.duration'),
     icon: 'favorite',
     bgClass: 'bg-rose-50',
@@ -481,7 +621,9 @@ const practiceOptions = computed(() => [
   {
     type: 'self-energy-moment' as IFSDailyCheckInType,
     label: t('exerciseWizards.dailyCheckIn.selectPractice.practices.selfEnergyMoment.label'),
-    description: t('exerciseWizards.dailyCheckIn.selectPractice.practices.selfEnergyMoment.description'),
+    description: t(
+      'exerciseWizards.dailyCheckIn.selectPractice.practices.selfEnergyMoment.description'
+    ),
     duration: t('exerciseWizards.dailyCheckIn.selectPractice.practices.selfEnergyMoment.duration'),
     icon: 'wb_sunny',
     bgClass: 'bg-insight-intention-soft',
@@ -490,7 +632,9 @@ const practiceOptions = computed(() => [
   {
     type: 'evening-reflection' as IFSDailyCheckInType,
     label: t('exerciseWizards.dailyCheckIn.selectPractice.practices.eveningReflection.label'),
-    description: t('exerciseWizards.dailyCheckIn.selectPractice.practices.eveningReflection.description'),
+    description: t(
+      'exerciseWizards.dailyCheckIn.selectPractice.practices.eveningReflection.description'
+    ),
     duration: t('exerciseWizards.dailyCheckIn.selectPractice.practices.eveningReflection.duration'),
     icon: 'dark_mode',
     bgClass: 'bg-exercise-ifs-soft',
@@ -499,20 +643,45 @@ const practiceOptions = computed(() => [
 ])
 
 const leadershipOptions = computed(() => [
-  { value: 'mostly-self' as const, label: t('exerciseWizards.dailyCheckIn.practice.eveningReflection.leadershipOptions.mostlySelf') },
-  { value: 'mostly-part' as const, label: t('exerciseWizards.dailyCheckIn.practice.eveningReflection.leadershipOptions.mostlyPart') },
-  { value: 'mixed' as const, label: t('exerciseWizards.dailyCheckIn.practice.eveningReflection.leadershipOptions.mixed') },
+  {
+    value: 'mostly-self' as const,
+    label: t(
+      'exerciseWizards.dailyCheckIn.practice.eveningReflection.leadershipOptions.mostlySelf'
+    ),
+  },
+  {
+    value: 'mostly-part' as const,
+    label: t(
+      'exerciseWizards.dailyCheckIn.practice.eveningReflection.leadershipOptions.mostlyPart'
+    ),
+  },
+  {
+    value: 'mixed' as const,
+    label: t('exerciseWizards.dailyCheckIn.practice.eveningReflection.leadershipOptions.mixed'),
+  },
 ])
 
 // Micro-practice content for Self-Energy Moment
 const microPracticeLabel = computed(() =>
-  selfEnergyQuality.value ? t(`exerciseWizards.dailyCheckIn.practice.selfEnergyMoment.microPractices.${selfEnergyQuality.value}.label`) : '',
+  selfEnergyQuality.value
+    ? t(
+        `exerciseWizards.dailyCheckIn.practice.selfEnergyMoment.microPractices.${selfEnergyQuality.value}.label`
+      )
+    : ''
 )
 const microPracticePrompt = computed(() =>
-  selfEnergyQuality.value ? tg(`exerciseWizards.dailyCheckIn.practice.selfEnergyMoment.microPractices.${selfEnergyQuality.value}.prompt`) : '',
+  selfEnergyQuality.value
+    ? tg(
+        `exerciseWizards.dailyCheckIn.practice.selfEnergyMoment.microPractices.${selfEnergyQuality.value}.prompt`
+      )
+    : ''
 )
 const microPracticePlaceholder = computed(() =>
-  selfEnergyQuality.value ? tg(`exerciseWizards.dailyCheckIn.practice.selfEnergyMoment.microPractices.${selfEnergyQuality.value}.placeholder`) : '',
+  selfEnergyQuality.value
+    ? tg(
+        `exerciseWizards.dailyCheckIn.practice.selfEnergyMoment.microPractices.${selfEnergyQuality.value}.placeholder`
+      )
+    : ''
 )
 
 const practiceTypeLabel = computed(() => {
@@ -528,16 +697,21 @@ const practiceTypeLabel = computed(() => {
 
 const practiceTypeBadgeClass = computed(() => {
   switch (practiceType.value) {
-    case 'weather-report': return 'bg-sky-100 text-sky-700'
-    case 'gratitude-to-part': return 'bg-rose-100 text-rose-700'
-    case 'self-energy-moment': return 'bg-insight-intention-soft text-insight-intention-on'
-    case 'evening-reflection': return 'bg-exercise-ifs-soft text-exercise-ifs-on'
-    default: return 'bg-neu-base text-on-surface-variant'
+    case 'weather-report':
+      return 'bg-sky-100 text-sky-700'
+    case 'gratitude-to-part':
+      return 'bg-rose-100 text-rose-700'
+    case 'self-energy-moment':
+      return 'bg-insight-intention-soft text-insight-intention-on'
+    case 'evening-reflection':
+      return 'bg-exercise-ifs-soft text-exercise-ifs-on'
+    default:
+      return 'bg-neu-base text-on-surface-variant'
   }
 })
 
 const selfLeadershipLabel = computed(() => {
-  const opt = leadershipOptions.value.find((o) => o.value === selfLeadershipRating.value)
+  const opt = leadershipOptions.value.find(o => o.value === selfLeadershipRating.value)
   return opt?.label ?? ''
 })
 
@@ -546,7 +720,7 @@ const weekDays = computed(() => {
   const refs = getPeriodRefsForDate(new Date())
   const days = getChildPeriods(refs.week)
   const checkInDates = new Set(
-    checkInStore.currentWeekCheckIns.map((c) => getPeriodRefsForDate(c.createdAt).day),
+    checkInStore.currentWeekCheckIns.map(c => getPeriodRefsForDate(c.createdAt).day)
   )
 
   return days.map((dayRef, idx) => {
@@ -559,7 +733,7 @@ const weekDays = computed(() => {
 })
 
 function isPartActive(partId: string): boolean {
-  return activeParts.value.some((ap) => ap.partId === partId)
+  return activeParts.value.some(ap => ap.partId === partId)
 }
 
 function getPartName(id: string): string {
@@ -572,10 +746,14 @@ function getPartRole(id: string): IFSPartRole | null {
 
 function roleBorderClass(role: IFSPartRole): string {
   switch (role) {
-    case 'manager': return 'border-l-4 border-l-blue-400'
-    case 'firefighter': return 'border-l-4 border-l-orange-400'
-    case 'exile': return 'border-l-4 border-l-purple-400'
-    default: return ''
+    case 'manager':
+      return 'border-l-4 border-l-blue-400'
+    case 'firefighter':
+      return 'border-l-4 border-l-orange-400'
+    case 'exile':
+      return 'border-l-4 border-l-purple-400'
+    default:
+      return ''
   }
 }
 

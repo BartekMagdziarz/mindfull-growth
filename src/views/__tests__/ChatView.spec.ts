@@ -30,7 +30,7 @@ vi.mock('vue-router', () => {
       back: mockBack,
     }),
     useRoute: () => mockRoute,
-    onBeforeRouteLeave: vi.fn((callback) => {
+    onBeforeRouteLeave: vi.fn(callback => {
       // Store the callback for potential testing
       // In real usage, Vue Router calls this during component setup
       return callback
@@ -401,10 +401,7 @@ describe('ChatView', () => {
       render(ChatView)
 
       await waitFor(() => {
-        expect(mockChatStore.loadChatSession).toHaveBeenCalledWith(
-          'entry-123',
-          'session-1'
-        )
+        expect(mockChatStore.loadChatSession).toHaveBeenCalledWith('entry-123', 'session-1')
       })
     })
   })
@@ -1134,7 +1131,7 @@ describe('ChatView', () => {
       await waitFor(() => {
         expect(mockChatStore.sendMessage).toHaveBeenCalledWith(
           'Hello, AI!',
-          expect.objectContaining({ useProfile: expect.any(Boolean) }),
+          expect.objectContaining({ useProfile: expect.any(Boolean) })
         )
       })
     })
@@ -1169,7 +1166,7 @@ describe('ChatView', () => {
       await waitFor(() => {
         expect(mockChatStore.sendMessage).toHaveBeenCalledWith(
           'Test message',
-          expect.objectContaining({ useProfile: expect.any(Boolean) }),
+          expect.objectContaining({ useProfile: expect.any(Boolean) })
         )
       })
     })
@@ -1474,18 +1471,21 @@ describe('ChatView', () => {
       })
 
       const input = screen.getByPlaceholderText(/type your message/i)
-      
+
       // The error should be cleared when user types
       // We need to trigger the watcher by updating the input
       fireEvent.update(input, 'New message')
-      
+
       // The component watches messageInput and clears error
       // But we need to access the store's error setter
-      await waitFor(() => {
-        // The error should be cleared via chatStore.error = null in the watcher
-        // Since we're using a ref directly, we can check it
-        expect(mockError.value).toBeNull()
-      }, { timeout: 1000 })
+      await waitFor(
+        () => {
+          // The error should be cleared via chatStore.error = null in the watcher
+          // Since we're using a ref directly, we can check it
+          expect(mockError.value).toBeNull()
+        },
+        { timeout: 1000 }
+      )
     })
   })
 

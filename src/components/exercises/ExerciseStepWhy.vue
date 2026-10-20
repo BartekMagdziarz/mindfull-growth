@@ -1,6 +1,10 @@
 <template>
   <!-- Disc: a quiet "?" that opens a note beside the question; the layout never moves. -->
-  <div v-if="text && variant === 'disc'" ref="discRoot" class="exercise-step-why exercise-step-why--disc">
+  <div
+    v-if="text && variant === 'disc'"
+    ref="discRoot"
+    class="exercise-step-why exercise-step-why--disc"
+  >
     <button
       type="button"
       class="exercise-step-why__disc"
@@ -12,7 +16,9 @@
     >
       <AppIcon name="help" class="exercise-step-why__icon" />
     </button>
-    <p v-if="open" role="note" class="exercise-step-why__note" data-testid="step-why-note">{{ text }}</p>
+    <p v-if="open" role="note" class="exercise-step-why__note" data-testid="step-why-note">
+      {{ text }}
+    </p>
   </div>
   <details v-else-if="text" class="exercise-step-why">
     <summary>
@@ -52,7 +58,7 @@ watch(
   () => props.text,
   () => {
     open.value = false
-  },
+  }
 )
 
 // Click outside closes the note; the click still reaches what was under it.

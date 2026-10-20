@@ -70,7 +70,10 @@ export function matchProgramTasks(
  * "co zrobiłeś zamiast" answers (and the part at the wheel) decide — a
  * Moment logged with "nic, tym razem" is not a day of "zrób coś dla siebie".
  */
-export function taskCountsEntry(task: ProgramWeeklyTask, entry: MicroExerciseEntry | undefined): boolean {
+export function taskCountsEntry(
+  task: ProgramWeeklyTask,
+  entry: MicroExerciseEntry | undefined
+): boolean {
   const rule = task.countRule
   if (!rule) return true
   if (!entry) return false
@@ -106,7 +109,9 @@ export async function recordTaskProgress(
   let matches = matchProgramTasks(slug, weekRef, enrollments, intentions)
   if (matches.some(match => match.task.countRule)) {
     // Only tasks with a rule need the entry; a missing entry fails those rules.
-    const entry = recordId ? await session.wait(microExerciseEntryDexieRepository.getById(recordId)) : undefined
+    const entry = recordId
+      ? await session.wait(microExerciseEntryDexieRepository.getById(recordId))
+      : undefined
     matches = matches.filter(match => taskCountsEntry(match.task, entry))
   }
   const intentionIds: string[] = []

@@ -5,7 +5,7 @@ import PlanExecutionSection, { type PlanExecutionRing } from '../PlanExecutionSe
 function buildRings(
   goals: [number, number],
   habits: [number, number],
-  trackers: [number, number],
+  trackers: [number, number]
 ): PlanExecutionRing[] {
   return [
     { key: 'goals', label: 'Goals', numerator: goals[0], denominator: goals[1] },

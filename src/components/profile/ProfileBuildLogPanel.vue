@@ -9,9 +9,7 @@
     <div class="flex items-center justify-between gap-3 mb-2">
       <h3 class="text-base font-semibold text-on-surface">
         🛠 Dev: Profile Build Logs
-        <span class="text-xs text-on-surface-variant font-normal">
-          ({{ logs.length }})
-        </span>
+        <span class="text-xs text-on-surface-variant font-normal"> ({{ logs.length }}) </span>
       </h3>
       <button
         v-if="logs.length > 0"
@@ -26,19 +24,15 @@
 
     <!-- Local-only notice -->
     <p class="text-xs text-on-surface-variant mb-3">
-      Logs are stored locally in IndexedDB and never leave this device. They
-      include full request and response bodies for every profile build, success
-      or failure. Useful for iterating on the system prompt in
-      <code class="font-mono">profileLLMAssists.ts</code>: open the latest
-      success log, read the response, tweak the prompt, then rebuild.
+      Logs are stored locally in IndexedDB and never leave this device. They include full request
+      and response bodies for every profile build, success or failure. Useful for iterating on the
+      system prompt in
+      <code class="font-mono">profileLLMAssists.ts</code>: open the latest success log, read the
+      response, tweak the prompt, then rebuild.
     </p>
 
     <!-- Loading -->
-    <p
-      v-if="isLoading"
-      class="text-sm text-on-surface-variant italic"
-      data-test-build-logs-loading
-    >
+    <p v-if="isLoading" class="text-sm text-on-surface-variant italic" data-test-build-logs-loading>
       Loading logs…
     </p>
 
@@ -78,18 +72,13 @@
             <span
               :class="[
                 'text-xs px-2 py-0.5 rounded-full font-semibold',
-                log.success
-                  ? 'bg-success/20 text-success'
-                  : 'bg-error/20 text-error',
+                log.success ? 'bg-success/20 text-success' : 'bg-error/20 text-error',
               ]"
               :data-test-build-log-status="log.success ? 'ok' : 'fail'"
             >
               {{ log.success ? 'ok' : 'fail' }}
             </span>
-            <span
-              v-if="log.tokenUsage"
-              class="text-xs text-on-surface-variant"
-            >
+            <span v-if="log.tokenUsage" class="text-xs text-on-surface-variant">
               {{ log.tokenUsage.promptTokens }}
               +
               {{ log.tokenUsage.completionTokens }}
@@ -116,27 +105,20 @@
         </button>
 
         <!-- Expanded body -->
-        <div
-          v-if="expandedId === log.id"
-          class="mt-3 space-y-3"
-          :data-test-build-log-body="log.id"
-        >
+        <div v-if="expandedId === log.id" class="mt-3 space-y-3" :data-test-build-log-body="log.id">
           <!-- Error message (failure only) -->
           <div v-if="log.errorMessage">
-            <h4 class="text-xs font-semibold text-on-surface-variant mb-1">
-              Error
-            </h4>
+            <h4 class="text-xs font-semibold text-on-surface-variant mb-1">Error</h4>
             <pre
               class="text-xs p-2 bg-section rounded-xl whitespace-pre-wrap break-all"
               data-test-build-log-error
-            >{{ log.errorMessage }}</pre>
+              >{{ log.errorMessage }}</pre
+            >
           </div>
 
           <!-- Token usage grid -->
           <div v-if="log.tokenUsage">
-            <h4 class="text-xs font-semibold text-on-surface-variant mb-1">
-              Token usage
-            </h4>
+            <h4 class="text-xs font-semibold text-on-surface-variant mb-1">Token usage</h4>
             <div class="grid grid-cols-3 gap-2 text-xs">
               <div class="bg-section rounded-xl p-2">
                 <div class="text-on-surface-variant">Prompt</div>
@@ -177,9 +159,7 @@
             </div>
             <div class="space-y-2">
               <div v-if="estimateTypeEntries(log).length > 0">
-                <div
-                  class="text-[10px] uppercase tracking-wide text-on-surface-variant mb-1"
-                >
+                <div class="text-[10px] uppercase tracking-wide text-on-surface-variant mb-1">
                   By type
                 </div>
                 <div class="grid grid-cols-3 gap-2 text-xs">
@@ -194,9 +174,7 @@
                 </div>
               </div>
               <div v-if="estimateAgeEntries(log).length > 0">
-                <div
-                  class="text-[10px] uppercase tracking-wide text-on-surface-variant mb-1"
-                >
+                <div class="text-[10px] uppercase tracking-wide text-on-surface-variant mb-1">
                   By age
                 </div>
                 <div class="grid grid-cols-3 gap-2 text-xs">
@@ -214,13 +192,8 @@
           </div>
 
           <!-- Trimmed to fit (budget-aware drops) -->
-          <div
-            v-if="droppedEntries(log).length > 0"
-            data-test-dropped-by-type
-          >
-            <h4 class="text-xs font-semibold text-on-surface-variant mb-1">
-              Trimmed to fit
-            </h4>
+          <div v-if="droppedEntries(log).length > 0" data-test-dropped-by-type>
+            <h4 class="text-xs font-semibold text-on-surface-variant mb-1">Trimmed to fit</h4>
             <div class="grid grid-cols-3 gap-2 text-xs">
               <div
                 v-for="[type, count] in droppedEntries(log)"
@@ -235,34 +208,31 @@
 
           <!-- Scope -->
           <div>
-            <h4 class="text-xs font-semibold text-on-surface-variant mb-1">
-              Scope
-            </h4>
+            <h4 class="text-xs font-semibold text-on-surface-variant mb-1">Scope</h4>
             <pre
               class="text-xs p-2 bg-section rounded-xl whitespace-pre-wrap break-all max-h-48 overflow-auto"
-            >{{ formatScopeSummary(log.scope) }}</pre>
+              >{{ formatScopeSummary(log.scope) }}</pre
+            >
           </div>
 
           <!-- Request body -->
           <div>
-            <h4 class="text-xs font-semibold text-on-surface-variant mb-1">
-              Request body
-            </h4>
+            <h4 class="text-xs font-semibold text-on-surface-variant mb-1">Request body</h4>
             <pre
               class="text-xs p-2 bg-section rounded-xl whitespace-pre-wrap break-all max-h-96 overflow-auto"
               data-test-build-log-request
-            >{{ formatJsonIfPossible(log.requestBody) }}</pre>
+              >{{ formatJsonIfPossible(log.requestBody) }}</pre
+            >
           </div>
 
           <!-- Response body -->
           <div>
-            <h4 class="text-xs font-semibold text-on-surface-variant mb-1">
-              Response body
-            </h4>
+            <h4 class="text-xs font-semibold text-on-surface-variant mb-1">Response body</h4>
             <pre
               class="text-xs p-2 bg-section rounded-xl whitespace-pre-wrap break-all max-h-96 overflow-auto"
               data-test-build-log-response
-            >{{ formatJsonIfPossible(log.responseBody) }}</pre>
+              >{{ formatJsonIfPossible(log.responseBody) }}</pre
+            >
           </div>
         </div>
       </li>
@@ -287,10 +257,7 @@ import AppCard from '@/components/AppCard.vue'
 import AppDialog from '@/components/AppDialog.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { profileBuildLogDexieRepository } from '@/repositories/profileBuildLogDexieRepository'
-import type {
-  ProfileBuildLogEntry,
-  UserProfileScope,
-} from '@/domain/userProfile'
+import type { ProfileBuildLogEntry, UserProfileScope } from '@/domain/userProfile'
 import { useT } from '@/composables/useT'
 
 // Keep the panel performant even after many builds. Older logs remain in
@@ -377,9 +344,7 @@ function formatScopeSummary(scope: UserProfileScope): string {
   if (scope.dateRange.kind === 'preset') {
     lines.push(`dateRange: preset ${scope.dateRange.preset}`)
   } else {
-    lines.push(
-      `dateRange: ${scope.dateRange.start} → ${scope.dateRange.end}`,
-    )
+    lines.push(`dateRange: ${scope.dateRange.start} → ${scope.dateRange.end}`)
   }
   lines.push(`approxTokenCount: ${scope.approxTokenCount}`)
   lines.push(`locale: ${scope.locale}`)
@@ -394,21 +359,21 @@ function formatScopeSummary(scope: UserProfileScope): string {
 /** Non-zero per-type estimate entries for the breakdown grid. */
 function estimateTypeEntries(log: ProfileBuildLogEntry): [string, number][] {
   return Object.entries(log.estimateBreakdown?.tokensByType ?? {}).filter(
-    (entry): entry is [string, number] => (entry[1] ?? 0) > 0,
+    (entry): entry is [string, number] => (entry[1] ?? 0) > 0
   )
 }
 
 /** Non-zero per-age estimate entries for the breakdown grid. */
 function estimateAgeEntries(log: ProfileBuildLogEntry): [string, number][] {
   return Object.entries(log.estimateBreakdown?.tokensByAge ?? {}).filter(
-    (entry): entry is [string, number] => (entry[1] ?? 0) > 0,
+    (entry): entry is [string, number] => (entry[1] ?? 0) > 0
   )
 }
 
 /** Non-zero per-type drop counts (records trimmed to fit the budget). */
 function droppedEntries(log: ProfileBuildLogEntry): [string, number][] {
   return Object.entries(log.droppedByType ?? {}).filter(
-    (entry): entry is [string, number] => (entry[1] ?? 0) > 0,
+    (entry): entry is [string, number] => (entry[1] ?? 0) > 0
   )
 }
 

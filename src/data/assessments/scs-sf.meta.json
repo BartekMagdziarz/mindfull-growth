@@ -20,18 +20,102 @@
     }
   },
   "items": [
-    { "id": "scs_01", "textKey": "assessments.scsSf.items.scs_01", "scaleId": "total", "reverse": true, "responseMin": 1, "responseMax": 5 },
-    { "id": "scs_02", "textKey": "assessments.scsSf.items.scs_02", "scaleId": "total", "reverse": false, "responseMin": 1, "responseMax": 5 },
-    { "id": "scs_03", "textKey": "assessments.scsSf.items.scs_03", "scaleId": "total", "reverse": false, "responseMin": 1, "responseMax": 5 },
-    { "id": "scs_04", "textKey": "assessments.scsSf.items.scs_04", "scaleId": "total", "reverse": true, "responseMin": 1, "responseMax": 5 },
-    { "id": "scs_05", "textKey": "assessments.scsSf.items.scs_05", "scaleId": "total", "reverse": false, "responseMin": 1, "responseMax": 5 },
-    { "id": "scs_06", "textKey": "assessments.scsSf.items.scs_06", "scaleId": "total", "reverse": false, "responseMin": 1, "responseMax": 5 },
-    { "id": "scs_07", "textKey": "assessments.scsSf.items.scs_07", "scaleId": "total", "reverse": false, "responseMin": 1, "responseMax": 5 },
-    { "id": "scs_08", "textKey": "assessments.scsSf.items.scs_08", "scaleId": "total", "reverse": true, "responseMin": 1, "responseMax": 5 },
-    { "id": "scs_09", "textKey": "assessments.scsSf.items.scs_09", "scaleId": "total", "reverse": true, "responseMin": 1, "responseMax": 5 },
-    { "id": "scs_10", "textKey": "assessments.scsSf.items.scs_10", "scaleId": "total", "reverse": false, "responseMin": 1, "responseMax": 5 },
-    { "id": "scs_11", "textKey": "assessments.scsSf.items.scs_11", "scaleId": "total", "reverse": true, "responseMin": 1, "responseMax": 5 },
-    { "id": "scs_12", "textKey": "assessments.scsSf.items.scs_12", "scaleId": "total", "reverse": true, "responseMin": 1, "responseMax": 5 }
+    {
+      "id": "scs_01",
+      "textKey": "assessments.scsSf.items.scs_01",
+      "scaleId": "total",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "scs_02",
+      "textKey": "assessments.scsSf.items.scs_02",
+      "scaleId": "total",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "scs_03",
+      "textKey": "assessments.scsSf.items.scs_03",
+      "scaleId": "total",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "scs_04",
+      "textKey": "assessments.scsSf.items.scs_04",
+      "scaleId": "total",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "scs_05",
+      "textKey": "assessments.scsSf.items.scs_05",
+      "scaleId": "total",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "scs_06",
+      "textKey": "assessments.scsSf.items.scs_06",
+      "scaleId": "total",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "scs_07",
+      "textKey": "assessments.scsSf.items.scs_07",
+      "scaleId": "total",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "scs_08",
+      "textKey": "assessments.scsSf.items.scs_08",
+      "scaleId": "total",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "scs_09",
+      "textKey": "assessments.scsSf.items.scs_09",
+      "scaleId": "total",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "scs_10",
+      "textKey": "assessments.scsSf.items.scs_10",
+      "scaleId": "total",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "scs_11",
+      "textKey": "assessments.scsSf.items.scs_11",
+      "scaleId": "total",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "scs_12",
+      "textKey": "assessments.scsSf.items.scs_12",
+      "scaleId": "total",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    }
   ],
   "scales": [
     {

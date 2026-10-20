@@ -13,7 +13,7 @@ const props = withDefaults(
     threshold?: number
     disabled?: boolean
   }>(),
-  { threshold: undefined, disabled: false },
+  { threshold: undefined, disabled: false }
 )
 
 // One atomic event carrying the whole multi config: the domain normalizer
@@ -30,18 +30,18 @@ const { t } = useT()
 const locallyAddedIds = ref(new Set<string>())
 const archivedOpen = ref(false)
 
-const activeItems = computed(() => props.items.filter((item) => !item.archived))
-const archivedItems = computed(() => props.items.filter((item) => item.archived))
+const activeItems = computed(() => props.items.filter(item => !item.archived))
+const archivedItems = computed(() => props.items.filter(item => item.archived))
 const activeWeightSum = computed(() =>
-  activeItems.value.reduce((sum, item) => sum + item.weight, 0),
+  activeItems.value.reduce((sum, item) => sum + item.weight, 0)
 )
-const allWeightsAreOne = computed(() => activeItems.value.every((item) => item.weight === 1))
+const allWeightsAreOne = computed(() => activeItems.value.every(item => item.weight === 1))
 const canAdd = computed(() => activeItems.value.length < MULTI_COMPLETION_MAX_ACTIVE_ITEMS)
 
 function commit(items: MultiCompletionItem[], threshold: number | undefined): void {
   const sum = Math.max(
-    items.filter((item) => !item.archived).reduce((total, item) => total + item.weight, 0),
-    1,
+    items.filter(item => !item.archived).reduce((total, item) => total + item.weight, 0),
+    1
   )
   const clamped = threshold === undefined ? undefined : Math.min(Math.max(threshold, 1), sum)
   emit('update:config', { items, threshold: clamped })
@@ -49,8 +49,8 @@ function commit(items: MultiCompletionItem[], threshold: number | undefined): vo
 
 function patchItem(id: string, patch: Partial<MultiCompletionItem>): void {
   commit(
-    props.items.map((item) => (item.id === id ? { ...item, ...patch } : item)),
-    props.threshold,
+    props.items.map(item => (item.id === id ? { ...item, ...patch } : item)),
+    props.threshold
   )
 }
 
@@ -81,14 +81,14 @@ function commitIcon(item: MultiCompletionItem, icon: string | undefined): void {
 function addItem(): void {
   if (!canAdd.value) return
   const item = createMultiCompletionItem(
-    `${t('planning.objects.form.multiItems.defaultItemLabel').replace(/\s*\d+$/, '')} ${activeItems.value.length + 1}`.trim(),
+    `${t('planning.objects.form.multiItems.defaultItemLabel').replace(/\s*\d+$/, '')} ${activeItems.value.length + 1}`.trim()
   )
   locallyAddedIds.value.add(item.id)
   commit([...props.items, item], props.threshold)
 }
 
 function moveItem(id: string, direction: -1 | 1): void {
-  const index = props.items.findIndex((item) => item.id === id)
+  const index = props.items.findIndex(item => item.id === id)
   const target = index + direction
   if (index === -1 || target < 0 || target >= props.items.length) return
   const next = [...props.items]
@@ -99,27 +99,30 @@ function moveItem(id: string, direction: -1 | 1): void {
 function archiveItem(id: string): void {
   if (activeItems.value.length <= 1) return
   commit(
-    props.items.map((item) => (item.id === id ? { ...item, archived: true } : item)),
-    props.threshold,
+    props.items.map(item => (item.id === id ? { ...item, archived: true } : item)),
+    props.threshold
   )
 }
 
 function restoreItem(id: string): void {
   if (!canAdd.value) return
   commit(
-    props.items.map((item) => {
+    props.items.map(item => {
       if (item.id !== id) return item
       const { archived: _dropped, ...rest } = item
       return rest
     }),
-    props.threshold,
+    props.threshold
   )
 }
 
 function removeItem(id: string): void {
   if (activeItems.value.length <= 1) return
   locallyAddedIds.value.delete(id)
-  commit(props.items.filter((item) => item.id !== id), props.threshold)
+  commit(
+    props.items.filter(item => item.id !== id),
+    props.threshold
+  )
 }
 
 // --- threshold ("Zalicz dzień przy: komplecie elementów / progu punktowym") --
@@ -131,10 +134,7 @@ const thresholdOptions = computed(() => [
 
 function onThresholdMode(value: string): void {
   if (value === thresholdMode.value) return
-  commit(
-    [...props.items],
-    value === 'all' ? undefined : Math.max(activeWeightSum.value - 1, 1),
-  )
+  commit([...props.items], value === 'all' ? undefined : Math.max(activeWeightSum.value - 1, 1))
 }
 
 function commitThresholdValue(event: Event): void {
@@ -150,7 +150,7 @@ function commitThresholdValue(event: Event): void {
 const thresholdSuffix = computed(() =>
   allWeightsAreOne.value
     ? t('planning.objects.form.multiItems.thresholdOfItems', { max: activeWeightSum.value })
-    : t('planning.objects.form.multiItems.thresholdOfPoints', { max: activeWeightSum.value }),
+    : t('planning.objects.form.multiItems.thresholdOfPoints', { max: activeWeightSum.value })
 )
 </script>
 
@@ -167,7 +167,13 @@ const thresholdSuffix = computed(() =>
         type="button"
         class="neo-badge flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium text-on-surface transition-colors hover:text-primary disabled:opacity-40"
         :disabled="!canAdd"
-        :title="canAdd ? undefined : t('planning.objects.form.multiItems.maxItemsHint', { max: MULTI_COMPLETION_MAX_ACTIVE_ITEMS })"
+        :title="
+          canAdd
+            ? undefined
+            : t('planning.objects.form.multiItems.maxItemsHint', {
+                max: MULTI_COMPLETION_MAX_ACTIVE_ITEMS,
+              })
+        "
         @click="addItem"
       >
         <AppIcon name="add" class="text-xs" />
@@ -269,7 +275,9 @@ const thresholdSuffix = computed(() =>
           :key="item.id"
           class="flex items-center gap-1.5 rounded-lg border border-white/25 bg-white/15 px-1.5 py-1 opacity-70"
         >
-          <span class="min-w-0 flex-1 truncate px-1 text-xs text-on-surface-variant">{{ item.label }}</span>
+          <span class="min-w-0 flex-1 truncate px-1 text-xs text-on-surface-variant">{{
+            item.label
+          }}</span>
           <button
             type="button"
             class="neo-badge px-2 py-0.5 text-[10px] font-medium text-on-surface transition-colors hover:text-primary disabled:opacity-40"
@@ -283,7 +291,9 @@ const thresholdSuffix = computed(() =>
     </div>
 
     <div class="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-on-surface">
-      <span class="text-on-surface-variant">{{ t('planning.objects.form.multiItems.thresholdLabel') }}</span>
+      <span class="text-on-surface-variant">{{
+        t('planning.objects.form.multiItems.thresholdLabel')
+      }}</span>
       <KrPillDropdown
         flat
         :model-value="thresholdMode"

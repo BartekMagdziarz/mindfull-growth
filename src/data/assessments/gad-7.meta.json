@@ -19,27 +19,68 @@
     }
   },
   "items": [
-    { "id": "gad7_01", "textKey": "assessments.gad7.items.gad7_01", "scaleId": "total", "reverse": false, "responseMin": 0, "responseMax": 3 },
-    { "id": "gad7_02", "textKey": "assessments.gad7.items.gad7_02", "scaleId": "total", "reverse": false, "responseMin": 0, "responseMax": 3 },
-    { "id": "gad7_03", "textKey": "assessments.gad7.items.gad7_03", "scaleId": "total", "reverse": false, "responseMin": 0, "responseMax": 3 },
-    { "id": "gad7_04", "textKey": "assessments.gad7.items.gad7_04", "scaleId": "total", "reverse": false, "responseMin": 0, "responseMax": 3 },
-    { "id": "gad7_05", "textKey": "assessments.gad7.items.gad7_05", "scaleId": "total", "reverse": false, "responseMin": 0, "responseMax": 3 },
-    { "id": "gad7_06", "textKey": "assessments.gad7.items.gad7_06", "scaleId": "total", "reverse": false, "responseMin": 0, "responseMax": 3 },
-    { "id": "gad7_07", "textKey": "assessments.gad7.items.gad7_07", "scaleId": "total", "reverse": false, "responseMin": 0, "responseMax": 3 }
+    {
+      "id": "gad7_01",
+      "textKey": "assessments.gad7.items.gad7_01",
+      "scaleId": "total",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 3
+    },
+    {
+      "id": "gad7_02",
+      "textKey": "assessments.gad7.items.gad7_02",
+      "scaleId": "total",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 3
+    },
+    {
+      "id": "gad7_03",
+      "textKey": "assessments.gad7.items.gad7_03",
+      "scaleId": "total",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 3
+    },
+    {
+      "id": "gad7_04",
+      "textKey": "assessments.gad7.items.gad7_04",
+      "scaleId": "total",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 3
+    },
+    {
+      "id": "gad7_05",
+      "textKey": "assessments.gad7.items.gad7_05",
+      "scaleId": "total",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 3
+    },
+    {
+      "id": "gad7_06",
+      "textKey": "assessments.gad7.items.gad7_06",
+      "scaleId": "total",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 3
+    },
+    {
+      "id": "gad7_07",
+      "textKey": "assessments.gad7.items.gad7_07",
+      "scaleId": "total",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 3
+    }
   ],
   "scales": [
     {
       "id": "total",
       "labelKey": "assessments.gad7.scales.total",
-      "itemIds": [
-        "gad7_01",
-        "gad7_02",
-        "gad7_03",
-        "gad7_04",
-        "gad7_05",
-        "gad7_06",
-        "gad7_07"
-      ],
+      "itemIds": ["gad7_01", "gad7_02", "gad7_03", "gad7_04", "gad7_05", "gad7_06", "gad7_07"],
       "minAnswered": 6
     }
   ],

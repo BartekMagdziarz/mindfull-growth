@@ -125,20 +125,18 @@ function isInRange(iso: string, start: string, end: string): boolean {
 function hasAnyOverlap<T>(needles: T[] | undefined, haystack: T[] | undefined): boolean {
   if (!needles || needles.length === 0) return true
   if (!haystack || haystack.length === 0) return false
-  return haystack.some((h) => needles.includes(h))
+  return haystack.some(h => needles.includes(h))
 }
 
 // ---------------------------------------------------------------------------
 // Main entry
 // ---------------------------------------------------------------------------
 
-export async function queryScopePreview(
-  args: ScopePreviewArgs,
-): Promise<ScopePreviewResult> {
+export async function queryScopePreview(args: ScopePreviewArgs): Promise<ScopePreviewResult> {
   const { dataTypes, start, end, filters, locale = 'en', dateRange } = args
   const enabled = new Set(dataTypes)
   const emotionQuadrantCodes = filters?.emotionQuadrants ?? []
-  const resolvedQuadrants = emotionQuadrantCodes.map((code) => QUADRANT_CODE_MAP[code])
+  const resolvedQuadrants = emotionQuadrantCodes.map(code => QUADRANT_CODE_MAP[code])
 
   // Journal/emotion records (+ names) and foundation data live in lazily-loaded
   // Pinia stores the wizard doesn't otherwise hydrate — load them before counting,
@@ -152,7 +150,7 @@ export async function queryScopePreview(
   // --- Journal ----------------------------------------------------------
   if (enabled.has('journal')) {
     const journalStore = useJournalStore()
-    const matches = journalStore.sortedEntries.filter((entry) => {
+    const matches = journalStore.sortedEntries.filter(entry => {
       if (!isInRange(entry.createdAt, start, end)) return false
       if (
         filters?.peopleTagIds?.length &&
@@ -171,7 +169,7 @@ export async function queryScopePreview(
       return true
     })
     countsByType.journal = matches.length
-    objectIdsByType.journal = matches.map((e) => e.id)
+    objectIdsByType.journal = matches.map(e => e.id)
     for (const entry of matches) {
       const title = getDisplayTitle(entry) || '(no title)'
       headers.push({
@@ -187,12 +185,9 @@ export async function queryScopePreview(
   if (enabled.has('emotionLogs')) {
     const emotionLogStore = useEmotionLogStore()
     const emotionStore = useEmotionStore()
-    const matches = emotionLogStore.sortedLogs.filter((log) => {
+    const matches = emotionLogStore.sortedLogs.filter(log => {
       if (!isInRange(log.createdAt, start, end)) return false
-      if (
-        filters?.peopleTagIds?.length &&
-        !hasAnyOverlap(filters.peopleTagIds, log.peopleTagIds)
-      ) {
+      if (filters?.peopleTagIds?.length && !hasAnyOverlap(filters.peopleTagIds, log.peopleTagIds)) {
         return false
       }
       if (
@@ -203,17 +198,17 @@ export async function queryScopePreview(
       }
       if (resolvedQuadrants.length > 0) {
         const logQuadrants = log.emotionIds
-          .map((id) => emotionStore.getEmotionById(id))
+          .map(id => emotionStore.getEmotionById(id))
           .filter((e): e is NonNullable<typeof e> => !!e)
           .map(getQuadrant)
-        const overlap = logQuadrants.some((q) => resolvedQuadrants.includes(q))
+        const overlap = logQuadrants.some(q => resolvedQuadrants.includes(q))
         if (!overlap) return false
       }
       // `EmotionLog` has no `lifeAreaIds`, so that filter is skipped for logs.
       return true
     })
     countsByType.emotionLogs = matches.length
-    objectIdsByType.emotionLogs = matches.map((l) => l.id)
+    objectIdsByType.emotionLogs = matches.map(l => l.id)
     for (const log of matches) {
       const note = log.note?.trim()
       const title = note ? note.slice(0, 60) : '(no note)'
@@ -265,11 +260,11 @@ export async function queryScopePreview(
     }
 
     if (wantsWeekly) {
-      const matches = reflectionStore.weeklyReflections.filter((r) =>
-        isInRange(r.createdAt, start, end),
+      const matches = reflectionStore.weeklyReflections.filter(r =>
+        isInRange(r.createdAt, start, end)
       )
       countsByType.weeklyReflections = matches.length
-      objectIdsByType.weeklyReflections = matches.map((r) => r.id)
+      objectIdsByType.weeklyReflections = matches.map(r => r.id)
       for (const r of matches) {
         headers.push({
           type: 'weeklyReflections',
@@ -281,11 +276,11 @@ export async function queryScopePreview(
     }
 
     if (wantsMonthly) {
-      const matches = reflectionStore.monthlyReflections.filter((r) =>
-        isInRange(r.createdAt, start, end),
+      const matches = reflectionStore.monthlyReflections.filter(r =>
+        isInRange(r.createdAt, start, end)
       )
       countsByType.monthlyReflections = matches.length
-      objectIdsByType.monthlyReflections = matches.map((r) => r.id)
+      objectIdsByType.monthlyReflections = matches.map(r => r.id)
       for (const r of matches) {
         headers.push({
           type: 'monthlyReflections',
@@ -300,12 +295,10 @@ export async function queryScopePreview(
   // --- Foundation --------------------------------------------------------
   if (enabled.has('foundation')) {
     const statuses = computeFoundationStatuses()
-    const completed = statuses.filter(
-      (s) => s.state === 'completed' || s.state === 'outdated',
-    )
+    const completed = statuses.filter(s => s.state === 'completed' || s.state === 'outdated')
 
     countsByType.foundation = foundationCompletionCount(statuses)
-    objectIdsByType.foundation = completed.map((s) => s.id)
+    objectIdsByType.foundation = completed.map(s => s.id)
 
     for (const status of completed) {
       headers.push({
@@ -323,11 +316,9 @@ export async function queryScopePreview(
     // block the build sends — count + list them so the preview reflects what's
     // actually passed (the store is hydrated up-front by ensureProfileStoresLoaded).
     const lifeAreaStore = useLifeAreaStore()
-    const areas = lifeAreaStore.lifeAreas.filter(
-      (a) => a.isActive && a.name.trim().length > 0,
-    )
+    const areas = lifeAreaStore.lifeAreas.filter(a => a.isActive && a.name.trim().length > 0)
     countsByType.planning = areas.length
-    objectIdsByType.planning = areas.map((a) => a.id)
+    objectIdsByType.planning = areas.map(a => a.id)
     for (const area of areas) {
       headers.push({
         type: 'planning',

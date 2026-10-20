@@ -8,7 +8,10 @@
           :title="SUBJECT_LABEL[item.subjectType]"
           @click="emit('edit', item.key)"
         >
-          <AppIcon :name="item.icon ?? SUBJECT_ICON[item.subjectType]" /><span class="qr-plan-title">{{ item.title }}</span>
+          <AppIcon :name="item.icon ?? SUBJECT_ICON[item.subjectType]" /><span
+            class="qr-plan-title"
+            >{{ item.title }}</span
+          >
         </button>
       </li>
     </ul>
@@ -20,7 +23,11 @@
       </summary>
       <ul>
         <li v-for="item in group.items" :key="item.key">
-          <button type="button" :aria-label="`Zmień przypisanie: ${item.title}, ${context}`" @click="emit('edit', item.key)">
+          <button
+            type="button"
+            :aria-label="`Zmień przypisanie: ${item.title}, ${context}`"
+            @click="emit('edit', item.key)"
+          >
             {{ item.title }}
           </button>
         </li>
@@ -28,18 +35,27 @@
     </details>
     <details v-if="spanGroups.length" class="qr-plan-group qr-plan-group--span">
       <summary :aria-label="`${spanLabel}: ${sortedSpanItems.length}`">
-        <AppIcon name="date_range" /><span>{{ spanLabel }}</span><small>{{ sortedSpanItems.length }}</small>
+        <AppIcon name="date_range" /><span>{{ spanLabel }}</span
+        ><small>{{ sortedSpanItems.length }}</small>
         <AppIcon class="qr-group-chevron" name="expand_more" />
       </summary>
       <ul v-for="group in spanGroups" :key="group.key">
         <li v-for="item in group.items" :key="item.key">
-          <button type="button" :aria-label="`Zmień przypisanie: ${item.title}, ${spanLabel}`" @click="emit('edit', item.key)">
+          <button
+            type="button"
+            :aria-label="`Zmień przypisanie: ${item.title}, ${spanLabel}`"
+            @click="emit('edit', item.key)"
+          >
             {{ item.title }}
           </button>
         </li>
       </ul>
     </details>
-    <ul v-else-if="sortedSpanItems.length" class="qr-plan-flat qr-plan-flat--week" :aria-label="spanLabel">
+    <ul
+      v-else-if="sortedSpanItems.length"
+      class="qr-plan-flat qr-plan-flat--week"
+      :aria-label="spanLabel"
+    >
       <li v-for="item in sortedSpanItems" :key="item.key" class="qr-plan-week">
         <button
           type="button"
@@ -47,7 +63,10 @@
           :title="`${SUBJECT_LABEL[item.subjectType]} · ${spanLabel}`"
           @click="emit('edit', item.key)"
         >
-          <AppIcon :name="item.icon ?? SUBJECT_ICON[item.subjectType]" /><span class="qr-plan-title">{{ item.title }}</span>
+          <AppIcon :name="item.icon ?? SUBJECT_ICON[item.subjectType]" /><span
+            class="qr-plan-title"
+            >{{ item.title }}</span
+          >
         </button>
       </li>
     </ul>
@@ -84,31 +103,43 @@ const props = withDefaults(
     context: string
     flatLimit?: number
   }>(),
-  { spanItems: () => [], spanLabel: 'cały tydzień', flatLimit: 8 },
+  { spanItems: () => [], spanLabel: 'cały tydzień', flatLimit: 8 }
 )
 
 const emit = defineEmits<{ edit: [key: string] }>()
 
-const groupDefs: Array<{ key: string; label: string; icon: string; families: MeasurementSubjectType[] }> = [
+const groupDefs: Array<{
+  key: string
+  label: string
+  icon: string
+  families: MeasurementSubjectType[]
+}> = [
   { key: 'goals', label: 'Cele', icon: 'flag', families: ['keyResult'] },
   { key: 'habits', label: 'Nawyki', icon: 'routine', families: ['habit'] },
   { key: 'trackers', label: 'Trackery', icon: 'monitoring', families: ['tracker'] },
   { key: 'intentions', label: 'Intencje', icon: 'gps_fixed', families: ['weeklyIntention'] },
 ]
 
-const familyOrder = (item: QuietPlanGroupItem) => groupDefs.findIndex(group => group.families.includes(item.subjectType))
-const byFamily = (items: QuietPlanGroupItem[]) => [...items].sort((left, right) => familyOrder(left) - familyOrder(right))
+const familyOrder = (item: QuietPlanGroupItem) =>
+  groupDefs.findIndex(group => group.families.includes(item.subjectType))
+const byFamily = (items: QuietPlanGroupItem[]) =>
+  [...items].sort((left, right) => familyOrder(left) - familyOrder(right))
 
 const flat = computed(() => props.items.length <= props.flatLimit)
 const sortedItems = computed(() => byFamily(props.items))
 const sortedSpanItems = computed(() => byFamily(props.spanItems))
 const groups = computed(() => groupBy(props.items))
 /** Whole-period placements repeat in every card, so they collapse sooner. */
-const spanGroups = computed(() => (props.spanItems.length > props.flatLimit / 2 ? groupBy(props.spanItems) : []))
+const spanGroups = computed(() =>
+  props.spanItems.length > props.flatLimit / 2 ? groupBy(props.spanItems) : []
+)
 
 function groupBy(items: QuietPlanGroupItem[]) {
   return groupDefs
-    .map(group => ({ ...group, items: items.filter(item => group.families.includes(item.subjectType)) }))
+    .map(group => ({
+      ...group,
+      items: items.filter(item => group.families.includes(item.subjectType)),
+    }))
     .filter(group => group.items.length)
 }
 </script>
@@ -214,7 +245,9 @@ function groupBy(items: QuietPlanGroupItem[]) {
 }
 .qr-group-chevron {
   opacity: 0;
-  transition: opacity 0.15s, transform 0.15s;
+  transition:
+    opacity 0.15s,
+    transform 0.15s;
 }
 .qr-plan-group:hover .qr-group-chevron,
 .qr-plan-group:focus-within .qr-group-chevron,

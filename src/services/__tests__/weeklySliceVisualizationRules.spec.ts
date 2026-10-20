@@ -32,9 +32,7 @@ const RATING_TARGET: MeasurementTarget = {
   value: 4,
 }
 
-function measurement(
-  input: Omit<VisualizationDecisionInput, 'kind'>,
-): VisualizationDecisionInput {
+function measurement(input: Omit<VisualizationDecisionInput, 'kind'>): VisualizationDecisionInput {
   return { kind: 'measurement', ...input }
 }
 
@@ -52,8 +50,8 @@ describe('resolveWeeklySliceVizType', () => {
             entryMode: 'completion',
             target: COUNT_TARGET_SMALL,
             cadence: 'weekly',
-          }),
-        ),
+          })
+        )
       ).toBe('completion-dots')
     })
 
@@ -65,24 +63,24 @@ describe('resolveWeeklySliceVizType', () => {
             entryMode: 'completion',
             target: COUNT_TARGET_LARGE,
             cadence: 'monthly',
-          }),
-        ),
+          })
+        )
       ).toBe('completion-dots')
     })
 
     it('routes tracker (no target, monthly) to completion-dots — differs from Today which uses summary-number', () => {
       expect(
         resolveWeeklySliceVizType(
-          measurement({ panelType: 'tracker', entryMode: 'completion', cadence: 'monthly' }),
-        ),
+          measurement({ panelType: 'tracker', entryMode: 'completion', cadence: 'monthly' })
+        )
       ).toBe('completion-dots')
     })
 
     it('routes tracker (no target, weekly) to completion-dots', () => {
       expect(
         resolveWeeklySliceVizType(
-          measurement({ panelType: 'tracker', entryMode: 'completion', cadence: 'weekly' }),
-        ),
+          measurement({ panelType: 'tracker', entryMode: 'completion', cadence: 'weekly' })
+        )
       ).toBe('completion-dots')
     })
   })
@@ -96,8 +94,8 @@ describe('resolveWeeklySliceVizType', () => {
             entryMode: 'rating',
             target: RATING_TARGET,
             cadence: 'weekly',
-          }),
-        ),
+          })
+        )
       ).toBe('rating-segmented')
     })
 
@@ -109,16 +107,16 @@ describe('resolveWeeklySliceVizType', () => {
             entryMode: 'rating',
             target: RATING_TARGET,
             cadence: 'monthly',
-          }),
-        ),
+          })
+        )
       ).toBe('rating-segmented')
     })
 
     it('routes monthly rating tracker (no target) to rating-segmented', () => {
       expect(
         resolveWeeklySliceVizType(
-          measurement({ panelType: 'tracker', entryMode: 'rating', cadence: 'monthly' }),
-        ),
+          measurement({ panelType: 'tracker', entryMode: 'rating', cadence: 'monthly' })
+        )
       ).toBe('rating-segmented')
     })
   })
@@ -132,8 +130,8 @@ describe('resolveWeeklySliceVizType', () => {
             entryMode: 'counter',
             target: COUNT_TARGET_SMALL,
             cadence: 'weekly',
-          }),
-        ),
+          })
+        )
       ).toBe('daily-bars')
     })
 
@@ -145,16 +143,16 @@ describe('resolveWeeklySliceVizType', () => {
             entryMode: 'counter',
             target: COUNT_TARGET_LARGE,
             cadence: 'monthly',
-          }),
-        ),
+          })
+        )
       ).toBe('daily-bars')
     })
 
     it('routes monthly counter tracker (no target) to daily-bars — differs from Today which uses summary-number', () => {
       expect(
         resolveWeeklySliceVizType(
-          measurement({ panelType: 'tracker', entryMode: 'counter', cadence: 'monthly' }),
-        ),
+          measurement({ panelType: 'tracker', entryMode: 'counter', cadence: 'monthly' })
+        )
       ).toBe('daily-bars')
     })
   })
@@ -168,8 +166,8 @@ describe('resolveWeeklySliceVizType', () => {
             entryMode: 'value',
             target: VALUE_SUM_TARGET,
             cadence: 'weekly',
-          }),
-        ),
+          })
+        )
       ).toBe('daily-bars')
     })
 
@@ -181,8 +179,8 @@ describe('resolveWeeklySliceVizType', () => {
             entryMode: 'value',
             target: VALUE_SUM_TARGET,
             cadence: 'monthly',
-          }),
-        ),
+          })
+        )
       ).toBe('daily-bars')
     })
 
@@ -194,8 +192,8 @@ describe('resolveWeeklySliceVizType', () => {
             entryMode: 'value',
             target: VALUE_AVG_TARGET,
             cadence: 'weekly',
-          }),
-        ),
+          })
+        )
       ).toBe('value-line')
       expect(
         resolveWeeklySliceVizType(
@@ -204,8 +202,8 @@ describe('resolveWeeklySliceVizType', () => {
             entryMode: 'value',
             target: VALUE_AVG_TARGET,
             cadence: 'monthly',
-          }),
-        ),
+          })
+        )
       ).toBe('value-line')
     })
 
@@ -217,16 +215,16 @@ describe('resolveWeeklySliceVizType', () => {
             entryMode: 'value',
             target: VALUE_LAST_TARGET,
             cadence: 'monthly',
-          }),
-        ),
+          })
+        )
       ).toBe('value-line')
     })
 
     it('routes value tracker (no target, monthly) to value-line — differs from Today (value-sparkline-summary)', () => {
       expect(
         resolveWeeklySliceVizType(
-          measurement({ panelType: 'tracker', entryMode: 'value', cadence: 'monthly' }),
-        ),
+          measurement({ panelType: 'tracker', entryMode: 'value', cadence: 'monthly' })
+        )
       ).toBe('value-line')
     })
   })
@@ -241,13 +239,13 @@ describe('resolveWeeklySliceVizType — multi-completion', () => {
           entryMode: 'multi-completion',
           target: { kind: 'count', operator: 'min', value: 3 },
           cadence: 'weekly',
-        }),
-      ),
+        })
+      )
     ).toBe('multi-completion-stack')
     expect(
       resolveWeeklySliceVizType(
-        measurement({ panelType: 'tracker', entryMode: 'multi-completion', cadence: 'monthly' }),
-      ),
+        measurement({ panelType: 'tracker', entryMode: 'multi-completion', cadence: 'monthly' })
+      )
     ).toBe('multi-completion-stack')
   })
 })

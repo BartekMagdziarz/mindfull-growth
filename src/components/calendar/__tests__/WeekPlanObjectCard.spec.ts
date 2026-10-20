@@ -43,7 +43,7 @@ describe('WeekPlanObjectCard checkbox semantics', () => {
     expect(toggle).not.toBeNull()
     expect(toggle.getAttribute('aria-checked')).toBe('false')
     expect(toggle.querySelector('[data-icon]')?.getAttribute('data-icon')).toBe(
-      'check_box_outline_blank',
+      'check_box_outline_blank'
     )
   })
 

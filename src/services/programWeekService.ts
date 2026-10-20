@@ -56,10 +56,13 @@ export interface WeeklyTaskOptions {
 }
 
 /** The phase holding the current step (the last step once the path is walked). */
-export function currentPhase(program: ProgramDefinition, enrollment: ProgramEnrollment): ProgramPhase | undefined {
+export function currentPhase(
+  program: ProgramDefinition,
+  enrollment: ProgramEnrollment
+): ProgramPhase | undefined {
   const phases = program.phases ?? []
   const index = Math.min(enrollment.currentStepIndex, program.steps.length - 1)
-  return [...phases].reverse().find((phase) => phase.fromStepIndex <= index)
+  return [...phases].reverse().find(phase => phase.fromStepIndex <= index)
 }
 
 function sortedLog(enrollment: ProgramEnrollment): ProgramWeekEntry[] {
@@ -80,37 +83,43 @@ function sortedLog(enrollment: ProgramEnrollment): ProgramWeekEntry[] {
 export function proposeWeeklyTaskOptions(
   program: ProgramDefinition,
   enrollment: ProgramEnrollment,
-  weekRef: WeekRef,
+  weekRef: WeekRef
 ): WeeklyTaskOptions | null {
   if (enrollment.status !== 'active') return null
   const tasks = program.weeklyTasks ?? []
   if (tasks.length === 0) return null
   const log = sortedLog(enrollment)
-  if (log.some((entry) => entry.weekRef === weekRef)) return null
+  if (log.some(entry => entry.weekRef === weekRef)) return null
 
   const phase = currentPhase(program, enrollment)
   const phases = program.phases ?? []
-  const phaseIndex = phases.findIndex((candidate) => candidate.key === phase?.key)
-  const earlierKeys = new Set(phases.slice(0, Math.max(phaseIndex, 0)).map((candidate) => candidate.key))
-  const current = tasks.filter((task) => task.phaseKey === phase?.key)
-  const earlier = tasks.filter((task) => earlierKeys.has(task.phaseKey))
+  const phaseIndex = phases.findIndex(candidate => candidate.key === phase?.key)
+  const earlierKeys = new Set(
+    phases.slice(0, Math.max(phaseIndex, 0)).map(candidate => candidate.key)
+  )
+  const current = tasks.filter(task => task.phaseKey === phase?.key)
+  const earlier = tasks.filter(task => earlierKeys.has(task.phaseKey))
 
-  const previous = [...log].reverse().find((entry) => entry.weekRef < weekRef)
+  const previous = [...log].reverse().find(entry => entry.weekRef < weekRef)
   if (previous?.stayNextWeek) {
-    const task = tasks.find((candidate) => candidate.key === previous.taskKey)
+    const task = tasks.find(candidate => candidate.key === previous.taskKey)
     if (task) return { current, earlier, suggested: task, repeat: true }
   }
 
-  const accepted = new Set(log.filter((entry) => entry.decision === 'accepted').map((entry) => entry.taskKey))
+  const accepted = new Set(
+    log.filter(entry => entry.decision === 'accepted').map(entry => entry.taskKey)
+  )
   if (current.length === 0) {
     // An optional phase without tasks: offer the earlier ones, preselecting
     // the last accepted task so a repeat is one click.
-    const lastAccepted = [...log].reverse().find((entry) => entry.decision === 'accepted')
-    const task = lastAccepted ? tasks.find((candidate) => candidate.key === lastAccepted.taskKey) : undefined
+    const lastAccepted = [...log].reverse().find(entry => entry.decision === 'accepted')
+    const task = lastAccepted
+      ? tasks.find(candidate => candidate.key === lastAccepted.taskKey)
+      : undefined
     if (!task) return null
     return { current, earlier, suggested: task, repeat: true }
   }
-  const fresh = current.find((task) => !accepted.has(task.key))
+  const fresh = current.find(task => !accepted.has(task.key))
   if (fresh) return { current, earlier, suggested: fresh, repeat: false }
   return { current, earlier, suggested: current[current.length - 1]!, repeat: true }
 }
@@ -119,7 +128,7 @@ export function proposeWeeklyTaskOptions(
 export function proposeWeeklyTask(
   program: ProgramDefinition,
   enrollment: ProgramEnrollment,
-  weekRef: WeekRef,
+  weekRef: WeekRef
 ): { task: ProgramWeeklyTask; repeat: boolean } | null {
   const options = proposeWeeklyTaskOptions(program, enrollment, weekRef)
   return options ? { task: options.suggested, repeat: options.repeat } : null
@@ -129,7 +138,7 @@ export function proposeWeeklyTask(
 export async function listWeeklyTaskProposals(weekRef: WeekRef): Promise<ProgramTaskProposal[]> {
   const enrollments = await programEnrollmentDexieRepository.listAll()
   const proposals: ProgramTaskProposal[] = []
-  for (const enrollment of enrollments.filter((e) => e.status === 'active')) {
+  for (const enrollment of enrollments.filter(e => e.status === 'active')) {
     const program = getProgramDefinition(enrollment.programSlug)
     if (!program) continue
     const options = proposeWeeklyTaskOptions(program, enrollment, weekRef)
@@ -139,7 +148,10 @@ export async function listWeeklyTaskProposals(weekRef: WeekRef): Promise<Program
 }
 
 function withEntry(enrollment: ProgramEnrollment, entry: ProgramWeekEntry): ProgramWeekEntry[] {
-  return [...(enrollment.weekLog ?? []).filter((existing) => existing.weekRef !== entry.weekRef), entry]
+  return [
+    ...(enrollment.weekLog ?? []).filter(existing => existing.weekRef !== entry.weekRef),
+    entry,
+  ]
 }
 
 export interface AcceptWeeklyTaskInput {
@@ -155,12 +167,13 @@ export interface AcceptWeeklyTaskInput {
 
 /** Creates the linked weekly intention and records the acceptance. */
 export async function acceptWeeklyTask(
-  input: AcceptWeeklyTaskInput,
+  input: AcceptWeeklyTaskInput
 ): Promise<{ intention: WeeklyIntention; enrollment: ProgramEnrollment }> {
   const enrollment = await requireEnrollment(input.enrollmentId)
   const program = getProgramDefinition(enrollment.programSlug)
-  const task = program?.weeklyTasks?.find((candidate) => candidate.key === input.taskKey)
-  if (!task) throw new Error(`Program ${enrollment.programSlug} has no weekly task ${input.taskKey}`)
+  const task = program?.weeklyTasks?.find(candidate => candidate.key === input.taskKey)
+  if (!task)
+    throw new Error(`Program ${enrollment.programSlug} has no weekly task ${input.taskKey}`)
   const times = Math.max(1, Math.round(input.times ?? task.times))
   const intention = await createWeeklyIntention({
     weekRef: input.weekRef,
@@ -185,7 +198,7 @@ export async function acceptWeeklyTask(
 export async function declineWeeklyTask(
   enrollmentId: string,
   weekRef: WeekRef,
-  taskKey: string,
+  taskKey: string
 ): Promise<ProgramEnrollment> {
   const enrollment = await requireEnrollment(enrollmentId)
   return programEnrollmentDexieRepository.update(enrollment.id, {
@@ -197,10 +210,10 @@ export async function declineWeeklyTask(
 export async function setStayNextWeek(
   enrollmentId: string,
   weekRef: WeekRef,
-  stay: boolean,
+  stay: boolean
 ): Promise<ProgramEnrollment> {
   const enrollment = await requireEnrollment(enrollmentId)
-  const entry = enrollment.weekLog?.find((candidate) => candidate.weekRef === weekRef)
+  const entry = enrollment.weekLog?.find(candidate => candidate.weekRef === weekRef)
   if (!entry) throw new Error(`Enrollment ${enrollmentId} has no task decision for ${weekRef}`)
   return programEnrollmentDexieRepository.update(enrollment.id, {
     weekLog: withEntry(enrollment, { ...entry, stayNextWeek: stay }),
@@ -214,14 +227,16 @@ export async function setStayNextWeek(
  */
 export async function weekTaskForEnrollment(
   enrollment: ProgramEnrollment,
-  weekRef: WeekRef,
+  weekRef: WeekRef
 ): Promise<{ entry: ProgramWeekEntry; intention: WeeklyIntention | null } | null> {
-  const entry = enrollment.weekLog?.find((candidate) => candidate.weekRef === weekRef)
+  const entry = enrollment.weekLog?.find(candidate => candidate.weekRef === weekRef)
   if (!entry) return null
   if (entry.decision !== 'accepted' || !entry.intentionId) return { entry, intention: null }
   const intentions = await listWeeklyIntentions(weekRef)
-  const intention = intentions.find((candidate) => candidate.id === entry.intentionId) ?? null
-  return intention ? { entry, intention } : { entry: { ...entry, decision: 'declined' }, intention: null }
+  const intention = intentions.find(candidate => candidate.id === entry.intentionId) ?? null
+  return intention
+    ? { entry, intention }
+    : { entry: { ...entry, decision: 'declined' }, intention: null }
 }
 
 /** `promptResponses` keys of the reflection's "Ścieżka" step for one enrollment. */
@@ -241,13 +256,14 @@ export function programReflectionKeys(enrollmentId: string) {
  */
 export function unloggedSeries(
   enrollmentId: string,
-  reflections: readonly WeeklyReflection[],
+  reflections: readonly WeeklyReflection[]
 ): Partial<Record<WeekRef, number>> {
   const key = programReflectionKeys(enrollmentId).unlogged
   const series: Partial<Record<WeekRef, number>> = {}
   for (const reflection of reflections) {
     const bucket = reflection.promptResponses?.[key]
-    if (typeof bucket === 'string' && bucket in UNLOGGED_BUCKETS) series[reflection.weekRef] = UNLOGGED_BUCKETS[bucket]
+    if (typeof bucket === 'string' && bucket in UNLOGGED_BUCKETS)
+      series[reflection.weekRef] = UNLOGGED_BUCKETS[bucket]
   }
   return series
 }
@@ -262,15 +278,18 @@ export interface SeverityPoint {
 export function severitySeries(
   enrollmentId: string,
   reflections: readonly WeeklyReflection[],
-  startWeek: WeekRef,
+  startWeek: WeekRef
 ): SeverityPoint[] {
   const key = programReflectionKeys(enrollmentId).severity
   return reflections
-    .filter((reflection) => reflection.weekRef >= startWeek)
+    .filter(reflection => reflection.weekRef >= startWeek)
     .sort((a, b) => a.weekRef.localeCompare(b.weekRef))
-    .map((reflection) => {
+    .map(reflection => {
       const raw = Number(reflection.promptResponses?.[key])
-      return { weekRef: reflection.weekRef, value: Number.isInteger(raw) && raw >= 1 && raw <= 5 ? raw : null }
+      return {
+        weekRef: reflection.weekRef,
+        value: Number.isInteger(raw) && raw >= 1 && raw <= 5 ? raw : null,
+      }
     })
 }
 
@@ -295,7 +314,7 @@ export async function weekTaskState(
   program: ProgramDefinition,
   enrollment: ProgramEnrollment,
   weekRef: WeekRef,
-  entries?: readonly { subjectType: string; subjectId: string; dayRef: DayRef }[],
+  entries?: readonly { subjectType: string; subjectId: string; dayRef: DayRef }[]
 ): Promise<WeekTaskState> {
   const weekTask = await weekTaskForEnrollment(enrollment, weekRef)
   const intention = weekTask?.intention ?? null
@@ -303,17 +322,25 @@ export async function weekTaskState(
   if (intention) {
     const { start, end } = getPeriodBounds(weekRef)
     const list =
-      entries ?? (await planningStateDexieRepository.listDailyMeasurementEntriesForDayRange(start as DayRef, end as DayRef))
+      entries ??
+      (await planningStateDexieRepository.listDailyMeasurementEntriesForDayRange(
+        start as DayRef,
+        end as DayRef
+      ))
     doneDays = [
       ...new Set(
         list
-          .filter((entry) => entry.subjectType === 'weeklyIntention' && entry.subjectId === intention.id)
-          .map((entry) => entry.dayRef),
+          .filter(
+            entry => entry.subjectType === 'weeklyIntention' && entry.subjectId === intention.id
+          )
+          .map(entry => entry.dayRef)
       ),
     ].sort()
   }
   const doneCount = doneDays.length
-  const task = weekTask ? program.weeklyTasks?.find((candidate) => candidate.key === weekTask.entry.taskKey) : undefined
+  const task = weekTask
+    ? program.weeklyTasks?.find(candidate => candidate.key === weekTask.entry.taskKey)
+    : undefined
   return {
     ...(weekTask ? { entry: weekTask.entry } : {}),
     ...(task ? { task } : {}),
@@ -350,8 +377,8 @@ export async function loadReflectionPathBlocks(weekRef: WeekRef): Promise<Reflec
   const enrollments = await programEnrollmentDexieRepository.listAll()
   const { start, end } = getPeriodBounds(weekRef)
   const latestByProgram = new Map<string, ProgramEnrollment>()
-  for (const enrollment of [...enrollments].sort((a, b) =>
-    a.startedAt.localeCompare(b.startedAt) || a.createdAt.localeCompare(b.createdAt),
+  for (const enrollment of [...enrollments].sort(
+    (a, b) => a.startedAt.localeCompare(b.startedAt) || a.createdAt.localeCompare(b.createdAt)
   )) {
     if (getPeriodRefsForDate(enrollment.startedAt).day > end) continue
     latestByProgram.set(enrollment.programSlug, enrollment)
@@ -359,17 +386,20 @@ export async function loadReflectionPathBlocks(weekRef: WeekRef): Promise<Reflec
   // Select before filtering by status: pausing the new approach must not
   // make the abandoned approach reappear because of its old task log.
   const relevant = [...latestByProgram.values()]
-    .filter((enrollment) => {
+    .filter(enrollment => {
       const program = getProgramDefinition(enrollment.programSlug)
       if (!program?.weeklyReflection) return false
-      return enrollment.status === 'active' || Boolean(enrollment.weekLog?.some((entry) => entry.weekRef === weekRef))
+      return (
+        enrollment.status === 'active' ||
+        Boolean(enrollment.weekLog?.some(entry => entry.weekRef === weekRef))
+      )
     })
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
   if (relevant.length === 0) return []
 
   const entries = await planningStateDexieRepository.listDailyMeasurementEntriesForDayRange(
     start as DayRef,
-    end as DayRef,
+    end as DayRef
   )
   const blocks: ReflectionPathBlock[] = []
   for (const enrollment of relevant) {
@@ -377,7 +407,8 @@ export async function loadReflectionPathBlocks(weekRef: WeekRef): Promise<Reflec
     const state = await weekTaskState(program, enrollment, weekRef, entries)
     // A past week is read in the phase of the task it had, not today's phase.
     const phase = state.task
-      ? (program.phases?.find((candidate) => candidate.key === state.task!.phaseKey) ?? currentPhase(program, enrollment))
+      ? (program.phases?.find(candidate => candidate.key === state.task!.phaseKey) ??
+        currentPhase(program, enrollment))
       : currentPhase(program, enrollment)
     blocks.push({ enrollment, program, phase, ...state })
   }

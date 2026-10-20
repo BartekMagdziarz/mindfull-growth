@@ -32,7 +32,8 @@
       <div class="mg-v2-timeline__labels">
         <span>{{ start ?? '' }}</span>
         <span v-if="end" :class="end.tone === 'bad' ? 'mg-v2-timeline__labels--bad' : ''">
-          <b>{{ end.label }}</b><template v-if="end.hint"> · {{ end.hint }}</template>
+          <b>{{ end.label }}</b
+          ><template v-if="end.hint"> · {{ end.hint }}</template>
         </span>
         <span v-else>{{ openLabel }}</span>
       </div>
@@ -107,7 +108,7 @@ const props = withDefaults(
     openLabel: '',
     interactive: false,
     label: undefined,
-  },
+  }
 )
 
 defineEmits<{ click: [] }>()

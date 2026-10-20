@@ -41,7 +41,7 @@ export function clearBreathPreferences(): void {
       const key = localStorage.key(i)
       if (key?.startsWith(STORAGE_PREFIX)) keys.push(key)
     }
-    keys.forEach((k) => localStorage.removeItem(k))
+    keys.forEach(k => localStorage.removeItem(k))
   } catch {
     // localStorage unavailable — ignore
   }

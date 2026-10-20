@@ -235,7 +235,7 @@ describe('planningState Dexie repository', () => {
           operator: 'gte',
           value: 5,
         },
-      }),
+      })
     ).rejects.toThrow('Failed to persist measurement month state in database')
   })
 
@@ -302,7 +302,7 @@ describe('planningState Dexie repository', () => {
           operator: 'gte',
           value: 5,
         },
-      }),
+      })
     ).rejects.toThrow('Failed to persist measurement week state in database')
   })
 
@@ -330,7 +330,7 @@ describe('planningState Dexie repository', () => {
           operator: 'min',
           value: 2,
         },
-      }),
+      })
     ).rejects.toThrow('Failed to persist measurement week state in database')
 
     const intention = await weeklyIntentionDexieRepository.create({
@@ -356,7 +356,7 @@ describe('planningState Dexie repository', () => {
           operator: 'min',
           value: 3,
         },
-      }),
+      })
     ).rejects.toThrow('Failed to persist measurement week state in database')
   })
 
@@ -655,22 +655,30 @@ describe('planningState Dexie repository', () => {
       subjectId: habit.id,
     })
 
-    expect(await planningStateDexieRepository.listGoalMonthStatesForMonths([marchRef])).toHaveLength(1)
-    expect(await planningStateDexieRepository.listMeasurementMonthStatesForMonths([marchRef])).toHaveLength(1)
-    expect(await planningStateDexieRepository.listMeasurementWeekStatesForWeeks([marchWeekRef])).toHaveLength(1)
+    expect(
+      await planningStateDexieRepository.listGoalMonthStatesForMonths([marchRef])
+    ).toHaveLength(1)
+    expect(
+      await planningStateDexieRepository.listMeasurementMonthStatesForMonths([marchRef])
+    ).toHaveLength(1)
+    expect(
+      await planningStateDexieRepository.listMeasurementWeekStatesForWeeks([marchWeekRef])
+    ).toHaveLength(1)
     expect(
       await planningStateDexieRepository.listMeasurementDayAssignmentsForDayRange(
         firstDayRef,
-        firstDayRef,
-      ),
+        firstDayRef
+      )
     ).toHaveLength(1)
     expect(
       await planningStateDexieRepository.listDailyMeasurementEntriesForDayRange(
         firstDayRef,
-        firstDayRef,
-      ),
+        firstDayRef
+      )
     ).toHaveLength(1)
-    expect(await planningStateDexieRepository.listTodayHiddenStatesForDay(firstDayRef)).toHaveLength(1)
+    expect(
+      await planningStateDexieRepository.listTodayHiddenStatesForDay(firstDayRef)
+    ).toHaveLength(1)
   })
 
   it('serializes concurrent same-key month-state upserts without a unique-index collision', async () => {
@@ -706,7 +714,7 @@ describe('planningState Dexie repository', () => {
           activityState: 'paused',
           scheduleScope: 'unassigned',
         }),
-      ]),
+      ])
     ).resolves.toHaveLength(2)
 
     expect(await planningStateDexieRepository.listMeasurementMonthStates()).toHaveLength(1)
@@ -755,7 +763,7 @@ describe('planningState Dexie repository', () => {
     ])
 
     expect(
-      await planningStateDexieRepository.listMeasurementWeekStatesForSubject('habit', habit.id),
+      await planningStateDexieRepository.listMeasurementWeekStatesForSubject('habit', habit.id)
     ).toHaveLength(1)
   })
 })

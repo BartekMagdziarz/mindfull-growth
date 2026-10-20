@@ -22,19 +22,19 @@ import { createPinia, setActivePinia } from 'pinia'
 // spies so we can assert `resetAppState()` invokes each one. Other exports
 // from these modules are forwarded via `importOriginal()` so anything that
 // the stores transitively depend on still works.
-vi.mock('@/services/calendarChartData', async (importOriginal) => {
+vi.mock('@/services/calendarChartData', async importOriginal => {
   const mod = await importOriginal<typeof import('@/services/calendarChartData')>()
   return { ...mod, clearTrendCache: vi.fn() }
 })
-vi.mock('@/services/calendarViewQueries', async (importOriginal) => {
+vi.mock('@/services/calendarViewQueries', async importOriginal => {
   const mod = await importOriginal<typeof import('@/services/calendarViewQueries')>()
   return { ...mod, clearCalendarViewCaches: vi.fn() }
 })
-vi.mock('@/services/planningQueryCache', async (importOriginal) => {
+vi.mock('@/services/planningQueryCache', async importOriginal => {
   const mod = await importOriginal<typeof import('@/services/planningQueryCache')>()
   return { ...mod, invalidatePlanningQueryCache: vi.fn() }
 })
-vi.mock('@/composables/useChartScale', async (importOriginal) => {
+vi.mock('@/composables/useChartScale', async importOriginal => {
   const mod = await importOriginal<typeof import('@/composables/useChartScale')>()
   return { ...mod, clearChartScalePreferences: vi.fn() }
 })
@@ -121,12 +121,9 @@ describe('appStateReset.ts store registration (CI guard)', () => {
     const storesDir = path.resolve(__dirname, '../../stores')
     const storeFiles = fs
       .readdirSync(storesDir)
-      .filter((f) => f.endsWith('.store.ts') && f !== 'auth.store.ts')
+      .filter(f => f.endsWith('.store.ts') && f !== 'auth.store.ts')
 
-    const resetSrc = fs.readFileSync(
-      path.resolve(__dirname, '../appStateReset.ts'),
-      'utf-8',
-    )
+    const resetSrc = fs.readFileSync(path.resolve(__dirname, '../appStateReset.ts'), 'utf-8')
 
     const missing: string[] = []
     for (const file of storeFiles) {
@@ -142,7 +139,7 @@ describe('appStateReset.ts store registration (CI guard)', () => {
       missing,
       `appStateReset.ts is missing imports for these stores. Add ` +
         `\`useFooStore().reset()\` to the coordinator (and a \`reset()\` ` +
-        `function to the store itself). Missing:\n  - ${missing.join('\n  - ')}`,
+        `function to the store itself). Missing:\n  - ${missing.join('\n  - ')}`
     ).toEqual([])
   })
 })

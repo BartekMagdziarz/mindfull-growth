@@ -1,10 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/vue'
 import PsychologicalProfileFoundationView from '../PsychologicalProfileFoundationView.vue'
-import type {
-  FoundationItemStatus,
-  FoundationVariant,
-} from '@/services/foundationCompleteness'
+import type { FoundationItemStatus, FoundationVariant } from '@/services/foundationCompleteness'
 
 const mockPush = vi.fn()
 
@@ -18,30 +15,52 @@ const foundationMock = vi.hoisted(() => ({
 }))
 
 vi.mock('@/services/foundationCompleteness', () => {
-  const GROUP_ORDER = ['values', 'meaning', 'personality', 'emotions', 'relationships', 'lifeBalance'] as const
+  const GROUP_ORDER = [
+    'values',
+    'meaning',
+    'personality',
+    'emotions',
+    'relationships',
+    'lifeBalance',
+  ] as const
   const groupProgress = (statuses: FoundationItemStatus[]) =>
-    GROUP_ORDER.map((group) => {
-      const inGroup = statuses.filter((status) => status.group === group)
+    GROUP_ORDER.map(group => {
+      const inGroup = statuses.filter(status => status.group === group)
       const completed = inGroup.filter(
-        (status) => status.state === 'completed' || status.state === 'outdated',
+        status => status.state === 'completed' || status.state === 'outdated'
       ).length
       return { group, total: inGroup.length, completed, minRequired: 1, satisfied: completed >= 1 }
     })
   return {
     FOUNDATION_GROUP_ORDER: GROUP_ORDER,
     FOUNDATION_COMING_SOON_ORDER: [] as const,
-    FOUNDATION_GROUP_MIN_REQUIRED: { values: 1, meaning: 1, personality: 1, emotions: 1, relationships: 1, lifeBalance: 1 },
+    FOUNDATION_GROUP_MIN_REQUIRED: {
+      values: 1,
+      meaning: 1,
+      personality: 1,
+      emotions: 1,
+      relationships: 1,
+      lifeBalance: 1,
+    },
     computeFoundationStatuses: () => foundationMock.statuses,
     computeFoundationGroupProgress: groupProgress,
     isFoundationBuildUnlocked: (statuses: FoundationItemStatus[]) =>
-      groupProgress(statuses).every((g) => g.satisfied),
+      groupProgress(statuses).every(g => g.satisfied),
     loadFoundationSourceData: foundationMock.loadFoundationSourceData,
   }
 })
 
 const BIG_FIVE_VARIANTS: FoundationVariant[] = [
-  { assessmentId: 'ipip-bfm-50', routeName: 'exercise-assessment', routeParams: { assessmentId: 'ipip-bfm-50' } },
-  { assessmentId: 'ipip-neo-120', routeName: 'exercise-assessment', routeParams: { assessmentId: 'ipip-neo-120' } },
+  {
+    assessmentId: 'ipip-bfm-50',
+    routeName: 'exercise-assessment',
+    routeParams: { assessmentId: 'ipip-bfm-50' },
+  },
+  {
+    assessmentId: 'ipip-neo-120',
+    routeName: 'exercise-assessment',
+    routeParams: { assessmentId: 'ipip-neo-120' },
+  },
 ]
 
 interface ItemSpec {
@@ -55,26 +74,74 @@ interface ItemSpec {
 const ITEMS: ItemSpec[] = [
   { id: 'valuesDiscovery', group: 'values', routeName: 'exercise-values' },
   { id: 'valueMap', group: 'values', routeName: 'exercise-value-map' },
-  { id: 'pvq-40', group: 'values', routeName: 'exercise-assessment', routeParams: { assessmentId: 'pvq-40' } },
+  {
+    id: 'pvq-40',
+    group: 'values',
+    routeName: 'exercise-assessment',
+    routeParams: { assessmentId: 'pvq-40' },
+  },
   { id: 'transformativePurpose', group: 'meaning', routeName: 'exercise-purpose' },
   { id: 'threePathways', group: 'meaning', routeName: 'exercise-three-pathways' },
   { id: 'mountainRange', group: 'meaning', routeName: 'exercise-mountain-range' },
-  { id: 'bigFive', group: 'personality', routeName: 'exercise-assessment', routeParams: { assessmentId: 'ipip-bfm-50' }, variants: BIG_FIVE_VARIANTS },
-  { id: 'hexaco-60', group: 'personality', routeName: 'exercise-assessment', routeParams: { assessmentId: 'hexaco-60' } },
+  {
+    id: 'bigFive',
+    group: 'personality',
+    routeName: 'exercise-assessment',
+    routeParams: { assessmentId: 'ipip-bfm-50' },
+    variants: BIG_FIVE_VARIANTS,
+  },
+  {
+    id: 'hexaco-60',
+    group: 'personality',
+    routeName: 'exercise-assessment',
+    routeParams: { assessmentId: 'hexaco-60' },
+  },
   { id: 'shadowBeliefs', group: 'personality', routeName: 'exercise-shadow-beliefs' },
   { id: 'ifsPartsMap', group: 'personality', routeName: 'exercise-parts-mapping' },
-  { id: 'ipip-via', group: 'personality', routeName: 'exercise-assessment', routeParams: { assessmentId: 'ipip-via' } },
-  { id: 'erq', group: 'emotions', routeName: 'exercise-assessment', routeParams: { assessmentId: 'erq' } },
-  { id: 'rrq', group: 'emotions', routeName: 'exercise-assessment', routeParams: { assessmentId: 'rrq' } },
-  { id: 'ecr-rs', group: 'relationships', routeName: 'exercise-assessment', routeParams: { assessmentId: 'ecr-rs' } },
+  {
+    id: 'ipip-via',
+    group: 'personality',
+    routeName: 'exercise-assessment',
+    routeParams: { assessmentId: 'ipip-via' },
+  },
+  {
+    id: 'erq',
+    group: 'emotions',
+    routeName: 'exercise-assessment',
+    routeParams: { assessmentId: 'erq' },
+  },
+  {
+    id: 'rrq',
+    group: 'emotions',
+    routeName: 'exercise-assessment',
+    routeParams: { assessmentId: 'rrq' },
+  },
+  {
+    id: 'ecr-rs',
+    group: 'relationships',
+    routeName: 'exercise-assessment',
+    routeParams: { assessmentId: 'ecr-rs' },
+  },
   { id: 'wheelOfLife', group: 'lifeBalance', routeName: 'exercise-wheel-of-life' },
-  { id: 'vlq', group: 'lifeBalance', routeName: 'exercise-assessment', routeParams: { assessmentId: 'vlq' } },
+  {
+    id: 'vlq',
+    group: 'lifeBalance',
+    routeName: 'exercise-assessment',
+    routeParams: { assessmentId: 'vlq' },
+  },
 ]
 
-const FIRST_OF_GROUP = new Set(['valuesDiscovery', 'transformativePurpose', 'bigFive', 'erq', 'ecr-rs', 'wheelOfLife'])
+const FIRST_OF_GROUP = new Set([
+  'valuesDiscovery',
+  'transformativePurpose',
+  'bigFive',
+  'erq',
+  'ecr-rs',
+  'wheelOfLife',
+])
 
 function makeStatuses(coverEveryGroup = false): FoundationItemStatus[] {
-  return ITEMS.map((item) => {
+  return ITEMS.map(item => {
     const completed = coverEveryGroup && FIRST_OF_GROUP.has(item.id)
     return {
       id: item.id,
@@ -125,9 +192,7 @@ describe('PsychologicalProfileFoundationView', () => {
     render(PsychologicalProfileFoundationView)
 
     const header = (group: string) =>
-      document
-        .querySelector(`[data-test-foundation-group="${group}"] h2`)
-        ?.textContent?.trim()
+      document.querySelector(`[data-test-foundation-group="${group}"] h2`)?.textContent?.trim()
 
     expect(header('values')).toBe('Values')
     expect(header('meaning')).toBe('Meaning & direction')
@@ -165,7 +230,7 @@ describe('PsychologicalProfileFoundationView', () => {
     expect(
       screen.getByRole('button', {
         name: 'Complete one exercise in each group to unlock',
-      }),
+      })
     ).toBeDisabled()
   })
 
@@ -174,9 +239,7 @@ describe('PsychologicalProfileFoundationView', () => {
 
     render(PsychologicalProfileFoundationView)
 
-    await fireEvent.click(
-      screen.getByRole('button', { name: 'Build my first profile' }),
-    )
+    await fireEvent.click(screen.getByRole('button', { name: 'Build my first profile' }))
 
     expect(mockPush).toHaveBeenCalledWith({ name: 'profile-psychological-build' })
   })
@@ -195,9 +258,7 @@ describe('PsychologicalProfileFoundationView', () => {
   it('routes to the chosen depth when a Big Five variant is clicked', async () => {
     render(PsychologicalProfileFoundationView)
 
-    await fireEvent.click(
-      screen.getByRole('button', { name: 'Big Five (personality): Full test' }),
-    )
+    await fireEvent.click(screen.getByRole('button', { name: 'Big Five (personality): Full test' }))
 
     expect(mockPush).toHaveBeenCalledWith({
       name: 'exercise-assessment',

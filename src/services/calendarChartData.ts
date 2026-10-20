@@ -3,7 +3,12 @@ import type { DailyMeasurementEntry, MeasurementSubjectType } from '@/domain/pla
 import type { MeasureableSubject } from '@/services/measurementProgress'
 import type { ObjectsLibraryChartPoint } from '@/services/objectsLibraryQueries'
 import { buildMeasurementSummary, multiCompletionDayPoints } from '@/services/measurementProgress'
-import { getChildPeriods, getPeriodBounds, getPeriodRefsForDate, getPreviousPeriod } from '@/utils/periods'
+import {
+  getChildPeriods,
+  getPeriodBounds,
+  getPeriodRefsForDate,
+  getPreviousPeriod,
+} from '@/utils/periods'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 
 type ChartPointStatus = ObjectsLibraryChartPoint['status']
@@ -11,7 +16,7 @@ type ChartPointStatus = ObjectsLibraryChartPoint['status']
 /** Remove leading no-data points from trend charts so newly created objects
  *  don't show irrelevant empty periods before their start date. */
 function trimLeadingNoData(points: ObjectsLibraryChartPoint[]): ObjectsLibraryChartPoint[] {
-  const firstDataIndex = points.findIndex((p) => p.status !== 'no-data')
+  const firstDataIndex = points.findIndex(p => p.status !== 'no-data')
   if (firstDataIndex === -1) return []
   if (firstDataIndex === 0) return points
   return points.slice(firstDataIndex)
@@ -19,12 +24,10 @@ function trimLeadingNoData(points: ObjectsLibraryChartPoint[]): ObjectsLibraryCh
 
 function evaluationToStatus(
   evaluationStatus: 'met' | 'missed' | 'no-data' | undefined,
-  hasData: boolean,
+  hasData: boolean
 ): ChartPointStatus {
   if (evaluationStatus) {
-    return evaluationStatus === 'met' ? 'met'
-      : evaluationStatus === 'missed' ? 'missed'
-        : 'no-data'
+    return evaluationStatus === 'met' ? 'met' : evaluationStatus === 'missed' ? 'missed' : 'no-data'
   }
   return hasData ? 'no-target' : 'no-data'
 }
@@ -39,11 +42,11 @@ export function buildMonthWeeklyChartPoints(
   subject: MeasureableSubject,
   allEntries: DailyMeasurementEntry[],
   monthRef: MonthRef,
-  parentEvaluation?: ChartPointStatus,
+  parentEvaluation?: ChartPointStatus
 ): ObjectsLibraryChartPoint[] {
   const weekRefs = getChildPeriods(monthRef)
 
-  return weekRefs.map((weekRef) => {
+  return weekRefs.map(weekRef => {
     const summary = buildMeasurementSummary(subject, allEntries, weekRef)
 
     if (parentEvaluation) {
@@ -75,16 +78,13 @@ export function buildWeekDailyChartPoints(
   subjectType: MeasurementSubjectType,
   allEntries: DailyMeasurementEntry[],
   weekRef: WeekRef,
-  parentEvaluation?: ChartPointStatus,
+  parentEvaluation?: ChartPointStatus
 ): ObjectsLibraryChartPoint[] {
   const dayRefs = getChildPeriods(weekRef)
 
-  return dayRefs.map((dayRef) => {
+  return dayRefs.map(dayRef => {
     const entry = allEntries.find(
-      (e) =>
-        e.subjectType === subjectType &&
-        e.subjectId === subject.id &&
-        e.dayRef === dayRef,
+      e => e.subjectType === subjectType && e.subjectId === subject.id && e.dayRef === dayRef
     )
 
     let actualValue: number | undefined
@@ -100,8 +100,12 @@ export function buildWeekDailyChartPoints(
     }
 
     const status: ChartPointStatus = parentEvaluation
-      ? (entry ? parentEvaluation : 'no-data')
-      : (entry ? 'no-target' : 'no-data')
+      ? entry
+        ? parentEvaluation
+        : 'no-data'
+      : entry
+        ? 'no-target'
+        : 'no-data'
 
     return {
       periodRef: dayRef as string,
@@ -120,7 +124,7 @@ export function buildMonthlyTrendChartPoints(
   subject: MeasureableSubject,
   allEntries: DailyMeasurementEntry[],
   currentMonthRef: MonthRef,
-  todayRef: DayRef,
+  todayRef: DayRef
 ): ObjectsLibraryChartPoint[] {
   const todayRefs = getPeriodRefsForDate(todayRef)
   const isCurrentMonth = todayRefs.month === currentMonthRef
@@ -136,7 +140,7 @@ export function buildMonthlyTrendChartPoints(
 
   const target = 'target' in subject ? subject.target : undefined
 
-  const points = monthRefs.map((monthRef) => {
+  const points = monthRefs.map(monthRef => {
     const summary = buildMeasurementSummary(subject, allEntries, monthRef)
     const isCurrent = monthRef === currentMonthRef && isCurrentMonth
 
@@ -171,7 +175,7 @@ export function buildWeeklyTrendChartPoints(
   subject: MeasureableSubject,
   allEntries: DailyMeasurementEntry[],
   currentWeekRef: WeekRef,
-  todayRef: DayRef,
+  todayRef: DayRef
 ): ObjectsLibraryChartPoint[] {
   const todayRefs = getPeriodRefsForDate(todayRef)
   const isCurrentWeek = todayRefs.week === currentWeekRef
@@ -187,7 +191,7 @@ export function buildWeeklyTrendChartPoints(
 
   const target = 'target' in subject ? subject.target : undefined
 
-  const points = weekRefs.map((weekRef) => {
+  const points = weekRefs.map(weekRef => {
     const summary = buildMeasurementSummary(subject, allEntries, weekRef)
     const isCurrent = weekRef === currentWeekRef && isCurrentWeek
 
@@ -225,7 +229,7 @@ export function clearTrendCache(): void {
 
 export function loadTrendEntries(
   currentPeriodRef: MonthRef | WeekRef,
-  trendScale: 'months' | 'weeks',
+  trendScale: 'months' | 'weeks'
 ): Promise<DailyMeasurementEntry[]> {
   const key = `${currentPeriodRef}:${trendScale}`
   if (!trendCache.has(key)) {
@@ -236,7 +240,7 @@ export function loadTrendEntries(
 
 async function fetchTrendEntries(
   currentPeriodRef: MonthRef | WeekRef,
-  trendScale: 'months' | 'weeks',
+  trendScale: 'months' | 'weeks'
 ): Promise<DailyMeasurementEntry[]> {
   // Walk back 4 periods to get the earliest one
   let earliest: PeriodRef = currentPeriodRef
@@ -255,8 +259,14 @@ async function fetchTrendEntries(
     const lastWeeks = getChildPeriods(lastMonth)
     const expandedStart = getPeriodBounds(firstWeeks[0]).start
     const expandedEnd = getPeriodBounds(lastWeeks[lastWeeks.length - 1]).end
-    return planningStateDexieRepository.listDailyMeasurementEntriesForDayRange(expandedStart, expandedEnd)
+    return planningStateDexieRepository.listDailyMeasurementEntriesForDayRange(
+      expandedStart,
+      expandedEnd
+    )
   }
 
-  return planningStateDexieRepository.listDailyMeasurementEntriesForDayRange(startBounds.start, endBounds.end)
+  return planningStateDexieRepository.listDailyMeasurementEntriesForDayRange(
+    startBounds.start,
+    endBounds.end
+  )
 }

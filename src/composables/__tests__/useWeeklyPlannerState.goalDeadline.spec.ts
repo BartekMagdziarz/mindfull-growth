@@ -81,7 +81,11 @@ describe('useWeeklyPlannerState goal deadline handling', () => {
       currentTargetDate: SEP_30,
     })
     expect(
-      await planningStateDexieRepository.getMeasurementDayAssignment(OCT_02, 'keyResult', keyResultId)
+      await planningStateDexieRepository.getMeasurementDayAssignment(
+        OCT_02,
+        'keyResult',
+        keyResultId
+      )
     ).toBeUndefined()
 
     planner.dismissDeadlineProposal()

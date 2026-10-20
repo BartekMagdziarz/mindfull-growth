@@ -37,9 +37,7 @@ const baseChipText = computed<string>(() => {
     case 'value-progress':
       return `Σ ${fmt(d.current)}/${fmt(d.target ?? 0)}`
     case 'avg-marker':
-      return d.target !== undefined
-        ? `⌀${fmt(d.current)} · ${fmt(d.target)}`
-        : `⌀${fmt(d.current)}`
+      return d.target !== undefined ? `⌀${fmt(d.current)} · ${fmt(d.target)}` : `⌀${fmt(d.current)}`
     case 'value-label':
       switch (d.aggregationLabel) {
         case 'sum':

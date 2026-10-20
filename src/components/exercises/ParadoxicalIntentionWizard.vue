@@ -1,7 +1,11 @@
 <template>
   <div class="space-y-6">
     <!-- Step indicator dots -->
-    <ExerciseStepper :labels="stepLabels" :current="currentVisualStep" @go="goToStepByIndex($event)" />
+    <ExerciseStepper
+      :labels="stepLabels"
+      :current="currentVisualStep"
+      @go="goToStepByIndex($event)"
+    />
 
     <!-- Step 1: Intro -->
     <Transition
@@ -12,7 +16,9 @@
     >
       <div v-if="currentStep === 'intro'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.paradoxicalIntention.intro.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.paradoxicalIntention.intro.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.paradoxicalIntention.intro.description') }}
           </p>
@@ -41,7 +47,9 @@
             <div class="flex items-start gap-3">
               <AppIcon name="warning" class="text-xl text-status-warn-on flex-shrink-0 mt-0.5" />
               <div class="text-sm text-on-surface">
-                <p class="font-semibold mb-1">{{ t('exerciseWizards.paradoxicalIntention.intro.boundaryTitle') }}</p>
+                <p class="font-semibold mb-1">
+                  {{ t('exerciseWizards.paradoxicalIntention.intro.boundaryTitle') }}
+                </p>
                 <p>
                   {{ t('exerciseWizards.paradoxicalIntention.intro.boundaryText') }}
                 </p>
@@ -60,7 +68,9 @@
           </div>
         </AppCard>
         <div class="flex justify-end">
-          <AppButton variant="filled" @click="currentStep = 'fears'">{{ t('common.buttons.start') }}</AppButton>
+          <AppButton variant="filled" @click="currentStep = 'fears'">{{
+            t('common.buttons.start')
+          }}</AppButton>
         </div>
       </div>
     </Transition>
@@ -74,15 +84,23 @@
     >
       <div v-if="currentStep === 'fears'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.paradoxicalIntention.fears.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.paradoxicalIntention.fears.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.paradoxicalIntention.fears.description') }}
           </p>
           <ExerciseStepWhy :text="tg('exerciseWizards.paradoxicalIntention.fears.why')" />
 
-          <div v-for="(fear, index) in fears" :key="fear.id" class="neo-surface p-4 space-y-3 rounded-xl">
+          <div
+            v-for="(fear, index) in fears"
+            :key="fear.id"
+            class="neo-surface p-4 space-y-3 rounded-xl"
+          >
             <div class="flex items-center justify-between">
-              <span class="text-sm font-semibold text-on-surface">{{ t('exerciseWizards.paradoxicalIntention.fears.fearLabel', { n: index + 1 }) }}</span>
+              <span class="text-sm font-semibold text-on-surface">{{
+                t('exerciseWizards.paradoxicalIntention.fears.fearLabel', { n: index + 1 })
+              }}</span>
               <button
                 v-if="fears.length > 1"
                 type="button"
@@ -111,24 +129,24 @@
               </label>
               <textarea
                 v-model="fear.anticipatedCatastrophe"
-                :placeholder="t('exerciseWizards.paradoxicalIntention.fears.whatHappensPlaceholder')"
+                :placeholder="
+                  t('exerciseWizards.paradoxicalIntention.fears.whatHappensPlaceholder')
+                "
                 class="neo-input neo-focus w-full p-3 text-sm resize-none mt-1"
                 rows="2"
               />
             </div>
           </div>
 
-          <AppButton
-            v-if="fears.length < 3"
-            variant="text"
-            @click="addFear"
-          >
+          <AppButton v-if="fears.length < 3" variant="text" @click="addFear">
             <AppIcon name="add" class="text-base mr-1" />
             {{ t('exerciseWizards.paradoxicalIntention.fears.addAnother') }}
           </AppButton>
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'intro'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'intro'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton
             variant="filled"
             :disabled="validFears.length === 0"
@@ -150,18 +168,31 @@
       <div v-if="currentStep === 'craft'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
           <div class="flex items-center justify-between">
-            <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.paradoxicalIntention.craft.title') }}</h2>
+            <h2 class="text-lg font-semibold text-on-surface">
+              {{ t('exerciseWizards.paradoxicalIntention.craft.title') }}
+            </h2>
             <span class="text-sm text-on-surface-variant">
-              {{ t('exerciseWizards.paradoxicalIntention.craft.counter', { current: currentFearIndex + 1, total: validFears.length }) }}
+              {{
+                t('exerciseWizards.paradoxicalIntention.craft.counter', {
+                  current: currentFearIndex + 1,
+                  total: validFears.length,
+                })
+              }}
             </span>
           </div>
 
           <!-- Current fear display -->
           <div class="exercise-quote">
-            <span class="exercise-quote__label">{{ t('exerciseWizards.paradoxicalIntention.craft.fearHeader') }}</span>
+            <span class="exercise-quote__label">{{
+              t('exerciseWizards.paradoxicalIntention.craft.fearHeader')
+            }}</span>
             <span class="exercise-quote__text">{{ currentFear.description }}</span>
             <span class="text-sm text-on-surface-variant">
-              {{ t('exerciseWizards.paradoxicalIntention.craft.youFear', { fear: currentFear.anticipatedCatastrophe }) }}
+              {{
+                t('exerciseWizards.paradoxicalIntention.craft.youFear', {
+                  fear: currentFear.anticipatedCatastrophe,
+                })
+              }}
             </span>
           </div>
 
@@ -181,13 +212,13 @@
 
           <!-- LLM Assist -->
           <div class="flex flex-wrap items-center gap-2">
-            <AppButton
-              variant="tonal"
-              :disabled="isLlmLoading"
-              @click="handleMakeFunnier"
-            >
+            <AppButton variant="tonal" :disabled="isLlmLoading" @click="handleMakeFunnier">
               <AppIcon name="auto_awesome" class="text-base mr-1" />
-              {{ isLlmLoading ? t('exerciseWizards.paradoxicalIntention.craft.thinking') : t('exerciseWizards.paradoxicalIntention.craft.funnier') }}
+              {{
+                isLlmLoading
+                  ? t('exerciseWizards.paradoxicalIntention.craft.thinking')
+                  : t('exerciseWizards.paradoxicalIntention.craft.funnier')
+              }}
             </AppButton>
             <ProfileContextToggle v-model="useProfileFunnier" />
           </div>
@@ -196,23 +227,38 @@
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-2">
               {{ t('exerciseWizards.paradoxicalIntention.craft.suggestionHeader') }}
             </p>
-            <p class="text-sm text-on-surface whitespace-pre-wrap">{{ llmSuggestions[currentFear.id] }}</p>
+            <p class="text-sm text-on-surface whitespace-pre-wrap">
+              {{ llmSuggestions[currentFear.id] }}
+            </p>
           </div>
 
           <p v-if="llmError" class="text-xs text-error">{{ llmError }}</p>
 
           <!-- Carousel navigation -->
-          <div v-if="validFears.length > 1" class="flex justify-between items-center pt-4 border-t border-neu-border/20">
-            <AppButton variant="text" :disabled="currentFearIndex === 0" @click="currentFearIndex--">
+          <div
+            v-if="validFears.length > 1"
+            class="flex justify-between items-center pt-4 border-t border-neu-border/20"
+          >
+            <AppButton
+              variant="text"
+              :disabled="currentFearIndex === 0"
+              @click="currentFearIndex--"
+            >
               {{ t('exerciseWizards.paradoxicalIntention.craft.previousFear') }}
             </AppButton>
-            <AppButton variant="text" :disabled="currentFearIndex === validFears.length - 1" @click="currentFearIndex++">
+            <AppButton
+              variant="text"
+              :disabled="currentFearIndex === validFears.length - 1"
+              @click="currentFearIndex++"
+            >
               {{ t('exerciseWizards.paradoxicalIntention.craft.nextFear') }}
             </AppButton>
           </div>
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'fears'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'fears'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton
             variant="filled"
             :disabled="!allFearsHaveIntention"
@@ -233,22 +279,28 @@
     >
       <div v-if="currentStep === 'practice'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.paradoxicalIntention.practice.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.paradoxicalIntention.practice.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.paradoxicalIntention.practice.description') }}
           </p>
           <ExerciseStepWhy :text="tg('exerciseWizards.paradoxicalIntention.practice.why')" />
 
-          <div v-for="fear in validFears" :key="fear.id" class="neo-surface p-4 space-y-3 rounded-xl">
+          <div
+            v-for="fear in validFears"
+            :key="fear.id"
+            class="neo-surface p-4 space-y-3 rounded-xl"
+          >
             <div class="neo-embedded p-3">
               <p class="text-sm font-medium text-on-surface">{{ fear.description }}</p>
-              <p class="text-xs text-primary italic mt-1">
-                "{{ paradoxicalIntentions[fear.id] }}"
-              </p>
+              <p class="text-xs text-primary italic mt-1">"{{ paradoxicalIntentions[fear.id] }}"</p>
             </div>
 
             <div>
-              <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.paradoxicalIntention.practice.scriptLabel') }}</label>
+              <label class="text-xs font-medium text-on-surface-variant">{{
+                t('exerciseWizards.paradoxicalIntention.practice.scriptLabel')
+              }}</label>
               <textarea
                 v-model="practiceScripts[fear.id]"
                 :placeholder="t('exerciseWizards.paradoxicalIntention.practice.scriptPlaceholder')"
@@ -269,8 +321,12 @@
           </div>
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'craft'">{{ t('common.buttons.back') }}</AppButton>
-          <AppButton variant="filled" @click="currentStep = 'summary'">{{ t('common.buttons.next') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'craft'">{{
+            t('common.buttons.back')
+          }}</AppButton>
+          <AppButton variant="filled" @click="currentStep = 'summary'">{{
+            t('common.buttons.next')
+          }}</AppButton>
         </div>
       </div>
     </Transition>
@@ -284,23 +340,36 @@
     >
       <div v-if="currentStep === 'summary'" class="space-y-4">
         <AppCard variant="raised" padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.paradoxicalIntention.summary.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.paradoxicalIntention.summary.title') }}
+          </h2>
 
           <div v-for="fear in validFears" :key="fear.id" class="space-y-2">
             <div>
-              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-1">{{ t('exerciseWizards.paradoxicalIntention.summary.fearHeader') }}</p>
+              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-1">
+                {{ t('exerciseWizards.paradoxicalIntention.summary.fearHeader') }}
+              </p>
               <p class="text-sm text-on-surface">{{ fear.description }}</p>
-              <p class="text-xs text-on-surface-variant italic">{{ fear.anticipatedCatastrophe }}</p>
+              <p class="text-xs text-on-surface-variant italic">
+                {{ fear.anticipatedCatastrophe }}
+              </p>
             </div>
             <div v-if="paradoxicalIntentions[fear.id]">
-              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-1">{{ t('exerciseWizards.paradoxicalIntention.summary.intentionHeader') }}</p>
+              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-1">
+                {{ t('exerciseWizards.paradoxicalIntention.summary.intentionHeader') }}
+              </p>
               <p class="text-sm text-primary font-medium">{{ paradoxicalIntentions[fear.id] }}</p>
             </div>
             <div v-if="practiceScripts[fear.id]">
-              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-1">{{ t('exerciseWizards.paradoxicalIntention.summary.scriptHeader') }}</p>
+              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-1">
+                {{ t('exerciseWizards.paradoxicalIntention.summary.scriptHeader') }}
+              </p>
               <p class="text-sm text-on-surface">{{ practiceScripts[fear.id] }}</p>
             </div>
-            <hr v-if="validFears.indexOf(fear) < validFears.length - 1" class="border-neu-border/20" />
+            <hr
+              v-if="validFears.indexOf(fear) < validFears.length - 1"
+              class="border-neu-border/20"
+            />
           </div>
 
           <!-- Notes -->
@@ -317,7 +386,9 @@
           </div>
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'practice'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'practice'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton variant="filled" @click="handleSave">{{ t('common.buttons.save') }}</AppButton>
         </div>
       </div>
@@ -385,7 +456,7 @@ function addFear() {
 }
 
 const validFears = computed(() =>
-  fears.filter((f) => f.description.trim() && f.anticipatedCatastrophe.trim()),
+  fears.filter(f => f.description.trim() && f.anticipatedCatastrophe.trim())
 )
 
 // ─── Craft State ───────────────────────────────────────────────────────────
@@ -402,7 +473,7 @@ const llmAssistUsed = ref(false)
 const currentFear = computed(() => validFears.value[currentFearIndex.value])
 
 const allFearsHaveIntention = computed(() =>
-  validFears.value.every((f) => paradoxicalIntentions[f.id]?.trim()),
+  validFears.value.every(f => paradoxicalIntentions[f.id]?.trim())
 )
 
 async function handleMakeFunnier() {
@@ -425,7 +496,10 @@ async function handleMakeFunnier() {
     llmSuggestions[fear.id] = response
     llmAssistUsed.value = true
   } catch (err) {
-    llmError.value = err instanceof Error ? err.message : t('exerciseWizards.paradoxicalIntention.errors.suggestionFailed')
+    llmError.value =
+      err instanceof Error
+        ? err.message
+        : t('exerciseWizards.paradoxicalIntention.errors.suggestionFailed')
   } finally {
     isLlmLoading.value = false
   }
@@ -443,7 +517,7 @@ const notes = ref('')
 // ─── Save ──────────────────────────────────────────────────────────────────
 function handleSave() {
   const payload: CreateParadoxicalIntentionPayload = {
-    fears: validFears.value.map((f) => ({
+    fears: validFears.value.map(f => ({
       id: f.id,
       description: f.description.trim(),
       anticipatedCatastrophe: f.anticipatedCatastrophe.trim(),
@@ -451,9 +525,11 @@ function handleSave() {
       practiceScript: practiceScripts[f.id]?.trim() || undefined,
     })),
     emotionIdsBefore: emotionIdsBefore.value.length > 0 ? [...emotionIdsBefore.value] : undefined,
-    emotionFamilyIdsBefore: emotionFamilyIdsBefore.value.length > 0 ? [...emotionFamilyIdsBefore.value] : undefined,
+    emotionFamilyIdsBefore:
+      emotionFamilyIdsBefore.value.length > 0 ? [...emotionFamilyIdsBefore.value] : undefined,
     emotionIdsAfter: emotionIdsAfter.value.length > 0 ? [...emotionIdsAfter.value] : undefined,
-    emotionFamilyIdsAfter: emotionFamilyIdsAfter.value.length > 0 ? [...emotionFamilyIdsAfter.value] : undefined,
+    emotionFamilyIdsAfter:
+      emotionFamilyIdsAfter.value.length > 0 ? [...emotionFamilyIdsAfter.value] : undefined,
     llmAssistUsed: llmAssistUsed.value || undefined,
     notes: notes.value.trim() || undefined,
   }

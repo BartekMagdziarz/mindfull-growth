@@ -19,7 +19,7 @@ function emotionsIn(quadrant: Quadrant) {
 }
 
 function emotionsOf(quadrant: Quadrant, familyId: string) {
-  return emotionsIn(quadrant).filter((e) => FAMILY_OF[e.id] === familyId)
+  return emotionsIn(quadrant).filter(e => FAMILY_OF[e.id] === familyId)
 }
 
 // quadrant -> family card click expands it in place (default mode: the whole
@@ -66,7 +66,7 @@ describe('EmotionSelector (family-expansion picker)', () => {
 
   it('expanding another family collapses the previous one', async () => {
     render(EmotionSelector, { props: { modelValue: [] } })
-    const [famA, famB] = FAMILIES_BY_QUADRANT[HEHP].slice(0, 2).map((f) => f.id)
+    const [famA, famB] = FAMILIES_BY_QUADRANT[HEHP].slice(0, 2).map(f => f.id)
     await expandFamily(HEHP, famA)
     const emotionA = emotionsOf(HEHP, famA)[0]
     expect(await screen.findByTestId(`emotion-option-${emotionA.id}`)).toBeInTheDocument()
@@ -92,7 +92,9 @@ describe('EmotionSelector (family-expansion picker)', () => {
   it('supports selecting multiple emotions', async () => {
     const { emitted } = render(EmotionSelector, { props: { modelValue: [] } })
     await expandFamily(HEHP, FIRST_FAMILY)
-    const [a, b] = emotionsOf(HEHP, FIRST_FAMILY).slice(0, 2).map((e) => e.id)
+    const [a, b] = emotionsOf(HEHP, FIRST_FAMILY)
+      .slice(0, 2)
+      .map(e => e.id)
 
     await fireEvent.click(screen.getByTestId(`emotion-option-${a}`))
     await fireEvent.click(screen.getByTestId(`emotion-option-${b}`))
@@ -198,9 +200,7 @@ describe('EmotionSelector (family-expansion picker)', () => {
     it('shows selected emotions and families together in one list', async () => {
       const emotion = emotionsIn(HEHP)[0]
       // Pick a family the emotion does NOT belong to, so it isn't absorbed.
-      const otherFamily = FAMILIES_BY_QUADRANT[HEHP].find(
-        (f) => f.id !== FAMILY_OF[emotion.id]
-      )!
+      const otherFamily = FAMILIES_BY_QUADRANT[HEHP].find(f => f.id !== FAMILY_OF[emotion.id])!
       render(EmotionSelector, {
         props: { modelValue: [emotion.id], allowFamilyOnly: true },
       })

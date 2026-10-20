@@ -1,7 +1,5 @@
 <template>
-  <article
-    class="group/card mg-v2-surface mg-v2-surface--raised-sm p-3"
-  >
+  <article class="group/card mg-v2-surface mg-v2-surface--raised-sm p-3">
     <!-- Edit mode -->
     <div v-if="editing" class="space-y-3">
       <input
@@ -97,8 +95,15 @@ import MeasurementTargetSentence from '@/components/objects/MeasurementTargetSen
 import MultiItemsEditor from '@/components/objects/MultiItemsEditor.vue'
 import PriorityLinkPicker from '@/components/calendar/PriorityLinkPicker.vue'
 import { useT } from '@/composables/useT'
-import type { MeasurementEntryMode, MeasurementTarget, MultiCompletionItem } from '@/domain/planning'
-import type { ObjectsLibraryFilterOption, ObjectsLibraryListItem } from '@/services/objectsLibraryQueries'
+import type {
+  MeasurementEntryMode,
+  MeasurementTarget,
+  MultiCompletionItem,
+} from '@/domain/planning'
+import type {
+  ObjectsLibraryFilterOption,
+  ObjectsLibraryListItem,
+} from '@/services/objectsLibraryQueries'
 import { formatMeasurementTargetSummary } from '@/utils/measurementTargetFormat'
 import { formatDayRange } from '@/utils/periodLabels'
 import { getPeriodBounds } from '@/utils/periods'
@@ -136,19 +141,19 @@ const weekChipLabel = computed(() => {
 })
 
 const modeLabel = computed(() =>
-  t(`planning.objects.targetSentence.mode.${props.item.entryMode ?? 'completion'}`),
+  t(`planning.objects.targetSentence.mode.${props.item.entryMode ?? 'completion'}`)
 )
 const targetSummary = computed(() =>
-  props.item.target ? formatMeasurementTargetSummary(props.item.target, t) : '',
+  props.item.target ? formatMeasurementTargetSummary(props.item.target, t) : ''
 )
 
 const pickerOptions = computed(() =>
-  props.priorityOptions.map((option) => ({ id: option.id, title: option.label })),
+  props.priorityOptions.map(option => ({ id: option.id, title: option.label }))
 )
 const linkedPriorityLabels = computed(() =>
   (props.item.priorityIds ?? [])
-    .map((id) => props.priorityOptions.find((option) => option.id === id)?.label)
-    .filter((label): label is string => Boolean(label)),
+    .map(id => props.priorityOptions.find(option => option.id === id)?.label)
+    .filter((label): label is string => Boolean(label))
 )
 
 // Inline edit — local draft committed on save (mirrors WeekPlanObjectCard).
@@ -203,19 +208,22 @@ function onMeasurement(measurement: {
   draftTarget.value = measurement.target
 }
 
-function onMultiConfig(config: { items: MultiCompletionItem[]; threshold: number | undefined }): void {
+function onMultiConfig(config: {
+  items: MultiCompletionItem[]
+  threshold: number | undefined
+}): void {
   draftMultiItems.value = config.items
   draftMultiDailyThreshold.value = config.threshold
 }
 
 watch(
   () => props.isNew,
-  (isNew) => {
+  isNew => {
     if (isNew && !editing.value) {
       startEdit()
     }
   },
-  { immediate: true },
+  { immediate: true }
 )
 </script>
 

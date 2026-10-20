@@ -28,8 +28,18 @@ describe('breathPattern · session length', () => {
 
 describe('breathPattern · breathPositionAt', () => {
   it('walks the phases in order with progress and countdown', () => {
-    expect(breathPositionAt(box, 0)).toMatchObject({ breath: 0, phase: 0, progress: 0, remaining: 4 })
-    expect(breathPositionAt(box, 2000)).toMatchObject({ breath: 0, phase: 0, progress: 0.5, remaining: 2 })
+    expect(breathPositionAt(box, 0)).toMatchObject({
+      breath: 0,
+      phase: 0,
+      progress: 0,
+      remaining: 4,
+    })
+    expect(breathPositionAt(box, 2000)).toMatchObject({
+      breath: 0,
+      phase: 0,
+      progress: 0.5,
+      remaining: 2,
+    })
     expect(breathPositionAt(box, 4000)).toMatchObject({ breath: 0, phase: 1, remaining: 4 })
     expect(breathPositionAt(box, 13_500)).toMatchObject({ breath: 0, phase: 3, remaining: 3 })
     expect(breathPositionAt(box, 16_000)).toMatchObject({ breath: 1, phase: 0 })

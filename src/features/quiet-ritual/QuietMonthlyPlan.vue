@@ -5,7 +5,11 @@
     :period-title="periodTitle"
     :steps="steps"
     :current="current"
-    :count="current === 0 ? `${selectedPriorityIds.length} ${plural(selectedPriorityIds.length, 'wybrany', 'wybrane', 'wybranych')}` : ''"
+    :count="
+      current === 0
+        ? `${selectedPriorityIds.length} ${plural(selectedPriorityIds.length, 'wybrany', 'wybrane', 'wybranych')}`
+        : ''
+    "
     :wide="current >= 2"
     :saving="Boolean(planner.savingKey.value) || isSaving"
     finish-label="Zakończ planowanie"
@@ -29,8 +33,14 @@
             @click="toggleDirection(priority.id)"
           >
             <span class="qr-object-icon"><AppIcon :name="priority.icon || 'explore'" /></span>
-            <span><strong>{{ priority.title }}</strong></span>
-            <span class="mg-well qr-well" :class="{ 'mg-well--done': selectedPriorityIds.includes(priority.id) }" aria-hidden="true"></span>
+            <span
+              ><strong>{{ priority.title }}</strong></span
+            >
+            <span
+              class="mg-well qr-well"
+              :class="{ 'mg-well--done': selectedPriorityIds.includes(priority.id) }"
+              aria-hidden="true"
+            ></span>
           </button>
           <details v-if="priority.desiredDirection" class="qm-choice-detail">
             <summary :aria-label="`Kierunek: ${priority.title}`">Kierunek</summary>
@@ -39,8 +49,8 @@
         </article>
       </div>
       <p v-if="!activePriorities.length" class="qr-empty">
-        Brak aktywnych kierunków na ten rok. Możesz zacząć od praktyk i działań w kolejnym kroku albo dodać
-        kierunek w bibliotece obiektów.
+        Brak aktywnych kierunków na ten rok. Możesz zacząć od praktyk i działań w kolejnym kroku
+        albo dodać kierunek w bibliotece obiektów.
       </p>
       <details class="qm-help">
         <summary>Wybór kierunków</summary>
@@ -73,9 +83,18 @@
             :disabled="isSaving"
             @click="toggleSupport(row)"
           >
-            <span class="qr-object-icon"><AppIcon :name="row.icon ?? SUBJECT_ICON[row.subjectType]" /></span>
-            <span><strong>{{ row.title }}</strong><small>{{ relationLabel(row) }}</small></span>
-            <span class="mg-well qr-well" :class="{ 'mg-well--done': row.isActive }" aria-hidden="true"></span>
+            <span class="qr-object-icon"
+              ><AppIcon :name="row.icon ?? SUBJECT_ICON[row.subjectType]"
+            /></span>
+            <span
+              ><strong>{{ row.title }}</strong
+              ><small>{{ relationLabel(row) }}</small></span
+            >
+            <span
+              class="mg-well qr-well"
+              :class="{ 'mg-well--done': row.isActive }"
+              aria-hidden="true"
+            ></span>
           </button>
         </article>
       </div>
@@ -95,9 +114,18 @@
               :disabled="isSaving"
               @click="toggleSupport(row)"
             >
-              <span class="qr-object-icon"><AppIcon :name="row.icon ?? SUBJECT_ICON[row.subjectType]" /></span>
-              <span><strong>{{ row.title }}</strong><small>{{ relationLabel(row) }}</small></span>
-              <span class="mg-well qr-well" :class="{ 'mg-well--done': row.isActive }" aria-hidden="true"></span>
+              <span class="qr-object-icon"
+                ><AppIcon :name="row.icon ?? SUBJECT_ICON[row.subjectType]"
+              /></span>
+              <span
+                ><strong>{{ row.title }}</strong
+                ><small>{{ relationLabel(row) }}</small></span
+              >
+              <span
+                class="mg-well qr-well"
+                :class="{ 'mg-well--done': row.isActive }"
+                aria-hidden="true"
+              ></span>
             </button>
           </article>
         </div>
@@ -107,13 +135,16 @@
     <!-- 3 · Tygodnie -->
     <section v-else-if="current === 2" class="qm-planner">
       <p v-if="!supportRows.length" class="qr-empty">
-        Nie wybrano działań. <button type="button" class="qr-quiet" @click="go(1)">Dobierz wsparcie</button>
+        Nie wybrano działań.
+        <button type="button" class="qr-quiet" @click="go(1)">Dobierz wsparcie</button>
       </p>
       <div v-else class="qm-table-scroll">
         <div class="qm-table" :style="{ '--qm-weeks': weeks.length }">
           <div class="qm-row qm-table-head">
             <span>Wsparcie</span>
-            <span v-for="week in weeks" :key="week.weekRef">{{ week.label }}<small>{{ week.range }}</small></span>
+            <span v-for="week in weeks" :key="week.weekRef"
+              >{{ week.label }}<small>{{ week.range }}</small></span
+            >
             <span>Cel</span>
           </div>
           <article
@@ -124,7 +155,9 @@
           >
             <div class="qm-row">
               <span class="qm-object">
-                <AppIcon :name="row.icon ?? SUBJECT_ICON[row.subjectType]" /><strong>{{ row.title }}</strong>
+                <AppIcon :name="row.icon ?? SUBJECT_ICON[row.subjectType]" /><strong>{{
+                  row.title
+                }}</strong>
               </span>
               <div v-for="week in weeks" :key="week.weekRef" class="qm-cell">
                 <button
@@ -150,9 +183,13 @@
                     placeholder="—"
                     @change="onWeekTarget(row, week.weekRef, $event)"
                   />
-                  <small v-if="planner.weekDayBadge(row, week.weekRef)">{{ planner.weekDayBadge(row, week.weekRef) }} dni</small>
+                  <small v-if="planner.weekDayBadge(row, week.weekRef)"
+                    >{{ planner.weekDayBadge(row, week.weekRef) }} dni</small
+                  >
                 </template>
-                <small v-else-if="planner.weekDayBadge(row, week.weekRef)">{{ planner.weekDayBadge(row, week.weekRef) }} dni</small>
+                <small v-else-if="planner.weekDayBadge(row, week.weekRef)"
+                  >{{ planner.weekDayBadge(row, week.weekRef) }} dni</small
+                >
               </div>
               <button
                 v-if="planner.editableTarget(row)"
@@ -211,12 +248,19 @@
                   </span>
                 </template>
                 <details>
-                  <summary :aria-label="`Ustawienia celu: ${row.title}`"><AppIcon name="tune" /></summary>
+                  <summary :aria-label="`Ustawienia celu: ${row.title}`">
+                    <AppIcon name="tune" />
+                  </summary>
                   <p>{{ targetTitle(row) }}</p>
-                  <p v-if="row.cadence === 'weekly'">Wyjątek celu na jeden tydzień ustawisz w planowaniu tygodnia.</p>
+                  <p v-if="row.cadence === 'weekly'">
+                    Wyjątek celu na jeden tydzień ustawisz w planowaniu tygodnia.
+                  </p>
                   <label>
                     Warunek
-                    <select :value="planner.editableTarget(row)?.operator" @change="onOperator(row, $event)">
+                    <select
+                      :value="planner.editableTarget(row)?.operator"
+                      @change="onOperator(row, $event)"
+                    >
                       <option value="min">Co najmniej</option>
                       <option value="max">Co najwyżej</option>
                     </select>
@@ -231,7 +275,12 @@
                       @change="onEntryDays(row, $event)"
                     />
                   </label>
-                  <button v-if="row.targetOverride" type="button" class="qr-quiet" @click="planner.handleClearOverride(row)">
+                  <button
+                    v-if="row.targetOverride"
+                    type="button"
+                    class="qr-quiet"
+                    @click="planner.handleClearOverride(row)"
+                  >
                     <AppIcon name="undo" />Wróć do celu bazowego
                   </button>
                 </details>
@@ -245,12 +294,20 @@
     <!-- 4 · Przegląd -->
     <section v-else class="qm-review">
       <div v-if="gaps.length" class="qm-gaps">
-        <button v-for="gap in gaps" :key="gap.label" type="button" class="qr-quiet" @click="go(gap.step)">
+        <button
+          v-for="gap in gaps"
+          :key="gap.label"
+          type="button"
+          class="qr-quiet"
+          @click="go(gap.step)"
+        >
           {{ gap.label }}<AppIcon name="arrow_forward" />
         </button>
       </div>
       <div v-if="selectedPriorityIds.length" class="qm-direction-filter">
-        <button type="button" class="qr-quiet" :aria-pressed="!filter" @click="filter = ''">Wszystkie</button>
+        <button type="button" class="qr-quiet" :aria-pressed="!filter" @click="filter = ''">
+          Wszystkie
+        </button>
         <button
           v-for="priority in selectedPriorities"
           :key="priority.id"
@@ -265,7 +322,8 @@
       <div class="qm-week-cards" :style="{ '--qm-weeks': weeks.length }">
         <article v-for="week in weeks" :key="week.weekRef" class="qm-week-card">
           <header>
-            <strong>{{ week.label }}</strong><small>{{ week.range }}</small>
+            <strong>{{ week.label }}</strong
+            ><small>{{ week.range }}</small>
           </header>
           <QuietPlanGroups
             :items="weekItems(week.weekRef)"
@@ -274,7 +332,9 @@
             :context="week.range"
             @edit="edit"
           />
-          <span v-if="!weekItems(week.weekRef).length && !wholeMonthItems.length" class="qm-muted">—</span>
+          <span v-if="!weekItems(week.weekRef).length && !wholeMonthItems.length" class="qm-muted"
+            >—</span
+          >
           <button type="button" class="qr-quiet" @click="emit('open-week', week.weekRef)">
             Zaplanuj tydzień<AppIcon name="arrow_forward" />
           </button>
@@ -298,8 +358,14 @@ import { habitDexieRepository } from '@/repositories/habitDexieRepository'
 import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
 import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
-import { getActivePrioritiesForMonth, setMonthTopPriorities } from '@/services/monthlyPriorityService'
-import { activateMeasurementInMonth, deactivateMeasurementInMonth } from '@/services/planningMutations'
+import {
+  getActivePrioritiesForMonth,
+  setMonthTopPriorities,
+} from '@/services/monthlyPriorityService'
+import {
+  activateMeasurementInMonth,
+  deactivateMeasurementInMonth,
+} from '@/services/planningMutations'
 import { formatMeasurementTargetSummary } from '@/utils/measurementTargetFormat'
 import { getPreviousPeriod } from '@/utils/periods'
 import QuietPlanGroups, { type QuietPlanGroupItem } from './QuietPlanGroups.vue'
@@ -316,7 +382,9 @@ const filter = ref('')
 const isSaving = ref(false)
 const activePriorities = ref<Priority[]>([])
 const selectedPriorityIds = ref<string[]>([])
-const previousDirections = ref<Array<{ id: string; title: string; verdict: PriorityVerdict | null }>>([])
+const previousDirections = ref<
+  Array<{ id: string; title: string; verdict: PriorityVerdict | null }>
+>([])
 
 const VERDICT_LABEL: Record<string, string> = {
   continue: 'Kontynuuj',
@@ -338,7 +406,9 @@ const steps: QuietRitualStep[] = [
 const periodTitle = computed(() => monthTitle(props.monthRef))
 const previousTitle = computed(() => monthTitle(getPreviousPeriod(props.monthRef) as MonthRef))
 const weeks = computed(() => quietMonthWeeks(props.monthRef))
-const selectedPriorities = computed(() => activePriorities.value.filter(priority => selectedPriorityIds.value.includes(priority.id)))
+const selectedPriorities = computed(() =>
+  activePriorities.value.filter(priority => selectedPriorityIds.value.includes(priority.id))
+)
 
 /** Objects related to the chosen directions come first; everything else waits behind one reveal. */
 function priorityIdsOf(row: PlannerMeasurementRow): string[] {
@@ -349,9 +419,13 @@ const matchesDirection = (row: PlannerMeasurementRow) =>
   priorityIdsOf(row).some(id => selectedPriorityIds.value.includes(id))
 
 const primarySupport = computed(() =>
-  planner.allRows.value.filter(row => row.subjectType !== 'tracker' && (matchesDirection(row) || row.isActive)),
+  planner.allRows.value.filter(
+    row => row.subjectType !== 'tracker' && (matchesDirection(row) || row.isActive)
+  )
 )
-const extraSupport = computed(() => planner.allRows.value.filter(row => !primarySupport.value.includes(row)))
+const extraSupport = computed(() =>
+  planner.allRows.value.filter(row => !primarySupport.value.includes(row))
+)
 const supportRows = computed(() => planner.allRows.value.filter(row => row.isActive))
 
 const goalPriorityIds = ref(new Map<string, string[]>())
@@ -359,8 +433,12 @@ const subjectPriorityIds = ref(new Map<string, string[]>())
 
 const wholeMonthItems = computed<QuietPlanGroupItem[]>(() =>
   supportRows.value
-    .filter(row => visibleUnderFilter(row) && (planner.rowSoftKind(row) === 'whole-month' || planner.isWholePeriodApplied(row)))
-    .map(planItem),
+    .filter(
+      row =>
+        visibleUnderFilter(row) &&
+        (planner.rowSoftKind(row) === 'whole-month' || planner.isWholePeriodApplied(row))
+    )
+    .map(planItem)
 )
 
 function visibleUnderFilter(row: PlannerMeasurementRow): boolean {
@@ -368,7 +446,12 @@ function visibleUnderFilter(row: PlannerMeasurementRow): boolean {
 }
 
 function planItem(row: PlannerMeasurementRow): QuietPlanGroupItem {
-  return { key: planner.rowKey(row), title: row.title, subjectType: row.subjectType, icon: row.icon }
+  return {
+    key: planner.rowKey(row),
+    title: row.title,
+    subjectType: row.subjectType,
+    icon: row.icon,
+  }
 }
 
 function weekItems(weekRef: WeekRef): QuietPlanGroupItem[] {
@@ -377,7 +460,7 @@ function weekItems(weekRef: WeekRef): QuietPlanGroupItem[] {
       row =>
         visibleUnderFilter(row) &&
         planner.weekCellState(row, weekRef) === 'checked' &&
-        !planner.isWholePeriodApplied(row),
+        !planner.isWholePeriodApplied(row)
     )
     .map(planItem)
 }
@@ -389,7 +472,12 @@ function weekItems(weekRef: WeekRef): QuietPlanGroupItem[] {
  */
 const gaps = computed(() => [
   ...selectedPriorities.value
-    .filter(priority => !supportRows.value.some(row => row.subjectType !== 'tracker' && priorityIdsOf(row).includes(priority.id)))
+    .filter(
+      priority =>
+        !supportRows.value.some(
+          row => row.subjectType !== 'tracker' && priorityIdsOf(row).includes(priority.id)
+        )
+    )
     .map(priority => ({ label: `${priority.title} · dobierz wsparcie`, step: 1 })),
   ...supportRows.value
     .filter(row => {
@@ -401,7 +489,9 @@ const gaps = computed(() => [
 
 function relationLabel(row: PlannerMeasurementRow): string {
   if (row.subjectType === 'tracker') return 'Obserwacja'
-  const titles = activePriorities.value.filter(priority => priorityIdsOf(row).includes(priority.id)).map(priority => priority.title)
+  const titles = activePriorities.value
+    .filter(priority => priorityIdsOf(row).includes(priority.id))
+    .map(priority => priority.title)
   return titles.join(' · ') || 'Dodatkowe wsparcie'
 }
 
@@ -420,8 +510,14 @@ function balanceLabel(row: PlannerMeasurementRow): string {
 }
 
 onMounted(() => void load())
-watch(() => props.monthRef, () => void load())
-watch(() => planner.allRows.value.map(row => row.id).join(','), () => void loadRelations())
+watch(
+  () => props.monthRef,
+  () => void load()
+)
+watch(
+  () => planner.allRows.value.map(row => row.id).join(','),
+  () => void loadRelations()
+)
 
 async function load() {
   const [priorities, monthPlan] = await Promise.all([
@@ -455,8 +551,13 @@ async function loadPreviousMonth() {
   ])
   const verdicts = new Map(
     reflections
-      .filter(item => item.periodType === 'month' && item.periodRef === previousMonth && item.subjectType === 'priority')
-      .map(item => [item.subjectId, item.verdict ?? null]),
+      .filter(
+        item =>
+          item.periodType === 'month' &&
+          item.periodRef === previousMonth &&
+          item.subjectType === 'priority'
+      )
+      .map(item => [item.subjectId, item.verdict ?? null])
   )
   const ids = [...new Set([...(plan?.topPriorityIds ?? []), ...verdicts.keys()])]
   previousDirections.value = ids.flatMap(id => {
@@ -483,7 +584,9 @@ async function toggleDirection(priorityId: string) {
   const set = new Set(selectedPriorityIds.value)
   if (set.has(priorityId)) set.delete(priorityId)
   else set.add(priorityId)
-  selectedPriorityIds.value = activePriorities.value.map(priority => priority.id).filter(id => set.has(id))
+  selectedPriorityIds.value = activePriorities.value
+    .map(priority => priority.id)
+    .filter(id => set.has(id))
   await persistDirections()
 }
 
@@ -503,7 +606,11 @@ async function toggleSupport(row: PlannerMeasurementRow) {
   isSaving.value = true
   try {
     if (row.isActive) {
-      await deactivateMeasurementInMonth({ monthRef: props.monthRef, subjectType: row.subjectType, subjectId: row.id })
+      await deactivateMeasurementInMonth({
+        monthRef: props.monthRef,
+        subjectType: row.subjectType,
+        subjectId: row.id,
+      })
     } else {
       await activateMeasurementInMonth({
         monthRef: props.monthRef,
@@ -550,6 +657,9 @@ async function onEntryDays(row: PlannerMeasurementRow, event: Event) {
   const condition = target?.entryDays
   const value = Number((event.target as HTMLInputElement).value)
   if (!condition || !Number.isFinite(value)) return
-  await planner.handleEntryDaysChange(row, { ...condition, value: Math.max(1, Math.round(value)) } as MeasurementTarget['entryDays'])
+  await planner.handleEntryDaysChange(row, {
+    ...condition,
+    value: Math.max(1, Math.round(value)),
+  } as MeasurementTarget['entryDays'])
 }
 </script>

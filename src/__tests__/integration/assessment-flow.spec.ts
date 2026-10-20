@@ -65,19 +65,27 @@ describe('assessment flow integration', () => {
 
     const secondComputation = session.effectiveComputation.value
     const extraversion = secondComputation?.computedScales.find(
-      (scale) => scale.scaleId === session.definition.scales[0].id,
+      scale => scale.scaleId === session.definition.scales[0].id
     )
 
     expect(extraversion?.deltaFromPrevious).toBeDefined()
 
     const db = getUserDatabase()
-    const attempts = await db.assessmentAttempts.where('assessmentId').equals('ipip-bfm-50').toArray()
-    const completedAttempts = attempts.filter((attempt) => attempt.status === 'completed')
+    const attempts = await db.assessmentAttempts
+      .where('assessmentId')
+      .equals('ipip-bfm-50')
+      .toArray()
+    const completedAttempts = attempts.filter(attempt => attempt.status === 'completed')
 
     expect(completedAttempts).toHaveLength(2)
 
-    const latestAttempt = completedAttempts.sort((a, b) => (b.completedAt ?? '').localeCompare(a.completedAt ?? ''))[0]
-    const responsesCount = await db.assessmentResponses.where('attemptId').equals(latestAttempt.id).count()
+    const latestAttempt = completedAttempts.sort((a, b) =>
+      (b.completedAt ?? '').localeCompare(a.completedAt ?? '')
+    )[0]
+    const responsesCount = await db.assessmentResponses
+      .where('attemptId')
+      .equals(latestAttempt.id)
+      .count()
 
     expect(responsesCount).toBe(8)
   })

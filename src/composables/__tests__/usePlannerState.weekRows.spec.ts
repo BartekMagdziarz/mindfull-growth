@@ -13,9 +13,7 @@ const MONTH = parsePeriodRef('2026-03') as MonthRef
 
 /** Without `scheduleScope` the habit starts unplanned — no month state at all
  * (the only state reachable from the new UI for an untouched object). */
-async function createMonthlyHabit(
-  scheduleScope?: 'unassigned' | 'whole-month'
-): Promise<string> {
+async function createMonthlyHabit(scheduleScope?: 'unassigned' | 'whole-month'): Promise<string> {
   const habit = await habitDexieRepository.create({
     title: 'Strength training',
     isActive: true,

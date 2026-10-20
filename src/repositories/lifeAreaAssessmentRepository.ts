@@ -13,7 +13,7 @@ export interface LifeAreaAssessmentRepository {
   getLatestForLifeArea(lifeAreaId: string): Promise<LifeAreaAssessment | undefined>
   getPreviousForLifeArea(
     lifeAreaId: string,
-    beforeCreatedAt: string,
+    beforeCreatedAt: string
   ): Promise<LifeAreaAssessment | undefined>
   create(data: CreateLifeAreaAssessmentPayload): Promise<LifeAreaAssessment>
   update(id: string, data: UpdateLifeAreaAssessmentPayload): Promise<LifeAreaAssessment>

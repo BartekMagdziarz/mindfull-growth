@@ -16,14 +16,14 @@ export class ErqScorer implements AssessmentScorer {
     let completedWithMissingData = false
     let missingItemCount = 0
 
-    const scaleScores = definition.scales.map((scale) => {
+    const scaleScores = definition.scales.map(scale => {
       const result = computeLikertScale(
         definition,
         scale.id,
         scale.labelKey,
         scale.itemIds,
         scale.minAnswered,
-        responsesMap,
+        responsesMap
       )
       completedWithMissingData ||= result.completedWithMissingData
       missingItemCount += result.missingCount
@@ -35,9 +35,9 @@ export class ErqScorer implements AssessmentScorer {
     return {
       computedScales: scoredWithDeltas,
       overallSummary: {
-        completedScaleCount: scoredWithDeltas.filter((scale) => scale.normalizedMean !== null).length,
+        completedScaleCount: scoredWithDeltas.filter(scale => scale.normalizedMean !== null).length,
         totalScaleCount: scoredWithDeltas.length,
-        meanOfMeans: meanOfValues(scoredWithDeltas.map((scale) => scale.normalizedMean)),
+        meanOfMeans: meanOfValues(scoredWithDeltas.map(scale => scale.normalizedMean)),
       },
       scoringComputationMetadata: {
         centeredScoringEnabled: false,

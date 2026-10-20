@@ -2,11 +2,7 @@
   <div class="space-y-4">
     <!-- Loading skeleton -->
     <div v-if="isLoading" class="space-y-3" aria-live="polite">
-      <div
-        v-for="i in 3"
-        :key="i"
-        class="neo-surface rounded-2xl p-4 animate-pulse"
-      >
+      <div v-for="i in 3" :key="i" class="neo-surface rounded-2xl p-4 animate-pulse">
         <div class="h-4 w-1/3 bg-neu-base rounded mb-2" />
         <div class="h-3 w-2/3 bg-neu-base rounded" />
       </div>
@@ -111,11 +107,7 @@
       </div>
 
       <!-- Token breakdown (per-type × age) -->
-      <details
-        v-if="hasBreakdown"
-        class="neo-surface rounded-2xl"
-        data-test="token-breakdown"
-      >
+      <details v-if="hasBreakdown" class="neo-surface rounded-2xl" data-test="token-breakdown">
         <summary class="cursor-pointer p-3 text-sm font-medium text-on-surface">
           {{ t('profile.psychologicalProfile.wizard.preview.breakdown.title') }}
         </summary>
@@ -152,7 +144,9 @@
                 :data-test-tokens-age="bucket.key"
               >
                 <div class="text-xs text-on-surface-variant">
-                  {{ t(`profile.psychologicalProfile.wizard.preview.ageBuckets.${bucket.i18nKey}`) }}
+                  {{
+                    t(`profile.psychologicalProfile.wizard.preview.ageBuckets.${bucket.i18nKey}`)
+                  }}
                 </div>
                 <div class="text-sm font-mono text-on-surface">
                   {{ formatTokens(bucket.tokens) }}
@@ -164,10 +158,7 @@
       </details>
 
       <!-- Empty state -->
-      <div
-        v-if="totalCount === 0 && !error"
-        class="neo-surface rounded-2xl p-6 text-center"
-      >
+      <div v-if="totalCount === 0 && !error" class="neo-surface rounded-2xl p-6 text-center">
         <p class="text-sm text-on-surface-variant">
           {{ t('profile.psychologicalProfile.wizard.preview.emptyState') }}
         </p>
@@ -249,7 +240,7 @@ const HEADER_LIMIT = 200
 const TOKEN_WARN_THRESHOLD = 120_000
 
 const totalCount = computed(() =>
-  Object.values(props.countsByType).reduce((sum, n) => sum + (n ?? 0), 0),
+  Object.values(props.countsByType).reduce((sum, n) => sum + (n ?? 0), 0)
 )
 
 const activeTypes = computed(() => props.dataTypes)
@@ -259,7 +250,7 @@ const showTokenWarning = computed(() => props.approxTokens > TOKEN_WARN_THRESHOL
 // Records the budget-aware assembler trimmed to fit the model window. `totalCount`
 // stays the pre-trim match count, so the notice reads "trimmed K of M".
 const droppedTotal = computed(() =>
-  Object.values(props.droppedByType ?? {}).reduce((sum, n) => sum + (n ?? 0), 0),
+  Object.values(props.droppedByType ?? {}).reduce((sum, n) => sum + (n ?? 0), 0)
 )
 
 const visibleHeaders = computed(() => props.headers.slice(0, HEADER_LIMIT))
@@ -267,8 +258,8 @@ const visibleHeaders = computed(() => props.headers.slice(0, HEADER_LIMIT))
 // Per-type token estimate, ordered like the count cards, dropping zero-cost types.
 const breakdownByType = computed(() =>
   props.dataTypes
-    .map((type) => ({ type, tokens: props.tokensByType?.[type] ?? 0 }))
-    .filter((item) => item.tokens > 0),
+    .map(type => ({ type, tokens: props.tokensByType?.[type] ?? 0 }))
+    .filter(item => item.tokens > 0)
 )
 
 // i18n-safe leaf keys (raw bucket keys like "0-30d"/"365d+" don't make good
@@ -283,15 +274,15 @@ const AGE_BUCKET_I18N: Record<ProfileAgeBucket, string> = {
 
 // Per-age token estimate in canonical bucket order, dropping empty buckets.
 const breakdownByAge = computed(() =>
-  PROFILE_AGE_BUCKETS.map((key) => ({
+  PROFILE_AGE_BUCKETS.map(key => ({
     key,
     i18nKey: AGE_BUCKET_I18N[key],
     tokens: props.tokensByAge?.[key] ?? 0,
-  })).filter((bucket) => bucket.tokens > 0),
+  })).filter(bucket => bucket.tokens > 0)
 )
 
 const hasBreakdown = computed(
-  () => breakdownByType.value.length > 0 || breakdownByAge.value.length > 0,
+  () => breakdownByType.value.length > 0 || breakdownByAge.value.length > 0
 )
 
 /** Compact token count: "9.1k" for thousands, the raw number otherwise. */

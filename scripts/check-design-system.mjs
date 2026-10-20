@@ -68,7 +68,7 @@ async function walk(directoryUrl) {
   const files = []
   for (const entry of entries) {
     const entryUrl = new URL(`${entry.name}${entry.isDirectory() ? '/' : ''}`, directoryUrl)
-    if (entry.isDirectory()) files.push(...await walk(entryUrl))
+    if (entry.isDirectory()) files.push(...(await walk(entryUrl)))
     else if (allowedExtensions.has(extname(entry.name))) files.push(entryUrl)
   }
   return files
@@ -76,8 +76,8 @@ async function walk(directoryUrl) {
 
 function isExempt(fileUrl) {
   const relPath = relative(projectRoot.pathname, fileUrl.pathname)
-  return exemptPaths.some((exempt) =>
-    exempt.endsWith('/') ? relPath.startsWith(exempt) : relPath === exempt,
+  return exemptPaths.some(exempt =>
+    exempt.endsWith('/') ? relPath.startsWith(exempt) : relPath === exempt
   )
 }
 
@@ -103,7 +103,9 @@ for (const guardedRoot of guardedRoots) {
       for (const rule of rules) {
         rule.pattern.lastIndex = 0
         if (rule.pattern.test(line)) {
-          violations.push(`${relative(projectRoot.pathname, fileUrl.pathname)}:${index + 1} — ${rule.label}`)
+          violations.push(
+            `${relative(projectRoot.pathname, fileUrl.pathname)}:${index + 1} — ${rule.label}`
+          )
         }
       }
     })

@@ -136,11 +136,9 @@ describe('period helpers', () => {
       { id: 'other', period: parsePeriodRef('2026-04-02') as DayRef },
     ]
 
-    expect(filterItemsByPeriod(items, weekTarget, (item) => item.period).map((item) => item.id)).toEqual([
-      'day',
-      'week',
-      'month',
-    ])
+    expect(
+      filterItemsByPeriod(items, weekTarget, item => item.period).map(item => item.id)
+    ).toEqual(['day', 'week', 'month'])
 
     const grouped = groupItemsByPeriod(
       [
@@ -148,7 +146,7 @@ describe('period helpers', () => {
         { id: 'b', period: parsePeriodRef('2026-03-12') as DayRef },
         { id: 'c', period: parsePeriodRef('2026-W10') as WeekRef },
       ],
-      (item) => item.period,
+      item => item.period
     )
 
     expect(grouped).toEqual([
@@ -169,8 +167,8 @@ describe('period helpers', () => {
           { id: 'b', period: parsePeriodRef('2026-03-12') as DayRef },
           { id: 'c', period: parsePeriodRef('2026-W10') as WeekRef },
         ],
-        (item) => item.period,
-      ),
+        item => item.period
+      )
     ).toEqual([
       { periodRef: '2026-W10', count: 1 },
       { periodRef: '2026-03-12', count: 2 },
@@ -179,7 +177,9 @@ describe('period helpers', () => {
 
   it('compares period refs by start date and then breadth', () => {
     expect(comparePeriodRefs(parsePeriodRef('2026'), parsePeriodRef('2026-01'))).toBeLessThan(0)
-    expect(comparePeriodRefs(parsePeriodRef('2026-W10'), parsePeriodRef('2026-03-12'))).toBeLessThan(0)
+    expect(
+      comparePeriodRefs(parsePeriodRef('2026-W10'), parsePeriodRef('2026-03-12'))
+    ).toBeLessThan(0)
   })
 
   it('adds days across month and year boundaries', () => {

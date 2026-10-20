@@ -17,10 +17,7 @@
           <dt class="text-on-surface-variant shrink-0">
             {{ t('profile.psychologicalProfile.wizard.save.summary.dateRange') }}
           </dt>
-          <dd
-            class="text-on-surface text-right"
-            data-test-summary-date-range
-          >
+          <dd class="text-on-surface text-right" data-test-summary-date-range>
             {{ dateRangeLabel }}
           </dd>
         </div>
@@ -28,10 +25,7 @@
           <dt class="text-on-surface-variant shrink-0">
             {{ t('profile.psychologicalProfile.wizard.save.summary.dataTypes') }}
           </dt>
-          <dd
-            class="text-on-surface text-right"
-            data-test-summary-data-types
-          >
+          <dd class="text-on-surface text-right" data-test-summary-data-types>
             {{ dataTypesLabel }}
           </dd>
         </div>
@@ -39,10 +33,7 @@
           <dt class="text-on-surface-variant shrink-0">
             {{ t('profile.psychologicalProfile.wizard.save.summary.totalItems') }}
           </dt>
-          <dd
-            class="text-on-surface text-right"
-            data-test-summary-total-items
-          >
+          <dd class="text-on-surface text-right" data-test-summary-total-items>
             {{ totalItems }}
           </dd>
         </div>
@@ -71,10 +62,7 @@
 
     <!-- Note input -->
     <div>
-      <label
-        class="block text-xs text-on-surface-variant mb-1"
-        for="profile-save-note"
-      >
+      <label class="block text-xs text-on-surface-variant mb-1" for="profile-save-note">
         {{ t('profile.psychologicalProfile.wizard.save.note.label') }}
       </label>
       <input
@@ -93,25 +81,14 @@
     </div>
 
     <!-- Revert edits shortcut -->
-    <div
-      v-if="wizard.hasUnsavedEdits.value"
-      class="flex items-center justify-end"
-    >
-      <AppButton
-        variant="text"
-        data-test-revert-edits
-        @click="wizard.revertEdits"
-      >
+    <div v-if="wizard.hasUnsavedEdits.value" class="flex items-center justify-end">
+      <AppButton variant="text" data-test-revert-edits @click="wizard.revertEdits">
         {{ t('profile.psychologicalProfile.wizard.save.revertEdits') }}
       </AppButton>
     </div>
 
     <!-- Error banner -->
-    <div
-      v-if="wizard.saveError.value"
-      class="neo-warning p-3 rounded-2xl"
-      data-test-save-error
-    >
+    <div v-if="wizard.saveError.value" class="neo-warning p-3 rounded-2xl" data-test-save-error>
       <p class="text-sm text-on-surface">{{ wizard.saveError.value }}</p>
     </div>
   </div>
@@ -135,15 +112,12 @@ const emit = defineEmits<{
 const { t } = useT()
 
 const totalItems = computed(() =>
-  Object.values(props.wizard.previewCountsByType.value).reduce(
-    (sum, n) => sum + (n ?? 0),
-    0,
-  ),
+  Object.values(props.wizard.previewCountsByType.value).reduce((sum, n) => sum + (n ?? 0), 0)
 )
 
 const dataTypesLabel = computed(() => {
-  const titles = props.wizard.dataTypes.value.map((d) =>
-    t(`profile.psychologicalProfile.wizard.scope.types.${d}.title`),
+  const titles = props.wizard.dataTypes.value.map(d =>
+    t(`profile.psychologicalProfile.wizard.scope.types.${d}.title`)
   )
   return titles.length > 0 ? titles.join(', ') : '—'
 })
@@ -151,9 +125,7 @@ const dataTypesLabel = computed(() => {
 const dateRangeLabel = computed(() => {
   const range = props.wizard.dateRange.value
   if (range.kind === 'preset') {
-    return t(
-      `profile.psychologicalProfile.wizard.scope.dateRange.presets.${range.preset}`,
-    )
+    return t(`profile.psychologicalProfile.wizard.scope.dateRange.presets.${range.preset}`)
   }
   // Custom range — slice the ISO date strings to YYYY-MM-DD for display.
   const start = range.start ? range.start.slice(0, 10) : '?'

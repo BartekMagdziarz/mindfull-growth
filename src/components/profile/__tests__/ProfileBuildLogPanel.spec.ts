@@ -62,9 +62,7 @@ describe('ProfileBuildLogPanel', () => {
       expect(screen.getByText('No profile builds yet.')).toBeInTheDocument()
     })
     // No "Clear all" button in empty state.
-    expect(
-      screen.queryByRole('button', { name: 'Clear all' }),
-    ).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Clear all' })).not.toBeInTheDocument()
   })
 
   it('renders one row per log with model and latency', async () => {
@@ -96,33 +94,25 @@ describe('ProfileBuildLogPanel', () => {
     const { container } = render(ProfileBuildLogPanel)
 
     await waitFor(() => {
-      expect(
-        container.querySelector('[data-test-build-log-row="log-a"]'),
-      ).toBeInTheDocument()
+      expect(container.querySelector('[data-test-build-log-row="log-a"]')).toBeInTheDocument()
     })
 
     const row = container.querySelector(
-      '[data-test-build-log-row="log-a"] button',
+      '[data-test-build-log-row="log-a"] button'
     ) as HTMLButtonElement
     expect(row).toBeTruthy()
 
     // Before click: no body
-    expect(
-      container.querySelector('[data-test-build-log-body="log-a"]'),
-    ).toBeNull()
+    expect(container.querySelector('[data-test-build-log-body="log-a"]')).toBeNull()
 
     await user.click(row)
     await waitFor(() => {
-      expect(
-        container.querySelector('[data-test-build-log-body="log-a"]'),
-      ).toBeInTheDocument()
+      expect(container.querySelector('[data-test-build-log-body="log-a"]')).toBeInTheDocument()
     })
 
     await user.click(row)
     await waitFor(() => {
-      expect(
-        container.querySelector('[data-test-build-log-body="log-a"]'),
-      ).toBeNull()
+      expect(container.querySelector('[data-test-build-log-body="log-a"]')).toBeNull()
     })
   })
 
@@ -135,34 +125,26 @@ describe('ProfileBuildLogPanel', () => {
     const { container } = render(ProfileBuildLogPanel)
 
     await waitFor(() => {
-      expect(
-        container.querySelector('[data-test-build-log-row="log-a"]'),
-      ).toBeInTheDocument()
+      expect(container.querySelector('[data-test-build-log-row="log-a"]')).toBeInTheDocument()
     })
 
     const rowA = container.querySelector(
-      '[data-test-build-log-row="log-a"] button',
+      '[data-test-build-log-row="log-a"] button'
     ) as HTMLButtonElement
     const rowB = container.querySelector(
-      '[data-test-build-log-row="log-b"] button',
+      '[data-test-build-log-row="log-b"] button'
     ) as HTMLButtonElement
 
     await user.click(rowA)
     await waitFor(() => {
-      expect(
-        container.querySelector('[data-test-build-log-body="log-a"]'),
-      ).toBeInTheDocument()
+      expect(container.querySelector('[data-test-build-log-body="log-a"]')).toBeInTheDocument()
     })
 
     await user.click(rowB)
     await waitFor(() => {
       // #a closed, #b open
-      expect(
-        container.querySelector('[data-test-build-log-body="log-a"]'),
-      ).toBeNull()
-      expect(
-        container.querySelector('[data-test-build-log-body="log-b"]'),
-      ).toBeInTheDocument()
+      expect(container.querySelector('[data-test-build-log-body="log-a"]')).toBeNull()
+      expect(container.querySelector('[data-test-build-log-body="log-b"]')).toBeInTheDocument()
     })
   })
 
@@ -171,16 +153,12 @@ describe('ProfileBuildLogPanel', () => {
     vi.mocked(profileBuildLogDexieRepository.list)
       .mockResolvedValueOnce([makeLog({ id: 'log-a' })])
       .mockResolvedValueOnce([])
-    vi.mocked(profileBuildLogDexieRepository.clearAll).mockResolvedValue(
-      undefined,
-    )
+    vi.mocked(profileBuildLogDexieRepository.clearAll).mockResolvedValue(undefined)
     const user = userEvent.setup()
     render(ProfileBuildLogPanel)
 
     await waitFor(() => {
-      expect(
-        screen.getByRole('button', { name: 'Clear all' }),
-      ).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Clear all' })).toBeInTheDocument()
     })
 
     await user.click(screen.getByRole('button', { name: 'Clear all' }))
@@ -213,21 +191,17 @@ describe('ProfileBuildLogPanel', () => {
     const { container } = render(ProfileBuildLogPanel)
 
     await waitFor(() => {
-      expect(
-        container.querySelector('[data-test-build-log-status="fail"]'),
-      ).toBeInTheDocument()
+      expect(container.querySelector('[data-test-build-log-status="fail"]')).toBeInTheDocument()
     })
 
     const row = container.querySelector(
-      '[data-test-build-log-row="log-a"] button',
+      '[data-test-build-log-row="log-a"] button'
     ) as HTMLButtonElement
 
     await user.click(row)
 
     await waitFor(() => {
-      const errorBlock = container.querySelector(
-        '[data-test-build-log-error]',
-      )
+      const errorBlock = container.querySelector('[data-test-build-log-error]')
       expect(errorBlock?.textContent).toContain('API key invalid')
     })
   })
@@ -240,9 +214,7 @@ describe('ProfileBuildLogPanel', () => {
     const { container } = render(ProfileBuildLogPanel)
 
     await waitFor(() => {
-      const link = container.querySelector(
-        '[data-test-build-log-profile-link]',
-      ) as HTMLElement
+      const link = container.querySelector('[data-test-build-log-profile-link]') as HTMLElement
       expect(link).toBeInTheDocument()
       expect(link.textContent).toContain('abcdef12')
       expect(link.textContent).toContain('…')
@@ -259,20 +231,16 @@ describe('ProfileBuildLogPanel', () => {
     const { container } = render(ProfileBuildLogPanel)
 
     await waitFor(() => {
-      expect(
-        container.querySelector('[data-test-build-log-row="log-json"]'),
-      ).toBeInTheDocument()
+      expect(container.querySelector('[data-test-build-log-row="log-json"]')).toBeInTheDocument()
     })
 
     // Expand JSON row → expect newline-separated pretty-printed output.
     await user.click(
-      container.querySelector(
-        '[data-test-build-log-row="log-json"] button',
-      ) as HTMLButtonElement,
+      container.querySelector('[data-test-build-log-row="log-json"] button') as HTMLButtonElement
     )
     await waitFor(() => {
       const req = container.querySelector(
-        '[data-test-build-log-row="log-json"] [data-test-build-log-request]',
+        '[data-test-build-log-row="log-json"] [data-test-build-log-request]'
       )
       expect(req?.textContent).toContain('\n')
       expect(req?.textContent).toContain('"a": 1')
@@ -280,18 +248,14 @@ describe('ProfileBuildLogPanel', () => {
 
     // Collapse the first row, expand the raw row.
     await user.click(
-      container.querySelector(
-        '[data-test-build-log-row="log-json"] button',
-      ) as HTMLButtonElement,
+      container.querySelector('[data-test-build-log-row="log-json"] button') as HTMLButtonElement
     )
     await user.click(
-      container.querySelector(
-        '[data-test-build-log-row="log-raw"] button',
-      ) as HTMLButtonElement,
+      container.querySelector('[data-test-build-log-row="log-raw"] button') as HTMLButtonElement
     )
     await waitFor(() => {
       const req = container.querySelector(
-        '[data-test-build-log-row="log-raw"] [data-test-build-log-request]',
+        '[data-test-build-log-row="log-raw"] [data-test-build-log-request]'
       )
       expect(req?.textContent).toBe('not json at all')
     })
@@ -318,15 +282,11 @@ describe('ProfileBuildLogPanel', () => {
     const { container } = render(ProfileBuildLogPanel)
 
     await waitFor(() => {
-      expect(
-        container.querySelector('[data-test-build-log-row="log-a"]'),
-      ).toBeInTheDocument()
+      expect(container.querySelector('[data-test-build-log-row="log-a"]')).toBeInTheDocument()
     })
 
     await user.click(
-      container.querySelector(
-        '[data-test-build-log-row="log-a"] button',
-      ) as HTMLButtonElement,
+      container.querySelector('[data-test-build-log-row="log-a"] button') as HTMLButtonElement
     )
 
     await waitFor(() => {
@@ -349,15 +309,11 @@ describe('ProfileBuildLogPanel', () => {
     const { container } = render(ProfileBuildLogPanel)
 
     await waitFor(() => {
-      expect(
-        container.querySelector('[data-test-build-log-row="log-a"]'),
-      ).toBeInTheDocument()
+      expect(container.querySelector('[data-test-build-log-row="log-a"]')).toBeInTheDocument()
     })
 
     await user.click(
-      container.querySelector(
-        '[data-test-build-log-row="log-a"] button',
-      ) as HTMLButtonElement,
+      container.querySelector('[data-test-build-log-row="log-a"] button') as HTMLButtonElement
     )
 
     await waitFor(() => {
@@ -373,16 +329,12 @@ describe('ProfileBuildLogPanel', () => {
   it('is hidden when import.meta.env.DEV is false', async () => {
     vi.unstubAllEnvs()
     vi.stubEnv('DEV', false)
-    vi.mocked(profileBuildLogDexieRepository.list).mockResolvedValue([
-      makeLog({ id: 'log-a' }),
-    ])
+    vi.mocked(profileBuildLogDexieRepository.list).mockResolvedValue([makeLog({ id: 'log-a' })])
 
     render(ProfileBuildLogPanel)
 
     // Panel root has data-test-build-log-panel only when rendered.
-    expect(
-      document.querySelector('[data-test-build-log-panel]'),
-    ).toBeNull()
+    expect(document.querySelector('[data-test-build-log-panel]')).toBeNull()
     expect(screen.queryByText(/Dev: Profile Build Logs/)).toBeNull()
   })
 })

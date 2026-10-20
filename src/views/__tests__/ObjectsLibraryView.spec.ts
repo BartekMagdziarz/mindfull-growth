@@ -147,7 +147,9 @@ describe('ObjectsLibraryView', () => {
     expect(await screen.findByDisplayValue(priority.title)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Priority years' })).toHaveTextContent('2026')
     expect(screen.getByDisplayValue('Strategic constraint for the year')).toBeInTheDocument()
-    expect(screen.getByDisplayValue('Make mornings available for important work')).toBeInTheDocument()
+    expect(
+      screen.getByDisplayValue('Make mornings available for important work')
+    ).toBeInTheDocument()
     expect(screen.getByDisplayValue('Fewer reactive meetings')).toBeInTheDocument()
     expect(screen.getByDisplayValue('Three protected mornings per week')).toBeInTheDocument()
     expect(screen.getByDisplayValue('Reactive calendar')).toBeInTheDocument()
@@ -188,7 +190,9 @@ describe('ObjectsLibraryView', () => {
 
     await fireEvent.click(screen.getByRole('button', { name: 'Period' }))
     await fireEvent.click(
-      within(await screen.findByRole('dialog', { name: 'Period' })).getByRole('button', { name: currentYear }),
+      within(await screen.findByRole('dialog', { name: 'Period' })).getByRole('button', {
+        name: currentYear,
+      })
     )
     await waitFor(() => {
       expect(router.currentRoute.value.query.period).toBe(currentYear)

@@ -87,7 +87,7 @@ function cleanOptionalText(value: string | undefined): string | undefined {
 }
 
 function cleanReflectionSignals(signals: string[]): string[] {
-  return signals.map((signal) => signal.trim()).filter((signal) => signal.length > 0)
+  return signals.map(signal => signal.trim()).filter(signal => signal.length > 0)
 }
 
 async function handleSave() {

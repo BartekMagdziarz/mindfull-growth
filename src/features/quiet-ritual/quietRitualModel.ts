@@ -3,7 +3,11 @@ import type { LoadStatePair } from '@/domain/loadState'
 import { weekPointLabel, type AreaSeries } from '@/domain/loadStateSeries'
 import { REFLECTION_MATRIX_AREAS, type LifeAreaKey } from '@/domain/reflectionMatrix'
 import type { MeasurementEntryMode, MeasurementTarget } from '@/domain/planning'
-import type { DailyMeasurementEntry, MeasurementDayAssignment, MeasurementSubjectType } from '@/domain/planningState'
+import type {
+  DailyMeasurementEntry,
+  MeasurementDayAssignment,
+  MeasurementSubjectType,
+} from '@/domain/planningState'
 import type { MeasureableSubject } from '@/services/measurementProgress'
 import { multiCompletionDayPoints } from '@/services/measurementProgress'
 import { getChildPeriods, getPeriodBounds } from '@/utils/periods'
@@ -30,7 +34,15 @@ export const SUBJECT_LABEL: Record<MeasurementSubjectType, string> = {
 }
 
 const WEEKDAY_SHORT = ['pon', 'wt', 'śr', 'czw', 'pt', 'sob', 'niedz']
-const WEEKDAY_FULL = ['Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota', 'Niedziela']
+const WEEKDAY_FULL = [
+  'Poniedziałek',
+  'Wtorek',
+  'Środa',
+  'Czwartek',
+  'Piątek',
+  'Sobota',
+  'Niedziela',
+]
 
 export interface QuietDay {
   dayRef: DayRef
@@ -71,7 +83,7 @@ export interface QuietWeekSlot {
  */
 export function quietMonthAreaSeries(
   weeks: readonly { weekRef: WeekRef }[],
-  details: readonly { weekRef: WeekRef; loadState: Record<LifeAreaKey, LoadStatePair> }[],
+  details: readonly { weekRef: WeekRef; loadState: Record<LifeAreaKey, LoadStatePair> }[]
 ): AreaSeries {
   const byWeek = new Map(details.map(detail => [detail.weekRef, detail.loadState]))
   return Object.fromEntries(
@@ -79,9 +91,14 @@ export function quietMonthAreaSeries(
       area.key,
       weeks.map(({ weekRef }) => {
         const pair = byWeek.get(weekRef)?.[area.key]
-        return { weekRef, label: weekPointLabel(weekRef), load: pair?.load ?? null, state: pair?.state ?? null }
+        return {
+          weekRef,
+          label: weekPointLabel(weekRef),
+          load: pair?.load ?? null,
+          state: pair?.state ?? null,
+        }
       }),
-    ]),
+    ])
   ) as AreaSeries
 }
 
@@ -99,7 +116,9 @@ export function quietMonthWeeks(monthRef: MonthRef): QuietWeekSlot[] {
 }
 
 export function formatDay(dayRef: string): string {
-  return new Intl.DateTimeFormat('pl-PL', { day: 'numeric', month: 'short' }).format(new Date(`${dayRef}T12:00:00`))
+  return new Intl.DateTimeFormat('pl-PL', { day: 'numeric', month: 'short' }).format(
+    new Date(`${dayRef}T12:00:00`)
+  )
 }
 
 export function weekRangeTitle(weekRef: WeekRef): string {
@@ -108,7 +127,9 @@ export function weekRangeTitle(weekRef: WeekRef): string {
 }
 
 export function monthTitle(monthRef: MonthRef): string {
-  return new Intl.DateTimeFormat('pl-PL', { month: 'long', year: 'numeric' }).format(new Date(`${monthRef}-15T12:00:00`))
+  return new Intl.DateTimeFormat('pl-PL', { month: 'long', year: 'numeric' }).format(
+    new Date(`${monthRef}-15T12:00:00`)
+  )
 }
 
 export function formatQuietNumber(value: number): string {
@@ -169,7 +190,7 @@ export function buildQuietEvidenceRows(
   rawEntries: DailyMeasurementEntry[],
   assignments: MeasurementDayAssignment[],
   weekRef: WeekRef,
-  todayDayRef: DayRef,
+  todayDayRef: DayRef
 ): QuietEvidenceRow[] {
   const days = quietWeekDays(weekRef, todayDayRef)
   return items.map(item => {
@@ -178,7 +199,7 @@ export function buildQuietEvidenceRows(
         candidate =>
           candidate.subjectType === item.subjectType &&
           candidate.subjectId === item.subject.id &&
-          candidate.dayRef === day.dayRef,
+          candidate.dayRef === day.dayRef
       )
       return {
         dayRef: day.dayRef,
@@ -187,7 +208,7 @@ export function buildQuietEvidenceRows(
           assignment =>
             assignment.subjectType === item.subjectType &&
             assignment.subjectId === item.subject.id &&
-            assignment.dayRef === day.dayRef,
+            assignment.dayRef === day.dayRef
         ),
         future: day.isFuture,
       }
@@ -224,13 +245,22 @@ function cellScale(item: QuietEvidenceInput, recorded: number[]): number {
  * A completion-type object placed on specific days reads as days done vs days
  * planned ("3 / 4 dni"); everything else keeps value vs target.
  */
-function evidenceResultLabel(item: QuietEvidenceInput, recorded: number[], plannedDays = 0, doneDays = 0): string {
-  const dayBased = item.subject.entryMode === 'completion' || item.subject.entryMode === 'multi-completion'
+function evidenceResultLabel(
+  item: QuietEvidenceInput,
+  recorded: number[],
+  plannedDays = 0,
+  doneDays = 0
+): string {
+  const dayBased =
+    item.subject.entryMode === 'completion' || item.subject.entryMode === 'multi-completion'
   if (dayBased && plannedDays > 0) return `${doneDays} / ${plannedDays} dni`
   if (item.actualValue === undefined && !recorded.length) return 'Brak zapisów'
   const value = item.actualValue ?? recorded.reduce((sum, entry) => sum + entry, 0)
   const target = item.target?.value
-  const prefix = item.target && item.target.kind !== 'count' && item.target.aggregation === 'average' ? 'śr. ' : ''
+  const prefix =
+    item.target && item.target.kind !== 'count' && item.target.aggregation === 'average'
+      ? 'śr. '
+      : ''
   if (target === undefined) return `${prefix}${formatQuietNumber(value)}`
   return `${prefix}${formatQuietNumber(value)} / ${formatQuietNumber(target)}`
 }
@@ -253,7 +283,10 @@ export function areaTagKey(areaKey: string, axis?: RatingAxis): string {
 }
 
 /** Every tag written for an area: load, state, then the legacy undivided list; de-duplicated. */
-export function allAreaTags(responses: Record<string, string> | undefined, areaKey: string): string[] {
+export function allAreaTags(
+  responses: Record<string, string> | undefined,
+  areaKey: string
+): string[] {
   const seen: string[] = []
   for (const key of [...RATING_AXES.map(axis => areaTagKey(areaKey, axis)), areaTagKey(areaKey)]) {
     for (const tag of parseTags(responses?.[key])) if (!seen.includes(tag)) seen.push(tag)
@@ -276,6 +309,7 @@ export function serializeTags(tags: string[]): string {
 export function addTag(tags: string[], raw: string): string[] {
   const tag = raw.trim().replace(/\s+/g, ' ')
   if (!tag) return tags
-  if (tags.some(existing => existing.toLocaleLowerCase('pl') === tag.toLocaleLowerCase('pl'))) return tags
+  if (tags.some(existing => existing.toLocaleLowerCase('pl') === tag.toLocaleLowerCase('pl')))
+    return tags
   return [...tags, tag]
 }

@@ -73,7 +73,7 @@ export function useWeeklySliceItemVisualization(
   todayDayRef: Ref<DayRef>,
   locale: Ref<string>,
   /** Week-period verdict for monthly-cadence subjects with a week sub-target. */
-  weekMeasurement?: Ref<MeasurementSummary | undefined>,
+  weekMeasurement?: Ref<MeasurementSummary | undefined>
 ): UseWeeklySliceItemVisualization {
   const vizType = computed<TodayVizType>(() =>
     resolveWeeklySliceVizType({
@@ -82,7 +82,7 @@ export function useWeeklySliceItemVisualization(
       entryMode: subject.value.entryMode,
       target: (subject.value as { target?: MeasurementTarget }).target,
       cadence: subject.value.cadence,
-    }),
+    })
   )
 
   const completionSlots = computed<TodayCompletionSlot[]>(() => {
@@ -95,7 +95,7 @@ export function useWeeklySliceItemVisualization(
       planning.value,
       weekRef.value,
       todayDayRef.value,
-      locale.value,
+      locale.value
     )
   })
 
@@ -109,7 +109,7 @@ export function useWeeklySliceItemVisualization(
       planning.value,
       weekRef.value,
       todayDayRef.value,
-      locale.value,
+      locale.value
     )
   })
 
@@ -123,7 +123,7 @@ export function useWeeklySliceItemVisualization(
       planning.value,
       weekRef.value,
       todayDayRef.value,
-      locale.value,
+      locale.value
     )
   })
 
@@ -135,12 +135,12 @@ export function useWeeklySliceItemVisualization(
       rawEntries.value,
       weekRef.value,
       todayDayRef.value,
-      locale.value,
+      locale.value
     )
   })
 
   const aggregateData = computed<TodayAggregateData | undefined>(() =>
-    buildAggregateData(subject.value, measurement.value),
+    buildAggregateData(subject.value, measurement.value)
   )
 
   const targetValue = computed<number | undefined>(() => {
@@ -167,7 +167,7 @@ export function useWeeklySliceItemVisualization(
         : buildContextChipData(
             subject.value,
             buildMeasurementSummary(subject.value, rawEntries.value, weekRef.value, cutoff),
-            false,
+            false
           )
     // Hide the chip only when there's nothing to say — no target and no entries.
     return chip && (chip.target !== undefined || chip.entryCount > 0) ? chip : undefined

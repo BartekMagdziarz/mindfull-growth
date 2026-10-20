@@ -8,7 +8,9 @@
 
     <!-- Past Constellations -->
     <div class="mt-10 space-y-4">
-      <div class="mg-v2-section-head"><h2>{{ t('exercises.views.pastConstellations') }}</h2></div>
+      <div class="mg-v2-section-head">
+        <h2>{{ t('exercises.views.pastConstellations') }}</h2>
+      </div>
 
       <template v-if="sortedConstellations.length">
         <AppCard
@@ -19,8 +21,17 @@
           class="space-y-3"
         >
           <div class="flex items-center justify-between">
-            <span class="text-sm font-medium text-on-surface">{{ formatDate(entry.createdAt) }}</span>
-            <span class="text-xs text-on-surface-variant">{{ tp(entry.selectedPartIds.length, 'exercises.views.partsLabel.one', 'exercises.views.partsLabel.few', 'exercises.views.partsLabel.many') }}</span>
+            <span class="text-sm font-medium text-on-surface">{{
+              formatDate(entry.createdAt)
+            }}</span>
+            <span class="text-xs text-on-surface-variant">{{
+              tp(
+                entry.selectedPartIds.length,
+                'exercises.views.partsLabel.one',
+                'exercises.views.partsLabel.few',
+                'exercises.views.partsLabel.many'
+              )
+            }}</span>
           </div>
 
           <!-- Parts -->
@@ -51,7 +62,10 @@
           <div class="flex justify-center">
             <svg viewBox="0 0 200 200" class="w-40 h-40">
               <!-- Lines -->
-              <template v-for="rel in entry.relationships" :key="`mini-${rel.partAId}-${rel.partBId}`">
+              <template
+                v-for="rel in entry.relationships"
+                :key="`mini-${rel.partAId}-${rel.partBId}`"
+              >
                 <line
                   v-if="rel.type !== 'no-relationship'"
                   :x1="getMiniNodePos(entry.selectedPartIds, rel.partAId).x"
@@ -64,8 +78,22 @@
                 />
               </template>
               <!-- Center -->
-              <circle cx="100" cy="100" r="14" class="fill-primary/15 stroke-primary" stroke-width="1.5" />
-              <text x="100" y="104" text-anchor="middle" class="fill-primary" style="font-size: 9px; font-weight: 600;">{{ t('exercises.views.selfLabel') }}</text>
+              <circle
+                cx="100"
+                cy="100"
+                r="14"
+                class="fill-primary/15 stroke-primary"
+                stroke-width="1.5"
+              />
+              <text
+                x="100"
+                y="104"
+                text-anchor="middle"
+                class="fill-primary"
+                style="font-size: 9px; font-weight: 600"
+              >
+                {{ t('exercises.views.selfLabel') }}
+              </text>
               <!-- Nodes -->
               <circle
                 v-for="pid in entry.selectedPartIds"
@@ -97,10 +125,7 @@ import ConstellationWizard from '@/components/exercises/ConstellationWizard.vue'
 import { useIFSConstellationStore } from '@/stores/ifsConstellation.store'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
 import type { IFSConstellation, IFSConstellationRelationType } from '@/domain/exercises'
-import {
-  IFS_ROLE_SVG_CLASSES,
-  RELATIONSHIP_STROKE_VAR,
-} from '@/constants/exerciseColorRoles'
+import { IFS_ROLE_SVG_CLASSES, RELATIONSHIP_STROKE_VAR } from '@/constants/exerciseColorRoles'
 import { useT } from '@/composables/useT'
 import { formatExerciseDate } from '@/utils/exerciseDate'
 
@@ -130,7 +155,7 @@ function formatDate(isoString: string): string {
 }
 
 function countByType(entry: IFSConstellation, type: IFSConstellationRelationType): number {
-  return entry.relationships.filter((r) => r.type === type).length
+  return entry.relationships.filter(r => r.type === type).length
 }
 
 // Mini SVG layout

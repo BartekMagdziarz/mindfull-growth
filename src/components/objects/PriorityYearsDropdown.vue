@@ -10,7 +10,9 @@
       >
         <AppIcon name="calendar_today" class="text-base" />
       </button>
-      <span v-if="linkedYears.length > 0" class="mg-v2-icon-count" aria-hidden="true">{{ linkedYears.length }}</span>
+      <span v-if="linkedYears.length > 0" class="mg-v2-icon-count" aria-hidden="true">{{
+        linkedYears.length
+      }}</span>
     </div>
     <button
       v-else-if="!triggerless"
@@ -69,7 +71,7 @@ const props = withDefaults(
     /** Render only the list; the host opens it through `openList()`. */
     triggerless?: boolean
   }>(),
-  { iconOnly: false, triggerless: false },
+  { iconOnly: false, triggerless: false }
 )
 
 defineExpose({
@@ -93,11 +95,11 @@ const isLoadingPast = ref(false)
 const BATCH_SIZE = 3
 const FUTURE_COUNT = 7
 
-const linkedSet = computed(() => new Set(props.linkedYears.map((y) => y.yearRef)))
+const linkedSet = computed(() => new Set(props.linkedYears.map(y => y.yearRef)))
 
 const selectedLabel = computed(() => {
   const sorted = [...props.linkedYears].sort((a, b) => a.yearRef.localeCompare(b.yearRef))
-  return sorted.map((y) => y.displayLabel).join(', ')
+  return sorted.map(y => y.displayLabel).join(', ')
 })
 
 const buttonLabel = computed(() =>
@@ -130,7 +132,7 @@ const availableYears = computed(() => {
   return years
 })
 
-watch(open, async (isOpen) => {
+watch(open, async isOpen => {
   if (!isOpen) {
     pastBatchCount.value = 1
     return

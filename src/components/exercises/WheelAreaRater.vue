@@ -2,7 +2,9 @@
   <div class="space-y-6">
     <div class="flex items-center gap-2 text-sm text-on-surface-variant">
       <div class="flex items-center gap-2">
-        <span class="font-medium text-on-surface">{{ t('exerciseWizards.wheelOfLife.rater.areaLabel', { n: currentIndex + 1 }) }}</span>
+        <span class="font-medium text-on-surface">{{
+          t('exerciseWizards.wheelOfLife.rater.areaLabel', { n: currentIndex + 1 })
+        }}</span>
         <span>{{ t('exerciseWizards.wheelOfLife.rater.ofTotal', { total: totalAreas }) }}</span>
       </div>
     </div>
@@ -24,13 +26,17 @@
             {{ t('exerciseWizards.wheelOfLife.rater.currentlyRating') }}
           </p>
           <h3 class="text-2xl font-semibold text-on-surface">{{ area.name }}</h3>
-          <p class="text-sm text-on-surface-variant">{{ t('exerciseWizards.wheelOfLife.rater.alignmentQuestion') }}</p>
+          <p class="text-sm text-on-surface-variant">
+            {{ t('exerciseWizards.wheelOfLife.rater.alignmentQuestion') }}
+          </p>
           <ExerciseStepWhy :text="tg('exerciseWizards.wheelOfLife.rater.why')" />
         </div>
 
         <div class="flex items-baseline gap-2">
           <span class="text-6xl font-bold" :class="ratingColor">{{ area.rating }}</span>
-          <span class="text-xl text-on-surface-variant">{{ t('exerciseWizards.wheelOfLife.rater.outOfTen') }}</span>
+          <span class="text-xl text-on-surface-variant">{{
+            t('exerciseWizards.wheelOfLife.rater.outOfTen')
+          }}</span>
         </div>
 
         <div class="space-y-2">

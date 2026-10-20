@@ -24,7 +24,11 @@ describe('planning domain normalization', () => {
       title: '  2026 Focus  ',
       description: '  Annual direction  ',
       icon: '  self_improvement  ',
-      years: [parsePeriodRef('2027') as YearRef, parsePeriodRef('2026') as YearRef, parsePeriodRef('2026') as YearRef],
+      years: [
+        parsePeriodRef('2027') as YearRef,
+        parsePeriodRef('2026') as YearRef,
+        parsePeriodRef('2026') as YearRef,
+      ],
       status: 'active',
       order: 2,
       lifeAreaIds: ['la-1', 'la-1', ' la-2 '],
@@ -59,7 +63,7 @@ describe('planning domain normalization', () => {
         lifeAreaIds: [],
         progressSignals: [],
         riskSignals: [],
-      } satisfies CreatePriorityPayload),
+      } satisfies CreatePriorityPayload)
     ).toThrow('Priority.years must contain only valid YearRefs')
   })
 
@@ -96,7 +100,7 @@ describe('planning domain normalization', () => {
         lifeAreaIds: [],
         progressSignals: [],
         riskSignals: [],
-      }),
+      })
     ).toThrow('Priority.years must contain at least one YearRef')
 
     expect(() =>
@@ -108,7 +112,7 @@ describe('planning domain normalization', () => {
         progressSignals: [],
         riskSignals: [],
         closingReflection: { closedAt: '2026-12-31T00:00:00.000Z' },
-      }),
+      })
     ).toThrow('Priority.closingReflection is only supported for closed priorities')
   })
 
@@ -147,7 +151,7 @@ describe('planning domain normalization', () => {
           value: 1,
         },
         status: 'open',
-      } as CreateKeyResultPayload),
+      } as CreateKeyResultPayload)
     ).toThrow('target.kind must be one of: value')
   })
 
@@ -190,7 +194,7 @@ describe('planning domain normalization', () => {
           value: 4,
         },
         status: 'open',
-      } as unknown as CreateHabitPayload),
+      } as unknown as CreateHabitPayload)
     ).toThrow('target.aggregation must be one of: average')
   })
 
@@ -210,7 +214,7 @@ describe('planning domain normalization', () => {
         },
         status: 'open',
         kind: 'generic',
-      } as CreateHabitPayload),
+      } as CreateHabitPayload)
     ).toThrow('kind is not supported for this planning object')
 
     expect(() =>
@@ -228,7 +232,7 @@ describe('planning domain normalization', () => {
           value: 80,
         },
         status: 'open',
-      } as CreateTrackerPayload),
+      } as CreateTrackerPayload)
     ).toThrow('target is not supported for this planning object')
 
     expect(() =>
@@ -241,7 +245,7 @@ describe('planning domain normalization', () => {
         entryMode: 'rating',
         analysisPeriod: 'week',
         status: 'open',
-      } as CreateTrackerPayload),
+      } as CreateTrackerPayload)
     ).toThrow('analysisPeriod is not supported for this planning object')
   })
 
@@ -261,7 +265,7 @@ describe('planning domain normalization', () => {
           value: 30,
         },
         status: 'open',
-      } as unknown as CreateHabitPayload),
+      } as unknown as CreateHabitPayload)
     ).toThrow(/target\.kind must be one of: count/)
 
     expect(() =>
@@ -278,7 +282,7 @@ describe('planning domain normalization', () => {
           value: 4,
         },
         status: 'open',
-      } as unknown as CreateKeyResultPayload),
+      } as unknown as CreateKeyResultPayload)
     ).toThrow(/target\.kind must be one of: count/)
   })
 
@@ -302,7 +306,7 @@ describe('planning domain normalization', () => {
         lifeAreaIds: [],
         status: 'open',
         checklist: ['step-1'],
-      } as CreateInitiativePayload),
+      } as CreateInitiativePayload)
     ).toThrow('checklist is not supported for this planning object')
   })
 
@@ -327,7 +331,7 @@ describe('planning domain normalization', () => {
           confidenceRating: 7,
           obstacles: '  Travel weeks  ',
           resources: '  Coach  ',
-        }),
+        })
       )
 
       expect(normalized.targetDate).toBe('2026-12-31')
@@ -349,28 +353,26 @@ describe('planning domain normalization', () => {
     })
 
     it('rejects malformed targetDate strings', () => {
-      expect(() =>
-        normalizeGoalPayload(buildBaseGoal({ targetDate: 'not-a-date' })),
-      ).toThrow(/targetDate must be ISO date YYYY-MM-DD/)
+      expect(() => normalizeGoalPayload(buildBaseGoal({ targetDate: 'not-a-date' }))).toThrow(
+        /targetDate must be ISO date YYYY-MM-DD/
+      )
     })
 
     it('rejects confidenceRating outside 1..10', () => {
       expect(() => normalizeGoalPayload(buildBaseGoal({ confidenceRating: 0 }))).toThrow(
-        /confidenceRating must be an integer between 1 and 10/,
+        /confidenceRating must be an integer between 1 and 10/
       )
       expect(() => normalizeGoalPayload(buildBaseGoal({ confidenceRating: 11 }))).toThrow(
-        /confidenceRating must be an integer between 1 and 10/,
+        /confidenceRating must be an integer between 1 and 10/
       )
-      expect(() =>
-        normalizeGoalPayload(buildBaseGoal({ confidenceRating: 5.5 })),
-      ).toThrow(/confidenceRating must be an integer between 1 and 10/)
+      expect(() => normalizeGoalPayload(buildBaseGoal({ confidenceRating: 5.5 }))).toThrow(
+        /confidenceRating must be an integer between 1 and 10/
+      )
     })
 
     it('preserves existing SMART values when patching with undefined', () => {
       const existing = {
-        ...normalizeGoalPayload(
-          buildBaseGoal({ targetDate: '2026-12-31', confidenceRating: 8 }),
-        ),
+        ...normalizeGoalPayload(buildBaseGoal({ targetDate: '2026-12-31', confidenceRating: 8 })),
         id: 'goal-1',
         createdAt: '2026-01-01T00:00:00.000Z',
         updatedAt: '2026-01-01T00:00:00.000Z',

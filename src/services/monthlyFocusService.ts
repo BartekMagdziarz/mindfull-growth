@@ -67,25 +67,31 @@ export interface MonthlyFocusConfrontation {
 export function computeMonthlyFocus(
   weekRefs: WeekRef[],
   picksByWeek: Map<WeekRef, ResolvedPick[]>,
-  activePriorityIds: string[],
+  activePriorityIds: string[]
 ): MonthlyFocusConfrontation {
   const activeSet = new Set(activePriorityIds)
-  const buckets = new Map<string, { focus: Set<WeekRef>; objects: Map<string, WeeklyFocusObject> }>()
+  const buckets = new Map<
+    string,
+    { focus: Set<WeekRef>; objects: Map<string, WeeklyFocusObject> }
+  >()
   for (const id of activePriorityIds) buckets.set(id, { focus: new Set(), objects: new Map() })
   const driftByKey = new Map<string, DriftPick>()
 
   for (const weekRef of weekRefs) {
     for (const pick of picksByWeek.get(weekRef) ?? []) {
       const key = `${pick.subjectType}:${pick.subjectId}`
-      const linkedActive = pick.priorityIds.filter((pid) => activeSet.has(pid))
+      const linkedActive = pick.priorityIds.filter(pid => activeSet.has(pid))
 
       if (linkedActive.length > 0) {
         for (const pid of linkedActive) {
           const bucket = buckets.get(pid)!
           bucket.focus.add(weekRef)
-          const obj =
-            bucket.objects.get(key) ??
-            { subjectType: pick.subjectType, subjectId: pick.subjectId, title: pick.title, weekRefs: [] }
+          const obj = bucket.objects.get(key) ?? {
+            subjectType: pick.subjectType,
+            subjectId: pick.subjectId,
+            title: pick.title,
+            weekRefs: [],
+          }
           if (!obj.weekRefs.includes(weekRef)) obj.weekRefs.push(weekRef)
           bucket.objects.set(key, obj)
         }
@@ -94,9 +100,13 @@ export function computeMonthlyFocus(
 
       // Drift: linked to no active priority (off-plan), or unlinked entirely.
       const existing = driftByKey.get(key)
-      const drift: DriftPick =
-        existing ??
-        { subjectType: pick.subjectType, subjectId: pick.subjectId, title: pick.title, weekRefs: [], unlinked: true }
+      const drift: DriftPick = existing ?? {
+        subjectType: pick.subjectType,
+        subjectId: pick.subjectId,
+        title: pick.title,
+        weekRefs: [],
+        unlinked: true,
+      }
       if (!drift.weekRefs.includes(weekRef)) drift.weekRefs.push(weekRef)
       // "unlinked" only if every occurrence has no link at all.
       drift.unlinked = drift.unlinked && pick.priorityIds.length === 0
@@ -104,11 +114,11 @@ export function computeMonthlyFocus(
     }
   }
 
-  const perPriority: PriorityWeeklyFocus[] = activePriorityIds.map((pid) => {
+  const perPriority: PriorityWeeklyFocus[] = activePriorityIds.map(pid => {
     const bucket = buckets.get(pid)!
     return {
       priorityId: pid,
-      focusWeekRefs: weekRefs.filter((w) => bucket.focus.has(w)),
+      focusWeekRefs: weekRefs.filter(w => bucket.focus.has(w)),
       objects: [...bucket.objects.values()],
     }
   })
@@ -122,7 +132,7 @@ export function computeMonthlyFocus(
  */
 export async function getMonthlyFocusConfrontation(
   monthRef: MonthRef,
-  activePriorityIds: string[],
+  activePriorityIds: string[]
 ): Promise<MonthlyFocusConfrontation> {
   const weekRefs = getChildPeriods(monthRef)
   const [weekPlans, keyResults, habits, trackers, intentions, goals] = await Promise.all([
@@ -135,32 +145,58 @@ export async function getMonthlyFocusConfrontation(
   ])
 
   const weekSet = new Set<WeekRef>(weekRefs)
-  const planByWeek = new Map(weekPlans.filter((p) => weekSet.has(p.weekRef)).map((p) => [p.weekRef, p]))
-  const krById = new Map(keyResults.map((k) => [k.id, k]))
-  const habitById = new Map(habits.map((h) => [h.id, h]))
-  const trackerById = new Map(trackers.map((t) => [t.id, t]))
-  const intentionById = new Map(intentions.map((i) => [i.id, i]))
-  const goalById = new Map(goals.map((g) => [g.id, g]))
+  const planByWeek = new Map(weekPlans.filter(p => weekSet.has(p.weekRef)).map(p => [p.weekRef, p]))
+  const krById = new Map(keyResults.map(k => [k.id, k]))
+  const habitById = new Map(habits.map(h => [h.id, h]))
+  const trackerById = new Map(trackers.map(t => [t.id, t]))
+  const intentionById = new Map(intentions.map(i => [i.id, i]))
+  const goalById = new Map(goals.map(g => [g.id, g]))
 
   function resolve(ref: WeekTopPriorityRef): ResolvedPick | null {
     switch (ref.subjectType) {
       case 'habit': {
         const h = habitById.get(ref.subjectId)
-        return h ? { subjectType: 'habit', subjectId: ref.subjectId, title: h.title, priorityIds: h.priorityIds ?? [] } : null
+        return h
+          ? {
+              subjectType: 'habit',
+              subjectId: ref.subjectId,
+              title: h.title,
+              priorityIds: h.priorityIds ?? [],
+            }
+          : null
       }
       case 'tracker': {
         const t = trackerById.get(ref.subjectId)
-        return t ? { subjectType: 'tracker', subjectId: ref.subjectId, title: t.title, priorityIds: t.priorityIds ?? [] } : null
+        return t
+          ? {
+              subjectType: 'tracker',
+              subjectId: ref.subjectId,
+              title: t.title,
+              priorityIds: t.priorityIds ?? [],
+            }
+          : null
       }
       case 'keyResult': {
         const k = krById.get(ref.subjectId)
         if (!k) return null
         const g = goalById.get(k.goalId)
-        return { subjectType: 'keyResult', subjectId: ref.subjectId, title: k.title, priorityIds: g?.priorityIds ?? [] }
+        return {
+          subjectType: 'keyResult',
+          subjectId: ref.subjectId,
+          title: k.title,
+          priorityIds: g?.priorityIds ?? [],
+        }
       }
       case 'weeklyIntention': {
         const i = intentionById.get(ref.subjectId)
-        return i ? { subjectType: 'weeklyIntention', subjectId: ref.subjectId, title: i.title, priorityIds: i.priorityIds ?? [] } : null
+        return i
+          ? {
+              subjectType: 'weeklyIntention',
+              subjectId: ref.subjectId,
+              title: i.title,
+              priorityIds: i.priorityIds ?? [],
+            }
+          : null
       }
       default:
         return null
@@ -170,7 +206,10 @@ export async function getMonthlyFocusConfrontation(
   const picksByWeek = new Map<WeekRef, ResolvedPick[]>()
   for (const weekRef of weekRefs) {
     const refs = planByWeek.get(weekRef)?.topPriorities ?? []
-    picksByWeek.set(weekRef, refs.map(resolve).filter((p): p is ResolvedPick => p !== null))
+    picksByWeek.set(
+      weekRef,
+      refs.map(resolve).filter((p): p is ResolvedPick => p !== null)
+    )
   }
 
   return computeMonthlyFocus(weekRefs, picksByWeek, activePriorityIds)

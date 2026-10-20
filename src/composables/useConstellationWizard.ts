@@ -47,14 +47,16 @@ export function useConstellationWizard() {
   const relationships = ref<IFSConstellationRelationship[]>([])
 
   // Polarization deep dives
-  const polarizationDeepDives = ref<{
-    partAId: string
-    partBId: string
-    partAThinks: string
-    partBThinks: string
-    ifOneWon: string
-    commonProtection: string
-  }[]>([])
+  const polarizationDeepDives = ref<
+    {
+      partAId: string
+      partBId: string
+      partAThinks: string
+      partBThinks: string
+      ifOneWon: string
+      commonProtection: string
+    }[]
+  >([])
 
   // Cascades (visual step, optional)
   const cascadeNotes = ref('')
@@ -90,16 +92,14 @@ export function useConstellationWizard() {
   })
 
   const polarizedRelationships = computed(() =>
-    relationships.value.filter((r) => r.type === 'polarized'),
+    relationships.value.filter(r => r.type === 'polarized')
   )
 
   const hasPolarized = computed(() => polarizedRelationships.value.length > 0)
 
   const allPairsTyped = computed(() => {
-    return allPairs.value.every((pair) =>
-      relationships.value.some(
-        (r) => r.partAId === pair.partAId && r.partBId === pair.partBId,
-      ),
+    return allPairs.value.every(pair =>
+      relationships.value.some(r => r.partAId === pair.partAId && r.partBId === pair.partBId)
     )
   })
 
@@ -171,16 +171,18 @@ export function useConstellationWizard() {
       selectedPartIds.value.splice(idx, 1)
       // Remove relationships involving this part
       relationships.value = relationships.value.filter(
-        (r) => r.partAId !== partId && r.partBId !== partId,
+        r => r.partAId !== partId && r.partBId !== partId
       )
     }
   }
 
   // Relationship management
-  function setRelationshipType(partAId: string, partBId: string, type: IFSConstellationRelationType) {
-    const existing = relationships.value.find(
-      (r) => r.partAId === partAId && r.partBId === partBId,
-    )
+  function setRelationshipType(
+    partAId: string,
+    partBId: string,
+    type: IFSConstellationRelationType
+  ) {
+    const existing = relationships.value.find(r => r.partAId === partAId && r.partBId === partBId)
     if (existing) {
       existing.type = type
     } else {
@@ -189,25 +191,22 @@ export function useConstellationWizard() {
   }
 
   function setRelationshipNote(partAId: string, partBId: string, noteText: string) {
-    const existing = relationships.value.find(
-      (r) => r.partAId === partAId && r.partBId === partBId,
-    )
+    const existing = relationships.value.find(r => r.partAId === partAId && r.partBId === partBId)
     if (existing) {
       existing.notes = noteText || undefined
     }
   }
 
-  function getRelationship(partAId: string, partBId: string): IFSConstellationRelationship | undefined {
-    return relationships.value.find(
-      (r) => r.partAId === partAId && r.partBId === partBId,
-    )
+  function getRelationship(
+    partAId: string,
+    partBId: string
+  ): IFSConstellationRelationship | undefined {
+    return relationships.value.find(r => r.partAId === partAId && r.partBId === partBId)
   }
 
   // Polarization deep dives
   function initPolarizationDeepDives() {
-    const existing = new Set(
-      polarizationDeepDives.value.map((d) => `${d.partAId}-${d.partBId}`),
-    )
+    const existing = new Set(polarizationDeepDives.value.map(d => `${d.partAId}-${d.partBId}`))
     for (const rel of polarizedRelationships.value) {
       const key = `${rel.partAId}-${rel.partBId}`
       if (!existing.has(key)) {
@@ -222,17 +221,13 @@ export function useConstellationWizard() {
       }
     }
     // Remove deep dives for relationships that are no longer polarized
-    polarizationDeepDives.value = polarizationDeepDives.value.filter((d) =>
-      polarizedRelationships.value.some(
-        (r) => r.partAId === d.partAId && r.partBId === d.partBId,
-      ),
+    polarizationDeepDives.value = polarizationDeepDives.value.filter(d =>
+      polarizedRelationships.value.some(r => r.partAId === d.partAId && r.partBId === d.partBId)
     )
   }
 
   function getDeepDive(partAId: string, partBId: string) {
-    return polarizationDeepDives.value.find(
-      (d) => d.partAId === partAId && d.partBId === partBId,
-    )
+    return polarizationDeepDives.value.find(d => d.partAId === partAId && d.partBId === partBId)
   }
 
   // LLM analysis
@@ -240,11 +235,11 @@ export function useConstellationWizard() {
     isLLMLoading.value = true
     try {
       const selectedParts = selectedPartIds.value
-        .map((id) => partStore.getPartById(id))
+        .map(id => partStore.getPartById(id))
         .filter(Boolean) as NonNullable<ReturnType<typeof partStore.getPartById>>[]
 
       // Merge deep-dive data into relationships
-      const enrichedRelationships: IFSConstellationRelationship[] = relationships.value.map((r) => {
+      const enrichedRelationships: IFSConstellationRelationship[] = relationships.value.map(r => {
         const deepDive = getDeepDive(r.partAId, r.partBId)
         if (deepDive) {
           return {
@@ -280,7 +275,7 @@ export function useConstellationWizard() {
     isSaving.value = true
     try {
       // Merge deep-dive data into relationships for saving
-      const finalRelationships: IFSConstellationRelationship[] = relationships.value.map((r) => {
+      const finalRelationships: IFSConstellationRelationship[] = relationships.value.map(r => {
         const deepDive = getDeepDive(r.partAId, r.partBId)
         if (deepDive) {
           return {
@@ -298,7 +293,7 @@ export function useConstellationWizard() {
         selectedPartIds: [...selectedPartIds.value],
         relationships: finalRelationships,
         polarizationDeepDives: polarizationDeepDives.value.length
-          ? polarizationDeepDives.value.map((d) => ({
+          ? polarizationDeepDives.value.map(d => ({
               partAId: d.partAId,
               partBId: d.partBId,
               partAThinks: d.partAThinks,

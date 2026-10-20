@@ -43,13 +43,7 @@
     />
 
     <!-- Endpoint dot on the last measured value -->
-    <circle
-      v-if="endpoint"
-      :cx="endpoint.x"
-      :cy="endpoint.y"
-      r="4"
-      fill="rgb(var(--sky-800))"
-    />
+    <circle v-if="endpoint" :cx="endpoint.x" :cy="endpoint.y" r="4" fill="rgb(var(--sky-800))" />
 
     <!-- Period labels -->
     <text
@@ -97,7 +91,7 @@ const props = withDefaults(
      *  their own HTML labels so all chart types share one label style. */
     hideLabels?: boolean
   }>(),
-  { compact: false, hideLabels: false },
+  { compact: false, hideLabels: false }
 )
 
 const { locale } = useT()
@@ -108,8 +102,8 @@ const cH = computed(() => (props.compact ? COMPACT_CHART_HEIGHT : CHART_HEIGHT))
 const visiblePoints = computed(() => getVisiblePoints(props.points, props.cadence))
 const maxValue = computed(() => computeMaxValue(visiblePoints.value))
 
-const hasTarget = computed(() => visiblePoints.value.some((p) => p.targetValue !== undefined))
-const hasAnyData = computed(() => visiblePoints.value.some((p) => p.status !== 'no-data'))
+const hasTarget = computed(() => visiblePoints.value.some(p => p.targetValue !== undefined))
+const hasAnyData = computed(() => visiblePoints.value.some(p => p.status !== 'no-data'))
 const showTargetLine = computed(() => hasTarget.value && hasAnyData.value)
 const targetPath = computed(() => {
   const n = visiblePoints.value.length
@@ -120,7 +114,7 @@ const targetPath = computed(() => {
       targetValue: point.targetValue,
     })),
     maxValue.value,
-    cH.value,
+    cH.value
   )
 })
 
@@ -218,10 +212,10 @@ function isPointFuture(point: ObjectsLibraryChartPoint): boolean {
 function buildPiece(
   points: ObjectsLibraryChartPoint[],
   startIndex: number,
-  isFuture: boolean,
+  isFuture: boolean
 ): DataPiece {
   const xs = points.map((_, j) => pointX(startIndex + j))
-  const ys = points.map((p) => pointY(p))
+  const ys = points.map(p => pointY(p))
   return { linePath: monotonePath(xs, ys), isFuture }
 }
 

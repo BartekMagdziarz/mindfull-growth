@@ -22,7 +22,8 @@
           v-if="row.icon"
           class="material-symbols-outlined mcs-cell__icon"
           aria-hidden="true"
-         :name="row.icon" />
+          :name="row.icon"
+        />
         <span v-else class="mcs-cell__dot" aria-hidden="true" />
       </component>
 
@@ -48,7 +49,7 @@ const props = withDefaults(
     interactive?: boolean
     isPending?: boolean
   }>(),
-  { interactive: false, isPending: false },
+  { interactive: false, isPending: false }
 )
 
 defineEmits<{
@@ -134,7 +135,9 @@ function daymarkClass(slot: MultiCompletionStackSlot): string {
 
 .mcs-cell--btn {
   cursor: pointer;
-  transition: transform 120ms ease, box-shadow 120ms ease;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease;
 }
 
 .mcs-cell--btn:hover {

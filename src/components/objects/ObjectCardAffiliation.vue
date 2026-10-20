@@ -30,11 +30,11 @@
       v-if="overflow.length > 0"
       type="button"
       class="mg-v2-glyph mg-v2-glyph--pencil"
-      :aria-label="overflow.map((glyph) => glyph.label).join(', ')"
+      :aria-label="overflow.map(glyph => glyph.label).join(', ')"
       @click.stop="$emit('open', null)"
     >
       <span class="px-0.5 text-[10px] font-extrabold tabular-nums">+{{ overflow.length }}</span>
-      <span class="mg-v2-glyph__name">{{ overflow.map((glyph) => glyph.label).join(' · ') }}</span>
+      <span class="mg-v2-glyph__name">{{ overflow.map(glyph => glyph.label).join(' · ') }}</span>
     </button>
 
     <button
@@ -76,7 +76,7 @@ const props = withDefaults(
     emptyLabel?: string
     maxGlyphs?: number
   }>(),
-  { emptyLabel: undefined, maxGlyphs: 4 },
+  { emptyLabel: undefined, maxGlyphs: 4 }
 )
 
 defineEmits<{ open: [kind: AffiliationKind | null] }>()
@@ -86,16 +86,16 @@ defineEmits<{ open: [kind: AffiliationKind | null] }>()
 // editor always agree.
 const glyphs = computed<Glyph[]>(() => {
   const priorities = props.priorityOptions
-    .filter((option) => props.priorityIds.includes(option.id))
-    .map<Glyph>((option) => ({
+    .filter(option => props.priorityIds.includes(option.id))
+    .map<Glyph>(option => ({
       key: `priority:${option.id}`,
       kind: 'priority',
       label: option.label,
       icon: option.icon ?? 'flag',
     }))
   const lifeAreas = props.lifeAreaOptions
-    .filter((option) => props.lifeAreaIds.includes(option.id))
-    .map<Glyph>((option) => ({
+    .filter(option => props.lifeAreaIds.includes(option.id))
+    .map<Glyph>(option => ({
       key: `lifeArea:${option.id}`,
       kind: 'lifeArea',
       label: option.label,
@@ -105,16 +105,20 @@ const glyphs = computed<Glyph[]>(() => {
 })
 
 const visibleGlyphs = computed(() =>
-  glyphs.value.length > props.maxGlyphs ? glyphs.value.slice(0, props.maxGlyphs - 1) : glyphs.value,
+  glyphs.value.length > props.maxGlyphs ? glyphs.value.slice(0, props.maxGlyphs - 1) : glyphs.value
 )
 const overflow = computed(() =>
-  glyphs.value.length > props.maxGlyphs ? glyphs.value.slice(props.maxGlyphs - 1) : [],
+  glyphs.value.length > props.maxGlyphs ? glyphs.value.slice(props.maxGlyphs - 1) : []
 )
 
-const visiblePriorities = computed(() => visibleGlyphs.value.filter((glyph) => glyph.kind === 'priority'))
-const visibleLifeAreas = computed(() => visibleGlyphs.value.filter((glyph) => glyph.kind === 'lifeArea'))
+const visiblePriorities = computed(() =>
+  visibleGlyphs.value.filter(glyph => glyph.kind === 'priority')
+)
+const visibleLifeAreas = computed(() =>
+  visibleGlyphs.value.filter(glyph => glyph.kind === 'lifeArea')
+)
 
 const hasSeparator = computed(
-  () => visiblePriorities.value.length > 0 && visibleLifeAreas.value.length > 0,
+  () => visiblePriorities.value.length > 0 && visibleLifeAreas.value.length > 0
 )
 </script>

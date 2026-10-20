@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import type { WeekRef } from '../period'
-import { buildAreaSeries, reflectionToPair, reflectionToPairs, trailingWeekRefs, weekPointLabel } from '../loadStateSeries'
+import {
+  buildAreaSeries,
+  reflectionToPair,
+  reflectionToPairs,
+  trailingWeekRefs,
+  weekPointLabel,
+} from '../loadStateSeries'
 
 const W = (s: string) => s as WeekRef
 
@@ -32,8 +38,11 @@ describe('loadStateSeries', () => {
   it('builds a series with gaps where no reflection exists', () => {
     const refs = trailingWeekRefs(W('2026-W37'), 3)
     const series = buildAreaSeries(
-      [{ weekRef: refs[0], taskLoadRating: 2, calmRating: 4 }, { weekRef: refs[2], taskLoadRating: 5, calmRating: 1 }],
-      refs,
+      [
+        { weekRef: refs[0], taskLoadRating: 2, calmRating: 4 },
+        { weekRef: refs[2], taskLoadRating: 5, calmRating: 1 },
+      ],
+      refs
     )
     expect(series.tasks.map(p => [p.load, p.state])).toEqual([
       [2, 4],

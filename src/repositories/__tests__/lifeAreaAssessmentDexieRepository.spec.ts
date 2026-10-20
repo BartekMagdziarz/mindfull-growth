@@ -64,20 +64,20 @@ describe('lifeAreaAssessmentDexieRepository', () => {
     const latestForLifeArea = await lifeAreaAssessmentDexieRepository.getLatestForLifeArea('la-1')
     const previousForLifeArea = await lifeAreaAssessmentDexieRepository.getPreviousForLifeArea(
       'la-1',
-      secondCreatedAt,
+      secondCreatedAt
     )
     const byLifeArea = await lifeAreaAssessmentDexieRepository.getByLifeArea('la-1')
     const byDateRange = await lifeAreaAssessmentDexieRepository.getByDateRange(
       '2026-02-01',
-      '2026-02-28',
+      '2026-02-28'
     )
     const persistedFirst = await lifeAreaAssessmentDexieRepository.getById(first.id)
 
     expect(latest?.id).toBe(second.id)
     expect(latestForLifeArea?.id).toBe(second.id)
     expect(previousForLifeArea?.id).toBe(first.id)
-    expect(byLifeArea.map((assessment) => assessment.id)).toEqual([second.id, first.id])
-    expect(byDateRange.map((assessment) => assessment.id)).toEqual([second.id])
+    expect(byLifeArea.map(assessment => assessment.id)).toEqual([second.id, first.id])
+    expect(byDateRange.map(assessment => assessment.id)).toEqual([second.id])
     expect(persistedFirst?.notes).toBe('January review')
     expect(persistedFirst?.items[0].note).toBe('Building momentum')
   })

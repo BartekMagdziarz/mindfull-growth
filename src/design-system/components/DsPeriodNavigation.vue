@@ -17,16 +17,19 @@
 import AppIcon from '@/components/shared/AppIcon.vue'
 import DsButton from './DsButton.vue'
 
-withDefaults(defineProps<{
-  title: string
-  subtitle?: string
-  previousLabel?: string
-  nextLabel?: string
-}>(), {
-  subtitle: '',
-  previousLabel: 'Poprzedni okres',
-  nextLabel: 'Następny okres',
-})
+withDefaults(
+  defineProps<{
+    title: string
+    subtitle?: string
+    previousLabel?: string
+    nextLabel?: string
+  }>(),
+  {
+    subtitle: '',
+    previousLabel: 'Poprzedni okres',
+    nextLabel: 'Następny okres',
+  }
+)
 
 defineEmits<{ previous: []; next: []; pick: [] }>()
 </script>

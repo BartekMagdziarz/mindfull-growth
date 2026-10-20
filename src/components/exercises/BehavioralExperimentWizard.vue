@@ -1,7 +1,12 @@
 <template>
   <div class="space-y-6">
     <!-- Step indicator dots (intro doesn't count — 6 dots) -->
-    <ExerciseStepper v-if="currentStep !== 'intro'" :labels="stepLabels" :current="currentVisualStep" @go="goToStepByIndex($event)" />
+    <ExerciseStepper
+      v-if="currentStep !== 'intro'"
+      :labels="stepLabels"
+      :current="currentVisualStep"
+      @go="goToStepByIndex($event)"
+    />
 
     <!-- Step 1: Intro -->
     <Transition
@@ -12,7 +17,9 @@
     >
       <div v-if="currentStep === 'intro'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.behavioralExperiment.intro.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.behavioralExperiment.intro.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.behavioralExperiment.intro.description') }}
           </p>
@@ -21,13 +28,30 @@
               {{ t('exerciseWizards.behavioralExperiment.intro.howItWorks') }}
             </p>
             <div class="flex items-center gap-3 text-sm text-on-surface flex-wrap">
-              <span class="exercise-pill px-3 py-1 text-xs">{{ t('exerciseWizards.behavioralExperiment.intro.pillBelief') }}</span>
-              <AppIcon name="arrow_forward" class="text-base text-on-surface-variant flex-shrink-0" />
-              <span class="exercise-pill px-3 py-1 text-xs">{{ t('exerciseWizards.behavioralExperiment.intro.pillPredict') }}</span>
-              <AppIcon name="arrow_forward" class="text-base text-on-surface-variant flex-shrink-0" />
-              <span class="exercise-pill px-3 py-1 text-xs">{{ t('exerciseWizards.behavioralExperiment.intro.pillTest') }}</span>
-              <AppIcon name="arrow_forward" class="text-base text-on-surface-variant flex-shrink-0" />
-              <span class="exercise-pill px-3 py-1 text-xs">{{ t('exerciseWizards.behavioralExperiment.intro.pillLearn') }}</span>
+              <span class="exercise-pill px-3 py-1 text-xs">{{
+                t('exerciseWizards.behavioralExperiment.intro.pillBelief')
+              }}</span>
+              <AppIcon
+                name="arrow_forward"
+                class="text-base text-on-surface-variant flex-shrink-0"
+              />
+              <span class="exercise-pill px-3 py-1 text-xs">{{
+                t('exerciseWizards.behavioralExperiment.intro.pillPredict')
+              }}</span>
+              <AppIcon
+                name="arrow_forward"
+                class="text-base text-on-surface-variant flex-shrink-0"
+              />
+              <span class="exercise-pill px-3 py-1 text-xs">{{
+                t('exerciseWizards.behavioralExperiment.intro.pillTest')
+              }}</span>
+              <AppIcon
+                name="arrow_forward"
+                class="text-base text-on-surface-variant flex-shrink-0"
+              />
+              <span class="exercise-pill px-3 py-1 text-xs">{{
+                t('exerciseWizards.behavioralExperiment.intro.pillLearn')
+              }}</span>
             </div>
             <p class="text-xs text-on-surface-variant leading-relaxed">
               {{ t('exerciseWizards.behavioralExperiment.intro.howItWorksDescription') }}
@@ -51,7 +75,9 @@
     >
       <div v-if="currentStep === 'belief'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.behavioralExperiment.belief.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.behavioralExperiment.belief.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.behavioralExperiment.belief.description') }}
           </p>
@@ -64,7 +90,11 @@
           />
           <div class="space-y-2">
             <label class="text-sm font-medium text-on-surface">
-              {{ t('exerciseWizards.behavioralExperiment.belief.believabilityLabel', { value: believabilityBefore }) }}
+              {{
+                t('exerciseWizards.behavioralExperiment.belief.believabilityLabel', {
+                  value: believabilityBefore,
+                })
+              }}
             </label>
             <input
               v-model.number="believabilityBefore"
@@ -81,7 +111,9 @@
           </div>
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'intro'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'intro'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton
             variant="filled"
             :disabled="!targetBelief.trim()"
@@ -102,7 +134,9 @@
     >
       <div v-if="currentStep === 'prediction'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.behavioralExperiment.prediction.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.behavioralExperiment.prediction.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.behavioralExperiment.prediction.description') }}
           </p>
@@ -115,7 +149,11 @@
           />
           <div class="space-y-2">
             <label class="text-sm font-medium text-on-surface">
-              {{ tg('exerciseWizards.behavioralExperiment.prediction.confidenceLabel', { value: predictionConfidence }) }}
+              {{
+                tg('exerciseWizards.behavioralExperiment.prediction.confidenceLabel', {
+                  value: predictionConfidence,
+                })
+              }}
             </label>
             <input
               v-model.number="predictionConfidence"
@@ -127,12 +165,16 @@
             />
             <div class="flex justify-between text-xs text-on-surface-variant">
               <span>{{ t('exerciseWizards.behavioralExperiment.prediction.notAtAll') }}</span>
-              <span>{{ tg('exerciseWizards.behavioralExperiment.prediction.completelyCertain') }}</span>
+              <span>{{
+                tg('exerciseWizards.behavioralExperiment.prediction.completelyCertain')
+              }}</span>
             </div>
           </div>
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'belief'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'belief'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton
             variant="filled"
             :disabled="!prediction.trim()"
@@ -153,7 +195,9 @@
     >
       <div v-if="currentStep === 'design'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.behavioralExperiment.design.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.behavioralExperiment.design.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.behavioralExperiment.design.description') }}
           </p>
@@ -184,7 +228,11 @@
                 @click="handleDesignAssist"
               >
                 <AppIcon name="auto_awesome" class="text-base" />
-                {{ isDesignLoading ? t('exerciseWizards.behavioralExperiment.design.llmLoading') : t('exerciseWizards.behavioralExperiment.design.llmLabel') }}
+                {{
+                  isDesignLoading
+                    ? t('exerciseWizards.behavioralExperiment.design.llmLoading')
+                    : t('exerciseWizards.behavioralExperiment.design.llmLabel')
+                }}
               </AppButton>
               <ProfileContextToggle v-model="useProfileDesign" />
             </div>
@@ -198,7 +246,9 @@
           </div>
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'prediction'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'prediction'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton
             variant="filled"
             :disabled="!experimentDesign.trim()"
@@ -219,7 +269,9 @@
     >
       <div v-if="currentStep === 'safety'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.behavioralExperiment.safety.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.behavioralExperiment.safety.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.behavioralExperiment.safety.description') }}
           </p>
@@ -270,7 +322,9 @@
         </AppCard>
 
         <div class="flex justify-start">
-          <AppButton variant="text" @click="currentStep = 'design'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'design'">{{
+            t('common.buttons.back')
+          }}</AppButton>
         </div>
       </div>
     </Transition>
@@ -284,7 +338,9 @@
     >
       <div v-if="currentStep === 'outcome'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.behavioralExperiment.outcome.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.behavioralExperiment.outcome.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ tg('exerciseWizards.behavioralExperiment.outcome.description') }}
           </p>
@@ -306,7 +362,9 @@
         </AppCard>
 
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ tg('exerciseWizards.behavioralExperiment.outcome.learnedTitle') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ tg('exerciseWizards.behavioralExperiment.outcome.learnedTitle') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.behavioralExperiment.outcome.learnedDescription') }}
           </p>
@@ -320,7 +378,9 @@
         </AppCard>
 
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.behavioralExperiment.outcome.rerateTitle') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.behavioralExperiment.outcome.rerateTitle') }}
+          </h2>
           <div class="neo-panel p-3">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-1">
               {{ t('exerciseWizards.behavioralExperiment.outcome.targetBeliefLabel') }}
@@ -329,7 +389,11 @@
           </div>
           <div class="space-y-2">
             <label class="text-sm font-medium text-on-surface">
-              {{ t('exerciseWizards.behavioralExperiment.outcome.rerateLabel', { value: believabilityAfter }) }}
+              {{
+                t('exerciseWizards.behavioralExperiment.outcome.rerateLabel', {
+                  value: believabilityAfter,
+                })
+              }}
             </label>
             <input
               v-model.number="believabilityAfter"
@@ -347,12 +411,10 @@
         </AppCard>
 
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'safety'">{{ t('common.buttons.back') }}</AppButton>
-          <AppButton
-            variant="filled"
-            :disabled="!outcome.trim()"
-            @click="currentStep = 'summary'"
-          >
+          <AppButton variant="text" @click="currentStep = 'safety'">{{
+            t('common.buttons.back')
+          }}</AppButton>
+          <AppButton variant="filled" :disabled="!outcome.trim()" @click="currentStep = 'summary'">
             {{ t('common.buttons.next') }}
           </AppButton>
         </div>
@@ -368,7 +430,9 @@
     >
       <div v-if="currentStep === 'summary'" class="space-y-4">
         <AppCard variant="raised" padding="lg" class="space-y-5">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.behavioralExperiment.summary.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.behavioralExperiment.summary.title') }}
+          </h2>
 
           <!-- Belief -->
           <div class="space-y-1">
@@ -381,12 +445,16 @@
           <!-- Before / After believability -->
           <div class="flex items-center gap-4">
             <div class="flex-1 text-center">
-              <p class="text-xs text-on-surface-variant mb-1">{{ t('exerciseWizards.behavioralExperiment.summary.before') }}</p>
+              <p class="text-xs text-on-surface-variant mb-1">
+                {{ t('exerciseWizards.behavioralExperiment.summary.before') }}
+              </p>
               <p class="text-2xl font-bold text-on-surface">{{ believabilityBefore }}%</p>
             </div>
             <AppIcon name="arrow_forward" class="text-xl text-on-surface-variant flex-shrink-0" />
             <div class="flex-1 text-center">
-              <p class="text-xs text-on-surface-variant mb-1">{{ t('exerciseWizards.behavioralExperiment.summary.after') }}</p>
+              <p class="text-xs text-on-surface-variant mb-1">
+                {{ t('exerciseWizards.behavioralExperiment.summary.after') }}
+              </p>
               <p
                 class="text-2xl font-bold"
                 :class="
@@ -408,15 +476,23 @@
           >
             {{
               believabilityDelta < 0
-                ? t('exerciseWizards.behavioralExperiment.summary.decreaseInBelievability', { value: Math.abs(believabilityDelta) })
-                : t('exerciseWizards.behavioralExperiment.summary.increaseInBelievability', { value: believabilityDelta })
+                ? t('exerciseWizards.behavioralExperiment.summary.decreaseInBelievability', {
+                    value: Math.abs(believabilityDelta),
+                  })
+                : t('exerciseWizards.behavioralExperiment.summary.increaseInBelievability', {
+                    value: believabilityDelta,
+                  })
             }}
           </p>
 
           <!-- Prediction -->
           <div class="space-y-1">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-              {{ t('exerciseWizards.behavioralExperiment.summary.predictionLabel', { confidence: predictionConfidence }) }}
+              {{
+                t('exerciseWizards.behavioralExperiment.summary.predictionLabel', {
+                  confidence: predictionConfidence,
+                })
+              }}
             </p>
             <p class="text-sm text-on-surface">"{{ prediction }}"</p>
           </div>
@@ -428,7 +504,11 @@
             </p>
             <p class="text-sm text-on-surface">{{ experimentDesign }}</p>
             <p v-if="experimentWhen" class="text-xs text-on-surface-variant">
-              {{ t('exerciseWizards.behavioralExperiment.summary.scheduled', { date: experimentWhen }) }}
+              {{
+                t('exerciseWizards.behavioralExperiment.summary.scheduled', {
+                  date: experimentWhen,
+                })
+              }}
             </p>
           </div>
 
@@ -466,7 +546,9 @@
         </AppCard>
 
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'outcome'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'outcome'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton variant="filled" @click="handleSaveCompleted">
             {{ t('common.buttons.save') }}
           </AppButton>
@@ -552,12 +634,12 @@ const believabilityAfter = ref(50)
 // A moment's prediction prefills the step once; the user can still change it.
 watch(
   () => props.seed,
-  (seed) => {
+  seed => {
     if (!seed) return
     if (seed.prediction && !prediction.value.trim()) prediction.value = seed.prediction
     if (seed.situation && !targetBelief.value.trim()) targetBelief.value = seed.situation
   },
-  { immediate: true },
+  { immediate: true }
 )
 
 // ─── LLM Assist ──────────────────────────────────────────────────────────────
@@ -580,20 +662,19 @@ async function handleDesignAssist() {
     })
     llmAssistUsed.value = true
   } catch (err) {
-    designError.value = err instanceof Error ? err.message : t('exerciseWizards.behavioralExperiment.errors.designFailed')
+    designError.value =
+      err instanceof Error
+        ? err.message
+        : t('exerciseWizards.behavioralExperiment.errors.designFailed')
   } finally {
     isDesignLoading.value = false
   }
 }
 
 // ─── Computed ────────────────────────────────────────────────────────────────
-const filledSafetyBehaviors = computed(() =>
-  safetyBehaviors.value.filter((b) => b.trim().length > 0),
-)
+const filledSafetyBehaviors = computed(() => safetyBehaviors.value.filter(b => b.trim().length > 0))
 
-const believabilityDelta = computed(() =>
-  believabilityAfter.value - believabilityBefore.value,
-)
+const believabilityDelta = computed(() => believabilityAfter.value - believabilityBefore.value)
 
 // ─── Actions ─────────────────────────────────────────────────────────────────
 function removeSafetyBehavior(index: number) {
@@ -608,9 +689,8 @@ function handleSaveAsPlanned() {
     predictionConfidence: predictionConfidence.value,
     experimentDesign: experimentDesign.value.trim(),
     experimentWhen: experimentWhen.value || undefined,
-    safetyBehaviors: filledSafetyBehaviors.value.length > 0
-      ? filledSafetyBehaviors.value
-      : undefined,
+    safetyBehaviors:
+      filledSafetyBehaviors.value.length > 0 ? filledSafetyBehaviors.value : undefined,
     status: 'planned',
     llmAssistUsed: llmAssistUsed.value || undefined,
   }
@@ -625,9 +705,8 @@ function handleSaveCompleted() {
     predictionConfidence: predictionConfidence.value,
     experimentDesign: experimentDesign.value.trim(),
     experimentWhen: experimentWhen.value || undefined,
-    safetyBehaviors: filledSafetyBehaviors.value.length > 0
-      ? filledSafetyBehaviors.value
-      : undefined,
+    safetyBehaviors:
+      filledSafetyBehaviors.value.length > 0 ? filledSafetyBehaviors.value : undefined,
     status: 'completed',
     outcome: outcome.value.trim(),
     whatLearned: whatLearned.value.trim() || undefined,

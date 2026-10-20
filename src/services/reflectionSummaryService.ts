@@ -161,7 +161,7 @@ const MAX_EMOTION_LOGS = 30
  * context the prompt needs. Returns undefined when nothing was logged.
  */
 export function emotionContextFromSummary(
-  summary: EmotionSummary,
+  summary: EmotionSummary
 ): ReflectionEmotionContext | undefined {
   if (summary.totalLogs === 0) return undefined
   const q = summary.quadrantDistribution
@@ -170,13 +170,12 @@ export function emotionContextFromSummary(
     q['high-energy-low-pleasantness'] +
     q['low-energy-high-pleasantness'] +
     q['low-energy-low-pleasantness']
-  const pleasant =
-    q['high-energy-high-pleasantness'] + q['low-energy-high-pleasantness']
+  const pleasant = q['high-energy-high-pleasantness'] + q['low-energy-high-pleasantness']
   const pleasantPct = total > 0 ? Math.round((pleasant / total) * 100) : 0
   return {
     totalLogs: summary.totalLogs,
     pleasantPct,
-    top: summary.topEmotions.slice(0, 5).map((e) => ({ name: e.name, count: e.count })),
+    top: summary.topEmotions.slice(0, 5).map(e => ({ name: e.name, count: e.count })),
   }
 }
 
@@ -235,12 +234,18 @@ const SECTION_LABELS: Record<LocaleId, Record<SectionKey, string>> = {
   },
 }
 
-const META_LABELS: Record<LocaleId, { emotions: string; people: string; contexts: string; note: string }> = {
+const META_LABELS: Record<
+  LocaleId,
+  { emotions: string; people: string; contexts: string; note: string }
+> = {
   en: { emotions: 'Emotions', people: 'People', contexts: 'Contexts', note: 'Note' },
   pl: { emotions: 'Emocje', people: 'Osoby', contexts: 'Konteksty', note: 'Notatka' },
 }
 
-const STATE_DIMENSION_LABELS: Record<LocaleId, Record<'mood' | 'energy' | 'calm' | 'connection', string>> = {
+const STATE_DIMENSION_LABELS: Record<
+  LocaleId,
+  Record<'mood' | 'energy' | 'calm' | 'connection', string>
+> = {
   en: { mood: 'mood', energy: 'energy', calm: 'calm', connection: 'connection' },
   pl: { mood: 'nastrój', energy: 'energia', calm: 'spokój', connection: 'więź' },
 }
@@ -271,7 +276,7 @@ const VERDICT_LABELS: Record<LocaleId, Record<PriorityVerdict, string>> = {
  */
 export function buildReflectionSummaryPayload(
   ctx: ReflectionSummaryContext,
-  locale: LocaleId,
+  locale: LocaleId
 ): string {
   const L = SECTION_LABELS[locale]
   const M = META_LABELS[locale]
@@ -290,7 +295,7 @@ export function buildReflectionSummaryPayload(
       lines.push(
         title.length > 0
           ? `--- ${formatEntryDate(e.createdAt, locale)} · ${title}`
-          : `--- ${formatEntryDate(e.createdAt, locale)}`,
+          : `--- ${formatEntryDate(e.createdAt, locale)}`
       )
       const meta = metaLine([
         [M.emotions, e.emotions],
@@ -312,7 +317,7 @@ export function buildReflectionSummaryPayload(
   // logs are already represented by the [EMOTIONS] aggregate below).
   if (ctx.emotionLogs && ctx.emotionLogs.length > 0) {
     const meaningful = ctx.emotionLogs.filter(
-      (l) => l.note.trim().length > 0 || l.people.length > 0 || l.contexts.length > 0,
+      l => l.note.trim().length > 0 || l.people.length > 0 || l.contexts.length > 0
     )
     const logs = meaningful.slice(0, MAX_EMOTION_LOGS)
     if (logs.length > 0) {
@@ -336,7 +341,7 @@ export function buildReflectionSummaryPayload(
     }
   }
 
-  const ratedLines = ctx.ratings.filter((r) => r.value !== null)
+  const ratedLines = ctx.ratings.filter(r => r.value !== null)
   if (ratedLines.length > 0) {
     lines.push(`[${L.ratings}]`)
     for (const r of ratedLines) {
@@ -350,7 +355,7 @@ export function buildReflectionSummaryPayload(
     const e = ctx.emotions
     lines.push(`${e.totalLogs}× · ${e.pleasantPct}% ${PLEASANT_LABELS[locale]}`)
     if (e.top.length > 0) {
-      lines.push(e.top.map((t) => `${t.name} ×${t.count}`).join(', '))
+      lines.push(e.top.map(t => `${t.name} ×${t.count}`).join(', '))
     }
     lines.push('')
   }
@@ -358,7 +363,7 @@ export function buildReflectionSummaryPayload(
   if (ctx.weeklyTrends && ctx.weeklyTrends.length > 0) {
     const sd = STATE_DIMENSION_LABELS[locale]
     const trendLines = ctx.weeklyTrends
-      .map((w) => {
+      .map(w => {
         const parts: string[] = []
         if (w.mood !== null) parts.push(`${sd.mood} ${w.mood}`)
         if (w.energy !== null) parts.push(`${sd.energy} ${w.energy}`)
@@ -426,7 +431,7 @@ export function buildReflectionSummaryPayload(
 
   if (ctx.weeklyExcerpts && ctx.weeklyExcerpts.length > 0) {
     const excerpts = ctx.weeklyExcerpts
-      .filter((w) => w.text.trim().length > 0)
+      .filter(w => w.text.trim().length > 0)
       .slice(0, MAX_WEEKLY_EXCERPTS)
     if (excerpts.length > 0) {
       lines.push(`[${L.weeklyReflections}]`)
@@ -517,7 +522,7 @@ function periodWord(kind: 'weekly' | 'monthly', locale: LocaleId): string {
 function summarySystemPrompt(
   kind: 'weekly' | 'monthly',
   locale: LocaleId,
-  gender: GrammaticalGender,
+  gender: GrammaticalGender
 ): string {
   if (locale === 'pl') {
     const personalForm =
@@ -560,7 +565,7 @@ function summarySystemPrompt(
 function questionsSystemPrompt(
   kind: 'weekly' | 'monthly',
   locale: LocaleId,
-  gender: GrammaticalGender,
+  gender: GrammaticalGender
 ): string {
   if (locale === 'pl') {
     const personalForm =
@@ -602,7 +607,7 @@ function questionsSystemPrompt(
  */
 export async function generateReflectionSummary(
   ctx: ReflectionSummaryContext,
-  options: GenerateReflectionOptions,
+  options: GenerateReflectionOptions
 ): Promise<string> {
   const systemPrompt = summarySystemPrompt(ctx.kind, options.locale, options.gender)
   const payload = buildReflectionSummaryPayload(ctx, options.locale)
@@ -631,7 +636,7 @@ export async function generateReflectionSummary(
  */
 export async function generateReflectionQuestions(
   ctx: ReflectionSummaryContext,
-  options: GenerateReflectionOptions,
+  options: GenerateReflectionOptions
 ): Promise<string[]> {
   const systemPrompt = questionsSystemPrompt(ctx.kind, options.locale, options.gender)
   const payload = buildReflectionSummaryPayload(ctx, options.locale)

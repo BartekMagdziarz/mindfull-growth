@@ -37,10 +37,7 @@ import { computed, ref } from 'vue'
 import TodayOverviewTile from '@/components/today/TodayOverviewTile.vue'
 import { useT } from '@/composables/useT'
 import type { DayRef } from '@/domain/period'
-import type {
-  DailyMeasurementEntry,
-  MeasurementDayAssignment,
-} from '@/domain/planningState'
+import type { DailyMeasurementEntry, MeasurementDayAssignment } from '@/domain/planningState'
 import type { TodayItem } from '@/services/todayViewQueries'
 
 type FilterValue = 'all' | 'goals' | 'habits' | 'trackers'
@@ -100,7 +97,7 @@ const filteredItems = computed<TodayItem[]>(() => {
 .overview-section__label {
   font-size: 10px;
   font-weight: 600;
-  letter-spacing: 0.10em;
+  letter-spacing: 0.1em;
   color: rgb(var(--neo-muted));
   text-transform: uppercase;
 }
@@ -124,7 +121,10 @@ const filteredItems = computed<TodayItem[]>(() => {
   font-size: 12px;
   color: rgb(var(--neo-muted));
   cursor: pointer;
-  transition: color 200ms ease, background 200ms ease, box-shadow 200ms ease;
+  transition:
+    color 200ms ease,
+    background 200ms ease,
+    box-shadow 200ms ease;
 }
 
 .overview-segmented__item:hover {

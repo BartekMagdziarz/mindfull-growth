@@ -289,11 +289,15 @@ describe('objectsLibraryQueries', () => {
     const chartData = bundle.items[0].chartData
     expect(chartData).toHaveLength(3)
     expect(chartData?.[0]).toMatchObject({ periodRef: '2026-01', status: 'met', actualValue: 24 })
-    expect(chartData?.[1]).toMatchObject({ periodRef: '2026-02', status: 'missed', actualValue: 12 })
+    expect(chartData?.[1]).toMatchObject({
+      periodRef: '2026-02',
+      status: 'missed',
+      actualValue: 12,
+    })
     expect(chartData?.[2]).toMatchObject({ periodRef: '2026-03', status: 'no-data' })
   })
 
-  it('uses the week target override for that week\'s chart point only', async () => {
+  it("uses the week target override for that week's chart point only", async () => {
     vi.useFakeTimers({ toFake: ['Date'] })
     vi.setSystemTime(new Date('2026-03-11T12:00:00'))
 
@@ -351,8 +355,18 @@ describe('objectsLibraryQueries', () => {
 
       const chartData = bundle.items[0].chartData
       expect(chartData).toEqual([
-        expect.objectContaining({ periodRef: '2026-W09', targetValue: 3, actualValue: 1, status: 'missed' }),
-        expect.objectContaining({ periodRef: '2026-W10', targetValue: 1, actualValue: 1, status: 'met' }),
+        expect.objectContaining({
+          periodRef: '2026-W09',
+          targetValue: 3,
+          actualValue: 1,
+          status: 'missed',
+        }),
+        expect.objectContaining({
+          periodRef: '2026-W10',
+          targetValue: 1,
+          actualValue: 1,
+          status: 'met',
+        }),
       ])
     } finally {
       vi.useRealTimers()
@@ -385,7 +399,13 @@ describe('objectsLibraryQueries', () => {
         })
       }
 
-      for (const weekRef of ['2026-W09', '2026-W10', '2026-W11', '2026-W12', '2026-W13'] as WeekRef[]) {
+      for (const weekRef of [
+        '2026-W09',
+        '2026-W10',
+        '2026-W11',
+        '2026-W12',
+        '2026-W13',
+      ] as WeekRef[]) {
         await planningStateDexieRepository.upsertMeasurementWeekState({
           weekRef,
           subjectType: 'habit',
@@ -404,7 +424,7 @@ describe('objectsLibraryQueries', () => {
       })
 
       const chartData = bundle.items[0].chartData
-      expect(chartData?.map((point) => point.periodRef)).toEqual(['2026-W09', '2026-W10'])
+      expect(chartData?.map(point => point.periodRef)).toEqual(['2026-W09', '2026-W10'])
     } finally {
       vi.useRealTimers()
     }
@@ -426,7 +446,13 @@ describe('objectsLibraryQueries', () => {
         status: 'open',
       })
 
-      for (const monthRef of ['2026-01', '2026-02', '2026-03', '2026-04', '2026-05'] as MonthRef[]) {
+      for (const monthRef of [
+        '2026-01',
+        '2026-02',
+        '2026-03',
+        '2026-04',
+        '2026-05',
+      ] as MonthRef[]) {
         await planningStateDexieRepository.upsertMeasurementMonthState({
           monthRef,
           subjectType: 'habit',
@@ -445,7 +471,7 @@ describe('objectsLibraryQueries', () => {
       })
 
       const chartData = bundle.items[0].chartData
-      expect(chartData?.map((point) => point.periodRef)).toEqual(['2026-01', '2026-02', '2026-03'])
+      expect(chartData?.map(point => point.periodRef)).toEqual(['2026-01', '2026-02', '2026-03'])
     } finally {
       vi.useRealTimers()
     }
@@ -483,7 +509,7 @@ describe('objectsLibraryQueries', () => {
     }
 
     const bundle = await loadObjectsLibraryBundle(baseQuery)
-    expect(bundle.items.map((item) => item.title)).toEqual([
+    expect(bundle.items.map(item => item.title)).toEqual([
       'Newer intention',
       'Older linked intention',
     ])
@@ -499,13 +525,13 @@ describe('objectsLibraryQueries', () => {
       ...baseQuery,
       period: parsePeriodRef('2026-W09') as WeekRef,
     })
-    expect(periodBundle.items.map((item) => item.title)).toEqual(['Older linked intention'])
+    expect(periodBundle.items.map(item => item.title)).toEqual(['Older linked intention'])
 
     const priorityBundle = await loadObjectsLibraryBundle({
       ...baseQuery,
       priorityIds: [priority.id],
     })
-    expect(priorityBundle.items.map((item) => item.title)).toEqual(['Older linked intention'])
+    expect(priorityBundle.items.map(item => item.title)).toEqual(['Older linked intention'])
 
     // Weekly intentions carry no life areas, so a life-area filter excludes them all.
     const lifeAreaBundle = await loadObjectsLibraryBundle({
@@ -555,7 +581,7 @@ describe('objectsLibraryQueries', () => {
       priorityIds: [],
       showClosed: false,
     })
-    expect(openBundle.items.map((item) => item.title)).toEqual(['Open intention'])
+    expect(openBundle.items.map(item => item.title)).toEqual(['Open intention'])
     expect(openBundle.familyTotalCount).toBe(3)
 
     const closedBundle = await loadObjectsLibraryBundle({
@@ -565,7 +591,7 @@ describe('objectsLibraryQueries', () => {
       priorityIds: [],
       showClosed: true,
     })
-    expect(closedBundle.items.map((item) => item.title)).toEqual([
+    expect(closedBundle.items.map(item => item.title)).toEqual([
       'Dropped intention',
       'Open intention',
       'Retired intention',

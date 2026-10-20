@@ -14,7 +14,9 @@
       <template v-if="currentStep === 'check-in'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-lg font-bold text-on-surface">{{ t('exerciseWizards.selfEnergy.checkIn.title') }}</h2>
+            <h2 class="text-lg font-bold text-on-surface">
+              {{ t('exerciseWizards.selfEnergy.checkIn.title') }}
+            </h2>
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.selfEnergy.checkIn.subtitle') }}
             </p>
@@ -30,7 +32,8 @@
             <!-- Inline ratings summary -->
             <div class="text-xs text-on-surface-variant text-center">
               <span v-for="(q, idx) in allQualities" :key="q">
-                <span>{{ formatQuality(q) }}</span>: {{ ratings[q] || '—' }}{{ idx < allQualities.length - 1 ? ' · ' : '' }}
+                <span>{{ formatQuality(q) }}</span
+                >: {{ ratings[q] || '—' }}{{ idx < allQualities.length - 1 ? ' · ' : '' }}
               </span>
             </div>
           </AppCard>
@@ -48,14 +51,20 @@
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
             <h2 class="text-base font-semibold text-on-surface">
-              {{ allHigh ? t('exerciseWizards.selfEnergy.gap.allHighTitle') : t('exerciseWizards.selfEnergy.gap.title') }}
+              {{
+                allHigh
+                  ? t('exerciseWizards.selfEnergy.gap.allHighTitle')
+                  : t('exerciseWizards.selfEnergy.gap.title')
+              }}
             </h2>
 
             <!-- All C's high: no gap to fill today -->
             <AppCard v-if="allHigh" variant="inset" padding="md" class="space-y-3">
-              <p class="text-sm text-on-surface">{{ t('exerciseWizards.selfEnergy.gap.allHigh') }}</p>
+              <p class="text-sm text-on-surface">
+                {{ t('exerciseWizards.selfEnergy.gap.allHigh') }}
+              </p>
               <div class="flex flex-wrap gap-2">
-                <AppButton variant="tonal" @click="skipMicroPractice = true; nextStep()">
+                <AppButton variant="tonal" @click="skipPracticeAndContinue">
                   {{ t('exerciseWizards.selfEnergy.gap.skipButton') }}
                 </AppButton>
               </div>
@@ -63,15 +72,19 @@
 
             <!-- Several C's share the lowest rating: the user picks today's gap -->
             <div v-if="!allHigh && tiedLowest.length > 1" class="space-y-2">
-              <p class="text-sm text-on-surface-variant">{{ t('exerciseWizards.selfEnergy.gap.tieLabel') }}</p>
+              <p class="text-sm text-on-surface-variant">
+                {{ t('exerciseWizards.selfEnergy.gap.tieLabel') }}
+              </p>
               <div class="flex flex-wrap gap-2">
                 <button
                   v-for="q in tiedLowest"
                   :key="`tie-${q}`"
                   class="exercise-pill px-3 py-1.5 text-xs neo-focus transition-all"
-                  :class="lowestQuality === q
-                    ? 'bg-primary/15 text-primary font-semibold shadow-neu-pressed'
-                    : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'"
+                  :class="
+                    lowestQuality === q
+                      ? 'bg-primary/15 text-primary font-semibold shadow-neu-pressed'
+                      : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'
+                  "
                   @click="chosenGap = q"
                 >
                   {{ formatQuality(q) }}
@@ -83,10 +96,16 @@
             <AppCard v-if="!allHigh" variant="inset" padding="md" class="space-y-3">
               <div class="flex items-center gap-3">
                 <div class="neo-surface rounded-full p-2">
-                  <AppIcon :name="qualityIcon(lowestQuality)" class="text-2xl" :class="qualityIconColor(lowestQuality)" />
+                  <AppIcon
+                    :name="qualityIcon(lowestQuality)"
+                    class="text-2xl"
+                    :class="qualityIconColor(lowestQuality)"
+                  />
                 </div>
                 <div>
-                  <p class="text-sm font-medium text-on-surface">{{ formatQuality(lowestQuality) }}</p>
+                  <p class="text-sm font-medium text-on-surface">
+                    {{ formatQuality(lowestQuality) }}
+                  </p>
                   <div class="flex gap-1 mt-1">
                     <div
                       v-for="n in 5"
@@ -98,13 +117,22 @@
                 </div>
               </div>
               <p class="text-sm text-on-surface-variant">
-                {{ t('exerciseWizards.selfEnergy.gap.looksLike', { quality: formatQuality(lowestQuality), rating: ratings[lowestQuality] }) }}
+                {{
+                  t('exerciseWizards.selfEnergy.gap.looksLike', {
+                    quality: formatQuality(lowestQuality),
+                    rating: ratings[lowestQuality],
+                  })
+                }}
               </p>
             </AppCard>
 
             <template v-if="!allHigh">
               <p class="text-sm text-on-surface-variant">
-                {{ t('exerciseWizards.selfEnergy.gap.partQuestion', { quality: formatQuality(lowestQuality) }) }}
+                {{
+                  t('exerciseWizards.selfEnergy.gap.partQuestion', {
+                    quality: formatQuality(lowestQuality),
+                  })
+                }}
               </p>
 
               <PartSelector
@@ -122,7 +150,9 @@
 
           <div class="flex justify-between">
             <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
-            <AppButton variant="filled" @click="skipMicroPractice = false; nextStep()">{{ t('common.buttons.next') }}</AppButton>
+            <AppButton variant="filled" @click="keepPracticeAndContinue">{{
+              t('common.buttons.next')
+            }}</AppButton>
           </div>
         </div>
       </template>
@@ -132,27 +162,52 @@
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
             <h2 class="text-base font-semibold text-on-surface">
-              {{ t('exerciseWizards.selfEnergy.microPractice.title', { quality: formatQuality(lowestQuality) }) }}
+              {{
+                t('exerciseWizards.selfEnergy.microPractice.title', {
+                  quality: formatQuality(lowestQuality),
+                })
+              }}
             </h2>
 
             <!-- Calm: Box Breathing -->
             <template v-if="microPracticeType === 'calm'">
               <div class="neo-surface p-4 rounded-xl space-y-4">
-                <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.selfEnergy.microPractice.calm.title') }}</p>
+                <p class="text-sm font-medium text-on-surface">
+                  {{ t('exerciseWizards.selfEnergy.microPractice.calm.title') }}
+                </p>
                 <div class="flex flex-col items-center gap-4">
                   <div class="relative w-32 h-32">
                     <svg class="w-32 h-32" viewBox="0 0 128 128">
-                      <rect x="14" y="14" width="100" height="100" rx="8" fill="none"
-                        stroke="currentColor" class="text-neu-border/20" stroke-width="3" />
-                      <rect x="14" y="14" width="100" height="100" rx="8" fill="none"
-                        stroke="currentColor" class="text-primary" stroke-width="3"
+                      <rect
+                        x="14"
+                        y="14"
+                        width="100"
+                        height="100"
+                        rx="8"
+                        fill="none"
+                        stroke="currentColor"
+                        class="text-neu-border/20"
+                        stroke-width="3"
+                      />
+                      <rect
+                        x="14"
+                        y="14"
+                        width="100"
+                        height="100"
+                        rx="8"
+                        fill="none"
+                        stroke="currentColor"
+                        class="text-primary"
+                        stroke-width="3"
                         stroke-linecap="round"
                         :stroke-dasharray="boxPerimeter"
                         :stroke-dashoffset="boxOffset"
                         style="transition: stroke-dashoffset 1s linear"
                       />
                     </svg>
-                    <span class="absolute inset-0 flex items-center justify-center text-sm font-medium text-primary">
+                    <span
+                      class="absolute inset-0 flex items-center justify-center text-sm font-medium text-primary"
+                    >
                       {{ boxLabel }}
                     </span>
                   </div>
@@ -164,7 +219,9 @@
                   >
                     {{ t('exerciseWizards.selfEnergy.microPractice.calm.startButton') }}
                   </AppButton>
-                  <p v-if="boxDone" class="text-sm text-primary font-medium">{{ t('exerciseWizards.selfEnergy.microPractice.calm.complete') }}</p>
+                  <p v-if="boxDone" class="text-sm text-primary font-medium">
+                    {{ t('exerciseWizards.selfEnergy.microPractice.calm.complete') }}
+                  </p>
                 </div>
               </div>
             </template>
@@ -172,7 +229,9 @@
             <!-- Curiosity -->
             <template v-else-if="microPracticeType === 'curiosity'">
               <div class="neo-surface p-4 rounded-xl space-y-3">
-                <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.selfEnergy.microPractice.curiosity.title') }}</p>
+                <p class="text-sm font-medium text-on-surface">
+                  {{ t('exerciseWizards.selfEnergy.microPractice.curiosity.title') }}
+                </p>
                 <p class="text-sm text-on-surface-variant">
                   {{ tg('exerciseWizards.selfEnergy.microPractice.curiosity.description') }}
                 </p>
@@ -188,17 +247,24 @@
             <!-- Compassion -->
             <template v-else-if="microPracticeType === 'compassion'">
               <div class="neo-surface p-4 rounded-xl space-y-3">
-                <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.selfEnergy.microPractice.compassion.title') }}</p>
+                <p class="text-sm font-medium text-on-surface">
+                  {{ t('exerciseWizards.selfEnergy.microPractice.compassion.title') }}
+                </p>
                 <p class="text-sm text-on-surface-variant">
                   {{ t('exerciseWizards.selfEnergy.microPractice.compassion.description') }}
                 </p>
                 <div class="flex justify-center py-4">
-                  <AppIcon name="favorite" class="text-[4rem] text-[rgb(var(--self-compassion))] compassion-pulse" />
+                  <AppIcon
+                    name="favorite"
+                    class="text-[4rem] text-[rgb(var(--self-compassion))] compassion-pulse"
+                  />
                 </div>
                 <textarea
                   v-model="microPracticeNotes"
                   rows="2"
-                  :placeholder="tg('exerciseWizards.selfEnergy.microPractice.compassion.placeholder')"
+                  :placeholder="
+                    tg('exerciseWizards.selfEnergy.microPractice.compassion.placeholder')
+                  "
                   class="neo-input w-full p-3 text-sm resize-none"
                 />
               </div>
@@ -207,7 +273,9 @@
             <!-- Clarity -->
             <template v-else-if="microPracticeType === 'clarity'">
               <div class="neo-surface p-4 rounded-xl space-y-3">
-                <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.selfEnergy.microPractice.clarity.title') }}</p>
+                <p class="text-sm font-medium text-on-surface">
+                  {{ t('exerciseWizards.selfEnergy.microPractice.clarity.title') }}
+                </p>
                 <p class="text-sm text-on-surface-variant">
                   {{ t('exerciseWizards.selfEnergy.microPractice.clarity.description') }}
                 </p>
@@ -223,7 +291,9 @@
             <!-- Courage -->
             <template v-else-if="microPracticeType === 'courage'">
               <div class="neo-surface p-4 rounded-xl space-y-3">
-                <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.selfEnergy.microPractice.courage.title') }}</p>
+                <p class="text-sm font-medium text-on-surface">
+                  {{ t('exerciseWizards.selfEnergy.microPractice.courage.title') }}
+                </p>
                 <p class="text-sm text-on-surface-variant">
                   {{ tg('exerciseWizards.selfEnergy.microPractice.courage.description') }}
                 </p>
@@ -239,14 +309,18 @@
             <!-- Creativity -->
             <template v-else-if="microPracticeType === 'creativity'">
               <div class="neo-surface p-4 rounded-xl space-y-3">
-                <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.selfEnergy.microPractice.creativity.title') }}</p>
+                <p class="text-sm font-medium text-on-surface">
+                  {{ t('exerciseWizards.selfEnergy.microPractice.creativity.title') }}
+                </p>
                 <p class="text-sm text-on-surface-variant">
                   {{ t('exerciseWizards.selfEnergy.microPractice.creativity.description') }}
                 </p>
                 <textarea
                   v-model="microPracticeNotes"
                   rows="3"
-                  :placeholder="t('exerciseWizards.selfEnergy.microPractice.creativity.placeholder')"
+                  :placeholder="
+                    t('exerciseWizards.selfEnergy.microPractice.creativity.placeholder')
+                  "
                   class="neo-input w-full p-3 text-sm resize-none"
                 />
               </div>
@@ -255,14 +329,18 @@
             <!-- Confidence -->
             <template v-else-if="microPracticeType === 'confidence'">
               <div class="neo-surface p-4 rounded-xl space-y-3">
-                <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.selfEnergy.microPractice.confidence.title') }}</p>
+                <p class="text-sm font-medium text-on-surface">
+                  {{ t('exerciseWizards.selfEnergy.microPractice.confidence.title') }}
+                </p>
                 <p class="text-sm text-on-surface-variant">
                   {{ tg('exerciseWizards.selfEnergy.microPractice.confidence.description') }}
                 </p>
                 <textarea
                   v-model="microPracticeNotes"
                   rows="2"
-                  :placeholder="tg('exerciseWizards.selfEnergy.microPractice.confidence.placeholder')"
+                  :placeholder="
+                    tg('exerciseWizards.selfEnergy.microPractice.confidence.placeholder')
+                  "
                   class="neo-input w-full p-3 text-sm resize-none"
                 />
               </div>
@@ -271,14 +349,18 @@
             <!-- Connection -->
             <template v-else-if="microPracticeType === 'connection'">
               <div class="neo-surface p-4 rounded-xl space-y-3">
-                <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.selfEnergy.microPractice.connection.title') }}</p>
+                <p class="text-sm font-medium text-on-surface">
+                  {{ t('exerciseWizards.selfEnergy.microPractice.connection.title') }}
+                </p>
                 <p class="text-sm text-on-surface-variant">
                   {{ tg('exerciseWizards.selfEnergy.microPractice.connection.description') }}
                 </p>
                 <input
                   v-model="microPracticeNotes"
                   type="text"
-                  :placeholder="t('exerciseWizards.selfEnergy.microPractice.connection.placeholder')"
+                  :placeholder="
+                    t('exerciseWizards.selfEnergy.microPractice.connection.placeholder')
+                  "
                   class="neo-input w-full p-3 text-sm"
                 />
               </div>
@@ -287,7 +369,9 @@
 
           <div class="flex justify-between">
             <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
-            <AppButton variant="filled" @click="nextStep()">{{ t('common.buttons.next') }}</AppButton>
+            <AppButton variant="filled" @click="nextStep()">{{
+              t('common.buttons.next')
+            }}</AppButton>
           </div>
         </div>
       </template>
@@ -296,25 +380,32 @@
       <template v-else-if="currentStep === 'save'">
         <div class="space-y-6">
           <AppCard variant="raised" padding="lg" class="space-y-5">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.selfEnergy.summary.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.selfEnergy.summary.title') }}
+            </h2>
 
-            <SelfEnergyWheel
-              :ratings="ratings"
-              :interactive="false"
-              size="md"
-            />
+            <SelfEnergyWheel :ratings="ratings" :interactive="false" size="md" />
 
             <!-- Lowest C summary -->
             <div class="neo-surface p-3 rounded-lg flex items-center justify-between">
-              <span class="text-sm text-on-surface-variant">{{ formatQuality(lowestQuality) }}</span>
+              <span class="text-sm text-on-surface-variant">{{
+                formatQuality(lowestQuality)
+              }}</span>
               <span class="text-sm font-semibold text-primary">{{ ratings[lowestQuality] }}/5</span>
             </div>
 
             <!-- Identified part -->
             <div v-if="identifiedPartId" class="flex items-center gap-2">
-              <span class="text-xs text-on-surface-variant">{{ t('exerciseWizards.selfEnergy.summary.affectingPart') }}</span>
-              <span class="text-xs font-medium text-on-surface">{{ getPartName(identifiedPartId) }}</span>
-              <PartRoleBadge v-if="getPartRole(identifiedPartId)" :role="getPartRole(identifiedPartId)!" />
+              <span class="text-xs text-on-surface-variant">{{
+                t('exerciseWizards.selfEnergy.summary.affectingPart')
+              }}</span>
+              <span class="text-xs font-medium text-on-surface">{{
+                getPartName(identifiedPartId)
+              }}</span>
+              <PartRoleBadge
+                v-if="getPartRole(identifiedPartId)"
+                :role="getPartRole(identifiedPartId)!"
+              />
             </div>
 
             <!-- Trend Review -->
@@ -326,7 +417,11 @@
                   @click="requestTrendReview({ useProfile: useProfileTrendReview })"
                 >
                   <AppIcon name="auto_awesome" class="text-base mr-1" />
-                  {{ isLoadingReview ? t('exerciseWizards.selfEnergy.summary.trendReviewLoading') : t('exerciseWizards.selfEnergy.summary.trendReviewButton') }}
+                  {{
+                    isLoadingReview
+                      ? t('exerciseWizards.selfEnergy.summary.trendReviewLoading')
+                      : t('exerciseWizards.selfEnergy.summary.trendReviewButton')
+                  }}
                 </AppButton>
                 <ProfileContextToggle v-model="useProfileTrendReview" />
               </div>
@@ -339,17 +434,37 @@
               </div>
             </div>
             <p v-else class="text-xs text-on-surface-variant">
-              {{ tp(14 - selfEnergyStore.checkIns.length, 'exerciseWizards.selfEnergy.summary.unlockTrend.one', 'exerciseWizards.selfEnergy.summary.unlockTrend.few', 'exerciseWizards.selfEnergy.summary.unlockTrend.many') }}
+              {{
+                tp(
+                  14 - selfEnergyStore.checkIns.length,
+                  'exerciseWizards.selfEnergy.summary.unlockTrend.one',
+                  'exerciseWizards.selfEnergy.summary.unlockTrend.few',
+                  'exerciseWizards.selfEnergy.summary.unlockTrend.many'
+                )
+              }}
             </p>
 
             <!-- Trend chart (7+ check-ins) -->
             <div v-if="selfEnergyStore.checkIns.length >= 7" class="neo-surface rounded-2xl p-4">
-              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-3">{{ t('exerciseWizards.selfEnergy.summary.trendLabel') }}</p>
-              <svg :viewBox="`0 0 ${chartWidth} ${chartHeight}`" class="w-full" style="height: 180px">
+              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-3">
+                {{ t('exerciseWizards.selfEnergy.summary.trendLabel') }}
+              </p>
+              <svg
+                :viewBox="`0 0 ${chartWidth} ${chartHeight}`"
+                class="w-full"
+                style="height: 180px"
+              >
                 <!-- Grid lines -->
-                <line v-for="n in 5" :key="`grid-${n}`"
-                  :x1="chartPadding" :y1="yScale(n)" :x2="chartWidth - chartPadding" :y2="yScale(n)"
-                  stroke="currentColor" class="text-neu-border/15" stroke-width="0.5"
+                <line
+                  v-for="n in 5"
+                  :key="`grid-${n}`"
+                  :x1="chartPadding"
+                  :y1="yScale(n)"
+                  :x2="chartWidth - chartPadding"
+                  :y2="yScale(n)"
+                  stroke="currentColor"
+                  class="text-neu-border/15"
+                  stroke-width="0.5"
                 />
                 <!-- Lines for each C -->
                 <polyline
@@ -366,7 +481,10 @@
               <!-- Legend -->
               <div class="flex flex-wrap gap-x-3 gap-y-1 mt-2">
                 <div v-for="q in allQualities" :key="`legend-${q}`" class="flex items-center gap-1">
-                  <div class="w-2.5 h-2.5 rounded-full" :style="{ backgroundColor: qualityColor(q) }" />
+                  <div
+                    class="w-2.5 h-2.5 rounded-full"
+                    :style="{ backgroundColor: qualityColor(q) }"
+                  />
                   <span class="text-[10px] text-on-surface-variant">{{ formatQuality(q) }}</span>
                 </div>
               </div>
@@ -374,7 +492,9 @@
 
             <!-- Notes -->
             <div class="space-y-1">
-              <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.selfEnergy.summary.notesLabel') }}</label>
+              <label class="text-xs font-medium text-on-surface-variant">{{
+                t('exerciseWizards.selfEnergy.summary.notesLabel')
+              }}</label>
               <textarea
                 v-model="notes"
                 rows="2"
@@ -387,7 +507,11 @@
           <div class="flex justify-between">
             <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
             <AppButton variant="filled" :disabled="isSaving" @click="handleSave">
-              {{ isSaving ? t('exerciseWizards.selfEnergy.summary.saving') : t('exerciseWizards.selfEnergy.summary.saveButton') }}
+              {{
+                isSaving
+                  ? t('exerciseWizards.selfEnergy.summary.saving')
+                  : t('exerciseWizards.selfEnergy.summary.saveButton')
+              }}
             </AppButton>
           </div>
         </div>
@@ -402,10 +526,7 @@ import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import { ref, onUnmounted } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import type { SelfEnergyQuality } from '@/domain/exercises'
-import {
-  SELF_ENERGY_QUALITY_TEXT_CLASS,
-  getQualityVar,
-} from '@/utils/selfEnergyColors'
+import { SELF_ENERGY_QUALITY_TEXT_CLASS, getQualityVar } from '@/utils/selfEnergyColors'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import SelfEnergyWheel from '@/components/exercises/ifs/SelfEnergyWheel.vue'
@@ -440,8 +561,14 @@ const stepLabels = [
 ]
 
 const allQualities: SelfEnergyQuality[] = [
-  'calm', 'curiosity', 'compassion', 'clarity',
-  'courage', 'creativity', 'confidence', 'connection',
+  'calm',
+  'curiosity',
+  'compassion',
+  'clarity',
+  'courage',
+  'creativity',
+  'confidence',
+  'connection',
 ]
 
 const {
@@ -576,6 +703,18 @@ async function handleSave() {
 onUnmounted(() => {
   if (boxTimer) clearTimeout(boxTimer)
 })
+
+// Multi-statement inline handlers do not survive prettier's semi: false (the
+// template parser needs the semicolons), so they live here as functions.
+function skipPracticeAndContinue(): void {
+  skipMicroPractice.value = true
+  nextStep()
+}
+
+function keepPracticeAndContinue(): void {
+  skipMicroPractice.value = false
+  nextStep()
+}
 </script>
 
 <style scoped>
@@ -584,7 +723,14 @@ onUnmounted(() => {
 }
 
 @keyframes pulse-heart {
-  0%, 100% { transform: scale(1); opacity: 0.8; }
-  50% { transform: scale(1.1); opacity: 1; }
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
 }
 </style>

@@ -31,11 +31,7 @@ function makeSlot(dayRef: string, value: number | undefined, hasEntry = true): T
 
 function makeData(overrides: Partial<TodayValueSparklineData> = {}): TodayValueSparklineData {
   return {
-    points: [
-      makeSlot('2026-03-01', 6),
-      makeSlot('2026-03-08', 7),
-      makeSlot('2026-03-15', 8),
-    ],
+    points: [makeSlot('2026-03-01', 6), makeSlot('2026-03-08', 7), makeSlot('2026-03-15', 8)],
     hasData: true,
     aggregate: 7,
     aggregationLabel: 'avg',
@@ -88,7 +84,7 @@ describe('ValueSparklineSummary', () => {
 
   it('renders a dash when there is no data', () => {
     const { getByText } = renderWithStub(
-      makeData({ points: [], hasData: false, aggregate: 0, entryCount: 0 }),
+      makeData({ points: [], hasData: false, aggregate: 0, entryCount: 0 })
     )
 
     expect(getByText('—')).toBeTruthy()
@@ -105,6 +101,6 @@ describe('ValueSparklineSummary', () => {
     renderWithStub(makeData({ targetValue: 7 }))
 
     const points = capturedProps!.points as Array<{ targetValue: number | undefined }>
-    expect(points.every((p) => p.targetValue === 7)).toBe(true)
+    expect(points.every(p => p.targetValue === 7)).toBe(true)
   })
 })

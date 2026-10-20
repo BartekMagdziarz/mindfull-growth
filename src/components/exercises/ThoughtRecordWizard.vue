@@ -6,18 +6,28 @@
     <!-- Step 1: Intro -->
     <template v-if="step === 0">
       <AppCard padding="lg" class="space-y-4">
-        <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.thoughtRecord.intro.title') }}</h2>
+        <h2 class="text-lg font-semibold text-on-surface">
+          {{ t('exerciseWizards.thoughtRecord.intro.title') }}
+        </h2>
         <p class="text-sm text-on-surface-variant leading-relaxed">
           {{ t('exerciseWizards.thoughtRecord.intro.description') }}
         </p>
         <div class="neo-surface p-4 space-y-3">
-          <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('exerciseWizards.thoughtRecord.intro.howItWorks') }}</p>
+          <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+            {{ t('exerciseWizards.thoughtRecord.intro.howItWorks') }}
+          </p>
           <div class="flex items-center gap-3 text-sm text-on-surface">
-            <span class="exercise-pill px-3 py-1 text-xs">{{ t('exerciseWizards.thoughtRecord.steps.situation') }}</span>
+            <span class="exercise-pill px-3 py-1 text-xs">{{
+              t('exerciseWizards.thoughtRecord.steps.situation')
+            }}</span>
             <AppIcon name="arrow_forward" class="text-base text-on-surface-variant flex-shrink-0" />
-            <span class="exercise-pill px-3 py-1 text-xs">{{ t('exerciseWizards.thoughtRecord.steps.thoughts') }}</span>
+            <span class="exercise-pill px-3 py-1 text-xs">{{
+              t('exerciseWizards.thoughtRecord.steps.thoughts')
+            }}</span>
             <AppIcon name="arrow_forward" class="text-base text-on-surface-variant flex-shrink-0" />
-            <span class="exercise-pill px-3 py-1 text-xs">{{ t('exerciseWizards.thoughtRecord.steps.emotions') }}</span>
+            <span class="exercise-pill px-3 py-1 text-xs">{{
+              t('exerciseWizards.thoughtRecord.steps.emotions')
+            }}</span>
           </div>
           <p class="text-xs text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.thoughtRecord.intro.howItWorksDescription') }}
@@ -34,7 +44,9 @@
     <!-- Step 2: Situation -->
     <template v-if="step === 1">
       <AppCard padding="lg" class="space-y-4">
-        <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.thoughtRecord.situation.title') }}</h2>
+        <h2 class="text-lg font-semibold text-on-surface">
+          {{ t('exerciseWizards.thoughtRecord.situation.title') }}
+        </h2>
         <p class="text-sm text-on-surface-variant">
           {{ t('exerciseWizards.thoughtRecord.situation.description') }}
         </p>
@@ -46,12 +58,10 @@
           class="neo-input w-full p-3 text-sm resize-none"
         />
         <div class="space-y-1">
-          <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.thoughtRecord.situation.dateLabel') }}</label>
-          <input
-            v-model="situationDate"
-            type="date"
-            class="neo-input p-2 text-sm w-full"
-          />
+          <label class="text-xs font-medium text-on-surface-variant">{{
+            t('exerciseWizards.thoughtRecord.situation.dateLabel')
+          }}</label>
+          <input v-model="situationDate" type="date" class="neo-input p-2 text-sm w-full" />
         </div>
       </AppCard>
       <div class="flex justify-between">
@@ -66,7 +76,9 @@
     <template v-if="step === 2">
       <AppCard padding="lg" class="space-y-4">
         <div class="flex items-center gap-1.5">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.thoughtRecord.emotions.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.thoughtRecord.emotions.title') }}
+          </h2>
         </div>
         <p class="text-sm text-on-surface-variant">
           {{ t('exerciseWizards.thoughtRecord.emotions.description') }}
@@ -82,11 +94,7 @@
           <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
             {{ t('exerciseWizards.thoughtRecord.emotions.intensityRatings') }}
           </p>
-          <div
-            v-for="er in emotionsBefore"
-            :key="er.emotionId"
-            class="neo-surface p-3 space-y-2"
-          >
+          <div v-for="er in emotionsBefore" :key="er.emotionId" class="neo-surface p-3 space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-sm font-medium text-on-surface">
                 {{ getEmotionName(er.emotionId) }}
@@ -99,7 +107,12 @@
               max="100"
               :value="er.intensity"
               class="w-full accent-primary"
-              @input="updateEmotionIntensity(er.emotionId, Number(($event.target as HTMLInputElement).value))"
+              @input="
+                updateEmotionIntensity(
+                  er.emotionId,
+                  Number(($event.target as HTMLInputElement).value)
+                )
+              "
             />
           </div>
         </div>
@@ -115,7 +128,9 @@
     <!-- Step 4: Automatic Thoughts -->
     <template v-if="step === 3">
       <AppCard padding="lg" class="space-y-4">
-        <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.thoughtRecord.thoughts.title') }}</h2>
+        <h2 class="text-lg font-semibold text-on-surface">
+          {{ t('exerciseWizards.thoughtRecord.thoughts.title') }}
+        </h2>
         <p class="text-sm text-on-surface-variant">
           {{ tg('exerciseWizards.thoughtRecord.thoughts.description') }}
         </p>
@@ -129,9 +144,11 @@
             <button
               type="button"
               class="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200 text-xs"
-              :class="hotThoughtIndex === index
-                ? 'exercise-pill--primary text-primary font-bold'
-                : 'neo-surface text-on-surface-variant hover:text-primary'"
+              :class="
+                hotThoughtIndex === index
+                  ? 'exercise-pill--primary text-primary font-bold'
+                  : 'neo-surface text-on-surface-variant hover:text-primary'
+              "
               :aria-label="`Mark thought ${index + 1} as hot thought`"
               :aria-pressed="hotThoughtIndex === index"
               @click="hotThoughtIndex = index"
@@ -169,7 +186,11 @@
               @click="handleIdentifyThoughts"
             >
               <AppIcon name="auto_awesome" class="text-base" />
-              {{ isIdentifyLoading ? t('exerciseWizards.thoughtRecord.thoughts.identifyLoading') : t('exerciseWizards.thoughtRecord.thoughts.identifyLabel') }}
+              {{
+                isIdentifyLoading
+                  ? t('exerciseWizards.thoughtRecord.thoughts.identifyLoading')
+                  : t('exerciseWizards.thoughtRecord.thoughts.identifyLabel')
+              }}
             </AppButton>
             <ProfileContextToggle v-model="useProfileIdentify" />
           </div>
@@ -193,9 +214,13 @@
     <!-- Step 5: Evidence For -->
     <template v-if="step === 4">
       <AppCard padding="lg" class="space-y-4">
-        <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.thoughtRecord.evidenceFor.title') }}</h2>
+        <h2 class="text-lg font-semibold text-on-surface">
+          {{ t('exerciseWizards.thoughtRecord.evidenceFor.title') }}
+        </h2>
         <div class="exercise-quote">
-          <span class="exercise-quote__label">{{ t('exerciseWizards.thoughtRecord.evidenceFor.hotThoughtLabel') }}</span>
+          <span class="exercise-quote__label">{{
+            t('exerciseWizards.thoughtRecord.evidenceFor.hotThoughtLabel')
+          }}</span>
           <span class="exercise-quote__text">„{{ hotThought }}”</span>
         </div>
         <p class="text-sm text-on-surface-variant">
@@ -242,9 +267,13 @@
     <!-- Step 6: Evidence Against -->
     <template v-if="step === 5">
       <AppCard padding="lg" class="space-y-4">
-        <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.thoughtRecord.evidenceAgainst.title') }}</h2>
+        <h2 class="text-lg font-semibold text-on-surface">
+          {{ t('exerciseWizards.thoughtRecord.evidenceAgainst.title') }}
+        </h2>
         <div class="exercise-quote">
-          <span class="exercise-quote__label">{{ t('exerciseWizards.thoughtRecord.evidenceAgainst.hotThoughtLabel') }}</span>
+          <span class="exercise-quote__label">{{
+            t('exerciseWizards.thoughtRecord.evidenceAgainst.hotThoughtLabel')
+          }}</span>
           <span class="exercise-quote__text">„{{ hotThought }}”</span>
         </div>
         <p class="text-sm text-on-surface-variant">
@@ -289,18 +318,22 @@
               @click="handleFindEvidence"
             >
               <AppIcon name="auto_awesome" class="text-base" />
-              {{ isFindEvidenceLoading ? t('exerciseWizards.thoughtRecord.evidenceAgainst.findEvidenceLoading') : t('exerciseWizards.thoughtRecord.evidenceAgainst.findEvidenceLabel') }}
+              {{
+                isFindEvidenceLoading
+                  ? t('exerciseWizards.thoughtRecord.evidenceAgainst.findEvidenceLoading')
+                  : t('exerciseWizards.thoughtRecord.evidenceAgainst.findEvidenceLabel')
+              }}
             </AppButton>
             <ProfileContextToggle v-model="useProfileEvidence" />
           </div>
           <div v-if="findEvidenceMessages.length > 0" class="space-y-2">
-            <div
-              v-for="(msg, idx) in findEvidenceMessages"
-              :key="idx"
-              class="neo-panel p-3"
-            >
+            <div v-for="(msg, idx) in findEvidenceMessages" :key="idx" class="neo-panel p-3">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-1">
-                {{ msg.role === 'assistant' ? t('exerciseWizards.thoughtRecord.evidenceAgainst.suggestion') : t('exerciseWizards.thoughtRecord.evidenceAgainst.you') }}
+                {{
+                  msg.role === 'assistant'
+                    ? t('exerciseWizards.thoughtRecord.evidenceAgainst.suggestion')
+                    : t('exerciseWizards.thoughtRecord.evidenceAgainst.you')
+                }}
               </p>
               <p class="text-sm text-on-surface whitespace-pre-line">{{ msg.content }}</p>
             </div>
@@ -335,7 +368,9 @@
     <!-- Step 7: Balanced Thought -->
     <template v-if="step === 6">
       <AppCard padding="lg" class="space-y-4">
-        <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.thoughtRecord.balancedThought.title') }}</h2>
+        <h2 class="text-lg font-semibold text-on-surface">
+          {{ t('exerciseWizards.thoughtRecord.balancedThought.title') }}
+        </h2>
         <p class="text-sm text-on-surface-variant">
           {{ t('exerciseWizards.thoughtRecord.balancedThought.description') }}
         </p>
@@ -348,11 +383,7 @@
               {{ t('exerciseWizards.thoughtRecord.balancedThought.evidenceForLabel') }}
             </p>
             <ul class="space-y-1">
-              <li
-                v-for="item in filledEvidenceFor"
-                :key="item"
-                class="text-xs text-on-surface"
-              >
+              <li v-for="item in filledEvidenceFor" :key="item" class="text-xs text-on-surface">
                 &#8226; {{ item }}
               </li>
             </ul>
@@ -365,15 +396,14 @@
               {{ t('exerciseWizards.thoughtRecord.balancedThought.evidenceAgainstLabel') }}
             </p>
             <ul class="space-y-1">
-              <li
-                v-for="item in filledEvidenceAgainst"
-                :key="item"
-                class="text-xs text-on-surface"
-              >
+              <li v-for="item in filledEvidenceAgainst" :key="item" class="text-xs text-on-surface">
                 &#8226; {{ item }}
               </li>
             </ul>
-            <p v-if="filledEvidenceAgainst.length === 0" class="text-xs text-on-surface-variant italic">
+            <p
+              v-if="filledEvidenceAgainst.length === 0"
+              class="text-xs text-on-surface-variant italic"
+            >
               {{ t('exerciseWizards.thoughtRecord.balancedThought.noEvidenceListed') }}
             </p>
           </div>
@@ -389,24 +419,24 @@
         <!-- LLM Assist: Reframe -->
         <div class="border-t border-neu-border/20 pt-4 space-y-3">
           <div class="flex flex-wrap items-center gap-2">
-            <AppButton
-              variant="tonal"
-              :disabled="isReframeLoading"
-              @click="handleReframeThought"
-            >
+            <AppButton variant="tonal" :disabled="isReframeLoading" @click="handleReframeThought">
               <AppIcon name="auto_awesome" class="text-base" />
-              {{ isReframeLoading ? t('exerciseWizards.thoughtRecord.balancedThought.reframeLoading') : t('exerciseWizards.thoughtRecord.balancedThought.reframeLabel') }}
+              {{
+                isReframeLoading
+                  ? t('exerciseWizards.thoughtRecord.balancedThought.reframeLoading')
+                  : t('exerciseWizards.thoughtRecord.balancedThought.reframeLabel')
+              }}
             </AppButton>
             <ProfileContextToggle v-model="useProfileReframe" />
           </div>
           <div v-if="reframeSuggestions.length > 0" class="space-y-2">
-            <div
-              v-for="(msg, idx) in reframeSuggestions"
-              :key="idx"
-              class="neo-panel p-3"
-            >
+            <div v-for="(msg, idx) in reframeSuggestions" :key="idx" class="neo-panel p-3">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-1">
-                {{ msg.role === 'assistant' ? t('exerciseWizards.thoughtRecord.balancedThought.suggestion') : t('exerciseWizards.thoughtRecord.balancedThought.you') }}
+                {{
+                  msg.role === 'assistant'
+                    ? t('exerciseWizards.thoughtRecord.balancedThought.suggestion')
+                    : t('exerciseWizards.thoughtRecord.balancedThought.you')
+                }}
               </p>
               <p class="text-sm text-on-surface whitespace-pre-line">{{ msg.content }}</p>
               <button
@@ -449,17 +479,15 @@
     <!-- Step 8: Emotions After -->
     <template v-if="step === 7">
       <AppCard padding="lg" class="space-y-4">
-        <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.thoughtRecord.rerate.title') }}</h2>
+        <h2 class="text-lg font-semibold text-on-surface">
+          {{ t('exerciseWizards.thoughtRecord.rerate.title') }}
+        </h2>
         <p class="text-sm text-on-surface-variant">
           {{ t('exerciseWizards.thoughtRecord.rerate.description') }}
         </p>
         <ExerciseStepWhy :text="tg('exerciseWizards.thoughtRecord.rerate.why')" />
         <div class="space-y-3">
-          <div
-            v-for="er in emotionsAfter"
-            :key="er.emotionId"
-            class="neo-surface p-3 space-y-2"
-          >
+          <div v-for="er in emotionsAfter" :key="er.emotionId" class="neo-surface p-3 space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-sm font-medium text-on-surface">
                 {{ getEmotionName(er.emotionId) }}
@@ -480,7 +508,12 @@
               max="100"
               :value="er.intensity"
               class="w-full accent-primary"
-              @input="updateAfterIntensity(er.emotionId, Number(($event.target as HTMLInputElement).value))"
+              @input="
+                updateAfterIntensity(
+                  er.emotionId,
+                  Number(($event.target as HTMLInputElement).value)
+                )
+              "
             />
           </div>
         </div>
@@ -496,18 +529,24 @@
     <!-- Step 9: Summary -->
     <template v-if="step === 8">
       <AppCard variant="raised" padding="lg" class="space-y-5">
-        <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.thoughtRecord.summary.title') }}</h2>
+        <h2 class="text-lg font-semibold text-on-surface">
+          {{ t('exerciseWizards.thoughtRecord.summary.title') }}
+        </h2>
 
         <!-- Situation -->
         <div class="space-y-1">
-          <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('exerciseWizards.thoughtRecord.summary.situation') }}</p>
+          <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+            {{ t('exerciseWizards.thoughtRecord.summary.situation') }}
+          </p>
           <p class="text-sm text-on-surface">{{ situation }}</p>
           <p v-if="situationDate" class="text-xs text-on-surface-variant">{{ situationDate }}</p>
         </div>
 
         <!-- Emotions Before / After -->
         <div class="space-y-2">
-          <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('exerciseWizards.thoughtRecord.summary.emotions') }}</p>
+          <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+            {{ t('exerciseWizards.thoughtRecord.summary.emotions') }}
+          </p>
           <div class="space-y-1.5">
             <div
               v-for="er in emotionsAfter"
@@ -519,8 +558,16 @@
               </span>
               <span class="text-on-surface-variant">{{ getBeforeIntensity(er.emotionId) }}%</span>
               <span class="flex items-center gap-1" :class="getIntensityChangeClass(er.emotionId)">
-                <AppIcon v-if="er.intensity < getBeforeIntensity(er.emotionId)" name="arrow_downward" class="text-xs" />
-                <AppIcon v-else-if="er.intensity > getBeforeIntensity(er.emotionId)" name="arrow_upward" class="text-xs" />
+                <AppIcon
+                  v-if="er.intensity < getBeforeIntensity(er.emotionId)"
+                  name="arrow_downward"
+                  class="text-xs"
+                />
+                <AppIcon
+                  v-else-if="er.intensity > getBeforeIntensity(er.emotionId)"
+                  name="arrow_upward"
+                  class="text-xs"
+                />
                 <AppIcon v-else name="remove" class="text-xs" />
                 {{ er.intensity }}%
               </span>
@@ -530,7 +577,9 @@
 
         <!-- Hot Thought -->
         <div class="space-y-1">
-          <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('exerciseWizards.thoughtRecord.summary.hotThought') }}</p>
+          <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+            {{ t('exerciseWizards.thoughtRecord.summary.hotThought') }}
+          </p>
           <p class="text-sm text-on-surface italic">"{{ hotThought }}"</p>
         </div>
 
@@ -541,11 +590,7 @@
               {{ t('exerciseWizards.thoughtRecord.summary.evidenceFor') }}
             </p>
             <ul class="space-y-1">
-              <li
-                v-for="item in filledEvidenceFor"
-                :key="item"
-                class="text-xs text-on-surface"
-              >
+              <li v-for="item in filledEvidenceFor" :key="item" class="text-xs text-on-surface">
                 &#8226; {{ item }}
               </li>
             </ul>
@@ -558,15 +603,14 @@
               {{ t('exerciseWizards.thoughtRecord.summary.evidenceAgainst') }}
             </p>
             <ul class="space-y-1">
-              <li
-                v-for="item in filledEvidenceAgainst"
-                :key="item"
-                class="text-xs text-on-surface"
-              >
+              <li v-for="item in filledEvidenceAgainst" :key="item" class="text-xs text-on-surface">
                 &#8226; {{ item }}
               </li>
             </ul>
-            <p v-if="filledEvidenceAgainst.length === 0" class="text-xs text-on-surface-variant italic">
+            <p
+              v-if="filledEvidenceAgainst.length === 0"
+              class="text-xs text-on-surface-variant italic"
+            >
               {{ t('exerciseWizards.thoughtRecord.summary.noneListed') }}
             </p>
           </div>
@@ -574,7 +618,9 @@
 
         <!-- Balanced Thought -->
         <div class="space-y-1">
-          <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('exerciseWizards.thoughtRecord.summary.balancedThought') }}</p>
+          <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+            {{ t('exerciseWizards.thoughtRecord.summary.balancedThought') }}
+          </p>
           <p class="text-sm text-on-surface">"{{ balancedThought }}"</p>
         </div>
       </AppCard>
@@ -645,12 +691,12 @@ const situationDate = ref('')
 const emotionsBefore = reactive<EmotionRating[]>([])
 const activeEmotionQuadrant = ref<Quadrant | null>(null)
 
-const selectedEmotionIds = computed(() => emotionsBefore.map((er) => er.emotionId))
+const selectedEmotionIds = computed(() => emotionsBefore.map(er => er.emotionId))
 
 function handleEmotionSelectionChange(ids: string[]) {
   // Add new emotions
   for (const id of ids) {
-    if (!emotionsBefore.find((er) => er.emotionId === id)) {
+    if (!emotionsBefore.find(er => er.emotionId === id)) {
       emotionsBefore.push({ emotionId: id, intensity: 50 })
     }
   }
@@ -663,7 +709,7 @@ function handleEmotionSelectionChange(ids: string[]) {
 }
 
 function updateEmotionIntensity(emotionId: string, intensity: number) {
-  const er = emotionsBefore.find((e) => e.emotionId === emotionId)
+  const er = emotionsBefore.find(e => e.emotionId === emotionId)
   if (er) er.intensity = intensity
 }
 
@@ -677,16 +723,16 @@ const hotThoughtIndex = ref(0)
 
 watch(
   () => props.seed,
-  (seed) => {
+  seed => {
     if (!seed) return
     if (seed.situation && !situation.value.trim()) situation.value = seed.situation
     if (seed.thought && !automaticThoughts[0]?.trim()) automaticThoughts[0] = seed.thought
   },
-  { immediate: true },
+  { immediate: true }
 )
 
 const hasValidThoughts = computed(() => {
-  return automaticThoughts.some((t) => t.trim().length > 0)
+  return automaticThoughts.some(t => t.trim().length > 0)
 })
 
 const hotThought = computed(() => {
@@ -695,7 +741,7 @@ const hotThought = computed(() => {
     return automaticThoughts[idx]
   }
   // Fallback to first non-empty thought
-  return automaticThoughts.find((t) => t.trim()) ?? ''
+  return automaticThoughts.find(t => t.trim()) ?? ''
 })
 
 function removeThought(index: number) {
@@ -714,10 +760,10 @@ const identifySuggestions = ref('')
 const identifyError = ref('')
 
 const emotionNamesWithIntensity = computed(() =>
-  emotionsBefore.map((er) => ({
+  emotionsBefore.map(er => ({
     name: emotionStore.getEmotionById(er.emotionId)?.name ?? 'Unknown',
     intensity: er.intensity,
-  })),
+  }))
 )
 
 async function handleIdentifyThoughts() {
@@ -742,12 +788,12 @@ async function handleIdentifyThoughts() {
 // --- Step 5: Evidence For ---
 const evidenceFor = reactive<string[]>([''])
 
-const filledEvidenceFor = computed(() => evidenceFor.filter((e) => e.trim().length > 0))
+const filledEvidenceFor = computed(() => evidenceFor.filter(e => e.trim().length > 0))
 
 // --- Step 6: Evidence Against ---
 const evidenceAgainst = reactive<string[]>([''])
 
-const filledEvidenceAgainst = computed(() => evidenceAgainst.filter((e) => e.trim().length > 0))
+const filledEvidenceAgainst = computed(() => evidenceAgainst.filter(e => e.trim().length > 0))
 
 // LLM Assist: Find Evidence
 const isFindEvidenceLoading = ref(false)
@@ -840,24 +886,24 @@ function initEmotionsAfter() {
 
 // Watch step to initialize emotionsAfter
 import { watch } from 'vue'
-watch(step, (newStep) => {
+watch(step, newStep => {
   if (newStep === 7) {
     initEmotionsAfter()
   }
 })
 
 function updateAfterIntensity(emotionId: string, intensity: number) {
-  const er = emotionsAfter.find((e) => e.emotionId === emotionId)
+  const er = emotionsAfter.find(e => e.emotionId === emotionId)
   if (er) er.intensity = intensity
 }
 
 function getBeforeIntensity(emotionId: string): number {
-  return emotionsBefore.find((e) => e.emotionId === emotionId)?.intensity ?? 0
+  return emotionsBefore.find(e => e.emotionId === emotionId)?.intensity ?? 0
 }
 
 function getIntensityChangeClass(emotionId: string): string {
   const before = getBeforeIntensity(emotionId)
-  const after = emotionsAfter.find((e) => e.emotionId === emotionId)?.intensity ?? 0
+  const after = emotionsAfter.find(e => e.emotionId === emotionId)?.intensity ?? 0
   if (after < before) return 'text-status-good-on'
   if (after > before) return 'text-error'
   return 'text-on-surface-variant'
@@ -867,7 +913,7 @@ function getIntensityChangeClass(emotionId: string): string {
 const llmAssistsUsed = reactive(new Set<'identify-thoughts' | 'find-evidence' | 'reframe'>())
 
 function handleSave() {
-  const filledThoughts = automaticThoughts.filter((t) => t.trim().length > 0)
+  const filledThoughts = automaticThoughts.filter(t => t.trim().length > 0)
   // Recompute hot thought index relative to filtered list
   const originalHotThought = hotThought.value
   const newHotIndex = filledThoughts.indexOf(originalHotThought)
@@ -875,8 +921,8 @@ function handleSave() {
   const payload: CreateThoughtRecordPayload = {
     situation: situation.value.trim(),
     situationDate: situationDate.value || undefined,
-    emotionsBefore: emotionsBefore.map((er) => ({ ...er })),
-    emotionsAfter: emotionsAfter.map((er) => ({ ...er })),
+    emotionsBefore: emotionsBefore.map(er => ({ ...er })),
+    emotionsAfter: emotionsAfter.map(er => ({ ...er })),
     automaticThoughts: filledThoughts,
     hotThoughtIndex: newHotIndex >= 0 ? newHotIndex : 0,
     evidenceFor: filledEvidenceFor.value,

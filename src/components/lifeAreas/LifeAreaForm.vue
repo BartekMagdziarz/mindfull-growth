@@ -118,10 +118,7 @@
           </button>
         </div>
       </div>
-      <button
-        @click="addReflectionSignal"
-        class="mt-2 text-sm text-primary hover:underline"
-      >
+      <button @click="addReflectionSignal" class="mt-2 text-sm text-primary hover:underline">
         {{ t('lifeAreas.form.addReflectionSignal') }}
       </button>
     </div>
@@ -140,7 +137,7 @@ import { LIFE_AREA_COLOR_PRESETS } from '@/constants/lifeAreaColorPresets'
 const { t } = useT()
 
 const colorPresets = computed(() =>
-  LIFE_AREA_COLOR_PRESETS.map((preset) => ({
+  LIFE_AREA_COLOR_PRESETS.map(preset => ({
     hex: preset.hex,
     label: t(`lifeAreas.colorPresets.${preset.key}`),
   }))
@@ -162,10 +159,7 @@ const meaningRef = ref<HTMLTextAreaElement | null>(null)
 const desiredStateRef = ref<HTMLTextAreaElement | null>(null)
 const typicalRisksRef = ref<HTMLTextAreaElement | null>(null)
 
-const { autoResize: resizeMeaning } = useAutoResizeTextarea(
-  meaningRef,
-  () => form.value.meaning
-)
+const { autoResize: resizeMeaning } = useAutoResizeTextarea(meaningRef, () => form.value.meaning)
 const { autoResize: resizeDesiredState } = useAutoResizeTextarea(
   desiredStateRef,
   () => form.value.desiredState

@@ -22,13 +22,14 @@ export function parseVerifyBridgeRequest(value: unknown): VerifyBridgeRequest | 
   if (
     request.type !== 'mindful-growth:verify:status-request' &&
     request.type !== 'mindful-growth:verify:reset-request'
-  ) return null
+  )
+    return null
   return request as VerifyBridgeRequest
 }
 
 export async function answerVerifyBridgeRequest(
   request: VerifyBridgeRequest,
-  dependencies: VerifyBridgeDependencies,
+  dependencies: VerifyBridgeDependencies
 ): Promise<VerifyBridgeResponse> {
   if (request.type === 'mindful-growth:verify:status-request') {
     return {

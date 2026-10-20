@@ -274,7 +274,9 @@ test.describe('weekly reflection companion', () => {
     await expect(page.getByRole('log').locator('article')).toHaveCount(0)
     expect(api.count()).toBe(callsBeforeClear)
   })
-  test('Enter shows the message immediately; cancellation and failure restore the draft', async ({ page }) => {
+  test('Enter shows the message immediately; cancellation and failure restore the draft', async ({
+    page,
+  }) => {
     const api = await fakeOpenAI(page)
     await openJournal(page)
     await page.getByRole('button', { name: 'Włącz AI dla tego tygodnia' }).click()

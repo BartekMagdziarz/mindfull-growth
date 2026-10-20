@@ -117,7 +117,8 @@ function prioIconStyle(rating: number | null) {
                     class="material-symbols-outlined"
                     :style="prioIconStyle(prio.rating)"
                     aria-hidden="true"
-                     :name="prio.icon" />
+                    :name="prio.icon"
+                  />
                 </div>
               </div>
               <span

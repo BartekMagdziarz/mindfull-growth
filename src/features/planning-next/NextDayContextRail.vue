@@ -8,7 +8,11 @@
       @hover="store.setHoverKey($event)"
       @select="store.togglePinnedKey($event)"
     />
-    <NextDayUpcoming :entries="context.upcoming.value" :today-ref="context.todayRef.value" :limit="9" />
+    <NextDayUpcoming
+      :entries="context.upcoming.value"
+      :today-ref="context.todayRef.value"
+      :limit="9"
+    />
     <NextDayPrograms :day-ref="dayRef" />
   </div>
 </template>
@@ -27,9 +31,16 @@ const store = useTodayStore()
 const context = useDayContext(toRef(props, 'dayRef'))
 
 // Week focuses = the day's items marked as this week's top-3 (WeekPlan.topPriorities).
-const focusItems = computed(() => store.allVisibleItems.filter(item => item.kind === 'measurement' && item.isTopPriority).slice(0, 3))
+const focusItems = computed(() =>
+  store.allVisibleItems
+    .filter(item => item.kind === 'measurement' && item.isTopPriority)
+    .slice(0, 3)
+)
 
 // Planning writes (move, add, hide) can change deadlines' relevance or create a
 // plan; refresh the context whenever the day bundle reloads.
-watch(() => store.bundle, () => void context.reload())
+watch(
+  () => store.bundle,
+  () => void context.reload()
+)
 </script>

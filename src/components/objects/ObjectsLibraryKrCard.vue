@@ -15,7 +15,11 @@
           <button
             type="button"
             class="mg-v2-button mg-v2-button--icon mg-v2-button--icon-sm mg-v2-button--quiet shrink-0"
-            :aria-label="isExpanded ? t('planning.objects.actions.hideDetails') : t('planning.objects.actions.showDetails')"
+            :aria-label="
+              isExpanded
+                ? t('planning.objects.actions.hideDetails')
+                : t('planning.objects.actions.showDetails')
+            "
             @click="$emit('toggle-expand')"
           >
             <AppIcon v-if="isExpanded" name="expand_less" class="text-base" />
@@ -46,7 +50,11 @@
                   class="block w-full px-3 py-2 text-left text-xs font-medium text-on-surface hover:bg-primary-soft/30"
                   @click="handleArchive"
                 >
-                  {{ child.isActive ? t('planning.objects.actions.archive') : t('planning.objects.actions.unarchive') }}
+                  {{
+                    child.isActive
+                      ? t('planning.objects.actions.archive')
+                      : t('planning.objects.actions.unarchive')
+                  }}
                 </button>
                 <button
                   type="button"
@@ -73,32 +81,41 @@
       <!-- Expanded section -->
       <div
         class="transition-all duration-200 ease-in-out"
-        :style="{ maxHeight: isExpanded ? '700px' : '0', opacity: isExpanded ? 1 : 0, overflow: isExpanded ? 'visible' : 'hidden' }"
+        :style="{
+          maxHeight: isExpanded ? '700px' : '0',
+          opacity: isExpanded ? 1 : 0,
+          overflow: isExpanded ? 'visible' : 'hidden',
+        }"
       >
         <div class="space-y-3 pt-1">
           <!-- Periods + Target (cadence + mode live in the sentence) -->
           <div class="grid grid-cols-2 gap-3">
             <!-- Periods -->
             <div class="space-y-1">
-              <div class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
+              <div
+                class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant"
+              >
                 {{ t('planning.objects.form.periods') }}
               </div>
-              <div
-                class="mg-v2-surface mg-v2-surface--flat group relative min-h-[60px] p-1.5"
-              >
+              <div class="mg-v2-surface mg-v2-surface--flat group relative min-h-[60px] p-1.5">
                 <PeriodCalendarPicker
                   :model-value="linkedPeriods.map(period => period.periodRef)"
                   :cadence="child.cadence === 'monthly' ? 'monthly' : 'weekly'"
                   :commit="savePeriods"
                 />
 
-                <PeriodSelectionSummary :periods="linkedPeriods.map(period => period.periodRef)" :cadence="child.cadence === 'monthly' ? 'monthly' : 'weekly'" />
+                <PeriodSelectionSummary
+                  :periods="linkedPeriods.map(period => period.periodRef)"
+                  :cadence="child.cadence === 'monthly' ? 'monthly' : 'weekly'"
+                />
               </div>
             </div>
 
             <!-- Target -->
             <div class="space-y-1">
-              <div class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
+              <div
+                class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant"
+              >
                 {{ t('planning.objects.form.target') }}
               </div>
               <MeasurementTargetSentence
@@ -122,7 +139,9 @@
 
           <!-- Completion rules -->
           <div class="space-y-1">
-            <div class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
+            <div
+              class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant"
+            >
               {{ t('planning.objects.form.completionRules') }}
             </div>
             <textarea
@@ -137,8 +156,11 @@
       </div>
 
       <!-- Chart -->
-      <MeasurementSparkline :points="child.chartData" :cadence="child.cadence" :entry-mode="child.entryMode" />
-
+      <MeasurementSparkline
+        :points="child.chartData"
+        :cadence="child.cadence"
+        :entry-mode="child.entryMode"
+      />
     </div>
   </div>
 </template>
@@ -192,20 +214,27 @@ const { t } = useT()
 const menuRef = ref<HTMLElement | null>(null)
 const menuOpen = ref(false)
 
-
 function emitFieldChange(field: string, value: unknown): void {
   emit('field-change', field, value)
 }
 
-const { value: title, inputRef: titleRef, flush: flushTitle } = useEditableField({
+const {
+  value: title,
+  inputRef: titleRef,
+  flush: flushTitle,
+} = useEditableField({
   source: () => props.child.title,
-  commit: (value) => emitFieldChange('title', value),
+  commit: value => emitFieldChange('title', value),
   delay: 400,
 })
 
-const { value: description, inputRef: descriptionRef, flush: flushDescription } = useEditableField({
+const {
+  value: description,
+  inputRef: descriptionRef,
+  flush: flushDescription,
+} = useEditableField({
   source: () => props.child.description,
-  commit: (value) => emitFieldChange('description', value),
+  commit: value => emitFieldChange('description', value),
   delay: 400,
 })
 
@@ -241,19 +270,19 @@ function onTargetMeasurement(measurement: {
 }
 
 const cadenceLabel = computed(() => {
-  const opt = props.cadenceOptions.find((o) => o.value === props.child.cadence)
+  const opt = props.cadenceOptions.find(o => o.value === props.child.cadence)
   return opt?.label ?? props.child.cadence
 })
 
 const entryModeLabel = computed(() => {
-  const opt = props.entryModeOptions.find((o) => o.value === props.child.entryMode)
+  const opt = props.entryModeOptions.find(o => o.value === props.child.entryMode)
   return opt?.label ?? props.child.entryMode
 })
 
 // Status is quiet: shown as text only when it is not the default "open".
 const statusLabel = computed(() => {
   if (props.child.status === 'open') return null
-  const opt = props.statusOptions.find((o) => o.value === props.child.status)
+  const opt = props.statusOptions.find(o => o.value === props.child.status)
   return opt?.label ?? props.child.status
 })
 

@@ -14,7 +14,7 @@ function getEmotionIds(
   count: number
 ) {
   const allEmotions = emotionStore.emotions as Emotion[]
-  return allEmotions.slice(start, start + count).map((emotion) => emotion.id)
+  return allEmotions.slice(start, start + count).map(emotion => emotion.id)
 }
 
 describe('Journal Flow Integration', () => {
@@ -65,8 +65,8 @@ describe('Journal Flow Integration', () => {
     // Verify emotion IDs resolve correctly
     expect(createdEntry.emotionIds).toEqual(emotionIds)
     const createdEmotionIds = createdEntry.emotionIds ?? []
-    const resolvedEmotions = createdEmotionIds.map((id) => emotionStore.getEmotionById(id))
-    expect(resolvedEmotions.every((emotion) => emotion?.name)).toBe(true)
+    const resolvedEmotions = createdEmotionIds.map(id => emotionStore.getEmotionById(id))
+    expect(resolvedEmotions.every(emotion => emotion?.name)).toBe(true)
   })
 
   it('edits an existing entry and keeps tag records intact', async () => {
@@ -112,9 +112,9 @@ describe('Journal Flow Integration', () => {
 
     // Original tags should still exist even if not referenced anymore
     const peopleTagsInDb = await getAllPeopleTags()
-    expect(peopleTagsInDb.map((tag) => tag.name).sort()).toEqual(['Dad', 'Mom'])
+    expect(peopleTagsInDb.map(tag => tag.name).sort()).toEqual(['Dad', 'Mom'])
     const contextTagsInDb = await getAllContextTags()
-    expect(contextTagsInDb.map((tag) => tag.name)).toEqual(['Work'])
+    expect(contextTagsInDb.map(tag => tag.name)).toEqual(['Work'])
   })
 
   it('deletes an entry but leaves tag records untouched', async () => {
@@ -151,4 +151,3 @@ describe('Journal Flow Integration', () => {
     expect(contextTagsInDb).toHaveLength(1)
   })
 })
-

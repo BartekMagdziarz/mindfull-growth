@@ -1,7 +1,11 @@
 <template>
   <div class="space-y-6">
     <!-- Step indicator dots -->
-    <ExerciseStepper :labels="stepLabels" :current="currentVisualStep" @go="goToStepByIndex($event)" />
+    <ExerciseStepper
+      :labels="stepLabels"
+      :current="currentVisualStep"
+      @go="goToStepByIndex($event)"
+    />
 
     <!-- Step 1: Intro -->
     <Transition
@@ -12,7 +16,9 @@
     >
       <div v-if="currentStep === 'intro'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.socraticDialogue.intro.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.socraticDialogue.intro.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.socraticDialogue.intro.description') }}
           </p>
@@ -33,7 +39,9 @@
           </div>
         </AppCard>
         <div class="flex justify-end">
-          <AppButton variant="filled" @click="currentStep = 'focus'">{{ t('common.buttons.start') }}</AppButton>
+          <AppButton variant="filled" @click="currentStep = 'focus'">{{
+            t('common.buttons.start')
+          }}</AppButton>
         </div>
       </div>
     </Transition>
@@ -47,7 +55,9 @@
     >
       <div v-if="currentStep === 'focus'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.socraticDialogue.focus.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.socraticDialogue.focus.title') }}
+          </h2>
           <div class="grid grid-cols-2 gap-3">
             <button
               v-for="mode in focusModes"
@@ -71,7 +81,9 @@
           />
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'intro'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'intro'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton
             variant="filled"
             :disabled="selectedFocus === 'custom' && !customFocusText.trim()"
@@ -92,33 +104,43 @@
     >
       <div v-if="currentStep === 'context'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.socraticDialogue.context.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.socraticDialogue.context.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.socraticDialogue.context.description') }}
           </p>
 
           <!-- Journal entry -->
           <div>
-            <label class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.socraticDialogue.context.journalLabel') }}</label>
-            <select
-              v-model="selectedJournalId"
-              class="neo-input neo-focus w-full p-2 text-sm mt-1"
-            >
-              <option value="">{{ t('exerciseWizards.socraticDialogue.context.noneOption') }}</option>
+            <label class="text-sm font-medium text-on-surface">{{
+              t('exerciseWizards.socraticDialogue.context.journalLabel')
+            }}</label>
+            <select v-model="selectedJournalId" class="neo-input neo-focus w-full p-2 text-sm mt-1">
+              <option value="">
+                {{ t('exerciseWizards.socraticDialogue.context.noneOption') }}
+              </option>
               <option v-for="entry in recentJournals" :key="entry.id" :value="entry.id">
-                {{ getDisplayTitle(entry) || t('exerciseWizards.socraticDialogue.context.untitled') }} — {{ formatDate(entry.createdAt) }}
+                {{
+                  getDisplayTitle(entry) || t('exerciseWizards.socraticDialogue.context.untitled')
+                }}
+                — {{ formatDate(entry.createdAt) }}
               </option>
             </select>
           </div>
 
           <!-- Life Area -->
           <div>
-            <label class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.socraticDialogue.context.lifeAreaLabel') }}</label>
+            <label class="text-sm font-medium text-on-surface">{{
+              t('exerciseWizards.socraticDialogue.context.lifeAreaLabel')
+            }}</label>
             <select
               v-model="selectedLifeAreaId"
               class="neo-input neo-focus w-full p-2 text-sm mt-1"
             >
-              <option value="">{{ t('exerciseWizards.socraticDialogue.context.noneOption') }}</option>
+              <option value="">
+                {{ t('exerciseWizards.socraticDialogue.context.noneOption') }}
+              </option>
               <option v-for="area in lifeAreas" :key="area.id" :value="area.id">
                 {{ area.name }}
               </option>
@@ -127,7 +149,9 @@
 
           <!-- Additional context -->
           <div>
-            <label class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.socraticDialogue.context.additionalLabel') }}</label>
+            <label class="text-sm font-medium text-on-surface">{{
+              t('exerciseWizards.socraticDialogue.context.additionalLabel')
+            }}</label>
             <textarea
               v-model="additionalContext"
               :placeholder="t('exerciseWizards.socraticDialogue.context.additionalPlaceholder')"
@@ -137,10 +161,16 @@
           </div>
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'focus'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'focus'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <div class="flex gap-2">
-            <AppButton variant="text" @click="currentStep = 'dialogue'">{{ t('exerciseWizards.socraticDialogue.context.skipButton') }}</AppButton>
-            <AppButton variant="filled" @click="currentStep = 'dialogue'">{{ t('common.buttons.next') }}</AppButton>
+            <AppButton variant="text" @click="currentStep = 'dialogue'">{{
+              t('exerciseWizards.socraticDialogue.context.skipButton')
+            }}</AppButton>
+            <AppButton variant="filled" @click="currentStep = 'dialogue'">{{
+              t('common.buttons.next')
+            }}</AppButton>
           </div>
         </div>
       </div>
@@ -155,7 +185,9 @@
     >
       <div v-if="currentStep === 'dialogue'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.socraticDialogue.dialogue.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.socraticDialogue.dialogue.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.socraticDialogue.dialogue.description') }}
           </p>
@@ -166,7 +198,10 @@
             ref="messageContainer"
             class="neo-surface rounded-xl p-4 h-96 overflow-y-auto space-y-3"
           >
-            <div v-if="messages.length === 0 && !isLlmLoading" class="text-center text-on-surface-variant py-8">
+            <div
+              v-if="messages.length === 0 && !isLlmLoading"
+              class="text-center text-on-surface-variant py-8"
+            >
               <p class="text-sm">{{ t('exerciseWizards.socraticDialogue.dialogue.starting') }}</p>
             </div>
 
@@ -189,10 +224,16 @@
 
             <!-- Loading indicator -->
             <div v-if="isLlmLoading" class="flex justify-start">
-              <div class="max-w-[80%] rounded-lg px-4 py-2 bg-surface-variant text-on-surface-variant">
+              <div
+                class="max-w-[80%] rounded-lg px-4 py-2 bg-surface-variant text-on-surface-variant"
+              >
                 <div class="flex items-center gap-2">
-                  <div class="animate-spin w-4 h-4 border-2 border-on-surface-variant border-t-transparent rounded-full"></div>
-                  <span class="text-sm">{{ t('exerciseWizards.socraticDialogue.dialogue.thinking') }}</span>
+                  <div
+                    class="animate-spin w-4 h-4 border-2 border-on-surface-variant border-t-transparent rounded-full"
+                  ></div>
+                  <span class="text-sm">{{
+                    t('exerciseWizards.socraticDialogue.dialogue.thinking')
+                  }}</span>
                 </div>
               </div>
             </div>
@@ -238,7 +279,12 @@
               {{ t('exerciseWizards.socraticDialogue.dialogue.continueOrFinish') }}
             </p>
             <p v-else class="text-xs text-on-surface-variant">
-              {{ t('exerciseWizards.socraticDialogue.dialogue.exchangeProgress', { current: exchangeCount, min: MIN_EXCHANGES }) }}
+              {{
+                t('exerciseWizards.socraticDialogue.dialogue.exchangeProgress', {
+                  current: exchangeCount,
+                  min: MIN_EXCHANGES,
+                })
+              }}
             </p>
 
             <AppButton
@@ -262,7 +308,9 @@
     >
       <div v-if="currentStep === 'insights'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.socraticDialogue.insights.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.socraticDialogue.insights.title') }}
+          </h2>
 
           <div>
             <label class="text-sm font-medium text-on-surface">
@@ -290,7 +338,9 @@
 
           <label class="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" v-model="createJournalEntry" class="neo-checkbox" />
-            <span class="text-sm text-on-surface">{{ t('exerciseWizards.socraticDialogue.insights.journalCheckbox') }}</span>
+            <span class="text-sm text-on-surface">{{
+              t('exerciseWizards.socraticDialogue.insights.journalCheckbox')
+            }}</span>
           </label>
 
           <div class="space-y-2">
@@ -316,7 +366,9 @@
           </div>
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'dialogue'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'dialogue'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton variant="filled" @click="handleSave">{{ t('common.buttons.save') }}</AppButton>
         </div>
       </div>
@@ -390,12 +442,42 @@ function goToStepByIndex(idx: number) {
 
 // ─── Focus State ───────────────────────────────────────────────────────────
 const focusModes = computed(() => [
-  { value: 'meaning' as SocraticFocus, label: t('exerciseWizards.socraticDialogue.focus.modes.meaning.label'), description: t('exerciseWizards.socraticDialogue.focus.modes.meaning.description'), icon: 'auto_awesome' },
-  { value: 'emptiness' as SocraticFocus, label: t('exerciseWizards.socraticDialogue.focus.modes.emptiness.label'), description: tg('exerciseWizards.socraticDialogue.focus.modes.emptiness.description'), icon: 'cloud' },
-  { value: 'suffering' as SocraticFocus, label: t('exerciseWizards.socraticDialogue.focus.modes.suffering.label'), description: t('exerciseWizards.socraticDialogue.focus.modes.suffering.description'), icon: 'favorite' },
-  { value: 'values' as SocraticFocus, label: t('exerciseWizards.socraticDialogue.focus.modes.values.label'), description: t('exerciseWizards.socraticDialogue.focus.modes.values.description'), icon: 'balance' },
-  { value: 'decision' as SocraticFocus, label: t('exerciseWizards.socraticDialogue.focus.modes.decision.label'), description: t('exerciseWizards.socraticDialogue.focus.modes.decision.description'), icon: 'compare_arrows' },
-  { value: 'custom' as SocraticFocus, label: t('exerciseWizards.socraticDialogue.focus.modes.other.label'), description: t('exerciseWizards.socraticDialogue.focus.modes.other.description'), icon: 'edit_note' },
+  {
+    value: 'meaning' as SocraticFocus,
+    label: t('exerciseWizards.socraticDialogue.focus.modes.meaning.label'),
+    description: t('exerciseWizards.socraticDialogue.focus.modes.meaning.description'),
+    icon: 'auto_awesome',
+  },
+  {
+    value: 'emptiness' as SocraticFocus,
+    label: t('exerciseWizards.socraticDialogue.focus.modes.emptiness.label'),
+    description: tg('exerciseWizards.socraticDialogue.focus.modes.emptiness.description'),
+    icon: 'cloud',
+  },
+  {
+    value: 'suffering' as SocraticFocus,
+    label: t('exerciseWizards.socraticDialogue.focus.modes.suffering.label'),
+    description: t('exerciseWizards.socraticDialogue.focus.modes.suffering.description'),
+    icon: 'favorite',
+  },
+  {
+    value: 'values' as SocraticFocus,
+    label: t('exerciseWizards.socraticDialogue.focus.modes.values.label'),
+    description: t('exerciseWizards.socraticDialogue.focus.modes.values.description'),
+    icon: 'balance',
+  },
+  {
+    value: 'decision' as SocraticFocus,
+    label: t('exerciseWizards.socraticDialogue.focus.modes.decision.label'),
+    description: t('exerciseWizards.socraticDialogue.focus.modes.decision.description'),
+    icon: 'compare_arrows',
+  },
+  {
+    value: 'custom' as SocraticFocus,
+    label: t('exerciseWizards.socraticDialogue.focus.modes.other.label'),
+    description: t('exerciseWizards.socraticDialogue.focus.modes.other.description'),
+    icon: 'edit_note',
+  },
 ])
 
 const selectedFocus = ref<SocraticFocus>('meaning')
@@ -425,14 +507,16 @@ function buildContextSummary(): string {
   const parts: string[] = []
 
   if (selectedJournalId.value) {
-    const entry = journalStore.sortedEntries.find((e) => e.id === selectedJournalId.value)
+    const entry = journalStore.sortedEntries.find(e => e.id === selectedJournalId.value)
     if (entry) {
-      parts.push(`Journal entry: "${entry.title || 'Untitled'}" — ${entry.body?.slice(0, 300) ?? ''}`)
+      parts.push(
+        `Journal entry: "${entry.title || 'Untitled'}" — ${entry.body?.slice(0, 300) ?? ''}`
+      )
     }
   }
 
   if (selectedLifeAreaId.value) {
-    const area = lifeAreas.value.find((a) => a.id === selectedLifeAreaId.value)
+    const area = lifeAreas.value.find(a => a.id === selectedLifeAreaId.value)
     if (area) {
       parts.push(`Life Area: ${area.name}`)
     }
@@ -474,7 +558,8 @@ async function sendFirstMessage() {
 
     await scrollToBottom()
   } catch (err) {
-    llmError.value = err instanceof Error ? err.message : t('exerciseWizards.socraticDialogue.errors.startFailed')
+    llmError.value =
+      err instanceof Error ? err.message : t('exerciseWizards.socraticDialogue.errors.startFailed')
   } finally {
     isLlmLoading.value = false
   }
@@ -499,7 +584,7 @@ async function handleSend() {
   try {
     const { socraticDialogueTurn } = await import('@/services/logotherapyLLMAssists')
 
-    const previousMessages = messages.value.slice(0, -1).map((m) => ({
+    const previousMessages = messages.value.slice(0, -1).map(m => ({
       role: m.role as 'user' | 'assistant',
       content: m.content,
     }))
@@ -522,7 +607,10 @@ async function handleSend() {
 
     await scrollToBottom()
   } catch (err) {
-    llmError.value = err instanceof Error ? err.message : t('exerciseWizards.socraticDialogue.errors.responseFailed')
+    llmError.value =
+      err instanceof Error
+        ? err.message
+        : t('exerciseWizards.socraticDialogue.errors.responseFailed')
     // Remove the user message on error so they can retry
     messages.value.pop()
   } finally {
@@ -531,7 +619,7 @@ async function handleSend() {
 }
 
 // Auto-send first LLM message when entering dialogue step
-watch(currentStep, async (newStep) => {
+watch(currentStep, async newStep => {
   if (newStep === 'dialogue' && messages.value.length === 0) {
     await sendFirstMessage()
   }
@@ -557,10 +645,12 @@ function handleSave() {
     journalEntryId: selectedJournalId.value || undefined,
     lifeAreaId: selectedLifeAreaId.value || undefined,
     emotionIdsBefore: emotionIdsBefore.value.length > 0 ? [...emotionIdsBefore.value] : undefined,
-    emotionFamilyIdsBefore: emotionFamilyIdsBefore.value.length > 0 ? [...emotionFamilyIdsBefore.value] : undefined,
+    emotionFamilyIdsBefore:
+      emotionFamilyIdsBefore.value.length > 0 ? [...emotionFamilyIdsBefore.value] : undefined,
     emotionIdsAfter: emotionIdsAfter.value.length > 0 ? [...emotionIdsAfter.value] : undefined,
-    emotionFamilyIdsAfter: emotionFamilyIdsAfter.value.length > 0 ? [...emotionFamilyIdsAfter.value] : undefined,
-    messages: messages.value.map((m) => ({ ...m })),
+    emotionFamilyIdsAfter:
+      emotionFamilyIdsAfter.value.length > 0 ? [...emotionFamilyIdsAfter.value] : undefined,
+    messages: messages.value.map(m => ({ ...m })),
     insightPrimary: insightPrimary.value.trim() || undefined,
     insightRemember: insightRemember.value.trim() || undefined,
     notes: notes.value.trim() || undefined,

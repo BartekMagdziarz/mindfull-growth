@@ -44,7 +44,7 @@ describe('normalizePriorityLinkPayload', () => {
         contribution: '',
         expectedSignal: '',
         validFrom: now,
-      }),
+      })
     ).toThrow('requires a proposal')
   })
 
@@ -70,7 +70,7 @@ describe('normalizePriorityLinkPayload', () => {
         contribution: '',
         expectedSignal: '',
         validFrom: now,
-      }),
+      })
     ).toThrow('requires a subjectRef')
   })
 
@@ -83,7 +83,7 @@ describe('normalizePriorityLinkPayload', () => {
         contribution: '',
         expectedSignal: '',
         validFrom: now,
-      }),
+      })
     ).toThrow('validTo')
 
     const normalized = normalizePriorityLinkPayload({
@@ -101,7 +101,7 @@ describe('normalizePriorityLinkPayload', () => {
   it('drops the proposal automatically when an update resolves proposed → active', () => {
     const normalized = normalizePriorityLinkPayload(
       { status: 'active', subjectRef: { subjectType: 'habit', subjectId: 'h-9' } },
-      proposedLink(),
+      proposedLink()
     )
 
     expect(normalized.status).toBe('active')
@@ -122,7 +122,7 @@ describe('normalizePriorityLinkPayload', () => {
         contribution: '',
         expectedSignal: '',
         validFrom: now,
-      }),
+      })
     ).toThrow('subjectRef.subjectType')
 
     expect(() =>
@@ -133,7 +133,7 @@ describe('normalizePriorityLinkPayload', () => {
         contribution: '',
         expectedSignal: '',
         validFrom: now,
-      }),
+      })
     ).toThrow('proposal.title')
 
     expect(() =>
@@ -144,7 +144,7 @@ describe('normalizePriorityLinkPayload', () => {
         contribution: '',
         expectedSignal: '',
         validFrom: now,
-      }),
+      })
     ).toThrow('priorityId')
   })
 })
@@ -186,8 +186,8 @@ describe('normalizePriorityPayload — creator ritual fields', () => {
     expect(none.endingType).toBeUndefined()
     expect(none.endingDescription).toBeUndefined()
 
-    expect(() =>
-      normalizePriorityPayload({ ...base, endingType: 'deadline' as never }),
-    ).toThrow('endingType')
+    expect(() => normalizePriorityPayload({ ...base, endingType: 'deadline' as never })).toThrow(
+      'endingType'
+    )
   })
 })

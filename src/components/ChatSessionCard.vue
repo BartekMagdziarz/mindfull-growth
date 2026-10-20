@@ -13,18 +13,10 @@
         </p>
       </div>
       <div v-if="shouldShowActions" class="flex flex-col sm:flex-row gap-2">
-        <AppButton
-          variant="text"
-          @click="$emit('view')"
-          aria-label="View chat session"
-        >
+        <AppButton variant="text" @click="$emit('view')" aria-label="View chat session">
           View
         </AppButton>
-        <AppButton
-          variant="text"
-          @click="$emit('delete')"
-          aria-label="Delete chat session"
-        >
+        <AppButton variant="text" @click="$emit('delete')" aria-label="Delete chat session">
           Delete
         </AppButton>
       </div>
@@ -62,5 +54,3 @@ const messageCountLabel = computed(() => {
 
 const shouldShowActions = computed(() => props.showActions ?? true)
 </script>
-
-

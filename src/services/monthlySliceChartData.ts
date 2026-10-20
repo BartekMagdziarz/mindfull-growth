@@ -43,7 +43,7 @@ interface WeekContext {
 
 function buildWeekContexts(monthRef: MonthRef, todayDayRef: DayRef): WeekContext[] {
   const weeks = getChildPeriods(monthRef) as WeekRef[]
-  return weeks.map((weekRef) => {
+  return weeks.map(weekRef => {
     const bounds = getPeriodBounds(weekRef)
     const start = bounds.start as DayRef
     const end = bounds.end as DayRef
@@ -66,7 +66,7 @@ function buildWeekContexts(monthRef: MonthRef, todayDayRef: DayRef): WeekContext
 function resolveCompletionState(
   evaluationStatus: 'met' | 'missed' | 'no-data' | undefined,
   ctx: WeekContext,
-  hasEntry: boolean,
+  hasEntry: boolean
 ): TodayCompletionState {
   if (ctx.isFuture) return 'future'
   if (ctx.isCurrent) {
@@ -85,10 +85,10 @@ export function buildMonthlySliceCompletionSlots(
   subject: MeasureableSubject,
   rawEntries: DailyMeasurementEntry[],
   monthRef: MonthRef,
-  todayDayRef: DayRef,
+  todayDayRef: DayRef
 ): TodayCompletionSlot[] {
   const contexts = buildWeekContexts(monthRef, todayDayRef)
-  return contexts.map((ctx) => {
+  return contexts.map(ctx => {
     const summary = ctx.isFuture
       ? undefined
       : buildMeasurementSummary(subject, rawEntries, ctx.weekRef, ctx.clipRef)
@@ -97,7 +97,7 @@ export function buildMonthlySliceCompletionSlots(
     // Bar height: completion counts entries; multi-completion counts MET days
     // (its actualValue) — partial days keep hasEntry/state but don't add height.
     const value =
-      subject.entryMode === 'multi-completion' ? summary?.actualValue ?? 0 : summary?.entryCount
+      subject.entryMode === 'multi-completion' ? (summary?.actualValue ?? 0) : summary?.entryCount
     return {
       dayRef: ctx.start,
       label: ctx.label,
@@ -115,10 +115,10 @@ export function buildMonthlySliceBarSlots(
   subject: MeasureableSubject,
   rawEntries: DailyMeasurementEntry[],
   monthRef: MonthRef,
-  todayDayRef: DayRef,
+  todayDayRef: DayRef
 ): TodayDaySlot[] {
   const contexts = buildWeekContexts(monthRef, todayDayRef)
-  return contexts.map((ctx) => {
+  return contexts.map(ctx => {
     if (ctx.isFuture) {
       return {
         dayRef: ctx.start,
@@ -148,7 +148,7 @@ export function buildMonthlySliceValueLineSlots(
   subject: MeasureableSubject,
   rawEntries: DailyMeasurementEntry[],
   monthRef: MonthRef,
-  todayDayRef: DayRef,
+  todayDayRef: DayRef
 ): TodayDaySlot[] {
   // value-line shares the slot shape with bars; only the chart renderer
   // interprets the array differently.

@@ -19,7 +19,7 @@ export function sumBandFor(config: SumScoringConfig, total: number | null): stri
 }
 
 function itemRange(definition: AssessmentDefinition, itemIds: string[]) {
-  const items = definition.items.filter((item) => itemIds.includes(item.id))
+  const items = definition.items.filter(item => itemIds.includes(item.id))
   return {
     min: items.reduce((sum, item) => sum + item.responseMin, 0),
     max: items.reduce((sum, item) => sum + item.responseMax, 0),
@@ -45,14 +45,14 @@ export class SumScorer implements AssessmentScorer {
     let completedWithMissingData = false
     let missingItemCount = 0
 
-    const scaleScores: ScaleScore[] = definition.scales.map((scale) => {
+    const scaleScores: ScaleScore[] = definition.scales.map(scale => {
       const result = computeLikertScale(
         definition,
         scale.id,
         scale.labelKey,
         scale.itemIds,
         scale.minAnswered,
-        responsesMap,
+        responsesMap
       )
       completedWithMissingData ||= result.completedWithMissingData
       missingItemCount += result.missingCount
@@ -79,12 +79,12 @@ export class SumScorer implements AssessmentScorer {
     })
 
     const scoredWithDeltas = attachDeltas(scaleScores, previousAttempt)
-    const primary = scoredWithDeltas.find((scale) => scale.scaleId === config.primaryScaleId)
+    const primary = scoredWithDeltas.find(scale => scale.scaleId === config.primaryScaleId)
 
     return {
       computedScales: scoredWithDeltas,
       overallSummary: {
-        completedScaleCount: scoredWithDeltas.filter((scale) => scale.normalizedMean !== null).length,
+        completedScaleCount: scoredWithDeltas.filter(scale => scale.normalizedMean !== null).length,
         totalScaleCount: scoredWithDeltas.length,
         meanOfMeans: null,
         details: {

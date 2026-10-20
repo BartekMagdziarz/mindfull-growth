@@ -1,8 +1,18 @@
 <template>
-  <section v-if="allCards.length" class="mg-v2-surface mg-v2-surface--raised-sm pp-card" :aria-label="t('programs.ui.knowledgeTitle')">
+  <section
+    v-if="allCards.length"
+    class="mg-v2-surface mg-v2-surface--raised-sm pp-card"
+    :aria-label="t('programs.ui.knowledgeTitle')"
+  >
     <header class="pp-card__head">
       <span>{{ t('programs.ui.knowledgeTitle') }}</span>
-      <button v-if="allCards.length > 2" type="button" class="pp-link" :aria-expanded="showAll" @click="showAll = !showAll">
+      <button
+        v-if="allCards.length > 2"
+        type="button"
+        class="pp-link"
+        :aria-expanded="showAll"
+        @click="showAll = !showAll"
+      >
         {{ showAll ? t('programs.ui.less') : t('programs.ui.all') }}
       </button>
     </header>
@@ -15,7 +25,9 @@
         :class="{ 'is-read': readCards.includes(card.key) }"
         @click="openKey = card.key"
       >
-        <span class="kn__icon"><AppIcon :name="readCards.includes(card.key) ? 'check' : 'menu_book'" /></span>
+        <span class="kn__icon"
+          ><AppIcon :name="readCards.includes(card.key) ? 'check' : 'menu_book'"
+        /></span>
         <strong>{{ t(`programKnowledge.${card.i18nKey}.title`) }}</strong>
       </button>
     </div>
@@ -30,7 +42,12 @@
       <template v-if="openCard">
         <header class="drawer__head">
           <span class="pp-card__head drawer__eyebrow">{{ t('programs.ui.knowledgeTitle') }}</span>
-          <button type="button" class="pp-chip pp-chip--ghost" :aria-label="t('common.buttons.close')" @click="openKey = null">
+          <button
+            type="button"
+            class="pp-chip pp-chip--ghost"
+            :aria-label="t('common.buttons.close')"
+            @click="openKey = null"
+          >
             <AppIcon name="close" />
           </button>
         </header>
@@ -42,7 +59,9 @@
           <p v-for="(source, i) in sources(openCard)" :key="i">{{ source }}</p>
         </details>
         <button type="button" class="mg-v2-button mg-v2-button--primary" @click="markRead">
-          {{ readCards.includes(openCard.key) ? t('common.buttons.close') : t('programs.ui.markRead') }}
+          {{
+            readCards.includes(openCard.key) ? t('common.buttons.close') : t('programs.ui.markRead')
+          }}
         </button>
       </template>
     </dialog>
@@ -78,14 +97,16 @@ const allCards = computed(() => orderedKnowledgeCards(props.programSlug, props.p
 const visible = computed(() =>
   showAll.value
     ? allCards.value
-    : allCards.value.filter((card) => card.pinned || (props.phaseKey && card.phaseKeys.includes(props.phaseKey))).slice(0, 2),
+    : allCards.value
+        .filter(card => card.pinned || (props.phaseKey && card.phaseKeys.includes(props.phaseKey)))
+        .slice(0, 2)
 )
-const openCard = computed(() => allCards.value.find((card) => card.key === openKey.value))
+const openCard = computed(() => allCards.value.find(card => card.key === openKey.value))
 
 const body = (card: KnowledgeCard) => tList(`programKnowledge.${card.i18nKey}.body`)
 const sources = (card: KnowledgeCard) => tList(`programKnowledge.${card.i18nKey}.sources`)
 
-watch(openKey, async (key) => {
+watch(openKey, async key => {
   await nextTick()
   if (key) dialogRef.value?.showModal()
   else dialogRef.value?.close()

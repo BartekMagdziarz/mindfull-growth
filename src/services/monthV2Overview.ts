@@ -649,7 +649,8 @@ function buildSeriesWeeks(input: SeriesInput, columns: MonthV2WeekColumn[], toda
       )
       // A weekly target is judged on the whole week: a boundary week whose
       // in-month days are over is still running until its Sunday has passed.
-      const weekPhase: MonthV2Phase = column.weekEnd < todayRef ? 'past' : column.phase === 'future' ? 'future' : 'current'
+      const weekPhase: MonthV2Phase =
+        column.weekEnd < todayRef ? 'past' : column.phase === 'future' ? 'future' : 'current'
       datum = {
         weekRef: column.weekRef,
         phase: column.phase,

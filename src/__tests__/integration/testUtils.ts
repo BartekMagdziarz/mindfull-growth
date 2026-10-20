@@ -32,5 +32,3 @@ export async function loadCoreData() {
 
   return stores
 }
-
-

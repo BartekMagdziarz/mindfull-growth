@@ -14,7 +14,9 @@
       <template v-if="currentStep === 'prerequisites'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-lg font-bold text-on-surface">{{ t('exerciseWizards.constellation.prerequisites.title') }}</h2>
+            <h2 class="text-lg font-bold text-on-surface">
+              {{ t('exerciseWizards.constellation.prerequisites.title') }}
+            </h2>
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.constellation.prerequisites.description') }}
             </p>
@@ -31,12 +33,23 @@
                 class="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
                 :class="hasPrerequisites ? 'bg-status-good-soft' : 'bg-status-warn-soft'"
               >
-                <AppIcon v-if="hasPrerequisites" name="check_circle" class="text-xl text-status-good" />
+                <AppIcon
+                  v-if="hasPrerequisites"
+                  name="check_circle"
+                  class="text-xl text-status-good"
+                />
                 <AppIcon v-else name="warning" class="text-xl text-status-warn" />
               </div>
-              <p class="text-sm" :class="hasPrerequisites ? 'text-on-surface' : 'text-status-warn-on'">
+              <p
+                class="text-sm"
+                :class="hasPrerequisites ? 'text-on-surface' : 'text-status-warn-on'"
+              >
                 <template v-if="hasPrerequisites">
-                  {{ tg('exerciseWizards.constellation.prerequisites.checkPassed', { count: partStore.sortedParts.length }) }}
+                  {{
+                    tg('exerciseWizards.constellation.prerequisites.checkPassed', {
+                      count: partStore.sortedParts.length,
+                    })
+                  }}
                 </template>
                 <template v-else>
                   {{ t('exerciseWizards.constellation.prerequisites.checkFailed') }}
@@ -57,13 +70,19 @@
       <template v-else-if="currentStep === 'select-parts'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.constellation.selectParts.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.constellation.selectParts.title') }}
+            </h2>
             <p class="text-sm text-on-surface-variant">
               {{ tg('exerciseWizards.constellation.selectParts.description') }}
             </p>
 
             <div class="text-sm text-on-surface-variant text-center font-medium">
-              {{ t('exerciseWizards.constellation.selectParts.counter', { count: selectedPartIds.length }) }}
+              {{
+                t('exerciseWizards.constellation.selectParts.counter', {
+                  count: selectedPartIds.length,
+                })
+              }}
             </div>
 
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -112,7 +131,9 @@
       <template v-else-if="currentStep === 'map-relationships'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-5">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.constellation.mapRelationships.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.constellation.mapRelationships.title') }}
+            </h2>
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.constellation.mapRelationships.description') }}
             </p>
@@ -125,10 +146,16 @@
             >
               <!-- Pair header -->
               <div class="flex items-center gap-2 flex-wrap">
-                <span class="text-sm font-medium text-on-surface">{{ getPartName(pair.partAId) }}</span>
+                <span class="text-sm font-medium text-on-surface">{{
+                  getPartName(pair.partAId)
+                }}</span>
                 <PartRoleBadge :role="getPartRole(pair.partAId)!" />
-                <span class="text-xs text-on-surface-variant">{{ t('exerciseWizards.constellation.mapRelationships.pairSeparator') }}</span>
-                <span class="text-sm font-medium text-on-surface">{{ getPartName(pair.partBId) }}</span>
+                <span class="text-xs text-on-surface-variant">{{
+                  t('exerciseWizards.constellation.mapRelationships.pairSeparator')
+                }}</span>
+                <span class="text-sm font-medium text-on-surface">{{
+                  getPartName(pair.partBId)
+                }}</span>
                 <PartRoleBadge :role="getPartRole(pair.partBId)!" />
               </div>
 
@@ -138,9 +165,11 @@
                   v-for="relType in relationshipTypes"
                   :key="relType.value"
                   class="exercise-pill px-2.5 py-1 text-xs neo-focus transition-all flex items-center gap-1"
-                  :class="getRelationship(pair.partAId, pair.partBId)?.type === relType.value
-                    ? `${relType.activeClass} shadow-neu-pressed`
-                    : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'"
+                  :class="
+                    getRelationship(pair.partAId, pair.partBId)?.type === relType.value
+                      ? `${relType.activeClass} shadow-neu-pressed`
+                      : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'
+                  "
                   @click="setRelationshipType(pair.partAId, pair.partBId, relType.value)"
                 >
                   <AppIcon :name="relType.icon" class="text-sm" />
@@ -153,8 +182,19 @@
                 type="text"
                 :value="getRelationship(pair.partAId, pair.partBId)?.notes ?? ''"
                 class="neo-input w-full p-2 text-xs"
-                :placeholder="t('exerciseWizards.constellation.mapRelationships.notePlaceholder', { partA: getPartName(pair.partAId), partB: getPartName(pair.partBId) })"
-                @input="setRelationshipNote(pair.partAId, pair.partBId, ($event.target as HTMLInputElement).value)"
+                :placeholder="
+                  t('exerciseWizards.constellation.mapRelationships.notePlaceholder', {
+                    partA: getPartName(pair.partAId),
+                    partB: getPartName(pair.partBId),
+                  })
+                "
+                @input="
+                  setRelationshipNote(
+                    pair.partAId,
+                    pair.partBId,
+                    ($event.target as HTMLInputElement).value
+                  )
+                "
               />
             </div>
           </AppCard>
@@ -172,7 +212,9 @@
       <template v-else-if="currentStep === 'polarization-deep-dive'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-5">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.constellation.polarizationDeepDive.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.constellation.polarizationDeepDive.title') }}
+            </h2>
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.constellation.polarizationDeepDive.description') }}
             </p>
@@ -184,33 +226,59 @@
               class="space-y-3 pb-4 border-b border-neu-border/20 last:border-b-0 last:pb-0"
             >
               <div class="flex items-center gap-2 flex-wrap">
-                <span class="text-sm font-semibold text-on-surface">{{ getPartName(dd.partAId) }}</span>
-                <span class="text-xs text-rel-polarized font-medium">{{ t('exerciseWizards.constellation.polarizationDeepDive.vs') }}</span>
-                <span class="text-sm font-semibold text-on-surface">{{ getPartName(dd.partBId) }}</span>
+                <span class="text-sm font-semibold text-on-surface">{{
+                  getPartName(dd.partAId)
+                }}</span>
+                <span class="text-xs text-rel-polarized font-medium">{{
+                  t('exerciseWizards.constellation.polarizationDeepDive.vs')
+                }}</span>
+                <span class="text-sm font-semibold text-on-surface">{{
+                  getPartName(dd.partBId)
+                }}</span>
               </div>
 
               <div class="neo-surface p-4 rounded-xl space-y-3">
                 <div>
                   <label class="block text-xs font-medium text-on-surface-variant mb-1">
-                    {{ t('exerciseWizards.constellation.polarizationDeepDive.partAThinks', { partA: getPartName(dd.partAId), partB: getPartName(dd.partBId) }) }}
+                    {{
+                      t('exerciseWizards.constellation.polarizationDeepDive.partAThinks', {
+                        partA: getPartName(dd.partAId),
+                        partB: getPartName(dd.partBId),
+                      })
+                    }}
                   </label>
                   <textarea
                     v-model="dd.partAThinks"
                     rows="2"
                     class="neo-input w-full p-2 text-sm resize-none"
-                    :placeholder="t('exerciseWizards.constellation.polarizationDeepDive.partAThinkPlaceholder', { partB: getPartName(dd.partBId) })"
+                    :placeholder="
+                      t(
+                        'exerciseWizards.constellation.polarizationDeepDive.partAThinkPlaceholder',
+                        { partB: getPartName(dd.partBId) }
+                      )
+                    "
                   />
                 </div>
 
                 <div>
                   <label class="block text-xs font-medium text-on-surface-variant mb-1">
-                    {{ t('exerciseWizards.constellation.polarizationDeepDive.partBThinks', { partA: getPartName(dd.partAId), partB: getPartName(dd.partBId) }) }}
+                    {{
+                      t('exerciseWizards.constellation.polarizationDeepDive.partBThinks', {
+                        partA: getPartName(dd.partAId),
+                        partB: getPartName(dd.partBId),
+                      })
+                    }}
                   </label>
                   <textarea
                     v-model="dd.partBThinks"
                     rows="2"
                     class="neo-input w-full p-2 text-sm resize-none"
-                    :placeholder="t('exerciseWizards.constellation.polarizationDeepDive.partBThinkPlaceholder', { partA: getPartName(dd.partAId) })"
+                    :placeholder="
+                      t(
+                        'exerciseWizards.constellation.polarizationDeepDive.partBThinkPlaceholder',
+                        { partA: getPartName(dd.partAId) }
+                      )
+                    "
                   />
                 </div>
 
@@ -222,7 +290,9 @@
                     v-model="dd.ifOneWon"
                     rows="2"
                     class="neo-input w-full p-2 text-sm resize-none"
-                    :placeholder="t('exerciseWizards.constellation.polarizationDeepDive.ifOneWonPlaceholder')"
+                    :placeholder="
+                      t('exerciseWizards.constellation.polarizationDeepDive.ifOneWonPlaceholder')
+                    "
                   />
                 </div>
 
@@ -234,10 +304,16 @@
                     v-model="dd.commonProtection"
                     rows="2"
                     class="neo-input w-full p-2 text-sm resize-none"
-                    :placeholder="t('exerciseWizards.constellation.polarizationDeepDive.commonProtectionPlaceholder')"
+                    :placeholder="
+                      t(
+                        'exerciseWizards.constellation.polarizationDeepDive.commonProtectionPlaceholder'
+                      )
+                    "
                   />
                   <p class="text-xs text-on-surface-variant mt-1 italic">
-                    {{ t('exerciseWizards.constellation.polarizationDeepDive.commonProtectionHint') }}
+                    {{
+                      t('exerciseWizards.constellation.polarizationDeepDive.commonProtectionHint')
+                    }}
                   </p>
                 </div>
               </div>
@@ -246,7 +322,9 @@
 
           <div class="flex justify-between">
             <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
-            <AppButton variant="filled" @click="nextStep()">{{ t('common.buttons.next') }}</AppButton>
+            <AppButton variant="filled" @click="nextStep()">{{
+              t('common.buttons.next')
+            }}</AppButton>
           </div>
         </div>
       </template>
@@ -255,7 +333,9 @@
       <template v-else-if="currentStep === 'visual'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.constellation.visual.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.constellation.visual.title') }}
+            </h2>
 
             <!-- SVG Visualization -->
             <div class="neo-surface rounded-2xl p-4">
@@ -287,7 +367,9 @@
                   :y="center + 5"
                   text-anchor="middle"
                   class="fill-primary text-sm font-semibold"
-                >{{ t('exerciseWizards.constellation.visual.selfLabel') }}</text>
+                >
+                  {{ t('exerciseWizards.constellation.visual.selfLabel') }}
+                </text>
 
                 <!-- Part nodes -->
                 <g v-for="pid in selectedPartIds" :key="pid">
@@ -303,7 +385,9 @@
                     :y="getNodePosition(pid).y + nodeRadius + 14"
                     text-anchor="middle"
                     class="fill-current text-on-surface text-xs"
-                  >{{ truncateName(getPartName(pid)) }}</text>
+                  >
+                    {{ truncateName(getPartName(pid)) }}
+                  </text>
                 </g>
               </svg>
             </div>
@@ -319,27 +403,36 @@
                 <span>{{ t('exerciseWizards.constellation.visual.legend.allied') }}</span>
               </div>
               <div class="flex items-center gap-1.5">
-                <div class="w-6 h-0.5 bg-rel-protects border-t border-dashed border-rel-protects" style="border-style: dashed" />
+                <div
+                  class="w-6 h-0.5 bg-rel-protects border-t border-dashed border-rel-protects"
+                  style="border-style: dashed"
+                />
                 <span>{{ t('exerciseWizards.constellation.visual.legend.protects') }}</span>
               </div>
             </div>
 
             <!-- Cascades: the chain reaction is often the most valuable system insight -->
             <div class="space-y-1 pt-2">
-              <label class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.constellation.visual.cascadesLabel') }}</label>
+              <label class="text-sm font-medium text-on-surface">{{
+                t('exerciseWizards.constellation.visual.cascadesLabel')
+              }}</label>
               <textarea
                 v-model="cascadeNotes"
                 rows="2"
                 :placeholder="t('exerciseWizards.constellation.visual.cascadesPlaceholder')"
                 class="neo-input w-full p-3 text-sm resize-none"
               />
-              <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.constellation.visual.cascadesHint') }}</p>
+              <p class="text-xs text-on-surface-variant">
+                {{ t('exerciseWizards.constellation.visual.cascadesHint') }}
+              </p>
             </div>
           </AppCard>
 
           <div class="flex justify-between">
             <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
-            <AppButton variant="filled" @click="nextStep()">{{ t('common.buttons.next') }}</AppButton>
+            <AppButton variant="filled" @click="nextStep()">{{
+              t('common.buttons.next')
+            }}</AppButton>
           </div>
         </div>
       </template>
@@ -348,7 +441,9 @@
       <template v-else-if="currentStep === 'reflection'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.constellation.reflection.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.constellation.reflection.title') }}
+            </h2>
 
             <textarea
               v-model="reflection"
@@ -365,7 +460,10 @@
                   :loading="isLLMLoading"
                   @click="requestAnalysis({ useProfile: useProfileAnalysis })"
                 >
-                  <AppIcon class="material-symbols-outlined text-base leading-none mr-1" name="auto_awesome" />
+                  <AppIcon
+                    class="material-symbols-outlined text-base leading-none mr-1"
+                    name="auto_awesome"
+                  />
                   {{ t('exerciseWizards.constellation.reflection.aiButton') }}
                 </AppButton>
                 <ProfileContextToggle v-model="useProfileAnalysis" />
@@ -382,7 +480,9 @@
 
           <div class="flex justify-between">
             <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
-            <AppButton variant="filled" @click="nextStep()">{{ t('common.buttons.next') }}</AppButton>
+            <AppButton variant="filled" @click="nextStep()">{{
+              t('common.buttons.next')
+            }}</AppButton>
           </div>
         </div>
       </template>
@@ -391,14 +491,18 @@
       <template v-else-if="currentStep === 'save'">
         <div class="space-y-6">
           <AppCard variant="raised" padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.constellation.save.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.constellation.save.title') }}
+            </h2>
 
             <IFSSafetyBanner />
 
             <!-- Summary -->
             <div class="neo-surface p-4 rounded-xl space-y-3 text-sm">
               <div class="flex items-center gap-2 flex-wrap">
-                <span class="text-on-surface-variant">{{ t('exerciseWizards.constellation.save.partsLabel') }}</span>
+                <span class="text-on-surface-variant">{{
+                  t('exerciseWizards.constellation.save.partsLabel')
+                }}</span>
                 <span
                   v-for="pid in selectedPartIds"
                   :key="pid"
@@ -410,29 +514,47 @@
 
               <div class="flex gap-3 text-xs text-on-surface-variant">
                 <span v-if="relationshipCountByType.polarized">
-                  {{ t('exerciseWizards.constellation.save.countPolarized', { count: relationshipCountByType.polarized }) }}
+                  {{
+                    t('exerciseWizards.constellation.save.countPolarized', {
+                      count: relationshipCountByType.polarized,
+                    })
+                  }}
                 </span>
                 <span v-if="relationshipCountByType.allied">
-                  {{ t('exerciseWizards.constellation.save.countAllied', { count: relationshipCountByType.allied }) }}
+                  {{
+                    t('exerciseWizards.constellation.save.countAllied', {
+                      count: relationshipCountByType.allied,
+                    })
+                  }}
                 </span>
                 <span v-if="relationshipCountByType['protector-exile']">
-                  {{ t('exerciseWizards.constellation.save.countProtectorExile', { count: relationshipCountByType['protector-exile'] }) }}
+                  {{
+                    t('exerciseWizards.constellation.save.countProtectorExile', {
+                      count: relationshipCountByType['protector-exile'],
+                    })
+                  }}
                 </span>
               </div>
 
-              <div v-for="dd in polarizationDeepDives.filter(d => d.commonProtection.trim())" :key="`summary-${dd.partAId}-${dd.partBId}`">
+              <div
+                v-for="dd in polarizationDeepDives.filter(d => d.commonProtection.trim())"
+                :key="`summary-${dd.partAId}-${dd.partBId}`"
+              >
                 <p class="text-xs text-on-surface-variant">
                   <span class="font-medium text-on-surface">{{ getPartName(dd.partAId) }}</span> &
                   <span class="font-medium text-on-surface">{{ getPartName(dd.partBId) }}</span>
-                  {{ t('exerciseWizards.constellation.save.mayBothProtect') }} <span class="italic">{{ dd.commonProtection }}</span>
+                  {{ t('exerciseWizards.constellation.save.mayBothProtect') }}
+                  <span class="italic">{{ dd.commonProtection }}</span>
                 </p>
               </div>
 
               <p v-if="cascadeNotes.trim()" class="text-xs text-on-surface-variant">
-                {{ t('exerciseWizards.constellation.save.cascadesLabel') }} {{ cascadeNotes.trim() }}
+                {{ t('exerciseWizards.constellation.save.cascadesLabel') }}
+                {{ cascadeNotes.trim() }}
               </p>
               <p v-if="reflection.trim()" class="text-xs text-on-surface-variant">
-                {{ t('exerciseWizards.constellation.save.reflectionLabel') }} {{ reflection.trim() }}
+                {{ t('exerciseWizards.constellation.save.reflectionLabel') }}
+                {{ reflection.trim() }}
               </p>
 
               <p v-if="llmInsight" class="text-xs text-on-surface-variant">
@@ -473,9 +595,7 @@ import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
-import {
-  useConstellationWizard,
-} from '@/composables/useConstellationWizard'
+import { useConstellationWizard } from '@/composables/useConstellationWizard'
 import type { IFSPartRole, IFSConstellationRelationType } from '@/domain/exercises'
 import {
   IFS_ROLE_SVG_CLASSES,
@@ -536,25 +656,54 @@ const visibleStepLabels = computed(() => {
   return allStepLabels.value
 })
 
-
 const mappedStepIndex = computed(() => {
-  const allSteps = ['prerequisites', 'select-parts', 'map-relationships', 'polarization-deep-dive', 'visual', 'reflection', 'save']
+  const allSteps = [
+    'prerequisites',
+    'select-parts',
+    'map-relationships',
+    'polarization-deep-dive',
+    'visual',
+    'reflection',
+    'save',
+  ]
   const visibleSteps = hasPolarized.value
     ? allSteps
-    : allSteps.filter((s) => s !== 'polarization-deep-dive')
+    : allSteps.filter(s => s !== 'polarization-deep-dive')
   return visibleSteps.indexOf(currentStep.value)
 })
 
-const relationshipTypes = computed<{
-  value: IFSConstellationRelationType
-  label: string
-  icon: string
-  activeClass: string
-}[]>(() => [
-  { value: 'polarized', label: t('exerciseWizards.constellation.mapRelationships.shortLabels.polarized'), icon: 'compare_arrows', activeClass: RELATIONSHIP_PILL_CLASSES.polarized },
-  { value: 'allied', label: t('exerciseWizards.constellation.mapRelationships.shortLabels.allied'), icon: 'group', activeClass: RELATIONSHIP_PILL_CLASSES.allied },
-  { value: 'protector-exile', label: t('exerciseWizards.constellation.mapRelationships.shortLabels.protects'), icon: 'verified_user', activeClass: RELATIONSHIP_PILL_CLASSES['protector-exile'] },
-  { value: 'no-relationship', label: t('exerciseWizards.constellation.mapRelationships.shortLabels.none'), icon: 'remove', activeClass: 'bg-neu-base text-on-surface' },
+const relationshipTypes = computed<
+  {
+    value: IFSConstellationRelationType
+    label: string
+    icon: string
+    activeClass: string
+  }[]
+>(() => [
+  {
+    value: 'polarized',
+    label: t('exerciseWizards.constellation.mapRelationships.shortLabels.polarized'),
+    icon: 'compare_arrows',
+    activeClass: RELATIONSHIP_PILL_CLASSES.polarized,
+  },
+  {
+    value: 'allied',
+    label: t('exerciseWizards.constellation.mapRelationships.shortLabels.allied'),
+    icon: 'group',
+    activeClass: RELATIONSHIP_PILL_CLASSES.allied,
+  },
+  {
+    value: 'protector-exile',
+    label: t('exerciseWizards.constellation.mapRelationships.shortLabels.protects'),
+    icon: 'verified_user',
+    activeClass: RELATIONSHIP_PILL_CLASSES['protector-exile'],
+  },
+  {
+    value: 'no-relationship',
+    label: t('exerciseWizards.constellation.mapRelationships.shortLabels.none'),
+    icon: 'remove',
+    activeClass: 'bg-neu-base text-on-surface',
+  },
 ])
 
 const relationshipCountByType = computed(() => {
@@ -606,10 +755,14 @@ function getPartRole(id: string): IFSPartRole {
 
 function roleBorderClass(role: IFSPartRole): string {
   switch (role) {
-    case 'manager': return 'border-l-4 border-l-ifs-manager'
-    case 'firefighter': return 'border-l-4 border-l-ifs-firefighter'
-    case 'exile': return 'border-l-4 border-l-ifs-exile'
-    default: return ''
+    case 'manager':
+      return 'border-l-4 border-l-ifs-manager'
+    case 'firefighter':
+      return 'border-l-4 border-l-ifs-firefighter'
+    case 'exile':
+      return 'border-l-4 border-l-ifs-exile'
+    default:
+      return ''
   }
 }
 

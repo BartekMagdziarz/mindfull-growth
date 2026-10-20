@@ -26,7 +26,7 @@ export function classifyWeek(
   weekRef: WeekRef,
   planned: boolean,
   status: 'met' | 'missed' | 'no-data' | undefined,
-  today: DayRef,
+  today: DayRef
 ): WeekState {
   if (!planned) return 'unplanned'
   const phase = weekPhase(weekRef, today)
@@ -46,14 +46,14 @@ export interface WeekTally {
 }
 
 export function tallyWeekStates(states: readonly WeekState[]): WeekTally {
-  const met = states.filter((state) => state === 'met').length
-  const missed = states.filter((state) => state === 'missed').length
-  const noData = states.filter((state) => state === 'no-data').length
+  const met = states.filter(state => state === 'met').length
+  const missed = states.filter(state => state === 'missed').length
+  const noData = states.filter(state => state === 'no-data').length
   return {
     met,
     planned: met + missed + noData,
     missed,
-    ongoing: states.filter((state) => state === 'ongoing').length,
+    ongoing: states.filter(state => state === 'ongoing').length,
   }
 }
 

@@ -4,7 +4,7 @@ import { resetDatabase } from '@/__tests__/utils/dbTestUtils'
 import type { CreateProfileBuildLogPayload } from '@/domain/userProfile'
 
 function makePayload(
-  overrides: Partial<CreateProfileBuildLogPayload> = {},
+  overrides: Partial<CreateProfileBuildLogPayload> = {}
 ): CreateProfileBuildLogPayload {
   return {
     scope: {
@@ -47,7 +47,7 @@ describe('profileBuildLogDexieRepository', () => {
           latencyMs: 250,
           tokenUsage: { promptTokens: 10, completionTokens: 20, totalTokens: 30 },
           resultProfileId: undefined,
-        }),
+        })
       )
 
       const fetched = await profileBuildLogDexieRepository.getById(added.id)
@@ -62,21 +62,21 @@ describe('profileBuildLogDexieRepository', () => {
   describe('list', () => {
     it('returns entries in reverse-chronological order by timestamp', async () => {
       const first = await profileBuildLogDexieRepository.add(makePayload({ model: 'm1' }))
-      await new Promise((r) => setTimeout(r, 10))
+      await new Promise(r => setTimeout(r, 10))
       const second = await profileBuildLogDexieRepository.add(makePayload({ model: 'm2' }))
-      await new Promise((r) => setTimeout(r, 10))
+      await new Promise(r => setTimeout(r, 10))
       const third = await profileBuildLogDexieRepository.add(makePayload({ model: 'm3' }))
 
       const list = await profileBuildLogDexieRepository.list()
 
-      expect(list.map((l) => l.id)).toEqual([third.id, second.id, first.id])
+      expect(list.map(l => l.id)).toEqual([third.id, second.id, first.id])
     })
 
     it('respects the limit parameter', async () => {
       await profileBuildLogDexieRepository.add(makePayload({ model: 'a' }))
-      await new Promise((r) => setTimeout(r, 5))
+      await new Promise(r => setTimeout(r, 5))
       await profileBuildLogDexieRepository.add(makePayload({ model: 'b' }))
-      await new Promise((r) => setTimeout(r, 5))
+      await new Promise(r => setTimeout(r, 5))
       await profileBuildLogDexieRepository.add(makePayload({ model: 'c' }))
 
       const list = await profileBuildLogDexieRepository.list(2)
@@ -93,7 +93,7 @@ describe('profileBuildLogDexieRepository', () => {
   describe('update', () => {
     it('updates an existing log entry with the supplied patch', async () => {
       const added = await profileBuildLogDexieRepository.add(
-        makePayload({ resultProfileId: undefined }),
+        makePayload({ resultProfileId: undefined })
       )
 
       const updated = await profileBuildLogDexieRepository.update(added.id, {
@@ -114,7 +114,7 @@ describe('profileBuildLogDexieRepository', () => {
       await expect(
         profileBuildLogDexieRepository.update('does-not-exist', {
           resultProfileId: 'x',
-        }),
+        })
       ).rejects.toThrow('Build log does-not-exist not found')
     })
   })

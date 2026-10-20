@@ -96,7 +96,10 @@ describe('PeriodCalendarPicker', () => {
   })
 
   it('cancels ongoing mode and keeps it staged after a failed save', async () => {
-    const commitSchedule = vi.fn().mockRejectedValueOnce(new Error('offline')).mockResolvedValue(undefined)
+    const commitSchedule = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('offline'))
+      .mockResolvedValue(undefined)
     const view = render(PeriodCalendarPicker, {
       props: { cadence: 'weekly', modelValue: [], allowPermanent: true, commitSchedule },
     })
@@ -123,7 +126,13 @@ describe('PeriodCalendarPicker', () => {
     regular.unmount()
     const commitSchedule = vi.fn(async () => {})
     render(PeriodCalendarPicker, {
-      props: { cadence: 'monthly', modelValue: ['2026-12'], allowPermanent: true, isPermanent: true, commitSchedule },
+      props: {
+        cadence: 'monthly',
+        modelValue: ['2026-12'],
+        allowPermanent: true,
+        isPermanent: true,
+        commitSchedule,
+      },
     })
     await fireEvent.click(screen.getByRole('button', { name: /permanent/ }))
     await fireEvent.click(screen.getByRole('checkbox'))
@@ -132,5 +141,4 @@ describe('PeriodCalendarPicker', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     expect(commitSchedule).toHaveBeenCalledWith(['2026-12'], false)
   })
-
 })

@@ -9,17 +9,33 @@
           </div>
         </header>
         <div class="next-period-rail__bars" role="img" :aria-label="weekRatingsAria">
-          <span v-for="rating in weekRatings" :key="rating.label" class="next-period-rail__bar-group">
+          <span
+            v-for="rating in weekRatings"
+            :key="rating.label"
+            class="next-period-rail__bar-group"
+          >
             <span class="next-period-rail__bar-slots">
-              <i class="bar bar--load" :class="{ empty: rating.load == null }" :style="barStyle(rating.load)"><b>{{ rating.load ?? '—' }}</b></i>
-              <i class="bar bar--state" :class="{ empty: rating.state == null }" :style="stateBarStyle(rating.load, rating.state)"><b>{{ rating.state ?? '—' }}</b></i>
+              <i
+                class="bar bar--load"
+                :class="{ empty: rating.load == null }"
+                :style="barStyle(rating.load)"
+                ><b>{{ rating.load ?? '—' }}</b></i
+              >
+              <i
+                class="bar bar--state"
+                :class="{ empty: rating.state == null }"
+                :style="stateBarStyle(rating.load, rating.state)"
+                ><b>{{ rating.state ?? '—' }}</b></i
+              >
             </span>
             <small>{{ rating.label }}</small>
           </span>
         </div>
       </section>
 
-      <header class="next-period-rail__heading"><span>Siedem dni</span><small>{{ data.days.length }}</small></header>
+      <header class="next-period-rail__heading">
+        <span>Siedem dni</span><small>{{ data.days.length }}</small>
+      </header>
       <div class="next-period-rail__list next-period-rail__list--days">
         <button
           v-for="day in data.days"
@@ -28,27 +44,49 @@
           :class="{ current: day.isToday, future: day.isFuture }"
           @click="$emit('open-period', 'day', day.dayRef)"
         >
-          <span class="next-period-rail__day-label"><strong>{{ formatDay(day.dayRef, 'weekday') }}</strong><small>· {{ formatDay(day.dayRef, 'date') }}</small></span>
-          <em v-if="day.journalWritten || day.emotionCount || day.exerciseCount">{{ dayActivityLabel(day) }}</em>
+          <span class="next-period-rail__day-label"
+            ><strong>{{ formatDay(day.dayRef, 'weekday') }}</strong
+            ><small>· {{ formatDay(day.dayRef, 'date') }}</small></span
+          >
+          <em v-if="day.journalWritten || day.emotionCount || day.exerciseCount">{{
+            dayActivityLabel(day)
+          }}</em>
           <em v-else>—</em>
           <AppIcon name="chevron_right" />
         </button>
       </div>
       <DsButton class="next-period-rail__ritual" @click="$emit('open-ritual', ritualAction)">
-        <AppIcon :name="ritualAction === 'plan' ? 'edit_calendar' : 'rate_review'" />{{ ritualLabel }}
+        <AppIcon :name="ritualAction === 'plan' ? 'edit_calendar' : 'rate_review'" />{{
+          ritualLabel
+        }}
       </DsButton>
     </template>
 
     <template v-else-if="data?.scale === 'month'">
       <DsButton class="next-period-rail__ritual" @click="$emit('open-ritual', ritualAction)">
-        <AppIcon :name="ritualAction === 'plan' ? 'edit_calendar' : 'rate_review'" />{{ ritualLabel }}
+        <AppIcon :name="ritualAction === 'plan' ? 'edit_calendar' : 'rate_review'" />{{
+          ritualLabel
+        }}
       </DsButton>
       <section class="next-period-rail__month-ratings" aria-labelledby="month-ratings-title">
         <h2 id="month-ratings-title">Oceny miesiąca</h2>
-        <div class="next-period-rail__bars next-period-rail__bars--single" role="img" :aria-label="monthRatingsAria">
-          <span v-for="rating in monthRatings" :key="rating.label" class="next-period-rail__bar-group">
+        <div
+          class="next-period-rail__bars next-period-rail__bars--single"
+          role="img"
+          :aria-label="monthRatingsAria"
+        >
+          <span
+            v-for="rating in monthRatings"
+            :key="rating.label"
+            class="next-period-rail__bar-group"
+          >
             <span class="next-period-rail__bar-slots">
-              <i class="bar bar--state" :class="{ empty: rating.value == null }" :style="barStyle(rating.value)"><b>{{ rating.value ?? '—' }}</b></i>
+              <i
+                class="bar bar--state"
+                :class="{ empty: rating.value == null }"
+                :style="barStyle(rating.value)"
+                ><b>{{ rating.value ?? '—' }}</b></i
+              >
             </span>
             <small>{{ rating.label }}</small>
           </span>
@@ -57,7 +95,9 @@
 
       <header class="next-period-rail__heading">
         <span>Tygodnie</span>
-        <div class="next-period-rail__legend" aria-hidden="true"><span><i class="load" />Obciążenie</span><span><i class="state" />Stan</span></div>
+        <div class="next-period-rail__legend" aria-hidden="true">
+          <span><i class="load" />Obciążenie</span><span><i class="state" />Stan</span>
+        </div>
       </header>
       <div class="next-period-rail__list next-period-rail__list--weeks">
         <button
@@ -67,17 +107,36 @@
           :class="{ current: week.isCurrent, future: week.timeState === 'future' }"
           @click="$emit('open-period', 'week', week.weekRef)"
         >
-          <span><strong>T{{ week.weekNumber }}</strong><small>{{ shortRange(week.startDayRef, week.endDayRef) }}</small></span>
+          <span
+            ><strong>T{{ week.weekNumber }}</strong
+            ><small>{{ shortRange(week.startDayRef, week.endDayRef) }}</small></span
+          >
           <span class="next-period-rail__week-chart" role="img" :aria-label="weekMatrixAria(week)">
             <span class="next-period-rail__bars next-period-rail__bars--mini" aria-hidden="true">
-              <span v-for="area in weekBars(week)" :key="area.areaKey" class="next-period-rail__bar-group">
+              <span
+                v-for="area in weekBars(week)"
+                :key="area.areaKey"
+                class="next-period-rail__bar-group"
+              >
                 <span class="next-period-rail__bar-slots">
-                  <i class="bar bar--load" :class="{ empty: area.load == null }" :style="barStyle(area.load)" />
-                  <i class="bar bar--state" :class="{ empty: area.state == null }" :style="stateBarStyle(area.load, area.state)" />
+                  <i
+                    class="bar bar--load"
+                    :class="{ empty: area.load == null }"
+                    :style="barStyle(area.load)"
+                  />
+                  <i
+                    class="bar bar--state"
+                    :class="{ empty: area.state == null }"
+                    :style="stateBarStyle(area.load, area.state)"
+                  />
                 </span>
               </span>
             </span>
-            <span class="next-period-rail__week-chart-labels" aria-hidden="true"><small v-for="area in week.matrix" :key="area.areaKey">{{ areaLabel(area.areaKey) }}</small></span>
+            <span class="next-period-rail__week-chart-labels" aria-hidden="true"
+              ><small v-for="area in week.matrix" :key="area.areaKey">{{
+                areaLabel(area.areaKey)
+              }}</small></span
+            >
           </span>
           <AppIcon name="chevron_right" />
         </button>
@@ -85,8 +144,16 @@
     </template>
 
     <template v-else-if="data?.scale === 'year'">
-      <button type="button" class="next-period-rail__year-mark" @click="$emit('open-ritual', 'plan')"><AppIcon name="calendar_view_month" /><span>12 miesięcy · jedna oś</span></button>
-      <header class="next-period-rail__heading"><span>Dwanaście miesięcy</span><small>{{ data.months.length }}</small></header>
+      <button
+        type="button"
+        class="next-period-rail__year-mark"
+        @click="$emit('open-ritual', 'plan')"
+      >
+        <AppIcon name="calendar_view_month" /><span>12 miesięcy · jedna oś</span>
+      </button>
+      <header class="next-period-rail__heading">
+        <span>Dwanaście miesięcy</span><small>{{ data.months.length }}</small>
+      </header>
       <div class="next-period-rail__list next-period-rail__list--months">
         <button
           v-for="month in data.months"
@@ -95,7 +162,10 @@
           :class="{ current: month.isCurrent, future: month.timeState === 'future' }"
           @click="$emit('open-period', 'month', month.monthRef)"
         >
-          <span><strong>{{ monthName(month.monthRef) }}</strong><small v-if="month.isCurrent">teraz</small></span>
+          <span
+            ><strong>{{ monthName(month.monthRef) }}</strong
+            ><small v-if="month.isCurrent">teraz</small></span
+          >
           <em v-if="firstPriority(month)">{{ firstPriority(month) }}</em>
           <AppIcon name="chevron_right" />
         </button>
@@ -111,14 +181,22 @@ import { computed } from 'vue'
 import type { PlanningScale } from '@/design-system/contracts'
 import { REFLECTION_MATRIX_AREAS } from '@/domain/reflectionMatrix'
 import { pairColor, toRating, type LoadStateAxis } from '@/domain/loadState'
-import type { StreamDayVM, StreamMonthVM, StreamWeekVM } from '@/components/calendar/stream/streamModel'
+import type {
+  StreamDayVM,
+  StreamMonthVM,
+  StreamWeekVM,
+} from '@/components/calendar/stream/streamModel'
 import { getPeriodRefsForDate } from '@/utils/periods'
 import { DsButton, DsState, DsSurface } from '@/design-system/components'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import type { PlanningPeriodData } from './usePlanningPeriodData'
 
-const props = defineProps<{ scale: PlanningScale; periodRef: string; data: PlanningPeriodData | null }>()
+const props = defineProps<{
+  scale: PlanningScale
+  periodRef: string
+  data: PlanningPeriodData | null
+}>()
 
 defineEmits<{
   'open-period': [scale: PlanningScale, periodRef: string]
@@ -132,9 +210,17 @@ const ritualAction = computed<'plan' | 'reflect'>(() => {
   if (props.scale === 'month') return props.periodRef < currentRefs.month ? 'reflect' : 'plan'
   return props.periodRef < currentRefs.week ? 'reflect' : 'plan'
 })
-const ritualLabel = computed(() => ritualAction.value === 'plan'
-  ? props.scale === 'year' ? 'Zaplanuj rok' : props.scale === 'month' ? 'Zaplanuj miesiąc' : 'Zaplanuj tydzień'
-  : props.scale === 'month' ? 'Otwórz refleksję miesiąca' : 'Otwórz refleksję tygodnia')
+const ritualLabel = computed(() =>
+  ritualAction.value === 'plan'
+    ? props.scale === 'year'
+      ? 'Zaplanuj rok'
+      : props.scale === 'month'
+        ? 'Zaplanuj miesiąc'
+        : 'Zaplanuj tydzień'
+    : props.scale === 'month'
+      ? 'Otwórz refleksję miesiąca'
+      : 'Otwórz refleksję tygodnia'
+)
 
 /** Two axes per area (D10): load = matrix demands field, state = matrix state field. */
 const weekRatings = computed(() => {
@@ -156,8 +242,14 @@ const monthRatings = computed(() => {
     { label: 'Sprawczość', value: reflection?.agencyRating ?? null },
   ]
 })
-const weekRatingsAria = computed(() => `Oceny tygodnia. ${weekRatings.value.map(item => `${item.label}: Obciążenie ${item.load ?? 'brak'}, Stan ${item.state ?? 'brak'}`).join('; ')}`)
-const monthRatingsAria = computed(() => `Oceny miesiąca. ${monthRatings.value.map(item => `${item.label}: ${item.value ?? 'brak'}`).join('; ')}`)
+const weekRatingsAria = computed(
+  () =>
+    `Oceny tygodnia. ${weekRatings.value.map(item => `${item.label}: Obciążenie ${item.load ?? 'brak'}, Stan ${item.state ?? 'brak'}`).join('; ')}`
+)
+const monthRatingsAria = computed(
+  () =>
+    `Oceny miesiąca. ${monthRatings.value.map(item => `${item.label}: ${item.value ?? 'brak'}`).join('; ')}`
+)
 
 // Bars carry the 1–5 rating as height; the floor keeps a "1" readable (and its
 // digit inside the bar) instead of collapsing to a sliver. Missing ratings get
@@ -166,7 +258,10 @@ function barStyle(value: number | null | undefined): Record<string, string> | un
   return value == null ? undefined : { height: `${Math.max(26, (value / 5) * 100)}%` }
 }
 /** State bar in the colour of the load/state quadrant once both axes are rated. */
-function stateBarStyle(load: number | null | undefined, state: number | null | undefined): Record<string, string> | undefined {
+function stateBarStyle(
+  load: number | null | undefined,
+  state: number | null | undefined
+): Record<string, string> | undefined {
   const base = barStyle(state)
   if (!base || load == null) return base
   return { ...base, background: pairColor(toRating(load), toRating(state ?? null)) }
@@ -174,7 +269,9 @@ function stateBarStyle(load: number | null | undefined, state: number | null | u
 function weekMatrixValues(week: StreamWeekVM, section: LoadStateAxis): Array<number | null> {
   return week.matrix.map(row => row.cells.find(cell => cell.section === section)?.rating ?? null)
 }
-function weekBars(week: StreamWeekVM): Array<{ areaKey: string; load: number | null; state: number | null }> {
+function weekBars(
+  week: StreamWeekVM
+): Array<{ areaKey: string; load: number | null; state: number | null }> {
   return week.matrix.map(row => ({
     areaKey: row.areaKey,
     load: row.cells.find(cell => cell.section === 'load')?.rating ?? null,
@@ -182,27 +279,48 @@ function weekBars(week: StreamWeekVM): Array<{ areaKey: string; load: number | n
   }))
 }
 function areaLabel(areaKey: string): string {
-  return areaKey === 'body' ? 'Ciało' : areaKey === 'emotions' ? 'Emocje' : areaKey === 'tasks' ? 'Zadania' : 'Bliscy'
+  return areaKey === 'body'
+    ? 'Ciało'
+    : areaKey === 'emotions'
+      ? 'Emocje'
+      : areaKey === 'tasks'
+        ? 'Zadania'
+        : 'Bliscy'
 }
 function weekMatrixAria(week: StreamWeekVM): string {
-  const load = weekMatrixValues(week, 'load').map(value => value ?? 'brak').join(', ')
-  const state = weekMatrixValues(week, 'state').map(value => value ?? 'brak').join(', ')
+  const load = weekMatrixValues(week, 'load')
+    .map(value => value ?? 'brak')
+    .join(', ')
+  const state = weekMatrixValues(week, 'state')
+    .map(value => value ?? 'brak')
+    .join(', ')
   return `Tydzień ${week.weekNumber}. Obciążenie: ${load}. Stan: ${state}.`
 }
 function dayActivityLabel(day: StreamDayVM): string {
   const activityCount = day.rings.reduce((sum, ring) => sum + (ring.num ?? 0), 0)
-  return activityCount ? `${activityCount} aktywności` : day.journalWritten ? 'wpis w dzienniku' : day.emotionCount ? `${day.emotionCount} emocje` : `${day.exerciseCount} ćwiczenia`
+  return activityCount
+    ? `${activityCount} aktywności`
+    : day.journalWritten
+      ? 'wpis w dzienniku'
+      : day.emotionCount
+        ? `${day.emotionCount} emocje`
+        : `${day.exerciseCount} ćwiczenia`
 }
 function formatDay(dayRef: string, part: 'weekday' | 'date'): string {
   const date = new Date(`${dayRef}T12:00:00`)
-  return new Intl.DateTimeFormat(locale.value, part === 'weekday' ? { weekday: 'long' } : { day: 'numeric', month: 'short' }).format(date)
+  return new Intl.DateTimeFormat(
+    locale.value,
+    part === 'weekday' ? { weekday: 'long' } : { day: 'numeric', month: 'short' }
+  ).format(date)
 }
 function shortRange(start: string, end: string): string {
   const formatter = new Intl.DateTimeFormat(locale.value, { day: 'numeric', month: 'short' })
   return `${formatter.format(new Date(`${start}T12:00:00`))}–${formatter.format(new Date(`${end}T12:00:00`))}`
 }
 function monthName(monthRef: string): string {
-  return new Intl.DateTimeFormat(locale.value, { month: 'long' }).format(new Date(`${monthRef}-15T12:00:00`))
+  return new Intl.DateTimeFormat(locale.value, { month: 'long' }).format(
+    new Date(`${monthRef}-15T12:00:00`)
+  )
 }
 function firstPriority(month: StreamMonthVM): string {
   return month.priorities.find(priority => !priority.empty)?.name ?? ''

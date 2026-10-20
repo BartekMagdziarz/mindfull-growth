@@ -12,27 +12,122 @@
       >
         <!-- Simple body silhouette -->
         <!-- Head -->
-        <ellipse cx="80" cy="30" rx="20" ry="22" class="fill-neu-border/10 stroke-neu-border/40" stroke-width="1.5" />
+        <ellipse
+          cx="80"
+          cy="30"
+          rx="20"
+          ry="22"
+          class="fill-neu-border/10 stroke-neu-border/40"
+          stroke-width="1.5"
+        />
         <!-- Neck/Throat -->
-        <rect x="72" y="52" width="16" height="12" rx="4" class="fill-neu-border/10 stroke-neu-border/40" stroke-width="1.5" />
+        <rect
+          x="72"
+          y="52"
+          width="16"
+          height="12"
+          rx="4"
+          class="fill-neu-border/10 stroke-neu-border/40"
+          stroke-width="1.5"
+        />
         <!-- Shoulders -->
-        <path d="M40 72 Q50 64 72 64 L88 64 Q110 64 120 72 L120 82 Q110 76 80 76 Q50 76 40 82 Z" class="fill-neu-border/10 stroke-neu-border/40" stroke-width="1.5" />
+        <path
+          d="M40 72 Q50 64 72 64 L88 64 Q110 64 120 72 L120 82 Q110 76 80 76 Q50 76 40 82 Z"
+          class="fill-neu-border/10 stroke-neu-border/40"
+          stroke-width="1.5"
+        />
         <!-- Torso -->
-        <rect x="52" y="76" width="56" height="80" rx="8" class="fill-neu-border/10 stroke-neu-border/40" stroke-width="1.5" />
+        <rect
+          x="52"
+          y="76"
+          width="56"
+          height="80"
+          rx="8"
+          class="fill-neu-border/10 stroke-neu-border/40"
+          stroke-width="1.5"
+        />
         <!-- Hips -->
-        <rect x="48" y="148" width="64" height="24" rx="8" class="fill-neu-border/10 stroke-neu-border/40" stroke-width="1.5" />
+        <rect
+          x="48"
+          y="148"
+          width="64"
+          height="24"
+          rx="8"
+          class="fill-neu-border/10 stroke-neu-border/40"
+          stroke-width="1.5"
+        />
         <!-- Arms -->
-        <rect x="24" y="76" width="20" height="70" rx="8" class="fill-neu-border/10 stroke-neu-border/40" stroke-width="1.5" />
-        <rect x="116" y="76" width="20" height="70" rx="8" class="fill-neu-border/10 stroke-neu-border/40" stroke-width="1.5" />
+        <rect
+          x="24"
+          y="76"
+          width="20"
+          height="70"
+          rx="8"
+          class="fill-neu-border/10 stroke-neu-border/40"
+          stroke-width="1.5"
+        />
+        <rect
+          x="116"
+          y="76"
+          width="20"
+          height="70"
+          rx="8"
+          class="fill-neu-border/10 stroke-neu-border/40"
+          stroke-width="1.5"
+        />
         <!-- Hands -->
-        <ellipse cx="34" cy="156" rx="12" ry="10" class="fill-neu-border/10 stroke-neu-border/40" stroke-width="1.5" />
-        <ellipse cx="126" cy="156" rx="12" ry="10" class="fill-neu-border/10 stroke-neu-border/40" stroke-width="1.5" />
+        <ellipse
+          cx="34"
+          cy="156"
+          rx="12"
+          ry="10"
+          class="fill-neu-border/10 stroke-neu-border/40"
+          stroke-width="1.5"
+        />
+        <ellipse
+          cx="126"
+          cy="156"
+          rx="12"
+          ry="10"
+          class="fill-neu-border/10 stroke-neu-border/40"
+          stroke-width="1.5"
+        />
         <!-- Legs -->
-        <rect x="50" y="172" width="24" height="100" rx="8" class="fill-neu-border/10 stroke-neu-border/40" stroke-width="1.5" />
-        <rect x="86" y="172" width="24" height="100" rx="8" class="fill-neu-border/10 stroke-neu-border/40" stroke-width="1.5" />
+        <rect
+          x="50"
+          y="172"
+          width="24"
+          height="100"
+          rx="8"
+          class="fill-neu-border/10 stroke-neu-border/40"
+          stroke-width="1.5"
+        />
+        <rect
+          x="86"
+          y="172"
+          width="24"
+          height="100"
+          rx="8"
+          class="fill-neu-border/10 stroke-neu-border/40"
+          stroke-width="1.5"
+        />
         <!-- Feet -->
-        <ellipse cx="62" cy="282" rx="16" ry="8" class="fill-neu-border/10 stroke-neu-border/40" stroke-width="1.5" />
-        <ellipse cx="98" cy="282" rx="16" ry="8" class="fill-neu-border/10 stroke-neu-border/40" stroke-width="1.5" />
+        <ellipse
+          cx="62"
+          cy="282"
+          rx="16"
+          ry="8"
+          class="fill-neu-border/10 stroke-neu-border/40"
+          stroke-width="1.5"
+        />
+        <ellipse
+          cx="98"
+          cy="282"
+          rx="16"
+          ry="8"
+          class="fill-neu-border/10 stroke-neu-border/40"
+          stroke-width="1.5"
+        />
 
         <!-- Tappable regions (invisible hit areas with highlights) -->
         <ellipse
@@ -91,7 +186,7 @@ const props = withDefaults(
   }>(),
   {
     multiple: true,
-  },
+  }
 )
 
 const emit = defineEmits<{
@@ -132,7 +227,10 @@ function isSelected(location: IFSBodyLocation): boolean {
 
 function toggleLocation(location: IFSBodyLocation) {
   if (isSelected(location)) {
-    emit('update:modelValue', props.modelValue.filter((l) => l !== location))
+    emit(
+      'update:modelValue',
+      props.modelValue.filter(l => l !== location)
+    )
   } else if (props.multiple) {
     emit('update:modelValue', [...props.modelValue, location])
   } else {
@@ -141,7 +239,9 @@ function toggleLocation(location: IFSBodyLocation) {
 }
 
 function removeLocation(location: IFSBodyLocation) {
-  emit('update:modelValue', props.modelValue.filter((l) => l !== location))
+  emit(
+    'update:modelValue',
+    props.modelValue.filter(l => l !== location)
+  )
 }
-
 </script>

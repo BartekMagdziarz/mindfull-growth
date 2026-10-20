@@ -13,17 +13,21 @@ afterEach(() => {
 function setup(reduced = false) {
   vi.stubGlobal('matchMedia', () => ({ matches: reduced }))
   let motion!: ReturnType<typeof provideDayPlanDragMotion>
-  const wrapper = mount(defineComponent({
-    setup() {
-      motion = provideDayPlanDragMotion()
-      return () => h('article', { class: 'ndi' }, [h('span', { class: 'handle' }, 'Object')])
-    },
-  }), { attachTo: document.body })
+  const wrapper = mount(
+    defineComponent({
+      setup() {
+        motion = provideDayPlanDragMotion()
+        return () => h('article', { class: 'ndi' }, [h('span', { class: 'handle' }, 'Object')])
+      },
+    }),
+    { attachTo: document.body }
+  )
   wrappers.push(wrapper)
   const setDragImage = vi.fn()
   motion.start({
     currentTarget: wrapper.find('.handle').element,
-    clientX: 20, clientY: 20,
+    clientX: 20,
+    clientY: 20,
     dataTransfer: { setDragImage },
   } as unknown as DragEvent)
   return { wrapper, motion, setDragImage }

@@ -30,11 +30,15 @@ function clean(value: string | undefined): string | undefined {
 }
 
 /** Compute the patch that fills only the part's empty fields. `null` = nothing to write. */
-export function emptyFieldPatch(part: IFSPart, discoveries: PartDiscoveries): UpdateIFSPartPayload | null {
+export function emptyFieldPatch(
+  part: IFSPart,
+  discoveries: PartDiscoveries
+): UpdateIFSPartPayload | null {
   const patch: UpdateIFSPartPayload = {}
 
   const positiveIntention = clean(discoveries.positiveIntention)
-  if (positiveIntention && !clean(part.positiveIntention)) patch.positiveIntention = positiveIntention
+  if (positiveIntention && !clean(part.positiveIntention))
+    patch.positiveIntention = positiveIntention
 
   const fears = clean(discoveries.fears)
   if (fears && !clean(part.fears)) patch.fears = fears
@@ -47,16 +51,16 @@ export function emptyFieldPatch(part: IFSPart, discoveries: PartDiscoveries): Up
 
   if (discoveries.feltAge && !part.feltAge) patch.feltAge = discoveries.feltAge
 
-  const newTriggers = (discoveries.triggerContexts ?? []).map((t) => t.trim()).filter(Boolean)
+  const newTriggers = (discoveries.triggerContexts ?? []).map(t => t.trim()).filter(Boolean)
   if (newTriggers.length) {
     const existing = part.triggerContexts ?? []
-    const merged = [...existing, ...newTriggers.filter((t) => !existing.includes(t))]
+    const merged = [...existing, ...newTriggers.filter(t => !existing.includes(t))]
     if (merged.length !== existing.length) patch.triggerContexts = merged
   }
 
   const newBody = discoveries.bodyLocations ?? []
   if (newBody.length) {
-    const merged = [...part.bodyLocations, ...newBody.filter((b) => !part.bodyLocations.includes(b))]
+    const merged = [...part.bodyLocations, ...newBody.filter(b => !part.bodyLocations.includes(b))]
     if (merged.length !== part.bodyLocations.length) patch.bodyLocations = merged
   }
 
@@ -66,7 +70,7 @@ export function emptyFieldPatch(part: IFSPart, discoveries: PartDiscoveries): Up
 /** Fill the part's empty fields from `discoveries`. Resolves to true when something was written. */
 export async function enrichPartFromDiscoveries(
   partId: string,
-  discoveries: PartDiscoveries,
+  discoveries: PartDiscoveries
 ): Promise<boolean> {
   const partStore = useIFSPartStore()
   const part = partStore.getPartById(partId)

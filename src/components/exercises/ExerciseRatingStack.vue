@@ -91,12 +91,12 @@ const props = withDefaults(
     emptyLabel: 'bez oceny',
     decreaseLabel: 'Zmniejsz',
     increaseLabel: 'Zwiększ',
-  },
+  }
 )
 const emit = defineEmits<{ 'update:modelValue': [value: number | null] }>()
 
 const values = computed(() =>
-  Array.from({ length: Math.max(0, props.max - props.min + 1) }, (_, i) => props.min + i),
+  Array.from({ length: Math.max(0, props.max - props.min + 1) }, (_, i) => props.min + i)
 )
 
 /** Below the minimum the stack empties again; above the maximum it stays. */

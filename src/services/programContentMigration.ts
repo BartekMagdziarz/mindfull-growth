@@ -33,7 +33,10 @@ export function enrollmentContentVersion(enrollment: ProgramEnrollment): number 
 }
 
 /** Whether the enrollment's indices are behind its definition. */
-export function needsContentMigration(enrollment: ProgramEnrollment, program: ProgramDefinition): boolean {
+export function needsContentMigration(
+  enrollment: ProgramEnrollment,
+  program: ProgramDefinition
+): boolean {
   return enrollmentContentVersion(enrollment) < definitionContentVersion(program)
 }
 
@@ -43,22 +46,28 @@ export function needsContentMigration(enrollment: ProgramEnrollment, program: Pr
  */
 export function migrateEnrollmentContent(
   enrollment: ProgramEnrollment,
-  program: ProgramDefinition,
+  program: ProgramDefinition
 ): ProgramEnrollment | null {
   if (!needsContentMigration(enrollment, program)) return null
   const fromVersion = enrollmentContentVersion(enrollment)
   const oldSteps = legacyProgramSteps(program.slug, fromVersion)
   if (!oldSteps) {
-    console.error(`No legacy step list for ${program.slug} v${fromVersion}; enrollment ${enrollment.id} left as is`)
+    console.error(
+      `No legacy step list for ${program.slug} v${fromVersion}; enrollment ${enrollment.id} left as is`
+    )
     return null
   }
-  const newSlugs = program.steps.map((step) => step.exerciseSlug)
+  const newSlugs = program.steps.map(step => step.exerciseSlug)
   const consumed = new Set<number>()
   const completedSteps: CompletedProgramStep[] = []
-  for (const completed of [...enrollment.completedSteps].sort((a, b) => a.stepIndex - b.stepIndex)) {
+  for (const completed of [...enrollment.completedSteps].sort(
+    (a, b) => a.stepIndex - b.stepIndex
+  )) {
     const slug = oldSteps[completed.stepIndex]
     if (slug === undefined) continue
-    const target = newSlugs.findIndex((candidate, index) => candidate === slug && !consumed.has(index))
+    const target = newSlugs.findIndex(
+      (candidate, index) => candidate === slug && !consumed.has(index)
+    )
     if (target === -1) continue // the exercise left the path: its record stays in exercise history
     consumed.add(target)
     completedSteps.push({ ...completed, stepIndex: target })
@@ -88,7 +97,9 @@ export interface ContentMigrationIO {
  * STEP plan items of the migrated ones (practices are reconciled by the
  * scheduler). Returns the migrated rows.
  */
-export async function migrateEnrollmentsContent(io: ContentMigrationIO): Promise<ProgramEnrollment[]> {
+export async function migrateEnrollmentsContent(
+  io: ContentMigrationIO
+): Promise<ProgramEnrollment[]> {
   const migrated: ProgramEnrollment[] = []
   for (const enrollment of io.enrollments) {
     const program = getProgramDefinition(enrollment.programSlug)

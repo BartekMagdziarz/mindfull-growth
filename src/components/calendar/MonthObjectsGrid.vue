@@ -69,11 +69,11 @@ const filterOptions = computed<{ value: FilterValue; label: string }[]>(() => [
 const filteredItems = computed<MonthObjectItem[]>(() => {
   switch (filter.value) {
     case 'goals':
-      return props.items.filter((item) => item.subjectType === 'keyResult')
+      return props.items.filter(item => item.subjectType === 'keyResult')
     case 'habits':
-      return props.items.filter((item) => item.subjectType === 'habit')
+      return props.items.filter(item => item.subjectType === 'habit')
     case 'trackers':
-      return props.items.filter((item) => item.subjectType === 'tracker')
+      return props.items.filter(item => item.subjectType === 'tracker')
     case 'all':
     default:
       return props.items
@@ -110,7 +110,7 @@ const emptyText = computed(() => {
 .month-grid__label {
   font-size: 10px;
   font-weight: 600;
-  letter-spacing: 0.10em;
+  letter-spacing: 0.1em;
   color: rgb(var(--neo-muted));
   text-transform: uppercase;
 }
@@ -133,7 +133,10 @@ const emptyText = computed(() => {
   color: rgb(var(--neo-muted));
   font-size: 12px;
   cursor: pointer;
-  transition: color 200ms ease, background 200ms ease, box-shadow 200ms ease;
+  transition:
+    color 200ms ease,
+    background 200ms ease,
+    box-shadow 200ms ease;
 }
 
 .month-segmented__item:hover {

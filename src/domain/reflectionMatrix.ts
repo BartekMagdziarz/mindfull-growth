@@ -22,7 +22,11 @@ export type MatrixSection = 'demands' | 'actions' | 'state'
  */
 export type MatrixCopySection = MatrixSection | 'load'
 
-export const MATRIX_SECTIONS = ['demands', 'actions', 'state'] as const satisfies readonly MatrixSection[]
+export const MATRIX_SECTIONS = [
+  'demands',
+  'actions',
+  'state',
+] as const satisfies readonly MatrixSection[]
 
 export interface ReflectionMatrixArea {
   key: LifeAreaKey
@@ -112,14 +116,38 @@ type IconTuple = [string, string, string, string, string]
 
 export const MATRIX_CELL_ICONS: Record<LifeAreaKey, Record<MatrixSection, IconTuple>> = {
   body: {
-    demands: ['hotel', 'airline_seat_recline_normal', 'directions_walk', 'directions_run', 'sprint'],
+    demands: [
+      'hotel',
+      'airline_seat_recline_normal',
+      'directions_walk',
+      'directions_run',
+      'sprint',
+    ],
     actions: ['heart_broken', 'heart_minus', 'heart_check', 'heart_plus', 'favorite'],
-    state: ['battery_0_bar', 'battery_2_bar', 'battery_4_bar', 'battery_full', 'battery_charging_full'],
+    state: [
+      'battery_0_bar',
+      'battery_2_bar',
+      'battery_4_bar',
+      'battery_full',
+      'battery_charging_full',
+    ],
   },
   emotions: {
     demands: ['wb_sunny', 'partly_cloudy_day', 'rainy', 'thunderstorm', 'cyclone'],
-    actions: ['visibility_off', 'sentiment_frustrated', 'sentiment_neutral', 'sentiment_calm', 'shield_with_heart'],
-    state: ['sentiment_very_dissatisfied', 'sentiment_dissatisfied', 'sentiment_neutral', 'sentiment_satisfied', 'sentiment_very_satisfied'],
+    actions: [
+      'visibility_off',
+      'sentiment_frustrated',
+      'sentiment_neutral',
+      'sentiment_calm',
+      'shield_with_heart',
+    ],
+    state: [
+      'sentiment_very_dissatisfied',
+      'sentiment_dissatisfied',
+      'sentiment_neutral',
+      'sentiment_satisfied',
+      'sentiment_very_satisfied',
+    ],
   },
   tasks: {
     demands: ['inbox', 'task', 'checklist', 'assignment_late', 'local_fire_department'],

@@ -41,12 +41,12 @@ describe('lifeAreaAssessments helpers', () => {
     const previous = getPreviousLifeAreaAssessmentForLifeArea(
       assessments,
       'la-1',
-      february.createdAt,
+      february.createdAt
     )
     const delta = getLifeAreaAssessmentDelta(february, january, 'la-1')
     const noOverlapDelta = getLifeAreaAssessmentDelta(february, january, 'la-3')
 
-    expect(history.map((entry) => entry.assessment.id)).toEqual(['assessment-2', 'assessment-1'])
+    expect(history.map(entry => entry.assessment.id)).toEqual(['assessment-2', 'assessment-1'])
     expect(latest?.id).toBe('assessment-2')
     expect(previous?.id).toBe('assessment-1')
     expect(delta).toBe(3)
@@ -57,9 +57,9 @@ describe('lifeAreaAssessments helpers', () => {
     const results = filterLifeAreaAssessmentsByDateRange(
       [january, february],
       '2026-02-01',
-      '2026-02-28',
+      '2026-02-28'
     )
 
-    expect(results.map((assessment) => assessment.id)).toEqual(['assessment-2'])
+    expect(results.map(assessment => assessment.id)).toEqual(['assessment-2'])
   })
 })

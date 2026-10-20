@@ -1,12 +1,7 @@
 <template>
   <div class="flex flex-col items-center gap-4">
     <div class="neo-surface rounded-2xl p-4">
-      <svg
-        :width="svgSize"
-        :height="svgSize"
-        :viewBox="`0 0 ${svgSize} ${svgSize}`"
-        class="block"
-      >
+      <svg :width="svgSize" :height="svgSize" :viewBox="`0 0 ${svgSize} ${svgSize}`" class="block">
         <!-- Background segments -->
         <path
           v-for="(quality, index) in qualities"
@@ -101,7 +96,7 @@ const props = withDefaults(
   {
     interactive: false,
     size: 'md',
-  },
+  }
 )
 
 const emit = defineEmits<{
@@ -109,8 +104,14 @@ const emit = defineEmits<{
 }>()
 
 const qualities: SelfEnergyQuality[] = [
-  'calm', 'curiosity', 'compassion', 'clarity',
-  'courage', 'creativity', 'confidence', 'connection',
+  'calm',
+  'curiosity',
+  'compassion',
+  'clarity',
+  'courage',
+  'creativity',
+  'confidence',
+  'connection',
 ]
 
 const qualityLabels = computed(() => ({
@@ -124,12 +125,14 @@ const qualityLabels = computed(() => ({
   connection: t('exerciseWizards.shared.ifs.selfEnergyWheel.qualities.connection'),
 }))
 
-
 const svgSize = computed(() => {
   switch (props.size) {
-    case 'sm': return 200
-    case 'lg': return 320
-    default: return 260
+    case 'sm':
+      return 200
+    case 'lg':
+      return 320
+    default:
+      return 260
   }
 })
 

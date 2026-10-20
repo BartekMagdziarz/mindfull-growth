@@ -27,7 +27,7 @@ const EmotionWheelStub = defineComponent({
     }
     const formatted = () =>
       (modelValue.value as StubSelection[])
-        .map((s) => s.emotionId + (s.intensity != null ? ':' + s.intensity : ''))
+        .map(s => s.emotionId + (s.intensity != null ? ':' + s.intensity : ''))
         .join(',')
     return { formatted, selectEmotion }
   },
@@ -57,8 +57,7 @@ const TagInputStub = defineComponent({
   setup(props, { emit }) {
     const { modelValue, tagType } = toRefs(props)
     const selectTag = () => {
-      const nextValue =
-        tagType.value === 'people' ? 'people-tag-ally' : 'context-tag-home'
+      const nextValue = tagType.value === 'people' ? 'people-tag-ally' : 'context-tag-home'
       emit('update:modelValue', [...modelValue.value, nextValue])
     }
     return {
@@ -258,9 +257,7 @@ describe('EmotionLogEditorView', () => {
 
     await fireEvent.click(screen.getByTestId('emotion-add'))
 
-    expect(
-      (screen.getByTestId('emotion-values') as HTMLElement).textContent
-    ).toContain('gniew:3')
+    expect((screen.getByTestId('emotion-values') as HTMLElement).textContent).toContain('gniew:3')
     expect(saveButton.disabled).toBe(false)
   })
 
@@ -273,9 +270,7 @@ describe('EmotionLogEditorView', () => {
     await fireEvent.click(saveButton)
 
     await waitFor(() => {
-      expect(
-        screen.getByText('Please select at least one emotion or family.')
-      ).toBeInTheDocument()
+      expect(screen.getByText('Please select at least one emotion or family.')).toBeInTheDocument()
     })
     expect(mockEmotionLogStore.createLog).not.toHaveBeenCalled()
   })
@@ -313,9 +308,7 @@ describe('EmotionLogEditorView', () => {
         createdAt: undefined,
       })
     })
-    expect(
-      screen.getByText('Emotion log saved successfully.')
-    ).toBeInTheDocument()
+    expect(screen.getByText('Emotion log saved successfully.')).toBeInTheDocument()
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith('/emotions')
     })
@@ -332,9 +325,7 @@ describe('EmotionLogEditorView', () => {
     await fireEvent.click(saveButton)
 
     await waitFor(() => {
-      expect(
-        screen.getByText('Create failed')
-      ).toBeInTheDocument()
+      expect(screen.getByText('Create failed')).toBeInTheDocument()
     })
     expect(mockPush).not.toHaveBeenCalled()
   })
@@ -414,7 +405,7 @@ describe('EmotionLogEditorView', () => {
     let resolveLog: (value: EmotionLog | undefined) => void = () => {}
     mockGetById.mockImplementation(
       () =>
-        new Promise<EmotionLog | undefined>((resolve) => {
+        new Promise<EmotionLog | undefined>(resolve => {
           resolveLog = resolve
         })
     )
@@ -427,9 +418,7 @@ describe('EmotionLogEditorView', () => {
       expect(mockGetById).toHaveBeenCalledWith('log-loading')
     })
 
-    expect(
-      await screen.findByText(/Loading emotion log/i)
-    ).toBeInTheDocument()
+    expect(await screen.findByText(/Loading emotion log/i)).toBeInTheDocument()
 
     resolveLog({
       id: 'log-loading',
@@ -439,9 +428,7 @@ describe('EmotionLogEditorView', () => {
     })
 
     await waitFor(() => {
-      expect(
-        screen.queryByText('Loading emotion log...')
-      ).not.toBeInTheDocument()
+      expect(screen.queryByText('Loading emotion log...')).not.toBeInTheDocument()
     })
   })
 
@@ -455,9 +442,7 @@ describe('EmotionLogEditorView', () => {
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith('/emotions')
     })
-    expect(
-      screen.getByText('Emotion log not found.')
-    ).toBeInTheDocument()
+    expect(screen.getByText('Emotion log not found.')).toBeInTheDocument()
   })
 
   it('navigates to emotions list when cancel is clicked', async () => {

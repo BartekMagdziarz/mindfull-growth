@@ -37,12 +37,20 @@
   --mg-color-primary: rgb(var(--color-primary));
   /* Deepened vs product primary-strong: small accent labels (eyebrows, active
      tabs, dock) must clear ~4:1 on the bluer sky-ladder backgrounds. */
-  --mg-color-primary-strong: color-mix(in srgb, rgb(var(--color-primary-strong)) 55%, rgb(var(--sky-700)));
+  --mg-color-primary-strong: color-mix(
+    in srgb,
+    rgb(var(--color-primary-strong)) 55%,
+    rgb(var(--sky-700))
+  );
   --mg-color-primary-soft: rgb(var(--color-primary-soft) / 0.68);
   /* Filled primary action: raw product primary-strong with white label (Lab
      decision: "wypełnione przyciski = --color-primary-strong"). */
   --mg-color-primary-fill: rgb(var(--color-primary-strong));
-  --mg-color-primary-fill-hover: color-mix(in srgb, rgb(var(--color-primary-strong)) 90%, rgb(var(--sky-800)));
+  --mg-color-primary-fill-hover: color-mix(
+    in srgb,
+    rgb(var(--color-primary-strong)) 90%,
+    rgb(var(--sky-800))
+  );
   /* Thin edge of flat fields/inputs (no inset shadow on content). */
   --mg-color-field-border: rgb(var(--sky-400) / 0.22);
   --mg-color-sky-field: rgb(var(--sky-200) / 0.72);
@@ -77,14 +85,22 @@
   --mg-color-inverse-ink: rgb(var(--color-surface-container));
   --mg-color-scrim: rgb(var(--overlay-scrim) / 0.5);
 
-  --mg-shadow-raised: -5px -5px 11px rgb(var(--neo-shadow-light) / 0.7), 5px 5px 11px rgb(var(--neo-shadow-dark) / 0.16);
-  --mg-shadow-raised-sm: -2px -2px 5px rgb(var(--neo-shadow-light) / 0.6), 2px 2px 5px rgb(var(--neo-shadow-dark) / 0.13);
-  --mg-shadow-inset: inset -5px -5px 12px rgb(var(--neo-inset-light) / 0.58), inset 5px 5px 12px rgb(var(--neo-inset-dark) / 0.13);
-  --mg-shadow-inset-sm: inset -2px -2px 5px rgb(var(--neo-inset-light) / 0.58), inset 2px 2px 5px rgb(var(--neo-inset-dark) / 0.13);
+  --mg-shadow-raised:
+    -5px -5px 11px rgb(var(--neo-shadow-light) / 0.7),
+    5px 5px 11px rgb(var(--neo-shadow-dark) / 0.16);
+  --mg-shadow-raised-sm:
+    -2px -2px 5px rgb(var(--neo-shadow-light) / 0.6), 2px 2px 5px rgb(var(--neo-shadow-dark) / 0.13);
+  --mg-shadow-inset:
+    inset -5px -5px 12px rgb(var(--neo-inset-light) / 0.58),
+    inset 5px 5px 12px rgb(var(--neo-inset-dark) / 0.13);
+  --mg-shadow-inset-sm:
+    inset -2px -2px 5px rgb(var(--neo-inset-light) / 0.58),
+    inset 2px 2px 5px rgb(var(--neo-inset-dark) / 0.13);
   /* Paper halo around the current stepper dot (sketch marker on a sheet). */
   --mg-shadow-stepper-halo: 0 0 0 3px var(--mg-color-paper);
   --mg-shadow-drag-preview: 0 18px 38px color-mix(in srgb, var(--mg-color-ink) 18%, transparent);
-  --mg-shadow-drop-target: 0 6px 14px color-mix(in srgb, var(--mg-color-primary-strong) 18%, transparent);
+  --mg-shadow-drop-target: 0 6px 14px
+    color-mix(in srgb, var(--mg-color-primary-strong) 18%, transparent);
 
   --mg-radius-sm: 11px 14px 10px 13px;
   --mg-radius-md: 17px 14px 18px 15px;

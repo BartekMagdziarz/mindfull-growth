@@ -13,7 +13,7 @@ export function classifyPlanningState(
   loading: boolean,
   error: string | null,
   hasData: boolean,
-  itemCount: number,
+  itemCount: number
 ): PlanningViewState {
   if (loading && !hasData) return 'loading'
   if (error && !hasData) return 'error'

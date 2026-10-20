@@ -49,14 +49,11 @@
           </div>
 
           <!-- Submit button -->
-          <AppButton
-            type="submit"
-            variant="filled"
-            :disabled="!canSubmit"
-            class="w-full"
-          >
+          <AppButton type="submit" variant="filled" :disabled="!canSubmit" class="w-full">
             <span v-if="isLoading">{{ t('auth.login.signingIn') }}</span>
-            <span v-else-if="isLockedOut">{{ t('auth.login.lockedOut', { seconds: lockoutSeconds }) }}</span>
+            <span v-else-if="isLockedOut">{{
+              t('auth.login.lockedOut', { seconds: lockoutSeconds })
+            }}</span>
             <span v-else>{{ t('common.buttons.signIn') }}</span>
           </AppButton>
         </form>

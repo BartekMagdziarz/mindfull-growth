@@ -45,7 +45,13 @@ import {
 
 export type ObjectsLibraryFamily = 'priorities' | 'goals' | 'habits' | 'trackers' | 'intentions'
 export type ObjectsLibraryComposerMode = 'edit' | 'create'
-export type ObjectsLibraryPanelType = 'priority' | 'goal' | 'keyResult' | 'habit' | 'tracker' | 'weeklyIntention'
+export type ObjectsLibraryPanelType =
+  | 'priority'
+  | 'goal'
+  | 'keyResult'
+  | 'habit'
+  | 'tracker'
+  | 'weeklyIntention'
 
 export interface ObjectsLibraryQuery {
   family: ObjectsLibraryFamily
@@ -221,14 +227,14 @@ function toLowerText(value?: string): string {
 }
 
 function csvToIds(value?: string | string[] | null): string[] {
-  const source = Array.isArray(value) ? value.join(',') : value ?? ''
+  const source = Array.isArray(value) ? value.join(',') : (value ?? '')
   return Array.from(
     new Set(
       source
         .split(',')
-        .map((item) => item.trim())
-        .filter(Boolean),
-    ),
+        .map(item => item.trim())
+        .filter(Boolean)
+    )
   )
 }
 
@@ -266,7 +272,7 @@ function sortLibraryItems(left: ObjectsLibraryListItem, right: ObjectsLibraryLis
 }
 
 function matchesLinkFilters(linkedIds: string[], selectedIds: string[]): boolean {
-  return selectedIds.length === 0 || selectedIds.every((id) => linkedIds.includes(id))
+  return selectedIds.length === 0 || selectedIds.every(id => linkedIds.includes(id))
 }
 
 function matchesClosedFilter(isActive: boolean, status: string, showClosed: boolean): boolean {
@@ -283,7 +289,7 @@ function matchesQueryText(query: string, values: Array<string | undefined>): boo
     return true
   }
 
-  return values.some((value) => toLowerText(value).includes(normalizedQuery))
+  return values.some(value => toLowerText(value).includes(normalizedQuery))
 }
 
 function matchesTargetPeriod(periodRef: PeriodRef, targetPeriod?: PeriodRef): boolean {
@@ -291,7 +297,7 @@ function matchesTargetPeriod(periodRef: PeriodRef, targetPeriod?: PeriodRef): bo
 }
 
 export function getObjectsLibraryFamilyPanelType(
-  family: ObjectsLibraryFamily,
+  family: ObjectsLibraryFamily
 ): Exclude<ObjectsLibraryPanelType, 'keyResult'> {
   switch (family) {
     case 'priorities':
@@ -308,7 +314,7 @@ export function getObjectsLibraryFamilyPanelType(
 }
 
 export function getObjectsLibraryFamilyForPanelType(
-  panelType: ObjectsLibraryPanelType,
+  panelType: ObjectsLibraryPanelType
 ): ObjectsLibraryFamily {
   switch (panelType) {
     case 'priority':
@@ -326,7 +332,7 @@ export function getObjectsLibraryFamilyForPanelType(
 }
 
 export function createDefaultObjectsLibraryQuery(
-  family: ObjectsLibraryFamily = 'goals',
+  family: ObjectsLibraryFamily = 'goals'
 ): ObjectsLibraryQuery {
   return {
     family,
@@ -397,9 +403,9 @@ function buildObjectsLibraryCacheKey(query: ObjectsLibraryQuery): string {
 }
 
 function buildContext(deps: ObjectsLibraryDependencies): ObjectRefContext {
-  const priorityMap = new Map(deps.priorities.map((item) => [item.id, item]))
-  const lifeAreaMap = new Map(deps.lifeAreas.map((item) => [item.id, item]))
-  const goalMap = new Map(deps.goals.map((item) => [item.id, item]))
+  const priorityMap = new Map(deps.priorities.map(item => [item.id, item]))
+  const lifeAreaMap = new Map(deps.lifeAreas.map(item => [item.id, item]))
+  const goalMap = new Map(deps.goals.map(item => [item.id, item]))
   const keyResultsByGoalId = new Map<string, KeyResult[]>()
 
   for (const keyResult of deps.keyResults) {
@@ -443,7 +449,7 @@ function hasMeasurementRelevance(
   panelType: 'keyResult' | 'habit' | 'tracker',
   subjectId: string,
   targetPeriod: PeriodRef | undefined,
-  deps: ObjectsLibraryDependencies,
+  deps: ObjectsLibraryDependencies
 ): boolean {
   if (!targetPeriod) {
     return true
@@ -452,11 +458,38 @@ function hasMeasurementRelevance(
   const matchesSubject = (item: { subjectType: string; subjectId: string }) =>
     item.subjectType === panelType && item.subjectId === subjectId
 
-  if (deps.measurementMonthStates.some((state) => matchesSubject(state) && matchesTargetPeriod(state.monthRef, targetPeriod))) return true
-  if (deps.measurementWeekStates.some((state) => matchesSubject(state) && matchesTargetPeriod(state.weekRef, targetPeriod))) return true
-  if (deps.measurementDayAssignments.some((assignment) => matchesSubject(assignment) && matchesTargetPeriod(assignment.dayRef, targetPeriod))) return true
-  if (deps.dailyMeasurementEntries.some((entry) => matchesSubject(entry) && matchesTargetPeriod(entry.dayRef, targetPeriod))) return true
-  if (deps.objectReflections.some((reflection) => matchesSubject(reflection) && matchesTargetPeriod(reflection.periodRef, targetPeriod))) return true
+  if (
+    deps.measurementMonthStates.some(
+      state => matchesSubject(state) && matchesTargetPeriod(state.monthRef, targetPeriod)
+    )
+  )
+    return true
+  if (
+    deps.measurementWeekStates.some(
+      state => matchesSubject(state) && matchesTargetPeriod(state.weekRef, targetPeriod)
+    )
+  )
+    return true
+  if (
+    deps.measurementDayAssignments.some(
+      assignment =>
+        matchesSubject(assignment) && matchesTargetPeriod(assignment.dayRef, targetPeriod)
+    )
+  )
+    return true
+  if (
+    deps.dailyMeasurementEntries.some(
+      entry => matchesSubject(entry) && matchesTargetPeriod(entry.dayRef, targetPeriod)
+    )
+  )
+    return true
+  if (
+    deps.objectReflections.some(
+      reflection =>
+        matchesSubject(reflection) && matchesTargetPeriod(reflection.periodRef, targetPeriod)
+    )
+  )
+    return true
 
   return false
 }
@@ -465,27 +498,33 @@ function hasGoalRelevance(
   goalId: string,
   targetPeriod: PeriodRef | undefined,
   deps: ObjectsLibraryDependencies,
-  ctx: ObjectRefContext,
+  ctx: ObjectRefContext
 ): boolean {
   if (!targetPeriod) {
     return true
   }
 
-  if (deps.goalMonthStates.some((state) => state.goalId === goalId && matchesTargetPeriod(state.monthRef, targetPeriod))) return true
+  if (
+    deps.goalMonthStates.some(
+      state => state.goalId === goalId && matchesTargetPeriod(state.monthRef, targetPeriod)
+    )
+  )
+    return true
 
   if (
     deps.objectReflections.some(
-      (reflection) =>
+      reflection =>
         reflection.subjectType === 'goal' &&
         reflection.subjectId === goalId &&
-        matchesTargetPeriod(reflection.periodRef, targetPeriod),
+        matchesTargetPeriod(reflection.periodRef, targetPeriod)
     )
   ) {
     return true
   }
 
   const linkedKeyResults = ctx.keyResultsByGoalId.get(goalId) ?? []
-  if (linkedKeyResults.some((kr) => hasMeasurementRelevance('keyResult', kr.id, targetPeriod, deps))) return true
+  if (linkedKeyResults.some(kr => hasMeasurementRelevance('keyResult', kr.id, targetPeriod, deps)))
+    return true
 
   if (getPeriodType(targetPeriod) === 'year') {
     const goal = ctx.goalMap.get(goalId)
@@ -507,14 +546,14 @@ function buildChartData(
   subjectType: 'keyResult' | 'habit' | 'tracker',
   allEntries: DailyMeasurementEntry[],
   measurementMonthStates: MeasurementMonthState[],
-  measurementWeekStates: MeasurementWeekState[],
+  measurementWeekStates: MeasurementWeekState[]
 ): ObjectsLibraryChartPoint[] {
   const hasTarget = 'target' in subject
   const subjectMonthStates = measurementMonthStates.filter(
-    (state) => state.subjectType === subjectType && state.subjectId === subject.id,
+    state => state.subjectType === subjectType && state.subjectId === subject.id
   )
   const subjectWeekStates = measurementWeekStates.filter(
-    (state) => state.subjectType === subjectType && state.subjectId === subject.id,
+    state => state.subjectType === subjectType && state.subjectId === subject.id
   )
 
   const activePeriodRefs: string[] = []
@@ -543,17 +582,19 @@ function buildChartData(
     }
     if (subject.cadence === 'monthly') {
       const monthState = subjectMonthStates.find(
-        (state) => state.monthRef === periodRef && state.activityState === 'active',
+        state => state.monthRef === periodRef && state.activityState === 'active'
       )
-      return applyMeasurementTargetCascade(subject, periodRef, { monthOverride: monthState?.targetOverride })
+      return applyMeasurementTargetCascade(subject, periodRef, {
+        monthOverride: monthState?.targetOverride,
+      })
     }
     const weekRef = periodRef as WeekRef
     const weekState =
-      subjectWeekStates.find((state) => state.weekRef === weekRef && !state.sourceMonthRef) ??
-      subjectWeekStates.find((state) => state.weekRef === weekRef)
+      subjectWeekStates.find(state => state.weekRef === weekRef && !state.sourceMonthRef) ??
+      subjectWeekStates.find(state => state.weekRef === weekRef)
     const overlappingMonthRefs = getWeekOverlappingMonths(weekRef)
     const activeMonthState = subjectMonthStates.find(
-      (state) => state.activityState === 'active' && overlappingMonthRefs.includes(state.monthRef),
+      state => state.activityState === 'active' && overlappingMonthRefs.includes(state.monthRef)
     )
     return applyMeasurementTargetCascade(subject, weekRef, {
       monthOverride: activeMonthState?.targetOverride,
@@ -568,16 +609,20 @@ function buildChartData(
   const currentRefs = getPeriodRefsForDate(new Date())
   const currentRef = subject.cadence === 'monthly' ? currentRefs.month : currentRefs.week
   const sortedRefs = [...activePeriodRefs]
-    .filter((ref) => ref <= currentRef)
+    .filter(ref => ref <= currentRef)
     .sort((a, b) => a.localeCompare(b))
 
   if (sortedRefs.length === 0) {
     return []
   }
 
-  return sortedRefs.map((periodRef) => {
+  return sortedRefs.map(periodRef => {
     const effectiveSubject = resolveEffectiveSubject(periodRef as MeasurementPeriodRef)
-    const summary = buildMeasurementSummary(effectiveSubject, allEntries, periodRef as MeasurementPeriodRef)
+    const summary = buildMeasurementSummary(
+      effectiveSubject,
+      allEntries,
+      periodRef as MeasurementPeriodRef
+    )
     const targetValue = hasTarget
       ? (effectiveSubject as { target: { value: number } }).target.value
       : undefined
@@ -607,32 +652,32 @@ function buildChartData(
 function buildFamilyItems(
   query: ObjectsLibraryQuery,
   deps: ObjectsLibraryDependencies,
-  ctx: ObjectRefContext,
+  ctx: ObjectRefContext
 ): ObjectsLibraryListItem[] {
   switch (query.family) {
     case 'priorities':
       return deps.priorities
-        .filter((priority) => matchesPriorityFilters(priority, query))
-        .map((priority) => buildPriorityListItem(priority, deps))
+        .filter(priority => matchesPriorityFilters(priority, query))
+        .map(priority => buildPriorityListItem(priority, deps))
         .sort(sortLibraryItems)
     case 'goals':
       return deps.goals
-        .filter((goal) => matchesGoalFilters(goal, query, deps, ctx))
-        .map((goal) => buildGoalListItem(goal, deps, ctx))
+        .filter(goal => matchesGoalFilters(goal, query, deps, ctx))
+        .map(goal => buildGoalListItem(goal, deps, ctx))
         .sort(sortLibraryItems)
     case 'habits':
       return deps.habits
-        .filter((habit) => matchesStandaloneFilters(habit, query))
-        .filter((habit) => matchesQueryText(query.q, [habit.title, habit.description]))
-        .filter((habit) => hasMeasurementRelevance('habit', habit.id, query.period, deps))
-        .map((habit) => buildHabitListItem(habit, deps, ctx))
+        .filter(habit => matchesStandaloneFilters(habit, query))
+        .filter(habit => matchesQueryText(query.q, [habit.title, habit.description]))
+        .filter(habit => hasMeasurementRelevance('habit', habit.id, query.period, deps))
+        .map(habit => buildHabitListItem(habit, deps, ctx))
         .sort(sortLibraryItems)
     case 'trackers':
       return deps.trackers
-        .filter((tracker) => matchesStandaloneFilters(tracker, query))
-        .filter((tracker) => matchesQueryText(query.q, [tracker.title, tracker.description]))
-        .filter((tracker) => hasMeasurementRelevance('tracker', tracker.id, query.period, deps))
-        .map((tracker) => buildTrackerListItem(tracker, deps, ctx))
+        .filter(tracker => matchesStandaloneFilters(tracker, query))
+        .filter(tracker => matchesQueryText(query.q, [tracker.title, tracker.description]))
+        .filter(tracker => hasMeasurementRelevance('tracker', tracker.id, query.period, deps))
+        .map(tracker => buildTrackerListItem(tracker, deps, ctx))
         .sort(sortLibraryItems)
     case 'intentions':
       // Weekly intentions carry no life areas by design, so any life-area
@@ -641,18 +686,20 @@ function buildFamilyItems(
         return []
       }
       return deps.weeklyIntentions
-        .filter((intention) => matchesLinkFilters(intention.priorityIds, query.priorityIds))
-        .filter((intention) => matchesClosedFilter(intention.isActive, intention.status, query.showClosed))
-        .filter((intention) => matchesQueryText(query.q, [intention.title, intention.description]))
-        .filter((intention) => matchesTargetPeriod(intention.weekRef, query.period))
-        .map((intention) => buildWeeklyIntentionListItem(intention))
+        .filter(intention => matchesLinkFilters(intention.priorityIds, query.priorityIds))
+        .filter(intention =>
+          matchesClosedFilter(intention.isActive, intention.status, query.showClosed)
+        )
+        .filter(intention => matchesQueryText(query.q, [intention.title, intention.description]))
+        .filter(intention => matchesTargetPeriod(intention.weekRef, query.period))
+        .map(intention => buildWeeklyIntentionListItem(intention))
         .sort(sortLibraryItems)
   }
 }
 
 function getFamilyTotalCount(
   family: ObjectsLibraryFamily,
-  deps: ObjectsLibraryDependencies,
+  deps: ObjectsLibraryDependencies
 ): number {
   switch (family) {
     case 'priorities':
@@ -672,27 +719,27 @@ function buildPanelRecord(
   panelType: ObjectsLibraryPanelType,
   panelId: string,
   deps: ObjectsLibraryDependencies,
-  ctx: ObjectRefContext,
+  ctx: ObjectRefContext
 ): ObjectsLibraryDetailRecord | undefined {
   switch (panelType) {
     case 'priority': {
-      const priority = deps.priorities.find((item) => item.id === panelId)
+      const priority = deps.priorities.find(item => item.id === panelId)
       return priority ? buildPriorityPanel(priority) : undefined
     }
     case 'goal': {
-      const goal = deps.goals.find((item) => item.id === panelId)
+      const goal = deps.goals.find(item => item.id === panelId)
       return goal ? buildGoalPanel(goal) : undefined
     }
     case 'keyResult': {
-      const keyResult = deps.keyResults.find((item) => item.id === panelId)
+      const keyResult = deps.keyResults.find(item => item.id === panelId)
       return keyResult ? buildKeyResultPanel(keyResult, ctx) : undefined
     }
     case 'habit': {
-      const habit = deps.habits.find((item) => item.id === panelId)
+      const habit = deps.habits.find(item => item.id === panelId)
       return habit ? buildHabitPanel(habit) : undefined
     }
     case 'tracker': {
-      const tracker = deps.trackers.find((item) => item.id === panelId)
+      const tracker = deps.trackers.find(item => item.id === panelId)
       return tracker ? buildTrackerPanel(tracker) : undefined
     }
     case 'weeklyIntention':
@@ -702,44 +749,57 @@ function buildPanelRecord(
 }
 
 export async function loadObjectsLibraryBundle(
-  query: ObjectsLibraryQuery,
+  query: ObjectsLibraryQuery
 ): Promise<ObjectsLibraryBundle> {
-  return loadPlanningCached(objectsLibraryBundleCache, buildObjectsLibraryCacheKey(query), async () => {
-    const deps = await loadDependencies()
-    const ctx = buildContext(deps)
+  return loadPlanningCached(
+    objectsLibraryBundleCache,
+    buildObjectsLibraryCacheKey(query),
+    async () => {
+      const deps = await loadDependencies()
+      const ctx = buildContext(deps)
 
-    return {
-      query,
-      familyTotalCount: getFamilyTotalCount(query.family, deps),
-      items: buildFamilyItems(query, deps, ctx),
-      expandedItem:
-        query.expandedType && query.expandedId
-          ? buildPanelRecord(query.expandedType, query.expandedId, deps, ctx)
-          : undefined,
-      composerItem:
-        query.composerMode === 'edit' && query.composerType && query.composerId
-          ? buildPanelRecord(query.composerType, query.composerId, deps, ctx)
-          : undefined,
-      filterOptions: {
-        lifeAreas: deps.lifeAreas
-          .filter((area) => area.isActive)
-          .sort((left, right) => left.sortOrder - right.sortOrder)
-          .map((area) => ({ id: area.id, label: area.name, icon: area.icon })),
-        priorities: deps.priorities
-          .filter((priority) => priority.status === 'active')
-          .sort(compareActivePriorities)
-          .map((priority) => ({ id: priority.id, label: priorityLabel(priority), icon: priority.icon })),
-        goals: deps.goals
-          .filter(isGoalOpen)
-          .sort((left, right) => left.title.localeCompare(right.title))
-          .map((goal) => ({ id: goal.id, label: goal.title })),
-      },
+      return {
+        query,
+        familyTotalCount: getFamilyTotalCount(query.family, deps),
+        items: buildFamilyItems(query, deps, ctx),
+        expandedItem:
+          query.expandedType && query.expandedId
+            ? buildPanelRecord(query.expandedType, query.expandedId, deps, ctx)
+            : undefined,
+        composerItem:
+          query.composerMode === 'edit' && query.composerType && query.composerId
+            ? buildPanelRecord(query.composerType, query.composerId, deps, ctx)
+            : undefined,
+        filterOptions: {
+          lifeAreas: deps.lifeAreas
+            .filter(area => area.isActive)
+            .sort((left, right) => left.sortOrder - right.sortOrder)
+            .map(area => ({ id: area.id, label: area.name, icon: area.icon })),
+          priorities: deps.priorities
+            .filter(priority => priority.status === 'active')
+            .sort(compareActivePriorities)
+            .map(priority => ({
+              id: priority.id,
+              label: priorityLabel(priority),
+              icon: priority.icon,
+            })),
+          goals: deps.goals
+            .filter(isGoalOpen)
+            .sort((left, right) => left.title.localeCompare(right.title))
+            .map(goal => ({ id: goal.id, label: goal.title })),
+        },
+      }
     }
-  })
+  )
 }
 
 function matchesStandaloneFilters<
-  TObject extends { priorityIds: string[]; lifeAreaIds: string[]; status: string; isActive: boolean },
+  TObject extends {
+    priorityIds: string[]
+    lifeAreaIds: string[]
+    status: string
+    isActive: boolean
+  },
 >(object: TObject, query: ObjectsLibraryQuery): boolean {
   return (
     matchesLinkFilters(object.priorityIds, query.priorityIds) &&
@@ -770,17 +830,17 @@ function matchesGoalFilters(
   goal: Goal,
   query: ObjectsLibraryQuery,
   deps: ObjectsLibraryDependencies,
-  ctx: ObjectRefContext,
+  ctx: ObjectRefContext
 ): boolean {
   const ownedKeyResults = ctx.keyResultsByGoalId.get(goal.id) ?? []
   const matchesText =
     matchesQueryText(query.q, [goal.title, goal.description]) ||
-    ownedKeyResults.some((item) =>
-      matchesQueryText(query.q, [item.title, item.description, goal.title, goal.description]),
+    ownedKeyResults.some(item =>
+      matchesQueryText(query.q, [item.title, item.description, goal.title, goal.description])
     )
 
-  const anyChildOpen = ownedKeyResults.some((item) =>
-    matchesClosedFilter(item.isActive, item.status, query.showClosed),
+  const anyChildOpen = ownedKeyResults.some(item =>
+    matchesClosedFilter(item.isActive, item.status, query.showClosed)
   )
 
   return (
@@ -800,19 +860,19 @@ function priorityMatchesPeriod(priority: Priority, periodRef: PeriodRef): boolea
 
 function priorityLinkedCounts(
   priorityId: string,
-  deps: ObjectsLibraryDependencies,
+  deps: ObjectsLibraryDependencies
 ): NonNullable<ObjectsLibraryListItem['linkedCounts']> {
   return {
-    goals: deps.goals.filter((item) => item.priorityIds.includes(priorityId)).length,
-    habits: deps.habits.filter((item) => item.priorityIds.includes(priorityId)).length,
-    trackers: deps.trackers.filter((item) => item.priorityIds.includes(priorityId)).length,
-    intentions: deps.weeklyIntentions.filter((item) => item.priorityIds.includes(priorityId)).length,
+    goals: deps.goals.filter(item => item.priorityIds.includes(priorityId)).length,
+    habits: deps.habits.filter(item => item.priorityIds.includes(priorityId)).length,
+    trackers: deps.trackers.filter(item => item.priorityIds.includes(priorityId)).length,
+    intentions: deps.weeklyIntentions.filter(item => item.priorityIds.includes(priorityId)).length,
   }
 }
 
 function buildPriorityListItem(
   priority: Priority,
-  deps: ObjectsLibraryDependencies,
+  deps: ObjectsLibraryDependencies
 ): ObjectsLibraryListItem {
   return {
     id: priority.id,
@@ -837,7 +897,7 @@ function buildPriorityListItem(
 function buildGoalListItem(
   goal: Goal,
   deps: ObjectsLibraryDependencies,
-  ctx: ObjectRefContext,
+  ctx: ObjectRefContext
 ): ObjectsLibraryListItem {
   const keyResults = ctx.keyResultsByGoalId.get(goal.id) ?? []
 
@@ -846,7 +906,7 @@ function buildGoalListItem(
     panelType: 'goal',
     title: goal.title,
     icon: goal.icon,
-    childPreviews: keyResults.map((item) => {
+    childPreviews: keyResults.map(item => {
       const krEntries = ctx.subjectEntryMap.get(buildSubjectKey('keyResult', item.id)) ?? []
       return {
         id: item.id,
@@ -860,16 +920,20 @@ function buildGoalListItem(
         status: item.status,
         goalId: goal.id,
         isActive: item.isActive,
-        chartData: buildChartData(item, 'keyResult', krEntries, deps.measurementMonthStates, deps.measurementWeekStates),
+        chartData: buildChartData(
+          item,
+          'keyResult',
+          krEntries,
+          deps.measurementMonthStates,
+          deps.measurementWeekStates
+        ),
       }
     }),
     status: goal.status,
     isActive: goal.isActive,
     priorityIds: [...goal.priorityIds],
     lifeAreaIds: [...goal.lifeAreaIds],
-    goalMonthRefs: deps.goalMonthStates
-      .filter((s) => s.goalId === goal.id)
-      .map((s) => s.monthRef),
+    goalMonthRefs: deps.goalMonthStates.filter(s => s.goalId === goal.id).map(s => s.monthRef),
     description: goal.description,
     targetDate: goal.targetDate,
     startDate: goal.startDate,
@@ -888,7 +952,7 @@ function buildGoalListItem(
 function buildHabitListItem(
   habit: Habit,
   deps: ObjectsLibraryDependencies,
-  ctx: ObjectRefContext,
+  ctx: ObjectRefContext
 ): ObjectsLibraryListItem {
   const entries = ctx.subjectEntryMap.get(buildSubjectKey('habit', habit.id)) ?? []
 
@@ -910,14 +974,20 @@ function buildHabitListItem(
     multiItems: habit.multiItems,
     multiDailyThreshold: habit.multiDailyThreshold,
     target: habit.target,
-    chartData: buildChartData(habit, 'habit', entries, deps.measurementMonthStates, deps.measurementWeekStates),
+    chartData: buildChartData(
+      habit,
+      'habit',
+      entries,
+      deps.measurementMonthStates,
+      deps.measurementWeekStates
+    ),
   }
 }
 
 function buildTrackerListItem(
   tracker: Tracker,
   deps: ObjectsLibraryDependencies,
-  ctx: ObjectRefContext,
+  ctx: ObjectRefContext
 ): ObjectsLibraryListItem {
   const entries = ctx.subjectEntryMap.get(buildSubjectKey('tracker', tracker.id)) ?? []
 
@@ -937,7 +1007,13 @@ function buildTrackerListItem(
     ratingScale: tracker.ratingScale,
     multiItems: tracker.multiItems,
     multiDailyThreshold: tracker.multiDailyThreshold,
-    chartData: buildChartData(tracker, 'tracker', entries, deps.measurementMonthStates, deps.measurementWeekStates),
+    chartData: buildChartData(
+      tracker,
+      'tracker',
+      entries,
+      deps.measurementMonthStates,
+      deps.measurementWeekStates
+    ),
   }
 }
 
@@ -1004,7 +1080,7 @@ function buildPriorityPanel(priority: Priority): ObjectsLibraryDetailRecord {
 
 function buildKeyResultPanel(
   keyResult: KeyResult,
-  ctx: ObjectRefContext,
+  ctx: ObjectRefContext
 ): ObjectsLibraryDetailRecord {
   const goal = ctx.goalMap.get(keyResult.goalId)
 
@@ -1073,7 +1149,7 @@ function buildTrackerPanel(tracker: Tracker): ObjectsLibraryDetailRecord {
 
 export function parseObjectsLibraryQueryFromRoute(
   familyParam: string | string[] | undefined,
-  routeQuery: Record<string, unknown>,
+  routeQuery: Record<string, unknown>
 ): ObjectsLibraryQuery {
   const composerMode =
     typeof routeQuery.composerMode === 'string' &&
@@ -1090,9 +1166,7 @@ export function parseObjectsLibraryQueryFromRoute(
   const composerParentType =
     routeQuery.composerParentType === 'goal' ? ('goal' as const) : undefined
   const composerParentId =
-    typeof routeQuery.composerParentId === 'string'
-      ? routeQuery.composerParentId.trim()
-      : undefined
+    typeof routeQuery.composerParentId === 'string' ? routeQuery.composerParentId.trim() : undefined
   const expandedType =
     typeof routeQuery.expandedType === 'string' &&
     ['priority', 'goal', 'keyResult', 'habit', 'tracker'].includes(routeQuery.expandedType)
@@ -1130,7 +1204,7 @@ export function parseObjectsLibraryQueryFromRoute(
 }
 
 export function serializeObjectsLibraryQueryToRoute(
-  query: ObjectsLibraryQuery,
+  query: ObjectsLibraryQuery
 ): Record<string, string> {
   const routeQuery: Record<string, string> = {}
 

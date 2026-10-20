@@ -31,10 +31,7 @@ export interface ProfilePeriodSummary {
   createdAt: string // ISO
 }
 
-export type CreateProfilePeriodSummaryPayload = Omit<
-  ProfilePeriodSummary,
-  'id' | 'createdAt'
->
+export type CreateProfilePeriodSummaryPayload = Omit<ProfilePeriodSummary, 'id' | 'createdAt'>
 
 /**
  * One summarized period as carried in the profile-build payload. `periodEndIso`

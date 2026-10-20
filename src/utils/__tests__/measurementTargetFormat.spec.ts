@@ -16,14 +16,14 @@ const t = (key: string): string => MESSAGES[key] ?? key
 
 describe('formatMeasurementTargetSummary', () => {
   it('formats targets without an entryDays condition unchanged', () => {
-    expect(
-      formatMeasurementTargetSummary({ kind: 'count', operator: 'min', value: 3 }, t),
-    ).toBe('Co najmniej 3')
+    expect(formatMeasurementTargetSummary({ kind: 'count', operator: 'min', value: 3 }, t)).toBe(
+      'Co najmniej 3'
+    )
     expect(
       formatMeasurementTargetSummary(
         { kind: 'rating', aggregation: 'average', operator: 'gte', value: 3 },
-        t,
-      ),
+        t
+      )
     ).toBe('Średnia Co najmniej 3')
   })
 
@@ -37,8 +37,8 @@ describe('formatMeasurementTargetSummary', () => {
           value: 3,
           entryDays: { operator: 'min', value: 5 },
         },
-        t,
-      ),
+        t
+      )
     ).toBe('Średnia Co najmniej 3 · ≥ 5 dni')
   })
 
@@ -52,8 +52,8 @@ describe('formatMeasurementTargetSummary', () => {
           value: 100,
           entryDays: { operator: 'max', value: 3 },
         },
-        t,
-      ),
+        t
+      )
     ).toBe('Suma Co najmniej 100 · ≤ 3 dni')
   })
 })

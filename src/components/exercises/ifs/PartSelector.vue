@@ -30,7 +30,9 @@
         @click="showCreateForm = !showCreateForm"
       >
         <AppIcon name="add" class="text-2xl text-on-surface-variant" />
-        <span class="text-xs text-on-surface-variant">{{ t('exerciseWizards.shared.ifs.partSelector.addPart') }}</span>
+        <span class="text-xs text-on-surface-variant">{{
+          t('exerciseWizards.shared.ifs.partSelector.addPart')
+        }}</span>
       </button>
     </div>
 
@@ -108,7 +110,7 @@ const props = withDefaults(
   }>(),
   {
     allowCreate: true,
-  },
+  }
 )
 
 const emit = defineEmits<{
@@ -121,16 +123,32 @@ const newPartName = ref('')
 const newPartRole = ref<IFSPartRole>('unknown')
 
 const roleOptions = computed(() => [
-  { value: 'manager' as IFSPartRole, label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.manager'), activeClass: `${IFS_ROLE_CLASSES.manager.bg} ${IFS_ROLE_CLASSES.manager.text}` },
-  { value: 'firefighter' as IFSPartRole, label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.firefighter'), activeClass: `${IFS_ROLE_CLASSES.firefighter.bg} ${IFS_ROLE_CLASSES.firefighter.text}` },
-  { value: 'exile' as IFSPartRole, label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.exile'), activeClass: `${IFS_ROLE_CLASSES.exile.bg} ${IFS_ROLE_CLASSES.exile.text}` },
-  { value: 'unknown' as IFSPartRole, label: tg('exerciseWizards.shared.ifs.partSelector.roleOptions.notSure'), activeClass: 'bg-neu-base text-on-surface' },
+  {
+    value: 'manager' as IFSPartRole,
+    label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.manager'),
+    activeClass: `${IFS_ROLE_CLASSES.manager.bg} ${IFS_ROLE_CLASSES.manager.text}`,
+  },
+  {
+    value: 'firefighter' as IFSPartRole,
+    label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.firefighter'),
+    activeClass: `${IFS_ROLE_CLASSES.firefighter.bg} ${IFS_ROLE_CLASSES.firefighter.text}`,
+  },
+  {
+    value: 'exile' as IFSPartRole,
+    label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.exile'),
+    activeClass: `${IFS_ROLE_CLASSES.exile.bg} ${IFS_ROLE_CLASSES.exile.text}`,
+  },
+  {
+    value: 'unknown' as IFSPartRole,
+    label: tg('exerciseWizards.shared.ifs.partSelector.roleOptions.notSure'),
+    activeClass: 'bg-neu-base text-on-surface',
+  },
 ])
 
 const filteredParts = computed(() => {
   if (!props.filterRole) return props.parts
   const roles = Array.isArray(props.filterRole) ? props.filterRole : [props.filterRole]
-  return props.parts.filter((p) => roles.includes(p.role))
+  return props.parts.filter(p => roles.includes(p.role))
 })
 
 function roleBorderClass(role: IFSPartRole): string {
@@ -146,7 +164,6 @@ function roleBorderClass(role: IFSPartRole): string {
   }
 }
 
-
 function handleCreate() {
   if (!newPartName.value.trim()) return
   emit('create-part', { name: newPartName.value.trim(), role: newPartRole.value })
@@ -158,5 +175,4 @@ function cancelCreate() {
   newPartName.value = ''
   newPartRole.value = 'unknown'
 }
-
 </script>

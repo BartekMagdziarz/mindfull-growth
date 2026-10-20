@@ -37,7 +37,12 @@ const PATH: ProgramDefinition = {
   ],
 }
 
-function attempt(id: string, assessmentId: AssessmentId, completedAt: string, scales: Record<string, number>): AssessmentAttempt {
+function attempt(
+  id: string,
+  assessmentId: AssessmentId,
+  completedAt: string,
+  scales: Record<string, number>
+): AssessmentAttempt {
   return {
     id,
     assessmentId,
@@ -84,20 +89,20 @@ beforeEach(() => {
   useUserPreferencesStore().$patch({ locale: 'pl' })
   const store = useAssessmentStore()
   Object.assign(ATTEMPTS, {
-      'scs-sf': [
-        attempt('scs-start', 'scs-sf', '2026-09-01T11:00:00.000Z', { total: 2.1 }),
-        // a standalone retake outside the steps — must not appear
-        attempt('scs-stray', 'scs-sf', '2026-09-10T11:00:00.000Z', { total: 4.9 }),
-        attempt('scs-mid', 'scs-sf', '2026-09-20T09:00:00.000Z', { total: 2.8 }),
-      ],
-      fscrs: [
-        attempt('fscrs-start', 'fscrs', '2026-09-01T11:30:00.000Z', {
-          inadequateSelf: 3.1,
-          hatedSelf: 1.2,
-          reassuredSelf: 1.4,
-        }),
-      ],
-    })
+    'scs-sf': [
+      attempt('scs-start', 'scs-sf', '2026-09-01T11:00:00.000Z', { total: 2.1 }),
+      // a standalone retake outside the steps — must not appear
+      attempt('scs-stray', 'scs-sf', '2026-09-10T11:00:00.000Z', { total: 4.9 }),
+      attempt('scs-mid', 'scs-sf', '2026-09-20T09:00:00.000Z', { total: 2.8 }),
+    ],
+    fscrs: [
+      attempt('fscrs-start', 'fscrs', '2026-09-01T11:30:00.000Z', {
+        inadequateSelf: 3.1,
+        hatedSelf: 1.2,
+        reassuredSelf: 1.4,
+      }),
+    ],
+  })
   store.$patch({ attemptsByAssessment: { ...ATTEMPTS } })
 })
 
@@ -127,7 +132,7 @@ describe('PathMeasureTracks', () => {
     expect(tables).toHaveLength(2)
 
     const scs = within(tables[0]!)
-    expect(scs.getAllByRole('columnheader').map((h) => h.textContent?.trim())).toEqual([
+    expect(scs.getAllByRole('columnheader').map(h => h.textContent?.trim())).toEqual([
       expect.any(String),
       expect.stringContaining('Rozpoznanie'),
       expect.stringContaining('Inne spojrzenie'),
@@ -140,7 +145,7 @@ describe('PathMeasureTracks', () => {
     await openDetails()
 
     const scs = within(screen.getAllByRole('table')[0]!)
-    const values = scs.getAllByRole('cell').map((cell) => cell.textContent?.trim().split(/\s/)[0])
+    const values = scs.getAllByRole('cell').map(cell => cell.textContent?.trim().split(/\s/)[0])
     // start by record id, mid by same local day (the stray 4.9 retake is ignored), end pending
     expect(values).toEqual(['2,10', '2,80', '–'])
   })
@@ -150,10 +155,13 @@ describe('PathMeasureTracks', () => {
     await openDetails()
 
     const fscrs = within(screen.getAllByRole('table')[1]!)
-    const rows = fscrs.getAllByRole('rowheader').map((h) => h.textContent?.trim())
+    const rows = fscrs.getAllByRole('rowheader').map(h => h.textContent?.trim())
     // programs.shame-compassion.scaleLabels overrides the instrument's scale names
     expect(rows).toEqual(['Poczucie, że nie wystarczam', 'Niechęć do siebie', 'Uspokajanie siebie'])
-    const firstRowCells = fscrs.getAllByRole('cell').slice(0, 2).map((c) => c.textContent?.trim().split(/\s/)[0])
+    const firstRowCells = fscrs
+      .getAllByRole('cell')
+      .slice(0, 2)
+      .map(c => c.textContent?.trim().split(/\s/)[0])
     expect(firstRowCells).toEqual(['3,10', '–'])
   })
 
@@ -168,7 +176,7 @@ describe('PathMeasureTracks', () => {
     await openDetails()
 
     expect(screen.getAllByRole('table')).toHaveLength(1)
-    const headers = screen.getAllByRole('columnheader').map((h) => h.textContent?.trim())
+    const headers = screen.getAllByRole('columnheader').map(h => h.textContent?.trim())
     expect(headers[1]).toContain('Na początku')
     expect(headers[2]).toContain('Na końcu')
   })

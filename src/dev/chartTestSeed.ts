@@ -108,7 +108,7 @@ async function createGoalMonthState(mr: MonthRef, goalId: string): Promise<void>
 async function createMonthState(
   mr: MonthRef,
   subjectType: MeasurementSubjectType,
-  subjectId: string,
+  subjectId: string
 ): Promise<void> {
   await ensureMonthPlan(mr)
   await planningStateDexieRepository.upsertMeasurementMonthState({
@@ -123,7 +123,7 @@ async function createMonthState(
 async function createWeekState(
   wr: WeekRef,
   subjectType: MeasurementSubjectType,
-  subjectId: string,
+  subjectId: string
 ): Promise<void> {
   await planningStateDexieRepository.upsertMeasurementWeekState({
     weekRef: wr,
@@ -138,7 +138,7 @@ async function createEntry(
   subjectType: MeasurementSubjectType,
   subjectId: string,
   dr: DayRef,
-  value: number | null,
+  value: number | null
 ): Promise<void> {
   await planningStateDexieRepository.upsertDailyMeasurementEntry({
     subjectType,
@@ -169,7 +169,7 @@ async function createWeeklyEntries(
   subjectId: string,
   weekRef: WeekRef,
   entryMode: 'completion' | 'counter' | 'value' | 'rating',
-  pattern: EntryPattern,
+  pattern: EntryPattern
 ): Promise<void> {
   if (pattern === 'no-data') return
 
@@ -178,7 +178,7 @@ async function createWeeklyEntries(
       // target: count min 5 → met=5 days, missed=2 days
       const offsets = pattern === 'met' ? [0, 1, 2, 3, 4] : [0, 1]
       await Promise.all(
-        daysOfWeek(weekRef, offsets).map(dr => createEntry(subjectType, subjectId, dr, null)),
+        daysOfWeek(weekRef, offsets).map(dr => createEntry(subjectType, subjectId, dr, null))
       )
       break
     }
@@ -186,7 +186,7 @@ async function createWeeklyEntries(
       // target: count min 10 → met: 3×4=12, missed: 3×2=6
       const val = pattern === 'met' ? 4 : 2
       await Promise.all(
-        daysOfWeek(weekRef, [0, 2, 4]).map(dr => createEntry(subjectType, subjectId, dr, val)),
+        daysOfWeek(weekRef, [0, 2, 4]).map(dr => createEntry(subjectType, subjectId, dr, val))
       )
       break
     }
@@ -194,7 +194,7 @@ async function createWeeklyEntries(
       // target: sum ≥100 → met: 3×40=120, missed: 3×20=60
       const val = pattern === 'met' ? 40 : 20
       await Promise.all(
-        daysOfWeek(weekRef, [0, 2, 4]).map(dr => createEntry(subjectType, subjectId, dr, val)),
+        daysOfWeek(weekRef, [0, 2, 4]).map(dr => createEntry(subjectType, subjectId, dr, val))
       )
       break
     }
@@ -202,7 +202,7 @@ async function createWeeklyEntries(
       // target: avg ≥3.5 → met: 4, missed: 2
       const val = pattern === 'met' ? 4 : 2
       await Promise.all(
-        daysOfWeek(weekRef, [0, 2, 4]).map(dr => createEntry(subjectType, subjectId, dr, val)),
+        daysOfWeek(weekRef, [0, 2, 4]).map(dr => createEntry(subjectType, subjectId, dr, val))
       )
       break
     }
@@ -218,7 +218,7 @@ async function createMonthlyEntries(
   year: number,
   month: number,
   entryMode: 'completion' | 'counter' | 'value' | 'rating',
-  pattern: EntryPattern,
+  pattern: EntryPattern
 ): Promise<void> {
   if (pattern === 'no-data') return
 
@@ -569,7 +569,7 @@ export async function seedChartTestData(): Promise<void> {
       `  Goal: ${goal.id}\n  KRs: ${kr1.id}, ${kr2.id}, ${kr3.id}, ${kr4.id}\n` +
       `  Habits: ${habit1.id}, ${habit2.id}, ${habit3.id}, ${habit4.id}, ${habit5.id}, ${habit6.id}\n` +
       `  Trackers: ${tracker1.id}, ${tracker2.id}, ${tracker3.id}\n\n` +
-      `[chartTestSeed] Monthly subject verification:\n${verificationRows.join('\n')}`,
+      `[chartTestSeed] Monthly subject verification:\n${verificationRows.join('\n')}`
   )
 }
 
@@ -623,8 +623,8 @@ export async function deleteChartTestData(): Promise<void> {
           .where('[subjectType+subjectId]')
           .equals([subjectType, subjectId])
           .delete(),
-      ]),
-    ),
+      ])
+    )
   )
 
   // Delete goal month states
@@ -638,7 +638,7 @@ export async function deleteChartTestData(): Promise<void> {
   invalidatePlanningQueryCache()
   console.log(
     `[chartTestSeed] ✅ Deleted: ${goals.length} goals (+ ${krs.length} KRs), ` +
-      `${habits.length} habits, ${trackers.length} trackers`,
+      `${habits.length} habits, ${trackers.length} trackers`
   )
 }
 

@@ -43,9 +43,7 @@ function renderMatrix(sections: AssignmentMatrixSection[]) {
 
 describe('AssignmentMatrix', () => {
   it('renders sections, rows and column headers', () => {
-    const screen = renderMatrix([
-      { key: 'habits', label: 'Nawyki (1)', rows: [makeRow()] },
-    ])
+    const screen = renderMatrix([{ key: 'habits', label: 'Nawyki (1)', rows: [makeRow()] }])
 
     expect(screen.getByText('Nawyki (1)')).toBeTruthy()
     expect(screen.getByText('Medytacja')).toBeTruthy()
@@ -55,18 +53,14 @@ describe('AssignmentMatrix', () => {
   })
 
   it('emits cellToggle with row and column keys', async () => {
-    const screen = renderMatrix([
-      { key: 'habits', label: 'Nawyki', rows: [makeRow()] },
-    ])
+    const screen = renderMatrix([{ key: 'habits', label: 'Nawyki', rows: [makeRow()] }])
 
     await fireEvent.click(screen.getByTestId('matrix-cell-habit:h1-c2'))
     expect(screen.emitted().cellToggle).toEqual([['habit:h1', 'c2']])
   })
 
   it('marks checked and soft cells as pressed, empty as not pressed', () => {
-    const screen = renderMatrix([
-      { key: 'habits', label: 'Nawyki', rows: [makeRow()] },
-    ])
+    const screen = renderMatrix([{ key: 'habits', label: 'Nawyki', rows: [makeRow()] }])
 
     expect(screen.getByTestId('matrix-cell-habit:h1-c1').getAttribute('aria-pressed')).toBe('true')
     expect(screen.getByTestId('matrix-cell-habit:h1-c2').getAttribute('aria-pressed')).toBe('false')
@@ -87,9 +81,7 @@ describe('AssignmentMatrix', () => {
     expect(screen.emitted().wholePeriod).toEqual([['habit:h1']])
     expect(screen.emitted().clearRow).toEqual([['habit:h1']])
 
-    expect(
-      (screen.getByTestId('matrix-clear-habit:h2') as HTMLButtonElement).disabled
-    ).toBe(true)
+    expect((screen.getByTestId('matrix-clear-habit:h2') as HTMLButtonElement).disabled).toBe(true)
   })
 
   it('renders a soft label pill and a cell badge', () => {
@@ -100,7 +92,11 @@ describe('AssignmentMatrix', () => {
         rows: [
           makeRow({
             softLabel: 'cały tydzień',
-            cells: { c1: { state: 'soft', badge: '3' }, c2: { state: 'soft' }, c3: { state: 'soft' } },
+            cells: {
+              c1: { state: 'soft', badge: '3' },
+              c2: { state: 'soft' },
+              c3: { state: 'soft' },
+            },
           }),
         ],
       },
@@ -130,9 +126,7 @@ describe('AssignmentMatrix', () => {
     const screen = render(AssignmentMatrix, {
       props: {
         columns: COLUMNS,
-        sections: [
-          { key: 'habits', label: 'Nawyki', rows: [makeRow({ expandable: true })] },
-        ],
+        sections: [{ key: 'habits', label: 'Nawyki', rows: [makeRow({ expandable: true })] }],
         targetLabel: 'Cel',
         wholePeriodLabel: 'Cały miesiąc',
         clearLabel: 'Wyczyść',

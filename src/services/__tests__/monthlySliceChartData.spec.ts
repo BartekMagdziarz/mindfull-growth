@@ -49,7 +49,7 @@ function makeEntry(
   subjectId: string,
   dayRef: string,
   value: number | null = 1,
-  subjectType: 'habit' | 'keyResult' | 'tracker' = 'habit',
+  subjectType: 'habit' | 'keyResult' | 'tracker' = 'habit'
 ): DailyMeasurementEntry {
   return {
     id: `${subjectId}-${dayRef}`,
@@ -84,7 +84,7 @@ describe('buildMonthlySliceCompletionSlots', () => {
       makeHabit(),
       [],
       monthRef,
-      '2026-05-31' as DayRef,
+      '2026-05-31' as DayRef
     )
     expect(slots.length).toBe(weeks.length)
   })
@@ -94,7 +94,7 @@ describe('buildMonthlySliceCompletionSlots', () => {
       makeHabit(),
       [],
       monthRef,
-      '2026-05-31' as DayRef,
+      '2026-05-31' as DayRef
     )
     for (const slot of slots) {
       expect(slot.label).toMatch(/^W\d{2}$/)
@@ -106,7 +106,7 @@ describe('buildMonthlySliceCompletionSlots', () => {
       makeHabit(),
       [],
       monthRef,
-      '2026-05-01' as DayRef,
+      '2026-05-01' as DayRef
     )
     // Last slot (latest week, e.g. W22) starts later in the month → 'future'.
     const last = slots[slots.length - 1]
@@ -120,16 +120,16 @@ describe('buildMonthlySliceCompletionSlots', () => {
     const entries: DailyMeasurementEntry[] = []
     for (const weekRef of weeks) {
       const days = getChildPeriods(weekRef) as DayRef[]
-      const inMay = days.find((d) => d.startsWith('2026-05'))
+      const inMay = days.find(d => d.startsWith('2026-05'))
       if (inMay) entries.push(makeEntry('habit-1', inMay))
     }
     const slots = buildMonthlySliceCompletionSlots(
       makeHabit({ id: 'habit-1' }),
       entries,
       monthRef,
-      '2026-05-31' as DayRef,
+      '2026-05-31' as DayRef
     )
-    const doneSlots = slots.filter((s) => s.state === 'done')
+    const doneSlots = slots.filter(s => s.state === 'done')
     expect(doneSlots.length).toBeGreaterThan(0)
   })
 
@@ -140,9 +140,9 @@ describe('buildMonthlySliceCompletionSlots', () => {
       makeHabit(),
       [],
       monthRef,
-      '2026-05-15' as DayRef,
+      '2026-05-15' as DayRef
     )
-    const currentSlots = slots.filter((s) => s.isToday)
+    const currentSlots = slots.filter(s => s.isToday)
     expect(currentSlots.length).toBe(1)
   })
 
@@ -155,16 +155,16 @@ describe('buildMonthlySliceCompletionSlots', () => {
     const entries: DailyMeasurementEntry[] = []
     for (const weekRef of weeks) {
       const days = getChildPeriods(weekRef) as DayRef[]
-      const inMay = days.find((d) => d.startsWith('2026-05'))
+      const inMay = days.find(d => d.startsWith('2026-05'))
       if (inMay) entries.push(makeEntry('walk-tracker', inMay, 1, 'tracker'))
     }
     const slots = buildMonthlySliceCompletionSlots(
       tracker,
       entries,
       monthRef,
-      '2026-05-31' as DayRef,
+      '2026-05-31' as DayRef
     )
-    const doneSlots = slots.filter((s) => s.state === 'done')
+    const doneSlots = slots.filter(s => s.state === 'done')
     expect(doneSlots.length).toBeGreaterThan(0)
   })
 
@@ -181,11 +181,11 @@ describe('buildMonthlySliceCompletionSlots', () => {
       tracker,
       entries,
       monthRef,
-      '2026-05-31' as DayRef,
+      '2026-05-31' as DayRef
     )
-    const valuedSlots = slots.filter((s) => (s.value ?? 0) > 0)
+    const valuedSlots = slots.filter(s => (s.value ?? 0) > 0)
     expect(valuedSlots.length).toBeGreaterThanOrEqual(2)
-    const maxValue = Math.max(...valuedSlots.map((s) => s.value ?? 0))
+    const maxValue = Math.max(...valuedSlots.map(s => s.value ?? 0))
     expect(maxValue).toBeGreaterThanOrEqual(2)
   })
 })
@@ -201,22 +201,17 @@ describe('buildMonthlySliceBarSlots', () => {
       makeKR({ id: 'kr-1' }),
       entries,
       monthRef,
-      '2026-05-31' as DayRef,
+      '2026-05-31' as DayRef
     )
     expect(slots.length).toBe(weeks.length)
     // At least one slot should have a value > 0.
-    const valued = slots.filter((s) => typeof s.value === 'number' && (s.value ?? 0) > 0)
+    const valued = slots.filter(s => typeof s.value === 'number' && (s.value ?? 0) > 0)
     expect(valued.length).toBeGreaterThan(0)
   })
 
   it('returns undefined value for future weeks', () => {
-    const slots = buildMonthlySliceBarSlots(
-      makeKR(),
-      [],
-      monthRef,
-      '2026-05-01' as DayRef,
-    )
-    const future = slots.filter((s) => s.isFuture)
+    const slots = buildMonthlySliceBarSlots(makeKR(), [], monthRef, '2026-05-01' as DayRef)
+    const future = slots.filter(s => s.isFuture)
     expect(future.length).toBeGreaterThan(0)
     for (const slot of future) {
       expect(slot.value).toBeUndefined()
@@ -226,18 +221,8 @@ describe('buildMonthlySliceBarSlots', () => {
 
 describe('buildMonthlySliceValueLineSlots', () => {
   it('produces the same shape as bar slots', () => {
-    const bar = buildMonthlySliceBarSlots(
-      makeKR(),
-      [],
-      monthRef,
-      '2026-05-31' as DayRef,
-    )
-    const line = buildMonthlySliceValueLineSlots(
-      makeKR(),
-      [],
-      monthRef,
-      '2026-05-31' as DayRef,
-    )
+    const bar = buildMonthlySliceBarSlots(makeKR(), [], monthRef, '2026-05-31' as DayRef)
+    const line = buildMonthlySliceValueLineSlots(makeKR(), [], monthRef, '2026-05-31' as DayRef)
     expect(line.length).toBe(bar.length)
   })
 })
@@ -259,12 +244,7 @@ describe('buildMonthlySliceCompletionSlots — multi-completion', () => {
       { ...makeEntry(habit.id, firstWeekDays[2], null), checkedItemIds: ['a', 'b'] },
     ]
 
-    const slots = buildMonthlySliceCompletionSlots(
-      habit,
-      entries,
-      monthRef,
-      '2026-06-15' as DayRef,
-    )
+    const slots = buildMonthlySliceCompletionSlots(habit, entries, monthRef, '2026-06-15' as DayRef)
 
     // 3 entries but only 2 met days — the partial day adds no height.
     expect(slots[0].value).toBe(2)

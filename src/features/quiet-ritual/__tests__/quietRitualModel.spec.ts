@@ -52,7 +52,12 @@ function tracker(overrides: Partial<Tracker> = {}): Tracker {
   }
 }
 
-function entry(dayRef: string, value: number | null, subjectId = 'habit-1', subjectType: 'habit' | 'tracker' = 'habit'): DailyMeasurementEntry {
+function entry(
+  dayRef: string,
+  value: number | null,
+  subjectId = 'habit-1',
+  subjectType: 'habit' | 'tracker' = 'habit'
+): DailyMeasurementEntry {
   return {
     id: `${subjectId}-${dayRef}`,
     createdAt: '2026-07-01T00:00:00.000Z',
@@ -82,7 +87,12 @@ describe('quietWeekDays', () => {
     expect(days).toHaveLength(7)
     expect(days[0].shortLabel).toBe('pon')
     expect(days.find(day => day.isToday)?.dayRef).toBe(TODAY)
-    expect(days.filter(day => day.isFuture).map(day => day.dayNumber)).toEqual(['16', '17', '18', '19'])
+    expect(days.filter(day => day.isFuture).map(day => day.dayNumber)).toEqual([
+      '16',
+      '17',
+      '18',
+      '19',
+    ])
   })
 })
 
@@ -111,11 +121,19 @@ describe('buildQuietEvidenceRows', () => {
       [entry('2026-07-13', null), entry('2026-07-15', null)],
       [assignment('2026-07-13'), assignment('2026-07-14')],
       WEEK,
-      TODAY,
+      TODAY
     )
 
     expect(row.cells.map(cell => cell.value)).toEqual([1, null, 1, null, null, null, null])
-    expect(row.cells.map(cell => cell.planned)).toEqual([true, true, false, false, false, false, false])
+    expect(row.cells.map(cell => cell.planned)).toEqual([
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+    ])
     // placed on two days, done on two days (one of them unplanned) → days, not the count target
     expect(row.result).toBe('2 / 2 dni')
   })
@@ -131,10 +149,13 @@ describe('buildQuietEvidenceRows', () => {
           target: { kind: 'rating', aggregation: 'average', operator: 'gte', value: 4 },
         },
       ],
-      [entry('2026-07-13', 3, 'tracker-1', 'tracker'), entry('2026-07-14', 4, 'tracker-1', 'tracker')],
+      [
+        entry('2026-07-13', 3, 'tracker-1', 'tracker'),
+        entry('2026-07-14', 4, 'tracker-1', 'tracker'),
+      ],
       [],
       WEEK,
-      TODAY,
+      TODAY
     )
 
     expect(row.result).toBe('śr. 3,5 / 4')
@@ -147,7 +168,7 @@ describe('buildQuietEvidenceRows', () => {
       [],
       [],
       WEEK,
-      TODAY,
+      TODAY
     )
 
     expect(row.result).toBe('Brak zapisów')
@@ -167,7 +188,14 @@ describe('area tags', () => {
     expect(areaTagKey('physical')).toBe('tags:physical')
     expect(areaTagKey('physical', 'load')).toBe('tags:physical:load')
     expect(
-      allAreaTags({ 'tags:physical:load': 'sen', 'tags:physical:state': 'spokój\nsen', 'tags:physical': 'stary' }, 'physical'),
+      allAreaTags(
+        {
+          'tags:physical:load': 'sen',
+          'tags:physical:state': 'spokój\nsen',
+          'tags:physical': 'stary',
+        },
+        'physical'
+      )
     ).toEqual(['sen', 'spokój', 'stary'])
     expect(allAreaTags(undefined, 'physical')).toEqual([])
   })
@@ -191,7 +219,15 @@ describe('quietMonthAreaSeries', () => {
     const weeks = quietMonthWeeks('2026-08' as MonthRef)
     const gap = { load: null, state: null }
     const series = quietMonthAreaSeries(weeks, [
-      { weekRef: weeks[1].weekRef, loadState: { body: { load: 4, state: 5 }, emotions: gap, tasks: { load: 2, state: 2 }, closeOnes: gap } },
+      {
+        weekRef: weeks[1].weekRef,
+        loadState: {
+          body: { load: 4, state: 5 },
+          emotions: gap,
+          tasks: { load: 2, state: 2 },
+          closeOnes: gap,
+        },
+      },
     ])
     expect(series.body).toHaveLength(weeks.length)
     expect(series.body[1]).toMatchObject({ load: 4, state: 5 })

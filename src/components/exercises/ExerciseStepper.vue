@@ -15,7 +15,10 @@
         </button>
       </li>
     </ol>
-    <small>{{ current + 1 }}/{{ labels.length }}<template v-if="labels[current]"> · {{ labels[current] }}</template></small>
+    <small
+      >{{ current + 1 }}/{{ labels.length
+      }}<template v-if="labels[current]"> · {{ labels[current] }}</template></small
+    >
   </nav>
 </template>
 
@@ -34,7 +37,7 @@ const props = withDefaults(
     ariaLabel?: string
     interactive?: boolean
   }>(),
-  { ariaLabel: '', interactive: true },
+  { ariaLabel: '', interactive: true }
 )
 
 const emit = defineEmits<{ go: [index: number] }>()

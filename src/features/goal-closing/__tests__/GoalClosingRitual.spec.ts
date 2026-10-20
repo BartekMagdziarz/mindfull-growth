@@ -9,10 +9,12 @@ const buildGoalClosingSnapshot = vi.fn()
 const moveGoalTargetDate = vi.fn(async (_goalId: string, _targetDate: string) => undefined)
 vi.mock('@/services/goalClosingService', () => ({
   buildGoalClosingSnapshot: (goalId: string) => buildGoalClosingSnapshot(goalId),
-  closeGoal: (goalId: string, draft: unknown, snapshot?: unknown) => closeGoal(goalId, draft, snapshot),
+  closeGoal: (goalId: string, draft: unknown, snapshot?: unknown) =>
+    closeGoal(goalId, draft, snapshot),
 }))
 vi.mock('@/services/planningMutations', () => ({
-  moveGoalTargetDate: (goalId: string, targetDate: string) => moveGoalTargetDate(goalId, targetDate),
+  moveGoalTargetDate: (goalId: string, targetDate: string) =>
+    moveGoalTargetDate(goalId, targetDate),
 }))
 
 import GoalClosingRitual from '../GoalClosingRitual.vue'
@@ -107,7 +109,10 @@ function snapshotFixture(goal: Goal, withKeyResults = true): GoalClosingSnapshot
 
 async function mountRitual(goal = goalFixture(), props: Record<string, unknown> = {}) {
   buildGoalClosingSnapshot.mockResolvedValue(snapshotFixture(goal, props.withKeyResults !== false))
-  const wrapper = mount(GoalClosingRitual, { props: { goalId: goal.id, ...props }, attachTo: document.body })
+  const wrapper = mount(GoalClosingRitual, {
+    props: { goalId: goal.id, ...props },
+    attachTo: document.body,
+  })
   await flushPromises()
   return wrapper
 }
@@ -121,7 +126,10 @@ beforeEach(() => {
   setActivePinia(createPinia())
   closeGoal.mockReset()
   closeGoal.mockImplementation(async (goalId: string, draft: { outcome: string }) => ({
-    goal: goalFixture({ id: goalId, status: draft.outcome === 'abandoned' ? 'dropped' : 'completed' }),
+    goal: goalFixture({
+      id: goalId,
+      status: draft.outcome === 'abandoned' ? 'dropped' : 'completed',
+    }),
     createdHabits: [],
   }))
   buildGoalClosingSnapshot.mockReset()
@@ -142,17 +150,22 @@ describe('GoalClosingRitual', () => {
     expect(wrapper.find('.gc-table--weekly').exists()).toBe(true)
     expect(wrapper.findAll('.gc-table-row')).toHaveLength(2)
     const dots = wrapper.findAll('.gc-table-row').at(0)!.findAll('.gc-dot')
-    expect(dots.map((dot) => dot.classes().find((name) => name.startsWith('gc-dot--')))).toEqual([
-      'gc-dot--met', 'gc-dot--missed', 'gc-dot--met', 'gc-dot--ongoing',
+    expect(dots.map(dot => dot.classes().find(name => name.startsWith('gc-dot--')))).toEqual([
+      'gc-dot--met',
+      'gc-dot--missed',
+      'gc-dot--met',
+      'gc-dot--ongoing',
     ])
     // month label only where a month starts (by the week's Monday)
-    const headers = wrapper.findAll('.gc-table-head [role="columnheader"]').map((cell) => cell.text())
+    const headers = wrapper.findAll('.gc-table-head [role="columnheader"]').map(cell => cell.text())
     expect(headers.slice(1, -1)).toEqual(['wrz', '', '', ''])
-    expect(wrapper.find('.gc-table-head [role="columnheader"]:nth-child(5)').attributes('title')).toContain('Tydzień 39')
+    expect(
+      wrapper.find('.gc-table-head [role="columnheader"]:nth-child(5)').attributes('title')
+    ).toContain('Tydzień 39')
     expect(wrapper.text()).toContain('2/3 tyg.')
     // the second key result was not assigned to week 37: an empty cell in the same column
     const second = wrapper.findAll('.gc-table-row').at(1)!.findAll('.gc-cell')
-    expect(second.map((cell) => cell.find('.gc-dot').exists())).toEqual([true, false, true, true])
+    expect(second.map(cell => cell.find('.gc-dot').exists())).toEqual([true, false, true, true])
     wrapper.unmount()
   })
 
@@ -161,9 +174,15 @@ describe('GoalClosingRitual', () => {
     const snapshot = snapshotFixture(goal)
     snapshot.keyResultSnapshots[0].weeks![1] = { weekRef: WEEKS[1], state: 'unplanned' }
     buildGoalClosingSnapshot.mockResolvedValue(snapshot)
-    const wrapper = mount(GoalClosingRitual, { props: { goalId: goal.id }, attachTo: document.body })
+    const wrapper = mount(GoalClosingRitual, {
+      props: { goalId: goal.id },
+      attachTo: document.body,
+    })
     await flushPromises()
-    const titles = wrapper.findAll('.gc-table-head [role="columnheader"]').slice(1, -1).map((cell) => cell.attributes('title'))
+    const titles = wrapper
+      .findAll('.gc-table-head [role="columnheader"]')
+      .slice(1, -1)
+      .map(cell => cell.attributes('title'))
     expect(titles).toHaveLength(3)
     expect(titles.join(' ')).not.toContain('Tydzień 37')
     for (const row of wrapper.findAll('.gc-table-row')) {
@@ -191,7 +210,10 @@ describe('GoalClosingRitual', () => {
       lastReadout: '78',
     }
     buildGoalClosingSnapshot.mockResolvedValue(snapshot)
-    const wrapper = mount(GoalClosingRitual, { props: { goalId: goal.id }, attachTo: document.body })
+    const wrapper = mount(GoalClosingRitual, {
+      props: { goalId: goal.id },
+      attachTo: document.body,
+    })
     await flushPromises()
     const weekly = wrapper.find('.gc-table--weekly')
     const monthly = wrapper.find('.gc-table--monthly')
@@ -199,15 +221,22 @@ describe('GoalClosingRitual', () => {
     expect(weekly.findAll('.gc-table-row .gc-dot')).toHaveLength(4)
     expect(monthly.text()).toContain('Rezultat miesięczny')
     expect(monthly.findAll('.gc-table-row .gc-dot')).toHaveLength(3)
-    expect(monthly.findAll('.gc-table-head [role="columnheader"]').map((cell) => cell.text()).slice(1, -1)).toEqual([
-      'lip', 'sie', 'wrz',
-    ])
+    expect(
+      monthly
+        .findAll('.gc-table-head [role="columnheader"]')
+        .map(cell => cell.text())
+        .slice(1, -1)
+    ).toEqual(['lip', 'sie', 'wrz'])
     wrapper.unmount()
   })
 
   it('skips the mirror step when the goal was created without the mirrored fields', async () => {
     const wrapper = await mountRitual(
-      goalFixture({ successDefinition: undefined, confidenceRating: undefined, obstacles: undefined }),
+      goalFixture({
+        successDefinition: undefined,
+        confidenceRating: undefined,
+        obstacles: undefined,
+      })
     )
     expect(wrapper.findAll('.qr-progress button')).toHaveLength(3)
     await next(wrapper)
@@ -299,9 +328,9 @@ describe('GoalClosingRitual', () => {
     expect(wrapper.text()).toContain('Edycja podsumowania')
     await next(wrapper)
     await next(wrapper)
-    expect((wrapper.findAll('.gc-field textarea').at(2)!.element as HTMLTextAreaElement).value).toBe(
-      'Stały dzień i godzina.',
-    )
+    expect(
+      (wrapper.findAll('.gc-field textarea').at(2)!.element as HTMLTextAreaElement).value
+    ).toBe('Stały dzień i godzina.')
     wrapper.unmount()
   })
 })

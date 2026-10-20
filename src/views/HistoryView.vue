@@ -28,10 +28,7 @@
       <DsState v-if="filteredEntries.length === 0" icon="inbox" :title="emptyStateMessage" />
 
       <!-- Entries List -->
-      <div
-        v-else
-        class="grid gap-4 md:grid-cols-2 items-start"
-      >
+      <div v-else class="grid gap-4 md:grid-cols-2 items-start">
         <HistoryEntryCard
           v-for="entry in filteredEntries"
           :key="`${entry.type}-${entry.id}`"
@@ -82,10 +79,7 @@
             >
               {{ t('history.noChatSessions') }}
             </div>
-            <div
-              v-else
-              class="space-y-3 max-h-[60vh] overflow-y-auto"
-            >
+            <div v-else class="space-y-3 max-h-[60vh] overflow-y-auto">
               <ChatSessionCard
                 v-for="session in selectedEntryChatSessions"
                 :key="session.id"
@@ -200,10 +194,7 @@ async function handleDeleteConfirm() {
         : t('history.emotionDeletedSuccess')
     )
   } catch (err) {
-    const message =
-      err instanceof Error
-        ? err.message
-        : t('history.deleteError')
+    const message = err instanceof Error ? err.message : t('history.deleteError')
     showSnackbar(message)
     console.error('Error deleting entry:', err)
   } finally {
@@ -239,7 +230,7 @@ async function handleRetryLoad() {
 // Handle URL query param for type filter
 watch(
   () => route.query.type,
-  (type) => {
+  type => {
     if (type === 'journal' || type === 'emotion-log') {
       typeFilter.value = type as TypeFilter
     }
@@ -278,7 +269,9 @@ onMounted(async () => {
 
 .dialog-enter-active .dialog-panel,
 .dialog-leave-active .dialog-panel {
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
 }
 
 .dialog-enter-from,

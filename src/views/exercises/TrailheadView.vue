@@ -9,9 +9,21 @@
     <!-- Past Entries -->
     <div class="mt-10 space-y-4">
       <div class="flex items-center justify-between">
-        <div class="mg-v2-section-head"><h2>{{ t('exercises.views.pastEntries') }}</h2></div>
-        <span v-if="sortedEntries.length" class="exercise-pill text-xs px-2.5 py-0.5 bg-status-warn-soft text-status-warn-on">
-          {{ tp(sortedEntries.length, 'exercises.views.trailheadsLogged.one', 'exercises.views.trailheadsLogged.few', 'exercises.views.trailheadsLogged.many') }}
+        <div class="mg-v2-section-head">
+          <h2>{{ t('exercises.views.pastEntries') }}</h2>
+        </div>
+        <span
+          v-if="sortedEntries.length"
+          class="exercise-pill text-xs px-2.5 py-0.5 bg-status-warn-soft text-status-warn-on"
+        >
+          {{
+            tp(
+              sortedEntries.length,
+              'exercises.views.trailheadsLogged.one',
+              'exercises.views.trailheadsLogged.few',
+              'exercises.views.trailheadsLogged.many'
+            )
+          }}
         </span>
       </div>
 
@@ -22,20 +34,22 @@
           <div class="absolute left-2.5 top-0 bottom-0 w-px bg-neu-border/30" />
 
           <div class="space-y-4">
-            <div
-              v-for="entry in sortedEntries"
-              :key="entry.id"
-              class="relative"
-            >
+            <div v-for="entry in sortedEntries" :key="entry.id" class="relative">
               <!-- Timeline dot -->
-              <div class="absolute -left-6 top-3 w-5 h-5 rounded-full neo-surface shadow-neu-raised-sm flex items-center justify-center">
+              <div
+                class="absolute -left-6 top-3 w-5 h-5 rounded-full neo-surface shadow-neu-raised-sm flex items-center justify-center"
+              >
                 <div class="w-2.5 h-2.5 rounded-full bg-status-warn" />
               </div>
 
               <AppCard variant="raised" padding="md" class="space-y-2">
                 <div class="flex items-center justify-between">
-                  <span class="text-sm font-medium text-on-surface">{{ formatDate(entry.createdAt) }}</span>
-                  <span class="exercise-pill text-xs px-2 py-0.5 bg-status-warn-soft text-status-warn-on font-semibold">
+                  <span class="text-sm font-medium text-on-surface">{{
+                    formatDate(entry.createdAt)
+                  }}</span>
+                  <span
+                    class="exercise-pill text-xs px-2 py-0.5 bg-status-warn-soft text-status-warn-on font-semibold"
+                  >
                     {{ entry.intensity }}/10
                   </span>
                 </div>
@@ -66,9 +80,16 @@
 
                 <!-- Linked part -->
                 <div v-if="entry.linkedPartId" class="flex items-center gap-2">
-                  <span class="text-xs text-on-surface-variant">{{ t('exercises.views.part') }}</span>
-                  <span class="text-xs font-medium text-on-surface">{{ getPartName(entry.linkedPartId) }}</span>
-                  <PartRoleBadge v-if="getPartRole(entry.linkedPartId)" :role="getPartRole(entry.linkedPartId)!" />
+                  <span class="text-xs text-on-surface-variant">{{
+                    t('exercises.views.part')
+                  }}</span>
+                  <span class="text-xs font-medium text-on-surface">{{
+                    getPartName(entry.linkedPartId)
+                  }}</span>
+                  <PartRoleBadge
+                    v-if="getPartRole(entry.linkedPartId)"
+                    :role="getPartRole(entry.linkedPartId)!"
+                  />
                 </div>
               </AppCard>
             </div>
@@ -101,10 +122,20 @@ import { useMomentSeed } from '@/features/program-path/useMomentSeed'
 const { t, tp, locale } = useT()
 // Launched from a path moment (`?momentId=`): trigger, thoughts and the part that took the wheel prefill the entry.
 const { seed } = useMomentSeed()
-const wizardSeed = computed(() => (seed.value ? { trigger: seed.value.situation, thoughts: seed.value.criticThought, reaction: seed.value.reaction } : undefined))
+const wizardSeed = computed(() =>
+  seed.value
+    ? {
+        trigger: seed.value.situation,
+        thoughts: seed.value.criticThought,
+        reaction: seed.value.reaction,
+      }
+    : undefined
+)
 // A path step may ask to tag the linked part (`?tagPart=program:anger-signal`), so a later step can preselect it.
 const route = useRoute()
-const tagPart = computed(() => (typeof route.query.tagPart === 'string' ? route.query.tagPart : undefined))
+const tagPart = computed(() =>
+  typeof route.query.tagPart === 'string' ? route.query.tagPart : undefined
+)
 const trailheadStore = useIFSTrailheadStore()
 const partStore = useIFSPartStore()
 const emotionStore = useEmotionStore()

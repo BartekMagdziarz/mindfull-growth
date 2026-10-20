@@ -26,20 +26,46 @@ const reflection: GoalClosingReflection = {
   learned: 'Rezultat „co wieczór” był nierealny.',
   followUp: { kind: 'habit', note: 'Treningi zostają.' },
   keyResults: [
-    { id: 'kr-1', title: '3 treningi', entryMode: 'completion', cadence: 'weekly', evaluation: 'met', monthsMet: 2, monthsPlanned: 3, months: [], lastReadout: '9/13 tyg.' },
-    { id: 'kr-2', title: 'Rozciąganie', entryMode: 'completion', cadence: 'weekly', evaluation: 'missed', monthsMet: 0, monthsPlanned: 3, months: [] },
+    {
+      id: 'kr-1',
+      title: '3 treningi',
+      entryMode: 'completion',
+      cadence: 'weekly',
+      evaluation: 'met',
+      monthsMet: 2,
+      monthsPlanned: 3,
+      months: [],
+      lastReadout: '9/13 tyg.',
+    },
+    {
+      id: 'kr-2',
+      title: 'Rozciąganie',
+      entryMode: 'completion',
+      cadence: 'weekly',
+      evaluation: 'missed',
+      monthsMet: 0,
+      monthsPlanned: 3,
+      months: [],
+    },
   ],
   window: { weeksPlanned: 13 },
 }
 
 describe('GoalClosingSummary', () => {
   it('shows key results and the lesson without repeating closing metadata, then everything on demand', async () => {
-    const wrapper = mount(GoalClosingSummary, { props: { goalId: 'g-1', reflection, confidenceThen: 8 } })
+    const wrapper = mount(GoalClosingSummary, {
+      props: { goalId: 'g-1', reflection, confidenceThen: 8 },
+    })
     expect(wrapper.find('.gc-summary__head').text()).toBe('title')
     expect(wrapper.text()).not.toContain('partial')
     expect(wrapper.text()).not.toContain('closedOn')
-    expect(wrapper.findAll('.gc-summary__krs span').map(s => s.classes().join(' '))).toEqual(['is-met', 'is-missed'])
-    expect(wrapper.find('.gc-summary__lead').text()).toBe('learned/f: Rezultat „co wieczór” był nierealny.')
+    expect(wrapper.findAll('.gc-summary__krs span').map(s => s.classes().join(' '))).toEqual([
+      'is-met',
+      'is-missed',
+    ])
+    expect(wrapper.find('.gc-summary__lead').text()).toBe(
+      'learned/f: Rezultat „co wieczór” był nierealny.'
+    )
     expect(wrapper.find('.gc-summary__full').exists()).toBe(false)
 
     await wrapper.findAll('.gc-summary__actions button')[0].trigger('click')
@@ -62,7 +88,12 @@ describe('GoalClosingSummary', () => {
   })
 
   it('hides the expand action when there is nothing beyond the facts', () => {
-    const bare: GoalClosingReflection = { closedAt: '2026-10-04', outcome: 'missed', keyResults: [], window: { weeksPlanned: 0 } }
+    const bare: GoalClosingReflection = {
+      closedAt: '2026-10-04',
+      outcome: 'missed',
+      keyResults: [],
+      window: { weeksPlanned: 0 },
+    }
     const wrapper = mount(GoalClosingSummary, { props: { goalId: 'g-1', reflection: bare } })
     expect(wrapper.findAll('.gc-summary__actions button')).toHaveLength(1)
     expect(wrapper.find('.gc-summary__lead').exists()).toBe(false)

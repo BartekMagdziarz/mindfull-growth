@@ -40,10 +40,8 @@ vi.mock('@/components/AppSnackbar.vue', () => ({
 }))
 
 async function mockStoredSettings(settings?: AIProviderSettings, legacyKey?: string) {
-  const { userSettingsDexieRepository } = await import(
-    '@/repositories/userSettingsDexieRepository'
-  )
-  vi.mocked(userSettingsDexieRepository.get).mockImplementation(async (key) => {
+  const { userSettingsDexieRepository } = await import('@/repositories/userSettingsDexieRepository')
+  vi.mocked(userSettingsDexieRepository.get).mockImplementation(async key => {
     if (key === 'preferences.locale') return 'en'
     if (key === AI_PROVIDER_SETTINGS_KEY && settings) {
       return JSON.stringify(settings)
@@ -92,8 +90,10 @@ describe('ProfileView (shell)', () => {
     expect(screen.getByRole('tab', { name: 'AI assistant' })).toBeInTheDocument()
 
     // Default tab is Preferences — theme picker should be visible.
-    expect(screen.getByRole('tab', { name: 'Preferences' }))
-      .toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByRole('tab', { name: 'Preferences' })).toHaveAttribute(
+      'aria-selected',
+      'true'
+    )
     expect(screen.getByText('Color theme')).toBeInTheDocument()
   })
 
@@ -126,10 +126,9 @@ describe('ProfileView › Preferences tab', () => {
   })
 
   it('reflects the persisted theme preference on mount', async () => {
-    const { userSettingsDexieRepository } = await import(
-      '@/repositories/userSettingsDexieRepository'
-    )
-    vi.mocked(userSettingsDexieRepository.get).mockImplementation(async (key) => {
+    const { userSettingsDexieRepository } =
+      await import('@/repositories/userSettingsDexieRepository')
+    vi.mocked(userSettingsDexieRepository.get).mockImplementation(async key => {
       if (key === 'preferences.theme') return 'sunrise-cloud'
       if (key === 'preferences.locale') return 'en'
       return undefined
@@ -145,19 +144,15 @@ describe('ProfileView › Preferences tab', () => {
 
   it('applies and persists the theme when a theme card is clicked', async () => {
     const user = userEvent.setup()
-    const { userSettingsDexieRepository } = await import(
-      '@/repositories/userSettingsDexieRepository'
-    )
+    const { userSettingsDexieRepository } =
+      await import('@/repositories/userSettingsDexieRepository')
 
     render(ProfileView)
 
     await user.click(screen.getByRole('button', { name: 'Sky Mist' }))
 
     await waitFor(() => {
-      expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
-        'preferences.theme',
-        'sky-mist',
-      )
+      expect(userSettingsDexieRepository.set).toHaveBeenCalledWith('preferences.theme', 'sky-mist')
     })
     expect(document.documentElement.getAttribute('data-theme')).toBe('sky-mist')
   })
@@ -192,25 +187,18 @@ describe('ProfileView › AI assistant tab', () => {
     await switchToAITab()
 
     await waitFor(() => {
-      expect((screen.getByLabelText('AI provider') as HTMLSelectElement).value).toBe(
-        'openai',
-      )
+      expect((screen.getByLabelText('AI provider') as HTMLSelectElement).value).toBe('openai')
       expect((screen.getByLabelText('Base URL') as HTMLInputElement).value).toBe(
-        'https://api.openai.com/v1',
+        'https://api.openai.com/v1'
       )
-      expect((screen.getByLabelText('Model') as HTMLInputElement).value).toBe(
-        'gpt-5.4-nano',
-      )
-      expect((screen.getByLabelText('API key') as HTMLInputElement).value).toBe(
-        'sk-test123456789',
-      )
+      expect((screen.getByLabelText('Model') as HTMLInputElement).value).toBe('gpt-5.4-nano')
+      expect((screen.getByLabelText('API key') as HTMLInputElement).value).toBe('sk-test123456789')
     })
   })
 
   it('saves OpenAI settings under aiProviderSettings and the legacy key', async () => {
-    const { userSettingsDexieRepository } = await import(
-      '@/repositories/userSettingsDexieRepository'
-    )
+    const { userSettingsDexieRepository } =
+      await import('@/repositories/userSettingsDexieRepository')
     render(ProfileView)
     const user = await switchToAITab()
 
@@ -220,7 +208,7 @@ describe('ProfileView › AI assistant tab', () => {
     await waitFor(() => {
       expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
         LEGACY_OPENAI_API_KEY,
-        'sk-test123456789',
+        'sk-test123456789'
       )
     })
     expect(savedAISettings()).toEqual({
@@ -242,24 +230,19 @@ describe('ProfileView › AI assistant tab', () => {
   })
 
   it('does not require API key for Ollama and applies its preset', async () => {
-    const { userSettingsDexieRepository } = await import(
-      '@/repositories/userSettingsDexieRepository'
-    )
+    const { userSettingsDexieRepository } =
+      await import('@/repositories/userSettingsDexieRepository')
     render(ProfileView)
     const user = await switchToAITab()
 
     await user.selectOptions(screen.getByLabelText('AI provider'), 'ollama')
 
     expect((screen.getByLabelText('Base URL') as HTMLInputElement).value).toBe(
-      'http://localhost:11434/v1',
+      'http://localhost:11434/v1'
     )
-    expect((screen.getByLabelText('Model') as HTMLInputElement).value).toBe(
-      'gemma4:e4b',
-    )
+    expect((screen.getByLabelText('Model') as HTMLInputElement).value).toBe('gemma4:e4b')
     expect(screen.queryByText('OpenAI API key is required.')).not.toBeInTheDocument()
-    expect((screen.getByLabelText('Reasoning effort') as HTMLSelectElement).value).toBe(
-      'low',
-    )
+    expect((screen.getByLabelText('Reasoning effort') as HTMLSelectElement).value).toBe('low')
     expect(screen.getByRole('button', { name: 'Save' })).not.toBeDisabled()
 
     await user.click(screen.getByRole('button', { name: 'Save' }))
@@ -267,7 +250,7 @@ describe('ProfileView › AI assistant tab', () => {
     await waitFor(() => {
       expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
         AI_PROVIDER_SETTINGS_KEY,
-        expect.any(String),
+        expect.any(String)
       )
     })
     expect(savedAISettings()).toEqual({
@@ -298,10 +281,10 @@ describe('ProfileView › AI assistant tab', () => {
     await user.selectOptions(screen.getByLabelText('AI provider'), 'mlx')
 
     expect((screen.getByLabelText('Base URL') as HTMLInputElement).value).toBe(
-      'http://localhost:8080/v1',
+      'http://localhost:8080/v1'
     )
     expect((screen.getByLabelText('Model') as HTMLInputElement).value).toBe(
-      'mlx-community/gemma-4-26B-A4B-it-OptiQ-4bit',
+      'mlx-community/gemma-4-26B-A4B-it-OptiQ-4bit'
     )
     expect(screen.queryByText('OpenAI API key is required.')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Save' })).not.toBeDisabled()
@@ -315,11 +298,9 @@ describe('ProfileView › AI assistant tab', () => {
     await user.selectOptions(screen.getByLabelText('AI provider'), 'openai')
 
     expect((screen.getByLabelText('Base URL') as HTMLInputElement).value).toBe(
-      'https://api.openai.com/v1',
+      'https://api.openai.com/v1'
     )
-    expect((screen.getByLabelText('Model') as HTMLInputElement).value).toBe(
-      'gpt-5.4-nano',
-    )
+    expect((screen.getByLabelText('Model') as HTMLInputElement).value).toBe('gpt-5.4-nano')
   })
 
   it('requires baseUrl and model for custom providers', async () => {
@@ -371,11 +352,10 @@ describe('ProfileView › AI assistant tab', () => {
   })
 
   it('shows loading state while saving', async () => {
-    const { userSettingsDexieRepository } = await import(
-      '@/repositories/userSettingsDexieRepository'
-    )
+    const { userSettingsDexieRepository } =
+      await import('@/repositories/userSettingsDexieRepository')
     vi.mocked(userSettingsDexieRepository.set).mockImplementation(
-      () => new Promise((resolve) => setTimeout(resolve, 100)),
+      () => new Promise(resolve => setTimeout(resolve, 100))
     )
 
     render(ProfileView)
@@ -395,11 +375,10 @@ describe('ProfileView › AI assistant tab', () => {
 
   it('handles save error gracefully', async () => {
     const consoleError = mockConsoleError()
-    const { userSettingsDexieRepository } = await import(
-      '@/repositories/userSettingsDexieRepository'
-    )
+    const { userSettingsDexieRepository } =
+      await import('@/repositories/userSettingsDexieRepository')
     vi.mocked(userSettingsDexieRepository.set).mockRejectedValue(
-      new Error('Failed to save setting'),
+      new Error('Failed to save setting')
     )
 
     render(ProfileView)
@@ -411,7 +390,7 @@ describe('ProfileView › AI assistant tab', () => {
     await waitFor(() => {
       expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
         AI_PROVIDER_SETTINGS_KEY,
-        expect.any(String),
+        expect.any(String)
       )
     })
     expect(consoleError).toHaveBeenCalled()

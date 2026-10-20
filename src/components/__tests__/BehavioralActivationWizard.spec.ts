@@ -28,12 +28,16 @@ describe('BehavioralActivationWizard', () => {
 
     await fireEvent.click(screen.getByRole('button', { name: 'Start' }))
 
-    const baselineDateInput = container.querySelector('input[type="date"]') as HTMLInputElement | null
+    const baselineDateInput = container.querySelector(
+      'input[type="date"]'
+    ) as HTMLInputElement | null
     expect(baselineDateInput?.value).toBe('2026-03-09')
 
     await fireEvent.click(screen.getByRole('button', { name: 'Next' }))
 
-    const activityDateInput = container.querySelector('input[type="date"]') as HTMLInputElement | null
+    const activityDateInput = container.querySelector(
+      'input[type="date"]'
+    ) as HTMLInputElement | null
     expect(activityDateInput?.value).toBe('2026-03-09')
   })
 })

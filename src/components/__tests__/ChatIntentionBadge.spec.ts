@@ -43,4 +43,3 @@ describe('ChatIntentionBadge', () => {
     expect(screen.getByText('Custom')).toBeInTheDocument()
   })
 })
-

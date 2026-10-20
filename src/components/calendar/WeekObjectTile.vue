@@ -1,12 +1,7 @@
 <template>
   <article class="week-tile">
     <header class="week-tile__head">
-      <EntityIcon
-        :icon="iconName"
-        size="sm"
-        :circle="false"
-        class="week-tile__icon"
-      />
+      <EntityIcon :icon="iconName" size="sm" :circle="false" class="week-tile__icon" />
       <span class="week-tile__title">{{ title }}</span>
       <ContextChip v-if="viz.contextChip.value" :data="viz.contextChip.value" />
     </header>
@@ -98,7 +93,7 @@ const viz = useWeeklySliceItemVisualization(
   toRef(props, 'weekRef'),
   toRef(props, 'todayDayRef'),
   computed(() => locale.value),
-  toRef(props, 'weekMeasurement'),
+  toRef(props, 'weekMeasurement')
 )
 
 const title = computed(() => props.subject.title)
@@ -133,12 +128,8 @@ const ratingTargetOperator = computed<'gte' | 'lte' | undefined>(() => {
   flex-direction: column;
   gap: 4px;
   min-height: 0;
-  background: linear-gradient(
-    145deg,
-    rgb(var(--neo-surface-top)),
-    rgb(var(--neo-surface-bottom))
-  );
-  border: 1px solid rgb(var(--neo-border) / 0.10);
+  background: linear-gradient(145deg, rgb(var(--neo-surface-top)), rgb(var(--neo-surface-bottom)));
+  border: 1px solid rgb(var(--neo-border) / 0.1);
   box-shadow:
     -4px -4px 9px rgb(var(--neo-shadow-light) / 0.75),
     4px 4px 9px rgb(var(--neo-shadow-dark) / 0.28);

@@ -55,7 +55,9 @@
             >
               <AppIcon name="remove" />
             </button>
-            <span class="breath-stepper__value">{{ t(`${K}.seconds`, { n: rhythm[index]! }) }}</span>
+            <span class="breath-stepper__value">{{
+              t(`${K}.seconds`, { n: rhythm[index]! })
+            }}</span>
             <button
               type="button"
               class="breath-stepper__button"
@@ -313,7 +315,11 @@ const squares = computed<SquareView[]>(() => {
   const focus = pos.done ? total - 1 : started.value ? pos.breath : 0
   const views: SquareView[] = []
 
-  for (let index = Math.max(0, focus - WINDOW); index <= Math.min(total - 1, focus + WINDOW); index++) {
+  for (
+    let index = Math.max(0, focus - WINDOW);
+    index <= Math.min(total - 1, focus + WINDOW);
+    index++
+  ) {
     const distance = index - focus
     let rotation = 0
     let walls = [0, 0, 0, 0]
@@ -342,7 +348,12 @@ const squares = computed<SquareView[]>(() => {
     views.push({
       index,
       // The finished last square turns into a breathed one in place.
-      state: distance < 0 || (distance === 0 && pos.done) ? 'past' : distance === 0 ? 'active' : 'future',
+      state:
+        distance < 0 || (distance === 0 && pos.done)
+          ? 'past'
+          : distance === 0
+            ? 'active'
+            : 'future',
       offset: offsetFor(distance),
       opacity: hidden ? 0 : steps === 0 ? 1 : 1 - steps * 0.26,
       rotation,
@@ -355,9 +366,7 @@ const squares = computed<SquareView[]>(() => {
 // ── Labels ───────────────────────────────────────────────────────────
 const PHASE_CUES = ['breatheIn', 'hold', 'breatheOut', 'hold'] as const
 
-const centerCount = computed(() =>
-  done.value ? t(`${K}.done`) : String(position.value.remaining),
-)
+const centerCount = computed(() => (done.value ? t(`${K}.done`) : String(position.value.remaining)))
 
 const centerPhase = computed(() => {
   if (done.value) return ''
@@ -366,7 +375,7 @@ const centerPhase = computed(() => {
 })
 
 const breathOf = computed(
-  () => `${Math.min(position.value.breath + 1, breaths.value)}/${breaths.value}`,
+  () => `${Math.min(position.value.breath + 1, breaths.value)}/${breaths.value}`
 )
 const timeLeft = computed(() => clock(sessionSeconds(settings.value) - elapsedMs.value / 1000))
 

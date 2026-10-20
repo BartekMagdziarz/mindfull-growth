@@ -1,11 +1,7 @@
 <template>
   <article ref="rootRef" class="dz-card neo-raised relative flex flex-col gap-[10px] p-3">
     <header class="dz-card__head">
-      <button
-        type="button"
-        class="dz-card__label"
-        @click="router.push('/exercises')"
-      >
+      <button type="button" class="dz-card__label" @click="router.push('/exercises')">
         {{ t('planning.today.wellness.plannedExercises') }}
       </button>
       <button
@@ -55,7 +51,7 @@
             items.length - 1,
             'planning.today.wellness.plannedMoreCount.one',
             'planning.today.wellness.plannedMoreCount.few',
-            'planning.today.wellness.plannedMoreCount.many',
+            'planning.today.wellness.plannedMoreCount.many'
           )
         }}
       </p>
@@ -100,11 +96,9 @@ const menuOpen = ref(false)
 
 const nextItem = computed(() => props.items[0] ?? null)
 const nextEntry = computed(() =>
-  nextItem.value ? getCatalogEntry(nextItem.value.exerciseSlug) : undefined,
+  nextItem.value ? getCatalogEntry(nextItem.value.exerciseSlug) : undefined
 )
-const isOverdue = computed(
-  () => nextItem.value !== null && nextItem.value.dayRef < props.todayRef,
-)
+const isOverdue = computed(() => nextItem.value !== null && nextItem.value.dayRef < props.todayRef)
 const minMoveDate = computed(() => addDaysToDayRef(props.todayRef, 1))
 
 const plannedDateLabel = computed(() => {
@@ -118,7 +112,7 @@ const plannedDateLabel = computed(() => {
 function moveToTomorrow(): void {
   menuOpen.value = false
   if (!nextItem.value) return
-  void planStore.movePlan(nextItem.value.id, addDaysToDayRef(props.todayRef, 1)).catch((err) => {
+  void planStore.movePlan(nextItem.value.id, addDaysToDayRef(props.todayRef, 1)).catch(err => {
     console.error('Failed to move exercise plan:', err)
   })
 }
@@ -131,7 +125,7 @@ function openDatePicker(): void {
 function handleDateChange(event: Event): void {
   const input = event.target as HTMLInputElement
   if (input.value && nextItem.value) {
-    void planStore.movePlan(nextItem.value.id, input.value as DayRef).catch((err) => {
+    void planStore.movePlan(nextItem.value.id, input.value as DayRef).catch(err => {
       console.error('Failed to move exercise plan:', err)
     })
   }
@@ -141,7 +135,7 @@ function handleDateChange(event: Event): void {
 function skip(): void {
   menuOpen.value = false
   if (!nextItem.value) return
-  void planStore.skipPlan(nextItem.value.id).catch((err) => {
+  void planStore.skipPlan(nextItem.value.id).catch(err => {
     console.error('Failed to skip exercise plan:', err)
   })
 }
@@ -176,7 +170,7 @@ onBeforeUnmount(() => {
 .dz-card__label {
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.10em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: rgb(var(--neo-muted));
   background: none;
@@ -237,7 +231,11 @@ onBeforeUnmount(() => {
   display: grid;
   place-items: center;
   flex: 0 0 auto;
-  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease, background 200ms ease;
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease,
+    border-color 200ms ease,
+    background 200ms ease;
 }
 button.dz-slot {
   cursor: pointer;
@@ -248,7 +246,7 @@ button.dz-slot {
   border: 1px dashed rgb(var(--color-primary) / 0.55);
   box-shadow:
     -5px -5px 10px rgb(var(--neo-shadow-light) / 0.85),
-    5px 5px 10px rgb(var(--neo-shadow-dark) / 0.30);
+    5px 5px 10px rgb(var(--neo-shadow-dark) / 0.3);
   color: rgb(var(--color-primary-strong));
 }
 .dz-slot--empty:hover {

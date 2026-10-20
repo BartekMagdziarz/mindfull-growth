@@ -1,17 +1,11 @@
 <template>
-  <section
-    class="neo-raised flex flex-col gap-5"
-    style="padding: 24px"
-  >
+  <section class="neo-raised flex flex-col gap-5" style="padding: 24px">
     <!-- Theme picker -->
     <div>
       <h3 class="text-base font-bold m-0" style="color: var(--mg-color-ink)">
         {{ t('profile.appearance.colorTheme') }}
       </h3>
-      <p
-        class="text-[12px] m-0 mt-[2px]"
-        style="color: var(--mg-color-muted)"
-      >
+      <p class="text-[12px] m-0 mt-[2px]" style="color: var(--mg-color-muted)">
         {{ t('profile.appearance.description') }} {{ t('profile.appearance.themeHint') }}
       </p>
 
@@ -26,16 +20,14 @@
           :aria-label="opt.label"
           @click="onThemeChange(opt.id)"
         >
-          <span
-            class="theme-card__swatch"
-            :style="{ background: opt.gradient }"
-          />
+          <span class="theme-card__swatch" :style="{ background: opt.gradient }" />
           <span class="theme-card__label">{{ opt.label }}</span>
           <AppIcon
             v-if="themePreference === opt.id"
             class="material-symbols-outlined theme-card__check"
             aria-hidden="true"
-           name="check" />
+            name="check"
+          />
         </button>
       </div>
     </div>
@@ -46,16 +38,10 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Language -->
       <div>
-        <h3
-          class="text-[14px] font-bold m-0 mb-1"
-          style="color: var(--mg-color-ink)"
-        >
+        <h3 class="text-[14px] font-bold m-0 mb-1" style="color: var(--mg-color-ink)">
           {{ t('profile.language.label') }}
         </h3>
-        <p
-          class="text-[12px] m-0 mb-[10px]"
-          style="color: var(--mg-color-muted)"
-        >
+        <p class="text-[12px] m-0 mb-[10px]" style="color: var(--mg-color-muted)">
           {{ t('profile.language.description') }}
         </p>
         <div
@@ -80,23 +66,13 @@
 
       <!-- Grammatical gender -->
       <div>
-        <h3
-          class="text-[14px] font-bold m-0 mb-1"
-          style="color: var(--mg-color-ink)"
-        >
+        <h3 class="text-[14px] font-bold m-0 mb-1" style="color: var(--mg-color-ink)">
           {{ t('profile.gender.label') }}
         </h3>
-        <p
-          class="text-[12px] m-0 mb-[10px]"
-          style="color: var(--mg-color-muted)"
-        >
+        <p class="text-[12px] m-0 mb-[10px]" style="color: var(--mg-color-muted)">
           {{ t('profile.gender.description') }}
         </p>
-        <div
-          class="neo-segmented w-full"
-          role="radiogroup"
-          :aria-label="t('profile.gender.label')"
-        >
+        <div class="neo-segmented w-full" role="radiogroup" :aria-label="t('profile.gender.label')">
           <button
             v-for="opt in genderOptions"
             :key="opt.id"
@@ -133,9 +109,7 @@ const userPreferencesStore = useUserPreferencesStore()
 
 const themePreference = ref<ThemeId>(userPreferencesStore.themePreference)
 const languagePreference = ref<LocaleId>(userPreferencesStore.locale)
-const genderPreference = ref<GrammaticalGender>(
-  userPreferencesStore.grammaticalGender,
-)
+const genderPreference = ref<GrammaticalGender>(userPreferencesStore.grammaticalGender)
 
 const themeOptions = computed(() => [
   {
@@ -222,12 +196,7 @@ onMounted(async () => {
 <style scoped>
 .zb-divider {
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgb(var(--neo-border) / 0.45),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgb(var(--neo-border) / 0.45), transparent);
   margin: 0 1px;
 }
 

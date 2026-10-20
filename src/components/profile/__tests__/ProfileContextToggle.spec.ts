@@ -9,10 +9,16 @@ beforeEach(async () => {
 })
 describe('ProfileContextToggle', () => {
   it('appears after an approved profile is saved and disappears after it is ended', async () => {
-    const { container } = render(ProfileContextToggle, { props: { modelValue: true, scope: 'journal' } })
+    const { container } = render(ProfileContextToggle, {
+      props: { modelValue: true, scope: 'journal' },
+    })
     expect(container.querySelector('button')).toBeNull()
     const repo = approvedProfileRepository(),
-      content = { ...blankProfileContent(), text: 'Lubię konkretne pytania.', scope: 'journal' as const }
+      content = {
+        ...blankProfileContent(),
+        text: 'Lubię konkretne pytania.',
+        scope: 'journal' as const,
+      }
     const item = await repo.save(content)
     expect(await screen.findByRole('button')).toHaveAttribute('aria-pressed', 'true')
     await repo.save(content, item.id, item.version, 'ended')

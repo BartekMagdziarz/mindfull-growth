@@ -2,7 +2,11 @@
   <div class="flex flex-col items-center gap-1">
     <button
       type="button"
-      :class="['initiative-check', sizeClass, isComplete ? 'initiative-check--on' : 'initiative-check--off']"
+      :class="[
+        'initiative-check',
+        sizeClass,
+        isComplete ? 'initiative-check--on' : 'initiative-check--off',
+      ]"
       :disabled="isPending"
       @click.stop="$emit('toggle')"
     >
@@ -18,10 +22,7 @@
         />
       </svg>
     </button>
-    <span
-      v-if="dayLabel"
-      class="text-[9px] text-on-surface-variant/50"
-    >
+    <span v-if="dayLabel" class="text-[9px] text-on-surface-variant/50">
       {{ dayLabel }}
     </span>
   </div>
@@ -39,7 +40,7 @@ const props = withDefaults(
      *  'sm' (~34px) matches the shrunk task-row right-side controls. */
     size?: 'md' | 'sm'
   }>(),
-  { isPending: false, size: 'md' },
+  { isPending: false, size: 'md' }
 )
 
 defineEmits<{ toggle: [] }>()
@@ -56,7 +57,10 @@ const iconSizeClass = computed(() => (props.size === 'sm' ? 'h-[18px] w-[18px]' 
   border-radius: 9999px;
   border: 0;
   cursor: pointer;
-  transition: transform 200ms ease, box-shadow 200ms ease, background 200ms ease;
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease,
+    background 200ms ease;
 }
 
 .initiative-check:disabled {
@@ -81,14 +85,10 @@ const iconSizeClass = computed(() => (props.size === 'sm' ? 'h-[18px] w-[18px]' 
 }
 
 .initiative-check--off {
-  background: linear-gradient(
-    145deg,
-    rgb(var(--neo-surface-top)),
-    rgb(var(--neo-surface-bottom))
-  );
-  border: 1px solid rgb(var(--neo-border) / 0.10);
+  background: linear-gradient(145deg, rgb(var(--neo-surface-top)), rgb(var(--neo-surface-bottom)));
+  border: 1px solid rgb(var(--neo-border) / 0.1);
   box-shadow:
-    -4px -4px 8px rgb(var(--neo-shadow-light) / 0.80),
+    -4px -4px 8px rgb(var(--neo-shadow-light) / 0.8),
     4px 4px 8px rgb(var(--neo-shadow-dark) / 0.33);
 }
 

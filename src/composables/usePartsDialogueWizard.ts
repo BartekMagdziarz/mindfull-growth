@@ -11,12 +11,7 @@ import { useT } from '@/composables/useT'
 
 type IFSInsightTag = IFSInsight['tag']
 
-export type PartsDialogueStep =
-  | 'part-select'
-  | 'intention'
-  | 'dialogue'
-  | 'insights'
-  | 'summary'
+export type PartsDialogueStep = 'part-select' | 'intention' | 'dialogue' | 'insights' | 'summary'
 
 const STEP_ORDER: PartsDialogueStep[] = [
   'part-select',
@@ -152,7 +147,7 @@ export function usePartsDialogueWizard() {
   }
 
   function removeInsight(id: string) {
-    insights.value = insights.value.filter((i) => i.id !== id)
+    insights.value = insights.value.filter(i => i.id !== id)
   }
 
   // Save

@@ -15,7 +15,7 @@ export interface AssessmentsRepository {
   getLatestCompletedAttempt(assessmentId: AssessmentId): Promise<AssessmentAttempt | undefined>
   getPreviousCompletedAttempt(
     assessmentId: AssessmentId,
-    beforeCompletedAt?: string,
+    beforeCompletedAt?: string
   ): Promise<AssessmentAttempt | undefined>
   saveResponse(data: SaveAssessmentResponsePayload): Promise<AssessmentResponse>
   bulkSaveResponses(data: SaveAssessmentResponsePayload[]): Promise<AssessmentResponse[]>

@@ -35,7 +35,12 @@
         {{ customSelected ? plannedDateLabel : t('exercises.repeatPrompt.chips.customDate') }}
       </button>
 
-      <button v-if="activeItem" type="button" class="exercise-chip exercise-chip--ghost" @click="undo">
+      <button
+        v-if="activeItem"
+        type="button"
+        class="exercise-chip exercise-chip--ghost"
+        @click="undo"
+      >
         {{ t('exercises.repeatPrompt.undo') }}
       </button>
     </div>
@@ -58,10 +63,7 @@ import { useT } from '@/composables/useT'
 import { getCatalogEntry } from '@/data/exerciseCatalog'
 import type { ExercisePlanItem } from '@/domain/exercisePlan'
 import type { DayRef } from '@/domain/period'
-import {
-  buildRepeatChipOptions,
-  type RepeatChipOption,
-} from '@/services/exercisePlanService'
+import { buildRepeatChipOptions, type RepeatChipOption } from '@/services/exercisePlanService'
 import { useExercisePlanStore } from '@/stores/exercisePlan.store'
 import { addDaysToDayRef, getPeriodRefsForDate } from '@/utils/periods'
 
@@ -82,7 +84,7 @@ const todayRef = computed(() => getPeriodRefsForDate(new Date()).day)
 const minCustomDate = computed(() => addDaysToDayRef(todayRef.value, 1))
 
 const effectiveSuggested = computed(
-  () => props.suggestedDays ?? getCatalogEntry(props.exerciseSlug)?.suggestedRepeatDays,
+  () => props.suggestedDays ?? getCatalogEntry(props.exerciseSlug)?.suggestedRepeatDays
 )
 const chipOptions = computed(() => buildRepeatChipOptions(effectiveSuggested.value))
 
@@ -97,9 +99,7 @@ const chipOptions = computed(() => buildRepeatChipOptions(effectiveSuggested.val
  */
 const activeItem = computed<ExercisePlanItem | null>(() => {
   const managed = managedItemId.value
-    ? planStore.items.find(
-        (item) => item.id === managedItemId.value && item.status === 'pending',
-      )
+    ? planStore.items.find(item => item.id === managedItemId.value && item.status === 'pending')
     : undefined
   return managed ?? planStore.oldestPendingForSlug(props.exerciseSlug) ?? null
 })
@@ -110,7 +110,7 @@ const activeItem = computed<ExercisePlanItem | null>(() => {
  * move or delete a program item behind the path's back.
  */
 const programItem = computed(() =>
-  activeItem.value?.source === 'program' ? activeItem.value : null,
+  activeItem.value?.source === 'program' ? activeItem.value : null
 )
 
 onMounted(() => {
@@ -121,7 +121,7 @@ watch(
   () => props.exerciseSlug,
   () => {
     managedItemId.value = null
-  },
+  }
 )
 
 function dayRefForDays(days: number): DayRef {
@@ -135,7 +135,7 @@ function isSelected(days: number): boolean {
 /** True when the planned day matches no chip — the custom chip shows the date. */
 const customSelected = computed(() => {
   if (!activeItem.value) return false
-  return !chipOptions.value.some((option) => isSelected(option.days))
+  return !chipOptions.value.some(option => isSelected(option.days))
 })
 
 const plannedDateLabel = computed(() => {
@@ -152,7 +152,7 @@ function chipLabel(option: RepeatChipOption): string {
       option.days,
       'exercises.repeatPrompt.chips.inDays.one',
       'exercises.repeatPrompt.chips.inDays.few',
-      'exercises.repeatPrompt.chips.inDays.many',
+      'exercises.repeatPrompt.chips.inDays.many'
     )
   }
   return t(option.labelKey)

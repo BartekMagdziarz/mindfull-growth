@@ -1,22 +1,32 @@
 <template>
   <div class="exposure-log">
-    <p class="text-sm text-on-surface-variant">{{ t('exerciseWizards.gradedExposure.log.lead') }}</p>
+    <p class="text-sm text-on-surface-variant">
+      {{ t('exerciseWizards.gradedExposure.log.lead') }}
+    </p>
     <ExerciseStepWhy :text="tg('exerciseWizards.gradedExposure.log.why')" />
 
     <ol class="exposure-log__rungs">
-      <li v-for="rung in rungs" :key="rung.id" class="mg-v2-surface mg-v2-surface--flat exposure-log__rung">
+      <li
+        v-for="rung in rungs"
+        :key="rung.id"
+        class="mg-v2-surface mg-v2-surface--flat exposure-log__rung"
+      >
         <div class="exposure-log__head">
           <span class="exposure-log__suds">{{ rung.sudsRating }}</span>
           <div class="min-w-0 flex-1">
             <p class="exposure-log__situation">{{ rung.situation }}</p>
             <p class="mg-v2-meta">
-              <span :class="{ 'mg-v2-meta__status': rung.completed }">{{ attemptsLabel(rung) }}</span>
+              <span :class="{ 'mg-v2-meta__status': rung.completed }">{{
+                attemptsLabel(rung)
+              }}</span>
               <span v-if="lastAttempt(rung)">
-                {{ t('exerciseWizards.gradedExposure.log.lastAttempt', {
-                  before: lastAttempt(rung)!.anxietyBefore,
-                  peak: lastAttempt(rung)!.anxietyPeak,
-                  after: lastAttempt(rung)!.anxietyAfter,
-                }) }}
+                {{
+                  t('exerciseWizards.gradedExposure.log.lastAttempt', {
+                    before: lastAttempt(rung)!.anxietyBefore,
+                    peak: lastAttempt(rung)!.anxietyPeak,
+                    after: lastAttempt(rung)!.anxietyAfter,
+                  })
+                }}
               </span>
             </p>
           </div>
@@ -30,26 +40,47 @@
           </button>
         </div>
 
-        <form v-if="openRungId === rung.id" class="exposure-log__form" @submit.prevent="saveAttempt(rung)">
-          <label v-for="field in sudsFields" :key="field" class="mg-v2-field-wrap exposure-log__slider">
+        <form
+          v-if="openRungId === rung.id"
+          class="exposure-log__form"
+          @submit.prevent="saveAttempt(rung)"
+        >
+          <label
+            v-for="field in sudsFields"
+            :key="field"
+            class="mg-v2-field-wrap exposure-log__slider"
+          >
             <span class="mg-v2-field-wrap__label">
-              {{ t(`exerciseWizards.gradedExposure.log.${field}`) }} <span class="exposure-log__value">{{ draft[field] }}</span>
+              {{ t(`exerciseWizards.gradedExposure.log.${field}`) }}
+              <span class="exposure-log__value">{{ draft[field] }}</span>
             </span>
             <ExerciseRangeInput v-model="draft[field]" :min="0" :max="100" :step="5" />
           </label>
           <label class="mg-v2-field-wrap">
-            <span class="mg-v2-field-wrap__label">{{ t('exerciseWizards.gradedExposure.log.duration') }}</span>
-            <input v-model.number="draft.duration" type="number" min="1" max="600" class="mg-v2-field exposure-log__duration" />
+            <span class="mg-v2-field-wrap__label">{{
+              t('exerciseWizards.gradedExposure.log.duration')
+            }}</span>
+            <input
+              v-model.number="draft.duration"
+              type="number"
+              min="1"
+              max="600"
+              class="mg-v2-field exposure-log__duration"
+            />
           </label>
           <div v-if="safetyBehaviors.length" class="mg-v2-field-wrap">
-            <span class="mg-v2-field-wrap__label">{{ t('exerciseWizards.gradedExposure.log.safetyUsed') }}</span>
+            <span class="mg-v2-field-wrap__label">{{
+              t('exerciseWizards.gradedExposure.log.safetyUsed')
+            }}</span>
             <div class="flex flex-wrap gap-2">
               <button
                 v-for="behavior in safetyBehaviors"
                 :key="behavior"
                 type="button"
                 class="mg-v2-pill exposure-log__chip"
-                :class="{ 'mg-v2-pill--primary mg-v2-pill--selected': draft.safety.includes(behavior) }"
+                :class="{
+                  'mg-v2-pill--primary mg-v2-pill--selected': draft.safety.includes(behavior),
+                }"
                 :aria-pressed="draft.safety.includes(behavior)"
                 @click="toggleSafety(behavior)"
               >
@@ -128,12 +159,12 @@ function attemptsLabel(rung: ExposureItem): string {
     rung.attempts.length,
     'exerciseWizards.gradedExposure.log.attempts.one',
     'exerciseWizards.gradedExposure.log.attempts.few',
-    'exerciseWizards.gradedExposure.log.attempts.many',
+    'exerciseWizards.gradedExposure.log.attempts.many'
   )
 }
 
 function openForm(rungId: string): void {
-  const rung = props.hierarchy.items.find((item) => item.id === rungId)
+  const rung = props.hierarchy.items.find(item => item.id === rungId)
   Object.assign(draft, {
     anxietyBefore: rung?.sudsRating ?? 50,
     anxietyPeak: rung?.sudsRating ?? 60,
@@ -148,7 +179,7 @@ function openForm(rungId: string): void {
 
 function toggleSafety(behavior: string): void {
   draft.safety = draft.safety.includes(behavior)
-    ? draft.safety.filter((item) => item !== behavior)
+    ? draft.safety.filter(item => item !== behavior)
     : [...draft.safety, behavior]
 }
 
@@ -165,15 +196,19 @@ async function saveAttempt(rung: ExposureItem): Promise<void> {
       ...(draft.safety.length ? { safetyBehaviorsUsed: [...draft.safety] } : {}),
       ...(draft.notes.trim() ? { notes: draft.notes.trim() } : {}),
     }
-    const items = props.hierarchy.items.map((item) =>
+    const items = props.hierarchy.items.map(item =>
       item.id === rung.id
-        ? { ...item, completed: item.completed || draft.mastered, attempts: [...item.attempts, attempt] }
-        : item,
+        ? {
+            ...item,
+            completed: item.completed || draft.mastered,
+            attempts: [...item.attempts, attempt],
+          }
+        : item
     )
     await exposureStore.updateHierarchy(props.hierarchy.id, { items })
     void useExerciseCompletionsStore()
       .record('graded-exposure', props.hierarchy.id)
-      .catch((err) => console.error('Failed to record exercise completion:', err))
+      .catch(err => console.error('Failed to record exercise completion:', err))
     openRungId.value = null
   } finally {
     saving.value = false

@@ -19,13 +19,27 @@
  */
 
 import type { MicroExerciseEntry } from '@/domain/microExercises'
-import { momentFamily, reactionOf, responsesOf, strengthOf, summaryKeys, type MomentFamilyConfig, type MomentFamilyKind } from '@/domain/momentFamilies'
+import {
+  momentFamily,
+  reactionOf,
+  responsesOf,
+  strengthOf,
+  summaryKeys,
+  type MomentFamilyConfig,
+  type MomentFamilyKind,
+} from '@/domain/momentFamilies'
 import { hadMoment, isMoment, momentDayRef } from '@/domain/moments'
 import type { WeekRef } from '@/domain/period'
 import { getPeriodBounds, getPreviousPeriod } from '@/utils/periods'
 
 export type ShamePartKey = 'withdraw' | 'attackSelf' | 'attackOthers' | 'avoid' | 'none'
-export const SHAME_PART_KEYS: readonly ShamePartKey[] = ['withdraw', 'attackSelf', 'attackOthers', 'avoid', 'none']
+export const SHAME_PART_KEYS: readonly ShamePartKey[] = [
+  'withdraw',
+  'attackSelf',
+  'attackOthers',
+  'avoid',
+  'none',
+]
 /** A reaction key of any family (`ShamePartKey` for the shame path). */
 export type ReactionKey = string
 
@@ -36,7 +50,12 @@ export const NOTICED_KEYS: readonly NoticedKey[] = ['during', 'soon', 'hours', '
  * The reflection's "moments you did not log" answer, as the representative
  * count it adds to the week's bar (shown as an outline, never as data).
  */
-export const UNLOGGED_BUCKETS: Readonly<Record<string, number>> = { none: 0, few: 2, several: 4, many: 6 }
+export const UNLOGGED_BUCKETS: Readonly<Record<string, number>> = {
+  none: 0,
+  few: 2,
+  several: 4,
+  many: 6,
+}
 
 export interface MomentsWeekStats {
   weekRef: WeekRef
@@ -65,8 +84,8 @@ function emptyStats(weekRef: WeekRef, config: MomentFamilyConfig): MomentsWeekSt
     weekRef,
     kind: config.kind,
     total: 0,
-    byPart: Object.fromEntries(config.keys.map((key) => [key, 0])),
-    strength: Object.fromEntries(config.keys.map((key) => [key, { sum: 0, rated: 0 }])),
+    byPart: Object.fromEntries(config.keys.map(key => [key, 0])),
+    strength: Object.fromEntries(config.keys.map(key => [key, { sum: 0, rated: 0 }])),
     responded: 0,
     noticed: { during: 0, soon: 0, hours: 0, later: 0, unknown: 0 },
     criticLogged: 0,
@@ -86,12 +105,17 @@ export function weekRefsEndingAt(last: WeekRef, count: number): WeekRef[] {
 
 function noticedOf(entry: MicroExerciseEntry): NoticedKey {
   const value = entry.responses.noticed
-  return typeof value === 'string' && (NOTICED_KEYS as readonly string[]).includes(value) ? (value as NoticedKey) : 'unknown'
+  return typeof value === 'string' && (NOTICED_KEYS as readonly string[]).includes(value)
+    ? (value as NoticedKey)
+    : 'unknown'
 }
 
 /** Anything other than "nothing" counts — a late attempt is still an attempt. */
-export function hasResponse(entry: MicroExerciseEntry, config: MomentFamilyConfig = momentFamily(entry.responses.kind)): boolean {
-  return responsesOf(entry.responses, config).some((item) => item !== 'nothing')
+export function hasResponse(
+  entry: MicroExerciseEntry,
+  config: MomentFamilyConfig = momentFamily(entry.responses.kind)
+): boolean {
+  return responsesOf(entry.responses, config).some(item => item !== 'nothing')
 }
 
 function hasText(value: unknown): boolean {
@@ -107,11 +131,11 @@ export function momentsProgress(
   entries: readonly MicroExerciseEntry[],
   weeks: readonly WeekRef[],
   unlogged: Partial<Record<WeekRef, number>> = {},
-  kind: MomentFamilyKind = 'shame',
+  kind: MomentFamilyKind = 'shame'
 ): MomentsWeekStats[] {
   const config = momentFamily(kind)
-  const moments = entries.filter((entry) => isMoment(entry, kind) && hadMoment(entry))
-  return weeks.map((weekRef) => {
+  const moments = entries.filter(entry => isMoment(entry, kind) && hadMoment(entry))
+  return weeks.map(weekRef => {
     const stats = emptyStats(weekRef, config)
     const { start, end } = getPeriodBounds(weekRef)
     for (const entry of moments) {
@@ -157,7 +181,7 @@ export interface PartSummary {
 export function partSummary(stats: readonly MomentsWeekStats[]): PartSummary[] {
   const total = stats.reduce((sum, week) => sum + week.total, 0)
   const config = momentFamily(stats[0]?.kind)
-  return summaryKeys(config).map((part) => {
+  return summaryKeys(config).map(part => {
     let count = 0
     let sum = 0
     let rated = 0
@@ -190,8 +214,11 @@ export function noticedEarlyShare(stats: readonly MomentsWeekStats[]): number | 
  * "Kiedy zauważam" compared between the first and the last `span` weeks
  * that have moments. Either side is null when it has no data.
  */
-export function noticedShift(stats: readonly MomentsWeekStats[], span = 2): { early: number | null; late: number | null } {
-  const withMoments = stats.filter((week) => week.total > 0)
+export function noticedShift(
+  stats: readonly MomentsWeekStats[],
+  span = 2
+): { early: number | null; late: number | null } {
+  const withMoments = stats.filter(week => week.total > 0)
   if (withMoments.length === 0) return { early: null, late: null }
   const first = withMoments.slice(0, span)
   const last = withMoments.slice(-span)
@@ -207,7 +234,15 @@ export function respondedShare(stats: readonly MomentsWeekStats[]): number | nul
 
 // ── "Moje zdania" ────────────────────────────────────────────────────
 
-export type OwnSentenceSource = 'image' | 'self' | 'response' | 'unblend' | 'moment' | 'defender' | 'request' | 'return'
+export type OwnSentenceSource =
+  | 'image'
+  | 'self'
+  | 'response'
+  | 'unblend'
+  | 'moment'
+  | 'defender'
+  | 'request'
+  | 'return'
 
 export interface OwnSentence {
   text: string
@@ -258,7 +293,7 @@ function normalizeSentence(text: string): string {
 export function collectOwnSentences(
   entries: readonly MicroExerciseEntry[],
   limit = Infinity,
-  kind: MomentFamilyKind = 'shame',
+  kind: MomentFamilyKind = 'shame'
 ): OwnSentence[] {
   const seen = new Set<string>()
   const sentences: OwnSentence[] = []
@@ -289,7 +324,9 @@ export interface PracticeHelpfulness {
 }
 
 /** Per exercise slug: how often "czy to pomogło" was answered and the mean. */
-export function practiceHelpfulness(entries: readonly MicroExerciseEntry[]): Record<string, PracticeHelpfulness> {
+export function practiceHelpfulness(
+  entries: readonly MicroExerciseEntry[]
+): Record<string, PracticeHelpfulness> {
   const sums: Record<string, { count: number; sum: number }> = {}
   for (const entry of entries) {
     const value = entry.responses.helpful
@@ -299,7 +336,10 @@ export function practiceHelpfulness(entries: readonly MicroExerciseEntry[]): Rec
     bucket.sum += value
   }
   return Object.fromEntries(
-    Object.entries(sums).map(([slug, { count, sum }]) => [slug, { count, mean: Math.round((sum / count) * 10) / 10 }]),
+    Object.entries(sums).map(([slug, { count, sum }]) => [
+      slug,
+      { count, mean: Math.round((sum / count) * 10) / 10 },
+    ])
   )
 }
 
@@ -307,7 +347,7 @@ export function practiceHelpfulness(entries: readonly MicroExerciseEntry[]): Rec
 export function practiceDaysInWeek(
   completions: ReadonlyArray<{ exerciseSlug: string; dayRef: string }>,
   weekRef: WeekRef,
-  slugs: readonly string[],
+  slugs: readonly string[]
 ): number {
   const { start, end } = getPeriodBounds(weekRef)
   const wanted = new Set(slugs)

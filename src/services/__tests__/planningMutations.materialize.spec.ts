@@ -57,7 +57,11 @@ beforeEach(async () => {
 describe('materializeMeasurementWeekPlacements', () => {
   it('converts a whole-month row to explicit whole-week placements, preserving the month override', async () => {
     const habitId = await createHabit('monthly')
-    await upsertMonthState(habitId, MONTH, 'whole-month', { kind: 'count', operator: 'min', value: 10 })
+    await upsertMonthState(habitId, MONTH, 'whole-month', {
+      kind: 'count',
+      operator: 'min',
+      value: 10,
+    })
 
     const kept = [MONTH_WEEKS[0]!, MONTH_WEEKS[2]!]
     await materializeMeasurementWeekPlacements({

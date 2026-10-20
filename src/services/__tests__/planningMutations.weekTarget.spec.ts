@@ -136,7 +136,11 @@ describe('updateMeasurementWeekTargetOverride', () => {
       subjectId: habitId,
       cadence: 'weekly',
     })
-    const toggled = await planningStateDexieRepository.getMeasurementWeekState(WEEK, 'habit', habitId)
+    const toggled = await planningStateDexieRepository.getMeasurementWeekState(
+      WEEK,
+      'habit',
+      habitId
+    )
     expect(toggled?.scheduleScope).toBe('whole-week')
     expect(toggled?.targetOverride).toEqual({ kind: 'count', operator: 'min', value: 2 })
 
@@ -147,7 +151,11 @@ describe('updateMeasurementWeekTargetOverride', () => {
       subjectId: habitId,
       cadence: 'weekly',
     })
-    const removed = await planningStateDexieRepository.getMeasurementWeekState(WEEK, 'habit', habitId)
+    const removed = await planningStateDexieRepository.getMeasurementWeekState(
+      WEEK,
+      'habit',
+      habitId
+    )
     expect(removed?.targetOverride).toBeUndefined()
   })
 
@@ -178,7 +186,7 @@ describe('updateMeasurementWeekTargetOverride', () => {
     const monthState = await planningStateDexieRepository.getMeasurementMonthState(
       MONTH,
       'habit',
-      habitId,
+      habitId
     )
     expect(monthState?.targetOverride).toEqual({ kind: 'count', operator: 'min', value: 5 })
   })
@@ -284,7 +292,7 @@ describe('updateMeasurementWeekTargetOverride', () => {
         subjectId: habitId,
         cadence: 'monthly',
         targetOverride: { kind: 'count', operator: 'min', value: 3 },
-      }),
+      })
     ).rejects.toThrow('Monthly cadence week target overrides require monthRef')
   })
 
@@ -312,13 +320,13 @@ describe('updateMeasurementWeekTargetOverride', () => {
       BOUNDARY_WEEK,
       'habit',
       habitId,
-      MONTH,
+      MONTH
     )
     const aprilState = await planningStateDexieRepository.getMeasurementWeekState(
       BOUNDARY_WEEK,
       'habit',
       habitId,
-      NEXT_MONTH,
+      NEXT_MONTH
     )
 
     expect(marchState?.sourceMonthRef).toBe(MONTH)

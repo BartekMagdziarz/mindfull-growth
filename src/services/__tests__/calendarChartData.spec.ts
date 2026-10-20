@@ -14,7 +14,7 @@ function makeEntry(
   subjectType: 'habit' | 'keyResult' | 'tracker',
   subjectId: string,
   dayRef: string,
-  value: number | null = null,
+  value: number | null = null
 ): DailyMeasurementEntry {
   return {
     id: `entry-${dayRef}`,
@@ -116,10 +116,7 @@ describe('buildWeekDailyChartPoints', () => {
     const weekRef = parsePeriodRef('2026-W10') as WeekRef
     const subject = makeWeeklyHabit('h3', 5)
 
-    const entries = [
-      makeEntry('habit', 'h3', '2026-03-09'),
-      makeEntry('habit', 'h3', '2026-03-11'),
-    ]
+    const entries = [makeEntry('habit', 'h3', '2026-03-09'), makeEntry('habit', 'h3', '2026-03-11')]
 
     const points = buildWeekDailyChartPoints(subject, 'habit', entries, weekRef)
 
@@ -163,10 +160,7 @@ describe('buildWeekDailyChartPoints', () => {
     const weekRef = parsePeriodRef('2026-W10') as WeekRef
     const subject = makeWeeklyHabit('h6', 3)
 
-    const entries = [
-      makeEntry('habit', 'h6', '2026-03-09'),
-      makeEntry('habit', 'h6', '2026-03-11'),
-    ]
+    const entries = [makeEntry('habit', 'h6', '2026-03-09'), makeEntry('habit', 'h6', '2026-03-11')]
 
     const points = buildWeekDailyChartPoints(subject, 'habit', entries, weekRef, 'met')
 
@@ -237,7 +231,7 @@ describe('buildMonthlyTrendChartPoints', () => {
     const jan = points.find(p => p.periodRef === '2026-01')
     const feb = points.find(p => p.periodRef === '2026-02')
     expect(jan!.status).toBe('missed') // 1 < 2
-    expect(feb!.status).toBe('met')    // 3 >= 2
+    expect(feb!.status).toBe('met') // 3 >= 2
   })
 
   it('returns empty when viewing a past month with no entries', () => {
@@ -338,7 +332,7 @@ describe('buildWeeklyTrendChartPoints', () => {
     const w09 = points.find(p => p.periodRef === '2026-W09')
     expect(w08).toBeDefined()
     expect(w09).toBeDefined()
-    expect(w09!.status).toBe('met')    // 3 >= 2
+    expect(w09!.status).toBe('met') // 3 >= 2
     expect(w08!.status).toBe('missed') // 1 < 2
   })
 })

@@ -29,12 +29,22 @@ export function useDayWellness(dayRef: Ref<DayRef>) {
   const isToday = computed(() => dayRef.value === getPeriodRefsForDate(new Date()).day)
   const referenceDate = computed(() => new Date(`${dayRef.value}T12:00:00`))
   const journalState = computed<'empty' | 'done'>(() =>
-    journalStore.entries.some(entry => entry.createdAt.slice(0, 10) === toLocalDateKey(referenceDate.value)) ? 'done' : 'empty',
+    journalStore.entries.some(
+      entry => entry.createdAt.slice(0, 10) === toLocalDateKey(referenceDate.value)
+    )
+      ? 'done'
+      : 'empty'
   )
-  const exerciseDayCompletions = computed(() => exerciseCompletionsStore.completionsForDay(dayRef.value))
-  const duePlanItems = computed(() => (isToday.value ? exercisePlanStore.dueItems(dayRef.value) : []))
+  const exerciseDayCompletions = computed(() =>
+    exerciseCompletionsStore.completionsForDay(dayRef.value)
+  )
+  const duePlanItems = computed(() =>
+    isToday.value ? exercisePlanStore.dueItems(dayRef.value) : []
+  )
   // Active paths plus closed ones with a follow-up step ahead ("Powrót"), so the return shows up on its day.
-  const activeEnrollments = computed(() => (isToday.value ? programEnrollmentStore.deliveringEnrollments : []))
+  const activeEnrollments = computed(() =>
+    isToday.value ? programEnrollmentStore.deliveringEnrollments : []
+  )
   const todayEmotionLogs = computed<EmotionDonutLog[]>(() =>
     emotionLogStore.logs
       .filter(log => log.createdAt.slice(0, 10) === dayRef.value)
@@ -52,9 +62,13 @@ export function useDayWellness(dayRef: Ref<DayRef>) {
         }
         const total = Object.values(counts).reduce((sum, count) => sum + count, 0)
         return total
-          ? { quadrants: Object.fromEntries(Object.entries(counts).map(([key, count]) => [key, count / total])) as EmotionDonutLog['quadrants'] }
+          ? {
+              quadrants: Object.fromEntries(
+                Object.entries(counts).map(([key, count]) => [key, count / total])
+              ) as EmotionDonutLog['quadrants'],
+            }
           : { quadrants: {} }
-      }),
+      })
   )
 
   async function ensureLoaded(): Promise<void> {

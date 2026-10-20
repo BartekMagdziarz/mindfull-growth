@@ -10,7 +10,7 @@
           <DsSegmentedControl
             :label="t('planning.objects.title')"
             :model-value="store.query.family"
-            :options="familyOptions.map((item) => ({ value: item.family, label: item.label }))"
+            :options="familyOptions.map(item => ({ value: item.family, label: item.label }))"
             @update:model-value="handleFamilyChange"
           />
         </div>
@@ -105,10 +105,7 @@
       </DsState>
 
       <div v-else class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        <div
-          v-if="showCreateCard"
-          class="space-y-3"
-        >
+        <div v-if="showCreateCard" class="space-y-3">
           <ObjectsLibraryInlineEditor
             v-model:draft="draft"
             :panel-type="resolvedComposerType"
@@ -126,7 +123,9 @@
             :add-label="t('common.buttons.add')"
             :can-save="canSaveDraft"
             :show-delete="false"
-            :hide-goal-select="resolvedComposerType === 'keyResult' && Boolean(store.query.composerParentId)"
+            :hide-goal-select="
+              resolvedComposerType === 'keyResult' && Boolean(store.query.composerParentId)
+            "
             :goal-options="store.filterOptions.goals"
             :life-area-options="store.filterOptions.lifeAreas"
             :priority-options="store.filterOptions.priorities"
@@ -153,7 +152,14 @@
             v-if="item.panelType === 'goal'"
             :item="item"
             :linked-months="goalLinkedMonths(item)"
-            :save-months="(refs) => saveGoalMonths(item.id, goalLinkedMonths(item).map(month => month.monthRef), refs)"
+            :save-months="
+              refs =>
+                saveGoalMonths(
+                  item.id,
+                  goalLinkedMonths(item).map(month => month.monthRef),
+                  refs
+                )
+            "
             :save-kr-periods="saveKrPeriods"
             :status-options="statusOptionsForType('goal')"
             :priority-options="store.filterOptions.priorities"
@@ -195,8 +201,8 @@
             @archive="handlePriorityArchive"
             @delete="(id, title) => handleDeleteFromCard('priority', id, title)"
             @drafts-changed="handlePriorityDraftsChanged"
-            @drafts-notify="(message) => snackbarRef?.show(message)"
-            @drafts-error="(message) => snackbarRef?.show(message)"
+            @drafts-notify="message => snackbarRef?.show(message)"
+            @drafts-error="message => snackbarRef?.show(message)"
           />
 
           <!-- Habit/Tracker unified inline card -->
@@ -204,8 +210,22 @@
             v-else-if="item.panelType === 'habit' || item.panelType === 'tracker'"
             :item="item"
             :panel-type="item.panelType"
-            :save-periods="(refs) => saveMeasurementPeriods(item.id, item.panelType as 'habit' | 'tracker', item.cadence ?? 'weekly', expandedMeasurementPeriods.map(period => period.periodRef), refs)"
-            :save-schedule="item.panelType === 'habit' ? (refs, permanent) => saveHabitSchedule(item.id, item.cadence ?? 'weekly', refs, permanent) : undefined"
+            :save-periods="
+              refs =>
+                saveMeasurementPeriods(
+                  item.id,
+                  item.panelType as 'habit' | 'tracker',
+                  item.cadence ?? 'weekly',
+                  expandedMeasurementPeriods.map(period => period.periodRef),
+                  refs
+                )
+            "
+            :save-schedule="
+              item.panelType === 'habit'
+                ? (refs, permanent) =>
+                    saveHabitSchedule(item.id, item.cadence ?? 'weekly', refs, permanent)
+                : undefined
+            "
             :is-expanded="expandedMeasurementId === item.id"
             :is-new="newMeasurementId === item.id"
             :linked-periods="expandedMeasurementId === item.id ? expandedMeasurementPeriods : []"
@@ -214,10 +234,32 @@
             :status-options="statusOptionsForType(item.panelType)"
             :priority-options="store.filterOptions.priorities"
             :life-area-options="store.filterOptions.lifeAreas"
-            @toggle-expand="handleMeasurementToggleExpand(item.id, item.panelType as 'habit' | 'tracker', item.cadence ?? 'weekly')"
+            @toggle-expand="
+              handleMeasurementToggleExpand(
+                item.id,
+                item.panelType as 'habit' | 'tracker',
+                item.cadence ?? 'weekly'
+              )
+            "
             @field-change="handleMeasurementFieldChange"
-            @link-period="(id, ref) => handleMeasurementLinkPeriod(id, item.panelType as 'habit' | 'tracker', ref, item.cadence ?? 'weekly')"
-            @unlink-period="(id, ref) => handleMeasurementUnlinkPeriod(id, item.panelType as 'habit' | 'tracker', ref, item.cadence ?? 'weekly')"
+            @link-period="
+              (id, ref) =>
+                handleMeasurementLinkPeriod(
+                  id,
+                  item.panelType as 'habit' | 'tracker',
+                  ref,
+                  item.cadence ?? 'weekly'
+                )
+            "
+            @unlink-period="
+              (id, ref) =>
+                handleMeasurementUnlinkPeriod(
+                  id,
+                  item.panelType as 'habit' | 'tracker',
+                  ref,
+                  item.cadence ?? 'weekly'
+                )
+            "
             @archive="(id, isActive) => handleArchiveFromCard(item.panelType, id, isActive)"
             @delete="(id, title) => handleDeleteFromCard(item.panelType, id, title)"
           />
@@ -233,7 +275,17 @@
           />
 
           <section
-            v-if="item.panelType !== 'priority' && item.panelType !== 'goal' && item.panelType !== 'habit' && item.panelType !== 'tracker' && item.panelType !== 'weeklyIntention' && isExpansionHost(item.panelType, item.id) && isComposerHostedByItem(item.panelType, item.id) && isComposerReady && !(composerMode === 'edit' && resolvedComposerType === 'keyResult')"
+            v-if="
+              item.panelType !== 'priority' &&
+              item.panelType !== 'goal' &&
+              item.panelType !== 'habit' &&
+              item.panelType !== 'tracker' &&
+              item.panelType !== 'weeklyIntention' &&
+              isExpansionHost(item.panelType, item.id) &&
+              isComposerHostedByItem(item.panelType, item.id) &&
+              isComposerReady &&
+              !(composerMode === 'edit' && resolvedComposerType === 'keyResult')
+            "
             class="mg-v2-surface mg-v2-surface--flat p-3"
           >
             <ObjectsLibraryInlineEditor
@@ -241,10 +293,18 @@
               :panel-type="resolvedComposerType"
               :is-create-mode="isCreateMode"
               :heading="composerHeading"
-              :mode-label="isCreateMode ? t('planning.objects.panel.modeCreate') : t('planning.objects.panel.modeEdit')"
+              :mode-label="
+                isCreateMode
+                  ? t('planning.objects.panel.modeCreate')
+                  : t('planning.objects.panel.modeEdit')
+              "
               :type-label="resolvePanelTypeLabel(resolvedComposerType)"
               :parent-label="composerParentGoalLabel"
-              :help-text="isCreateMode ? t('planning.objects.panel.createHelp') : t('planning.objects.panel.editHelp')"
+              :help-text="
+                isCreateMode
+                  ? t('planning.objects.panel.createHelp')
+                  : t('planning.objects.panel.editHelp')
+              "
               :save-label="isCreateMode ? t('common.buttons.create') : t('common.buttons.save')"
               :cancel-label="t('common.buttons.cancel')"
               :delete-label="t('common.buttons.delete')"
@@ -253,7 +313,9 @@
               :add-label="t('common.buttons.add')"
               :can-save="canSaveDraft"
               :show-delete="!isCreateMode"
-              :hide-goal-select="resolvedComposerType === 'keyResult' && Boolean(store.query.composerParentId)"
+              :hide-goal-select="
+                resolvedComposerType === 'keyResult' && Boolean(store.query.composerParentId)
+              "
               :goal-options="store.filterOptions.goals"
               :life-area-options="store.filterOptions.lifeAreas"
               :priority-options="store.filterOptions.priorities"
@@ -293,7 +355,11 @@
     />
     <AppDialog
       v-model="isGoalWizardOpen"
-      :title="goalWizardMode === 'edit' ? t('planning.goalWizard.editTitle') : t('planning.goalWizard.title')"
+      :title="
+        goalWizardMode === 'edit'
+          ? t('planning.goalWizard.editTitle')
+          : t('planning.goalWizard.title')
+      "
       size="3xl"
       :close-on-backdrop="false"
       panel-class="mg-v2-surface mg-v2-surface--raised"
@@ -359,7 +425,11 @@ import {
   updateWeeklyIntention,
 } from '@/services/weeklyIntentionService'
 import { getUserDatabase } from '@/services/userDatabase.service'
-import { formatMonthShort as formatMonthShortLocalized, formatPeriodLabel, formatWeekRange } from '@/utils/periodLabels'
+import {
+  formatMonthShort as formatMonthShortLocalized,
+  formatPeriodLabel,
+  formatWeekRange,
+} from '@/utils/periodLabels'
 import { getPeriodRefsForDate, getPeriodType, getWeekOverlappingMonths } from '@/utils/periods'
 import type { PeriodRef, MonthRef, WeekRef, YearRef } from '@/domain/period'
 import type {
@@ -459,11 +529,20 @@ const filteredEmptyBody = computed(() => {
   const parts: string[] = []
   const query = store.query
   if (query.q.trim()) parts.push(`${t('planning.objects.filters.search')}: „${query.q.trim()}”`)
-  if (query.period) parts.push(`${t('planning.objects.filters.period')}: ${describePeriod(query.period)}`)
-  const areas = store.filterOptions.lifeAreas.filter((option) => query.lifeAreaIds.includes(option.id))
-  if (areas.length > 0) parts.push(`${t('planning.objects.filters.lifeAreas')}: ${areas.map((a) => a.label).join(', ')}`)
-  const priorities = store.filterOptions.priorities.filter((option) => query.priorityIds.includes(option.id))
-  if (priorities.length > 0) parts.push(`${t('planning.objects.filters.priorities')}: ${priorities.map((p) => p.label).join(', ')}`)
+  if (query.period)
+    parts.push(`${t('planning.objects.filters.period')}: ${describePeriod(query.period)}`)
+  const areas = store.filterOptions.lifeAreas.filter(option =>
+    query.lifeAreaIds.includes(option.id)
+  )
+  if (areas.length > 0)
+    parts.push(`${t('planning.objects.filters.lifeAreas')}: ${areas.map(a => a.label).join(', ')}`)
+  const priorities = store.filterOptions.priorities.filter(option =>
+    query.priorityIds.includes(option.id)
+  )
+  if (priorities.length > 0)
+    parts.push(
+      `${t('planning.objects.filters.priorities')}: ${priorities.map(p => p.label).join(', ')}`
+    )
   if (parts.length === 0) return t('planning.objects.empty.filteredBody')
   return t('planning.objects.empty.filteredNarrowedBy', { list: parts.join(' · ') })
 })
@@ -495,7 +574,7 @@ const createButtonLabel = computed(() => {
 const familyEmptyTitle = computed(() =>
   store.query.family === 'intentions'
     ? t('planning.objects.empty.intentionsTitle')
-    : t('planning.objects.empty.familyTitle'),
+    : t('planning.objects.empty.familyTitle')
 )
 
 const editorLabels = computed(() => ({
@@ -522,13 +601,15 @@ const composerHeading = computed(() => {
 })
 
 const showCreateCard = computed(
-  () => isComposerOpen.value && isCreateMode.value
-    && resolvedComposerType.value !== 'keyResult'
-    && resolvedComposerType.value !== 'priority'
-    && resolvedComposerType.value !== 'goal'
-    && resolvedComposerType.value !== 'habit'
-    && resolvedComposerType.value !== 'tracker'
-    && resolvedComposerType.value !== 'weeklyIntention',
+  () =>
+    isComposerOpen.value &&
+    isCreateMode.value &&
+    resolvedComposerType.value !== 'keyResult' &&
+    resolvedComposerType.value !== 'priority' &&
+    resolvedComposerType.value !== 'goal' &&
+    resolvedComposerType.value !== 'habit' &&
+    resolvedComposerType.value !== 'tracker' &&
+    resolvedComposerType.value !== 'weeklyIntention'
 )
 
 const composerParentGoalLabel = computed(() => {
@@ -538,7 +619,7 @@ const composerParentGoalLabel = computed(() => {
   }
 
   return (
-    store.filterOptions.goals.find((goal) => goal.id === goalId)?.label ??
+    store.filterOptions.goals.find(goal => goal.id === goalId)?.label ??
     store.composerItem?.owner?.title ??
     expandedItem.value?.owner?.title
   )
@@ -577,7 +658,10 @@ const cadenceOptions = computed(() => [
 ])
 const entryModeOptions = computed(() => [
   { value: 'completion' as const, label: t('planning.objects.badges.entryMode.completion') },
-  { value: 'multi-completion' as const, label: t('planning.objects.badges.entryMode.multi-completion') },
+  {
+    value: 'multi-completion' as const,
+    label: t('planning.objects.badges.entryMode.multi-completion'),
+  },
   { value: 'counter' as const, label: t('planning.objects.badges.entryMode.counter') },
   { value: 'value' as const, label: t('planning.objects.badges.entryMode.value') },
   { value: 'rating' as const, label: t('planning.objects.badges.entryMode.rating') },
@@ -609,7 +693,9 @@ const canSaveDraft = computed(() => {
   return true
 })
 
-const isFamilyEmptyState = computed(() => Boolean(store.bundle && store.bundle.familyTotalCount === 0))
+const isFamilyEmptyState = computed(() =>
+  Boolean(store.bundle && store.bundle.familyTotalCount === 0)
+)
 
 watch(
   () => route.fullPath,
@@ -619,7 +705,7 @@ watch(
     await store.loadBundle()
     initializeDraft()
   },
-  { immediate: true },
+  { immediate: true }
 )
 
 onBeforeUnmount(() => {
@@ -631,7 +717,10 @@ onBeforeUnmount(() => {
 
 function initializeDraft(): void {
   if (composerMode.value === 'edit' && store.composerItem) {
-    draft.value = createDraftFromDefaults(store.composerItem.formDefaults, resolvedComposerType.value)
+    draft.value = createDraftFromDefaults(
+      store.composerItem.formDefaults,
+      resolvedComposerType.value
+    )
     return
   }
 
@@ -734,14 +823,22 @@ function createDefaultTarget(entryMode: MeasurementEntryMode): LibraryTargetDraf
   }
 }
 
-function toTargetDraft(target: MeasurementTarget | undefined, entryMode: MeasurementEntryMode): LibraryTargetDraft {
+function toTargetDraft(
+  target: MeasurementTarget | undefined,
+  entryMode: MeasurementEntryMode
+): LibraryTargetDraft {
   if (!target) {
     return createDefaultTarget(entryMode)
   }
 
   switch (target.kind) {
     case 'count':
-      return { kind: 'count', operator: target.operator, value: target.value, entryDays: target.entryDays }
+      return {
+        kind: 'count',
+        operator: target.operator,
+        value: target.value,
+        entryDays: target.entryDays,
+      }
     case 'value':
       return {
         kind: 'value',
@@ -763,7 +860,7 @@ function toTargetDraft(target: MeasurementTarget | undefined, entryMode: Measure
 
 function createDraftFromDefaults(
   defaults: ObjectsLibraryDetailRecord['formDefaults'],
-  panelType: ObjectsLibraryPanelType,
+  panelType: ObjectsLibraryPanelType
 ): LibraryDraft {
   const fallback = createEmptyDraft(panelType, defaults.goalId)
   const entryMode = defaults.entryMode ?? fallback.entryMode ?? 'completion'
@@ -797,7 +894,12 @@ function syncTargetToEntryMode(entryMode: MeasurementEntryMode): void {
     if (current.kind !== 'value') {
       draft.value.target = createDefaultTarget(entryMode)
     } else if (!current.aggregation) {
-      draft.value.target = { kind: 'value', aggregation: 'sum', operator: 'gte', value: current.value || 1 }
+      draft.value.target = {
+        kind: 'value',
+        aggregation: 'sum',
+        operator: 'gte',
+        value: current.value || 1,
+      }
     }
     return
   }
@@ -818,7 +920,7 @@ function syncTargetToEntryMode(entryMode: MeasurementEntryMode): void {
 function defaultMultiItemsFor(title: string): MultiCompletionItem[] {
   return [
     createMultiCompletionItem(
-      title.trim() || t('planning.objects.form.multiItems.defaultItemLabel'),
+      title.trim() || t('planning.objects.form.multiItems.defaultItemLabel')
     ),
   ]
 }
@@ -829,7 +931,10 @@ function defaultMultiItemsFor(title: string): MultiCompletionItem[] {
  * Always sends items (default single item when the draft has none) so switching
  * an existing object to multi-completion passes the required-items validation.
  */
-function multiPayloadFromDraft(): { multiItems?: MultiCompletionItem[]; multiDailyThreshold?: number } {
+function multiPayloadFromDraft(): {
+  multiItems?: MultiCompletionItem[]
+  multiDailyThreshold?: number
+} {
   if (draft.value.entryMode !== 'multi-completion') return {}
   return {
     multiItems: draft.value.multiItems?.length
@@ -839,7 +944,10 @@ function multiPayloadFromDraft(): { multiItems?: MultiCompletionItem[]; multiDai
   }
 }
 
-function normalizeTargetDraft(entryMode: MeasurementEntryMode, target: LibraryTargetDraft): MeasurementTarget {
+function normalizeTargetDraft(
+  entryMode: MeasurementEntryMode,
+  target: LibraryTargetDraft
+): MeasurementTarget {
   // Redundant for completion — the domain normalizer strips it there too.
   const entryDays =
     entryMode !== 'completion' && target.entryDays
@@ -862,7 +970,10 @@ function normalizeTargetDraft(entryMode: MeasurementEntryMode, target: LibraryTa
     case 'value':
       return {
         kind: 'value',
-        aggregation: target.aggregation === 'average' || target.aggregation === 'last' ? target.aggregation : 'sum',
+        aggregation:
+          target.aggregation === 'average' || target.aggregation === 'last'
+            ? target.aggregation
+            : 'sum',
         operator: target.operator === 'lte' ? 'lte' : 'gte',
         value: Number(target.value),
         ...(entryDays ? { entryDays } : {}),
@@ -884,7 +995,7 @@ function hasValidTargetDraft(): boolean {
 
 watch(
   () => draft.value.entryMode,
-  (entryMode) => {
+  entryMode => {
     if (!entryMode) {
       return
     }
@@ -892,14 +1003,13 @@ watch(
     if (resolvedComposerType.value === 'keyResult' || resolvedComposerType.value === 'habit') {
       syncTargetToEntryMode(entryMode)
     }
-  },
+  }
 )
 
-const showTargetAggregation = computed(
-  () =>
-    resolvedComposerType.value === 'keyResult' || resolvedComposerType.value === 'habit'
-      ? draft.value.entryMode === 'value' || draft.value.entryMode === 'rating'
-      : false,
+const showTargetAggregation = computed(() =>
+  resolvedComposerType.value === 'keyResult' || resolvedComposerType.value === 'habit'
+    ? draft.value.entryMode === 'value' || draft.value.entryMode === 'rating'
+    : false
 )
 
 const targetOperatorOptions = computed<
@@ -997,11 +1107,11 @@ async function handleGoalWizardSaved(goalId: string, mode: 'create' | 'edit'): P
     snackbarRef.value?.show(
       mode === 'edit'
         ? t('planning.goalWizard.messages.updated')
-        : t('planning.goalWizard.messages.saved'),
+        : t('planning.goalWizard.messages.saved')
     )
   } catch (err) {
     snackbarRef.value?.show(
-      err instanceof Error ? err.message : t('planning.goalWizard.messages.saveError'),
+      err instanceof Error ? err.message : t('planning.goalWizard.messages.saveError')
     )
   }
 }
@@ -1024,27 +1134,27 @@ async function handleGoalEdit(goalId: string): Promise<void> {
       return
     }
     const allKeyResults = await keyResultDexieRepository.listAll()
-    const keyResults = allKeyResults.filter((kr) => kr.goalId === goalId)
+    const keyResults = allKeyResults.filter(kr => kr.goalId === goalId)
 
     const goalMonthStates = await planningStateDexieRepository.listGoalMonthStates()
     const goalMonthRefs = goalMonthStates
-      .filter((state) => state.goalId === goalId && state.activityState === 'active')
-      .map((state) => state.monthRef)
+      .filter(state => state.goalId === goalId && state.activityState === 'active')
+      .map(state => state.monthRef)
 
     const krPeriodRefsByKrId: Record<string, string[]> = {}
     for (const kr of keyResults) {
       if (kr.cadence === 'monthly') {
         const states = await planningStateDexieRepository.listMeasurementMonthStatesForSubject(
           'keyResult',
-          kr.id,
+          kr.id
         )
-        krPeriodRefsByKrId[kr.id] = states.map((s) => s.monthRef)
+        krPeriodRefsByKrId[kr.id] = states.map(s => s.monthRef)
       } else {
         const states = await planningStateDexieRepository.listMeasurementWeekStatesForSubject(
           'keyResult',
-          kr.id,
+          kr.id
         )
-        krPeriodRefsByKrId[kr.id] = states.map((s) => s.weekRef)
+        krPeriodRefsByKrId[kr.id] = states.map(s => s.weekRef)
       }
     }
 
@@ -1058,7 +1168,7 @@ async function handleGoalEdit(goalId: string): Promise<void> {
     isGoalWizardOpen.value = true
   } catch (err) {
     snackbarRef.value?.show(
-      err instanceof Error ? err.message : t('planning.goalWizard.messages.saveError'),
+      err instanceof Error ? err.message : t('planning.goalWizard.messages.saveError')
     )
   }
 }
@@ -1097,7 +1207,7 @@ async function handleOpenCreate(): Promise<void> {
       await loadMeasurementPeriods(created.id, 'habit', 'weekly')
     } catch (err) {
       snackbarRef.value?.show(
-        err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
+        err instanceof Error ? err.message : t('planning.objects.messages.saveError')
       )
     }
     return
@@ -1121,7 +1231,7 @@ async function handleOpenCreate(): Promise<void> {
       await loadMeasurementPeriods(created.id, 'tracker', 'weekly')
     } catch (err) {
       snackbarRef.value?.show(
-        err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
+        err instanceof Error ? err.message : t('planning.objects.messages.saveError')
       )
     }
     return
@@ -1140,7 +1250,7 @@ async function handleOpenCreate(): Promise<void> {
       await store.loadBundle()
     } catch (err) {
       snackbarRef.value?.show(
-        err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
+        err instanceof Error ? err.message : t('planning.objects.messages.saveError')
       )
     }
     return
@@ -1169,11 +1279,10 @@ async function handleCreateChildKeyResult(goalId: string): Promise<void> {
     await loadKrPeriods(created.id)
   } catch (err) {
     snackbarRef.value?.show(
-      err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
+      err instanceof Error ? err.message : t('planning.objects.messages.saveError')
     )
   }
 }
-
 
 async function handleKrToggleExpand(krId: string): Promise<void> {
   if (expandedKrId.value === krId) {
@@ -1186,9 +1295,7 @@ async function handleKrToggleExpand(krId: string): Promise<void> {
 }
 
 async function loadKrPeriods(krId: string): Promise<void> {
-  const child = store.items
-    .flatMap((item) => item.childPreviews ?? [])
-    .find((c) => c.id === krId)
+  const child = store.items.flatMap(item => item.childPreviews ?? []).find(c => c.id === krId)
 
   if (!child) {
     expandedKrPeriods.value = []
@@ -1197,14 +1304,20 @@ async function loadKrPeriods(krId: string): Promise<void> {
 
   try {
     if (child.cadence === 'monthly') {
-      const states = await planningStateDexieRepository.listMeasurementMonthStatesForSubject('keyResult', krId)
-      expandedKrPeriods.value = states.map((s) => ({
+      const states = await planningStateDexieRepository.listMeasurementMonthStatesForSubject(
+        'keyResult',
+        krId
+      )
+      expandedKrPeriods.value = states.map(s => ({
         periodRef: s.monthRef,
         displayLabel: formatMonthShortLocalized(s.monthRef as MonthRef, locale.value),
       }))
     } else {
-      const states = await planningStateDexieRepository.listMeasurementWeekStatesForSubject('keyResult', krId)
-      expandedKrPeriods.value = states.map((s) => ({
+      const states = await planningStateDexieRepository.listMeasurementWeekStatesForSubject(
+        'keyResult',
+        krId
+      )
+      expandedKrPeriods.value = states.map(s => ({
         periodRef: s.weekRef,
         displayLabel: formatWeekShort(s.weekRef),
       }))
@@ -1220,9 +1333,7 @@ function formatWeekShort(weekRef: string): string {
 
 async function handleKrFieldChange(krId: string, field: string, value: unknown): Promise<void> {
   try {
-    const child = store.items
-      .flatMap((item) => item.childPreviews ?? [])
-      .find((c) => c.id === krId)
+    const child = store.items.flatMap(item => item.childPreviews ?? []).find(c => c.id === krId)
 
     if (!child) return
 
@@ -1233,14 +1344,18 @@ async function handleKrFieldChange(krId: string, field: string, value: unknown):
         needsReload = false
         break
       case 'description':
-        await keyResultDexieRepository.update(krId, { description: normalizeOptionalText(value as string) })
+        await keyResultDexieRepository.update(krId, {
+          description: normalizeOptionalText(value as string),
+        })
         needsReload = false
         break
       case 'cadence':
         await keyResultDexieRepository.update(krId, { cadence: value as 'weekly' | 'monthly' })
         break
       case 'status':
-        await keyResultDexieRepository.update(krId, { status: value as 'open' | 'completed' | 'dropped' })
+        await keyResultDexieRepository.update(krId, {
+          status: value as 'open' | 'completed' | 'dropped',
+        })
         break
       case 'entryMode': {
         const newEntryMode = value as MeasurementEntryMode
@@ -1273,12 +1388,22 @@ async function handleKrFieldChange(krId: string, field: string, value: unknown):
         break
       }
       case 'target.operator': {
-        const updated = updateTargetField(child.entryMode, child.target, 'operator', value as string)
+        const updated = updateTargetField(
+          child.entryMode,
+          child.target,
+          'operator',
+          value as string
+        )
         await keyResultDexieRepository.update(krId, { target: updated })
         break
       }
       case 'target.aggregation': {
-        const updated = updateTargetField(child.entryMode, child.target, 'aggregation', value as string)
+        const updated = updateTargetField(
+          child.entryMode,
+          child.target,
+          'aggregation',
+          value as string
+        )
         await keyResultDexieRepository.update(krId, { target: updated })
         break
       }
@@ -1292,7 +1417,7 @@ async function handleKrFieldChange(krId: string, field: string, value: unknown):
           child.entryMode,
           child.target,
           'entryDays',
-          value as MeasurementEntryDaysCondition | undefined,
+          value as MeasurementEntryDaysCondition | undefined
         )
         await keyResultDexieRepository.update(krId, { target: updated })
         break
@@ -1303,12 +1428,15 @@ async function handleKrFieldChange(krId: string, field: string, value: unknown):
     }
   } catch (err) {
     snackbarRef.value?.show(
-      err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
+      err instanceof Error ? err.message : t('planning.objects.messages.saveError')
     )
   }
 }
 
-function buildTargetForEntryMode(entryMode: MeasurementEntryMode, currentTarget: MeasurementTarget): MeasurementTarget {
+function buildTargetForEntryMode(
+  entryMode: MeasurementEntryMode,
+  currentTarget: MeasurementTarget
+): MeasurementTarget {
   switch (entryMode) {
     case 'completion':
     case 'counter':
@@ -1328,7 +1456,7 @@ function updateTargetField(
   _entryMode: MeasurementEntryMode,
   currentTarget: MeasurementTarget,
   field: 'operator' | 'aggregation' | 'value' | 'entryDays',
-  value: string | number | MeasurementEntryDaysCondition | undefined,
+  value: string | number | MeasurementEntryDaysCondition | undefined
 ): MeasurementTarget {
   if (field === 'entryDays') {
     return { ...currentTarget, entryDays: value as MeasurementEntryDaysCondition | undefined }
@@ -1340,7 +1468,8 @@ function updateTargetField(
       return currentTarget
     case 'value':
       if (field === 'operator') return { ...currentTarget, operator: value as 'gte' | 'lte' }
-      if (field === 'aggregation') return { ...currentTarget, aggregation: value as 'sum' | 'average' | 'last' }
+      if (field === 'aggregation')
+        return { ...currentTarget, aggregation: value as 'sum' | 'average' | 'last' }
       if (field === 'value') return { ...currentTarget, value: value as number }
       return currentTarget
     case 'rating':
@@ -1355,8 +1484,10 @@ async function saveGoalMonths(id: string, previous: string[], desired: string[])
   const db = getUserDatabase()
   await db.transaction('rw', db.tables, async () => {
     await goalDexieRepository.update(id, { periodAssignmentMode: 'custom' })
-    for (const ref of previous.filter(ref => !desired.includes(ref))) await unlinkGoalFromMonth(id, ref as MonthRef)
-    for (const ref of desired.filter(ref => !previous.includes(ref))) await linkGoalToMonth(id, ref as MonthRef)
+    for (const ref of previous.filter(ref => !desired.includes(ref)))
+      await unlinkGoalFromMonth(id, ref as MonthRef)
+    for (const ref of desired.filter(ref => !previous.includes(ref)))
+      await linkGoalToMonth(id, ref as MonthRef)
   })
   await store.loadBundle()
 }
@@ -1364,30 +1495,48 @@ async function saveGoalMonths(id: string, previous: string[], desired: string[])
 async function saveKrPeriods(id: string, refs: string[]): Promise<void> {
   const child = store.items.flatMap(item => item.childPreviews ?? []).find(child => child.id === id)
   if (!child) throw new Error('Key result not found')
-  await saveMeasurementPeriods(id, 'keyResult', child.cadence, expandedKrPeriods.value.map(period => period.periodRef), refs)
+  await saveMeasurementPeriods(
+    id,
+    'keyResult',
+    child.cadence,
+    expandedKrPeriods.value.map(period => period.periodRef),
+    refs
+  )
 }
 
 async function saveHabitSchedule(
   id: string,
   cadence: 'weekly' | 'monthly',
   desired: string[],
-  isPermanent: boolean,
+  isPermanent: boolean
 ): Promise<void> {
   const db = getUserDatabase()
   // Save the mode and manual period changes together; a failed save keeps the dialog open.
   await db.transaction('rw', db.tables, async () => {
     await habitDexieRepository.update(id, { isPermanent })
     if (!isPermanent) {
-      const states = cadence === 'monthly'
-        ? await planningStateDexieRepository.listMeasurementMonthStatesForSubject('habit', id)
-        : await planningStateDexieRepository.listMeasurementWeekStatesForSubject('habit', id)
-      const previous: string[] = states.filter(state => state.activityState === 'active')
-        .map(state => 'monthRef' in state ? state.monthRef : state.weekRef)
+      const states =
+        cadence === 'monthly'
+          ? await planningStateDexieRepository.listMeasurementMonthStatesForSubject('habit', id)
+          : await planningStateDexieRepository.listMeasurementWeekStatesForSubject('habit', id)
+      const previous: string[] = states
+        .filter(state => state.activityState === 'active')
+        .map(state => ('monthRef' in state ? state.monthRef : state.weekRef))
       for (const ref of previous.filter(ref => !desired.includes(ref))) {
-        await unlinkMeasurementPeriod({ subjectType: 'habit', subjectId: id, cadence, periodRef: ref as MonthRef | WeekRef })
+        await unlinkMeasurementPeriod({
+          subjectType: 'habit',
+          subjectId: id,
+          cadence,
+          periodRef: ref as MonthRef | WeekRef,
+        })
       }
       for (const ref of desired.filter(ref => !previous.includes(ref))) {
-        await linkMeasurementPeriod({ subjectType: 'habit', subjectId: id, cadence, periodRef: ref as MonthRef | WeekRef })
+        await linkMeasurementPeriod({
+          subjectType: 'habit',
+          subjectId: id,
+          cadence,
+          periodRef: ref as MonthRef | WeekRef,
+        })
       }
     }
   })
@@ -1400,21 +1549,35 @@ async function saveMeasurementPeriods(
   subjectType: 'keyResult' | 'habit' | 'tracker',
   cadence: 'weekly' | 'monthly',
   previous: string[],
-  desired: string[],
+  desired: string[]
 ): Promise<void> {
   if (previous.length === desired.length && previous.every(ref => desired.includes(ref))) return
   const db = getUserDatabase()
   await db.transaction('rw', db.tables, async () => {
     if (subjectType === 'keyResult') {
       const kr = await keyResultDexieRepository.update(id, { periodAssignmentMode: 'custom' })
-      const months = new Set(desired.flatMap(ref => cadence === 'monthly' ? [ref as MonthRef] : getWeekOverlappingMonths(ref as WeekRef)))
+      const months = new Set(
+        desired.flatMap(ref =>
+          cadence === 'monthly' ? [ref as MonthRef] : getWeekOverlappingMonths(ref as WeekRef)
+        )
+      )
       for (const month of months) await linkGoalToMonth(kr.goalId, month)
     }
     for (const ref of previous.filter(ref => !desired.includes(ref))) {
-      await unlinkMeasurementPeriod({ subjectType, subjectId: id, cadence, periodRef: ref as MonthRef | WeekRef })
+      await unlinkMeasurementPeriod({
+        subjectType,
+        subjectId: id,
+        cadence,
+        periodRef: ref as MonthRef | WeekRef,
+      })
     }
     for (const ref of desired.filter(ref => !previous.includes(ref))) {
-      await linkMeasurementPeriod({ subjectType, subjectId: id, cadence, periodRef: ref as MonthRef | WeekRef })
+      await linkMeasurementPeriod({
+        subjectType,
+        subjectId: id,
+        cadence,
+        periodRef: ref as MonthRef | WeekRef,
+      })
     }
   })
   if (subjectType === 'keyResult') await loadKrPeriods(id)
@@ -1424,9 +1587,7 @@ async function saveMeasurementPeriods(
 
 async function handleKrLinkPeriod(krId: string, periodRef: string): Promise<void> {
   try {
-    const child = store.items
-      .flatMap((item) => item.childPreviews ?? [])
-      .find((c) => c.id === krId)
+    const child = store.items.flatMap(item => item.childPreviews ?? []).find(c => c.id === krId)
 
     if (!child) return
 
@@ -1441,16 +1602,14 @@ async function handleKrLinkPeriod(krId: string, periodRef: string): Promise<void
     await store.loadBundle()
   } catch (err) {
     snackbarRef.value?.show(
-      err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
+      err instanceof Error ? err.message : t('planning.objects.messages.saveError')
     )
   }
 }
 
 async function handleKrUnlinkPeriod(krId: string, periodRef: string): Promise<void> {
   try {
-    const child = store.items
-      .flatMap((item) => item.childPreviews ?? [])
-      .find((c) => c.id === krId)
+    const child = store.items.flatMap(item => item.childPreviews ?? []).find(c => c.id === krId)
 
     if (!child) return
 
@@ -1465,15 +1624,13 @@ async function handleKrUnlinkPeriod(krId: string, periodRef: string): Promise<vo
     await store.loadBundle()
   } catch (err) {
     snackbarRef.value?.show(
-      err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
+      err instanceof Error ? err.message : t('planning.objects.messages.saveError')
     )
   }
 }
 
 async function handleKrDelete(krId: string): Promise<void> {
-  const child = store.items
-    .flatMap((item) => item.childPreviews ?? [])
-    .find((c) => c.id === krId)
+  const child = store.items.flatMap(item => item.childPreviews ?? []).find(c => c.id === krId)
 
   if (!child) return
 
@@ -1488,9 +1645,7 @@ async function handleKrDelete(krId: string): Promise<void> {
 
 async function handleKrArchive(krId: string): Promise<void> {
   try {
-    const child = store.items
-      .flatMap((item) => item.childPreviews ?? [])
-      .find((c) => c.id === krId)
+    const child = store.items.flatMap(item => item.childPreviews ?? []).find(c => c.id === krId)
 
     if (!child) return
 
@@ -1498,12 +1653,12 @@ async function handleKrArchive(krId: string): Promise<void> {
     snackbarRef.value?.show(
       child.isActive
         ? t('planning.objects.messages.archived')
-        : t('planning.objects.messages.unarchived'),
+        : t('planning.objects.messages.unarchived')
     )
     await store.loadBundle()
   } catch (err) {
     snackbarRef.value?.show(
-      err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
+      err instanceof Error ? err.message : t('planning.objects.messages.saveError')
     )
   }
 }
@@ -1511,7 +1666,7 @@ async function handleKrArchive(krId: string): Promise<void> {
 async function handleMeasurementToggleExpand(
   id: string,
   panelType: 'habit' | 'tracker',
-  cadence: string,
+  cadence: string
 ): Promise<void> {
   if (expandedMeasurementId.value === id) {
     expandedMeasurementId.value = null
@@ -1525,30 +1680,44 @@ async function handleMeasurementToggleExpand(
 async function loadMeasurementPeriods(
   id: string,
   panelType: 'habit' | 'tracker',
-  cadence: string,
+  cadence: string
 ): Promise<void> {
   try {
     if (cadence === 'monthly') {
-      const states = await planningStateDexieRepository.listMeasurementMonthStatesForSubject(panelType, id)
-      expandedMeasurementPeriods.value = states.filter(state => state.activityState === 'active').map((s) => ({
-        periodRef: s.monthRef,
-        displayLabel: formatMonthShortLocalized(s.monthRef as MonthRef, locale.value),
-      }))
+      const states = await planningStateDexieRepository.listMeasurementMonthStatesForSubject(
+        panelType,
+        id
+      )
+      expandedMeasurementPeriods.value = states
+        .filter(state => state.activityState === 'active')
+        .map(s => ({
+          periodRef: s.monthRef,
+          displayLabel: formatMonthShortLocalized(s.monthRef as MonthRef, locale.value),
+        }))
     } else {
-      const states = await planningStateDexieRepository.listMeasurementWeekStatesForSubject(panelType, id)
-      expandedMeasurementPeriods.value = states.filter(state => state.activityState === 'active').map((s) => ({
-        periodRef: s.weekRef,
-        displayLabel: formatWeekShort(s.weekRef),
-      }))
+      const states = await planningStateDexieRepository.listMeasurementWeekStatesForSubject(
+        panelType,
+        id
+      )
+      expandedMeasurementPeriods.value = states
+        .filter(state => state.activityState === 'active')
+        .map(s => ({
+          periodRef: s.weekRef,
+          displayLabel: formatWeekShort(s.weekRef),
+        }))
     }
   } catch {
     expandedMeasurementPeriods.value = []
   }
 }
 
-async function handleMeasurementFieldChange(id: string, field: string, value: unknown): Promise<void> {
+async function handleMeasurementFieldChange(
+  id: string,
+  field: string,
+  value: unknown
+): Promise<void> {
   try {
-    const item = store.items.find((i) => i.id === id)
+    const item = store.items.find(i => i.id === id)
     if (!item || (item.panelType !== 'habit' && item.panelType !== 'tracker')) return
 
     const isHabit = item.panelType === 'habit'
@@ -1568,13 +1737,23 @@ async function handleMeasurementFieldChange(id: string, field: string, value: un
         break
       }
       case 'description':
-        if (isHabit) await habitDexieRepository.update(id, { description: normalizeOptionalText(value as string) })
-        else await trackerDexieRepository.update(id, { description: normalizeOptionalText(value as string) })
+        if (isHabit)
+          await habitDexieRepository.update(id, {
+            description: normalizeOptionalText(value as string),
+          })
+        else
+          await trackerDexieRepository.update(id, {
+            description: normalizeOptionalText(value as string),
+          })
         needsReload = false
         break
       case 'status':
-        if (isHabit) await habitDexieRepository.update(id, { status: value as 'open' | 'retired' | 'dropped' })
-        else await trackerDexieRepository.update(id, { status: value as 'open' | 'retired' | 'dropped' })
+        if (isHabit)
+          await habitDexieRepository.update(id, { status: value as 'open' | 'retired' | 'dropped' })
+        else
+          await trackerDexieRepository.update(id, {
+            status: value as 'open' | 'retired' | 'dropped',
+          })
         break
       case 'cadence': {
         const newCadence = value as 'weekly' | 'monthly'
@@ -1594,8 +1773,15 @@ async function handleMeasurementFieldChange(id: string, field: string, value: un
             ? { multiItems: defaultMultiItemsFor(item.title) }
             : {}
         if (isHabit) {
-          const newTarget = buildTargetForEntryMode(newEntryMode, item.target ?? { kind: 'count', operator: 'min', value: 1 })
-          await habitDexieRepository.update(id, { entryMode: newEntryMode, target: newTarget, ...multiSeed })
+          const newTarget = buildTargetForEntryMode(
+            newEntryMode,
+            item.target ?? { kind: 'count', operator: 'min', value: 1 }
+          )
+          await habitDexieRepository.update(id, {
+            entryMode: newEntryMode,
+            target: newTarget,
+            ...multiSeed,
+          })
         } else {
           await trackerDexieRepository.update(id, { entryMode: newEntryMode, ...multiSeed })
         }
@@ -1620,19 +1806,34 @@ async function handleMeasurementFieldChange(id: string, field: string, value: un
       }
       case 'target.operator': {
         if (!item.target || !isHabit) break
-        const updated = updateTargetField(item.entryMode ?? 'completion', item.target, 'operator', value as string)
+        const updated = updateTargetField(
+          item.entryMode ?? 'completion',
+          item.target,
+          'operator',
+          value as string
+        )
         await habitDexieRepository.update(id, { target: updated })
         break
       }
       case 'target.aggregation': {
         if (!item.target || !isHabit) break
-        const updated = updateTargetField(item.entryMode ?? 'completion', item.target, 'aggregation', value as string)
+        const updated = updateTargetField(
+          item.entryMode ?? 'completion',
+          item.target,
+          'aggregation',
+          value as string
+        )
         await habitDexieRepository.update(id, { target: updated })
         break
       }
       case 'target.value': {
         if (!item.target || !isHabit) break
-        const updated = updateTargetField(item.entryMode ?? 'completion', item.target, 'value', value as number)
+        const updated = updateTargetField(
+          item.entryMode ?? 'completion',
+          item.target,
+          'value',
+          value as number
+        )
         await habitDexieRepository.update(id, { target: updated })
         break
       }
@@ -1642,7 +1843,7 @@ async function handleMeasurementFieldChange(id: string, field: string, value: un
           item.entryMode ?? 'completion',
           item.target,
           'entryDays',
-          value as MeasurementEntryDaysCondition | undefined,
+          value as MeasurementEntryDaysCondition | undefined
         )
         await habitDexieRepository.update(id, { target: updated })
         break
@@ -1653,14 +1854,14 @@ async function handleMeasurementFieldChange(id: string, field: string, value: un
           const current = await habitDexieRepository.getById(id)
           if (!current) break
           const newIds = current.priorityIds.includes(toggleId)
-            ? current.priorityIds.filter((pid) => pid !== toggleId)
+            ? current.priorityIds.filter(pid => pid !== toggleId)
             : [...current.priorityIds, toggleId]
           await habitDexieRepository.update(id, { priorityIds: newIds })
         } else {
           const current = await trackerDexieRepository.getById(id)
           if (!current) break
           const newIds = current.priorityIds.includes(toggleId)
-            ? current.priorityIds.filter((pid) => pid !== toggleId)
+            ? current.priorityIds.filter(pid => pid !== toggleId)
             : [...current.priorityIds, toggleId]
           await trackerDexieRepository.update(id, { priorityIds: newIds })
         }
@@ -1672,14 +1873,14 @@ async function handleMeasurementFieldChange(id: string, field: string, value: un
           const current = await habitDexieRepository.getById(id)
           if (!current) break
           const newIds = current.lifeAreaIds.includes(toggleId)
-            ? current.lifeAreaIds.filter((lid) => lid !== toggleId)
+            ? current.lifeAreaIds.filter(lid => lid !== toggleId)
             : [...current.lifeAreaIds, toggleId]
           await habitDexieRepository.update(id, { lifeAreaIds: newIds })
         } else {
           const current = await trackerDexieRepository.getById(id)
           if (!current) break
           const newIds = current.lifeAreaIds.includes(toggleId)
-            ? current.lifeAreaIds.filter((lid) => lid !== toggleId)
+            ? current.lifeAreaIds.filter(lid => lid !== toggleId)
             : [...current.lifeAreaIds, toggleId]
           await trackerDexieRepository.update(id, { lifeAreaIds: newIds })
         }
@@ -1691,7 +1892,7 @@ async function handleMeasurementFieldChange(id: string, field: string, value: un
     }
   } catch (err) {
     snackbarRef.value?.show(
-      err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
+      err instanceof Error ? err.message : t('planning.objects.messages.saveError')
     )
   }
 }
@@ -1700,7 +1901,7 @@ async function handleMeasurementLinkPeriod(
   id: string,
   panelType: 'habit' | 'tracker',
   periodRef: string,
-  cadence: string,
+  cadence: string
 ): Promise<void> {
   try {
     await linkMeasurementPeriod({
@@ -1713,7 +1914,7 @@ async function handleMeasurementLinkPeriod(
     await store.loadBundle()
   } catch (err) {
     snackbarRef.value?.show(
-      err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
+      err instanceof Error ? err.message : t('planning.objects.messages.saveError')
     )
   }
 }
@@ -1722,7 +1923,7 @@ async function handleMeasurementUnlinkPeriod(
   id: string,
   panelType: 'habit' | 'tracker',
   periodRef: string,
-  cadence: string,
+  cadence: string
 ): Promise<void> {
   try {
     await unlinkMeasurementPeriod({
@@ -1735,12 +1936,14 @@ async function handleMeasurementUnlinkPeriod(
     await store.loadBundle()
   } catch (err) {
     snackbarRef.value?.show(
-      err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
+      err instanceof Error ? err.message : t('planning.objects.messages.saveError')
     )
   }
 }
 
-function krTargetOperatorOptions(entryMode: MeasurementEntryMode): Array<{ value: string; label: string }> {
+function krTargetOperatorOptions(
+  entryMode: MeasurementEntryMode
+): Array<{ value: string; label: string }> {
   if (entryMode === 'completion' || entryMode === 'counter') {
     return [
       { value: 'min', label: t('planning.objects.targetOperators.min') },
@@ -1753,7 +1956,9 @@ function krTargetOperatorOptions(entryMode: MeasurementEntryMode): Array<{ value
   ]
 }
 
-function krTargetAggregationOptions(entryMode: MeasurementEntryMode): Array<{ value: string; label: string }> {
+function krTargetAggregationOptions(
+  entryMode: MeasurementEntryMode
+): Array<{ value: string; label: string }> {
   if (entryMode === 'rating') {
     return [{ value: 'average', label: t('planning.objects.targetAggregations.average') }]
   }
@@ -1769,7 +1974,7 @@ function krShowTargetAggregation(entryMode: MeasurementEntryMode): boolean {
 }
 
 function goalLinkedMonths(item: ObjectsLibraryListItem): LinkedMonth[] {
-  return (item.goalMonthRefs ?? []).map((ref) => ({
+  return (item.goalMonthRefs ?? []).map(ref => ({
     monthRef: ref,
     displayLabel: formatMonthShortLocalized(ref as MonthRef, locale.value),
   }))
@@ -1785,7 +1990,9 @@ async function handleGoalFieldChange(goalId: string, field: string, value: unkno
         needsReload = false
         break
       case 'icon':
-        await goalDexieRepository.update(goalId, { icon: (value as string | undefined) ?? undefined })
+        await goalDexieRepository.update(goalId, {
+          icon: (value as string | undefined) ?? undefined,
+        })
         break
       case 'description':
         await goalDexieRepository.update(goalId, {
@@ -1815,7 +2022,7 @@ async function handleGoalFieldChange(goalId: string, field: string, value: unkno
         if (!goal) return
         const id = value as string
         const newIds = goal.priorityIds.includes(id)
-          ? goal.priorityIds.filter((pid) => pid !== id)
+          ? goal.priorityIds.filter(pid => pid !== id)
           : [...goal.priorityIds, id]
         await goalDexieRepository.update(goalId, { priorityIds: newIds })
         break
@@ -1825,7 +2032,7 @@ async function handleGoalFieldChange(goalId: string, field: string, value: unkno
         if (!goal) return
         const id = value as string
         const newIds = goal.lifeAreaIds.includes(id)
-          ? goal.lifeAreaIds.filter((lid) => lid !== id)
+          ? goal.lifeAreaIds.filter(lid => lid !== id)
           : [...goal.lifeAreaIds, id]
         await goalDexieRepository.update(goalId, { lifeAreaIds: newIds })
         break
@@ -1836,7 +2043,7 @@ async function handleGoalFieldChange(goalId: string, field: string, value: unkno
     }
   } catch (err) {
     snackbarRef.value?.show(
-      err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
+      err instanceof Error ? err.message : t('planning.objects.messages.saveError')
     )
   }
 }
@@ -1847,7 +2054,7 @@ async function handleGoalLinkMonth(goalId: string, monthRef: string): Promise<vo
     await store.loadBundle()
   } catch (err) {
     snackbarRef.value?.show(
-      err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
+      err instanceof Error ? err.message : t('planning.objects.messages.saveError')
     )
   }
 }
@@ -1858,7 +2065,7 @@ async function handleGoalUnlinkMonth(goalId: string, monthRef: string): Promise<
     await store.loadBundle()
   } catch (err) {
     snackbarRef.value?.show(
-      err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
+      err instanceof Error ? err.message : t('planning.objects.messages.saveError')
     )
   }
 }
@@ -1876,9 +2083,9 @@ function parseSignalLines(value: string): string[] {
     new Set(
       value
         .split('\n')
-        .map((item) => item.trim())
-        .filter(Boolean),
-    ),
+        .map(item => item.trim())
+        .filter(Boolean)
+    )
   )
 }
 
@@ -1893,7 +2100,9 @@ async function handlePriorityFieldChange(id: string, field: string, value: unkno
         break
       case 'icon':
         // Reload so the card glyph reflects the new icon immediately.
-        await priorityDexieRepository.update(id, { icon: (value as string | undefined) ?? undefined })
+        await priorityDexieRepository.update(id, {
+          icon: (value as string | undefined) ?? undefined,
+        })
         break
       case 'description':
       case 'whyNow':
@@ -1917,10 +2126,16 @@ async function handlePriorityFieldChange(id: string, field: string, value: unkno
       case 'closingReflection.wasDifficult':
       case 'closingReflection.learned':
       case 'closingReflection.closedAt':
-        await updatePriorityClosingReflection(id, field.replace('closingReflection.', '') as keyof PriorityClosingReflection, value as string)
+        await updatePriorityClosingReflection(
+          id,
+          field.replace('closingReflection.', '') as keyof PriorityClosingReflection,
+          value as string
+        )
         break
       case 'progressSignals':
-        await priorityDexieRepository.update(id, { progressSignals: parseSignalLines(value as string) })
+        await priorityDexieRepository.update(id, {
+          progressSignals: parseSignalLines(value as string),
+        })
         break
       case 'riskSignals':
         await priorityDexieRepository.update(id, { riskSignals: parseSignalLines(value as string) })
@@ -1930,7 +2145,7 @@ async function handlePriorityFieldChange(id: string, field: string, value: unkno
         if (!priority) return
         const lifeAreaId = value as string
         const lifeAreaIds = priority.lifeAreaIds.includes(lifeAreaId)
-          ? priority.lifeAreaIds.filter((item) => item !== lifeAreaId)
+          ? priority.lifeAreaIds.filter(item => item !== lifeAreaId)
           : [...priority.lifeAreaIds, lifeAreaId]
         await priorityDexieRepository.update(id, { lifeAreaIds })
         break
@@ -1941,7 +2156,7 @@ async function handlePriorityFieldChange(id: string, field: string, value: unkno
     }
   } catch (err) {
     snackbarRef.value?.show(
-      err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
+      err instanceof Error ? err.message : t('planning.objects.messages.saveError')
     )
   }
 }
@@ -1949,7 +2164,7 @@ async function handlePriorityFieldChange(id: string, field: string, value: unkno
 async function updatePriorityClosingReflection(
   id: string,
   field: keyof PriorityClosingReflection,
-  value: string,
+  value: string
 ): Promise<void> {
   const priority = await priorityDexieRepository.getById(id)
   if (!priority || priority.status !== 'closed') return
@@ -1961,7 +2176,10 @@ async function updatePriorityClosingReflection(
       workedWell: priority.closingReflection?.workedWell,
       wasDifficult: priority.closingReflection?.wasDifficult,
       learned: priority.closingReflection?.learned,
-      [field]: field === 'closedAt' ? value.trim() || new Date().toISOString() : normalizeOptionalText(value),
+      [field]:
+        field === 'closedAt'
+          ? value.trim() || new Date().toISOString()
+          : normalizeOptionalText(value),
     },
   })
 }
@@ -1976,7 +2194,7 @@ async function handlePriorityLinkYear(id: string, yearRef: string): Promise<void
     await store.loadBundle()
   } catch (err) {
     snackbarRef.value?.show(
-      err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
+      err instanceof Error ? err.message : t('planning.objects.messages.saveError')
     )
   }
 }
@@ -1985,13 +2203,13 @@ async function handlePriorityUnlinkYear(id: string, yearRef: string): Promise<vo
   try {
     const priority = await priorityDexieRepository.getById(id)
     if (!priority) return
-    const years = priority.years.filter((year) => year !== yearRef)
+    const years = priority.years.filter(year => year !== yearRef)
     if (years.length === 0) return
     await priorityDexieRepository.update(id, { years })
     await store.loadBundle()
   } catch (err) {
     snackbarRef.value?.show(
-      err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
+      err instanceof Error ? err.message : t('planning.objects.messages.saveError')
     )
   }
 }
@@ -2008,12 +2226,12 @@ async function handlePriorityArchive(id: string, isCurrentlyActive: boolean): Pr
     snackbarRef.value?.show(
       isCurrentlyActive
         ? t('planning.objects.messages.paused')
-        : t('planning.objects.messages.activated'),
+        : t('planning.objects.messages.activated')
     )
     await store.loadBundle()
   } catch (err) {
     snackbarRef.value?.show(
-      err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
+      err instanceof Error ? err.message : t('planning.objects.messages.saveError')
     )
   }
 }
@@ -2027,7 +2245,7 @@ async function handleIntentionSave(
     multiItems?: MultiCompletionItem[]
     multiDailyThreshold?: number
     priorityIds: string[]
-  },
+  }
 ): Promise<void> {
   try {
     await updateWeeklyIntention(id, payload)
@@ -2035,7 +2253,7 @@ async function handleIntentionSave(
     await store.loadBundle()
   } catch (err) {
     snackbarRef.value?.show(
-      err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
+      err instanceof Error ? err.message : t('planning.objects.messages.saveError')
     )
   }
 }
@@ -2063,7 +2281,9 @@ function priorityStatusOptions(): Array<{ value: string; label: string }> {
   ]
 }
 
-function statusOptionsForType(panelType: ObjectsLibraryPanelType): Array<{ value: string; label: string }> {
+function statusOptionsForType(
+  panelType: ObjectsLibraryPanelType
+): Array<{ value: string; label: string }> {
   if (panelType === 'priority') {
     return priorityStatusOptions()
   }
@@ -2082,8 +2302,6 @@ function statusOptionsForType(panelType: ObjectsLibraryPanelType): Array<{ value
   ]
 }
 
-
-
 /** Closing a goal from the card's status menu opens the ritual (spec D7). */
 function handleGoalCloseRitual(goalId: string, presetOutcome: GoalOutcome | null): void {
   void router.push({
@@ -2096,7 +2314,9 @@ function handleGoalCloseRitual(goalId: string, presetOutcome: GoalOutcome | null
 const reopenDialogOpen = ref(false)
 const reopenCandidate = ref<{ id: string; title: string } | null>(null)
 const reopenDialogMessage = computed(() =>
-  reopenCandidate.value ? t('planning.goalClosing.reopen.message', { title: reopenCandidate.value.title }) : '',
+  reopenCandidate.value
+    ? t('planning.goalClosing.reopen.message', { title: reopenCandidate.value.title })
+    : ''
 )
 
 async function handleConfirmReopen(): Promise<void> {
@@ -2116,28 +2336,24 @@ async function handleConfirmReopen(): Promise<void> {
 async function handleArchiveFromCard(
   panelType: ObjectsLibraryPanelType,
   id: string,
-  isCurrentlyActive: boolean,
+  isCurrentlyActive: boolean
 ): Promise<void> {
   try {
     await updateObjectActive(panelType, id, !isCurrentlyActive)
     snackbarRef.value?.show(
       isCurrentlyActive
         ? t('planning.objects.messages.archived')
-        : t('planning.objects.messages.unarchived'),
+        : t('planning.objects.messages.unarchived')
     )
     await store.loadBundle()
   } catch (err) {
     snackbarRef.value?.show(
-      err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
+      err instanceof Error ? err.message : t('planning.objects.messages.saveError')
     )
   }
 }
 
-function handleDeleteFromCard(
-  panelType: ObjectsLibraryPanelType,
-  id: string,
-  title: string,
-): void {
+function handleDeleteFromCard(panelType: ObjectsLibraryPanelType, id: string, title: string): void {
   pendingDelete.value = { panelType, id, title }
   deleteDialogOpen.value = true
 }
@@ -2176,7 +2392,7 @@ async function handleConfirmDelete(): Promise<void> {
     snackbarRef.value?.show(t('planning.objects.messages.deleted'))
   } catch (err) {
     snackbarRef.value?.show(
-      err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
+      err instanceof Error ? err.message : t('planning.objects.messages.saveError')
     )
   } finally {
     deleteDialogOpen.value = false
@@ -2193,7 +2409,7 @@ async function handleSaveComposer(): Promise<void> {
     snackbarRef.value?.show(t('planning.objects.messages.saved'))
   } catch (err) {
     snackbarRef.value?.show(
-      err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
+      err instanceof Error ? err.message : t('planning.objects.messages.saveError')
     )
   }
 }
@@ -2239,8 +2455,7 @@ async function saveDraft(): Promise<{ id: string; type: ObjectsLibraryPanelType 
           title: draft.value.title.trim(),
           description: normalizeOptionalText(draft.value.description),
           isActive: true,
-          goalId:
-            draft.value.goalId ?? store.query.composerParentId ?? composerId ?? '',
+          goalId: draft.value.goalId ?? store.query.composerParentId ?? composerId ?? '',
           entryMode: draft.value.entryMode ?? 'completion',
           cadence: draft.value.cadence ?? 'weekly',
           target: normalizeTargetDraft(draft.value.entryMode ?? 'completion', draft.value.target),
@@ -2370,7 +2585,7 @@ async function saveDraft(): Promise<{ id: string; type: ObjectsLibraryPanelType 
 async function updateObjectActive(
   panelType: ObjectsLibraryPanelType,
   id: string,
-  isActive: boolean,
+  isActive: boolean
 ): Promise<void> {
   switch (panelType) {
     case 'priority':
@@ -2444,7 +2659,11 @@ function isComposerHostedByItem(panelType: ObjectsLibraryPanelType, id: string):
   }
 
   if (composerMode.value === 'create') {
-    return panelType === 'goal' && store.query.composerType === 'keyResult' && store.query.composerParentId === id
+    return (
+      panelType === 'goal' &&
+      store.query.composerType === 'keyResult' &&
+      store.query.composerParentId === id
+    )
   }
 
   if (store.query.composerType === 'keyResult') {
@@ -2466,8 +2685,6 @@ function normalizeOptionalText(value: string): string | undefined {
 function resolvePanelTypeLabel(panelType: ObjectsLibraryPanelType): string {
   return t(`planning.objects.labels.${panelType}`)
 }
-
-
 </script>
 
 <style scoped>

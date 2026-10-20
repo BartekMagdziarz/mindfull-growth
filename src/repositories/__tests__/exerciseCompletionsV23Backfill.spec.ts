@@ -125,10 +125,12 @@ describe('exercise completions v23 backfill', () => {
     }
 
     expect(bySlug.get('worry-tree')).toHaveLength(2)
-    expect(bySlug.get('worry-tree')?.map((c) => c.dayRef).sort()).toEqual([
-      '2026-03-10',
-      '2026-03-12',
-    ])
+    expect(
+      bySlug
+        .get('worry-tree')
+        ?.map(c => c.dayRef)
+        .sort()
+    ).toEqual(['2026-03-10', '2026-03-12'])
 
     // positive-data-log uses updatedAt (entries accumulate via updates).
     const pdl = bySlug.get('positive-data-log')
@@ -155,7 +157,7 @@ describe('exercise completions v23 backfill', () => {
     expect(bySlug.has('vlq')).toBe(false)
 
     // Nothing from the shared parts registry.
-    expect(completions.some((c) => c.recordId === 'part-1')).toBe(false)
+    expect(completions.some(c => c.recordId === 'part-1')).toBe(false)
 
     await v23.close()
   })
@@ -165,12 +167,12 @@ describe('V23_BACKFILL_SOURCES stays in sync with the catalog', () => {
   const wizardEntries = EXERCISE_CATALOG.filter(
     // wheel-of-life is special-cased in the upgrade body (scope === 'full'),
     // so it is deliberately absent from the plain source list.
-    (entry) => entry.kind === 'wizard' && entry.slug !== 'wheel-of-life',
+    entry => entry.kind === 'wizard' && entry.slug !== 'wheel-of-life'
   )
 
   it('covers every wizard catalog entry exactly once', () => {
     for (const entry of wizardEntries) {
-      const matches = V23_BACKFILL_SOURCES.filter((s) => s.slug === entry.slug)
+      const matches = V23_BACKFILL_SOURCES.filter(s => s.slug === entry.slug)
       expect(matches, `missing/duplicated source for ${entry.slug}`).toHaveLength(1)
       expect(matches[0]?.table).toBe(entry.legacyTable)
     }
@@ -179,9 +181,9 @@ describe('V23_BACKFILL_SOURCES stays in sync with the catalog', () => {
   it('contains no sources beyond the wizard catalog entries', () => {
     expect(V23_BACKFILL_SOURCES).toHaveLength(wizardEntries.length)
     for (const source of V23_BACKFILL_SOURCES) {
-      const entry = wizardEntries.find((e) => e.slug === source.slug)
+      const entry = wizardEntries.find(e => e.slug === source.slug)
       expect(entry, `catalog entry missing for source ${source.slug}`).toBeDefined()
     }
-    expect(V23_BACKFILL_SOURCES.some((s) => s.table === 'ifsParts')).toBe(false)
+    expect(V23_BACKFILL_SOURCES.some(s => s.table === 'ifsParts')).toBe(false)
   })
 })

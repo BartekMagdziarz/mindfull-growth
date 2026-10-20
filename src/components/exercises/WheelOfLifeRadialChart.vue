@@ -12,7 +12,11 @@
         </radialGradient>
         <radialGradient id="wheel-comparison-gradient" cx="50%" cy="50%" r="50%">
           <stop offset="0%" stop-color="rgb(var(--color-on-surface-variant))" stop-opacity="0.02" />
-          <stop offset="100%" stop-color="rgb(var(--color-on-surface-variant))" stop-opacity="0.1" />
+          <stop
+            offset="100%"
+            stop-color="rgb(var(--color-on-surface-variant))"
+            stop-opacity="0.1"
+          />
         </radialGradient>
       </defs>
 
@@ -86,7 +90,10 @@
         :cx="getAnimatedPoint(i).x"
         :cy="getAnimatedPoint(i).y"
         :r="compact ? 2.6 : isHighlighted(i) ? 5 : 4"
-        :class="[getDotColor(area.rating), isHighlighted(i) ? 'stroke-primary-strong' : 'stroke-surface']"
+        :class="[
+          getDotColor(area.rating),
+          isHighlighted(i) ? 'stroke-primary-strong' : 'stroke-surface',
+        ]"
         :stroke-width="compact ? 1 : isHighlighted(i) ? 2 : 1.5"
       />
 
@@ -162,12 +169,22 @@
       </div>
       <div v-if="getComparisonDelta(hoveredArea) !== null" class="mt-1">
         <span v-if="getComparisonDelta(hoveredArea)! > 0" class="text-status-good-on">
-          {{ t('exerciseWizards.wheelOfLife.comparison.fromPrevious', { delta: getComparisonDelta(hoveredArea)! }) }}
+          {{
+            t('exerciseWizards.wheelOfLife.comparison.fromPrevious', {
+              delta: getComparisonDelta(hoveredArea)!,
+            })
+          }}
         </span>
         <span v-else-if="getComparisonDelta(hoveredArea)! < 0" class="text-error">
-          {{ t('exerciseWizards.wheelOfLife.comparison.fromPreviousNegative', { delta: getComparisonDelta(hoveredArea)! }) }}
+          {{
+            t('exerciseWizards.wheelOfLife.comparison.fromPreviousNegative', {
+              delta: getComparisonDelta(hoveredArea)!,
+            })
+          }}
         </span>
-        <span v-else class="text-on-surface-variant">{{ t('exerciseWizards.wheelOfLife.comparison.noChange') }}</span>
+        <span v-else class="text-on-surface-variant">{{
+          t('exerciseWizards.wheelOfLife.comparison.noChange')
+        }}</span>
       </div>
     </div>
   </div>
@@ -203,10 +220,12 @@ const props = withDefaults(
     labelFontSize: 11,
     ratingFontSize: 10,
     compact: false,
-  },
+  }
 )
 
-const safePadding = computed(() => (props.compact ? Math.max(8, props.padding) : Math.max(28, props.padding)))
+const safePadding = computed(() =>
+  props.compact ? Math.max(8, props.padding) : Math.max(28, props.padding)
+)
 const outerSize = computed(() => props.size + safePadding.value * 2)
 const outerRadius = computed(() => outerSize.value / 2)
 const center = computed(() => outerRadius.value)
@@ -230,7 +249,7 @@ const highlightedIndex = computed(() => {
     return props.highlightIndex
   }
   if (props.highlightName) {
-    const idx = props.areas.findIndex((a) => a.name === props.highlightName)
+    const idx = props.areas.findIndex(a => a.name === props.highlightName)
     return idx >= 0 ? idx : null
   }
   return null
@@ -246,7 +265,7 @@ const highlightedRadius = computed(() => {
   return (highlightedRating.value / 10) * maxRadius.value
 })
 
-const labelLines = computed(() => props.areas.map((area) => wrapLabel(area.name)))
+const labelLines = computed(() => props.areas.map(area => wrapLabel(area.name)))
 
 const hoveredArea = ref<number | null>(null)
 const tooltipStyle = ref({})
@@ -259,7 +278,7 @@ function initAnimatedRatings() {
   if (props.animated) {
     animatedRatings.value = props.areas.map(() => 0)
   } else {
-    animatedRatings.value = props.areas.map((a) => a.rating)
+    animatedRatings.value = props.areas.map(a => a.rating)
   }
 }
 
@@ -271,18 +290,18 @@ onMounted(() => {
 })
 
 watch(
-  () => props.areas.map((a) => a.rating),
-  (newRatings) => {
+  () => props.areas.map(a => a.rating),
+  newRatings => {
     if (!props.animated) {
       animatedRatings.value = [...newRatings]
       return
     }
     animateTo(newRatings)
-  },
+  }
 )
 
 function animateIn() {
-  const targets = props.areas.map((a) => a.rating)
+  const targets = props.areas.map(a => a.rating)
   animateTo(targets)
 }
 
@@ -336,7 +355,7 @@ function getAnimatedPoint(index: number): { x: number; y: number } {
 
 function findComparisonArea(index: number): WheelChartArea | undefined {
   const currentArea = props.areas[index]
-  return props.comparisonAreas?.find((area) => {
+  return props.comparisonAreas?.find(area => {
     if (area.id && currentArea?.id) {
       return area.id === currentArea.id
     }

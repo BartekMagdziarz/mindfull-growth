@@ -1,9 +1,5 @@
 <template>
-  <div
-    class="relative"
-    @mouseenter="hovering = true"
-    @mouseleave="hovering = false"
-  >
+  <div class="relative" @mouseenter="hovering = true" @mouseleave="hovering = false">
     <MeasurementSparkline
       v-if="effectivePoints.length > 0"
       :points="effectivePoints"
@@ -89,11 +85,7 @@ const objectId = computed(() => props.subject.id)
 const cadenceRef = computed(() => props.objectCadence)
 const viewScaleRef = computed(() => props.viewScale)
 
-const { currentScale, hasToggle, toggle } = useChartScale(
-  objectId,
-  cadenceRef,
-  viewScaleRef,
-)
+const { currentScale, hasToggle, toggle } = useChartScale(objectId, cadenceRef, viewScaleRef)
 
 // Trend entries loaded lazily
 const trendEntries = ref<DailyMeasurementEntry[]>()
@@ -106,13 +98,13 @@ const isZoomedIn = computed(() => {
 })
 
 const toggleTitle = computed(() =>
-  isZoomedIn.value ? t('planning.objects.chart.zoomOut') : t('planning.objects.chart.zoomIn'),
+  isZoomedIn.value ? t('planning.objects.chart.zoomOut') : t('planning.objects.chart.zoomIn')
 )
 
 // Load trend entries when switching to a trend scale
 watch(
   currentScale,
-  async (scale) => {
+  async scale => {
     const isTrendScale =
       (props.viewScale === 'month' && scale === 'months') ||
       (props.viewScale === 'week' && scale === 'weeks')
@@ -122,14 +114,14 @@ watch(
       try {
         trendEntries.value = await loadTrendEntries(
           props.currentPeriodRef,
-          scale === 'months' ? 'months' : 'weeks',
+          scale === 'months' ? 'months' : 'weeks'
         )
       } finally {
         trendLoading.value = false
       }
     }
   },
-  { immediate: true },
+  { immediate: true }
 )
 
 // Compute parent evaluation for finer-than-cadence scales
@@ -145,9 +137,10 @@ function getParentEvaluation(): ObjectsLibraryChartPoint['status'] | undefined {
   const summary = buildMeasurementSummary(props.subject, entries, props.currentPeriodRef)
 
   const todayRefs = getPeriodRefsForDate(props.todayRef)
-  const isCurrentPeriod = props.viewScale === 'month'
-    ? todayRefs.month === props.currentPeriodRef
-    : todayRefs.week === props.currentPeriodRef
+  const isCurrentPeriod =
+    props.viewScale === 'month'
+      ? todayRefs.month === props.currentPeriodRef
+      : todayRefs.week === props.currentPeriodRef
 
   if (isCurrentPeriod) {
     return summary.actualValue !== undefined ? 'no-target' : 'no-data'
@@ -156,8 +149,10 @@ function getParentEvaluation(): ObjectsLibraryChartPoint['status'] | undefined {
   if (!summary.evaluationStatus) {
     return summary.actualValue !== undefined ? 'no-target' : 'no-data'
   }
-  return summary.evaluationStatus === 'met' ? 'met'
-    : summary.evaluationStatus === 'missed' ? 'missed'
+  return summary.evaluationStatus === 'met'
+    ? 'met'
+    : summary.evaluationStatus === 'missed'
+      ? 'missed'
       : 'no-data'
 }
 
@@ -172,7 +167,7 @@ const effectivePoints = computed<ObjectsLibraryChartPoint[]>(() => {
       props.subject,
       entries,
       props.currentPeriodRef as MonthRef,
-      props.todayRef,
+      props.todayRef
     )
   }
 
@@ -184,7 +179,7 @@ const effectivePoints = computed<ObjectsLibraryChartPoint[]>(() => {
         props.subject,
         entries,
         props.currentPeriodRef as WeekRef,
-        props.todayRef,
+        props.todayRef
       )
     }
     // Month view, weekly detail
@@ -193,7 +188,7 @@ const effectivePoints = computed<ObjectsLibraryChartPoint[]>(() => {
       props.subject,
       props.rawEntries,
       props.currentPeriodRef as MonthRef,
-      parentEval,
+      parentEval
     )
   }
 
@@ -205,7 +200,7 @@ const effectivePoints = computed<ObjectsLibraryChartPoint[]>(() => {
       props.subjectType,
       props.rawEntries,
       props.currentPeriodRef as WeekRef,
-      parentEval,
+      parentEval
     )
   }
 
@@ -214,10 +209,14 @@ const effectivePoints = computed<ObjectsLibraryChartPoint[]>(() => {
 
 const effectiveCadence = computed<'weekly' | 'monthly' | 'daily'>(() => {
   switch (currentScale.value) {
-    case 'months': return 'monthly'
-    case 'weeks': return 'weekly'
-    case 'days': return 'daily'
-    default: return 'weekly'
+    case 'months':
+      return 'monthly'
+    case 'weeks':
+      return 'weekly'
+    case 'days':
+      return 'daily'
+    default:
+      return 'weekly'
   }
 })
 </script>

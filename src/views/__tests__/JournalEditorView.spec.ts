@@ -29,7 +29,7 @@ const EmotionWheelStub = defineComponent({
     }
     const formatted = () =>
       (modelValue.value as StubSelection[])
-        .map((s) => s.emotionId + (s.intensity != null ? ':' + s.intensity : ''))
+        .map(s => s.emotionId + (s.intensity != null ? ':' + s.intensity : ''))
         .join(',')
     return { selectEmotion, formatted }
   },
@@ -59,8 +59,7 @@ const TagInputStub = defineComponent({
   setup(props, { emit }) {
     const { modelValue, tagType } = toRefs(props)
     const selectTag = () => {
-      const id =
-        tagType.value === 'people' ? 'people-tag-friend' : 'context-tag-home'
+      const id = tagType.value === 'people' ? 'people-tag-friend' : 'context-tag-home'
       emit('update:modelValue', [...modelValue.value, id])
     }
     return {
@@ -185,7 +184,7 @@ const createEmotionStoreMock = () => {
     loadEmotions: vi.fn().mockImplementation(async () => {
       isLoadedRef.value = true
     }),
-    getEmotionById: vi.fn((id: string) => emotions.value.find((e) => e.id === id)),
+    getEmotionById: vi.fn((id: string) => emotions.value.find(e => e.id === id)),
   }
 }
 
@@ -221,12 +220,8 @@ const createTagStoreMock = () => {
       contextTagsRef.value = [{ id: 'context-default', name: 'Office' }]
       errorRef.value = null
     }),
-    getPeopleTagById: vi.fn((id: string) =>
-      peopleTagsRef.value.find((tag) => tag.id === id)
-    ),
-    getContextTagById: vi.fn((id: string) =>
-      contextTagsRef.value.find((tag) => tag.id === id)
-    ),
+    getPeopleTagById: vi.fn((id: string) => peopleTagsRef.value.find(tag => tag.id === id)),
+    getContextTagById: vi.fn((id: string) => contextTagsRef.value.find(tag => tag.id === id)),
   }
 }
 
@@ -295,7 +290,9 @@ vi.mock('vue-router', () => {
   return {
     useRouter: () => ({
       push: mockPush,
-      replace: vi.fn(async (location) => { mockRoute.query = location.query ?? {} }),
+      replace: vi.fn(async location => {
+        mockRoute.query = location.query ?? {}
+      }),
     }),
     useRoute: () => mockRoute,
   }
@@ -309,7 +306,7 @@ describe('JournalEditorView', () => {
     mockGetById.mockReset()
     mockGetEntryById.mockReset()
     mockGetEntryById.mockImplementation(async (id: string) => {
-      return mockStore.entries.find((e) => e.id === id) || null
+      return mockStore.entries.find(e => e.id === id) || null
     })
     mockRoute.params = {}
     mockRoute.path = '/journal/edit'
@@ -573,7 +570,7 @@ describe('JournalEditorView', () => {
         body: 'Test body',
       }
       mockCreateEntry.mockImplementation(
-        () => new Promise((resolve) => setTimeout(() => resolve(mockEntry), 100))
+        () => new Promise(resolve => setTimeout(() => resolve(mockEntry), 100))
       )
 
       renderEditor()
@@ -618,7 +615,7 @@ describe('JournalEditorView', () => {
         body: 'Test body',
       }
       mockCreateEntry.mockImplementation(
-        () => new Promise((resolve) => setTimeout(() => resolve(mockEntry), 100))
+        () => new Promise(resolve => setTimeout(() => resolve(mockEntry), 100))
       )
 
       renderEditor()
@@ -821,9 +818,7 @@ describe('JournalEditorView', () => {
       await waitFor(() => {
         expect(screen.getByText('Custom Chat Prompt')).toBeInTheDocument()
         expect(
-          screen.getByPlaceholderText(
-            /help me understand why i feel anxious about this situation/i
-          )
+          screen.getByPlaceholderText(/help me understand why i feel anxious about this situation/i)
         ).toBeInTheDocument()
       })
     })
@@ -966,11 +961,7 @@ describe('JournalEditorView', () => {
 
       // Chat session should be started with custom prompt
       await waitFor(() => {
-        expect(mockStartChatSession).toHaveBeenCalledWith(
-          'test-id',
-          'custom',
-          'My custom prompt'
-        )
+        expect(mockStartChatSession).toHaveBeenCalledWith('test-id', 'custom', 'My custom prompt')
       })
 
       // Should navigate to chat view
@@ -1298,7 +1289,7 @@ describe('JournalEditorView', () => {
 
       // Mock deleteChatSession to update the entry
       mockDeleteChatSession.mockImplementation(async (entryId: string, sessionId: string) => {
-        const entry = mockStore.entries.find((e) => e.id === entryId)
+        const entry = mockStore.entries.find(e => e.id === entryId)
         if (entry && entry.chatSessions) {
           entry.chatSessions = entry.chatSessions.filter((s: any) => s.id !== sessionId)
           mockStore.entries = [entry]

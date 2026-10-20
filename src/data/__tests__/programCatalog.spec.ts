@@ -6,7 +6,7 @@ import plPrograms from '@/locales/pl/programs.json'
 
 describe('program catalog', () => {
   it('has unique program slugs', () => {
-    const slugs = PROGRAM_CATALOG.map((p) => p.slug)
+    const slugs = PROGRAM_CATALOG.map(p => p.slug)
     expect(new Set(slugs).size).toBe(slugs.length)
     expect(slugs).toEqual([
       'foundation',
@@ -23,7 +23,7 @@ describe('program catalog', () => {
       for (const step of program.steps) {
         expect(
           getCatalogEntry(step.exerciseSlug),
-          `${program.slug}: unknown exercise ${step.exerciseSlug}`,
+          `${program.slug}: unknown exercise ${step.exerciseSlug}`
         ).toBeDefined()
       }
     }
@@ -42,7 +42,7 @@ describe('program catalog', () => {
   it('foundation walks one exercise per coverage group, in group order', () => {
     // One completed item satisfies each group (FOUNDATION_GROUP_MIN_REQUIRED
     // = 1), so finishing the path unlocks the foundation build finale.
-    expect(getProgramDefinition('foundation')?.steps.map((s) => s.exerciseSlug)).toEqual([
+    expect(getProgramDefinition('foundation')?.steps.map(s => s.exerciseSlug)).toEqual([
       'values', // values
       'purpose', // meaning
       'ipip-bfm-50', // personality
@@ -50,9 +50,7 @@ describe('program catalog', () => {
       'ecr-rs', // relationships
       'wheel-of-life', // lifeBalance
     ])
-    expect(getProgramDefinition('foundation')?.finaleRouteName).toBe(
-      'profile-psychological-build',
-    )
+    expect(getProgramDefinition('foundation')?.finaleRouteName).toBe('profile-psychological-build')
   })
 
   it('optional steps: the third thought-record and the closing exile witnessing', () => {
@@ -63,16 +61,20 @@ describe('program catalog', () => {
         const PROBLEM_PATH_OPTIONAL: Record<string, string[]> = {
           'anger-signal': ['compassionate-letter'],
           'shame-compassion': ['direct-access', 'exile-witnessing'],
-          'anxiety-approach': ['ius-12', 'paradoxical-intention', 'dereflection', 'behavioral-activation'],
+          'anxiety-approach': [
+            'ius-12',
+            'paradoxical-intention',
+            'dereflection',
+            'behavioral-activation',
+          ],
         }
         const shouldBeOptional =
           (program.slug === 'cbt-thoughts' && index === 3) ||
           (program.slug === 'ifs-parts' && step.exerciseSlug === 'exile-witnessing') ||
           (PROBLEM_PATH_OPTIONAL[program.slug]?.includes(step.exerciseSlug) ?? false)
-        expect(
-          Boolean(step.optional),
-          `${program.slug} step ${index} optional flag`,
-        ).toBe(shouldBeOptional)
+        expect(Boolean(step.optional), `${program.slug} step ${index} optional flag`).toBe(
+          shouldBeOptional
+        )
       })
     }
   })
@@ -98,13 +100,16 @@ describe('program catalog', () => {
         program.steps.forEach((_, index) => {
           expect(
             node?.steps?.[`step${index + 1}`]?.intro,
-            `${program.slug}.steps.step${index + 1}.intro missing`,
+            `${program.slug}.steps.step${index + 1}.intro missing`
           ).toBeTruthy()
         })
         if (program.finaleRouteName) {
           const finale = node as { finaleCta?: string; finaleDescription?: string }
           expect(finale?.finaleCta, `${program.slug}.finaleCta missing`).toBeTruthy()
-          expect(finale?.finaleDescription, `${program.slug}.finaleDescription missing`).toBeTruthy()
+          expect(
+            finale?.finaleDescription,
+            `${program.slug}.finaleDescription missing`
+          ).toBeTruthy()
         }
       }
     }
@@ -113,9 +118,11 @@ describe('program catalog', () => {
   it('practices: known exercises, never a step slug, valid step windows, intro copy', () => {
     for (const program of PROGRAM_CATALOG) {
       const practices = program.practices ?? []
-      const stepSlugs = new Set(program.steps.map((step) => step.exerciseSlug))
-      const practiceSlugs = practices.map((practice) => practice.exerciseSlug)
-      expect(new Set(practiceSlugs).size, `${program.slug} duplicate practice`).toBe(practiceSlugs.length)
+      const stepSlugs = new Set(program.steps.map(step => step.exerciseSlug))
+      const practiceSlugs = practices.map(practice => practice.exerciseSlug)
+      expect(new Set(practiceSlugs).size, `${program.slug} duplicate practice`).toBe(
+        practiceSlugs.length
+      )
       for (const practice of practices) {
         const label = `${program.slug}: practice ${practice.exerciseSlug}`
         expect(getCatalogEntry(practice.exerciseSlug), label).toBeDefined()
@@ -128,22 +135,34 @@ describe('program catalog', () => {
         expect(starts, label).toBeLessThan(ends)
         expect(ends, label).toBeLessThan(program.steps.length)
         if (practice.introKey) {
-          expect(practice.introKey).toBe(`programs.${program.slug}.practices.${practice.exerciseSlug}.intro`)
+          expect(practice.introKey).toBe(
+            `programs.${program.slug}.practices.${practice.exerciseSlug}.intro`
+          )
           for (const locale of [enPrograms, plPrograms]) {
-            const node = (locale as unknown as Record<string, { practices?: Record<string, { intro?: unknown }> }>)[
-              program.slug
-            ]
-            expect(node?.practices?.[practice.exerciseSlug]?.intro, `${label} intro copy`).toBeTruthy()
+            const node = (
+              locale as unknown as Record<
+                string,
+                { practices?: Record<string, { intro?: unknown }> }
+              >
+            )[program.slug]
+            expect(
+              node?.practices?.[practice.exerciseSlug]?.intro,
+              `${label} intro copy`
+            ).toBeTruthy()
           }
         }
       }
       // At most two practices run at the same time (plan: daily load budget).
       program.steps.forEach((_, index) => {
         const running = practices.filter(
-          (practice) =>
-            index > (practice.startsAfterStep ?? -1) && index <= (practice.endsAfterStep ?? program.steps.length),
+          practice =>
+            index > (practice.startsAfterStep ?? -1) &&
+            index <= (practice.endsAfterStep ?? program.steps.length)
         )
-        expect(running.length, `${program.slug} step ${index} runs ${running.length} practices`).toBeLessThanOrEqual(2)
+        expect(
+          running.length,
+          `${program.slug} step ${index} runs ${running.length} practices`
+        ).toBeLessThanOrEqual(2)
       })
     }
   })
@@ -157,10 +176,13 @@ describe('program catalog', () => {
         if (index > 0) expect(phase.fromStepIndex).toBeGreaterThan(phases[index - 1]!.fromStepIndex)
         expect(phase.fromStepIndex).toBeLessThan(program.steps.length)
         for (const locale of [enPrograms, plPrograms]) {
-          const node = (locale as unknown as Record<string, { phases?: Record<string, { title?: unknown }> }>)[
-            program.slug
-          ]
-          expect(node?.phases?.[phase.key]?.title, `${program.slug}.phases.${phase.key}.title`).toBeTruthy()
+          const node = (
+            locale as unknown as Record<string, { phases?: Record<string, { title?: unknown }> }>
+          )[program.slug]
+          expect(
+            node?.phases?.[phase.key]?.title,
+            `${program.slug}.phases.${phase.key}.title`
+          ).toBeTruthy()
         }
       })
     }
@@ -170,15 +192,19 @@ describe('program catalog', () => {
     for (const program of PROGRAM_CATALOG) {
       const ids = program.outcomeSlugs ?? (program.outcomeSlug ? [program.outcomeSlug] : [])
       if (ids.length === 0) continue
-      if (program.outcomeSlugs && program.outcomeSlug) expect(program.outcomeSlugs[0], program.slug).toBe(program.outcomeSlug)
+      if (program.outcomeSlugs && program.outcomeSlug)
+        expect(program.outcomeSlugs[0], program.slug).toBe(program.outcomeSlug)
       expect(ids, program.slug).toContain(program.steps[0]!.exerciseSlug)
       for (const id of ids) {
         expect(getCatalogEntry(id)?.kind, `${program.slug} ${id}`).toBe('assessment')
-        expect(program.steps.filter((step) => step.exerciseSlug === id).length, `${program.slug} ${id}`).toBeGreaterThanOrEqual(2)
+        expect(
+          program.steps.filter(step => step.exerciseSlug === id).length,
+          `${program.slug} ${id}`
+        ).toBeGreaterThanOrEqual(2)
       }
       // Legacy shape (no closing step): only the closing plan may follow the second measurement.
-      if (!program.steps.some((step) => step.closesPath)) {
-        const last = program.steps.map((step) => step.exerciseSlug).lastIndexOf(ids[0]!)
+      if (!program.steps.some(step => step.closesPath)) {
+        const last = program.steps.map(step => step.exerciseSlug).lastIndexOf(ids[0]!)
         expect(program.steps.length - 1 - last, program.slug).toBeLessThanOrEqual(1)
       }
     }
@@ -186,8 +212,11 @@ describe('program catalog', () => {
 
   it('closing and follow-up steps: at most one closesPath, follow-ups only after it, phases with weeks are 1…n', () => {
     for (const program of PROGRAM_CATALOG) {
-      const closing = program.steps.findIndex((step) => step.closesPath)
-      expect(program.steps.filter((step) => step.closesPath).length, program.slug).toBeLessThanOrEqual(1)
+      const closing = program.steps.findIndex(step => step.closesPath)
+      expect(
+        program.steps.filter(step => step.closesPath).length,
+        program.slug
+      ).toBeLessThanOrEqual(1)
       program.steps.forEach((step, index) => {
         const label = `${program.slug} step ${index}`
         if (closing === -1) expect(Boolean(step.afterCompletion), label).toBe(false)
@@ -196,9 +225,16 @@ describe('program catalog', () => {
       if (closing !== -1) {
         // the closing step is required and a follow-up phase (no week) starts right after it
         expect(Boolean(program.steps[closing]!.optional), program.slug).toBe(false)
-        expect(program.phases?.some((phase) => phase.fromStepIndex === closing + 1 && phase.week === undefined), program.slug).toBe(true)
+        expect(
+          program.phases?.some(
+            phase => phase.fromStepIndex === closing + 1 && phase.week === undefined
+          ),
+          program.slug
+        ).toBe(true)
       }
-      const weeks = (program.phases ?? []).map((phase) => phase.week).filter((week): week is number => week !== undefined)
+      const weeks = (program.phases ?? [])
+        .map(phase => phase.week)
+        .filter((week): week is number => week !== undefined)
       weeks.forEach((week, index) => expect(week, program.slug).toBe(index + 1))
     }
   })
@@ -207,8 +243,8 @@ describe('program catalog', () => {
     for (const program of PROGRAM_CATALOG) {
       const tasks = program.weeklyTasks ?? []
       if (tasks.length === 0 && !program.weeklyReflection) continue
-      const phaseKeys = new Set((program.phases ?? []).map((phase) => phase.key))
-      const keys = tasks.map((task) => task.key)
+      const phaseKeys = new Set((program.phases ?? []).map(phase => phase.key))
+      const keys = tasks.map(task => task.key)
       expect(new Set(keys).size, program.slug).toBe(keys.length)
       for (const task of tasks) {
         const label = `${program.slug}: task ${task.key}`
@@ -217,36 +253,50 @@ describe('program catalog', () => {
         if (task.entryMode === 'completion') expect(task.times, label).toBe(1)
         if (task.linkSlug) expect(getCatalogEntry(task.linkSlug), label).toBeDefined()
         for (const locale of [enPrograms, plPrograms]) {
-          const node = (locale as unknown as Record<string, { tasks?: Record<string, { title?: unknown; why?: unknown }> }>)[
-            program.slug
-          ]
+          const node = (
+            locale as unknown as Record<
+              string,
+              { tasks?: Record<string, { title?: unknown; why?: unknown }> }
+            >
+          )[program.slug]
           expect(node?.tasks?.[task.key]?.title, `${label} title`).toBeTruthy()
           expect(node?.tasks?.[task.key]?.why, `${label} why`).toBeTruthy()
         }
       }
       // A phase made only of optional steps, or a follow-up phase (no week in a
       // week-based path), may go without a task.
-      const weekBased = (program.phases ?? []).some((phase) => phase.week !== undefined)
+      const weekBased = (program.phases ?? []).some(phase => phase.week !== undefined)
       for (const phase of program.phases ?? []) {
-        const next = (program.phases ?? []).find((other) => other.fromStepIndex > phase.fromStepIndex)
-        const phaseSteps = program.steps.slice(phase.fromStepIndex, next?.fromStepIndex ?? program.steps.length)
-        if (phaseSteps.every((step) => step.optional)) continue
+        const next = (program.phases ?? []).find(other => other.fromStepIndex > phase.fromStepIndex)
+        const phaseSteps = program.steps.slice(
+          phase.fromStepIndex,
+          next?.fromStepIndex ?? program.steps.length
+        )
+        if (phaseSteps.every(step => step.optional)) continue
         if (weekBased && phase.week === undefined) continue
-        expect(tasks.some((task) => task.phaseKey === phase.key), `${program.slug}: no task for ${phase.key}`).toBe(true)
+        expect(
+          tasks.some(task => task.phaseKey === phase.key),
+          `${program.slug}: no task for ${phase.key}`
+        ).toBe(true)
       }
     }
   })
 
   it('weekly reflection copy: severity question and one question per phase', () => {
-    for (const program of PROGRAM_CATALOG.filter((p) => p.weeklyReflection)) {
+    for (const program of PROGRAM_CATALOG.filter(p => p.weeklyReflection)) {
       for (const locale of [enPrograms, plPrograms]) {
-        const node = (locale as unknown as Record<
-          string,
-          { reflection?: { severity?: unknown }; phases?: Record<string, { question?: unknown }> }
-        >)[program.slug]
+        const node = (
+          locale as unknown as Record<
+            string,
+            { reflection?: { severity?: unknown }; phases?: Record<string, { question?: unknown }> }
+          >
+        )[program.slug]
         expect(node?.reflection?.severity, `${program.slug}.reflection.severity`).toBeTruthy()
         for (const phase of program.phases ?? []) {
-          expect(node?.phases?.[phase.key]?.question, `${program.slug}.phases.${phase.key}.question`).toBeTruthy()
+          expect(
+            node?.phases?.[phase.key]?.question,
+            `${program.slug}.phases.${phase.key}.question`
+          ).toBeTruthy()
         }
       }
     }
@@ -256,33 +306,87 @@ describe('program catalog', () => {
     const anger = getProgramDefinition('anger-signal')!
     expect(anger.contentVersion).toBe(2)
     expect(anger.steps).toHaveLength(19)
-    expect(anger.phases?.map((phase) => phase.key)).toEqual(['w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'return'])
+    expect(anger.phases?.map(phase => phase.key)).toEqual([
+      'w1',
+      'w2',
+      'w3',
+      'w4',
+      'w5',
+      'w6',
+      'return',
+    ])
     expect(anger.signSlug).toBe('my-sign')
-    expect(anger.steps[2]).toMatchObject({ exerciseSlug: 'my-sign', launchQuery: { kind: 'anger' } })
+    expect(anger.steps[2]).toMatchObject({
+      exerciseSlug: 'my-sign',
+      launchQuery: { kind: 'anger' },
+    })
     expect(anger.steps[6]).toMatchObject({ exerciseSlug: 'anger-barometer' })
     expect(anger.steps[7]).toMatchObject({ exerciseSlug: 'dose-check' })
-    expect(anger.steps[10]).toMatchObject({ exerciseSlug: 'need-behind-anger', startFrom: 'moment', momentPrefill: { observation: 'situation' } })
+    expect(anger.steps[10]).toMatchObject({
+      exerciseSlug: 'need-behind-anger',
+      startFrom: 'moment',
+      momentPrefill: { observation: 'situation' },
+    })
     expect(anger.steps[16]).toMatchObject({ exerciseSlug: 'maintenance-plan', closesPath: true })
-    expect(anger.steps[17]).toMatchObject({ exerciseSlug: 'anger-barometer', minGapDays: 56, afterCompletion: true })
-    expect(anger.steps[18]).toMatchObject({ exerciseSlug: 'path-return', launchQuery: { kind: 'anger' } })
+    expect(anger.steps[17]).toMatchObject({
+      exerciseSlug: 'anger-barometer',
+      minGapDays: 56,
+      afterCompletion: true,
+    })
+    expect(anger.steps[18]).toMatchObject({
+      exerciseSlug: 'path-return',
+      launchQuery: { kind: 'anger' },
+    })
     const anxiety = getProgramDefinition('anxiety-approach')!
     expect(anxiety.contentVersion).toBe(2)
     expect(anxiety.steps).toHaveLength(22)
-    expect(anxiety.phases?.map((phase) => phase.key)).toEqual(['w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'w7', 'w8', 'return'])
+    expect(anxiety.phases?.map(phase => phase.key)).toEqual([
+      'w1',
+      'w2',
+      'w3',
+      'w4',
+      'w5',
+      'w6',
+      'w7',
+      'w8',
+      'return',
+    ])
     expect(anxiety.outcomeSlugs).toEqual(['gad-7', 'ius-12'])
-    expect(anxiety.steps[7]).toMatchObject({ exerciseSlug: 'behavioral-experiment', startFrom: 'moment' })
+    expect(anxiety.steps[7]).toMatchObject({
+      exerciseSlug: 'behavioral-experiment',
+      startFrom: 'moment',
+    })
     expect(anxiety.steps[9]).toMatchObject({ exerciseSlug: 'gad-7' })
     expect(anxiety.steps[19]).toMatchObject({ exerciseSlug: 'maintenance-plan', closesPath: true })
-    expect(anxiety.steps[20]).toMatchObject({ exerciseSlug: 'gad-7', minGapDays: 56, afterCompletion: true })
+    expect(anxiety.steps[20]).toMatchObject({
+      exerciseSlug: 'gad-7',
+      minGapDays: 56,
+      afterCompletion: true,
+    })
     // every step has its "why" and every task its count rule or a natural home
     for (const program of [anger, anxiety]) {
       for (const locale of [enPrograms, plPrograms]) {
-        const node = (locale as unknown as Record<string, { steps?: Record<string, { why?: unknown }>; phases?: Record<string, { why?: unknown }> }>)[program.slug]
-        program.steps.forEach((_, index) => expect(node?.steps?.[`step${index + 1}`]?.why, `${program.slug} step${index + 1}.why`).toBeTruthy())
-        for (const phase of program.phases ?? []) expect(node?.phases?.[phase.key]?.why, `${program.slug} ${phase.key}.why`).toBeTruthy()
+        const node = (
+          locale as unknown as Record<
+            string,
+            {
+              steps?: Record<string, { why?: unknown }>
+              phases?: Record<string, { why?: unknown }>
+            }
+          >
+        )[program.slug]
+        program.steps.forEach((_, index) =>
+          expect(
+            node?.steps?.[`step${index + 1}`]?.why,
+            `${program.slug} step${index + 1}.why`
+          ).toBeTruthy()
+        )
+        for (const phase of program.phases ?? [])
+          expect(node?.phases?.[phase.key]?.why, `${program.slug} ${phase.key}.why`).toBeTruthy()
       }
       for (const task of program.weeklyTasks ?? []) {
-        if (task.linkSlug === `moment-${program.momentKind}`) expect(task.countRule, `${program.slug} ${task.key}`).toBeDefined()
+        if (task.linkSlug === `moment-${program.momentKind}`)
+          expect(task.countRule, `${program.slug} ${task.key}`).toBeDefined()
       }
     }
   })
@@ -295,15 +399,32 @@ describe('program catalog', () => {
     const shame = getProgramDefinition('shame-compassion')!
     expect(shame.contentVersion).toBe(3)
     expect(shame.steps).toHaveLength(27)
-    expect(shame.phases?.map((phase) => phase.key)).toEqual(['w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'w7', 'w8', 'return'])
+    expect(shame.phases?.map(phase => phase.key)).toEqual([
+      'w1',
+      'w2',
+      'w3',
+      'w4',
+      'w5',
+      'w6',
+      'w7',
+      'w8',
+      'return',
+    ])
     expect(shame.steps[23]).toMatchObject({ exerciseSlug: 'maintenance-plan', closesPath: true })
-    expect(shame.steps[24]).toMatchObject({ exerciseSlug: 'scs-sf', minGapDays: 56, afterCompletion: true })
+    expect(shame.steps[24]).toMatchObject({
+      exerciseSlug: 'scs-sf',
+      minGapDays: 56,
+      afterCompletion: true,
+    })
     expect(shame.outcomeSlugs).toEqual(['scs-sf', 'fscrs'])
     expect(shame.signSlug).toBe('my-sign')
     // phases copy carries the one-sentence "why" for the week cards
     for (const locale of [enPrograms, plPrograms]) {
-      const node = (locale as unknown as Record<string, { phases?: Record<string, { why?: unknown }> }>)['shame-compassion']
-      for (const phase of shame.phases ?? []) expect(node?.phases?.[phase.key]?.why, phase.key).toBeTruthy()
+      const node = (
+        locale as unknown as Record<string, { phases?: Record<string, { why?: unknown }> }>
+      )['shame-compassion']
+      for (const phase of shame.phases ?? [])
+        expect(node?.phases?.[phase.key]?.why, phase.key).toBeTruthy()
     }
   })
 

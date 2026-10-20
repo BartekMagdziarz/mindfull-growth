@@ -81,10 +81,7 @@ import { useT } from '@/composables/useT'
 import { useTodayItemVisualization } from '@/composables/useTodayItemVisualization'
 import type { TodayItem } from '@/services/todayViewQueries'
 import type { DayRef } from '@/domain/period'
-import type {
-  DailyMeasurementEntry,
-  MeasurementDayAssignment,
-} from '@/domain/planningState'
+import type { DailyMeasurementEntry, MeasurementDayAssignment } from '@/domain/planningState'
 
 interface Props {
   item: TodayItem
@@ -102,11 +99,11 @@ const viz = useTodayItemVisualization(
   toRef(props, 'rawEntries'),
   toRef(props, 'allDayAssignments'),
   toRef(props, 'todayDayRef'),
-  computed(() => locale.value),
+  computed(() => locale.value)
 )
 
 const title = computed(() =>
-  props.item.kind === 'initiative' ? props.item.initiative.title : props.item.subject.title,
+  props.item.kind === 'initiative' ? props.item.initiative.title : props.item.subject.title
 )
 
 const PANEL_TYPE_ICONS: Record<string, string> = {
@@ -134,8 +131,8 @@ const completionRingDoneCount = computed(
       // Future-dated entries still arrive as `done` so the dot renders filled
       // and the user can see them, but they must not pad the X / target
       // counter — that number reads as "what you've completed so far".
-      (s) => !s.isFuture && (s.state === 'done' || s.state === 'today-done'),
-    ).length,
+      s => !s.isFuture && (s.state === 'done' || s.state === 'today-done')
+    ).length
 )
 const completionRingTargetCount = computed(() => viz.targetValue.value ?? 0)
 
@@ -155,15 +152,11 @@ const ratingTargetOperator = computed<'gte' | 'lte' | undefined>(() => {
   flex-direction: column;
   gap: 6px;
   min-height: 0;
-  background: linear-gradient(
-    145deg,
-    rgb(var(--neo-surface-top)),
-    rgb(var(--neo-surface-bottom))
-  );
-  border: 1px solid rgb(var(--neo-border) / 0.10);
+  background: linear-gradient(145deg, rgb(var(--neo-surface-top)), rgb(var(--neo-surface-bottom)));
+  border: 1px solid rgb(var(--neo-border) / 0.1);
   box-shadow:
-    -5px -5px 11px rgb(var(--neo-shadow-light) / 0.80),
-    5px 5px 11px rgb(var(--neo-shadow-dark) / 0.30);
+    -5px -5px 11px rgb(var(--neo-shadow-light) / 0.8),
+    5px 5px 11px rgb(var(--neo-shadow-dark) / 0.3);
 }
 
 .overview-tile__head {

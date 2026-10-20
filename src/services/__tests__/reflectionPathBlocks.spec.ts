@@ -79,29 +79,41 @@ describe('loadReflectionPathBlocks after a path restart', () => {
     expect(await loadReflectionPathBlocks(PREVIOUS_WEEK)).toEqual([])
   })
 
-  it.each(['paused', 'abandoned'] as const)('does not revive the old approach when the new one is %s', async status => {
-    await save(enrollment(), restarted({ status }))
+  it.each(['paused', 'abandoned'] as const)(
+    'does not revive the old approach when the new one is %s',
+    async status => {
+      await save(enrollment(), restarted({ status }))
 
-    expect(await loadReflectionPathBlocks(WEEK)).toEqual([])
-  })
+      expect(await loadReflectionPathBlocks(WEEK)).toEqual([])
+    }
+  )
 
   it('keeps the latest approach after several restarts in one week', async () => {
     await save(
-      restarted({ id: 'latest', startedAt: '2026-10-11T11:00:00.000Z', createdAt: '2026-10-11T11:00:00.000Z' }),
+      restarted({
+        id: 'latest',
+        startedAt: '2026-10-11T11:00:00.000Z',
+        createdAt: '2026-10-11T11:00:00.000Z',
+      }),
       enrollment(),
-      restarted({ status: 'abandoned', weekLog: enrollment().weekLog }),
+      restarted({ status: 'abandoned', weekLog: enrollment().weekLog })
     )
 
-    expect((await loadReflectionPathBlocks(WEEK)).map(block => block.enrollment.id)).toEqual(['latest'])
+    expect((await loadReflectionPathBlocks(WEEK)).map(block => block.enrollment.id)).toEqual([
+      'latest',
+    ])
   })
 
   it('keeps different paths and a task from a path completed during the week', async () => {
     await save(
       enrollment(),
       restarted(),
-      enrollment({ id: 'anger', programSlug: 'anger-signal', status: 'completed', weekLog: [
-        { weekRef: WEEK, taskKey: 'noticeSigns', decision: 'declined' },
-      ] }),
+      enrollment({
+        id: 'anger',
+        programSlug: 'anger-signal',
+        status: 'completed',
+        weekLog: [{ weekRef: WEEK, taskKey: 'noticeSigns', decision: 'declined' }],
+      })
     )
 
     const blocks = await loadReflectionPathBlocks(WEEK)
@@ -110,11 +122,16 @@ describe('loadReflectionPathBlocks after a path restart', () => {
   })
 
   it('ignores a restart in the following week when reading this week', async () => {
-    await save(enrollment(), restarted({
-      startedAt: '2026-10-12T10:00:00.000Z',
-      createdAt: '2026-10-12T10:00:00.000Z',
-    }))
+    await save(
+      enrollment(),
+      restarted({
+        startedAt: '2026-10-12T10:00:00.000Z',
+        createdAt: '2026-10-12T10:00:00.000Z',
+      })
+    )
 
-    expect((await loadReflectionPathBlocks(WEEK)).map(block => block.enrollment.id)).toEqual(['old-shame'])
+    expect((await loadReflectionPathBlocks(WEEK)).map(block => block.enrollment.id)).toEqual([
+      'old-shame',
+    ])
   })
 })

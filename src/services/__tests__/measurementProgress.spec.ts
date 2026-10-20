@@ -14,7 +14,7 @@ function makeEntry(
   subjectId: string,
   dayRef: string,
   value: number | null = 1,
-  overrides: Partial<DailyMeasurementEntry> = {},
+  overrides: Partial<DailyMeasurementEntry> = {}
 ): DailyMeasurementEntry {
   return {
     id: `${subjectId}-${dayRef}`,
@@ -82,11 +82,15 @@ describe('buildMeasurementSummary', () => {
 
   it('marks weekly completion as met when the count target is reached', () => {
     const habit = makeHabit()
-    const summary = buildMeasurementSummary(habit, [
-      makeEntry(habit.id, '2026-03-09'),
-      makeEntry(habit.id, '2026-03-10'),
-      makeEntry(habit.id, '2026-03-11'),
-    ], weekRef)
+    const summary = buildMeasurementSummary(
+      habit,
+      [
+        makeEntry(habit.id, '2026-03-09'),
+        makeEntry(habit.id, '2026-03-10'),
+        makeEntry(habit.id, '2026-03-11'),
+      ],
+      weekRef
+    )
 
     expect(summary.actualValue).toBe(3)
     expect(summary.evaluationStatus).toBe('met')
@@ -94,10 +98,11 @@ describe('buildMeasurementSummary', () => {
 
   it('marks weekly completion as missed when the count target is not reached', () => {
     const habit = makeHabit()
-    const summary = buildMeasurementSummary(habit, [
-      makeEntry(habit.id, '2026-03-09'),
-      makeEntry(habit.id, '2026-03-10'),
-    ], weekRef)
+    const summary = buildMeasurementSummary(
+      habit,
+      [makeEntry(habit.id, '2026-03-09'), makeEntry(habit.id, '2026-03-10')],
+      weekRef
+    )
 
     expect(summary.actualValue).toBe(2)
     expect(summary.evaluationStatus).toBe('missed')
@@ -121,24 +126,31 @@ describe('buildMeasurementSummary', () => {
       target: { kind: 'count', operator: 'max', value: 8 },
     })
 
-    expect(buildMeasurementSummary(minHabit, [
-      makeEntry(minHabit.id, '2026-03-09', 5),
-      makeEntry(minHabit.id, '2026-03-10', 3),
-    ], weekRef).evaluationStatus).toBe('met')
-    expect(buildMeasurementSummary(maxHabit, [
-      makeEntry(maxHabit.id, '2026-03-09', 5),
-      makeEntry(maxHabit.id, '2026-03-10', 4),
-    ], weekRef).evaluationStatus).toBe('missed')
+    expect(
+      buildMeasurementSummary(
+        minHabit,
+        [makeEntry(minHabit.id, '2026-03-09', 5), makeEntry(minHabit.id, '2026-03-10', 3)],
+        weekRef
+      ).evaluationStatus
+    ).toBe('met')
+    expect(
+      buildMeasurementSummary(
+        maxHabit,
+        [makeEntry(maxHabit.id, '2026-03-09', 5), makeEntry(maxHabit.id, '2026-03-10', 4)],
+        weekRef
+      ).evaluationStatus
+    ).toBe('missed')
   })
 
   it('uses sum aggregation for value targets', () => {
     const kr = makeKeyResult({
       target: { kind: 'value', aggregation: 'sum', operator: 'gte', value: 20 },
     })
-    const summary = buildMeasurementSummary(kr, [
-      makeEntry(kr.id, '2026-03-09', 12),
-      makeEntry(kr.id, '2026-03-10', 8),
-    ], weekRef)
+    const summary = buildMeasurementSummary(
+      kr,
+      [makeEntry(kr.id, '2026-03-09', 12), makeEntry(kr.id, '2026-03-10', 8)],
+      weekRef
+    )
 
     expect(summary.actualValue).toBe(20)
     expect(summary.evaluationStatus).toBe('met')
@@ -148,10 +160,11 @@ describe('buildMeasurementSummary', () => {
     const kr = makeKeyResult({
       target: { kind: 'value', aggregation: 'average', operator: 'gte', value: 7 },
     })
-    const summary = buildMeasurementSummary(kr, [
-      makeEntry(kr.id, '2026-03-09', 6),
-      makeEntry(kr.id, '2026-03-10', 8),
-    ], weekRef)
+    const summary = buildMeasurementSummary(
+      kr,
+      [makeEntry(kr.id, '2026-03-09', 6), makeEntry(kr.id, '2026-03-10', 8)],
+      weekRef
+    )
 
     expect(summary.actualValue).toBe(7)
     expect(summary.evaluationStatus).toBe('met')
@@ -161,10 +174,11 @@ describe('buildMeasurementSummary', () => {
     const kr = makeKeyResult({
       target: { kind: 'value', aggregation: 'last', operator: 'gte', value: 7 },
     })
-    const summary = buildMeasurementSummary(kr, [
-      makeEntry(kr.id, '2026-03-09', 9),
-      makeEntry(kr.id, '2026-03-10', 6),
-    ], weekRef)
+    const summary = buildMeasurementSummary(
+      kr,
+      [makeEntry(kr.id, '2026-03-09', 9), makeEntry(kr.id, '2026-03-10', 6)],
+      weekRef
+    )
 
     expect(summary.actualValue).toBe(6)
     expect(summary.evaluationStatus).toBe('missed')
@@ -175,10 +189,11 @@ describe('buildMeasurementSummary', () => {
       entryMode: 'rating',
       target: { kind: 'rating', aggregation: 'average', operator: 'gte', value: 4 },
     })
-    const summary = buildMeasurementSummary(habit, [
-      makeEntry(habit.id, '2026-03-09', 3),
-      makeEntry(habit.id, '2026-03-10', 5),
-    ], weekRef)
+    const summary = buildMeasurementSummary(
+      habit,
+      [makeEntry(habit.id, '2026-03-09', 3), makeEntry(habit.id, '2026-03-10', 5)],
+      weekRef
+    )
 
     expect(summary.actualValue).toBe(4)
     expect(summary.evaluationStatus).toBe('met')
@@ -186,11 +201,15 @@ describe('buildMeasurementSummary', () => {
 
   it('ignores entries outside the requested period', () => {
     const habit = makeHabit()
-    const summary = buildMeasurementSummary(habit, [
-      makeEntry(habit.id, '2026-03-09'),
-      makeEntry(habit.id, '2026-03-10'),
-      makeEntry(habit.id, '2026-03-16'),
-    ], weekRef)
+    const summary = buildMeasurementSummary(
+      habit,
+      [
+        makeEntry(habit.id, '2026-03-09'),
+        makeEntry(habit.id, '2026-03-10'),
+        makeEntry(habit.id, '2026-03-16'),
+      ],
+      weekRef
+    )
 
     expect(summary.entryCount).toBe(2)
     expect(summary.actualValue).toBe(2)
@@ -198,10 +217,11 @@ describe('buildMeasurementSummary', () => {
 
   it('ignores entries from other subjects', () => {
     const habit = makeHabit()
-    const summary = buildMeasurementSummary(habit, [
-      makeEntry(habit.id, '2026-03-09'),
-      makeEntry('other-habit', '2026-03-10'),
-    ], weekRef)
+    const summary = buildMeasurementSummary(
+      habit,
+      [makeEntry(habit.id, '2026-03-09'), makeEntry('other-habit', '2026-03-10')],
+      weekRef
+    )
 
     expect(summary.entryCount).toBe(1)
     expect(summary.actualValue).toBe(1)
@@ -209,9 +229,11 @@ describe('buildMeasurementSummary', () => {
 
   it('leaves evaluationStatus undefined for trackers without targets', () => {
     const tracker = makeTracker()
-    const summary = buildMeasurementSummary(tracker, [
-      makeEntry(tracker.id, '2026-03-09', 6, { subjectType: 'tracker' }),
-    ], weekRef)
+    const summary = buildMeasurementSummary(
+      tracker,
+      [makeEntry(tracker.id, '2026-03-09', 6, { subjectType: 'tracker' })],
+      weekRef
+    )
 
     expect(summary.actualValue).toBe(6)
     expect(summary.evaluationStatus).toBeUndefined()
@@ -230,7 +252,7 @@ describe('buildMeasurementSummary', () => {
           makeEntry(tracker.id, '2026-03-12', 10, { subjectType: 'tracker' }),
         ],
         weekRef,
-        '2026-03-10' as DayRef,
+        '2026-03-10' as DayRef
       )
 
       expect(summary.entryCount).toBe(2)
@@ -241,12 +263,9 @@ describe('buildMeasurementSummary', () => {
       const habit = makeHabit()
       const summary = buildMeasurementSummary(
         habit,
-        [
-          makeEntry(habit.id, '2026-03-09'),
-          makeEntry(habit.id, '2026-03-10'),
-        ],
+        [makeEntry(habit.id, '2026-03-09'), makeEntry(habit.id, '2026-03-10')],
         weekRef,
-        '2026-03-10' as DayRef,
+        '2026-03-10' as DayRef
       )
 
       expect(summary.entryCount).toBe(2)
@@ -263,7 +282,7 @@ describe('buildMeasurementSummary', () => {
           makeEntry(kr.id, '2026-03-25', 12, { subjectType: 'keyResult' }),
         ],
         monthRef,
-        '2026-03-15' as DayRef,
+        '2026-03-15' as DayRef
       )
 
       expect(summary.entryCount).toBe(2)
@@ -280,7 +299,7 @@ describe('buildMeasurementSummary', () => {
           makeEntry(habit.id, '2026-03-13'),
         ],
         weekRef,
-        '2026-03-09' as DayRef,
+        '2026-03-09' as DayRef
       )
 
       expect(summary.entryCount).toBe(1)
@@ -291,12 +310,9 @@ describe('buildMeasurementSummary', () => {
       const habit = makeHabit()
       const summary = buildMeasurementSummary(
         habit,
-        [
-          makeEntry(habit.id, '2026-03-11'),
-          makeEntry(habit.id, '2026-03-12'),
-        ],
+        [makeEntry(habit.id, '2026-03-11'), makeEntry(habit.id, '2026-03-12')],
         weekRef,
-        '2026-03-09' as DayRef,
+        '2026-03-09' as DayRef
       )
 
       expect(summary.entryCount).toBe(0)
@@ -331,7 +347,7 @@ describe('applyMeasurementTargetCascade', () => {
     const subject = applyMeasurementTargetCascade(
       makeHabit({ cadence: 'monthly' }),
       monthRef as Parameters<typeof applyMeasurementTargetCascade>[1],
-      { monthOverride, weekOverride },
+      { monthOverride, weekOverride }
     )
     expect('target' in subject && subject.target).toEqual(monthOverride)
   })
@@ -363,9 +379,7 @@ describe('entryDays condition (conjunction)', () => {
 
   it('marks missed when the primary metric holds but too few entry days (min)', () => {
     const habit = makeRatingHabit({ operator: 'min', value: 5 })
-    const summary = buildMeasurementSummary(habit, [
-      makeEntry(habit.id, '2026-03-09', 3),
-    ], weekRef)
+    const summary = buildMeasurementSummary(habit, [makeEntry(habit.id, '2026-03-09', 3)], weekRef)
 
     expect(summary.actualValue).toBe(3)
     expect(summary.evaluationStatus).toBe('missed')
@@ -376,13 +390,17 @@ describe('entryDays condition (conjunction)', () => {
 
   it('marks met when both the primary metric and the min day count hold', () => {
     const habit = makeRatingHabit({ operator: 'min', value: 5 })
-    const summary = buildMeasurementSummary(habit, [
-      makeEntry(habit.id, '2026-03-09', 3),
-      makeEntry(habit.id, '2026-03-10', 4),
-      makeEntry(habit.id, '2026-03-11', 3),
-      makeEntry(habit.id, '2026-03-12', 5),
-      makeEntry(habit.id, '2026-03-13', 3),
-    ], weekRef)
+    const summary = buildMeasurementSummary(
+      habit,
+      [
+        makeEntry(habit.id, '2026-03-09', 3),
+        makeEntry(habit.id, '2026-03-10', 4),
+        makeEntry(habit.id, '2026-03-11', 3),
+        makeEntry(habit.id, '2026-03-12', 5),
+        makeEntry(habit.id, '2026-03-13', 3),
+      ],
+      weekRef
+    )
 
     expect(summary.evaluationStatus).toBe('met')
     expect(summary.primaryMet).toBe(true)
@@ -392,11 +410,15 @@ describe('entryDays condition (conjunction)', () => {
 
   it('marks missed when the day count holds but the primary metric fails', () => {
     const habit = makeRatingHabit({ operator: 'min', value: 3 })
-    const summary = buildMeasurementSummary(habit, [
-      makeEntry(habit.id, '2026-03-09', 2),
-      makeEntry(habit.id, '2026-03-10', 2),
-      makeEntry(habit.id, '2026-03-11', 2),
-    ], weekRef)
+    const summary = buildMeasurementSummary(
+      habit,
+      [
+        makeEntry(habit.id, '2026-03-09', 2),
+        makeEntry(habit.id, '2026-03-10', 2),
+        makeEntry(habit.id, '2026-03-11', 2),
+      ],
+      weekRef
+    )
 
     expect(summary.evaluationStatus).toBe('missed')
     expect(summary.primaryMet).toBe(false)
@@ -405,12 +427,16 @@ describe('entryDays condition (conjunction)', () => {
 
   it('marks missed when a max day limit is exceeded despite a met metric', () => {
     const habit = makeRatingHabit({ operator: 'max', value: 3 })
-    const summary = buildMeasurementSummary(habit, [
-      makeEntry(habit.id, '2026-03-09', 4),
-      makeEntry(habit.id, '2026-03-10', 4),
-      makeEntry(habit.id, '2026-03-11', 4),
-      makeEntry(habit.id, '2026-03-12', 4),
-    ], weekRef)
+    const summary = buildMeasurementSummary(
+      habit,
+      [
+        makeEntry(habit.id, '2026-03-09', 4),
+        makeEntry(habit.id, '2026-03-10', 4),
+        makeEntry(habit.id, '2026-03-11', 4),
+        makeEntry(habit.id, '2026-03-12', 4),
+      ],
+      weekRef
+    )
 
     expect(summary.evaluationStatus).toBe('missed')
     expect(summary.primaryMet).toBe(true)
@@ -421,13 +447,22 @@ describe('entryDays condition (conjunction)', () => {
   it('does not count an explicitly logged zero as a counter execution day', () => {
     const habit = makeHabit({
       entryMode: 'counter',
-      target: { kind: 'count', operator: 'min', value: 4, entryDays: { operator: 'min', value: 3 } },
+      target: {
+        kind: 'count',
+        operator: 'min',
+        value: 4,
+        entryDays: { operator: 'min', value: 3 },
+      },
     })
-    const summary = buildMeasurementSummary(habit, [
-      makeEntry(habit.id, '2026-03-09', 2),
-      makeEntry(habit.id, '2026-03-10', 2),
-      makeEntry(habit.id, '2026-03-11', 0),
-    ], weekRef)
+    const summary = buildMeasurementSummary(
+      habit,
+      [
+        makeEntry(habit.id, '2026-03-09', 2),
+        makeEntry(habit.id, '2026-03-10', 2),
+        makeEntry(habit.id, '2026-03-11', 0),
+      ],
+      weekRef
+    )
 
     expect(summary.actualValue).toBe(4)
     expect(summary.primaryMet).toBe(true)
@@ -451,9 +486,7 @@ describe('entryDays condition (conjunction)', () => {
       entryMode: 'rating',
       target: { kind: 'rating', aggregation: 'average', operator: 'gte', value: 3 },
     })
-    const summary = buildMeasurementSummary(habit, [
-      makeEntry(habit.id, '2026-03-09', 4),
-    ], weekRef)
+    const summary = buildMeasurementSummary(habit, [makeEntry(habit.id, '2026-03-09', 4)], weekRef)
 
     expect(summary.evaluationStatus).toBe('met')
     expect(summary.primaryMet).toBeUndefined()
@@ -475,9 +508,11 @@ describe('entryDays condition (conjunction)', () => {
         entryDays: { operator: 'min', value: 2 },
       },
     })
-    const summary = buildMeasurementSummary(subject, [
-      makeEntry(habit.id, '2026-03-09', 4),
-    ], weekRef)
+    const summary = buildMeasurementSummary(
+      subject,
+      [makeEntry(habit.id, '2026-03-09', 4)],
+      weekRef
+    )
 
     expect(summary.evaluationStatus).toBe('missed')
     expect(summary.presenceMet).toBe(false)
@@ -501,17 +536,25 @@ describe('multi-completion evaluation', () => {
     })
   }
 
-  function makeMultiEntry(subjectId: string, dayRef: string, checkedItemIds: string[]): DailyMeasurementEntry {
+  function makeMultiEntry(
+    subjectId: string,
+    dayRef: string,
+    checkedItemIds: string[]
+  ): DailyMeasurementEntry {
     return makeEntry(subjectId, dayRef, null, { checkedItemIds })
   }
 
   it('counts only days whose points reach the default all-items threshold', () => {
     const habit = makeMultiHabit()
-    const summary = buildMeasurementSummary(habit, [
-      makeMultiEntry(habit.id, '2026-03-09', ['wake', 'meditate', 'train']),
-      makeMultiEntry(habit.id, '2026-03-10', ['wake', 'meditate']),
-      makeMultiEntry(habit.id, '2026-03-11', ['train', 'wake']),
-    ], weekRef)
+    const summary = buildMeasurementSummary(
+      habit,
+      [
+        makeMultiEntry(habit.id, '2026-03-09', ['wake', 'meditate', 'train']),
+        makeMultiEntry(habit.id, '2026-03-10', ['wake', 'meditate']),
+        makeMultiEntry(habit.id, '2026-03-11', ['train', 'wake']),
+      ],
+      weekRef
+    )
 
     expect(summary.actualValue).toBe(1)
     expect(summary.entryCount).toBe(3)
@@ -520,11 +563,15 @@ describe('multi-completion evaluation', () => {
 
   it('respects an explicit daily threshold and weighted items', () => {
     const habit = makeMultiHabit({ multiDailyThreshold: 2 })
-    const summary = buildMeasurementSummary(habit, [
-      makeMultiEntry(habit.id, '2026-03-09', ['train']),
-      makeMultiEntry(habit.id, '2026-03-10', ['wake', 'meditate']),
-      makeMultiEntry(habit.id, '2026-03-11', ['wake']),
-    ], weekRef)
+    const summary = buildMeasurementSummary(
+      habit,
+      [
+        makeMultiEntry(habit.id, '2026-03-09', ['train']),
+        makeMultiEntry(habit.id, '2026-03-10', ['wake', 'meditate']),
+        makeMultiEntry(habit.id, '2026-03-11', ['wake']),
+      ],
+      weekRef
+    )
 
     expect(summary.actualValue).toBe(2)
     expect(summary.evaluationStatus).toBe('met')
@@ -554,7 +601,9 @@ describe('multi-completion evaluation', () => {
     })
 
     expect(multiCompletionEffectiveThreshold(habit)).toBe(2)
-    expect(multiCompletionDayMet(habit, makeMultiEntry(habit.id, '2026-03-09', ['wake', 'meditate']))).toBe(true)
+    expect(
+      multiCompletionDayMet(habit, makeMultiEntry(habit.id, '2026-03-09', ['wake', 'meditate']))
+    ).toBe(true)
   })
 
   it('still scores archived item weights in historical entries', () => {
@@ -581,7 +630,12 @@ describe('multi-completion evaluation', () => {
 
   it('treats every entry as a qualified day for the entryDays condition', () => {
     const habit = makeMultiHabit({
-      target: { kind: 'count', operator: 'min', value: 1, entryDays: { operator: 'min', value: 3 } },
+      target: {
+        kind: 'count',
+        operator: 'min',
+        value: 1,
+        entryDays: { operator: 'min', value: 3 },
+      },
     })
     const entries = [
       makeMultiEntry(habit.id, '2026-03-09', ['wake', 'meditate', 'train']),
@@ -597,17 +651,26 @@ describe('multi-completion evaluation', () => {
     expect(summary.evaluationStatus).toBe('met')
 
     const stricter = makeMultiHabit({
-      target: { kind: 'count', operator: 'min', value: 1, entryDays: { operator: 'min', value: 4 } },
+      target: {
+        kind: 'count',
+        operator: 'min',
+        value: 1,
+        entryDays: { operator: 'min', value: 4 },
+      },
     })
     expect(buildMeasurementSummary(stricter, entries, weekRef).evaluationStatus).toBe('missed')
   })
 
   it('leaves trackers without a target unevaluated but aggregates met days', () => {
     const tracker = makeTracker({ entryMode: 'multi-completion', multiItems })
-    const summary = buildMeasurementSummary(tracker, [
-      makeMultiEntry(tracker.id, '2026-03-09', ['wake', 'meditate', 'train']),
-      makeMultiEntry(tracker.id, '2026-03-10', ['wake']),
-    ], weekRef)
+    const summary = buildMeasurementSummary(
+      tracker,
+      [
+        makeMultiEntry(tracker.id, '2026-03-09', ['wake', 'meditate', 'train']),
+        makeMultiEntry(tracker.id, '2026-03-10', ['wake']),
+      ],
+      weekRef
+    )
 
     expect(summary.actualValue).toBe(1)
     expect(summary.evaluationStatus).toBeUndefined()

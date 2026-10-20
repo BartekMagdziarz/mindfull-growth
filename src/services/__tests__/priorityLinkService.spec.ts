@@ -96,18 +96,20 @@ describe('priorityLinkService', () => {
   it('rolls the whole finale back when any link is invalid (draft survives)', async () => {
     await saveDraftToDB('priority-creator-ritual', '{"stepIndex":5}')
 
-    await expect(createPriorityFromRitual({
-      priority: RITUAL_PRIORITY,
-      links: [
-        {
-          // Points at a habit that does not exist → dual-write throws inside the txn.
-          subjectRef: { subjectType: 'habit', subjectId: 'missing-habit' },
-          contribution: '',
-          expectedSignal: '',
-        },
-      ],
-      draftKey: 'priority-creator-ritual',
-    })).rejects.toThrow()
+    await expect(
+      createPriorityFromRitual({
+        priority: RITUAL_PRIORITY,
+        links: [
+          {
+            // Points at a habit that does not exist → dual-write throws inside the txn.
+            subjectRef: { subjectType: 'habit', subjectId: 'missing-habit' },
+            contribution: '',
+            expectedSignal: '',
+          },
+        ],
+        draftKey: 'priority-creator-ritual',
+      })
+    ).rejects.toThrow()
 
     expect(await db.priorities.count()).toBe(0)
     expect(await db.priorityLinks.count()).toBe(0)
@@ -115,24 +117,31 @@ describe('priorityLinkService', () => {
   })
 
   it('rejects a link that carries both or neither of subjectRef/proposal', async () => {
-    await expect(createPriorityFromRitual({
-      priority: RITUAL_PRIORITY,
-      links: [{ contribution: '', expectedSignal: '' }],
-    })).rejects.toThrow('exactly one')
+    await expect(
+      createPriorityFromRitual({
+        priority: RITUAL_PRIORITY,
+        links: [{ contribution: '', expectedSignal: '' }],
+      })
+    ).rejects.toThrow('exactly one')
   })
 
   it('resolves a proposed link once the real object exists (dual-write included)', async () => {
     const { priority, links } = await createPriorityFromRitual({
       priority: RITUAL_PRIORITY,
-      links: [{
-        proposal: { objectType: 'habit', title: 'Spokojny spacer' },
-        contribution: 'Wspiera regenerację',
-        expectedSignal: 'Więcej dni z energią',
-      }],
+      links: [
+        {
+          proposal: { objectType: 'habit', title: 'Spokojny spacer' },
+          contribution: 'Wspiera regenerację',
+          expectedSignal: 'Więcej dni z energią',
+        },
+      ],
     })
     const habit = await seedHabit()
 
-    const resolved = await resolveProposedLink(links[0].id, { subjectType: 'habit', subjectId: habit.id })
+    const resolved = await resolveProposedLink(links[0].id, {
+      subjectType: 'habit',
+      subjectId: habit.id,
+    })
 
     expect(resolved.status).toBe('active')
     expect(resolved.subjectRef).toEqual({ subjectType: 'habit', subjectId: habit.id })
@@ -142,8 +151,9 @@ describe('priorityLinkService', () => {
     const updatedHabit = await habitDexieRepository.getById(habit.id)
     expect(updatedHabit?.priorityIds).toContain(priority.id)
 
-    await expect(resolveProposedLink(links[0].id, { subjectType: 'habit', subjectId: habit.id }))
-      .rejects.toThrow('only proposed')
+    await expect(
+      resolveProposedLink(links[0].id, { subjectType: 'habit', subjectId: habit.id })
+    ).rejects.toThrow('only proposed')
   })
 
   it('abandons proposed links and refuses to abandon active ones', async () => {
@@ -151,8 +161,16 @@ describe('priorityLinkService', () => {
     const { links } = await createPriorityFromRitual({
       priority: RITUAL_PRIORITY,
       links: [
-        { proposal: { objectType: 'tracker', title: 'Energia' }, contribution: '', expectedSignal: '' },
-        { subjectRef: { subjectType: 'habit', subjectId: habit.id }, contribution: '', expectedSignal: '' },
+        {
+          proposal: { objectType: 'tracker', title: 'Energia' },
+          contribution: '',
+          expectedSignal: '',
+        },
+        {
+          subjectRef: { subjectType: 'habit', subjectId: habit.id },
+          contribution: '',
+          expectedSignal: '',
+        },
       ],
     })
     const proposed = links.find(link => link.status === 'proposed')!
@@ -168,7 +186,13 @@ describe('priorityLinkService', () => {
     const habit = await seedHabit()
     const { priority, links } = await createPriorityFromRitual({
       priority: RITUAL_PRIORITY,
-      links: [{ subjectRef: { subjectType: 'habit', subjectId: habit.id }, contribution: '', expectedSignal: '' }],
+      links: [
+        {
+          subjectRef: { subjectType: 'habit', subjectId: habit.id },
+          contribution: '',
+          expectedSignal: '',
+        },
+      ],
     })
 
     const retired = await retireActiveLink(links[0].id)
@@ -184,7 +208,10 @@ describe('priorityLinkService', () => {
     const priority = await priorityDexieRepository.create(RITUAL_PRIORITY)
 
     const first = await createActiveLink(priority.id, { subjectType: 'habit', subjectId: habit.id })
-    const second = await createActiveLink(priority.id, { subjectType: 'habit', subjectId: habit.id })
+    const second = await createActiveLink(priority.id, {
+      subjectType: 'habit',
+      subjectId: habit.id,
+    })
 
     expect(second.id).toBe(first.id)
     expect(await db.priorityLinks.count()).toBe(1)
@@ -197,8 +224,16 @@ describe('priorityLinkService', () => {
     const { priority, links } = await createPriorityFromRitual({
       priority: RITUAL_PRIORITY,
       links: [
-        { subjectRef: { subjectType: 'habit', subjectId: habit.id }, contribution: '', expectedSignal: '' },
-        { proposal: { objectType: 'goal', title: 'Nigdy nie powstał' }, contribution: '', expectedSignal: '' },
+        {
+          subjectRef: { subjectType: 'habit', subjectId: habit.id },
+          contribution: '',
+          expectedSignal: '',
+        },
+        {
+          proposal: { objectType: 'goal', title: 'Nigdy nie powstał' },
+          contribution: '',
+          expectedSignal: '',
+        },
       ],
     })
 
@@ -218,7 +253,13 @@ describe('priorityLinkService', () => {
     const habit = await seedHabit()
     const { priority } = await createPriorityFromRitual({
       priority: RITUAL_PRIORITY,
-      links: [{ subjectRef: { subjectType: 'habit', subjectId: habit.id }, contribution: '', expectedSignal: '' }],
+      links: [
+        {
+          subjectRef: { subjectType: 'habit', subjectId: habit.id },
+          contribution: '',
+          expectedSignal: '',
+        },
+      ],
     })
 
     await priorityDexieRepository.delete(priority.id)
@@ -232,7 +273,13 @@ describe('priorityLinkService', () => {
     const habit = await seedHabit()
     const { priority, links } = await createPriorityFromRitual({
       priority: RITUAL_PRIORITY,
-      links: [{ subjectRef: { subjectType: 'habit', subjectId: habit.id }, contribution: '', expectedSignal: '' }],
+      links: [
+        {
+          subjectRef: { subjectType: 'habit', subjectId: habit.id },
+          contribution: '',
+          expectedSignal: '',
+        },
+      ],
     })
 
     await habitDexieRepository.delete(habit.id)
@@ -292,7 +339,13 @@ describe('priorityLinkService', () => {
   it('createObjectFromProposal creates a habit, resolves the link and dual-writes', async () => {
     const { priority, links } = await createPriorityFromRitual({
       priority: RITUAL_PRIORITY,
-      links: [{ proposal: { objectType: 'habit', title: 'Spokojny spacer' }, contribution: 'Regeneracja', expectedSignal: 'Więcej energii' }],
+      links: [
+        {
+          proposal: { objectType: 'habit', title: 'Spokojny spacer' },
+          contribution: 'Regeneracja',
+          expectedSignal: 'Więcej energii',
+        },
+      ],
     })
 
     const result = await createObjectFromProposal(links[0])
@@ -317,7 +370,11 @@ describe('priorityLinkService', () => {
       priority: RITUAL_PRIORITY,
       links: [
         { proposal: { objectType: 'goal', title: 'Plan' }, contribution: '', expectedSignal: '' },
-        { proposal: { objectType: 'tracker', title: 'Energia' }, contribution: '', expectedSignal: '' },
+        {
+          proposal: { objectType: 'tracker', title: 'Energia' },
+          contribution: '',
+          expectedSignal: '',
+        },
       ],
     })
 
@@ -327,7 +384,9 @@ describe('priorityLinkService', () => {
         expect((await goalDexieRepository.getById(result.subjectRef.subjectId))?.title).toBe('Plan')
       } else {
         expect(result.family).toBe('trackers')
-        expect((await trackerDexieRepository.getById(result.subjectRef.subjectId))?.title).toBe('Energia')
+        expect((await trackerDexieRepository.getById(result.subjectRef.subjectId))?.title).toBe(
+          'Energia'
+        )
       }
     }
   })
@@ -336,7 +395,13 @@ describe('priorityLinkService', () => {
     const habit = await seedHabit()
     const { links } = await createPriorityFromRitual({
       priority: RITUAL_PRIORITY,
-      links: [{ subjectRef: { subjectType: 'habit', subjectId: habit.id }, contribution: '', expectedSignal: '' }],
+      links: [
+        {
+          subjectRef: { subjectType: 'habit', subjectId: habit.id },
+          contribution: '',
+          expectedSignal: '',
+        },
+      ],
     })
 
     await expect(createObjectFromProposal(links[0])).rejects.toThrow('not a proposed link')

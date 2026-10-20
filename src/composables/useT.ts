@@ -1,7 +1,12 @@
 import { computed } from 'vue'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { messages } from '@/locales'
-import { DEFAULT_LOCALE_ID, type LocaleId, DEFAULT_GENDER, type GrammaticalGender } from '@/services/locale.service'
+import {
+  DEFAULT_LOCALE_ID,
+  type LocaleId,
+  DEFAULT_GENDER,
+  type GrammaticalGender,
+} from '@/services/locale.service'
 import { pluralizePl, pluralizeEn } from '@/utils/pluralize'
 
 /**
@@ -142,7 +147,7 @@ export function useT() {
     }
 
     const suffix = gender.value === 'feminine' ? 'f' : 'm'
-    return raw.map((el) => {
+    return raw.map(el => {
       if (el && typeof el === 'object') {
         const variants = el as Record<string, string>
         return String(variants[suffix] ?? variants.m ?? '')

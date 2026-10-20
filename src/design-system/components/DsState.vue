@@ -14,16 +14,19 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import DsButton from './DsButton.vue'
 import DsSurface from './DsSurface.vue'
 
-withDefaults(defineProps<{
-  icon?: string
-  title: string
-  body?: string
-  actionLabel?: string
-}>(), {
-  icon: 'hourglass_empty',
-  body: '',
-  actionLabel: '',
-})
+withDefaults(
+  defineProps<{
+    icon?: string
+    title: string
+    body?: string
+    actionLabel?: string
+  }>(),
+  {
+    icon: 'hourglass_empty',
+    body: '',
+    actionLabel: '',
+  }
+)
 
 defineEmits<{ action: [] }>()
 </script>

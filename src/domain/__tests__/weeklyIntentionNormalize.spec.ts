@@ -31,7 +31,7 @@ describe('normalizeWeeklyIntentionPayload', () => {
         cadence: 'weekly',
         target: { kind: 'count', operator: 'min', value: 1 },
         status: 'open',
-      }),
+      })
     ).toThrow()
   })
 
@@ -74,7 +74,7 @@ describe('normalizeWeeklyIntentionPayload', () => {
         status: 'open',
         // @ts-expect-error goalId is not part of a WeeklyIntention
         goalId: 'g1',
-      }),
+      })
     ).toThrow()
   })
 })
@@ -94,7 +94,7 @@ describe('normalizeWeekPlanPayload', () => {
         weekRef: WEEK,
         // @ts-expect-error bogus is not a MeasurementSubjectType
         topPriorities: [{ subjectType: 'bogus', subjectId: 'i1' }],
-      }),
+      })
     ).toThrow()
   })
 })

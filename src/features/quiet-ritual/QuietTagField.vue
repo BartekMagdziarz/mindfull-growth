@@ -32,7 +32,11 @@
         @keydown.enter.prevent="commit(query)"
         @keydown.escape.prevent="close"
       />
-      <ul v-if="creatable || matches.length" class="qr-tagfield-suggestions" aria-label="Wcześniejsze tagi">
+      <ul
+        v-if="creatable || matches.length"
+        class="qr-tagfield-suggestions"
+        aria-label="Wcześniejsze tagi"
+      >
         <li v-if="creatable">
           <button type="button" class="qr-quiet qr-tagfield-create" @click="commit(query)">
             <AppIcon name="add" />{{ query.trim() }}
@@ -65,7 +69,7 @@ const props = withDefaults(
     /** How many suggestions to show when the search box is empty. */
     limit?: number
   }>(),
-  { suggestions: () => [], limit: 6 },
+  { suggestions: () => [], limit: 6 }
 )
 const emit = defineEmits<{ 'update:modelValue': [tags: string[]] }>()
 
@@ -109,7 +113,7 @@ function commit(raw: string) {
 function remove(tag: string) {
   emit(
     'update:modelValue',
-    props.modelValue.filter(entry => entry !== tag),
+    props.modelValue.filter(entry => entry !== tag)
   )
 }
 </script>

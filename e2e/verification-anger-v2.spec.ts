@@ -16,14 +16,20 @@ const SEED_MARKER_KEY = 'mindfull_growth_verification_seed_version'
 
 async function bootSeededApp(page: Page): Promise<void> {
   await page.goto('/')
-  await page.waitForFunction((key: string) => window.localStorage.getItem(key) !== null, SEED_MARKER_KEY, {
-    timeout: 90_000,
-  })
+  await page.waitForFunction(
+    (key: string) => window.localStorage.getItem(key) !== null,
+    SEED_MARKER_KEY,
+    {
+      timeout: 90_000,
+    }
+  )
   await expect(page).not.toHaveURL(/login/)
 }
 
 test.describe('anger path v2', () => {
-  test('path view: seven week rows, the barometer halfway as the current tile, Praktyki, Reakcje, Moje słowa and knowledge', async ({ page }) => {
+  test('path view: seven week rows, the barometer halfway as the current tile, Praktyki, Reakcje, Moje słowa and knowledge', async ({
+    page,
+  }) => {
     test.setTimeout(120_000)
     await bootSeededApp(page)
     await page.goto('/exercises/programs/anger-signal')
@@ -32,7 +38,15 @@ test.describe('anger path v2', () => {
     await expect(page.locator('.path-view__sign')).toContainText('Nie krzyknę na dzieci')
 
     const journey = page.getByTestId('path-journey')
-    await expect(journey.locator('.wk__title')).toHaveText(['Rozpoznanie', 'Pauza', 'Inne spojrzenie', 'To, co ważne', 'Własny wybór', 'Co zostaje', 'Powrót'])
+    await expect(journey.locator('.wk__title')).toHaveText([
+      'Rozpoznanie',
+      'Pauza',
+      'Inne spojrzenie',
+      'To, co ważne',
+      'Własny wybór',
+      'Co zostaje',
+      'Powrót',
+    ])
     const week3 = journey.locator('[data-test-path-week="w3"]')
     await expect(week3.locator('.wk__row')).toHaveAttribute('aria-expanded', 'true')
     await expect(week3.locator('.pp-tile')).toHaveCount(3)
@@ -45,14 +59,22 @@ test.describe('anger path v2', () => {
     // Praktyki: the breath, Momenty and the week's accepted task; "Mój plan" quotes the pause plan.
     const practices = page.getByTestId('path-practices')
     await expect(practices.getByTestId('path-practice-tile')).toHaveCount(1)
-    await expect(practices.getByTestId('path-moment-tile').getByRole('button', { name: 'Zapisz' })).toBeVisible()
+    await expect(
+      practices.getByTestId('path-moment-tile').getByRole('button', { name: 'Zapisz' })
+    ).toBeVisible()
     await expect(page.getByTestId('path-world')).toContainText('Przypomnij sobie inną myśl')
     await practices.getByRole('button', { name: 'Mój plan' }).click()
     await expect(page.getByTestId('path-response')).toContainText('potrzebuję minuty')
 
     // Postęp: the anger reaction families (two pairs + Pauza as "Ja"), one measure track.
     const glance = page.getByTestId('path-moments-glance')
-    await expect(glance.locator('.pc__legend-name')).toHaveText(['Wybuch', 'Ostrzej', 'Na siebie', 'Milczenie', 'Ja'])
+    await expect(glance.locator('.pc__legend-name')).toHaveText([
+      'Wybuch',
+      'Ostrzej',
+      'Na siebie',
+      'Milczenie',
+      'Ja',
+    ])
     await expect(glance.locator('.pc__week:not(.is-slot)')).toHaveCount(3)
     await glance.locator('summary').click()
     await glance.getByRole('button', { name: 'Liczby' }).click()
@@ -69,12 +91,17 @@ test.describe('anger path v2', () => {
     await expect(knowledge).toContainText('Przeżuwanie')
   })
 
-  test('Momenty (anger variant): the quick five with the pause plan as a hint, "Zapisz teraz" after the strength', async ({ page }) => {
+  test('Momenty (anger variant): the quick five with the pause plan as a hint, "Zapisz teraz" after the strength', async ({
+    page,
+  }) => {
     test.setTimeout(120_000)
     await bootSeededApp(page)
     await page.goto('/exercises/micro/moment-anger')
     await expect(page.getByRole('heading', { name: 'Moment złości' }).first()).toBeVisible()
-    const step = async (heading: string | RegExp, label: 'Dalej' | 'Zapisz' | 'Zapisz teraz' = 'Dalej') => {
+    const step = async (
+      heading: string | RegExp,
+      label: 'Dalej' | 'Zapisz' | 'Zapisz teraz' = 'Dalej'
+    ) => {
       await expect(page.getByRole('heading', { name: heading, level: 2 })).toBeVisible()
       await page.getByRole('button', { name: label, exact: true }).click()
     }
@@ -89,12 +116,17 @@ test.describe('anger path v2', () => {
     await page.getByRole('button', { name: 'Pauza', exact: true }).click()
     await step(/Co zrobił/)
     await expect(page.getByRole('button', { name: 'Dalej', exact: true })).toBeDisabled()
-    await page.getByRole('radiogroup', { name: 'Jak silna była złość?' }).getByRole('radio', { name: '3' }).click()
+    await page
+      .getByRole('radiogroup', { name: 'Jak silna była złość?' })
+      .getByRole('radio', { name: '3' })
+      .click()
     await step('Jak silna była złość?', 'Zapisz teraz')
     await expect(page.locator('textarea')).toHaveCount(0)
   })
 
-  test('the weekly reflection: the anger block has the compact chart, the task counted from a Moment and a backfilled Moment', async ({ page }) => {
+  test('the weekly reflection: the anger block has the compact chart, the task counted from a Moment and a backfilled Moment', async ({
+    page,
+  }) => {
     test.setTimeout(120_000)
     await bootSeededApp(page)
     const yesterday = new Date()
@@ -108,7 +140,13 @@ test.describe('anger path v2', () => {
     await expect(block).toBeVisible()
     await expect(block).toContainText('Przypomnij sobie inną myśl')
     await expect(block.locator('.qr-path-task__disc')).toHaveText(`${seededDays}/2`)
-    await expect(block.locator('.pc__legend-name')).toHaveText(['Wybuch', 'Ostrzej', 'Na siebie', 'Milczenie', 'Ja'])
+    await expect(block.locator('.pc__legend-name')).toHaveText([
+      'Wybuch',
+      'Ostrzej',
+      'Na siebie',
+      'Milczenie',
+      'Ja',
+    ])
     await expect(block).toContainText('Tydzień 3 · Inne spojrzenie')
     await block.getByTestId('path-backfill-open').click()
     const form = block.getByTestId('path-backfill-form')
@@ -124,7 +162,9 @@ test.describe('anger path v2', () => {
     await expect(block.locator('.qr-path-added li')).toHaveCount(0)
   })
 
-  test('Today: the anger path tile shows week dots, the phase, the barometer as the next step, Zapisz moment and the task', async ({ page }) => {
+  test('Today: the anger path tile shows week dots, the phase, the barometer as the next step, Zapisz moment and the task', async ({
+    page,
+  }) => {
     test.setTimeout(120_000)
     await bootSeededApp(page)
     await page.goto('/today')
@@ -136,8 +176,13 @@ test.describe('anger path v2', () => {
     await expect(phase.locator('.ndpath-dots > i')).toHaveCount(6)
     await expect(phase.locator('.ndpath-dots > i.is-done')).toHaveCount(2)
     await expect(tile.getByTestId('today-path-step')).toContainText('Barometr w połowie drogi')
-    await expect(tile.getByTestId('today-path-moment')).toHaveAttribute('href', '/exercises/micro/moment-anger')
+    await expect(tile.getByTestId('today-path-moment')).toHaveAttribute(
+      'href',
+      '/exercises/micro/moment-anger'
+    )
     await expect(tile.getByTestId('today-path-task')).toContainText('Przypomnij sobie inną myśl')
-    await expect(page.getByTestId('today-practices').locator('.ndp', { hasText: 'Barometr' })).toBeVisible()
+    await expect(
+      page.getByTestId('today-practices').locator('.ndp', { hasText: 'Barometr' })
+    ).toBeVisible()
   })
 })

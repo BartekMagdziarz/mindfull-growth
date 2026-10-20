@@ -1,8 +1,15 @@
 <template>
   <figure class="ls-bars" :class="`ls-bars--${size}`" role="img" :aria-label="aria" :title="aria">
     <span class="ls-bars__pair">
-      <i class="ls-bars__load" :class="{ none: load == null }" :style="{ height: `${pct(load)}%` }"><b v-if="values && load != null">{{ load }}</b></i>
-      <i class="ls-bars__state" :class="{ none: state == null }" :style="{ height: `${pct(state)}%`, background: state != null ? color : undefined }"><b v-if="values && state != null">{{ state }}</b></i>
+      <i class="ls-bars__load" :class="{ none: load == null }" :style="{ height: `${pct(load)}%` }"
+        ><b v-if="values && load != null">{{ load }}</b></i
+      >
+      <i
+        class="ls-bars__state"
+        :class="{ none: state == null }"
+        :style="{ height: `${pct(state)}%`, background: state != null ? color : undefined }"
+        ><b v-if="values && state != null">{{ state }}</b></i
+      >
     </span>
     <figcaption v-if="label" class="ls-bars__label">{{ label }}</figcaption>
   </figure>
@@ -26,7 +33,7 @@ const props = withDefaults(
     /** Print the numbers above the bars. */
     values?: boolean
   }>(),
-  { label: '', size: 'sm', values: false },
+  { label: '', size: 'sm', values: false }
 )
 
 const pct = (v: MaybeRating) => (v == null ? 6 : (v / 5) * 100)
@@ -34,8 +41,10 @@ const color = computed(() => pairColor(props.load, props.state))
 const aria = computed(
   () =>
     `${props.label ? `${props.label}: ` : ''}obciążenie ${props.load ?? 'brak'}, stan ${props.state ?? 'brak'}${
-      props.load != null && props.state != null ? `, tydzień ${QUADRANT_LABELS[classifyPair(props.load, props.state).quadrant]}` : ''
-    }`,
+      props.load != null && props.state != null
+        ? `, tydzień ${QUADRANT_LABELS[classifyPair(props.load, props.state).quadrant]}`
+        : ''
+    }`
 )
 </script>
 

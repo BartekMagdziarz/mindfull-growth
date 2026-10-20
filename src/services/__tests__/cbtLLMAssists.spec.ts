@@ -60,9 +60,7 @@ describe('cbtLLMAssists.identifyThoughts (sample function)', () => {
 
   it('does not prefix profile context when useProfile is false (default)', async () => {
     const profileStore = useUserProfileStore()
-    profileStore.profiles = [
-      makeProfile({ summary: 'Curious, reflective.' }),
-    ]
+    profileStore.profiles = [makeProfile({ summary: 'Curious, reflective.' })]
 
     await identifyThoughts({
       situation: 'Missed a deadline',
@@ -77,11 +75,12 @@ describe('cbtLLMAssists.identifyThoughts (sample function)', () => {
   })
 
   it('prepends only the approved context when useProfile is true', async () => {
-    await approvedProfileRepository().save({ ...blankProfileContent(), text: 'Curious, reflective.' })
+    await approvedProfileRepository().save({
+      ...blankProfileContent(),
+      text: 'Curious, reflective.',
+    })
     const profileStore = useUserProfileStore()
-    profileStore.profiles = [
-      makeProfile({ summary: 'Curious, reflective.' }),
-    ]
+    profileStore.profiles = [makeProfile({ summary: 'Curious, reflective.' })]
 
     await identifyThoughts({
       situation: 'Missed a deadline',

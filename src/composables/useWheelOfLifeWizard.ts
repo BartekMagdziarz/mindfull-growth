@@ -30,7 +30,9 @@ export function useWheelOfLifeWizard(options: WheelOfLifeWizardOptions) {
   const isLoadingAreas = ref(false)
 
   const isEditing = computed(() => Boolean(options.assessmentId))
-  const needsSetup = computed(() => !isEditing.value && !isLoadingAreas.value && areas.value.length === 0)
+  const needsSetup = computed(
+    () => !isEditing.value && !isLoadingAreas.value && areas.value.length === 0
+  )
 
   const stepTitle = computed(() => {
     if (isEditing.value) {
@@ -80,7 +82,7 @@ export function useWheelOfLifeWizard(options: WheelOfLifeWizardOptions) {
 
   const comparisonAreas = computed<WheelChartArea[] | undefined>(() => {
     const sortedFullAssessments = sortLifeAreaAssessmentsByCreatedAt(
-      lifeAreaAssessmentStore.fullAssessments,
+      lifeAreaAssessmentStore.fullAssessments
     )
 
     const currentAssessment = options.assessmentId
@@ -88,14 +90,14 @@ export function useWheelOfLifeWizard(options: WheelOfLifeWizardOptions) {
       : undefined
 
     const referenceAssessment = currentAssessment
-      ? sortedFullAssessments.find((assessment) => assessment.createdAt < currentAssessment.createdAt)
+      ? sortedFullAssessments.find(assessment => assessment.createdAt < currentAssessment.createdAt)
       : sortedFullAssessments[0]
 
     if (!referenceAssessment) {
       return undefined
     }
 
-    return referenceAssessment.items.map((item) => ({
+    return referenceAssessment.items.map(item => ({
       id: item.lifeAreaId,
       name: item.lifeAreaNameSnapshot,
       rating: item.score,
@@ -133,18 +135,19 @@ export function useWheelOfLifeWizard(options: WheelOfLifeWizardOptions) {
       : undefined
 
     if (existingAssessment) {
-      areas.value = existingAssessment.items.map((item) => ({
+      areas.value = existingAssessment.items.map(item => ({
         id: item.lifeAreaId,
         name: item.lifeAreaNameSnapshot,
         rating: item.score,
         note: item.note ?? '',
-        positiveInfluences: getAssessmentDetailText(item.details, 'positiveInfluences') || item.note || '',
+        positiveInfluences:
+          getAssessmentDetailText(item.details, 'positiveInfluences') || item.note || '',
         negativeInfluences: getAssessmentDetailText(item.details, 'negativeInfluences'),
         visionSnapshot: item.visionSnapshot ?? '',
       }))
       notes.value = existingAssessment.notes ?? ''
     } else {
-      areas.value = lifeAreaStore.activeLifeAreas.map((lifeArea) => ({
+      areas.value = lifeAreaStore.activeLifeAreas.map(lifeArea => ({
         id: lifeArea.id,
         name: lifeArea.name,
         rating: 5,
@@ -204,8 +207,8 @@ export function useWheelOfLifeWizard(options: WheelOfLifeWizardOptions) {
 
   async function save(): Promise<string> {
     const items = areas.value
-      .filter((area) => area.id && area.name.trim().length > 0)
-      .map((area) => ({
+      .filter(area => area.id && area.name.trim().length > 0)
+      .map(area => ({
         lifeAreaId: area.id as string,
         lifeAreaNameSnapshot: area.name,
         score: area.rating,
@@ -221,7 +224,7 @@ export function useWheelOfLifeWizard(options: WheelOfLifeWizardOptions) {
     const payload = {
       scope: 'full' as const,
       notes: notes.value || undefined,
-      lifeAreaIds: items.map((item) => item.lifeAreaId),
+      lifeAreaIds: items.map(item => item.lifeAreaId),
       items,
     }
 
@@ -265,7 +268,7 @@ export function useWheelOfLifeWizard(options: WheelOfLifeWizardOptions) {
 
 function getAssessmentDetailText(
   details: LifeAreaAssessmentDetails | undefined,
-  key: string,
+  key: string
 ): string {
   const value = details?.[key]
   return typeof value === 'string' ? value : ''

@@ -16,11 +16,7 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            if (
-              id.includes('/vue/') ||
-              id.includes('/vue-router/') ||
-              id.includes('/pinia/')
-            ) {
+            if (id.includes('/vue/') || id.includes('/vue-router/') || id.includes('/pinia/')) {
               return 'vue-vendor'
             }
 
@@ -31,9 +27,7 @@ export default defineConfig({
             return 'vendor'
           }
 
-          if (
-            id.includes('/src/locales/')
-          ) {
+          if (id.includes('/src/locales/')) {
             return 'locales'
           }
 

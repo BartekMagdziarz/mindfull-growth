@@ -12,11 +12,7 @@
           <h3 class="text-base font-semibold text-on-surface">{{ t(group.scale.labelKey) }}</h3>
         </div>
 
-        <div
-          v-for="item in group.items"
-          :key="item.id"
-          class="space-y-2"
-        >
+        <div v-for="item in group.items" :key="item.id" class="space-y-2">
           <label class="text-sm text-on-surface">{{ tg(item.textKey) }}</label>
           <div class="flex items-center gap-3">
             <input
@@ -26,7 +22,7 @@
               :value="responseValue(item.id, item.responseMin)"
               class="w-full"
               @input="onSliderInput(item, $event)"
-            >
+            />
             <input
               type="number"
               :min="item.responseMin"
@@ -34,7 +30,7 @@
               :value="responseValue(item.id, item.responseMin)"
               class="neo-input w-20 p-2 text-center"
               @input="onNumberInput(item, $event)"
-            >
+            />
           </div>
           <div class="flex items-center justify-between text-xs text-on-surface-variant">
             <span>{{ t(anchorKey(item.responseMin)) }}</span>
@@ -45,12 +41,7 @@
     </template>
 
     <template v-else>
-      <AppCard
-        v-for="(item, index) in items"
-        :key="item.id"
-        padding="lg"
-        class="space-y-3"
-      >
+      <AppCard v-for="(item, index) in items" :key="item.id" padding="lg" class="space-y-3">
         <p class="text-xs text-on-surface-variant">#{{ pageStartIndex + index + 1 }}</p>
         <p class="text-sm font-medium text-on-surface">
           {{ tg(item.textKey) }}
@@ -139,8 +130,8 @@ const vlqGroups = computed<VlqGroup[]>(() => {
   }
 
   return props.definition.scales
-    .filter((scale) => byScale.has(scale.id))
-    .map((scale) => ({
+    .filter(scale => byScale.has(scale.id))
+    .map(scale => ({
       scale,
       items: (byScale.get(scale.id) ?? []).sort((a, b) => {
         if (a.metric === b.metric) return a.id.localeCompare(b.id)

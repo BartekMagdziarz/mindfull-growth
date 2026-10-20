@@ -20,9 +20,7 @@ import { PROFILE_SECTION_IDS } from '@/domain/userProfile'
  * the behaviour under test rather than the 15+ fields of a payload input.
  */
 
-function baseInput(
-  overrides: Partial<ProfilePayloadInput> = {},
-): ProfilePayloadInput {
+function baseInput(overrides: Partial<ProfilePayloadInput> = {}): ProfilePayloadInput {
   return {
     dataTypes: ['journal'],
     dateRange: { kind: 'preset', preset: 'last30' },
@@ -31,9 +29,7 @@ function baseInput(
 }
 
 function wellFormedResponse(headers: { id: string; header: string }[]): string {
-  return headers
-    .map(({ header }) => `## ${header}\n\nBody for ${header}.`)
-    .join('\n\n')
+  return headers.map(({ header }) => `## ${header}\n\nBody for ${header}.`).join('\n\n')
 }
 
 describe('getProfilePrompts', () => {
@@ -44,9 +40,7 @@ describe('getProfilePrompts', () => {
     expect(module.gender).toBe('masculine')
     expect(module.systemPrompt.length).toBeGreaterThan(100)
     expect(module.sectionHeaders).toHaveLength(PROFILE_SECTION_IDS.length)
-    expect(module.sectionHeaders.map((h) => h.id)).toEqual([
-      ...PROFILE_SECTION_IDS,
-    ])
+    expect(module.sectionHeaders.map(h => h.id)).toEqual([...PROFILE_SECTION_IDS])
     expect(module.sectionHeaders[0]).toEqual({
       id: 'summary',
       header: 'Summary',
@@ -58,12 +52,10 @@ describe('getProfilePrompts', () => {
 
     expect(module.locale).toBe('pl')
     expect(module.gender).toBe('feminine')
-    expect(module.sectionHeaders.find((h) => h.id === 'summary')?.header).toBe(
-      'Podsumowanie',
+    expect(module.sectionHeaders.find(h => h.id === 'summary')?.header).toBe('Podsumowanie')
+    expect(module.sectionHeaders.find(h => h.id === 'emotionalPatterns')?.header).toBe(
+      'Wzorce emocjonalne'
     )
-    expect(
-      module.sectionHeaders.find((h) => h.id === 'emotionalPatterns')?.header,
-    ).toBe('Wzorce emocjonalne')
   })
 
   it('applies feminine grammatical forms in the Polish system prompt', () => {
@@ -101,7 +93,7 @@ describe('buildProfilePayload', () => {
         dataTypes: ['journal', 'emotionLogs'],
         dateRange: { kind: 'preset', preset: 'last90' },
       }),
-      'en',
+      'en'
     )
     expect(out).toMatch(/Data types:.*journal.*emotionLogs/)
     expect(out).toContain('Last 90 days')
@@ -112,7 +104,7 @@ describe('buildProfilePayload', () => {
       baseInput({
         dateRange: { kind: 'custom', start: '2026-01-01', end: '2026-03-31' },
       }),
-      'en',
+      'en'
     )
     expect(out).toContain('2026-01-01')
     expect(out).toContain('2026-03-31')
@@ -124,7 +116,7 @@ describe('buildProfilePayload', () => {
         dataTypes: ['journal'],
         dateRange: { kind: 'preset', preset: 'last30' },
       }),
-      'pl',
+      'pl'
     )
     expect(out).toContain('Ostatnie 30 dni')
     expect(out).toContain('Typy danych:')
@@ -147,7 +139,7 @@ describe('buildProfilePayload', () => {
           },
         ],
       }),
-      'en',
+      'en'
     )
 
     expect(out).toContain('[JOURNAL ENTRIES]')
@@ -157,9 +149,7 @@ describe('buildProfilePayload', () => {
     expect(out).toContain('People: Anna')
     expect(out).toContain('Contexts: work')
     expect(out).toContain('Life areas: Career')
-    expect(out).toContain(
-      'I kept circling back to the same question about work boundaries.',
-    )
+    expect(out).toContain('I kept circling back to the same question about work boundaries.')
   })
 
   it('omits sections whose data arrays are empty or missing', () => {
@@ -178,7 +168,7 @@ describe('buildProfilePayload', () => {
           },
         ],
       }),
-      'en',
+      'en'
     )
     expect(out).toContain('[JOURNAL ENTRIES]')
     expect(out).not.toContain('[EMOTION LOGS]')
@@ -205,7 +195,7 @@ describe('buildProfilePayload', () => {
           },
         ],
       }),
-      'en',
+      'en'
     )
     expect(out).toContain('[WEEKLY REFLECTIONS]')
     expect(out).toContain('--- Week 2026-W15')
@@ -225,12 +215,11 @@ describe('buildProfilePayload', () => {
             id: 'tr-1',
             type: 'thoughtRecord',
             createdAt: '2026-04-10T09:00:00.000Z',
-            summary:
-              'thoughtRecord on 2026-04-10. I felt stuck in a spiral this morning.',
+            summary: 'thoughtRecord on 2026-04-10. I felt stuck in a spiral this morning.',
           },
         ],
       }),
-      'en',
+      'en'
     )
     expect(out).toContain('[EXERCISE SESSIONS]')
     expect(out).toContain('thoughtRecord')
@@ -243,7 +232,7 @@ describe('buildProfilePayload', () => {
         dataTypes: ['planning'],
         planning: { snapshot: '   ' },
       }),
-      'en',
+      'en'
     )
     expect(empty).not.toContain('[PLANNING SNAPSHOT]')
 
@@ -252,7 +241,7 @@ describe('buildProfilePayload', () => {
         dataTypes: ['planning'],
         planning: { snapshot: 'Active goals:\n- Ship MVP' },
       }),
-      'en',
+      'en'
     )
     expect(populated).toContain('[PLANNING SNAPSHOT]')
     expect(populated).toContain('Ship MVP')
@@ -264,7 +253,7 @@ describe('buildProfilePayload', () => {
         dataTypes: ['foundation', 'planning'],
         planning: { snapshot: 'Plan body' },
       }),
-      'en',
+      'en'
     )
 
     expect(out).not.toContain('[FOUNDATION SNAPSHOT]')
@@ -278,15 +267,13 @@ describe('buildProfilePayload', () => {
         dataTypes: ['foundation'],
         foundation: { snapshot: '## Value map\nTop values: care' },
       }),
-      'en',
+      'en'
     )
 
     expect(out).toContain('[FOUNDATION SNAPSHOT]')
     expect(out).toContain('Top values: care')
     expect(out.indexOf('[SCOPE]')).toBeLessThan(out.indexOf('[FOUNDATION SNAPSHOT]'))
-    expect(out.indexOf('[FOUNDATION SNAPSHOT]')).toBeLessThan(
-      out.indexOf('[END OF DATA]'),
-    )
+    expect(out.indexOf('[FOUNDATION SNAPSHOT]')).toBeLessThan(out.indexOf('[END OF DATA]'))
   })
 
   it('keeps foundation even when journal entries are empty', () => {
@@ -296,7 +283,7 @@ describe('buildProfilePayload', () => {
         foundation: { snapshot: '## Values discovery\nCore values: honesty' },
         journalEntries: [],
       }),
-      'en',
+      'en'
     )
 
     expect(out).toContain('[FOUNDATION SNAPSHOT]')
@@ -310,14 +297,12 @@ describe('buildProfilePayload', () => {
         lifeAreas: { snapshot: '- Career\n  Meaning: Build well' },
         planning: { snapshot: '- Daily meditation [habit, daily]' },
       }),
-      'en',
+      'en'
     )
 
     expect(out).toContain('[LIFE AREAS]')
     expect(out).toContain('[PLANNING SNAPSHOT]')
-    expect(out.indexOf('[LIFE AREAS]')).toBeLessThan(
-      out.indexOf('[PLANNING SNAPSHOT]'),
-    )
+    expect(out.indexOf('[LIFE AREAS]')).toBeLessThan(out.indexOf('[PLANNING SNAPSHOT]'))
   })
 
   it('omits whitespace-only foundation and life-area snapshots', () => {
@@ -328,7 +313,7 @@ describe('buildProfilePayload', () => {
         lifeAreas: { snapshot: '\n\t' },
         planning: { snapshot: 'Plan body' },
       }),
-      'en',
+      'en'
     )
 
     expect(out).not.toContain('[FOUNDATION SNAPSHOT]')
@@ -397,7 +382,7 @@ describe('buildProfilePayload', () => {
         lifeAreas: { snapshot: 'Life areas body' },
         planning: { snapshot: 'Planning body' },
       }),
-      'en',
+      'en'
     )
 
     const markers = [
@@ -412,8 +397,8 @@ describe('buildProfilePayload', () => {
       '[PLANNING SNAPSHOT]',
       '[END OF DATA]',
     ]
-    const positions = markers.map((marker) => out.indexOf(marker))
-    expect(positions.every((position) => position >= 0)).toBe(true)
+    const positions = markers.map(marker => out.indexOf(marker))
+    expect(positions.every(position => position >= 0)).toBe(true)
     expect(positions).toEqual([...positions].sort((a, b) => a - b))
   })
 })
@@ -524,15 +509,9 @@ describe('parseProfileResponse', () => {
   })
 
   it('pushes duplicate headers to extras and keeps the first occurrence', () => {
-    const raw = [
-      '## Summary',
-      '',
-      'First summary.',
-      '',
-      '## Summary',
-      '',
-      'Second summary.',
-    ].join('\n')
+    const raw = ['## Summary', '', 'First summary.', '', '## Summary', '', 'Second summary.'].join(
+      '\n'
+    )
 
     const parsed = parseProfileResponse(raw, module)
     expect(parsed.sections.summary).toBe('First summary.')
@@ -665,9 +644,7 @@ describe('assembleFromInput', () => {
     expect(out.tokensByAge['365d+']).toBe(0)
     // Journal is the only type and each entry lands in exactly one age bucket,
     // so the per-type total equals the sum across age buckets.
-    expect(out.tokensByType.journal).toBe(
-      out.tokensByAge['0-30d'] + out.tokensByAge['91-365d'],
-    )
+    expect(out.tokensByType.journal).toBe(out.tokensByAge['0-30d'] + out.tokensByAge['91-365d'])
     // The headline includes bracket scaffolding, so it's ≥ the body attribution.
     expect(out.approxTokens).toBeGreaterThanOrEqual(out.tokensByType.journal ?? 0)
   })
@@ -703,10 +680,27 @@ describe('selectPayloadWithinBudget', () => {
     }
   }
   function eLog(id: string, createdAt: string, noteLen = 30): ProfilePayloadEmotionLog {
-    return { id, createdAt, emotionNames: [], note: 'x'.repeat(noteLen), peopleNames: [], contextNames: [] }
+    return {
+      id,
+      createdAt,
+      emotionNames: [],
+      note: 'x'.repeat(noteLen),
+      peopleNames: [],
+      contextNames: [],
+    }
   }
-  function weekly(weekRef: string, createdAt: string, freeLen: number): ProfilePayloadWeeklyReflection {
-    return { weekRef, createdAt, ratings: {}, promptResponses: {}, freeformReflection: 'x'.repeat(freeLen) }
+  function weekly(
+    weekRef: string,
+    createdAt: string,
+    freeLen: number
+  ): ProfilePayloadWeeklyReflection {
+    return {
+      weekRef,
+      createdAt,
+      ratings: {},
+      promptResponses: {},
+      freeformReflection: 'x'.repeat(freeLen),
+    }
   }
   function scope(over: Partial<ProfilePayloadInput>): ProfilePayloadInput {
     return { dataTypes: [], dateRange: { kind: 'preset', preset: 'all' }, ...over }
@@ -725,12 +719,12 @@ describe('selectPayloadWithinBudget', () => {
 
   it('keeps the newest records and drops the oldest to fit (newest-first)', () => {
     // body 3000 ⇒ ~1015 tok each; budget 2500 keeps exactly 2.
-    const entries = [1, 2, 3, 4].map((n) => jEntry(`j${n}`, d(n), 3000))
+    const entries = [1, 2, 3, 4].map(n => jEntry(`j${n}`, d(n), 3000))
     const res = selectPayloadWithinBudget(
       scope({ dataTypes: ['journal'], journalEntries: entries }),
-      2500,
+      2500
     )
-    expect((res.input.journalEntries ?? []).map((e) => e.id)).toEqual(['j4', 'j3'])
+    expect((res.input.journalEntries ?? []).map(e => e.id)).toEqual(['j4', 'j3'])
     expect(res.droppedByType.journal).toBe(2)
     expect(res.fits).toBe(true)
   })
@@ -742,9 +736,9 @@ describe('selectPayloadWithinBudget', () => {
         foundation: { snapshot: 'Purpose: clarity.' },
         planning: { snapshot: 'Goal: ship it.' },
         lifeAreas: { snapshot: 'Health: ok.' },
-        journalEntries: [1, 2, 3].map((n) => jEntry(`j${n}`, d(n), 3000)),
+        journalEntries: [1, 2, 3].map(n => jEntry(`j${n}`, d(n), 3000)),
       }),
-      50,
+      50
     )
     expect(res.input.foundation?.snapshot).toBe('Purpose: clarity.')
     expect(res.input.planning?.snapshot).toBe('Goal: ship it.')
@@ -757,7 +751,7 @@ describe('selectPayloadWithinBudget', () => {
   it('reports fits=false when mandatory snapshots alone exceed the budget', () => {
     const res = selectPayloadWithinBudget(
       scope({ dataTypes: ['foundation'], foundation: { snapshot: 'x'.repeat(3000) } }),
-      100,
+      100
     )
     expect(res.fits).toBe(false)
     expect(res.mandatoryTokens).toBeGreaterThan(100)
@@ -768,7 +762,7 @@ describe('selectPayloadWithinBudget', () => {
     const logs = Array.from({ length: 60 }, (_, i) => eLog(`l${i}`, d((i % 28) + 1)))
     const res = selectPayloadWithinBudget(
       scope({ dataTypes: ['journal', 'emotionLogs'], journalEntries: journal, emotionLogs: logs }),
-      600,
+      600
     )
     const j = res.input.journalEntries?.length ?? 0
     const l = res.input.emotionLogs?.length ?? 0
@@ -782,7 +776,7 @@ describe('selectPayloadWithinBudget', () => {
     const logs = Array.from({ length: 60 }, (_, i) => eLog(`l${i}`, d((i % 28) + 1)))
     const res = selectPayloadWithinBudget(
       scope({ dataTypes: ['journal', 'emotionLogs'], journalEntries: journal, emotionLogs: logs }),
-      600,
+      600
     )
     expect(res.input.journalEntries).toHaveLength(1) // all journal kept
     // Logs exceeded their bare 30% quota (~7 records) thanks to journal's slack.
@@ -794,7 +788,7 @@ describe('selectPayloadWithinBudget', () => {
     const logs = [eLog('l1', d(5))]
     const res = selectPayloadWithinBudget(
       scope({ dataTypes: ['journal', 'emotionLogs'], journalEntries: journal, emotionLogs: logs }),
-      600,
+      600
     )
     expect(res.input.emotionLogs).toHaveLength(1)
     // Journal exceeded its bare 70% quota (~14 records) thanks to the logs' slack.
@@ -806,9 +800,9 @@ describe('selectPayloadWithinBudget', () => {
       scope({
         dataTypes: ['weeklyReflections', 'journal'],
         weeklyReflections: [weekly('2026-W20', d(20), 1500)],
-        journalEntries: [1, 2, 3, 4, 5].map((n) => jEntry(`j${n}`, d(n), 3000)),
+        journalEntries: [1, 2, 3, 4, 5].map(n => jEntry(`j${n}`, d(n), 3000)),
       }),
-      1000, // fits the ~613-tok weekly, leaves too little for a ~1219-tok journal entry
+      1000 // fits the ~613-tok weekly, leaves too little for a ~1219-tok journal entry
     )
     expect(res.input.weeklyReflections).toHaveLength(1)
     expect(res.input.journalEntries?.length ?? 0).toBeLessThan(5)
@@ -820,29 +814,47 @@ describe('selectPayloadWithinBudget', () => {
         dataTypes: ['journal'],
         journalEntries: [jEntry('a', d(10), 3000), jEntry('b', d(10), 3000)],
       }),
-      1300, // ~1 entry (~1219 tok each at chars/2.5)
+      1300 // ~1 entry (~1219 tok each at chars/2.5)
     )
-    expect((res.input.journalEntries ?? []).map((e) => e.id)).toEqual(['a'])
+    expect((res.input.journalEntries ?? []).map(e => e.id)).toEqual(['a'])
   })
 
   it('trims summarized-history periods oldest-first under budget', () => {
     const sh = [
-      { periodRef: '2026-W20', periodEndIso: '2026-05-17T00:00:00.000Z', content: 'NEW '.repeat(300) },
-      { periodRef: '2026-W19', periodEndIso: '2026-05-10T00:00:00.000Z', content: 'MID '.repeat(300) },
-      { periodRef: '2026-W18', periodEndIso: '2026-05-03T00:00:00.000Z', content: 'OLD '.repeat(300) },
+      {
+        periodRef: '2026-W20',
+        periodEndIso: '2026-05-17T00:00:00.000Z',
+        content: 'NEW '.repeat(300),
+      },
+      {
+        periodRef: '2026-W19',
+        periodEndIso: '2026-05-10T00:00:00.000Z',
+        content: 'MID '.repeat(300),
+      },
+      {
+        periodRef: '2026-W18',
+        periodEndIso: '2026-05-03T00:00:00.000Z',
+        content: 'OLD '.repeat(300),
+      },
     ]
     const res = selectPayloadWithinBudget(scope({ summarizedHistory: sh }), 800) // ~401 tok each
-    expect((res.input.summarizedHistory ?? []).map((s) => s.periodRef)).toEqual(['2026-W20'])
+    expect((res.input.summarizedHistory ?? []).map(s => s.periodRef)).toEqual(['2026-W20'])
     expect(res.droppedSummarizedPeriods).toBe(2)
     expect(res.fits).toBe(true)
   })
 
   it('admits summarized history ahead of raw journal under pressure', () => {
-    const sh = [{ periodRef: '2026-W18', periodEndIso: '2026-05-03T00:00:00.000Z', content: 'DIGEST '.repeat(100) }]
+    const sh = [
+      {
+        periodRef: '2026-W18',
+        periodEndIso: '2026-05-03T00:00:00.000Z',
+        content: 'DIGEST '.repeat(100),
+      },
+    ]
     const journal = Array.from({ length: 10 }, (_, i) => jEntry(`j${i}`, d((i % 28) + 1), 3000))
     const res = selectPayloadWithinBudget(
       scope({ dataTypes: ['journal'], summarizedHistory: sh, journalEntries: journal }),
-      1500,
+      1500
     )
     expect(res.input.summarizedHistory).toHaveLength(1) // digest survived
     expect(res.input.journalEntries?.length ?? 0).toBeGreaterThanOrEqual(1)

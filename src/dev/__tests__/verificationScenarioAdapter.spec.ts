@@ -23,7 +23,7 @@ describe('verification scenario semantic id adapter', () => {
 
   it('odrzuca nieznane klucze i brakujące mapowania', () => {
     const registry = createVerificationScenarioIdRegistry(
-      buildRichVerificationScenario('2026-07-19' as DayRef),
+      buildRichVerificationScenario('2026-07-19' as DayRef)
     )
 
     expect(() => registry.registerObject('unknown', 'id')).toThrow('Unknown rich-v1 object key')

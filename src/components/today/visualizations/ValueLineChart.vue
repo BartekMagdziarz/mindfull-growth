@@ -1,17 +1,8 @@
 <template>
   <div class="flex w-full flex-col gap-1">
-    <SparklineValueLine
-      :points="chartPoints"
-      cadence="daily"
-      :compact="true"
-      :hide-labels="true"
-    />
+    <SparklineValueLine :points="chartPoints" cadence="daily" :compact="true" :hide-labels="true" />
     <div class="day-labels">
-      <span
-        v-for="slot in slots"
-        :key="slot.dayRef"
-        class="day-label"
-      >
+      <span v-for="slot in slots" :key="slot.dayRef" class="day-label">
         {{ slot.label }}
       </span>
     </div>
@@ -39,7 +30,7 @@ const chartPoints = computed<ObjectsLibraryChartPoint[]>(() =>
     // fades the future portion of the line. `isFuture` is set by the slot
     // builder relative to the actual day being viewed.
     isCurrent: !slot.isFuture,
-  })),
+  }))
 )
 </script>
 

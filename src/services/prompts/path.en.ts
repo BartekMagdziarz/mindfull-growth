@@ -36,6 +36,10 @@ Format: plain text, no headings, no lists.`,
       unknown: 'not given',
     },
     nonePart: 'no part',
-    nonePartByKind: { shame: 'no part, the person stayed with themselves', anger: 'a pause instead of the reaction', anxiety: 'approach instead of avoidance' },
+    nonePartByKind: {
+      shame: 'no part, the person stayed with themselves',
+      anger: 'a pause instead of the reaction',
+      anxiety: 'approach instead of avoidance',
+    },
   },
 }

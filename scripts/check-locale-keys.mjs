@@ -31,13 +31,17 @@ function readJson(filePath) {
   return JSON.parse(raw)
 }
 
-const enFiles = readdirSync(EN_DIR).filter((f) => f.endsWith('.json')).sort()
-const plFiles = readdirSync(PL_DIR).filter((f) => f.endsWith('.json')).sort()
+const enFiles = readdirSync(EN_DIR)
+  .filter(f => f.endsWith('.json'))
+  .sort()
+const plFiles = readdirSync(PL_DIR)
+  .filter(f => f.endsWith('.json'))
+  .sort()
 
 const enSet = new Set(enFiles)
 const plSet = new Set(plFiles)
-const missingInPl = enFiles.filter((f) => !plSet.has(f))
-const extraInPl = plFiles.filter((f) => !enSet.has(f))
+const missingInPl = enFiles.filter(f => !plSet.has(f))
+const extraInPl = plFiles.filter(f => !enSet.has(f))
 
 let hasErrors = false
 
@@ -50,7 +54,7 @@ if (extraInPl.length > 0) {
   hasErrors = true
 }
 
-const sharedFiles = enFiles.filter((f) => plSet.has(f))
+const sharedFiles = enFiles.filter(f => plSet.has(f))
 
 for (const file of sharedFiles) {
   const enJson = readJson(join(EN_DIR, file))
@@ -59,8 +63,8 @@ for (const file of sharedFiles) {
   const enKeys = new Set(flattenKeys(enJson))
   const plKeys = new Set(flattenKeys(plJson))
 
-  const missingInPlKeys = [...enKeys].filter((k) => !plKeys.has(k))
-  const extraInPlKeys = [...plKeys].filter((k) => !enKeys.has(k))
+  const missingInPlKeys = [...enKeys].filter(k => !plKeys.has(k))
+  const extraInPlKeys = [...plKeys].filter(k => !enKeys.has(k))
 
   if (missingInPlKeys.length > 0 || extraInPlKeys.length > 0) {
     hasErrors = true

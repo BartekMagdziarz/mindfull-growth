@@ -1,7 +1,12 @@
 <template>
   <div class="space-y-6">
     <!-- Step indicator dots (intro excluded from dots) -->
-    <ExerciseStepper v-if="currentStep !== 'intro'" :labels="stepLabels" :current="currentVisualStep" @go="goToStepByIndex($event)" />
+    <ExerciseStepper
+      v-if="currentStep !== 'intro'"
+      :labels="stepLabels"
+      :current="currentVisualStep"
+      @go="goToStepByIndex($event)"
+    />
 
     <!-- Step 1: Intro -->
     <Transition
@@ -12,7 +17,9 @@
     >
       <div v-if="currentStep === 'intro'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.gradedExposure.intro.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.gradedExposure.intro.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.gradedExposure.intro.description') }}
           </p>
@@ -23,15 +30,21 @@
             <!-- Simple visual: low → high anxiety ladder -->
             <div class="flex flex-col gap-1.5">
               <div class="flex items-center gap-3">
-                <span class="w-16 text-right text-xs font-medium text-status-bad-on">{{ t('exerciseWizards.gradedExposure.intro.high') }}</span>
+                <span class="w-16 text-right text-xs font-medium text-status-bad-on">{{
+                  t('exerciseWizards.gradedExposure.intro.high')
+                }}</span>
                 <div class="flex-1 h-3 rounded-full bg-status-bad-soft" />
               </div>
               <div class="flex items-center gap-3">
-                <span class="w-16 text-right text-xs font-medium text-status-warn-on">{{ t('exerciseWizards.gradedExposure.intro.medium') }}</span>
+                <span class="w-16 text-right text-xs font-medium text-status-warn-on">{{
+                  t('exerciseWizards.gradedExposure.intro.medium')
+                }}</span>
                 <div class="flex-1 h-3 rounded-full bg-status-warn-soft" />
               </div>
               <div class="flex items-center gap-3">
-                <span class="w-16 text-right text-xs font-medium text-status-good-on">{{ t('exerciseWizards.gradedExposure.intro.low') }}</span>
+                <span class="w-16 text-right text-xs font-medium text-status-good-on">{{
+                  t('exerciseWizards.gradedExposure.intro.low')
+                }}</span>
                 <div class="flex-1 h-3 rounded-full bg-status-good-soft" />
               </div>
             </div>
@@ -57,7 +70,9 @@
     >
       <div v-if="currentStep === 'fear-target'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.gradedExposure.fearTarget.fearTitle') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.gradedExposure.fearTarget.fearTitle') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.gradedExposure.fearTarget.fearDescription') }}
           </p>
@@ -69,24 +84,28 @@
           />
 
           <div class="space-y-2 pt-2">
-          <div class="flex items-start justify-between gap-3">
-            <h3 class="text-sm font-semibold text-on-surface">{{ t('exerciseWizards.gradedExposure.fearTarget.goalTitle') }}</h3>
-            <ExerciseStepWhy :text="tg('exerciseWizards.gradedExposure.fearTarget.goalWhy')" />
-          </div>
-          <p class="text-sm text-on-surface-variant">
-            {{ tg('exerciseWizards.gradedExposure.fearTarget.goalDescription') }}
-          </p>
-          <textarea
-            v-model="ultimateGoal"
-            rows="3"
-            :placeholder="t('exerciseWizards.gradedExposure.fearTarget.goalPlaceholder')"
-            class="neo-input neo-focus w-full p-3 text-sm resize-none"
-          />
+            <div class="flex items-start justify-between gap-3">
+              <h3 class="text-sm font-semibold text-on-surface">
+                {{ t('exerciseWizards.gradedExposure.fearTarget.goalTitle') }}
+              </h3>
+              <ExerciseStepWhy :text="tg('exerciseWizards.gradedExposure.fearTarget.goalWhy')" />
+            </div>
+            <p class="text-sm text-on-surface-variant">
+              {{ tg('exerciseWizards.gradedExposure.fearTarget.goalDescription') }}
+            </p>
+            <textarea
+              v-model="ultimateGoal"
+              rows="3"
+              :placeholder="t('exerciseWizards.gradedExposure.fearTarget.goalPlaceholder')"
+              class="neo-input neo-focus w-full p-3 text-sm resize-none"
+            />
           </div>
         </AppCard>
 
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'intro'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'intro'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton
             variant="filled"
             :disabled="!fearTarget.trim() || !ultimateGoal.trim()"
@@ -107,7 +126,9 @@
     >
       <div v-if="currentStep === 'build-hierarchy'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.gradedExposure.buildHierarchy.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.gradedExposure.buildHierarchy.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.gradedExposure.buildHierarchy.description') }}
           </p>
@@ -124,7 +145,12 @@
             />
             <div class="space-y-2">
               <label class="text-sm font-medium text-on-surface">
-                {{ t('exerciseWizards.gradedExposure.buildHierarchy.distressLabel') }} <span :class="sudsColorClass(newItemSuds)" class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold">{{ newItemSuds }}</span>
+                {{ t('exerciseWizards.gradedExposure.buildHierarchy.distressLabel') }}
+                <span
+                  :class="sudsColorClass(newItemSuds)"
+                  class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold"
+                  >{{ newItemSuds }}</span
+                >
               </label>
               <input
                 v-model.number="newItemSuds"
@@ -139,11 +165,7 @@
                 <span>{{ t('exerciseWizards.gradedExposure.buildHierarchy.distressMax') }}</span>
               </div>
             </div>
-            <AppButton
-              variant="tonal"
-              :disabled="!newItemSituation.trim()"
-              @click="addItem"
-            >
+            <AppButton variant="tonal" :disabled="!newItemSituation.trim()" @click="addItem">
               <AppIcon name="add" class="text-base" />
               {{ t('exerciseWizards.gradedExposure.buildHierarchy.addToLadder') }}
             </AppButton>
@@ -158,7 +180,11 @@
                 @click="handleBrainstormSteps"
               >
                 <AppIcon name="auto_awesome" class="text-base" />
-                {{ isBrainstormLoading ? t('exerciseWizards.gradedExposure.buildHierarchy.llmLoading') : t('exerciseWizards.gradedExposure.buildHierarchy.llmLabel') }}
+                {{
+                  isBrainstormLoading
+                    ? t('exerciseWizards.gradedExposure.buildHierarchy.llmLoading')
+                    : t('exerciseWizards.gradedExposure.buildHierarchy.llmLabel')
+                }}
               </AppButton>
               <ProfileContextToggle v-model="useProfileBrainstormSteps" />
             </div>
@@ -204,7 +230,12 @@
                 <div class="flex-1 min-w-0 pt-2">
                   <p class="text-sm text-on-surface">{{ item.situation }}</p>
                   <p class="text-xs text-on-surface-variant mt-0.5">
-                    {{ t('exerciseWizards.gradedExposure.buildHierarchy.stepOfTotal', { step: idx + 1, total: sortedItems.length }) }}
+                    {{
+                      t('exerciseWizards.gradedExposure.buildHierarchy.stepOfTotal', {
+                        step: idx + 1,
+                        total: sortedItems.length,
+                      })
+                    }}
                   </p>
                 </div>
 
@@ -223,14 +254,18 @@
 
         <!-- Tip panel -->
         <div class="exercise-note space-y-1">
-          <h3 class="exercise-note__title">{{ t('exerciseWizards.gradedExposure.buildHierarchy.tipTitle') }}</h3>
+          <h3 class="exercise-note__title">
+            {{ t('exerciseWizards.gradedExposure.buildHierarchy.tipTitle') }}
+          </h3>
           <p class="exercise-note__text">
             {{ t('exerciseWizards.gradedExposure.buildHierarchy.tipDescription') }}
           </p>
         </div>
 
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'fear-target'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'fear-target'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton
             variant="filled"
             :disabled="items.length < 3"
@@ -238,7 +273,11 @@
           >
             {{ t('common.buttons.next') }}
             <span v-if="items.length < 3" class="text-xs ml-1 opacity-70">
-              {{ t('exerciseWizards.gradedExposure.buildHierarchy.moreNeeded', { n: 3 - items.length }) }}
+              {{
+                t('exerciseWizards.gradedExposure.buildHierarchy.moreNeeded', {
+                  n: 3 - items.length,
+                })
+              }}
             </span>
           </AppButton>
         </div>
@@ -254,7 +293,9 @@
     >
       <div v-if="currentStep === 'safety-behaviors'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.gradedExposure.safetyBehaviors.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.gradedExposure.safetyBehaviors.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.gradedExposure.safetyBehaviors.description') }}
           </p>
@@ -296,21 +337,32 @@
             {{ t('exerciseWizards.gradedExposure.safetyBehaviors.commonExamples') }}
           </p>
           <div class="flex flex-wrap gap-1.5">
-            <span class="exercise-pill px-2.5 py-0.5 text-xs">{{ t('exerciseWizards.gradedExposure.safetyBehaviors.examples.avoidingEyeContact') }}</span>
-            <span class="exercise-pill px-2.5 py-0.5 text-xs">{{ t('exerciseWizards.gradedExposure.safetyBehaviors.examples.exitPlan') }}</span>
-            <span class="exercise-pill px-2.5 py-0.5 text-xs">{{ t('exerciseWizards.gradedExposure.safetyBehaviors.examples.bringingFriend') }}</span>
-            <span class="exercise-pill px-2.5 py-0.5 text-xs">{{ t('exerciseWizards.gradedExposure.safetyBehaviors.examples.checkingPhone') }}</span>
-            <span class="exercise-pill px-2.5 py-0.5 text-xs">{{ t('exerciseWizards.gradedExposure.safetyBehaviors.examples.overPreparing') }}</span>
-            <span class="exercise-pill px-2.5 py-0.5 text-xs">{{ t('exerciseWizards.gradedExposure.safetyBehaviors.examples.usingSubstances') }}</span>
+            <span class="exercise-pill px-2.5 py-0.5 text-xs">{{
+              t('exerciseWizards.gradedExposure.safetyBehaviors.examples.avoidingEyeContact')
+            }}</span>
+            <span class="exercise-pill px-2.5 py-0.5 text-xs">{{
+              t('exerciseWizards.gradedExposure.safetyBehaviors.examples.exitPlan')
+            }}</span>
+            <span class="exercise-pill px-2.5 py-0.5 text-xs">{{
+              t('exerciseWizards.gradedExposure.safetyBehaviors.examples.bringingFriend')
+            }}</span>
+            <span class="exercise-pill px-2.5 py-0.5 text-xs">{{
+              t('exerciseWizards.gradedExposure.safetyBehaviors.examples.checkingPhone')
+            }}</span>
+            <span class="exercise-pill px-2.5 py-0.5 text-xs">{{
+              t('exerciseWizards.gradedExposure.safetyBehaviors.examples.overPreparing')
+            }}</span>
+            <span class="exercise-pill px-2.5 py-0.5 text-xs">{{
+              t('exerciseWizards.gradedExposure.safetyBehaviors.examples.usingSubstances')
+            }}</span>
           </div>
         </div>
 
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'build-hierarchy'">{{ t('common.buttons.back') }}</AppButton>
-          <AppButton
-            variant="filled"
-            @click="currentStep = 'summary'"
-          >
+          <AppButton variant="text" @click="currentStep = 'build-hierarchy'">{{
+            t('common.buttons.back')
+          }}</AppButton>
+          <AppButton variant="filled" @click="currentStep = 'summary'">
             {{ t('common.buttons.next') }}
           </AppButton>
         </div>
@@ -326,7 +378,9 @@
     >
       <div v-if="currentStep === 'summary'" class="space-y-4">
         <AppCard variant="raised" padding="lg" class="space-y-5">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.gradedExposure.summary.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.gradedExposure.summary.title') }}
+          </h2>
 
           <!-- Fear target & goal -->
           <div class="space-y-1">
@@ -346,7 +400,14 @@
           <!-- Full fear ladder -->
           <div class="space-y-2">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-              {{ tp(sortedItems.length, 'exerciseWizards.gradedExposure.summary.fearLadderCount.one', 'exerciseWizards.gradedExposure.summary.fearLadderCount.few', 'exerciseWizards.gradedExposure.summary.fearLadderCount.many') }}
+              {{
+                tp(
+                  sortedItems.length,
+                  'exerciseWizards.gradedExposure.summary.fearLadderCount.one',
+                  'exerciseWizards.gradedExposure.summary.fearLadderCount.few',
+                  'exerciseWizards.gradedExposure.summary.fearLadderCount.many'
+                )
+              }}
             </p>
             <div class="relative">
               <!-- Connecting line -->
@@ -392,7 +453,9 @@
 
         <!-- Notes (optional) -->
         <AppCard padding="lg" class="space-y-3">
-          <h3 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.gradedExposure.summary.notesTitle') }}</h3>
+          <h3 class="text-base font-semibold text-on-surface">
+            {{ t('exerciseWizards.gradedExposure.summary.notesTitle') }}
+          </h3>
           <textarea
             v-model="notes"
             rows="2"
@@ -402,7 +465,9 @@
         </AppCard>
 
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'safety-behaviors'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'safety-behaviors'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton variant="filled" @click="handleSave">
             {{ t('exerciseWizards.gradedExposure.summary.saveHierarchy') }}
           </AppButton>
@@ -480,9 +545,7 @@ const sortedItems = computed(() => {
   return [...items.value].sort((a, b) => a.sudsRating - b.sudsRating)
 })
 
-const filledSafetyBehaviors = computed(() =>
-  safetyBehaviors.value.filter((b) => b.trim().length > 0),
-)
+const filledSafetyBehaviors = computed(() => safetyBehaviors.value.filter(b => b.trim().length > 0))
 
 // ─── LLM Assist ──────────────────────────────────────────────────────────────
 const isBrainstormLoading = ref(false)
@@ -498,9 +561,10 @@ async function handleBrainstormSteps() {
     brainstormResult.value = await brainstormExposureSteps({
       fearTarget: fearTarget.value,
       ultimateGoal: ultimateGoal.value,
-      existingItems: items.value.length > 0
-        ? items.value.map((item) => ({ situation: item.situation, sudsRating: item.sudsRating }))
-        : undefined,
+      existingItems:
+        items.value.length > 0
+          ? items.value.map(item => ({ situation: item.situation, sudsRating: item.sudsRating }))
+          : undefined,
       locale: locale.value,
       useProfile: useProfileBrainstormSteps.value,
     })
@@ -533,7 +597,7 @@ function addItem() {
 }
 
 function removeItem(id: string) {
-  items.value = items.value.filter((item) => item.id !== id)
+  items.value = items.value.filter(item => item.id !== id)
 }
 
 function removeSafetyBehavior(index: number) {
@@ -546,9 +610,8 @@ function handleSave() {
     fearTarget: fearTarget.value.trim(),
     ultimateGoal: ultimateGoal.value.trim(),
     items: sortedItems.value,
-    safetyBehaviors: filledSafetyBehaviors.value.length > 0
-      ? filledSafetyBehaviors.value
-      : undefined,
+    safetyBehaviors:
+      filledSafetyBehaviors.value.length > 0 ? filledSafetyBehaviors.value : undefined,
     notes: notes.value.trim() || undefined,
   }
   emit('saved', payload)

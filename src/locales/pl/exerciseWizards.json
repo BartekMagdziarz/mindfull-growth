@@ -2043,13 +2043,7 @@
         "ariaLabel": "Wybór lokalizacji w ciele"
       },
       "tsibp": {
-        "labels": [
-          "M",
-          "D",
-          "O",
-          "Z",
-          "T"
-        ]
+        "labels": ["M", "D", "O", "Z", "T"]
       },
       "bodyLocations": {
         "head": "Głowa",
@@ -2806,11 +2800,7 @@
       "distressedWarning": "Bycie widzianym czasami wywołuje więcej uczuć — to normalne i nie jest oznaką, że coś poszło nie tak. Jeśli to się utrzymuje, rozważ podzielenie się z terapeutą, który może zapewnić głębsze wsparcie.",
       "thankProtectors": "Podziękuj protektorom, którzy na to pozwolili. Oni też wykazali się odwagą.",
       "promiseLabel": "Czy chcesz coś tej części obiecać? (opcjonalnie)",
-      "promiseChips": [
-        "Wrócę do ciebie.",
-        "Będę o tobie pamiętać.",
-        "Możesz mnie zawołać."
-      ],
+      "promiseChips": ["Wrócę do ciebie.", "Będę o tobie pamiętać.", "Możesz mnie zawołać."],
       "promisePlaceholder": "Twoja obietnica..."
     },
     "reflection": {

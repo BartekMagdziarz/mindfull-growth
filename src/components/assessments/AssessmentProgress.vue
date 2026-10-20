@@ -4,7 +4,9 @@
 
     <div v-if="step === 'questions'" class="space-y-1">
       <div class="flex items-center justify-between text-xs text-on-surface-variant">
-        <span>{{ t('assessments.common.flow.questions') }} {{ currentPage + 1 }}/{{ totalPages }}</span>
+        <span
+          >{{ t('assessments.common.flow.questions') }} {{ currentPage + 1 }}/{{ totalPages }}</span
+        >
         <span>{{ t('assessments.common.flow.answeredCount', { n: answeredCount }) }}</span>
       </div>
       <div class="neo-progress-track">
@@ -33,7 +35,7 @@ const props = withDefaults(
     totalPages: 1,
     answeredCount: 0,
     totalCount: 0,
-  },
+  }
 )
 
 const { t } = useT()
@@ -50,10 +52,8 @@ const stepLabels = computed(() => [
 
 const activeStepIndex = computed(() => stepOrder.indexOf(props.step))
 
-
 const progressPercent = computed(() => {
   if (props.totalCount <= 0) return 0
   return Math.max(0, Math.min(100, Math.round((props.answeredCount / props.totalCount) * 100)))
 })
-
 </script>

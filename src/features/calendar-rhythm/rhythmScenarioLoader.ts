@@ -78,9 +78,13 @@ export function rhythmRange(scale: Scale, periodRef: string): RhythmRange {
   return { start, end, monthRefs: [...monthRefs], weekRefs: [...weekRefs] }
 }
 
-const measurableKey = (subjectType: MeasurementSubjectType, subjectId: string) => `${subjectType}:${subjectId}`
+const measurableKey = (subjectType: MeasurementSubjectType, subjectId: string) =>
+  `${subjectType}:${subjectId}`
 
-function ratingScaleOf(subject: { ratingScaleMin?: number; ratingScale?: number }): { min: number; max: number } | undefined {
+function ratingScaleOf(subject: {
+  ratingScaleMin?: number
+  ratingScale?: number
+}): { min: number; max: number } | undefined {
   if (subject.ratingScale === undefined && subject.ratingScaleMin === undefined) return undefined
   return { min: subject.ratingScaleMin ?? 1, max: subject.ratingScale ?? 5 }
 }
@@ -89,7 +93,11 @@ function statusOf(status: string): 'open' | 'retired' {
   return status === 'open' ? 'open' : 'retired'
 }
 
-export async function buildRhythmScenario(scale: Scale, periodRef: string, clock: DayRef): Promise<RhythmScenario> {
+export async function buildRhythmScenario(
+  scale: Scale,
+  periodRef: string,
+  clock: DayRef
+): Promise<RhythmScenario> {
   const range = rhythmRange(scale, periodRef)
   const yearRef = periodRef.slice(0, 4) as YearRef
 
@@ -148,7 +156,7 @@ export async function buildRhythmScenario(scale: Scale, periodRef: string, clock
         evidenceRole: 'action',
         icon: goal.icon,
         status: statusOf(goal.status),
-      }),
+      })
     ),
     ...keyResults.map(
       (result: KeyResult): RhythmObject => ({
@@ -168,7 +176,7 @@ export async function buildRhythmScenario(scale: Scale, periodRef: string, clock
         status: statusOf(result.status),
         subjectType: 'keyResult',
         subjectId: result.id,
-      }),
+      })
     ),
     ...habits.map(
       (habit: Habit): RhythmObject => ({
@@ -187,7 +195,7 @@ export async function buildRhythmScenario(scale: Scale, periodRef: string, clock
         status: statusOf(habit.status),
         subjectType: 'habit',
         subjectId: habit.id,
-      }),
+      })
     ),
     ...trackers.map(
       (tracker: Tracker): RhythmObject => ({
@@ -205,7 +213,7 @@ export async function buildRhythmScenario(scale: Scale, periodRef: string, clock
         status: statusOf(tracker.status),
         subjectType: 'tracker',
         subjectId: tracker.id,
-      }),
+      })
     ),
     ...intentions.map(
       (intention: WeeklyIntention): RhythmObject => ({
@@ -225,7 +233,7 @@ export async function buildRhythmScenario(scale: Scale, periodRef: string, clock
         status: statusOf(intention.status),
         subjectType: 'weeklyIntention',
         subjectId: intention.id,
-      }),
+      })
     ),
   ]
 
@@ -235,27 +243,53 @@ export async function buildRhythmScenario(scale: Scale, periodRef: string, clock
   for (const state of monthStates) {
     const objectKey = measurableKey(state.subjectType, state.subjectId)
     // Active without explicit placement behaves exactly like whole-month cover.
-    if (state.activityState === 'active' && (state.scheduleScope === 'whole-month' || state.scheduleScope === 'unassigned')) {
-      assignments.push({ id: `${objectKey}@${state.monthRef}`, objectKey, scope: { kind: 'month', ref: state.monthRef } })
+    if (
+      state.activityState === 'active' &&
+      (state.scheduleScope === 'whole-month' || state.scheduleScope === 'unassigned')
+    ) {
+      assignments.push({
+        id: `${objectKey}@${state.monthRef}`,
+        objectKey,
+        scope: { kind: 'month', ref: state.monthRef },
+      })
     }
     if (state.targetOverride) {
-      overrides.push({ objectKey, scope: { kind: 'month', ref: state.monthRef }, target: state.targetOverride })
+      overrides.push({
+        objectKey,
+        scope: { kind: 'month', ref: state.monthRef },
+        target: state.targetOverride,
+      })
     }
   }
 
   for (const state of weekStates) {
     const objectKey = measurableKey(state.subjectType, state.subjectId)
-    if (state.activityState === 'active' && (state.scheduleScope === 'whole-week' || state.scheduleScope === 'unassigned')) {
-      assignments.push({ id: `${objectKey}@${state.weekRef}`, objectKey, scope: { kind: 'week', ref: state.weekRef } })
+    if (
+      state.activityState === 'active' &&
+      (state.scheduleScope === 'whole-week' || state.scheduleScope === 'unassigned')
+    ) {
+      assignments.push({
+        id: `${objectKey}@${state.weekRef}`,
+        objectKey,
+        scope: { kind: 'week', ref: state.weekRef },
+      })
     }
     if (state.targetOverride) {
-      overrides.push({ objectKey, scope: { kind: 'week', ref: state.weekRef }, target: state.targetOverride })
+      overrides.push({
+        objectKey,
+        scope: { kind: 'week', ref: state.weekRef },
+        target: state.targetOverride,
+      })
     }
   }
 
   for (const assignment of dayAssignments) {
     const objectKey = measurableKey(assignment.subjectType, assignment.subjectId)
-    assignments.push({ id: assignment.id, objectKey, scope: { kind: 'day', ref: assignment.dayRef } })
+    assignments.push({
+      id: assignment.id,
+      objectKey,
+      scope: { kind: 'day', ref: assignment.dayRef },
+    })
   }
 
   const rhythmEntries: RhythmEntry[] = entries.map(entry => ({
@@ -266,11 +300,18 @@ export async function buildRhythmScenario(scale: Scale, periodRef: string, clock
     checkedItemIds: entry.checkedItemIds,
   }))
 
-  const verdictsByMonth = new Map<string, { priorityKey: string; effort: number | null; verdict: PriorityVerdict | '' }[]>()
+  const verdictsByMonth = new Map<
+    string,
+    { priorityKey: string; effort: number | null; verdict: PriorityVerdict | '' }[]
+  >()
   for (const reflection of objectReflections) {
     if (reflection.periodType !== 'month' || reflection.subjectType !== 'priority') continue
     const list = verdictsByMonth.get(reflection.periodRef) ?? []
-    list.push({ priorityKey: reflection.subjectId, effort: reflection.effort ?? null, verdict: reflection.verdict ?? '' })
+    list.push({
+      priorityKey: reflection.subjectId,
+      effort: reflection.effort ?? null,
+      verdict: reflection.verdict ?? '',
+    })
     verdictsByMonth.set(reflection.periodRef, list)
   }
 
@@ -326,32 +367,44 @@ export async function buildRhythmScenario(scale: Scale, periodRef: string, clock
       freeform: reflection.freeformReflection ?? '',
       savedAt: reflection.updatedAt ?? reflection.createdAt,
     })),
-    journal: journalEntries.filter(entry => inRange(entry.createdAt)).map(entry => ({
-      id: entry.id,
-      dayRef: dayOf(entry.createdAt),
-      time: timeOf(entry.createdAt),
-      title: getDisplayTitle(entry) || undefined,
-      excerpt: (entry.body ?? '').slice(0, 160),
-      emotionWords: [],
-      tagCount: (entry.peopleTagIds?.length ?? 0) + (entry.contextTagIds?.length ?? 0),
-    })),
-    emotions: emotionLogs.filter(log => inRange(log.createdAt)).map(log => ({
-      id: log.id,
-      dayRef: dayOf(log.createdAt),
-      time: timeOf(log.createdAt),
-      words: (log.emotions ?? []).map(selection => ({ label: selection.emotionId, intensity: selection.intensity ?? 0 })),
-      pleasant: true,
-      note: log.note,
-    })),
+    journal: journalEntries
+      .filter(entry => inRange(entry.createdAt))
+      .map(entry => ({
+        id: entry.id,
+        dayRef: dayOf(entry.createdAt),
+        time: timeOf(entry.createdAt),
+        title: getDisplayTitle(entry) || undefined,
+        excerpt: (entry.body ?? '').slice(0, 160),
+        emotionWords: [],
+        tagCount: (entry.peopleTagIds?.length ?? 0) + (entry.contextTagIds?.length ?? 0),
+      })),
+    emotions: emotionLogs
+      .filter(log => inRange(log.createdAt))
+      .map(log => ({
+        id: log.id,
+        dayRef: dayOf(log.createdAt),
+        time: timeOf(log.createdAt),
+        words: (log.emotions ?? []).map(selection => ({
+          label: selection.emotionId,
+          intensity: selection.intensity ?? 0,
+        })),
+        pleasant: true,
+        note: log.note,
+      })),
     exercises: exerciseEntries.map((entry, index) => ({
       id: `${entry.type}-${index}`,
       dayRef: dayOf(entry.createdAt),
       title: entry.type,
     })),
-    monthPlans: monthPlans.map(plan => ({ monthRef: plan.monthRef, topPriorityKeys: plan.topPriorityIds ?? [] })),
+    monthPlans: monthPlans.map(plan => ({
+      monthRef: plan.monthRef,
+      topPriorityKeys: plan.topPriorityIds ?? [],
+    })),
     weekPlans: weekPlans.map(plan => ({
       weekRef: plan.weekRef,
-      topObjectKeys: (plan.topPriorities ?? []).map(ref => measurableKey(ref.subjectType, ref.subjectId)),
+      topObjectKeys: (plan.topPriorities ?? []).map(ref =>
+        measurableKey(ref.subjectType, ref.subjectId)
+      ),
     })),
     yearPlans:
       annualPlan && isPeriodRef(yearRef)
@@ -360,7 +413,9 @@ export async function buildRhythmScenario(scale: Scale, periodRef: string, clock
               yearRef,
               motif: annualPlan.narrative?.theme ?? '',
               narrative: annualPlan.narrative?.story ?? annualPlan.annualBriefNote ?? '',
-              topPriorityKeys: priorities.filter(priority => priority.years.includes(yearRef)).map(priority => priority.id),
+              topPriorityKeys: priorities
+                .filter(priority => priority.years.includes(yearRef))
+                .map(priority => priority.id),
             },
           ]
         : [],

@@ -2,7 +2,11 @@ import { describe, expect, it } from 'vitest'
 import { ref } from 'vue'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import type { Habit, KeyResult, Tracker } from '@/domain/planning'
-import type { DailyMeasurementEntry, MeasurementDayAssignment, MeasurementSubjectType } from '@/domain/planningState'
+import type {
+  DailyMeasurementEntry,
+  MeasurementDayAssignment,
+  MeasurementSubjectType,
+} from '@/domain/planningState'
 import type { MeasurementSummary } from '@/services/measurementProgress'
 import type { MeasurementPlanningSummary } from '@/services/planningStateQueries'
 import type { TodayItem, TodayMeasurementItem } from '@/services/todayViewQueries'
@@ -16,7 +20,7 @@ function makeEntry(
   subjectType: MeasurementSubjectType,
   subjectId: string,
   dayRef: string,
-  value: number | null = null,
+  value: number | null = null
 ): DailyMeasurementEntry {
   return {
     id: `entry-${subjectId}-${dayRef}`,
@@ -29,7 +33,9 @@ function makeEntry(
   }
 }
 
-function makePlanning(overrides: Partial<MeasurementPlanningSummary> = {}): MeasurementPlanningSummary {
+function makePlanning(
+  overrides: Partial<MeasurementPlanningSummary> = {}
+): MeasurementPlanningSummary {
   return {
     scheduleScope: 'whole-week',
     scheduledDayRefs: [],
@@ -101,7 +107,7 @@ function makeMeasurementItem(
   subject: Habit | Tracker,
   measurement: MeasurementSummary,
   planning: MeasurementPlanningSummary = makePlanning(),
-  todayEntry?: DailyMeasurementEntry,
+  todayEntry?: DailyMeasurementEntry
 ): TodayMeasurementItem {
   return {
     kind: 'measurement',
@@ -126,14 +132,14 @@ function makeMeasurementItem(
 function runVisualization(
   item: TodayMeasurementItem,
   rawEntries: DailyMeasurementEntry[],
-  allDayAssignments: MeasurementDayAssignment[] = [],
+  allDayAssignments: MeasurementDayAssignment[] = []
 ) {
   return useTodayItemVisualization(
     ref(item as TodayItem),
     ref(rawEntries),
     ref(allDayAssignments),
     ref(TODAY),
-    ref('en'),
+    ref('en')
   )
 }
 
@@ -143,7 +149,7 @@ describe('useTodayItemVisualization', () => {
     const item = makeMeasurementItem(
       'tracker',
       tracker,
-      makeSummary({ entryMode: 'value', actualValue: 6.5, periodRef: WEEK_REF }),
+      makeSummary({ entryMode: 'value', actualValue: 6.5, periodRef: WEEK_REF })
     )
     const viz = runVisualization(item, [
       makeEntry('tracker', 'tracker-1', '2026-03-10', 6.1),
@@ -170,7 +176,7 @@ describe('useTodayItemVisualization', () => {
         actualValue: 7.1,
         target: habit.target,
         periodRef: WEEK_REF,
-      }),
+      })
     )
     const viz = runVisualization(item, [
       makeEntry('habit', 'habit-average', '2026-03-09', 6.8),
@@ -197,7 +203,7 @@ describe('useTodayItemVisualization', () => {
         actualValue: 12,
         target: habit.target,
         periodRef: WEEK_REF,
-      }),
+      })
     )
     const viz = runVisualization(item, [
       makeEntry('habit', 'habit-sum', '2026-03-10', 5),
@@ -225,7 +231,7 @@ describe('useTodayItemVisualization', () => {
         periodRef: WEEK_REF,
       }),
       makePlanning({ scheduleScope: 'whole-week' }),
-      makeEntry('habit', 'habit-counter', '2026-03-12', 3),
+      makeEntry('habit', 'habit-counter', '2026-03-12', 3)
     )
     const viz = runVisualization(item, [
       makeEntry('habit', 'habit-counter', '2026-03-10', 5),
@@ -251,11 +257,9 @@ describe('useTodayItemVisualization', () => {
         actualValue: 1,
         target: habit.target,
         periodRef: WEEK_REF,
-      }),
+      })
     )
-    const viz = runVisualization(item, [
-      makeEntry('habit', 'habit-completion', '2026-03-10'),
-    ])
+    const viz = runVisualization(item, [makeEntry('habit', 'habit-completion', '2026-03-10')])
 
     expect(viz.vizType.value).toBe('completion-dots')
     expect(viz.completionSlots.value.length).toBeGreaterThan(0)
@@ -270,7 +274,7 @@ describe('useTodayItemVisualization', () => {
       tracker,
       makeSummary({ entryMode: 'rating', actualValue: 4, periodRef: WEEK_REF }),
       makePlanning({ scheduleScope: 'whole-week' }),
-      makeEntry('tracker', 'tracker-rating', '2026-03-12', 4),
+      makeEntry('tracker', 'tracker-rating', '2026-03-12', 4)
     )
     const viz = runVisualization(item, [
       makeEntry('tracker', 'tracker-rating', '2026-03-10', 3),
@@ -290,7 +294,7 @@ describe('useTodayItemVisualization', () => {
     const item = makeMeasurementItem(
       'tracker',
       tracker,
-      makeSummary({ entryMode: 'rating', periodRef: WEEK_REF }),
+      makeSummary({ entryMode: 'rating', periodRef: WEEK_REF })
     )
     const viz = runVisualization(item, [])
     expect(viz.ratingScale.value).toBe(10)
@@ -299,7 +303,7 @@ describe('useTodayItemVisualization', () => {
     const item2 = makeMeasurementItem(
       'tracker',
       trackerWithScale,
-      makeSummary({ entryMode: 'rating', periodRef: WEEK_REF }),
+      makeSummary({ entryMode: 'rating', periodRef: WEEK_REF })
     )
     const viz2 = runVisualization(item2, [])
     expect(viz2.ratingScale.value).toBe(5)
@@ -310,16 +314,20 @@ describe('useTodayItemVisualization', () => {
     const item = makeMeasurementItem(
       'tracker',
       tracker,
-      makeSummary({ entryMode: 'rating', periodRef: WEEK_REF }),
+      makeSummary({ entryMode: 'rating', periodRef: WEEK_REF })
     )
     const viz = runVisualization(item, [])
     expect(viz.ratingScaleMin.value).toBe(1)
 
-    const trackerWithMin = makeTracker('tracker-min-3', { entryMode: 'rating', ratingScaleMin: 3, ratingScale: 7 })
+    const trackerWithMin = makeTracker('tracker-min-3', {
+      entryMode: 'rating',
+      ratingScaleMin: 3,
+      ratingScale: 7,
+    })
     const item2 = makeMeasurementItem(
       'tracker',
       trackerWithMin,
-      makeSummary({ entryMode: 'rating', periodRef: WEEK_REF }),
+      makeSummary({ entryMode: 'rating', periodRef: WEEK_REF })
     )
     const viz2 = runVisualization(item2, [])
     expect(viz2.ratingScaleMin.value).toBe(3)
@@ -331,7 +339,7 @@ describe('useTodayItemVisualization — monthly cadence', () => {
     subjectType: MeasurementSubjectType,
     subject: Habit | Tracker,
     measurement: MeasurementSummary,
-    todayEntry?: DailyMeasurementEntry,
+    todayEntry?: DailyMeasurementEntry
   ): TodayMeasurementItem {
     return {
       kind: 'measurement',
@@ -340,7 +348,10 @@ describe('useTodayItemVisualization — monthly cadence', () => {
       panelType: subjectType,
       subjectType,
       subject,
-      planning: { scheduleScope: 'whole-month', scheduledDayRefs: [] } as MeasurementPlanningSummary,
+      planning: {
+        scheduleScope: 'whole-month',
+        scheduledDayRefs: [],
+      } as MeasurementPlanningSummary,
       measurement,
       todayEntry,
       contextPeriodRef: MONTH_REF,
@@ -370,7 +381,7 @@ describe('useTodayItemVisualization — monthly cadence', () => {
         target: habit.target,
         periodRef: MONTH_REF,
         evaluationStatus: undefined,
-      }),
+      })
     )
     const viz = runVisualization(item, [
       makeEntry('habit', 'monthly-counter', '2026-03-02', 3),
@@ -401,7 +412,7 @@ describe('useTodayItemVisualization — monthly cadence', () => {
         actualValue: 74,
         entryCount: 3,
         periodRef: MONTH_REF,
-      }),
+      })
     )
     const viz = runVisualization(item, [
       makeEntry('tracker', 'monthly-value', '2026-03-01', 72),
@@ -437,7 +448,7 @@ describe('useTodayItemVisualization — monthly cadence', () => {
         target: habit.target,
         periodRef: MONTH_REF,
         evaluationStatus: 'met',
-      }),
+      })
     )
     const viz = runVisualization(item, [
       makeEntry('habit', 'monthly-rating', '2026-03-05', 8),
@@ -469,7 +480,7 @@ describe('useTodayItemVisualization — monthly cadence', () => {
         cadence: 'monthly',
         entryCount: 9,
         periodRef: MONTH_REF,
-      }),
+      })
     )
     const viz = runVisualization(item, [
       makeEntry('tracker', 'monthly-completion', '2026-03-01'),
@@ -499,7 +510,7 @@ describe('useTodayItemVisualization — monthly cadence', () => {
         actualValue: 120,
         entryCount: 15,
         periodRef: MONTH_REF,
-      }),
+      })
     )
     const viz = runVisualization(item, [
       makeEntry('tracker', 'monthly-counter-tracker', '2026-03-01', 10),
@@ -520,11 +531,9 @@ describe('useTodayItemVisualization — keyResult variants', () => {
     const item = makeMeasurementItem(
       'keyResult',
       kr as unknown as Habit,
-      makeSummary({ entryMode: 'completion', target: kr.target, periodRef: WEEK_REF }),
+      makeSummary({ entryMode: 'completion', target: kr.target, periodRef: WEEK_REF })
     )
-    const viz = runVisualization(item, [
-      makeEntry('keyResult', 'kr-completion', '2026-03-10'),
-    ])
+    const viz = runVisualization(item, [makeEntry('keyResult', 'kr-completion', '2026-03-10')])
 
     expect(viz.vizType.value).toBe('completion-dots')
     expect(viz.completionSlots.value.length).toBeGreaterThan(0)
@@ -544,7 +553,7 @@ describe('useTodayItemVisualization — keyResult variants', () => {
     const item = makeMeasurementItem(
       'keyResult',
       kr as unknown as Habit,
-      makeSummary({ entryMode: 'value', target: kr.target, actualValue: 7.5, periodRef: WEEK_REF }),
+      makeSummary({ entryMode: 'value', target: kr.target, actualValue: 7.5, periodRef: WEEK_REF })
     )
     const viz = runVisualization(item, [
       makeEntry('keyResult', 'kr-value-avg', '2026-03-10', 7),
@@ -570,7 +579,7 @@ describe('useTodayItemVisualization — keyResult variants', () => {
     const item = makeMeasurementItem(
       'keyResult',
       kr as unknown as Habit,
-      makeSummary({ entryMode: 'counter', target: kr.target, actualValue: 6, periodRef: WEEK_REF }),
+      makeSummary({ entryMode: 'counter', target: kr.target, actualValue: 6, periodRef: WEEK_REF })
     )
     const viz = runVisualization(item, [
       makeEntry('keyResult', 'kr-counter', '2026-03-10', 3),
@@ -592,7 +601,7 @@ describe('useTodayItemVisualization — keyResult variants', () => {
     const item = makeMeasurementItem(
       'keyResult',
       kr as unknown as Habit,
-      makeSummary({ entryMode: 'rating', target: kr.target, actualValue: 7.5, periodRef: WEEK_REF }),
+      makeSummary({ entryMode: 'rating', target: kr.target, actualValue: 7.5, periodRef: WEEK_REF })
     )
     const viz = runVisualization(item, [
       makeEntry('keyResult', 'kr-rating', '2026-03-10', 8),
@@ -609,10 +618,7 @@ describe('useTodayItemVisualization — keyResult variants', () => {
     expect(viz.summaryNumberData.value).toBeUndefined()
   })
 
-  function makeMonthlyKRItem(
-    kr: KeyResult,
-    measurement: MeasurementSummary,
-  ): TodayMeasurementItem {
+  function makeMonthlyKRItem(kr: KeyResult, measurement: MeasurementSummary): TodayMeasurementItem {
     return {
       kind: 'measurement',
       priorityIds: [],
@@ -620,7 +626,10 @@ describe('useTodayItemVisualization — keyResult variants', () => {
       panelType: 'keyResult',
       subjectType: 'keyResult',
       subject: kr as unknown as Habit,
-      planning: { scheduleScope: 'whole-month', scheduledDayRefs: [] } as MeasurementPlanningSummary,
+      planning: {
+        scheduleScope: 'whole-month',
+        scheduledDayRefs: [],
+      } as MeasurementPlanningSummary,
       measurement,
       todayEntry: undefined,
       contextPeriodRef: MONTH_REF,
@@ -648,7 +657,7 @@ describe('useTodayItemVisualization — keyResult variants', () => {
         entryCount: 8,
         target: kr.target,
         periodRef: MONTH_REF,
-      }),
+      })
     )
     const viz = runVisualization(item, [
       makeEntry('keyResult', 'kr-monthly-counter', '2026-03-05', 10),
@@ -678,7 +687,7 @@ describe('useTodayItemVisualization — keyResult variants', () => {
         entryCount: 10,
         target: kr.target,
         periodRef: MONTH_REF,
-      }),
+      })
     )
     const viz = runVisualization(item, [
       makeEntry('keyResult', 'kr-monthly-avg', '2026-03-01', 7),
@@ -709,7 +718,7 @@ describe('useTodayItemVisualization — keyResult variants', () => {
         target: kr.target,
         periodRef: MONTH_REF,
         evaluationStatus: 'met',
-      }),
+      })
     )
     const viz = runVisualization(item, [
       makeEntry('keyResult', 'kr-monthly-rating', '2026-03-05', 8),

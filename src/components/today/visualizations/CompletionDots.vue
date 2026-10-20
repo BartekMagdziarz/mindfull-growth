@@ -1,16 +1,8 @@
 <template>
   <div class="cd-container" :style="containerStyle">
-    <div
-      v-for="(slot, i) in slots"
-      :key="i"
-      class="cd-slot flex flex-col"
-    >
+    <div v-for="(slot, i) in slots" :key="i" class="cd-slot flex flex-col">
       <div :class="dotClasses(slot)" :style="dotStyle(slot)" />
-      <span
-        v-if="showLabels"
-        :class="['cd-label', { invisible: !slot.label }]"
-        :style="labelStyle"
-      >
+      <span v-if="showLabels" :class="['cd-label', { invisible: !slot.label }]" :style="labelStyle">
         {{ slot.label || ' ' }}
       </span>
     </div>
@@ -29,7 +21,7 @@ const props = withDefaults(
      *  'sm' — compact horizontal row for reflection rows. */
     size?: 'md' | 'sm'
   }>(),
-  { size: 'md' },
+  { size: 'md' }
 )
 
 const count = computed(() => props.slots.length)

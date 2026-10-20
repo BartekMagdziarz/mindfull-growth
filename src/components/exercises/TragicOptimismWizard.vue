@@ -1,7 +1,11 @@
 <template>
   <div class="space-y-6">
     <!-- Step indicator dots -->
-    <ExerciseStepper :labels="stepLabels" :current="currentVisualStep" @go="goToStepByIndex($event)" />
+    <ExerciseStepper
+      :labels="stepLabels"
+      :current="currentVisualStep"
+      @go="goToStepByIndex($event)"
+    />
 
     <!-- Step 1: Intro -->
     <Transition
@@ -12,7 +16,9 @@
     >
       <div v-if="currentStep === 'intro'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.tragicOptimism.intro.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.tragicOptimism.intro.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.tragicOptimism.intro.description') }}
           </p>
@@ -28,7 +34,9 @@
             <div class="flex gap-3">
               <AppIcon name="security" class="exercise-note__icon" />
               <div class="space-y-2">
-                <h3 class="exercise-note__title">{{ t('exerciseWizards.tragicOptimism.intro.warningTitle') }}</h3>
+                <h3 class="exercise-note__title">
+                  {{ t('exerciseWizards.tragicOptimism.intro.warningTitle') }}
+                </h3>
                 <p class="exercise-note__text">
                   {{ t('exerciseWizards.tragicOptimism.intro.warningText') }}
                 </p>
@@ -77,7 +85,11 @@
               @click="selectedFocus = mode.value"
             >
               <div class="flex items-start gap-3">
-                <AppIcon :name="mode.icon" class="text-2xl flex-shrink-0 mt-0.5" :class="mode.iconClass" />
+                <AppIcon
+                  :name="mode.icon"
+                  class="text-2xl flex-shrink-0 mt-0.5"
+                  :class="mode.iconClass"
+                />
                 <div>
                   <p class="text-sm font-semibold text-on-surface">{{ mode.label }}</p>
                   <p class="text-xs text-on-surface-variant mt-0.5">{{ mode.description }}</p>
@@ -87,8 +99,12 @@
           </div>
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'intro'">{{ t('common.buttons.back') }}</AppButton>
-          <AppButton variant="filled" @click="currentStep = 'write'">{{ t('common.buttons.next') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'intro'">{{
+            t('common.buttons.back')
+          }}</AppButton>
+          <AppButton variant="filled" @click="currentStep = 'write'">{{
+            t('common.buttons.next')
+          }}</AppButton>
         </div>
       </div>
     </Transition>
@@ -102,7 +118,9 @@
     >
       <div v-if="currentStep === 'write'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.tragicOptimism.write.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.tragicOptimism.write.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.tragicOptimism.write.description') }}
           </p>
@@ -115,7 +133,9 @@
           />
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'focus'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'focus'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton
             variant="filled"
             :disabled="freeWriting.trim().length < 50"
@@ -136,7 +156,9 @@
     >
       <div v-if="currentStep === 'guided'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.tragicOptimism.guided.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.tragicOptimism.guided.title') }}
+          </h2>
           <ExerciseStepWhy :text="tg('exerciseWizards.tragicOptimism.guided.why')" />
           <div
             v-for="(question, idx) in guidedQuestions"
@@ -153,8 +175,12 @@
           </div>
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'write'">{{ t('common.buttons.back') }}</AppButton>
-          <AppButton variant="filled" @click="currentStep = 'dialogue'">{{ t('common.buttons.next') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'write'">{{
+            t('common.buttons.back')
+          }}</AppButton>
+          <AppButton variant="filled" @click="currentStep = 'dialogue'">{{
+            t('common.buttons.next')
+          }}</AppButton>
         </div>
       </div>
     </Transition>
@@ -168,7 +194,9 @@
     >
       <div v-if="currentStep === 'dialogue'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.tragicOptimism.dialogue.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.tragicOptimism.dialogue.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.tragicOptimism.dialogue.description') }}
           </p>
@@ -216,7 +244,9 @@
                   <div
                     class="animate-spin w-4 h-4 border-2 border-on-surface-variant border-t-transparent rounded-full"
                   ></div>
-                  <span class="text-sm">{{ t('exerciseWizards.tragicOptimism.dialogue.thinking') }}</span>
+                  <span class="text-sm">{{
+                    t('exerciseWizards.tragicOptimism.dialogue.thinking')
+                  }}</span>
                 </div>
               </div>
             </div>
@@ -259,7 +289,9 @@
               {{ t('exerciseWizards.tragicOptimism.dialogue.completed') }}
             </p>
             <p v-else class="text-xs text-on-surface-variant">
-              {{ t('exerciseWizards.tragicOptimism.dialogue.exchangeCount', { count: exchangeCount }) }}
+              {{
+                t('exerciseWizards.tragicOptimism.dialogue.exchangeCount', { count: exchangeCount })
+              }}
             </p>
 
             <AppButton variant="tonal" @click="currentStep = 'insights'">
@@ -279,7 +311,9 @@
     >
       <div v-if="currentStep === 'insights'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.tragicOptimism.insights.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.tragicOptimism.insights.title') }}
+          </h2>
 
           <div>
             <label class="text-sm font-medium text-on-surface">
@@ -328,7 +362,9 @@
           </div>
         </AppCard>
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'dialogue'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'dialogue'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton variant="filled" @click="handleSave">{{ t('common.buttons.save') }}</AppButton>
         </div>
       </div>
@@ -472,9 +508,10 @@ async function sendFirstMessage() {
       focus: selectedFocus.value,
       userMessage: 'I am ready to begin.',
       freeWriting: freeWriting.value.trim() || undefined,
-      guidedAnswers: guidedAnswers.value.filter((a) => a.trim()).length > 0
-        ? guidedAnswers.value.filter((a) => a.trim())
-        : undefined,
+      guidedAnswers:
+        guidedAnswers.value.filter(a => a.trim()).length > 0
+          ? guidedAnswers.value.filter(a => a.trim())
+          : undefined,
       locale: locale.value,
       useProfile: useProfileDialogue.value,
     })
@@ -487,7 +524,8 @@ async function sendFirstMessage() {
 
     await scrollToBottom()
   } catch (err) {
-    llmError.value = err instanceof Error ? err.message : t('exerciseWizards.tragicOptimism.errors.startFailed')
+    llmError.value =
+      err instanceof Error ? err.message : t('exerciseWizards.tragicOptimism.errors.startFailed')
   } finally {
     isLlmLoading.value = false
   }
@@ -512,7 +550,7 @@ async function handleSend() {
   try {
     const { tragicOptimismTurn } = await import('@/services/logotherapyLLMAssists')
 
-    const previousMessages = messages.value.slice(0, -1).map((m) => ({
+    const previousMessages = messages.value.slice(0, -1).map(m => ({
       role: m.role as 'user' | 'assistant',
       content: m.content,
     }))
@@ -522,9 +560,10 @@ async function handleSend() {
       userMessage,
       previousMessages,
       freeWriting: freeWriting.value.trim() || undefined,
-      guidedAnswers: guidedAnswers.value.filter((a) => a.trim()).length > 0
-        ? guidedAnswers.value.filter((a) => a.trim())
-        : undefined,
+      guidedAnswers:
+        guidedAnswers.value.filter(a => a.trim()).length > 0
+          ? guidedAnswers.value.filter(a => a.trim())
+          : undefined,
       locale: locale.value,
       useProfile: useProfileDialogue.value,
     })
@@ -537,7 +576,8 @@ async function handleSend() {
 
     await scrollToBottom()
   } catch (err) {
-    llmError.value = err instanceof Error ? err.message : t('exerciseWizards.tragicOptimism.errors.responseFailed')
+    llmError.value =
+      err instanceof Error ? err.message : t('exerciseWizards.tragicOptimism.errors.responseFailed')
     messages.value.pop()
   } finally {
     isLlmLoading.value = false
@@ -545,7 +585,7 @@ async function handleSend() {
 }
 
 // Auto-send first LLM message when entering dialogue step
-watch(currentStep, async (newStep) => {
+watch(currentStep, async newStep => {
   if (newStep === 'dialogue' && messages.value.length === 0) {
     await sendFirstMessage()
   }
@@ -567,12 +607,14 @@ function handleSave() {
   const payload: CreateTragicOptimismPayload = {
     focus: selectedFocus.value,
     freeWriting: freeWriting.value.trim(),
-    guidedAnswers: guidedAnswers.value.map((a) => a.trim()),
+    guidedAnswers: guidedAnswers.value.map(a => a.trim()),
     emotionIdsBefore: emotionIdsBefore.value.length > 0 ? [...emotionIdsBefore.value] : undefined,
-    emotionFamilyIdsBefore: emotionFamilyIdsBefore.value.length > 0 ? [...emotionFamilyIdsBefore.value] : undefined,
+    emotionFamilyIdsBefore:
+      emotionFamilyIdsBefore.value.length > 0 ? [...emotionFamilyIdsBefore.value] : undefined,
     emotionIdsAfter: emotionIdsAfter.value.length > 0 ? [...emotionIdsAfter.value] : undefined,
-    emotionFamilyIdsAfter: emotionFamilyIdsAfter.value.length > 0 ? [...emotionFamilyIdsAfter.value] : undefined,
-    messages: messages.value.length > 0 ? messages.value.map((m) => ({ ...m })) : undefined,
+    emotionFamilyIdsAfter:
+      emotionFamilyIdsAfter.value.length > 0 ? [...emotionFamilyIdsAfter.value] : undefined,
+    messages: messages.value.length > 0 ? messages.value.map(m => ({ ...m })) : undefined,
     insightMeaning: insightMeaning.value.trim() || undefined,
     insightCarryForward: insightCarryForward.value.trim() || undefined,
     llmAssistUsed: messages.value.length > 0 ? true : undefined,

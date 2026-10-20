@@ -20,23 +20,52 @@
     }
   },
   "items": [
-    { "id": "anger_01", "textKey": "assessments.angerBarometer.items.anger_01", "scaleId": "total", "reverse": false, "responseMin": 1, "responseMax": 5 },
-    { "id": "anger_02", "textKey": "assessments.angerBarometer.items.anger_02", "scaleId": "total", "reverse": false, "responseMin": 1, "responseMax": 5 },
-    { "id": "anger_03", "textKey": "assessments.angerBarometer.items.anger_03", "scaleId": "total", "reverse": false, "responseMin": 1, "responseMax": 5 },
-    { "id": "anger_04", "textKey": "assessments.angerBarometer.items.anger_04", "scaleId": "total", "reverse": false, "responseMin": 1, "responseMax": 5 },
-    { "id": "anger_05", "textKey": "assessments.angerBarometer.items.anger_05", "scaleId": "total", "reverse": false, "responseMin": 1, "responseMax": 5 }
+    {
+      "id": "anger_01",
+      "textKey": "assessments.angerBarometer.items.anger_01",
+      "scaleId": "total",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "anger_02",
+      "textKey": "assessments.angerBarometer.items.anger_02",
+      "scaleId": "total",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "anger_03",
+      "textKey": "assessments.angerBarometer.items.anger_03",
+      "scaleId": "total",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "anger_04",
+      "textKey": "assessments.angerBarometer.items.anger_04",
+      "scaleId": "total",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "anger_05",
+      "textKey": "assessments.angerBarometer.items.anger_05",
+      "scaleId": "total",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    }
   ],
   "scales": [
     {
       "id": "total",
       "labelKey": "assessments.angerBarometer.scales.total",
-      "itemIds": [
-        "anger_01",
-        "anger_02",
-        "anger_03",
-        "anger_04",
-        "anger_05"
-      ],
+      "itemIds": ["anger_01", "anger_02", "anger_03", "anger_04", "anger_05"],
       "minAnswered": 4
     }
   ],

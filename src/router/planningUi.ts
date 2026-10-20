@@ -5,7 +5,7 @@ export const DEFAULT_PLANNING_UI: PlanningUi = 'next'
 
 export function resolvePlanningUi(
   query: { ui?: LocationQueryValue | LocationQueryValue[] },
-  fallback: PlanningUi = DEFAULT_PLANNING_UI,
+  fallback: PlanningUi = DEFAULT_PLANNING_UI
 ): PlanningUi {
   return query.ui === 'legacy' || query.ui === 'next' ? query.ui : fallback
 }

@@ -1,7 +1,5 @@
 <template>
-  <article
-    class="neo-card border-neu-border/30 bg-gradient-to-br from-neu-top to-neu-bottom p-3.5"
-  >
+  <article class="neo-card border-neu-border/30 bg-gradient-to-br from-neu-top to-neu-bottom p-3.5">
     <div class="space-y-3">
       <div class="flex items-center gap-2">
         <IconPicker
@@ -129,45 +127,73 @@ const emit = defineEmits<{
 
 const DEBOUNCE_MS = 450
 
-const { value: title, inputRef: titleRef, flush: flushTitle } = useEditableField({
+const {
+  value: title,
+  inputRef: titleRef,
+  flush: flushTitle,
+} = useEditableField({
   source: () => props.priority.title,
-  commit: (value) => emit('field-change', 'title', value),
+  commit: value => emit('field-change', 'title', value),
   delay: DEBOUNCE_MS,
 })
 
-const { value: whyNow, inputRef: whyNowRef, flush: flushWhyNow } = useEditableField({
+const {
+  value: whyNow,
+  inputRef: whyNowRef,
+  flush: flushWhyNow,
+} = useEditableField({
   source: () => props.priority.whyNow,
-  commit: (value) => emit('field-change', 'whyNow', value),
+  commit: value => emit('field-change', 'whyNow', value),
   delay: DEBOUNCE_MS,
 })
 
-const { value: desiredDirection, inputRef: desiredDirectionRef, flush: flushDesiredDirection } = useEditableField({
+const {
+  value: desiredDirection,
+  inputRef: desiredDirectionRef,
+  flush: flushDesiredDirection,
+} = useEditableField({
   source: () => props.priority.desiredDirection,
-  commit: (value) => emit('field-change', 'desiredDirection', value),
+  commit: value => emit('field-change', 'desiredDirection', value),
   delay: DEBOUNCE_MS,
 })
 
-const { value: tradeoffs, inputRef: tradeoffsRef, flush: flushTradeoffs } = useEditableField({
+const {
+  value: tradeoffs,
+  inputRef: tradeoffsRef,
+  flush: flushTradeoffs,
+} = useEditableField({
   source: () => props.priority.tradeoffs,
-  commit: (value) => emit('field-change', 'tradeoffs', value),
+  commit: value => emit('field-change', 'tradeoffs', value),
   delay: DEBOUNCE_MS,
 })
 
-const { value: years, inputRef: yearsRef, flush: flushYears } = useEditableField<string[], string>({
+const {
+  value: years,
+  inputRef: yearsRef,
+  flush: flushYears,
+} = useEditableField<string[], string>({
   source: () => props.priority.years,
-  format: (list) => (list ?? []).join(', '),
-  commit: (value) => emit('field-change', 'years', value),
+  format: list => (list ?? []).join(', '),
+  commit: value => emit('field-change', 'years', value),
 })
 
-const { value: progressSignals, inputRef: progressSignalsRef, flush: flushProgressSignals } = useEditableField<string[], string>({
+const {
+  value: progressSignals,
+  inputRef: progressSignalsRef,
+  flush: flushProgressSignals,
+} = useEditableField<string[], string>({
   source: () => props.priority.progressSignals,
-  format: (list) => (list ?? []).join('\n'),
-  commit: (value) => emit('field-change', 'progressSignals', value),
+  format: list => (list ?? []).join('\n'),
+  commit: value => emit('field-change', 'progressSignals', value),
 })
 
-const { value: riskSignals, inputRef: riskSignalsRef, flush: flushRiskSignals } = useEditableField<string[], string>({
+const {
+  value: riskSignals,
+  inputRef: riskSignalsRef,
+  flush: flushRiskSignals,
+} = useEditableField<string[], string>({
   source: () => props.priority.riskSignals,
-  format: (list) => (list ?? []).join('\n'),
-  commit: (value) => emit('field-change', 'riskSignals', value),
+  format: list => (list ?? []).join('\n'),
+  commit: value => emit('field-change', 'riskSignals', value),
 })
 </script>

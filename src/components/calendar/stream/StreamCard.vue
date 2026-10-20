@@ -14,7 +14,7 @@ const props = withDefaults(
     current: false,
     future: false,
     delayMs: 0,
-  },
+  }
 )
 
 const emit = defineEmits<{ select: [] }>()

@@ -21,15 +21,21 @@ import { getPeriodRefsForDate } from '@/utils/periods'
  * enrollment of a program that has the letter as a step, else the newest
  * completed one (the letter may be the last thing written before the close).
  */
-function letterEnrollment(enrollments: readonly ProgramEnrollment[], programSlug?: string): ProgramEnrollment | undefined {
+function letterEnrollment(
+  enrollments: readonly ProgramEnrollment[],
+  programSlug?: string
+): ProgramEnrollment | undefined {
   const candidates = enrollments
-    .filter((enrollment) => {
+    .filter(enrollment => {
       if (programSlug && enrollment.programSlug !== programSlug) return false
       const program = getProgramDefinition(enrollment.programSlug)
-      return program?.steps.some((step) => step.exerciseSlug === FUTURE_LETTER_SLUG) && enrollment.status !== 'abandoned'
+      return (
+        program?.steps.some(step => step.exerciseSlug === FUTURE_LETTER_SLUG) &&
+        enrollment.status !== 'abandoned'
+      )
     })
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-  return candidates.find((c) => c.status === 'active' || c.status === 'paused') ?? candidates[0]
+  return candidates.find(c => c.status === 'active' || c.status === 'paused') ?? candidates[0]
 }
 
 /** Stores the just-written letter on its enrollment with the day it comes back; null when no path takes it. */
@@ -38,22 +44,25 @@ export async function recordFutureLetter(
   responses: Record<string, MicroStepValue>,
   writtenOn: DayRef = getPeriodRefsForDate(new Date()).day,
   /** The path the letter was written on (several paths carry the step); the newest open one otherwise. */
-  programSlug?: string,
+  programSlug?: string
 ): Promise<ProgramEnrollment | null> {
   const session = captureUserSession()
-  const enrollment = letterEnrollment(await session.wait(programEnrollmentDexieRepository.listAll()), programSlug)
+  const enrollment = letterEnrollment(
+    await session.wait(programEnrollmentDexieRepository.listAll()),
+    programSlug
+  )
   if (!enrollment) return null
   return session.wait(
     programEnrollmentDexieRepository.update(enrollment.id, {
       futureLetter: { entryId, showAt: futureLetterShowAt(responses, writtenOn) },
-    }),
+    })
   )
 }
 
 /** Merges rhythm overrides into the enrollment and lets the scheduler re-read them. */
 export async function setPracticeOverrides(
   enrollmentId: string,
-  overrides: Record<string, { everyDays: number }>,
+  overrides: Record<string, { everyDays: number }>
 ): Promise<{ enrollment: ProgramEnrollment; practices: PracticeReconciliation }> {
   const session = captureUserSession()
   const current = await session.wait(programEnrollmentDexieRepository.getById(enrollmentId))
@@ -61,7 +70,7 @@ export async function setPracticeOverrides(
   const enrollment = await session.wait(
     programEnrollmentDexieRepository.update(enrollmentId, {
       practiceOverrides: { ...(current.practiceOverrides ?? {}), ...overrides },
-    }),
+    })
   )
   const practices = await session.wait(reconcilePractices(enrollment))
   return { enrollment, practices }

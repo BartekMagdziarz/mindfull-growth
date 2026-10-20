@@ -12,11 +12,7 @@
         class="today-item-lead-icon"
         :class="hasTodayEntry ? 'today-item-lead-icon--active' : ''"
       />
-      <button
-        type="button"
-        class="today-item-title"
-        @click.stop="$emit('open-object')"
-      >
+      <button type="button" class="today-item-title" @click.stop="$emit('open-object')">
         {{ title }}
       </button>
 
@@ -51,7 +47,11 @@
           class="today-entry-circle today-entry-circle--btn neo-focus"
           :class="completionTodayDone ? 'today-entry-circle--on' : ''"
           :disabled="isPending"
-          :aria-label="completionTodayDone ? t('planning.today.actions.undoEntry') : t('planning.today.actions.recordEntry')"
+          :aria-label="
+            completionTodayDone
+              ? t('planning.today.actions.undoEntry')
+              : t('planning.today.actions.recordEntry')
+          "
           @click="$emit('toggle-completion')"
         >
           <AppIcon name="check" class="text-[18px]" />
@@ -78,7 +78,8 @@
               v-if="multiItem.icon"
               class="material-symbols-outlined text-[15px] leading-none"
               aria-hidden="true"
-             :name="multiItem.icon" />
+              :name="multiItem.icon"
+            />
             <span v-else class="text-[11px] font-semibold leading-none">
               {{ multiItem.label.slice(0, 1).toUpperCase() }}
             </span>
@@ -86,10 +87,7 @@
         </div>
 
         <!-- Counter: number circle + hover ± pill -->
-        <div
-          v-else-if="viz.entryMode.value === 'counter'"
-          class="today-entry-with-step"
-        >
+        <div v-else-if="viz.entryMode.value === 'counter'" class="today-entry-with-step">
           <div class="today-step-pill">
             <button
               type="button"
@@ -110,10 +108,7 @@
               <AppIcon name="remove" class="text-[14px]" />
             </button>
           </div>
-          <span
-            class="today-entry-circle"
-            :class="hasNumericEntry ? 'today-entry-circle--on' : ''"
-          >
+          <span class="today-entry-circle" :class="hasNumericEntry ? 'today-entry-circle--on' : ''">
             <span :class="counterDisplaySizeClass">
               {{ hasNumericEntry ? viz.currentValue.value : '0' }}
             </span>
@@ -121,10 +116,7 @@
         </div>
 
         <!-- Rating: ring-bordered number circle + hover ± pill -->
-        <div
-          v-else-if="viz.entryMode.value === 'rating'"
-          class="today-entry-with-step"
-        >
+        <div v-else-if="viz.entryMode.value === 'rating'" class="today-entry-with-step">
           <div class="today-step-pill">
             <button
               type="button"
@@ -147,7 +139,14 @@
           </div>
           <span class="today-entry-circle today-entry-circle--rating">
             <svg class="today-entry-circle__ring" viewBox="0 0 44 44" aria-hidden="true">
-              <circle cx="22" cy="22" r="20.5" fill="none" stroke="rgb(var(--neo-border) / 0.45)" stroke-width="2" />
+              <circle
+                cx="22"
+                cy="22"
+                r="20.5"
+                fill="none"
+                stroke="rgb(var(--neo-border) / 0.45)"
+                stroke-width="2"
+              />
               <circle
                 v-if="ratingRingProgress > 0"
                 cx="22"
@@ -269,12 +268,7 @@
     </transition>
 
     <!-- Move to day picker (shown when triggered from action button) -->
-    <input
-      ref="moveDateInputRef"
-      type="date"
-      class="sr-only"
-      @change="handleMoveDateChange"
-    />
+    <input ref="moveDateInputRef" type="date" class="sr-only" @change="handleMoveDateChange" />
   </article>
 </template>
 
@@ -328,7 +322,7 @@ const viz = useTodayItemVisualization(
   toRef(props, 'rawEntries'),
   toRef(props, 'allDayAssignments'),
   toRef(props, 'todayDayRef'),
-  computed(() => locale.value),
+  computed(() => locale.value)
 )
 
 const title = computed(() =>
@@ -343,9 +337,7 @@ const PANEL_TYPE_ICONS: Record<string, string> = {
   initiative: 'rocket_launch',
 }
 
-const isTopPriority = computed(
-  () => props.item.kind === 'measurement' && props.item.isTopPriority,
-)
+const isTopPriority = computed(() => props.item.kind === 'measurement' && props.item.isTopPriority)
 
 const iconName = computed(() => {
   if (props.item.kind === 'initiative') {
@@ -372,7 +364,7 @@ const hasTodayEntry = computed(() => {
 const todayLabel = computed(() => periodLabel(props.todayDayRef, 'daily', locale.value))
 
 const completionTodayDone = computed(() =>
-  viz.completionSlots.value.some(s => s.state === 'today-done'),
+  viz.completionSlots.value.some(s => s.state === 'today-done')
 )
 
 const multiActiveItems = computed(() => {
@@ -392,7 +384,7 @@ const hasNumericEntry = computed(() => {
 })
 
 const hasPersistedTodayEntry = computed(
-  () => props.item.kind === 'measurement' && Boolean(props.item.todayEntry),
+  () => props.item.kind === 'measurement' && Boolean(props.item.todayEntry)
 )
 
 // Choose a smaller text size when the counter value is 4+ characters long so it
@@ -405,7 +397,8 @@ const counterDisplaySizeClass = computed(() => {
 })
 
 const valueInputSizeClass = computed(() => {
-  const draft = valueDraft.value || (hasNumericEntry.value ? String(viz.currentValue.value ?? 0) : '0')
+  const draft =
+    valueDraft.value || (hasNumericEntry.value ? String(viz.currentValue.value ?? 0) : '0')
   if (draft.length >= 4) return 'today-entry-circle--input-xs'
   if (draft.length === 3) return 'today-entry-circle--input-sm'
   return ''
@@ -448,11 +441,11 @@ function handleRatingStep(delta: number): void {
 
 watch(
   () => viz.currentValue.value,
-  (next) => {
+  next => {
     if (document.activeElement === valueInputRef.value) return
     valueDraft.value = next ? String(next) : ''
   },
-  { immediate: true },
+  { immediate: true }
 )
 
 function onValueFocus(): void {
@@ -502,12 +495,24 @@ function handleCardClick(): void {
 
 function handleAction(action: string): void {
   switch (action) {
-    case 'open-object': emit('open-object'); break
-    case 'open-context': emit('open-context'); break
-    case 'clear-schedule': emit('clear-schedule'); break
-    case 'request-delete': emit('request-delete'); break
-    case 'hide': emit('hide'); break
-    case 'clear-entry': emit('clear-entry'); break
+    case 'open-object':
+      emit('open-object')
+      break
+    case 'open-context':
+      emit('open-context')
+      break
+    case 'clear-schedule':
+      emit('clear-schedule')
+      break
+    case 'request-delete':
+      emit('request-delete')
+      break
+    case 'hide':
+      emit('hide')
+      break
+    case 'clear-entry':
+      emit('clear-entry')
+      break
   }
 }
 
@@ -612,14 +617,10 @@ function handleMoveDateChange(event: Event): void {
   height: 37px;
   flex: 0 0 37px;
   border-radius: 9999px;
-  background: linear-gradient(
-    145deg,
-    rgb(var(--neo-surface-top)),
-    rgb(var(--neo-surface-bottom))
-  );
+  background: linear-gradient(145deg, rgb(var(--neo-surface-top)), rgb(var(--neo-surface-bottom)));
   box-shadow:
     -2px -2px 5px rgb(var(--neo-shadow-light) / 0.85),
-    2px 2px 5px rgb(var(--neo-shadow-dark) / 0.30);
+    2px 2px 5px rgb(var(--neo-shadow-dark) / 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -631,7 +632,10 @@ function handleMoveDateChange(event: Event): void {
 .today-entry-circle--btn {
   border: 0;
   cursor: pointer;
-  transition: transform 200ms ease, box-shadow 200ms ease, color 200ms ease;
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease,
+    color 200ms ease;
 }
 
 .today-entry-circle--btn:hover:not(:disabled) {
@@ -788,12 +792,14 @@ function handleMoveDateChange(event: Event): void {
   background: linear-gradient(145deg, rgb(var(--neo-surface-top)), rgb(var(--neo-surface-bottom)));
   box-shadow:
     -2px -2px 5px rgb(var(--neo-shadow-light) / 0.85),
-    2px 2px 5px rgb(var(--neo-shadow-dark) / 0.30);
+    2px 2px 5px rgb(var(--neo-shadow-dark) / 0.3);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   opacity: 0;
-  transition: opacity 140ms ease, transform 140ms ease;
+  transition:
+    opacity 140ms ease,
+    transform 140ms ease;
   pointer-events: none;
   z-index: 2;
 }
@@ -808,7 +814,9 @@ function handleMoveDateChange(event: Event): void {
   color: rgb(var(--neo-text));
   cursor: pointer;
   padding: 0;
-  transition: color 150ms ease, background-color 150ms ease;
+  transition:
+    color 150ms ease,
+    background-color 150ms ease;
 }
 
 .today-step-pill__btn:hover:not(:disabled) {
@@ -857,7 +865,10 @@ function handleMoveDateChange(event: Event): void {
     -2px -2px 5px rgb(var(--neo-shadow-light) / 0.85),
     2px 2px 5px rgb(var(--neo-shadow-dark) / 0.28);
   cursor: pointer;
-  transition: transform 180ms ease, box-shadow 180ms ease, color 180ms ease;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    color 180ms ease;
 }
 
 .today-action-btn:hover {
@@ -892,17 +903,16 @@ function handleMoveDateChange(event: Event): void {
   justify-content: center;
   border: 0;
   border-radius: 9999px;
-  background: linear-gradient(
-    145deg,
-    rgb(var(--neo-surface-top)),
-    rgb(var(--neo-surface-bottom))
-  );
+  background: linear-gradient(145deg, rgb(var(--neo-surface-top)), rgb(var(--neo-surface-bottom)));
   box-shadow:
     -2px -2px 4px rgb(var(--neo-shadow-light) / 0.85),
     2px 2px 4px rgb(var(--neo-shadow-dark) / 0.28);
   color: rgb(var(--neo-muted));
   cursor: pointer;
-  transition: transform 160ms ease, box-shadow 160ms ease, color 160ms ease;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    color 160ms ease;
 }
 
 .today-multi-chip:hover:not(:disabled) {

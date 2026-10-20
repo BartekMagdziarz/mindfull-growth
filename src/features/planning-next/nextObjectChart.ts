@@ -26,24 +26,26 @@ export function buildDayChartPoints(
   item: TodayMeasurementItem,
   dayRef: DayRef,
   rawEntries: DailyMeasurementEntry[],
-  dayAssignments: MeasurementDayAssignment[],
+  dayAssignments: MeasurementDayAssignment[]
 ): NextObjectChartPoint[] {
   const weekRef = getPeriodRefsForDate(new Date(`${dayRef}T12:00:00`)).week
-  return buildWeekDailyChartPoints(item.subject, item.subjectType, rawEntries, weekRef).map(point => ({
-    key: point.periodRef,
-    label: weekdayFormatter.format(new Date(`${point.periodRef}T12:00:00`)).replace('.', ''),
-    value: point.actualValue,
-    target: point.targetValue,
-    status: point.status,
-    future: point.periodRef > dayRef,
-    current: point.periodRef === dayRef,
-    assigned: dayAssignments.some(
-      assignment =>
-        assignment.dayRef === point.periodRef &&
-        assignment.subjectType === item.subjectType &&
-        assignment.subjectId === item.subject.id,
-    ),
-  }))
+  return buildWeekDailyChartPoints(item.subject, item.subjectType, rawEntries, weekRef).map(
+    point => ({
+      key: point.periodRef,
+      label: weekdayFormatter.format(new Date(`${point.periodRef}T12:00:00`)).replace('.', ''),
+      value: point.actualValue,
+      target: point.targetValue,
+      status: point.status,
+      future: point.periodRef > dayRef,
+      current: point.periodRef === dayRef,
+      assigned: dayAssignments.some(
+        assignment =>
+          assignment.dayRef === point.periodRef &&
+          assignment.subjectType === item.subjectType &&
+          assignment.subjectId === item.subject.id
+      ),
+    })
+  )
 }
 
 /** Rolling history for inline Today cards; the legacy calendar keeps its week axis. */
@@ -52,11 +54,13 @@ export function buildRecentDayChartPoints(
   dayRef: DayRef,
   rawEntries: DailyMeasurementEntry[],
   dayAssignments: MeasurementDayAssignment[],
-  locale = 'pl-PL',
+  locale = 'pl-PL'
 ): NextObjectChartPoint[] {
   const dates = Array.from({ length: 7 }, (_, index) => addDaysToDayRef(dayRef, index - 6))
   const weeks = [...new Set(dates.map(date => getPeriodRefsForDate(date).week))]
-  const points = weeks.flatMap(week => buildWeekDailyChartPoints(item.subject, item.subjectType, rawEntries, week))
+  const points = weeks.flatMap(week =>
+    buildWeekDailyChartPoints(item.subject, item.subjectType, rawEntries, week)
+  )
   const today = getPeriodRefsForDate(new Date()).day
   const formatter = new Intl.DateTimeFormat(locale, { weekday: 'short' })
   return dates.map(date => {
@@ -69,7 +73,10 @@ export function buildRecentDayChartPoints(
       status: point.status,
       current: date === dayRef,
       future: date > today,
-      assigned: dayAssignments.some(a => a.dayRef === date && a.subjectType === item.subjectType && a.subjectId === item.subject.id),
+      assigned: dayAssignments.some(
+        a =>
+          a.dayRef === date && a.subjectType === item.subjectType && a.subjectId === item.subject.id
+      ),
     }
   })
 }

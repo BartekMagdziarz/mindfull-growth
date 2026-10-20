@@ -1,7 +1,5 @@
 <template>
-  <article
-    class="group/card mg-v2-surface mg-v2-surface--raised-sm p-3"
-  >
+  <article class="group/card mg-v2-surface mg-v2-surface--raised-sm p-3">
     <div class="space-y-2">
       <!-- Row 1: Icon + Title + hover tray (links, expand, menu w/ status) -->
       <div class="flex items-center gap-2">
@@ -26,7 +24,11 @@
           <button
             type="button"
             class="mg-v2-button mg-v2-button--icon mg-v2-button--icon-sm mg-v2-button--quiet shrink-0"
-            :aria-label="isExpanded ? t('planning.objects.actions.hideDetails') : t('planning.objects.actions.showDetails')"
+            :aria-label="
+              isExpanded
+                ? t('planning.objects.actions.hideDetails')
+                : t('planning.objects.actions.showDetails')
+            "
             @click="$emit('toggle-expand')"
           >
             <AppIcon v-if="isExpanded" name="expand_less" class="text-base" />
@@ -66,7 +68,11 @@
                   class="block w-full px-3 py-2 text-left text-xs font-medium text-on-surface hover:bg-primary-soft/30"
                   @click="handleArchive"
                 >
-                  {{ item.isActive ? t('planning.objects.actions.archive') : t('planning.objects.actions.unarchive') }}
+                  {{
+                    item.isActive
+                      ? t('planning.objects.actions.archive')
+                      : t('planning.objects.actions.unarchive')
+                  }}
                 </button>
                 <button
                   type="button"
@@ -107,16 +113,24 @@
       <!-- Expanded section -->
       <div
         class="transition-all duration-200 ease-in-out"
-        :style="{ maxHeight: isExpanded ? '700px' : '0', opacity: isExpanded ? 1 : 0, overflow: isExpanded ? 'visible' : 'hidden' }"
+        :style="{
+          maxHeight: isExpanded ? '700px' : '0',
+          opacity: isExpanded ? 1 : 0,
+          overflow: isExpanded ? 'visible' : 'hidden',
+        }"
       >
         <div class="space-y-3 pt-1">
           <!-- Rating scale (only when rating; cadence + mode live in the sentence below) -->
           <div v-if="item.entryMode === 'rating'" class="space-y-1">
-            <div class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
+            <div
+              class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant"
+            >
               {{ t('planning.objects.form.ratingScale') }}
             </div>
             <div class="flex items-center gap-1.5">
-              <label class="text-[9px] text-on-surface-variant/70">{{ t('planning.objects.form.ratingScaleMin') }}</label>
+              <label class="text-[9px] text-on-surface-variant/70">{{
+                t('planning.objects.form.ratingScaleMin')
+              }}</label>
               <input
                 :value="item.ratingScaleMin ?? 1"
                 type="number"
@@ -125,7 +139,9 @@
                 class="mg-v2-field !w-12 !px-1.5 text-center text-xs"
                 @change="handleScaleMinChange"
               />
-              <label class="text-[9px] text-on-surface-variant/70">{{ t('planning.objects.form.ratingScaleMax') }}</label>
+              <label class="text-[9px] text-on-surface-variant/70">{{
+                t('planning.objects.form.ratingScaleMax')
+              }}</label>
               <input
                 :value="item.ratingScale ?? 10"
                 type="number"
@@ -149,12 +165,12 @@
           <div class="grid gap-3" :class="panelType === 'habit' ? 'grid-cols-2' : 'grid-cols-1'">
             <!-- Periods -->
             <div class="space-y-1">
-              <div class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
+              <div
+                class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant"
+              >
                 {{ t('planning.objects.form.periods') }}
               </div>
-              <div
-                class="mg-v2-surface mg-v2-surface--flat group relative min-h-[60px] p-1.5"
-              >
+              <div class="mg-v2-surface mg-v2-surface--flat group relative min-h-[60px] p-1.5">
                 <PeriodCalendarPicker
                   :model-value="linkedPeriods.map(period => period.periodRef)"
                   :cadence="item.cadence === 'monthly' ? 'monthly' : 'weekly'"
@@ -164,16 +180,24 @@
                   :commit-schedule="saveSchedule"
                 />
 
-                <p v-if="panelType === 'habit' && item.isPermanent" class="text-xs font-semibold text-primary">
+                <p
+                  v-if="panelType === 'habit' && item.isPermanent"
+                  class="text-xs font-semibold text-primary"
+                >
                   {{ t('planning.periodPicker.permanent') }}
                 </p>
-                <PeriodSelectionSummary :periods="linkedPeriods.map(period => period.periodRef)" :cadence="item.cadence === 'monthly' ? 'monthly' : 'weekly'" />
+                <PeriodSelectionSummary
+                  :periods="linkedPeriods.map(period => period.periodRef)"
+                  :cadence="item.cadence === 'monthly' ? 'monthly' : 'weekly'"
+                />
               </div>
             </div>
 
             <!-- Target (habits only) -->
             <div v-if="panelType === 'habit' && item.target" class="space-y-1">
-              <div class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
+              <div
+                class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant"
+              >
                 {{ t('planning.objects.form.target') }}
               </div>
               <MeasurementTargetSentence
@@ -191,7 +215,9 @@
 
           <!-- Completion rules -->
           <div class="space-y-1">
-            <div class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
+            <div
+              class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant"
+            >
               {{ t('planning.objects.form.completionRules') }}
             </div>
             <textarea
@@ -216,7 +242,11 @@
         <div
           class="transition-all duration-200 ease-in-out"
           :class="isExpanded || !item.chartData ? '' : 'mb-2'"
-          :style="{ maxHeight: isExpanded ? '0' : '2.5rem', opacity: isExpanded ? 0 : 1, overflow: 'hidden' }"
+          :style="{
+            maxHeight: isExpanded ? '0' : '2.5rem',
+            opacity: isExpanded ? 0 : 1,
+            overflow: 'hidden',
+          }"
         >
           <p class="mg-v2-meta px-1">
             <span v-if="statusLabel" class="mg-v2-meta__status">{{ statusLabel }}</span>
@@ -236,7 +266,6 @@
           :entry-mode="item.entryMode ?? 'completion'"
         />
       </div>
-
     </div>
   </article>
 </template>
@@ -257,7 +286,10 @@ import ObjectsCardStatusMenu from '@/components/objects/ObjectsCardStatusMenu.vu
 import MeasurementSparkline from '@/components/objects/MeasurementSparkline.vue'
 import { useEditableField } from '@/composables/useEditableField'
 import { formatMeasurementTargetSummary } from '@/utils/measurementTargetFormat'
-import type { ObjectsLibraryFilterOption, ObjectsLibraryListItem } from '@/services/objectsLibraryQueries'
+import type {
+  ObjectsLibraryFilterOption,
+  ObjectsLibraryListItem,
+} from '@/services/objectsLibraryQueries'
 import type { MeasurementEntryMode, MeasurementTarget, PlanningCadence } from '@/domain/planning'
 import type { LinkedPeriod } from '@/components/objects/ObjectsLibraryKrCard.vue'
 
@@ -290,33 +322,40 @@ const { t } = useT()
 const menuRef = ref<HTMLElement | null>(null)
 const menuOpen = ref(false)
 
-
-const { value: title, inputRef: titleRef, flush: flushTitle } = useEditableField({
+const {
+  value: title,
+  inputRef: titleRef,
+  flush: flushTitle,
+} = useEditableField({
   source: () => props.item.title,
-  commit: (value) => emitFieldChange('title', value),
+  commit: value => emitFieldChange('title', value),
   delay: 400,
 })
 
-const { value: description, inputRef: descriptionRef, flush: flushDescription } = useEditableField({
+const {
+  value: description,
+  inputRef: descriptionRef,
+  flush: flushDescription,
+} = useEditableField({
   source: () => props.item.description,
-  commit: (value) => emitFieldChange('description', value),
+  commit: value => emitFieldChange('description', value),
   delay: 400,
 })
 
 const cadenceLabel = computed(() => {
-  const opt = props.cadenceOptions.find((o) => o.value === props.item.cadence)
+  const opt = props.cadenceOptions.find(o => o.value === props.item.cadence)
   return opt?.label ?? props.item.cadence ?? ''
 })
 
 const entryModeLabel = computed(() => {
-  const opt = props.entryModeOptions.find((o) => o.value === props.item.entryMode)
+  const opt = props.entryModeOptions.find(o => o.value === props.item.entryMode)
   return opt?.label ?? props.item.entryMode ?? ''
 })
 
 // Status is quiet: shown as text only when it is not the default "open".
 const statusLabel = computed(() => {
   if (props.item.status === 'open') return null
-  const opt = props.statusOptions.find((o) => o.value === props.item.status)
+  const opt = props.statusOptions.find(o => o.value === props.item.status)
   return opt?.label ?? props.item.status
 })
 
@@ -333,7 +372,8 @@ function handleScaleMinChange(event: Event): void {
   if (!Number.isFinite(parsed) || parsed < 0) return
   const currentMax = props.item.ratingScale ?? 10
   const clampedMax = Math.max(currentMax, parsed + 1)
-  const finalMax = parsed + MAX_SCALE_SPAN - 1 < clampedMax ? parsed + MAX_SCALE_SPAN - 1 : clampedMax
+  const finalMax =
+    parsed + MAX_SCALE_SPAN - 1 < clampedMax ? parsed + MAX_SCALE_SPAN - 1 : clampedMax
   emitFieldChange('ratingScaleMin', parsed)
   if (finalMax !== currentMax) {
     emitFieldChange('ratingScale', finalMax)
@@ -346,7 +386,8 @@ function handleScaleMaxChange(event: Event): void {
   if (!Number.isFinite(parsed) || parsed < 1) return
   const currentMin = props.item.ratingScaleMin ?? 1
   const clampedMin = Math.min(currentMin, parsed - 1)
-  const finalMin = parsed - MAX_SCALE_SPAN + 1 > clampedMin ? parsed - MAX_SCALE_SPAN + 1 : clampedMin
+  const finalMin =
+    parsed - MAX_SCALE_SPAN + 1 > clampedMin ? parsed - MAX_SCALE_SPAN + 1 : clampedMin
   emitFieldChange('ratingScale', parsed)
   if (finalMin !== currentMin) {
     emitFieldChange('ratingScaleMin', finalMin)
@@ -416,14 +457,14 @@ function handleOutsideClick(event: MouseEvent): void {
 
 watch(
   () => props.isNew,
-  (isNew) => {
+  isNew => {
     if (isNew) {
       void nextTick(() => {
         titleRef.value?.focus()
       })
     }
   },
-  { immediate: true },
+  { immediate: true }
 )
 
 onMounted(() => {

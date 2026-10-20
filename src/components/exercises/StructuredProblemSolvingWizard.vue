@@ -1,7 +1,11 @@
 <template>
   <div class="space-y-6">
     <!-- Step indicator dots -->
-    <ExerciseStepper :labels="stepLabels" :current="currentVisualStep" @go="goToStepByIndex($event)" />
+    <ExerciseStepper
+      :labels="stepLabels"
+      :current="currentVisualStep"
+      @go="goToStepByIndex($event)"
+    />
 
     <!-- Step 1: Intro -->
     <Transition
@@ -12,20 +16,41 @@
     >
       <div v-if="currentStep === 'intro'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.structuredProblemSolving.intro.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.structuredProblemSolving.intro.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.structuredProblemSolving.intro.description') }}
           </p>
           <div class="neo-surface p-4 space-y-3">
-            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('exerciseWizards.structuredProblemSolving.intro.howItWorks') }}</p>
+            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+              {{ t('exerciseWizards.structuredProblemSolving.intro.howItWorks') }}
+            </p>
             <div class="flex items-center gap-3 text-sm text-on-surface flex-wrap">
-              <span class="exercise-pill px-3 py-1 text-xs">{{ t('exerciseWizards.structuredProblemSolving.intro.pillDefine') }}</span>
-              <AppIcon name="arrow_forward" class="text-base text-on-surface-variant flex-shrink-0" />
-              <span class="exercise-pill px-3 py-1 text-xs">{{ t('exerciseWizards.structuredProblemSolving.intro.pillBrainstorm') }}</span>
-              <AppIcon name="arrow_forward" class="text-base text-on-surface-variant flex-shrink-0" />
-              <span class="exercise-pill px-3 py-1 text-xs">{{ t('exerciseWizards.structuredProblemSolving.intro.pillEvaluate') }}</span>
-              <AppIcon name="arrow_forward" class="text-base text-on-surface-variant flex-shrink-0" />
-              <span class="exercise-pill px-3 py-1 text-xs">{{ t('exerciseWizards.structuredProblemSolving.intro.pillChoose') }}</span>
+              <span class="exercise-pill px-3 py-1 text-xs">{{
+                t('exerciseWizards.structuredProblemSolving.intro.pillDefine')
+              }}</span>
+              <AppIcon
+                name="arrow_forward"
+                class="text-base text-on-surface-variant flex-shrink-0"
+              />
+              <span class="exercise-pill px-3 py-1 text-xs">{{
+                t('exerciseWizards.structuredProblemSolving.intro.pillBrainstorm')
+              }}</span>
+              <AppIcon
+                name="arrow_forward"
+                class="text-base text-on-surface-variant flex-shrink-0"
+              />
+              <span class="exercise-pill px-3 py-1 text-xs">{{
+                t('exerciseWizards.structuredProblemSolving.intro.pillEvaluate')
+              }}</span>
+              <AppIcon
+                name="arrow_forward"
+                class="text-base text-on-surface-variant flex-shrink-0"
+              />
+              <span class="exercise-pill px-3 py-1 text-xs">{{
+                t('exerciseWizards.structuredProblemSolving.intro.pillChoose')
+              }}</span>
             </div>
             <p class="text-xs text-on-surface-variant leading-relaxed">
               {{ t('exerciseWizards.structuredProblemSolving.intro.howItWorksDescription') }}
@@ -49,7 +74,9 @@
     >
       <div v-if="currentStep === 'problem'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.structuredProblemSolving.problem.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.structuredProblemSolving.problem.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ tg('exerciseWizards.structuredProblemSolving.problem.description') }}
           </p>
@@ -62,22 +89,26 @@
           />
 
           <div class="space-y-2 pt-2">
-            <h3 class="text-sm font-semibold text-on-surface">{{ t('exerciseWizards.structuredProblemSolving.problem.emotionsTitle') }}</h3>
-          <p class="text-sm text-on-surface-variant">
-            {{ t('exerciseWizards.structuredProblemSolving.problem.emotionsDescription') }}
-          </p>
-          <EmotionSelector
-            v-model="emotionIds"
-            v-model:families="emotionFamilyIds"
-            v-model:quadrant="activeEmotionQuadrantBefore"
-            :show-selected-section="true"
-            :allow-family-only="true"
-          />
+            <h3 class="text-sm font-semibold text-on-surface">
+              {{ t('exerciseWizards.structuredProblemSolving.problem.emotionsTitle') }}
+            </h3>
+            <p class="text-sm text-on-surface-variant">
+              {{ t('exerciseWizards.structuredProblemSolving.problem.emotionsDescription') }}
+            </p>
+            <EmotionSelector
+              v-model="emotionIds"
+              v-model:families="emotionFamilyIds"
+              v-model:quadrant="activeEmotionQuadrantBefore"
+              :show-selected-section="true"
+              :allow-family-only="true"
+            />
           </div>
         </AppCard>
 
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'intro'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'intro'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton
             variant="filled"
             :disabled="!problemStatement.trim()"
@@ -98,7 +129,9 @@
     >
       <div v-if="currentStep === 'brainstorm'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.structuredProblemSolving.brainstorm.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.structuredProblemSolving.brainstorm.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.structuredProblemSolving.brainstorm.description') }}
           </p>
@@ -109,15 +142,13 @@
             <input
               v-model="newSolutionText"
               type="text"
-              :placeholder="t('exerciseWizards.structuredProblemSolving.brainstorm.solutionPlaceholder')"
+              :placeholder="
+                t('exerciseWizards.structuredProblemSolving.brainstorm.solutionPlaceholder')
+              "
               class="neo-input neo-focus flex-1 p-2.5 text-sm"
               @keyup.enter="addSolution"
             />
-            <AppButton
-              variant="tonal"
-              :disabled="!newSolutionText.trim()"
-              @click="addSolution"
-            >
+            <AppButton variant="tonal" :disabled="!newSolutionText.trim()" @click="addSolution">
               {{ t('exerciseWizards.structuredProblemSolving.brainstorm.addButton') }}
             </AppButton>
           </div>
@@ -142,7 +173,9 @@
               </button>
             </div>
           </div>
-          <p v-else class="text-xs text-on-surface-variant italic">{{ t('exerciseWizards.structuredProblemSolving.brainstorm.noSolutions') }}</p>
+          <p v-else class="text-xs text-on-surface-variant italic">
+            {{ t('exerciseWizards.structuredProblemSolving.brainstorm.noSolutions') }}
+          </p>
 
           <!-- LLM Assist: Brainstorm -->
           <div class="border-t border-neu-border/20 pt-4 space-y-3">
@@ -153,7 +186,11 @@
                 @click="handleBrainstormAssist"
               >
                 <AppIcon name="auto_awesome" class="text-base" />
-                {{ isBrainstormLoading ? t('exerciseWizards.structuredProblemSolving.brainstorm.llmLoading') : t('exerciseWizards.structuredProblemSolving.brainstorm.llmLabel') }}
+                {{
+                  isBrainstormLoading
+                    ? t('exerciseWizards.structuredProblemSolving.brainstorm.llmLoading')
+                    : t('exerciseWizards.structuredProblemSolving.brainstorm.llmLabel')
+                }}
               </AppButton>
               <ProfileContextToggle v-model="useProfileBrainstorm" />
             </div>
@@ -168,7 +205,9 @@
         </AppCard>
 
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'problem'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'problem'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton
             variant="filled"
             :disabled="solutions.length < 2"
@@ -189,7 +228,9 @@
     >
       <div v-if="currentStep === 'evaluate'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.structuredProblemSolving.evaluate.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.structuredProblemSolving.evaluate.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.structuredProblemSolving.evaluate.description') }}
           </p>
@@ -197,19 +238,16 @@
         </AppCard>
 
         <!-- Individual solution evaluation cards -->
-        <AppCard
-          v-for="(sol, solIdx) in solutions"
-          :key="sol.id"
-          padding="lg"
-          class="space-y-4"
-        >
+        <AppCard v-for="(sol, solIdx) in solutions" :key="sol.id" padding="lg" class="space-y-4">
           <h3 class="text-base font-semibold text-on-surface">
             {{ solIdx + 1 }}. {{ sol.description }}
           </h3>
 
           <!-- Pros -->
           <div class="space-y-2">
-            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('exerciseWizards.structuredProblemSolving.evaluate.pros') }}</p>
+            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+              {{ t('exerciseWizards.structuredProblemSolving.evaluate.pros') }}
+            </p>
             <div
               v-for="(pro, proIdx) in sol.pros"
               :key="`pro-${proIdx}`"
@@ -219,7 +257,9 @@
               <input
                 :value="pro"
                 type="text"
-                :placeholder="t('exerciseWizards.structuredProblemSolving.evaluate.prosPlaceholder')"
+                :placeholder="
+                  t('exerciseWizards.structuredProblemSolving.evaluate.prosPlaceholder')
+                "
                 class="neo-input neo-focus flex-1 p-2 text-sm"
                 @input="sol.pros[proIdx] = ($event.target as HTMLInputElement).value"
               />
@@ -240,7 +280,9 @@
 
           <!-- Cons -->
           <div class="space-y-2">
-            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('exerciseWizards.structuredProblemSolving.evaluate.cons') }}</p>
+            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+              {{ t('exerciseWizards.structuredProblemSolving.evaluate.cons') }}
+            </p>
             <div
               v-for="(con, conIdx) in sol.cons"
               :key="`con-${conIdx}`"
@@ -250,7 +292,9 @@
               <input
                 :value="con"
                 type="text"
-                :placeholder="t('exerciseWizards.structuredProblemSolving.evaluate.consPlaceholder')"
+                :placeholder="
+                  t('exerciseWizards.structuredProblemSolving.evaluate.consPlaceholder')
+                "
                 class="neo-input neo-focus flex-1 p-2 text-sm"
                 @input="sol.cons[conIdx] = ($event.target as HTMLInputElement).value"
               />
@@ -275,7 +319,9 @@
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                 {{ t('exerciseWizards.structuredProblemSolving.evaluate.feasibility') }}
               </p>
-              <span class="text-xs text-on-surface-variant">{{ t('exerciseWizards.structuredProblemSolving.evaluate.feasibilityDescription') }}</span>
+              <span class="text-xs text-on-surface-variant">{{
+                t('exerciseWizards.structuredProblemSolving.evaluate.feasibilityDescription')
+              }}</span>
             </div>
             <div class="flex gap-1.5">
               <button
@@ -301,7 +347,9 @@
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                 {{ t('exerciseWizards.structuredProblemSolving.evaluate.effectiveness') }}
               </p>
-              <span class="text-xs text-on-surface-variant">{{ t('exerciseWizards.structuredProblemSolving.evaluate.effectivenessDescription') }}</span>
+              <span class="text-xs text-on-surface-variant">{{
+                t('exerciseWizards.structuredProblemSolving.evaluate.effectivenessDescription')
+              }}</span>
             </div>
             <div class="flex gap-1.5">
               <button
@@ -332,7 +380,11 @@
                 @click="handleEvaluateAssist"
               >
                 <AppIcon name="auto_awesome" class="text-base" />
-                {{ isEvaluateLoading ? t('exerciseWizards.structuredProblemSolving.evaluate.llmLoading') : t('exerciseWizards.structuredProblemSolving.evaluate.llmLabel') }}
+                {{
+                  isEvaluateLoading
+                    ? t('exerciseWizards.structuredProblemSolving.evaluate.llmLoading')
+                    : t('exerciseWizards.structuredProblemSolving.evaluate.llmLabel')
+                }}
               </AppButton>
               <ProfileContextToggle v-model="useProfileEvaluate" />
             </div>
@@ -347,7 +399,9 @@
         </AppCard>
 
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'brainstorm'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'brainstorm'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton
             variant="filled"
             :disabled="!allSolutionsRated"
@@ -368,7 +422,9 @@
     >
       <div v-if="currentStep === 'choose'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.structuredProblemSolving.choose.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.structuredProblemSolving.choose.title') }}
+          </h2>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.structuredProblemSolving.choose.description') }}
           </p>
@@ -389,9 +445,7 @@
                 <div
                   class="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0"
                   :class="
-                    chosenSolutionId === sol.id
-                      ? 'border-primary bg-primary'
-                      : 'border-outline'
+                    chosenSolutionId === sol.id ? 'border-primary bg-primary' : 'border-outline'
                   "
                 >
                   <div
@@ -402,9 +456,23 @@
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-medium text-on-surface">{{ sol.description }}</p>
                   <p class="text-xs text-on-surface-variant mt-0.5">
-                    {{ t('exerciseWizards.structuredProblemSolving.choose.scoreLabel', { score: averageScore(sol).toFixed(1) }) }}
-                    &middot; {{ t('exerciseWizards.structuredProblemSolving.choose.feasibilityLabel', { rating: sol.feasibilityRating }) }}
-                    &middot; {{ t('exerciseWizards.structuredProblemSolving.choose.effectivenessLabel', { rating: sol.effectivenessRating }) }}
+                    {{
+                      t('exerciseWizards.structuredProblemSolving.choose.scoreLabel', {
+                        score: averageScore(sol).toFixed(1),
+                      })
+                    }}
+                    &middot;
+                    {{
+                      t('exerciseWizards.structuredProblemSolving.choose.feasibilityLabel', {
+                        rating: sol.feasibilityRating,
+                      })
+                    }}
+                    &middot;
+                    {{
+                      t('exerciseWizards.structuredProblemSolving.choose.effectivenessLabel', {
+                        rating: sol.effectivenessRating,
+                      })
+                    }}
                   </p>
                 </div>
               </div>
@@ -414,15 +482,21 @@
 
         <!-- Action Plan -->
         <AppCard padding="lg" class="space-y-4">
-          <h3 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.structuredProblemSolving.choose.actionPlanTitle') }}</h3>
+          <h3 class="text-base font-semibold text-on-surface">
+            {{ t('exerciseWizards.structuredProblemSolving.choose.actionPlanTitle') }}
+          </h3>
           <p class="text-sm text-on-surface-variant">
             {{ tg('exerciseWizards.structuredProblemSolving.choose.actionPlanDescription') }}
           </p>
-          <ExerciseStepWhy :text="tg('exerciseWizards.structuredProblemSolving.choose.actionPlanWhy')" />
+          <ExerciseStepWhy
+            :text="tg('exerciseWizards.structuredProblemSolving.choose.actionPlanWhy')"
+          />
           <textarea
             v-model="actionPlan"
             rows="3"
-            :placeholder="t('exerciseWizards.structuredProblemSolving.choose.actionPlanPlaceholder')"
+            :placeholder="
+              t('exerciseWizards.structuredProblemSolving.choose.actionPlanPlaceholder')
+            "
             class="neo-input neo-focus w-full p-3 text-sm resize-none"
           />
 
@@ -440,7 +514,11 @@
               <input
                 v-model="actionSteps[idx]"
                 type="text"
-                :placeholder="t('exerciseWizards.structuredProblemSolving.choose.stepPlaceholder', { n: idx + 1 })"
+                :placeholder="
+                  t('exerciseWizards.structuredProblemSolving.choose.stepPlaceholder', {
+                    n: idx + 1,
+                  })
+                "
                 class="neo-input neo-focus flex-1 p-2 text-sm"
               />
               <button
@@ -460,7 +538,9 @@
 
           <!-- Target Date -->
           <div class="space-y-1">
-            <label class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.structuredProblemSolving.choose.targetDateLabel') }}</label>
+            <label class="text-sm font-medium text-on-surface">{{
+              t('exerciseWizards.structuredProblemSolving.choose.targetDateLabel')
+            }}</label>
             <input
               v-model="targetDate"
               type="date"
@@ -470,12 +550,10 @@
         </AppCard>
 
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'evaluate'">{{ t('common.buttons.back') }}</AppButton>
-          <AppButton
-            variant="filled"
-            :disabled="!chosenSolutionId"
-            @click="currentStep = 'review'"
-          >
+          <AppButton variant="text" @click="currentStep = 'evaluate'">{{
+            t('common.buttons.back')
+          }}</AppButton>
+          <AppButton variant="filled" :disabled="!chosenSolutionId" @click="currentStep = 'review'">
             {{ t('common.buttons.next') }}
           </AppButton>
         </div>
@@ -491,11 +569,15 @@
     >
       <div v-if="currentStep === 'review'" class="space-y-4">
         <AppCard variant="raised" padding="lg" class="space-y-5">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.structuredProblemSolving.review.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.structuredProblemSolving.review.title') }}
+          </h2>
 
           <!-- Problem -->
           <div class="space-y-1">
-            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('exerciseWizards.structuredProblemSolving.review.problem') }}</p>
+            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+              {{ t('exerciseWizards.structuredProblemSolving.review.problem') }}
+            </p>
             <p class="text-sm text-on-surface">{{ problemStatement }}</p>
           </div>
 
@@ -507,10 +589,18 @@
             <p class="text-sm font-medium text-on-surface">{{ chosenSolution.description }}</p>
             <div class="flex gap-4 mt-1">
               <span class="text-xs text-on-surface-variant">
-                {{ t('exerciseWizards.structuredProblemSolving.review.feasibilityLabel', { rating: chosenSolution.feasibilityRating }) }}
+                {{
+                  t('exerciseWizards.structuredProblemSolving.review.feasibilityLabel', {
+                    rating: chosenSolution.feasibilityRating,
+                  })
+                }}
               </span>
               <span class="text-xs text-on-surface-variant">
-                {{ t('exerciseWizards.structuredProblemSolving.review.effectivenessLabel', { rating: chosenSolution.effectivenessRating }) }}
+                {{
+                  t('exerciseWizards.structuredProblemSolving.review.effectivenessLabel', {
+                    rating: chosenSolution.effectivenessRating,
+                  })
+                }}
               </span>
             </div>
           </div>
@@ -529,11 +619,7 @@
               {{ t('exerciseWizards.structuredProblemSolving.review.actionSteps') }}
             </p>
             <ol class="space-y-1 list-decimal list-inside">
-              <li
-                v-for="(s, idx) in filledActionSteps"
-                :key="idx"
-                class="text-sm text-on-surface"
-              >
+              <li v-for="(s, idx) in filledActionSteps" :key="idx" class="text-sm text-on-surface">
                 {{ s }}
               </li>
             </ol>
@@ -550,16 +636,14 @@
 
         <!-- Outcome / Completion -->
         <AppCard padding="lg" class="space-y-4">
-          <h3 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.structuredProblemSolving.review.markCompletedTitle') }}</h3>
+          <h3 class="text-base font-semibold text-on-surface">
+            {{ t('exerciseWizards.structuredProblemSolving.review.markCompletedTitle') }}
+          </h3>
           <p class="text-sm text-on-surface-variant">
             {{ tg('exerciseWizards.structuredProblemSolving.review.markCompletedDescription') }}
           </p>
           <label class="flex items-center gap-3 text-sm text-on-surface cursor-pointer">
-            <input
-              v-model="markCompleted"
-              type="checkbox"
-              class="neo-checkbox"
-            />
+            <input v-model="markCompleted" type="checkbox" class="neo-checkbox" />
             {{ t('exerciseWizards.structuredProblemSolving.review.markCompleted') }}
           </label>
           <div v-if="markCompleted" class="space-y-3">
@@ -575,7 +659,9 @@
         <!-- Emotions After -->
         <AppCard v-if="markCompleted" padding="lg" class="space-y-4">
           <div class="flex items-center gap-1.5">
-            <h3 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.structuredProblemSolving.review.emotionsAfterTitle') }}</h3>
+            <h3 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.structuredProblemSolving.review.emotionsAfterTitle') }}
+            </h3>
           </div>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.structuredProblemSolving.review.emotionsAfterDescription') }}
@@ -590,7 +676,9 @@
         </AppCard>
 
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'choose'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'choose'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton variant="filled" @click="currentStep = 'summary'">
             {{ t('common.buttons.next') }}
           </AppButton>
@@ -607,11 +695,15 @@
     >
       <div v-if="currentStep === 'summary'" class="space-y-4">
         <AppCard variant="raised" padding="lg" class="space-y-5">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.structuredProblemSolving.summary.title') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">
+            {{ t('exerciseWizards.structuredProblemSolving.summary.title') }}
+          </h2>
 
           <!-- Problem -->
           <div class="space-y-1">
-            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('exerciseWizards.structuredProblemSolving.summary.problem') }}</p>
+            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+              {{ t('exerciseWizards.structuredProblemSolving.summary.problem') }}
+            </p>
             <p class="text-sm text-on-surface">{{ problemStatement }}</p>
           </div>
 
@@ -621,11 +713,7 @@
               {{ t('exerciseWizards.structuredProblemSolving.summary.emotionsBefore') }}
             </p>
             <div class="flex flex-wrap gap-1.5">
-              <span
-                v-for="id in emotionIds"
-                :key="id"
-                class="exercise-pill px-2.5 py-0.5 text-xs"
-              >
+              <span v-for="id in emotionIds" :key="id" class="exercise-pill px-2.5 py-0.5 text-xs">
                 {{ getEmotionName(id) }}
               </span>
             </div>
@@ -634,26 +722,27 @@
           <!-- Solutions considered -->
           <div class="space-y-2">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-              {{ t('exerciseWizards.structuredProblemSolving.summary.solutionsConsidered', { count: solutions.length }) }}
+              {{
+                t('exerciseWizards.structuredProblemSolving.summary.solutionsConsidered', {
+                  count: solutions.length,
+                })
+              }}
             </p>
             <div class="space-y-1.5">
-              <div
-                v-for="sol in rankedSolutions"
-                :key="sol.id"
-                class="flex items-center gap-2"
-              >
+              <div v-for="sol in rankedSolutions" :key="sol.id" class="flex items-center gap-2">
                 <AppIcon
                   v-if="sol.id === chosenSolutionId"
                   name="check_circle"
                   class="text-base text-primary flex-shrink-0"
                 />
-                <span
-                  v-else
-                  class="w-4 h-4 flex-shrink-0"
-                />
+                <span v-else class="w-4 h-4 flex-shrink-0" />
                 <span
                   class="text-sm"
-                  :class="sol.id === chosenSolutionId ? 'font-medium text-on-surface' : 'text-on-surface-variant'"
+                  :class="
+                    sol.id === chosenSolutionId
+                      ? 'font-medium text-on-surface'
+                      : 'text-on-surface-variant'
+                  "
                 >
                   {{ sol.description }}
                   <span class="text-xs text-on-surface-variant ml-1">
@@ -684,11 +773,7 @@
               {{ t('exerciseWizards.structuredProblemSolving.summary.actionSteps') }}
             </p>
             <ol class="space-y-1 list-decimal list-inside">
-              <li
-                v-for="(s, idx) in filledActionSteps"
-                :key="idx"
-                class="text-sm text-on-surface"
-              >
+              <li v-for="(s, idx) in filledActionSteps" :key="idx" class="text-sm text-on-surface">
                 {{ s }}
               </li>
             </ol>
@@ -703,18 +788,26 @@
 
           <!-- Status -->
           <div class="space-y-1">
-            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('exerciseWizards.structuredProblemSolving.summary.status') }}</p>
+            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+              {{ t('exerciseWizards.structuredProblemSolving.summary.status') }}
+            </p>
             <span
               class="exercise-pill px-2.5 py-0.5 text-xs"
               :class="markCompleted ? 'exercise-pill--primary' : ''"
             >
-              {{ markCompleted ? t('exerciseWizards.structuredProblemSolving.summary.completed') : t('exerciseWizards.structuredProblemSolving.summary.inProgress') }}
+              {{
+                markCompleted
+                  ? t('exerciseWizards.structuredProblemSolving.summary.completed')
+                  : t('exerciseWizards.structuredProblemSolving.summary.inProgress')
+              }}
             </span>
           </div>
 
           <!-- Outcome -->
           <div v-if="markCompleted && outcome.trim()" class="space-y-1">
-            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('exerciseWizards.structuredProblemSolving.summary.outcome') }}</p>
+            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+              {{ t('exerciseWizards.structuredProblemSolving.summary.outcome') }}
+            </p>
             <p class="text-sm text-on-surface">{{ outcome }}</p>
           </div>
 
@@ -745,7 +838,11 @@
                 :key="assist"
                 class="exercise-pill px-2.5 py-0.5 text-xs"
               >
-                {{ assist === 'brainstorm' ? t('exerciseWizards.structuredProblemSolving.summary.brainstormAssist') : t('exerciseWizards.structuredProblemSolving.summary.evaluateAssist') }}
+                {{
+                  assist === 'brainstorm'
+                    ? t('exerciseWizards.structuredProblemSolving.summary.brainstormAssist')
+                    : t('exerciseWizards.structuredProblemSolving.summary.evaluateAssist')
+                }}
               </span>
             </div>
           </div>
@@ -753,7 +850,9 @@
 
         <!-- Notes (optional) -->
         <AppCard padding="lg" class="space-y-3">
-          <h3 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.structuredProblemSolving.summary.notesTitle') }}</h3>
+          <h3 class="text-base font-semibold text-on-surface">
+            {{ t('exerciseWizards.structuredProblemSolving.summary.notesTitle') }}
+          </h3>
           <textarea
             v-model="notes"
             rows="2"
@@ -763,7 +862,9 @@
         </AppCard>
 
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'review'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'review'">{{
+            t('common.buttons.back')
+          }}</AppButton>
           <AppButton variant="filled" @click="handleSave">
             {{ t('common.buttons.save') }}
           </AppButton>
@@ -871,7 +972,7 @@ function addSolution() {
 }
 
 function removeSolution(id: string) {
-  const idx = solutions.findIndex((s) => s.id === id)
+  const idx = solutions.findIndex(s => s.id === id)
   if (idx !== -1) {
     solutions.splice(idx, 1)
     if (chosenSolutionId.value === id) {
@@ -886,7 +987,7 @@ function averageScore(sol: SolutionOption): number {
 }
 
 const allSolutionsRated = computed(() => {
-  return solutions.every((s) => s.feasibilityRating > 0 && s.effectivenessRating > 0)
+  return solutions.every(s => s.feasibilityRating > 0 && s.effectivenessRating > 0)
 })
 
 const rankedSolutions = computed(() => {
@@ -895,10 +996,10 @@ const rankedSolutions = computed(() => {
 
 const chosenSolution = computed(() => {
   if (!chosenSolutionId.value) return null
-  return solutions.find((s) => s.id === chosenSolutionId.value) ?? null
+  return solutions.find(s => s.id === chosenSolutionId.value) ?? null
 })
 
-const filledActionSteps = computed(() => actionSteps.filter((s) => s.trim().length > 0))
+const filledActionSteps = computed(() => actionSteps.filter(s => s.trim().length > 0))
 
 // ─── LLM Assist: Brainstorm ─────────────────────────────────────────────────
 const isBrainstormLoading = ref(false)
@@ -912,7 +1013,7 @@ async function handleBrainstormAssist() {
   try {
     const { brainstormSolutions } = await import('@/services/cbtLLMAssists')
     const emotionNames = emotionIds.value
-      .map((id) => emotionStore.getEmotionById(id)?.name)
+      .map(id => emotionStore.getEmotionById(id)?.name)
       .filter((n): n is string => !!n)
     brainstormResponse.value = await brainstormSolutions({
       problemStatement: problemStatement.value,
@@ -922,7 +1023,10 @@ async function handleBrainstormAssist() {
     })
     llmAssistsUsed.add('brainstorm')
   } catch (err) {
-    brainstormError.value = err instanceof Error ? err.message : t('exerciseWizards.structuredProblemSolving.errors.brainstormFailed')
+    brainstormError.value =
+      err instanceof Error
+        ? err.message
+        : t('exerciseWizards.structuredProblemSolving.errors.brainstormFailed')
   } finally {
     isBrainstormLoading.value = false
   }
@@ -940,17 +1044,20 @@ async function handleEvaluateAssist() {
     const { evaluateSolutions } = await import('@/services/cbtLLMAssists')
     evaluateResponse.value = await evaluateSolutions({
       problemStatement: problemStatement.value,
-      solutions: solutions.map((s) => ({
+      solutions: solutions.map(s => ({
         description: s.description,
-        pros: s.pros.filter((p) => p.trim()),
-        cons: s.cons.filter((c) => c.trim()),
+        pros: s.pros.filter(p => p.trim()),
+        cons: s.cons.filter(c => c.trim()),
       })),
       locale: locale.value,
       useProfile: useProfileEvaluate.value,
     })
     llmAssistsUsed.add('evaluate')
   } catch (err) {
-    evaluateError.value = err instanceof Error ? err.message : t('exerciseWizards.structuredProblemSolving.errors.evaluateFailed')
+    evaluateError.value =
+      err instanceof Error
+        ? err.message
+        : t('exerciseWizards.structuredProblemSolving.errors.evaluateFailed')
   } finally {
     isEvaluateLoading.value = false
   }
@@ -967,11 +1074,11 @@ function handleSave() {
     problemStatement: problemStatement.value.trim(),
     emotionIds: [...emotionIds.value],
     emotionFamilyIds: [...emotionFamilyIds.value],
-    solutions: solutions.map((s) => ({
+    solutions: solutions.map(s => ({
       id: s.id,
       description: s.description,
-      pros: s.pros.filter((p) => p.trim()),
-      cons: s.cons.filter((c) => c.trim()),
+      pros: s.pros.filter(p => p.trim()),
+      cons: s.cons.filter(c => c.trim()),
       feasibilityRating: s.feasibilityRating,
       effectivenessRating: s.effectivenessRating,
       isChosen: s.isChosen,
@@ -982,12 +1089,14 @@ function handleSave() {
     targetDate: targetDate.value || undefined,
     status: markCompleted.value ? 'completed' : 'in-progress',
     outcome: markCompleted.value && outcome.value.trim() ? outcome.value.trim() : undefined,
-    emotionIdsAfter: markCompleted.value && emotionIdsAfter.value.length > 0
-      ? [...emotionIdsAfter.value]
-      : undefined,
-    emotionFamilyIdsAfter: markCompleted.value && emotionFamilyIdsAfter.value.length > 0
-      ? [...emotionFamilyIdsAfter.value]
-      : undefined,
+    emotionIdsAfter:
+      markCompleted.value && emotionIdsAfter.value.length > 0
+        ? [...emotionIdsAfter.value]
+        : undefined,
+    emotionFamilyIdsAfter:
+      markCompleted.value && emotionFamilyIdsAfter.value.length > 0
+        ? [...emotionFamilyIdsAfter.value]
+        : undefined,
     llmAssistUsed: llmAssistsUsed.size > 0 ? [...llmAssistsUsed] : undefined,
     notes: notes.value.trim() || undefined,
   }

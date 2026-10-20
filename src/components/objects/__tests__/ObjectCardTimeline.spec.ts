@@ -18,12 +18,19 @@ function linear(overrides: Partial<ObjectWindow> = {}): ObjectWindow {
 describe('ObjectCardTimeline', () => {
   it('draws the cloud, fills it up to today and places the today disc', () => {
     const { container, getByText } = render(ObjectCardTimeline, {
-      props: { variant: 'linear', window: linear(), start: 'Aug 2026', end: { label: 'Sep 26', hint: 'in 2 wk' } },
+      props: {
+        variant: 'linear',
+        window: linear(),
+        start: 'Aug 2026',
+        end: { label: 'Sep 26', hint: 'in 2 wk' },
+      },
     })
     expect(container.querySelector('.mg-v2-timeline__cloud')).not.toBeNull()
     const fill = container.querySelector('.mg-v2-timeline__fill') as HTMLElement
     expect(fill.style.getPropertyValue('--mg-timeline-progress')).toBe('60%')
-    expect((container.querySelector('.mg-v2-timeline__dot--today') as HTMLElement).style.left).toBe('60%')
+    expect((container.querySelector('.mg-v2-timeline__dot--today') as HTMLElement).style.left).toBe(
+      '60%'
+    )
     // The deadline is the end of the cloud itself: no separate end dot.
     expect(container.querySelectorAll('.mg-v2-timeline__dot')).toHaveLength(1)
     expect(container.querySelector('.mg-v2-timeline--overdue')).toBeNull()
@@ -68,7 +75,9 @@ describe('ObjectCardTimeline', () => {
       ],
       progress: 0.85,
     }
-    const { container, getByText } = render(ObjectCardTimeline, { props: { variant: 'years', years } })
+    const { container, getByText } = render(ObjectCardTimeline, {
+      props: { variant: 'years', years },
+    })
     const dots = container.querySelectorAll('.mg-v2-timeline__dot')
     // Three year dots plus the today disc at the sky's feathered edge.
     expect(dots).toHaveLength(4)

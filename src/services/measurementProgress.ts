@@ -1,4 +1,13 @@
-import type { Habit, KeyResult, MeasurementEntryMode, MeasurementTarget, MultiCompletionItem, PlanningCadence, Tracker, WeeklyIntention } from '@/domain/planning'
+import type {
+  Habit,
+  KeyResult,
+  MeasurementEntryMode,
+  MeasurementTarget,
+  MultiCompletionItem,
+  PlanningCadence,
+  Tracker,
+  WeeklyIntention,
+} from '@/domain/planning'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import type { DailyMeasurementEntry } from '@/domain/planningState'
 import { getPeriodRefsForDate, getPeriodType } from '@/utils/periods'
@@ -61,7 +70,7 @@ export function applyMeasurementTargetCascade(
 ): MeasureableSubject {
   const effectiveOverride =
     getPeriodType(periodRef) === 'week'
-      ? overrides.weekOverride ?? overrides.monthOverride
+      ? (overrides.weekOverride ?? overrides.monthOverride)
       : overrides.monthOverride
 
   return applyMeasurementTargetOverride(subject, effectiveOverride)
@@ -71,10 +80,10 @@ function filterEntriesForSubjectAndPeriod(
   entries: DailyMeasurementEntry[],
   subjectId: string,
   periodRef: MeasurementPeriodRef,
-  asOfDayRef?: DayRef,
+  asOfDayRef?: DayRef
 ): DailyMeasurementEntry[] {
   const periodType = getPeriodType(periodRef)
-  return entries.filter((entry) => {
+  return entries.filter(entry => {
     if (entry.subjectId !== subjectId) return false
     if (asOfDayRef !== undefined && entry.dayRef > asOfDayRef) return false
     const refs = getPeriodRefsForDate(entry.dayRef)
@@ -99,12 +108,15 @@ function lastEntryValue(entries: DailyMeasurementEntry[]): number | undefined {
     return undefined
   }
 
-  return [...entries].sort((left, right) => left.dayRef.localeCompare(right.dayRef)).at(-1)?.value ?? undefined
+  return (
+    [...entries].sort((left, right) => left.dayRef.localeCompare(right.dayRef)).at(-1)?.value ??
+    undefined
+  )
 }
 
 /** Non-archived multi-completion items, in stored order. */
 export function multiCompletionActiveItems(subject: MeasureableSubject): MultiCompletionItem[] {
-  return (subject.multiItems ?? []).filter((item) => !item.archived)
+  return (subject.multiItems ?? []).filter(item => !item.archived)
 }
 
 /**
@@ -116,7 +128,7 @@ export function multiCompletionActiveItems(subject: MeasureableSubject): MultiCo
 export function multiCompletionEffectiveThreshold(subject: MeasureableSubject): number {
   const activeWeightSum = multiCompletionActiveItems(subject).reduce(
     (sum, item) => sum + item.weight,
-    0,
+    0
   )
   const reachableMax = Math.max(activeWeightSum, 1)
   return Math.min(Math.max(subject.multiDailyThreshold ?? reachableMax, 1), reachableMax)
@@ -129,22 +141,22 @@ export function multiCompletionEffectiveThreshold(subject: MeasureableSubject): 
  */
 export function multiCompletionDayPoints(
   subject: MeasureableSubject,
-  entry: DailyMeasurementEntry,
+  entry: DailyMeasurementEntry
 ): number {
-  const weightById = new Map((subject.multiItems ?? []).map((item) => [item.id, item.weight]))
+  const weightById = new Map((subject.multiItems ?? []).map(item => [item.id, item.weight]))
   return (entry.checkedItemIds ?? []).reduce((sum, id) => sum + (weightById.get(id) ?? 0), 0)
 }
 
 export function multiCompletionDayMet(
   subject: MeasureableSubject,
-  entry: DailyMeasurementEntry,
+  entry: DailyMeasurementEntry
 ): boolean {
   return multiCompletionDayPoints(subject, entry) >= multiCompletionEffectiveThreshold(subject)
 }
 
 function computeActualValue(
   subject: MeasureableSubject,
-  entries: DailyMeasurementEntry[],
+  entries: DailyMeasurementEntry[]
 ): number | undefined {
   if (entries.length === 0) {
     return undefined
@@ -173,7 +185,7 @@ function computeActualValue(
     case 'multi-completion':
       // The aggregate is the number of MET days (daily points threshold
       // reached), not the number of entries — partial days don't count.
-      return entries.filter((entry) => multiCompletionDayMet(subject, entry)).length
+      return entries.filter(entry => multiCompletionDayMet(subject, entry)).length
   }
 }
 
@@ -197,17 +209,17 @@ function compareActualToTarget(actualValue: number, target: MeasurementTarget): 
  */
 function countQualifiedEntryDays(
   entryMode: MeasurementEntryMode,
-  entries: DailyMeasurementEntry[],
+  entries: DailyMeasurementEntry[]
 ): number {
   if (entryMode === 'counter') {
-    return entries.filter((entry) => (entry.value ?? 0) >= 1).length
+    return entries.filter(entry => (entry.value ?? 0) >= 1).length
   }
   return entries.length
 }
 
 function compareEntryDays(
   qualifiedDays: number,
-  condition: NonNullable<MeasurementTarget['entryDays']>,
+  condition: NonNullable<MeasurementTarget['entryDays']>
 ): boolean {
   return condition.operator === 'min'
     ? qualifiedDays >= condition.value
@@ -218,7 +230,7 @@ export function buildMeasurementSummary(
   subject: MeasureableSubject,
   allEntries: DailyMeasurementEntry[],
   periodRef: MeasurementPeriodRef,
-  asOfDayRef?: DayRef,
+  asOfDayRef?: DayRef
 ): MeasurementSummary {
   /*
    * Measurement contract:

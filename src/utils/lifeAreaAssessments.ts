@@ -11,39 +11,41 @@ export interface LifeAreaAssessmentHistoryEntry {
 
 export function sortLifeAreaAssessmentsByCreatedAt(
   assessments: LifeAreaAssessment[],
-  direction: 'asc' | 'desc' = 'desc',
+  direction: 'asc' | 'desc' = 'desc'
 ): LifeAreaAssessment[] {
-  const sorted = [...assessments].sort((left, right) => left.createdAt.localeCompare(right.createdAt))
+  const sorted = [...assessments].sort((left, right) =>
+    left.createdAt.localeCompare(right.createdAt)
+  )
   return direction === 'asc' ? sorted : sorted.reverse()
 }
 
 export function filterLifeAreaAssessmentsByScope(
   assessments: LifeAreaAssessment[],
-  scope: LifeAreaAssessmentScope,
+  scope: LifeAreaAssessmentScope
 ): LifeAreaAssessment[] {
-  return assessments.filter((assessment) => assessment.scope === scope)
+  return assessments.filter(assessment => assessment.scope === scope)
 }
 
 export function filterLifeAreaAssessmentsByDateRange(
   assessments: LifeAreaAssessment[],
   startDate: string,
-  endDate: string,
+  endDate: string
 ): LifeAreaAssessment[] {
   return assessments.filter(
-    (assessment) => assessment.createdAt >= startDate && assessment.createdAt <= endDate + '\uffff',
+    assessment => assessment.createdAt >= startDate && assessment.createdAt <= endDate + '\uffff'
   )
 }
 
 export function getLifeAreaAssessmentItem(
   assessment: LifeAreaAssessment | null | undefined,
-  lifeAreaId: string,
+  lifeAreaId: string
 ): LifeAreaAssessmentItem | undefined {
-  return assessment?.items.find((item) => item.lifeAreaId === lifeAreaId)
+  return assessment?.items.find(item => item.lifeAreaId === lifeAreaId)
 }
 
 export function getLatestLifeAreaAssessment(
   assessments: LifeAreaAssessment[],
-  scope?: LifeAreaAssessmentScope,
+  scope?: LifeAreaAssessmentScope
 ): LifeAreaAssessment | undefined {
   const pool = scope ? filterLifeAreaAssessmentsByScope(assessments, scope) : assessments
   return sortLifeAreaAssessmentsByCreatedAt(pool)[0]
@@ -51,10 +53,10 @@ export function getLatestLifeAreaAssessment(
 
 export function getLifeAreaAssessmentHistoryEntries(
   assessments: LifeAreaAssessment[],
-  lifeAreaId: string,
+  lifeAreaId: string
 ): LifeAreaAssessmentHistoryEntry[] {
   return sortLifeAreaAssessmentsByCreatedAt(assessments)
-    .map((assessment) => {
+    .map(assessment => {
       const item = getLifeAreaAssessmentItem(assessment, lifeAreaId)
       return item ? { assessment, item } : null
     })
@@ -63,7 +65,7 @@ export function getLifeAreaAssessmentHistoryEntries(
 
 export function getLatestLifeAreaAssessmentForLifeArea(
   assessments: LifeAreaAssessment[],
-  lifeAreaId: string,
+  lifeAreaId: string
 ): LifeAreaAssessment | undefined {
   return getLifeAreaAssessmentHistoryEntries(assessments, lifeAreaId)[0]?.assessment
 }
@@ -71,17 +73,17 @@ export function getLatestLifeAreaAssessmentForLifeArea(
 export function getPreviousLifeAreaAssessmentForLifeArea(
   assessments: LifeAreaAssessment[],
   lifeAreaId: string,
-  beforeCreatedAt: string,
+  beforeCreatedAt: string
 ): LifeAreaAssessment | undefined {
-  return getLifeAreaAssessmentHistoryEntries(assessments, lifeAreaId)
-    .find((entry) => entry.assessment.createdAt < beforeCreatedAt)
-    ?.assessment
+  return getLifeAreaAssessmentHistoryEntries(assessments, lifeAreaId).find(
+    entry => entry.assessment.createdAt < beforeCreatedAt
+  )?.assessment
 }
 
 export function getLifeAreaAssessmentDelta(
   currentAssessment: LifeAreaAssessment | null | undefined,
   previousAssessment: LifeAreaAssessment | null | undefined,
-  lifeAreaId: string,
+  lifeAreaId: string
 ): number | null {
   const currentItem = getLifeAreaAssessmentItem(currentAssessment, lifeAreaId)
   const previousItem = getLifeAreaAssessmentItem(previousAssessment, lifeAreaId)

@@ -95,12 +95,7 @@ export const RELATIONSHIP_PILL_CLASSES: Record<string, string> = {
 
 /* ----------------------- Insight tags (CBT / IFS) ------------------------- */
 
-export type InsightTag =
-  | 'core-fear'
-  | 'need'
-  | 'positive-intention'
-  | 'memory'
-  | 'belief'
+export type InsightTag = 'core-fear' | 'need' | 'positive-intention' | 'memory' | 'belief'
 
 export const INSIGHT_TAG_CLASSES: Record<InsightTag, string> = {
   'core-fear': 'bg-insight-fear-soft text-insight-fear-on',
@@ -112,12 +107,7 @@ export const INSIGHT_TAG_CLASSES: Record<InsightTag, string> = {
 
 /* ----------------- Behavioral Activation activity categories -------------- */
 
-export type ActivityCategoryKey =
-  | 'pleasure'
-  | 'mastery'
-  | 'social'
-  | 'physical'
-  | 'values-aligned'
+export type ActivityCategoryKey = 'pleasure' | 'mastery' | 'social' | 'physical' | 'values-aligned'
 
 export const ACTIVITY_CATEGORY_CLASSES: Record<
   ActivityCategoryKey,
@@ -147,17 +137,9 @@ export const ACTIVITY_CATEGORY_CLASSES: Record<
 
 /* --------------------- Exercise tab categories ---------------------------- */
 
-export type ExerciseCategory =
-  | 'self-discovery'
-  | 'cbt'
-  | 'logotherapy'
-  | 'ifs'
-  | 'micro'
+export type ExerciseCategory = 'self-discovery' | 'cbt' | 'logotherapy' | 'ifs' | 'micro'
 
-export const EXERCISE_CATEGORY_CLASSES: Record<
-  ExerciseCategory,
-  { bg: string; text: string }
-> = {
+export const EXERCISE_CATEGORY_CLASSES: Record<ExerciseCategory, { bg: string; text: string }> = {
   'self-discovery': {
     bg: 'bg-exercise-discovery-soft',
     text: 'text-exercise-discovery-on',

@@ -7,10 +7,9 @@ import { trailingWeekRefs } from '@/domain/loadStateSeries'
 
 const WEEK = '2026-W37' as WeekRef
 
-const ratingRefsByKey = Object.fromEntries(WEEKLY_RATING_KEYS.map(key => [key, ref<number | null>(null)])) as Record<
-  WeeklyRatingKey,
-  ReturnType<typeof ref<number | null>>
->
+const ratingRefsByKey = Object.fromEntries(
+  WEEKLY_RATING_KEYS.map(key => [key, ref<number | null>(null)])
+) as Record<WeeklyRatingKey, ReturnType<typeof ref<number | null>>>
 const wizard = {
   dataBundle: ref(null),
   objectComments: ref({}),
@@ -23,13 +22,21 @@ const wizard = {
   save: vi.fn(async () => undefined),
   goToStep: vi.fn(),
 }
-vi.mock('@/composables/useWeeklyReflectionWizard', () => ({ useWeeklyReflectionWizard: () => wizard }))
+vi.mock('@/composables/useWeeklyReflectionWizard', () => ({
+  useWeeklyReflectionWizard: () => wizard,
+}))
 
 const previousRefs = trailingWeekRefs(WEEK, 10).slice(0, -1)
 const listWeeklyByRefs = vi.fn(async (refs: WeekRef[]) =>
   refs
     .filter((_, i) => i !== 3) // one gap in the tail
-    .map(weekRef => ({ weekRef, physicalIntensityRating: 4, energyRating: 2, physicalCareRating: 5, promptResponses: {} })),
+    .map(weekRef => ({
+      weekRef,
+      physicalIntensityRating: 4,
+      energyRating: 2,
+      physicalCareRating: 5,
+      promptResponses: {},
+    }))
 )
 vi.mock('@/repositories/structuredReflectionDexieRepository', () => ({
   structuredReflectionDexieRepository: {
@@ -42,7 +49,10 @@ vi.mock('@/repositories/structuredReflectionDexieRepository', () => ({
 import QuietWeeklyReflection from '../QuietWeeklyReflection.vue'
 
 async function mountOnBodyStep() {
-  const wrapper = mount(QuietWeeklyReflection, { props: { weekRef: WEEK }, attachTo: document.body })
+  const wrapper = mount(QuietWeeklyReflection, {
+    props: { weekRef: WEEK },
+    attachTo: document.body,
+  })
   await flushPromises()
   await wrapper.find('.qr-arrow--next').trigger('click')
   await flushPromises()
@@ -54,7 +64,10 @@ describe('QuietWeeklyReflection · area step (load + state)', () => {
     const wrapper = await mountOnBodyStep()
     const titles = wrapper.findAll('.qr-bars .qr-axis h2').map(h => h.text())
     // the test locale is EN; PL is the user's working language
-    expect([['Load', 'State'], ['Obciążenie', 'Stan']]).toContainEqual(titles)
+    expect([
+      ['Load', 'State'],
+      ['Obciążenie', 'Stan'],
+    ]).toContainEqual(titles)
     expect(wrapper.text()).not.toMatch(/Działania|Actions/)
     expect(wrapper.find('.qr-demands').exists()).toBe(false)
     wrapper.unmount()
@@ -102,14 +115,20 @@ describe('QuietWeeklyReflection · area step (load + state)', () => {
     await loadBar.find('.qr-tagfield-editor input').setValue('sen')
     await loadBar.find('.qr-tagfield-editor input').trigger('keydown', { key: 'Enter' })
     await flushPromises()
-    expect(wizard.promptResponses.value).toMatchObject({ 'tags:body:load': 'sen', 'tags:body': 'stary tag' })
+    expect(wizard.promptResponses.value).toMatchObject({
+      'tags:body:load': 'sen',
+      'tags:body': 'stary tag',
+    })
     expect(wizard.promptResponses.value).not.toHaveProperty('tags:body:state')
 
     await stateBar.find('.qr-tagfield-toggle').trigger('click')
     await stateBar.find('.qr-tagfield-editor input').setValue('spokój')
     await stateBar.find('.qr-tagfield-editor input').trigger('keydown', { key: 'Enter' })
     await flushPromises()
-    expect(wizard.promptResponses.value).toMatchObject({ 'tags:body:load': 'sen', 'tags:body:state': 'spokój' })
+    expect(wizard.promptResponses.value).toMatchObject({
+      'tags:body:load': 'sen',
+      'tags:body:state': 'spokój',
+    })
     wizard.promptResponses.value = {}
     wrapper.unmount()
   })

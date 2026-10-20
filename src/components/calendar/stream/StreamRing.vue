@@ -27,12 +27,14 @@ const props = withDefaults(
     num: undefined,
     den: undefined,
     mean: false,
-  },
+  }
 )
 
 const dialStyle = computed(() => {
   const deg = `${(props.pct ?? 0) * 3.6}deg`
-  const fill = props.planOnly ? 'rgb(var(--stream-track, 185 205 228) / 0.30)' : 'rgb(var(--stream-bar, 86 142 210))'
+  const fill = props.planOnly
+    ? 'rgb(var(--stream-track, 185 205 228) / 0.30)'
+    : 'rgb(var(--stream-bar, 86 142 210))'
   const track = props.planOnly
     ? 'rgb(var(--stream-bar, 86 142 210) / 0.06)'
     : 'rgb(var(--stream-bar, 86 142 210) / 0.16)'
@@ -45,12 +47,16 @@ const dialStyle = computed(() => {
 
 const pctStyle = computed(() => ({
   fontSize: props.size >= 50 ? '12px' : '11px',
-  color: props.planOnly ? 'rgb(var(--stream-faint, 169 191 220))' : 'rgb(var(--stream-ink, 15 39 69))',
+  color: props.planOnly
+    ? 'rgb(var(--stream-faint, 169 191 220))'
+    : 'rgb(var(--stream-ink, 15 39 69))',
 }))
 
 const iconStyle = computed(() => ({
   fontSize: '13px',
-  color: props.planOnly ? 'rgb(var(--stream-faint, 169 191 220))' : 'rgb(var(--stream-bar, 86 142 210))',
+  color: props.planOnly
+    ? 'rgb(var(--stream-faint, 169 191 220))'
+    : 'rgb(var(--stream-bar, 86 142 210))',
 }))
 
 // Prefer a concrete tally ("2/3") when a real integer ratio exists; fall back to
@@ -75,7 +81,8 @@ const pctText = computed(() => {
         class="material-symbols-outlined stream-ring__icon"
         :style="iconStyle"
         aria-hidden="true"
-         :name="icon" />
+        :name="icon"
+      />
       <span class="stream-ring__name">{{ label }}</span>
     </div>
   </div>

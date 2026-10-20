@@ -1,27 +1,52 @@
 <template>
   <DsSurface elevation="raised-sm" class="next-day-rail">
     <!-- Day progress: a mute filament on the top edge — no label, no counter on the surface. -->
-    <span class="next-day-rail__filament" role="img" :aria-label="t('planning.today.progress', { done: doneCount, total: visibleCount })">
+    <span
+      class="next-day-rail__filament"
+      role="img"
+      :aria-label="t('planning.today.progress', { done: doneCount, total: visibleCount })"
+    >
       <i :style="{ width: `${progressPct}%` }" />
     </span>
     <header class="next-day-rail__heading">
       <span>Plan dnia</span>
       <span class="next-day-rail__tools">
-        <button v-if="inlineCharts" type="button" class="next-day-rail__tool" :title="t('planning.today.calendarPlan.expand')" :aria-label="t('planning.today.calendarPlan.expand')" @click="emit('plan-week')"><AppIcon name="edit_calendar" /></button>
+        <button
+          v-if="inlineCharts"
+          type="button"
+          class="next-day-rail__tool"
+          :title="t('planning.today.calendarPlan.expand')"
+          :aria-label="t('planning.today.calendarPlan.expand')"
+          @click="emit('plan-week')"
+        >
+          <AppIcon name="edit_calendar" />
+        </button>
         <NextDayAddMenu :groups="addGroups" @add="handleAdd" />
         <button
           type="button"
           class="next-day-rail__tool"
           :aria-pressed="collapseCompleted"
-          :title="collapseCompleted ? t('planning.today.actions.expandCompleted') : t('planning.today.actions.collapseCompleted')"
-          :aria-label="collapseCompleted ? t('planning.today.actions.expandCompleted') : t('planning.today.actions.collapseCompleted')"
+          :title="
+            collapseCompleted
+              ? t('planning.today.actions.expandCompleted')
+              : t('planning.today.actions.collapseCompleted')
+          "
+          :aria-label="
+            collapseCompleted
+              ? t('planning.today.actions.expandCompleted')
+              : t('planning.today.actions.collapseCompleted')
+          "
           @click="toggleCollapseCompleted"
         >
           <AppIcon :name="collapseCompleted ? 'unfold_more' : 'unfold_less'" />
         </button>
       </span>
     </header>
-    <DsState v-if="store.isLoading && !store.bundle" title="Ładuję dzień" body="Zbieram zaplanowane działania." />
+    <DsState
+      v-if="store.isLoading && !store.bundle"
+      title="Ładuję dzień"
+      body="Zbieram zaplanowane działania."
+    />
     <DsState
       v-else-if="store.error && !store.bundle"
       icon="error"
@@ -39,7 +64,9 @@
       />
 
       <section v-for="group in visibleGroups" :key="group.id" class="next-day-rail__group">
-        <header><span>{{ group.label }}</span></header>
+        <header>
+          <span>{{ group.label }}</span>
+        </header>
         <NextDayItemRow
           v-for="item in group.items"
           :key="item.key"
@@ -49,7 +76,12 @@
           :all-day-assignments="store.allDayAssignments"
           :is-pending="store.isPending(item.key)"
           :staged="stagedItem?.key === item.key"
-          :drag-enabled="calendarContext && !inlineCharts && canRescheduleItem(item) && !store.isPending(item.key)"
+          :drag-enabled="
+            calendarContext &&
+            !inlineCharts &&
+            canRescheduleItem(item) &&
+            !store.isPending(item.key)
+          "
           @drag-plan-start="startDrag(item, $event)"
           @drag-plan-end="endDrag"
           :lit="isRelatedToCompass(item, store.highlightKey)"
@@ -74,14 +106,29 @@
       <!-- The day's exercises (repeats, path steps and practices) as rows of the plan. -->
       <NextDayPractices :day-ref="dayRef" :collapse-completed="collapseCompleted" />
 
-      <button v-if="collapseCompleted && collapsedCount" type="button" class="next-day-rail__collapsed" @click="toggleCollapseCompleted">
-        <AppIcon name="expand_more" />{{ t('planning.today.completedCount', { n: collapsedCount }) }}
+      <button
+        v-if="collapseCompleted && collapsedCount"
+        type="button"
+        class="next-day-rail__collapsed"
+        @click="toggleCollapseCompleted"
+      >
+        <AppIcon name="expand_more" />{{
+          t('planning.today.completedCount', { n: collapsedCount })
+        }}
       </button>
 
       <section v-if="store.hiddenItems.length" class="next-day-rail__hidden">
-        <button type="button" @click="hiddenExpanded = !hiddenExpanded"><AppIcon name="visibility_off" />Ukryte ({{ store.hiddenItems.length }})<AppIcon :name="hiddenExpanded ? 'expand_less' : 'expand_more'" /></button>
+        <button type="button" @click="hiddenExpanded = !hiddenExpanded">
+          <AppIcon name="visibility_off" />Ukryte ({{ store.hiddenItems.length }})<AppIcon
+            :name="hiddenExpanded ? 'expand_less' : 'expand_more'"
+          />
+        </button>
         <div v-if="hiddenExpanded">
-          <span v-for="item in store.hiddenItems" :key="item.key"><strong>{{ itemTitle(item) }}</strong><DsButton icon-only variant="quiet" aria-label="Przywróć" @click="handleRestore(item)"><AppIcon name="undo" /></DsButton></span>
+          <span v-for="item in store.hiddenItems" :key="item.key"
+            ><strong>{{ itemTitle(item) }}</strong
+            ><DsButton icon-only variant="quiet" aria-label="Przywróć" @click="handleRestore(item)"
+              ><AppIcon name="undo" /></DsButton
+          ></span>
         </div>
       </section>
     </div>
@@ -105,7 +152,11 @@ import { useDayPlanDragMotion } from './useDayPlanDragMotion'
 
 const dragMotion = useDayPlanDragMotion()
 import type { DayRef } from '@/domain/period'
-import type { TodayAddCandidate, TodayItem, TodayMeasurementItem } from '@/services/todayViewQueries'
+import type {
+  TodayAddCandidate,
+  TodayItem,
+  TodayMeasurementItem,
+} from '@/services/todayViewQueries'
 import { getTodayViewBundleForDay } from '@/services/todayViewQueries'
 import { getObjectsLibraryFamilyForPanelType } from '@/services/objectsLibraryQueries'
 import { useTodayStore } from '@/stores/today.store'
@@ -141,58 +192,92 @@ const collapseCompleted = computed(() => preferences.todayCollapseCompleted)
 
 const itemGroups = computed(() => [
   { id: 'intentions', label: 'Intencje tygodnia', items: store.intentionItems as TodayItem[] },
-  { id: 'goals', label: 'Cele i rezultaty', items: store.goalGroupedKrItems.flatMap(group => group.items) as TodayItem[] },
+  {
+    id: 'goals',
+    label: 'Cele i rezultaty',
+    items: store.goalGroupedKrItems.flatMap(group => group.items) as TodayItem[],
+  },
   { id: 'habits', label: 'Nawyki', items: store.habitItems as TodayItem[] },
   { id: 'trackers', label: 'Trackery', items: store.trackerItems as TodayItem[] },
 ])
 const allItems = computed(() => itemGroups.value.flatMap(group => group.items))
 // Collapsing hides only finished completion-style rows; recorded numbers stay visible.
-const visibleGroups = computed(() => itemGroups.value
-  .map(group => ({ ...group, items: collapseCompleted.value ? group.items.filter(item => !isCompletedForCollapse(item)) : group.items }))
-  .filter(group => group.items.length > 0))
+const visibleGroups = computed(() =>
+  itemGroups.value
+    .map(group => ({
+      ...group,
+      items: collapseCompleted.value
+        ? group.items.filter(item => !isCompletedForCollapse(item))
+        : group.items,
+    }))
+    .filter(group => group.items.length > 0)
+)
 const visibleItems = computed(() => visibleGroups.value.flatMap(group => group.items))
-const collapsedCount = computed(() => (collapseCompleted.value ? allItems.value.filter(isCompletedForCollapse).length : 0))
+const collapsedCount = computed(() =>
+  collapseCompleted.value ? allItems.value.filter(isCompletedForCollapse).length : 0
+)
 const visibleCount = computed(() => allItems.value.length)
 const doneCount = computed(() => allItems.value.filter(hasEntry).length)
-const progressPct = computed(() => (visibleCount.value ? Math.round((doneCount.value / visibleCount.value) * 100) : 0))
+const progressPct = computed(() =>
+  visibleCount.value ? Math.round((doneCount.value / visibleCount.value) * 100) : 0
+)
 // Only an explicit click expands a row (user decision 2026-09-10: no row is
 // expanded by default); a row that gets hidden or collapsed simply drops it.
-const stagedItem = computed<TodayItem | null>(() => visibleItems.value.find(item => item.key === stageKey.value) ?? null)
+const stagedItem = computed<TodayItem | null>(
+  () => visibleItems.value.find(item => item.key === stageKey.value) ?? null
+)
 
 /** Click on the expanded row folds it back; click on another row moves the expansion. */
 function toggleStage(key: string) {
   stageKey.value = stageKey.value === key ? null : key
   if (props.calendarContext) store.selectedItemKey = stageKey.value
 }
-const ADD_GROUPS: Array<{ id: string; label: string; types: TodayAddCandidate['subjectType'][] }> = [
-  { id: 'intentions', label: 'Intencje tygodnia', types: ['weeklyIntention'] },
-  { id: 'goals', label: 'Cele i rezultaty', types: ['keyResult'] },
-  { id: 'habits', label: 'Nawyki', types: ['habit'] },
-  { id: 'trackers', label: 'Trackery', types: ['tracker'] },
-]
-const addGroups = computed<AddMenuGroup[]>(() => ADD_GROUPS
-  .map(group => ({ id: group.id, label: group.label, items: store.addCandidates.filter(candidate => group.types.includes(candidate.subjectType)) }))
-  .filter(group => group.items.length > 0))
-const deleteDialogMessage = computed(() => pendingDeleteItem.value
-  ? t('planning.today.deleteDialog.message', { title: itemTitle(pendingDeleteItem.value) })
-  : '')
+const ADD_GROUPS: Array<{ id: string; label: string; types: TodayAddCandidate['subjectType'][] }> =
+  [
+    { id: 'intentions', label: 'Intencje tygodnia', types: ['weeklyIntention'] },
+    { id: 'goals', label: 'Cele i rezultaty', types: ['keyResult'] },
+    { id: 'habits', label: 'Nawyki', types: ['habit'] },
+    { id: 'trackers', label: 'Trackery', types: ['tracker'] },
+  ]
+const addGroups = computed<AddMenuGroup[]>(() =>
+  ADD_GROUPS.map(group => ({
+    id: group.id,
+    label: group.label,
+    items: store.addCandidates.filter(candidate => group.types.includes(candidate.subjectType)),
+  })).filter(group => group.items.length > 0)
+)
+const deleteDialogMessage = computed(() =>
+  pendingDeleteItem.value
+    ? t('planning.today.deleteDialog.message', { title: itemTitle(pendingDeleteItem.value) })
+    : ''
+)
 
 onMounted(() => void loadDay())
-watch(() => props.dayRef, () => {
-  stageKey.value = null
-  if (props.calendarContext) store.selectedItemKey = null
-  void loadDay()
-})
+watch(
+  () => props.dayRef,
+  () => {
+    stageKey.value = null
+    if (props.calendarContext) store.selectedItemKey = null
+    void loadDay()
+  }
+)
 // The calendar card hands the picked day over through the store; the rail keeps
 // ownership of the write and of the undo snackbar.
-watch(() => store.pendingPick, pick => {
-  if (!pick) return
-  const consumed = store.consumePendingPick()
-  if (consumed && consumed.dayRef !== props.dayRef) void handleMove(consumed.item, consumed.dayRef)
-})
+watch(
+  () => store.pendingPick,
+  pick => {
+    if (!pick) return
+    const consumed = store.consumePendingPick()
+    if (consumed && consumed.dayRef !== props.dayRef)
+      void handleMove(consumed.item, consumed.dayRef)
+  }
+)
 
 function startDrag(item: TodayItem, event: DragEvent) {
-  if (!event.dataTransfer || !canRescheduleItem(item)) { event.preventDefault(); return }
+  if (!event.dataTransfer || !canRescheduleItem(item)) {
+    event.preventDefault()
+    return
+  }
   event.dataTransfer.setData('application/x-mindful-plan', item.key)
   event.dataTransfer.effectAllowed = 'move'
   dragMotion?.start(event)
@@ -201,7 +286,11 @@ function startDrag(item: TodayItem, event: DragEvent) {
   stageKey.value = item.key
   store.selectedItemKey = item.key
 }
-function endDrag() { dragMotion?.cancel(); store.draggingItemKey = null; store.cancelTargeting() }
+function endDrag() {
+  dragMotion?.cancel()
+  store.draggingItemKey = null
+  store.cancelTargeting()
+}
 
 async function loadDay() {
   try {
@@ -247,8 +336,15 @@ function canOpenObject(item: TodayItem): boolean {
 
 /** Rolling seven-day evidence for the staged row; the legacy calendar draws its own week chart instead. */
 function historyFor(item: TodayItem): NextObjectChartPoint[] | undefined {
-  if (item.kind !== 'measurement' || (props.calendarContext && !props.inlineCharts)) return undefined
-  return buildRecentDayChartPoints(item, props.dayRef, store.rawEntries, store.allDayAssignments, locale.value)
+  if (item.kind !== 'measurement' || (props.calendarContext && !props.inlineCharts))
+    return undefined
+  return buildRecentDayChartPoints(
+    item,
+    props.dayRef,
+    store.rawEntries,
+    store.allDayAssignments,
+    locale.value
+  )
 }
 
 function tomorrowOf(dayRef: DayRef): DayRef {
@@ -267,9 +363,12 @@ function openObject(item: TodayItem) {
 }
 
 function openPeriod(periodRef: string) {
-  if (periodRef.length === 4) void router.push({ name: 'calendar-year', params: { yearRef: periodRef } })
-  else if (periodRef.includes('-W')) void router.push({ name: 'calendar-week', params: { weekRef: periodRef } })
-  else if (periodRef.length === 7) void router.push({ name: 'calendar-month', params: { monthRef: periodRef } })
+  if (periodRef.length === 4)
+    void router.push({ name: 'calendar-year', params: { yearRef: periodRef } })
+  else if (periodRef.includes('-W'))
+    void router.push({ name: 'calendar-week', params: { weekRef: periodRef } })
+  else if (periodRef.length === 7)
+    void router.push({ name: 'calendar-month', params: { monthRef: periodRef } })
   else void router.push({ name: 'today-day', params: { dayRef: periodRef } })
 }
 
@@ -283,22 +382,40 @@ async function toggleCollapseCompleted() {
 
 async function handleToggleCompletion(item: TodayItem) {
   if (item.kind !== 'measurement') return
-  try { await store.toggleCompletion(item) } catch (error) { showError(error) }
+  try {
+    await store.toggleCompletion(item)
+  } catch (error) {
+    showError(error)
+  }
 }
 
 async function handleToggleMultiItem(item: TodayItem, multiItemId: string) {
   if (item.kind !== 'measurement') return
-  try { await store.toggleMultiItem(item, multiItemId) } catch (error) { showError(error) }
+  try {
+    await store.toggleMultiItem(item, multiItemId)
+  } catch (error) {
+    showError(error)
+  }
 }
 
 async function handleSaveEntry(item: TodayItem, value: number) {
   if (item.kind !== 'measurement') return
-  try { await store.saveEntry(item, value); snackbarRef.value?.show(t('planning.today.messages.entrySaved')) } catch (error) { showError(error) }
+  try {
+    await store.saveEntry(item, value)
+    snackbarRef.value?.show(t('planning.today.messages.entrySaved'))
+  } catch (error) {
+    showError(error)
+  }
 }
 
 async function handleClearEntry(item: TodayItem) {
   if (item.kind !== 'measurement') return
-  try { await store.clearEntry(item); snackbarRef.value?.show(t('planning.today.messages.entryCleared')) } catch (error) { showError(error) }
+  try {
+    await store.clearEntry(item)
+    snackbarRef.value?.show(t('planning.today.messages.entryCleared'))
+  } catch (error) {
+    showError(error)
+  }
 }
 
 function showUndo(message: string) {
@@ -310,15 +427,30 @@ function showUndo(message: string) {
 }
 
 async function handleUndo() {
-  try { await store.undoLast(); snackbarRef.value?.show(t('planning.today.messages.undone')) } catch (error) { showError(error) }
+  try {
+    await store.undoLast()
+    snackbarRef.value?.show(t('planning.today.messages.undone'))
+  } catch (error) {
+    showError(error)
+  }
 }
 
 async function handleHide(item: TodayItem) {
-  try { await store.hideItem(item); showUndo(t('planning.today.messages.hidden')) } catch (error) { showError(error) }
+  try {
+    await store.hideItem(item)
+    showUndo(t('planning.today.messages.hidden'))
+  } catch (error) {
+    showError(error)
+  }
 }
 
 async function handleRestore(item: TodayItem) {
-  try { await store.restoreItem(item); snackbarRef.value?.show(t('planning.today.messages.restored')) } catch (error) { showError(error) }
+  try {
+    await store.restoreItem(item)
+    snackbarRef.value?.show(t('planning.today.messages.restored'))
+  } catch (error) {
+    showError(error)
+  }
 }
 
 async function handleMoveTomorrow(item: TodayItem) {
@@ -338,15 +470,27 @@ async function handleMove(item: TodayItem, dayRef: DayRef) {
     else if (canReschedule(item)) await store.rescheduleContextItem(item, dayRef)
     else return
     showUndo(t('planning.today.messages.moved'))
-  } catch (error) { showError(error) }
+  } catch (error) {
+    showError(error)
+  }
 }
 
 async function handleAdd(candidate: TodayAddCandidate) {
-  try { await store.addToDay(candidate); showUndo(t('planning.today.messages.added')) } catch (error) { showError(error) }
+  try {
+    await store.addToDay(candidate)
+    showUndo(t('planning.today.messages.added'))
+  } catch (error) {
+    showError(error)
+  }
 }
 
 async function handleClearSchedule(item: TodayItem) {
-  try { await store.clearScheduledItem(item); snackbarRef.value?.show(t('planning.today.messages.scheduleCleared')) } catch (error) { showError(error) }
+  try {
+    await store.clearScheduledItem(item)
+    snackbarRef.value?.show(t('planning.today.messages.scheduleCleared'))
+  } catch (error) {
+    showError(error)
+  }
 }
 
 function promptDelete(item: TodayItem) {
@@ -356,7 +500,14 @@ function promptDelete(item: TodayItem) {
 
 async function handleConfirmDelete() {
   if (!pendingDeleteItem.value) return
-  try { await store.deleteItem(pendingDeleteItem.value); snackbarRef.value?.show(t('planning.today.messages.deleted')) } catch (error) { showError(error) } finally { pendingDeleteItem.value = null }
+  try {
+    await store.deleteItem(pendingDeleteItem.value)
+    snackbarRef.value?.show(t('planning.today.messages.deleted'))
+  } catch (error) {
+    showError(error)
+  } finally {
+    pendingDeleteItem.value = null
+  }
 }
 
 function showError(error: unknown) {

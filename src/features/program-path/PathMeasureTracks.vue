@@ -16,8 +16,16 @@
         <span class="sk__label">{{ track.label }}</span>
         <span class="sk__track">
           <i v-if="lastIndex(track) > 0 && span(track)" class="sk__trail" :style="span(track)!" />
-          <i v-if="first(track) !== null" class="sk__start" :style="{ left: pos(track, first(track) as number) }" />
-          <i v-if="lastIndex(track) > 0 && last(track) !== null" class="sk__now" :style="{ left: pos(track, last(track) as number) }" />
+          <i
+            v-if="first(track) !== null"
+            class="sk__start"
+            :style="{ left: pos(track, first(track) as number) }"
+          />
+          <i
+            v-if="lastIndex(track) > 0 && last(track) !== null"
+            class="sk__now"
+            :style="{ left: pos(track, last(track) as number) }"
+          />
         </span>
       </div>
     </template>
@@ -31,7 +39,12 @@
       >
         <div class="sk__tr sk__tr--head" role="row">
           <span role="columnheader">{{ instrument.title }}</span>
-          <span v-for="point in instrument.points" :key="point.key" role="columnheader" :class="{ 'is-pending': !point.attempt }">
+          <span
+            v-for="point in instrument.points"
+            :key="point.key"
+            role="columnheader"
+            :class="{ 'is-pending': !point.attempt }"
+          >
             {{ point.label }}
             <small v-if="point.date">{{ point.date }}</small>
           </span>
@@ -79,23 +92,26 @@ const assessmentStore = useAssessmentStore()
 const open = ref(false)
 
 const instrumentIds = computed<AssessmentId[]>(
-  () => (props.program.outcomeSlugs ?? (props.program.outcomeSlug ? [props.program.outcomeSlug] : [])) as AssessmentId[],
+  () =>
+    (props.program.outcomeSlugs ??
+      (props.program.outcomeSlug ? [props.program.outcomeSlug] : [])) as AssessmentId[]
 )
-onMounted(() => instrumentIds.value.forEach((id) => void assessmentStore.loadAttempts(id)))
-watch(instrumentIds, (ids) => ids.forEach((id) => void assessmentStore.loadAttempts(id)))
+onMounted(() => instrumentIds.value.forEach(id => void assessmentStore.loadAttempts(id)))
+watch(instrumentIds, ids => ids.forEach(id => void assessmentStore.loadAttempts(id)))
 
 const series = computed<OutcomeSeries[]>(() =>
   buildOutcomeSeries({
     program: props.program,
     enrollment: props.enrollment,
-    attemptsFor: (id) => assessmentStore.getAttemptsByAssessment(id),
+    attemptsFor: id => assessmentStore.getAttemptsByAssessment(id),
     t,
     locale: locale.value,
-  }),
+  })
 )
 
 const first = (track: OutcomeTrack): number | null => track.values[0] ?? null
-const lastIndex = (track: OutcomeTrack): number => track.values.reduce<number>((last, value, i) => (value === null ? last : i), -1)
+const lastIndex = (track: OutcomeTrack): number =>
+  track.values.reduce<number>((last, value, i) => (value === null ? last : i), -1)
 const last = (track: OutcomeTrack): number | null => {
   const index = lastIndex(track)
   return index >= 0 ? (track.values[index] ?? null) : null
@@ -105,7 +121,10 @@ const span = (track: OutcomeTrack) => {
   const a = first(track)
   const b = last(track)
   if (a === null || b === null) return null
-  return { left: `min(${pos(track, a)}, ${pos(track, b)})`, right: `min(calc(100% - ${pos(track, a)}), calc(100% - ${pos(track, b)}))` }
+  return {
+    left: `min(${pos(track, a)}, ${pos(track, b)})`,
+    right: `min(calc(100% - ${pos(track, a)}), calc(100% - ${pos(track, b)}))`,
+  }
 }
 const pos = (track: OutcomeTrack, value: number) =>
   `${Math.max(0, Math.min(100, ((value - track.min) / Math.max(1e-6, track.max - track.min)) * 100))}%`

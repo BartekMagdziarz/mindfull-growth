@@ -8,7 +8,9 @@
 
     <!-- Past Appreciations -->
     <div class="mt-10 space-y-4">
-      <div class="mg-v2-section-head"><h2>{{ t('exercises.views.pastAppreciations') }}</h2></div>
+      <div class="mg-v2-section-head">
+        <h2>{{ t('exercises.views.pastAppreciations') }}</h2>
+      </div>
 
       <template v-if="sortedAppreciations.length">
         <AppCard
@@ -19,15 +21,21 @@
           class="space-y-2"
         >
           <div class="flex items-center justify-between">
-            <span class="text-sm font-medium text-on-surface">{{ formatDate(entry.createdAt) }}</span>
-            <span class="exercise-pill text-xs px-2 py-0.5 bg-primary/10 text-primary font-semibold">
+            <span class="text-sm font-medium text-on-surface">{{
+              formatDate(entry.createdAt)
+            }}</span>
+            <span
+              class="exercise-pill text-xs px-2 py-0.5 bg-primary/10 text-primary font-semibold"
+            >
               {{ t('exercises.views.workloadBadge', { n: entry.workloadRating }) }}
             </span>
           </div>
 
           <!-- Linked part -->
           <div class="flex items-center gap-2">
-            <span class="text-xs text-on-surface-variant">{{ t('exercises.views.protector') }}</span>
+            <span class="text-xs text-on-surface-variant">{{
+              t('exercises.views.protector')
+            }}</span>
             <span class="text-xs font-medium text-on-surface">{{ getPartName(entry.partId) }}</span>
             <PartRoleBadge v-if="getPartRole(entry.partId)" :role="getPartRole(entry.partId)!" />
           </div>
@@ -55,7 +63,9 @@
           </p>
 
           <div v-if="entry.commitment" class="flex items-center gap-1">
-            <span class="exercise-pill text-xs px-1.5 py-0.5 bg-status-good-soft text-status-good-on">
+            <span
+              class="exercise-pill text-xs px-1.5 py-0.5 bg-status-good-soft text-status-good-on"
+            >
               {{ t('exercises.views.commitmentSet') }}
             </span>
           </div>
@@ -86,7 +96,9 @@ import { useIfsLabels } from '@/composables/useIfsLabels'
 const { t, locale } = useT()
 const route = useRoute()
 /** A path step names the protector to appreciate (`?partTag=shame-compass:attackSelf`). */
-const partTag = computed(() => (typeof route.query.partTag === 'string' ? route.query.partTag : undefined))
+const partTag = computed(() =>
+  typeof route.query.partTag === 'string' ? route.query.partTag : undefined
+)
 
 const { formatProtectorBehavior } = useIfsLabels()
 const appreciationStore = useIFSProtectorAppreciationStore()

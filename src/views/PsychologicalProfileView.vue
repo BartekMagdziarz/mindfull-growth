@@ -32,10 +32,7 @@
           <p class="text-sm text-on-surface mt-1">
             {{ formatTimestamp(displayedProfile.createdAt, locale) }}
           </p>
-          <p
-            v-if="displayedProfile.note"
-            class="text-xs text-on-surface-variant mt-1 italic"
-          >
+          <p v-if="displayedProfile.note" class="text-xs text-on-surface-variant mt-1 italic">
             {{ displayedProfile.note }}
           </p>
         </div>
@@ -51,16 +48,8 @@
         <label for="profileVersionSelect" class="block text-xs text-on-surface-variant mb-1">
           {{ t('profile.psychologicalProfile.versionPicker.label') }}
         </label>
-        <select
-          id="profileVersionSelect"
-          v-model="selectedVersionId"
-          class="mg-v2-field text-sm"
-        >
-          <option
-            v-for="p in userProfileStore.sortedProfiles"
-            :key="p.id"
-            :value="p.id"
-          >
+        <select id="profileVersionSelect" v-model="selectedVersionId" class="mg-v2-field text-sm">
+          <option v-for="p in userProfileStore.sortedProfiles" :key="p.id" :value="p.id">
             {{ formatVersionOption(p) }}
           </option>
         </select>
@@ -75,11 +64,7 @@
            version is protected by siblings, with helper text). -->
       <div class="flex flex-col items-end gap-1">
         <div class="flex items-center gap-2">
-          <AppButton
-            variant="text"
-            data-test-edit-version
-            @click="editVersion(displayedProfile)"
-          >
+          <AppButton variant="text" data-test-edit-version @click="editVersion(displayedProfile)">
             <AppIcon name="edit" class="text-base mr-1" />
             {{ t('profile.psychologicalProfile.editVersion') }}
           </AppButton>
@@ -116,7 +101,10 @@
             {{ t('profile.psychologicalProfile.profileContextDefaults.description') }}
           </p>
           <p
-            v-if="(profileContextDefault || profileContextDefaultJournal) && !userProfileStore.currentProfile"
+            v-if="
+              (profileContextDefault || profileContextDefaultJournal) &&
+              !userProfileStore.currentProfile
+            "
             class="text-xs text-on-surface-variant mt-2"
             data-test-profile-context-no-profile
           >
@@ -144,9 +132,7 @@
             <span
               class="neo-toggle-thumb"
               :style="{
-                transform: profileContextDefault
-                  ? 'translateX(1.25rem)'
-                  : 'translateX(0.1rem)',
+                transform: profileContextDefault ? 'translateX(1.25rem)' : 'translateX(0.1rem)',
               }"
             />
           </button>
@@ -242,16 +228,14 @@ const showDeleteDialog = ref(false)
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 const dismissedFoundationRefreshThisSession = ref(false)
 
-const profileContextDefault = computed(
-  () => userPreferencesStore.profileContextDefault,
-)
+const profileContextDefault = computed(() => userPreferencesStore.profileContextDefault)
 const profileContextDefaultJournal = computed(
-  () => userPreferencesStore.profileContextDefaultJournal,
+  () => userPreferencesStore.profileContextDefaultJournal
 )
 
 const foundationStatuses = computed(() => computeFoundationStatuses())
-const outdatedCount = computed(() =>
-  foundationStatuses.value.filter((status) => status.state === 'outdated').length,
+const outdatedCount = computed(
+  () => foundationStatuses.value.filter(status => status.state === 'outdated').length
 )
 
 const dismissedRecently = computed(() => {
@@ -265,25 +249,20 @@ const dismissedRecently = computed(() => {
   return days < BANNER_RESHOW_DAYS
 })
 
-const showRefreshBanner = computed(() =>
-  userProfileStore.hasProfiles &&
-  isFoundationOutdated(foundationStatuses.value) &&
-  !dismissedRecently.value &&
-  !dismissedFoundationRefreshThisSession.value,
+const showRefreshBanner = computed(
+  () =>
+    userProfileStore.hasProfiles &&
+    isFoundationOutdated(foundationStatuses.value) &&
+    !dismissedRecently.value &&
+    !dismissedFoundationRefreshThisSession.value
 )
 
 async function toggleProfileContextDefault() {
   try {
-    await userPreferencesStore.setProfileContextDefault(
-      !userPreferencesStore.profileContextDefault,
-    )
-    snackbarRef.value?.show(
-      t('profile.psychologicalProfile.profileContextDefaults.toggleFeedback'),
-    )
+    await userPreferencesStore.setProfileContextDefault(!userPreferencesStore.profileContextDefault)
+    snackbarRef.value?.show(t('profile.psychologicalProfile.profileContextDefaults.toggleFeedback'))
   } catch (err) {
-    snackbarRef.value?.show(
-      t('profile.psychologicalProfile.profileContextDefaults.toggleError'),
-    )
+    snackbarRef.value?.show(t('profile.psychologicalProfile.profileContextDefaults.toggleError'))
     console.error('Failed to toggle profile context default:', err)
   }
 }
@@ -291,15 +270,11 @@ async function toggleProfileContextDefault() {
 async function toggleProfileContextDefaultJournal() {
   try {
     await userPreferencesStore.setProfileContextDefaultJournal(
-      !userPreferencesStore.profileContextDefaultJournal,
+      !userPreferencesStore.profileContextDefaultJournal
     )
-    snackbarRef.value?.show(
-      t('profile.psychologicalProfile.profileContextDefaults.toggleFeedback'),
-    )
+    snackbarRef.value?.show(t('profile.psychologicalProfile.profileContextDefaults.toggleFeedback'))
   } catch (err) {
-    snackbarRef.value?.show(
-      t('profile.psychologicalProfile.profileContextDefaults.toggleError'),
-    )
+    snackbarRef.value?.show(t('profile.psychologicalProfile.profileContextDefaults.toggleError'))
     console.error('Failed to toggle profile context default (journal):', err)
   }
 }
@@ -312,9 +287,7 @@ onMounted(async () => {
   ])
   // If we arrived from the wizard with `?versionId=<id>`, preselect that
   // version (e.g. just-saved profile). Otherwise fall back to the current.
-  const queryId = typeof route.query.versionId === 'string'
-    ? route.query.versionId
-    : undefined
+  const queryId = typeof route.query.versionId === 'string' ? route.query.versionId : undefined
   if (queryId && userProfileStore.getById(queryId)) {
     selectedVersionId.value = queryId
   } else if (userProfileStore.currentProfile) {
@@ -325,7 +298,7 @@ onMounted(async () => {
 // Keep the selection valid when the store changes (e.g. after delete/seed).
 watch(
   () => userProfileStore.sortedProfiles,
-  (list) => {
+  list => {
     if (list.length === 0) {
       selectedVersionId.value = null
       return
@@ -334,11 +307,11 @@ watch(
       selectedVersionId.value = list[0].id
       return
     }
-    if (!list.some((p) => p.id === selectedVersionId.value)) {
+    if (!list.some(p => p.id === selectedVersionId.value)) {
       selectedVersionId.value = list[0].id
     }
   },
-  { deep: true },
+  { deep: true }
 )
 
 const displayedProfile = computed<UserProfile>(() => {
@@ -372,9 +345,7 @@ function goToFoundation() {
 async function dismissFoundationRefreshBanner() {
   dismissedFoundationRefreshThisSession.value = true
   try {
-    await userPreferencesStore.setFoundationRefreshDismissedAt(
-      new Date().toISOString(),
-    )
+    await userPreferencesStore.setFoundationRefreshDismissedAt(new Date().toISOString())
   } catch (err) {
     dismissedFoundationRefreshThisSession.value = false
     console.error('Failed to dismiss foundation refresh banner:', err)

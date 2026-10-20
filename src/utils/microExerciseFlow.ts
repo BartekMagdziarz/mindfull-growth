@@ -25,22 +25,30 @@ export function conditionList(conditions: MicroStepConditions | undefined): Micr
   return Array.isArray(conditions) ? conditions : [conditions]
 }
 
-function conditionHolds(condition: MicroStepCondition, answer: string | string[] | undefined): boolean {
+function conditionHolds(
+  condition: MicroStepCondition,
+  answer: string | string[] | undefined
+): boolean {
   if (answer === undefined) return false
   const picked = Array.isArray(answer) ? answer : [answer]
-  return picked.some((option) => condition.in.includes(option))
+  return picked.some(option => condition.in.includes(option))
 }
 
 /** Optional outright, or optional while its `optionalWhen` conditions hold. */
 export function isMicroStepOptional(step: MicroExerciseStep, answers: MicroChoiceAnswers): boolean {
   if (step.optional) return true
   const conditions = conditionList(step.optionalWhen)
-  return conditions.length > 0 && conditions.every((condition) => conditionHolds(condition, answers[condition.step]))
+  return (
+    conditions.length > 0 &&
+    conditions.every(condition => conditionHolds(condition, answers[condition.step]))
+  )
 }
 
 /** Every condition must hold (AND); no conditions = always visible. */
 export function isMicroStepVisible(step: MicroExerciseStep, answers: MicroChoiceAnswers): boolean {
-  return conditionList(step.showWhen).every((condition) => conditionHolds(condition, answers[condition.step]))
+  return conditionList(step.showWhen).every(condition =>
+    conditionHolds(condition, answers[condition.step])
+  )
 }
 
 /**
@@ -50,9 +58,9 @@ export function isMicroStepVisible(step: MicroExerciseStep, answers: MicroChoice
 export function visibleMicroSteps(
   steps: readonly MicroExerciseStep[],
   answers: MicroChoiceAnswers,
-  preset: MicroPreset = {},
+  preset: MicroPreset = {}
 ): MicroExerciseStep[] {
-  return steps.filter((step) => !(step.key in preset) && isMicroStepVisible(step, answers))
+  return steps.filter(step => !(step.key in preset) && isMicroStepVisible(step, answers))
 }
 
 /**
@@ -64,19 +72,21 @@ export function hasStepsAfter(
   steps: readonly MicroExerciseStep[],
   currentKey: string,
   answers: MicroChoiceAnswers,
-  preset: MicroPreset = {},
+  preset: MicroPreset = {}
 ): boolean {
-  const index = steps.findIndex((step) => step.key === currentKey)
-  return steps.slice(index + 1).some((step) => {
+  const index = steps.findIndex(step => step.key === currentKey)
+  return steps.slice(index + 1).some(step => {
     if (step.key in preset) return false
     if (isMicroStepVisible(step, answers)) return true
     const conditions = conditionList(step.showWhen)
     // Unanswered source with every answered condition still holding →
     // the step may yet appear.
     return (
-      conditions.some((condition) => answers[condition.step] === undefined) &&
+      conditions.some(condition => answers[condition.step] === undefined) &&
       conditions.every(
-        (condition) => answers[condition.step] === undefined || conditionHolds(condition, answers[condition.step]),
+        condition =>
+          answers[condition.step] === undefined ||
+          conditionHolds(condition, answers[condition.step])
       )
     )
   })
@@ -87,7 +97,7 @@ export function entryChoiceAnswers(entry: MicroExerciseEntry): MicroChoiceAnswer
   const answers: MicroChoiceAnswers = {}
   for (const [key, value] of Object.entries(entry.responses)) {
     if (typeof value === 'string') answers[key] = value
-    else if (Array.isArray(value) && value.every((item) => typeof item === 'string')) {
+    else if (Array.isArray(value) && value.every(item => typeof item === 'string')) {
       answers[key] = value as string[]
     }
   }
@@ -95,9 +105,14 @@ export function entryChoiceAnswers(entry: MicroExerciseEntry): MicroChoiceAnswer
 }
 
 /** Whether a saved entry satisfies `conditions` (AND) by its own answers. */
-export function entryMatches(entry: MicroExerciseEntry, conditions: MicroStepConditions | undefined): boolean {
+export function entryMatches(
+  entry: MicroExerciseEntry,
+  conditions: MicroStepConditions | undefined
+): boolean {
   const answers = entryChoiceAnswers(entry)
-  return conditionList(conditions).every((condition) => conditionHolds(condition, answers[condition.step]))
+  return conditionList(conditions).every(condition =>
+    conditionHolds(condition, answers[condition.step])
+  )
 }
 
 /** Newest first. */
@@ -112,13 +127,18 @@ function byNewest(a: MicroExerciseEntry, b: MicroExerciseEntry): number {
 export function pickableEntries(
   step: Extract<MicroExerciseStep, { type: 'entryPick' }>,
   entries: readonly MicroExerciseEntry[],
-  now: Date = new Date(),
+  now: Date = new Date()
 ): MicroExerciseEntry[] {
   const days = step.days ?? 21
   const limit = step.limit ?? 10
   const cutoff = new Date(now.getTime() - days * 24 * 60 * 60 * 1000).toISOString()
   return entries
-    .filter((entry) => entry.exerciseSlug === step.slug && entry.createdAt >= cutoff && entryMatches(entry, step.filter))
+    .filter(
+      entry =>
+        entry.exerciseSlug === step.slug &&
+        entry.createdAt >= cutoff &&
+        entryMatches(entry, step.filter)
+    )
     .sort(byNewest)
     .slice(0, limit)
 }
@@ -130,16 +150,16 @@ export function pickableEntries(
 export function resolveMicroHint(
   hint: MicroHintSource,
   entries: readonly MicroExerciseEntry[],
-  currentResponses: Record<string, MicroStepValue | undefined>,
+  currentResponses: Record<string, MicroStepValue | undefined>
 ): MicroStepValue | undefined {
   if (hint.source === 'picked') {
     const pickedId = currentResponses[hint.pickStep]
     if (typeof pickedId !== 'string' || !pickedId) return undefined
-    const picked = entries.find((entry) => entry.id === pickedId)
+    const picked = entries.find(entry => entry.id === pickedId)
     return picked?.responses[hint.step] ?? undefined
   }
   const latest = entries
-    .filter((entry) => entry.exerciseSlug === hint.slug && entryMatches(entry, hint.filter))
+    .filter(entry => entry.exerciseSlug === hint.slug && entryMatches(entry, hint.filter))
     .sort(byNewest)[0]
   return latest?.responses[hint.step] ?? undefined
 }
@@ -157,24 +177,26 @@ export function canFinishEarly(
   currentKey: string,
   answers: MicroChoiceAnswers,
   preset: MicroPreset = {},
-  earlyFinishAfter: string | readonly string[] | undefined = undefined,
+  earlyFinishAfter: string | readonly string[] | undefined = undefined
 ): boolean {
   if (!earlyFinishAfter) return false
   const visible = visibleMicroSteps(steps, answers, preset)
-  const current = visible.findIndex((step) => step.key === currentKey)
+  const current = visible.findIndex(step => step.key === currentKey)
   // One anchor per branch (Momenty: a strength step per kind); the visible one counts.
   const anchors = typeof earlyFinishAfter === 'string' ? [earlyFinishAfter] : earlyFinishAfter
-  const anchor = visible.findIndex((step) => anchors.includes(step.key))
+  const anchor = visible.findIndex(step => anchors.includes(step.key))
   if (current === -1 || anchor === -1 || current < anchor) return false
-  const index = steps.findIndex((step) => step.key === currentKey)
-  return steps.slice(index + 1).every((step) => {
+  const index = steps.findIndex(step => step.key === currentKey)
+  return steps.slice(index + 1).every(step => {
     if (step.key in preset || isMicroStepOptional(step, answers)) return true
     if (isMicroStepVisible(step, answers)) return false
     const conditions = conditionList(step.showWhen)
     const mayAppear =
-      conditions.some((condition) => answers[condition.step] === undefined) &&
+      conditions.some(condition => answers[condition.step] === undefined) &&
       conditions.every(
-        (condition) => answers[condition.step] === undefined || conditionHolds(condition, answers[condition.step]),
+        condition =>
+          answers[condition.step] === undefined ||
+          conditionHolds(condition, answers[condition.step])
       )
     return !mayAppear
   })
@@ -188,16 +210,17 @@ export function encodeMicroPrefill(prefill: Record<string, MicroStepValue>): str
   const json = JSON.stringify(prefill)
   const bytes = new TextEncoder().encode(json)
   let binary = ''
-  bytes.forEach((byte) => (binary += String.fromCharCode(byte)))
+  bytes.forEach(byte => (binary += String.fromCharCode(byte)))
   return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 }
 
 export function decodeMicroPrefill(encoded: unknown): Record<string, MicroStepValue> {
   if (typeof encoded !== 'string' || !encoded) return {}
   try {
-    const padded = encoded.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - (encoded.length % 4)) % 4)
+    const padded =
+      encoded.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - (encoded.length % 4)) % 4)
     const binary = atob(padded)
-    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0))
+    const bytes = Uint8Array.from(binary, char => char.charCodeAt(0))
     const parsed: unknown = JSON.parse(new TextDecoder().decode(bytes))
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
       ? (parsed as Record<string, MicroStepValue>)
@@ -214,7 +237,7 @@ export function decodeMicroPrefill(encoded: unknown): Record<string, MicroStepVa
  */
 export function buildAfterSavePrefill(
   rules: Record<string, MicroPrefillRule> | undefined,
-  responses: Record<string, MicroStepValue>,
+  responses: Record<string, MicroStepValue>
 ): Record<string, MicroStepValue> {
   const prefill: Record<string, MicroStepValue> = {}
   for (const [target, rule] of Object.entries(rules ?? {})) {
@@ -236,7 +259,12 @@ export function buildAfterSavePrefill(
       if (mapped) prefill[target] = mapped
     } else if (Array.isArray(value)) {
       const mapped = Array.from(
-        new Set(value.filter((item): item is string => typeof item === 'string').map(translate).filter((item): item is string => Boolean(item))),
+        new Set(
+          value
+            .filter((item): item is string => typeof item === 'string')
+            .map(translate)
+            .filter((item): item is string => Boolean(item))
+        )
       )
       if (mapped.length) prefill[target] = mapped
     }

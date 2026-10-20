@@ -1,15 +1,14 @@
 <template>
   <SummaryCard :title="t('planning.reflection.review.weeklyRecap')">
-    <p v-if="rows.length === 0" class="flex items-center gap-1.5 text-xs text-on-surface-variant/70">
+    <p
+      v-if="rows.length === 0"
+      class="flex items-center gap-1.5 text-xs text-on-surface-variant/70"
+    >
       <AppIcon name="history_edu" class="text-sm" />
       {{ t('planning.calendar.empty.weeklyRecaps') }}
     </p>
     <ul v-else class="recap-list">
-      <li
-        v-for="row in rows"
-        :key="row.weekRef"
-        class="recap-row"
-      >
+      <li v-for="row in rows" :key="row.weekRef" class="recap-row">
         <button
           type="button"
           class="recap-row__head neo-focus"
@@ -72,7 +71,7 @@ function truncate(text: string, max: number): string {
 const weekRefs = computed(() => getChildPeriods(props.monthRef) as WeekRef[])
 
 const rows = computed<RecapRow[]>(() => {
-  return weekRefs.value.map((weekRef) => {
+  return weekRefs.value.map(weekRef => {
     const bounds = getPeriodBounds(weekRef)
     const num = weekRef.slice(-2)
     const label = `W${num}: ${formatShortDay(bounds.start)} - ${formatShortDay(bounds.end)}`
@@ -111,12 +110,7 @@ function navigateToWeek(weekRef: WeekRef) {
   left: 1px;
   right: 1px;
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgb(var(--neo-border) / 0.45),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgb(var(--neo-border) / 0.45), transparent);
   pointer-events: none;
 }
 
@@ -162,7 +156,9 @@ function navigateToWeek(weekRef: WeekRef) {
   font-size: 13px;
   color: rgb(var(--neo-muted) / 0.7);
   opacity: 0;
-  transition: opacity 150ms ease, transform 150ms ease;
+  transition:
+    opacity 150ms ease,
+    transform 150ms ease;
 }
 
 .recap-row__head:hover .recap-row__chevron,

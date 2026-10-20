@@ -115,9 +115,7 @@ describe('UserSettingsDexieRepository', () => {
     })
 
     it('should not throw error when deleting non-existent key', async () => {
-      await expect(
-        userSettingsDexieRepository.delete('nonExistentKey')
-      ).resolves.not.toThrow()
+      await expect(userSettingsDexieRepository.delete('nonExistentKey')).resolves.not.toThrow()
     })
   })
 

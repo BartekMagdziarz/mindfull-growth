@@ -1,15 +1,30 @@
 <template>
   <!-- Directions of the month (priorities) and focuses of the week (top-3 items).
        Hover previews, click pins, click again clears. No captions on purpose. -->
-  <DsSurface elevation="raised-sm" class="next-day-compass" :aria-label="t('planning.today.compass.title')">
-    <header><span>{{ t('planning.today.compass.title') }}</span></header>
-    <div class="next-day-compass__tiles" role="group" :aria-label="t('planning.today.compass.title')" @mouseleave="emit('hover', null)">
+  <DsSurface
+    elevation="raised-sm"
+    class="next-day-compass"
+    :aria-label="t('planning.today.compass.title')"
+  >
+    <header>
+      <span>{{ t('planning.today.compass.title') }}</span>
+    </header>
+    <div
+      class="next-day-compass__tiles"
+      role="group"
+      :aria-label="t('planning.today.compass.title')"
+      @mouseleave="emit('hover', null)"
+    >
       <button
         v-for="tile in tiles"
         :key="tile.key"
         type="button"
         class="next-day-compass__tile"
-        :class="[`is-${tile.kind}`, tile.tone ? `tone-${tile.tone}` : '', { 'is-selected': selectedKey === tile.key }]"
+        :class="[
+          `is-${tile.kind}`,
+          tile.tone ? `tone-${tile.tone}` : '',
+          { 'is-selected': selectedKey === tile.key },
+        ]"
         :title="tile.title"
         :aria-pressed="selectedKey === tile.key"
         @click="emit('select', tile.key)"
@@ -32,7 +47,15 @@ import type { TodayItem } from '@/services/todayViewQueries'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import { DsState, DsSurface } from '@/design-system/components'
-import { dayItemIcon, dayItemTitle, objectCompassKey, priorityCompassKey, priorityFallbackIcon, priorityTone, type CompassKey } from './dayViewModels'
+import {
+  dayItemIcon,
+  dayItemTitle,
+  objectCompassKey,
+  priorityCompassKey,
+  priorityFallbackIcon,
+  priorityTone,
+  type CompassKey,
+} from './dayViewModels'
 
 interface CompassTile {
   key: CompassKey

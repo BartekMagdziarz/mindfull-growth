@@ -11,7 +11,7 @@ const { t } = useT()
 
 function toggle(id: string): void {
   const next = props.modelValue.includes(id)
-    ? props.modelValue.filter((value) => value !== id)
+    ? props.modelValue.filter(value => value !== id)
     : [...props.modelValue, id]
   emit('update:modelValue', next)
 }

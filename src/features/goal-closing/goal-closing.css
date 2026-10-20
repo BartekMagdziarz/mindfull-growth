@@ -23,7 +23,10 @@
 .gc-table-head,
 .gc-table-row {
   display: grid;
-  grid-template-columns: minmax(140px, 1.5fr) repeat(var(--gc-col-count, 1), var(--gc-col)) minmax(72px, auto);
+  grid-template-columns: minmax(140px, 1.5fr) repeat(var(--gc-col-count, 1), var(--gc-col)) minmax(
+      72px,
+      auto
+    );
   gap: var(--gc-col-gap);
   align-items: center;
 }

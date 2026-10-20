@@ -16,7 +16,7 @@ beforeEach(() => {
 })
 
 function makeArea(
-  overrides: Partial<LifeArea> & Pick<LifeArea, 'id' | 'name' | 'sortOrder'>,
+  overrides: Partial<LifeArea> & Pick<LifeArea, 'id' | 'name' | 'sortOrder'>
 ): LifeArea {
   return {
     createdAt: '2026-01-01T00:00:00.000Z',
@@ -46,7 +46,7 @@ describe('buildLifeAreasSnapshot', () => {
 
     const result = buildLifeAreasSnapshot()
 
-    expect(result.items.map((i) => i.id)).toEqual(['b', 'c', 'a'])
+    expect(result.items.map(i => i.id)).toEqual(['b', 'c', 'a'])
   })
 
   it('excludes inactive areas', () => {
@@ -137,10 +137,8 @@ describe('buildLifeAreasSnapshot', () => {
 
     const result = buildLifeAreasSnapshot()
 
-    expect(result.snapshot).toBe(result.items.map((i) => i.body).join('\n\n'))
-    expect(result.snapshot).toBe(
-      '- Career\n  Meaning: Mastery\n\n- Family\n  Meaning: Love',
-    )
+    expect(result.snapshot).toBe(result.items.map(i => i.body).join('\n\n'))
+    expect(result.snapshot).toBe('- Career\n  Meaning: Mastery\n\n- Family\n  Meaning: Love')
   })
 
   it('skips areas with empty name (data-integrity guard)', () => {
@@ -152,7 +150,7 @@ describe('buildLifeAreasSnapshot', () => {
 
     const result = buildLifeAreasSnapshot()
 
-    expect(result.items.map((i) => i.id)).toEqual(['c'])
+    expect(result.items.map(i => i.id)).toEqual(['c'])
   })
 })
 
@@ -165,10 +163,7 @@ describe('formatLifeArea (unit)', () => {
       meaning: 'Where I build mastery',
       desiredState: 'Deep, consistent flow',
       typicalRisks: 'Burnout, comparison spirals',
-      reflectionSignals: [
-        'Did I do focused work today?',
-        'Am I avoiding the hard problem?',
-      ],
+      reflectionSignals: ['Did I do focused work today?', 'Am I avoiding the hard problem?'],
     })
 
     expect(__test__.formatLifeArea(area)).toBe(
@@ -180,7 +175,7 @@ describe('formatLifeArea (unit)', () => {
         '  Reflection signals:',
         '    - Did I do focused work today?',
         '    - Am I avoiding the hard problem?',
-      ].join('\n'),
+      ].join('\n')
     )
   })
 })

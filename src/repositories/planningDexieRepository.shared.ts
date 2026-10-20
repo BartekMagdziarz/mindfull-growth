@@ -12,7 +12,7 @@ export function toPlain<T>(obj: T): T {
 }
 
 export function createPlanningRecord<T extends PersistedRecordBase>(
-  data: Omit<T, 'id' | 'createdAt' | 'updatedAt'>,
+  data: Omit<T, 'id' | 'createdAt' | 'updatedAt'>
 ): T {
   const now = new Date().toISOString()
 
@@ -26,7 +26,7 @@ export function createPlanningRecord<T extends PersistedRecordBase>(
 
 export function updatePlanningRecord<T extends PersistedRecordBase>(
   existing: T,
-  data: Omit<T, 'id' | 'createdAt' | 'updatedAt'>,
+  data: Omit<T, 'id' | 'createdAt' | 'updatedAt'>
 ): T {
   return {
     ...existing,
@@ -53,28 +53,34 @@ export function requireRecord<T>(record: T | undefined, errorMessage: string): T
 export async function retirePriorityLinksForSubject(
   priorityLinks: Table<PriorityLink, string>,
   subjectRef: PriorityLinkSubjectRef,
-  at = new Date().toISOString(),
+  at = new Date().toISOString()
 ): Promise<void> {
   const links = await priorityLinks
     .where('[subjectRef.subjectType+subjectRef.subjectId]')
     .equals([subjectRef.subjectType, subjectRef.subjectId])
     .toArray()
 
-  await Promise.all(links
-    .filter(link => link.status !== 'retired')
-    .map(link => priorityLinks.put(toPlain({
-      ...link,
-      status: 'retired' as const,
-      proposal: undefined,
-      validTo: at,
-      updatedAt: at,
-    }))))
+  await Promise.all(
+    links
+      .filter(link => link.status !== 'retired')
+      .map(link =>
+        priorityLinks.put(
+          toPlain({
+            ...link,
+            status: 'retired' as const,
+            proposal: undefined,
+            validTo: at,
+            updatedAt: at,
+          })
+        )
+      )
+  )
 }
 
 /** Hard-delete every link of a priority — used when the priority itself is deleted. */
 export async function deletePriorityLinksForPriority(
   priorityLinks: Table<PriorityLink, string>,
-  priorityId: string,
+  priorityId: string
 ): Promise<void> {
   await priorityLinks.where('priorityId').equals(priorityId).delete()
 }
@@ -83,18 +89,22 @@ export async function deletePriorityLinksForPriority(
 export async function retirePriorityLinksForPriority(
   priorityLinks: Table<PriorityLink, string>,
   priorityId: string,
-  at = new Date().toISOString(),
+  at = new Date().toISOString()
 ): Promise<void> {
   const links = await priorityLinks.where('priorityId').equals(priorityId).toArray()
 
-  await Promise.all(links.map((link) => {
-    if (link.status === 'retired') return Promise.resolve()
-    if (link.status === 'proposed') return priorityLinks.delete(link.id)
-    return priorityLinks.put(toPlain({
-      ...link,
-      status: 'retired' as const,
-      validTo: at,
-      updatedAt: at,
-    }))
-  }))
+  await Promise.all(
+    links.map(link => {
+      if (link.status === 'retired') return Promise.resolve()
+      if (link.status === 'proposed') return priorityLinks.delete(link.id)
+      return priorityLinks.put(
+        toPlain({
+          ...link,
+          status: 'retired' as const,
+          validTo: at,
+          updatedAt: at,
+        })
+      )
+    })
+  )
 }

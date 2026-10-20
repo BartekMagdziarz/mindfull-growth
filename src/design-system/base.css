@@ -1045,7 +1045,13 @@
 
 /* Nesting rule: anything that sits inside a field-tone block takes the next
    (inner) step, so the ladder never flattens or goes back to blue. */
-.mg-v2-surface--flat :where(.mg-v2-field, .mg-v2-pill, .mg-v2-badge, .mg-v2-button:not(.mg-v2-button--primary):not(.mg-v2-button--danger):not(.mg-v2-button--quiet)) {
+.mg-v2-surface--flat
+  :where(
+    .mg-v2-field,
+    .mg-v2-pill,
+    .mg-v2-badge,
+    .mg-v2-button:not(.mg-v2-button--primary):not(.mg-v2-button--danger):not(.mg-v2-button--quiet)
+  ) {
   background: var(--mg-color-paper);
 }
 
@@ -1213,7 +1219,11 @@
 
 .mg-v2-icon-board .material-symbols-outlined {
   font-size: 1.5rem;
-  font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 70, 'opsz' 24;
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 500,
+    'GRAD' 70,
+    'opsz' 24;
 }
 
 .mg-v2-icon-board--lg .material-symbols-outlined {

@@ -2,11 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { render, screen } from '@testing-library/vue'
 import { createPinia, setActivePinia } from 'pinia'
 import ProfilePreviewStep from '../ProfilePreviewStep.vue'
-import type {
-  ProfileAgeBucket,
-  ProfileDataType,
-  ProfileDateRange,
-} from '@/domain/userProfile'
+import type { ProfileAgeBucket, ProfileDataType, ProfileDateRange } from '@/domain/userProfile'
 import type { ProfilePreviewObjectHeader } from '@/services/profileScopeQueries'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 
@@ -53,8 +49,8 @@ describe('ProfilePreviewStep', () => {
 
     expect(
       screen.getByText(
-        'Heads up: the selected scope is quite large. Generation may be slow or truncated.',
-      ),
+        'Heads up: the selected scope is quite large. Generation may be slow or truncated.'
+      )
     ).toBeInTheDocument()
   })
 
@@ -73,8 +69,8 @@ describe('ProfilePreviewStep', () => {
 
     expect(
       screen.queryByText(
-        'Heads up: the selected scope is quite large. Generation may be slow or truncated.',
-      ),
+        'Heads up: the selected scope is quite large. Generation may be slow or truncated.'
+      )
     ).not.toBeInTheDocument()
   })
 
@@ -124,9 +120,7 @@ describe('ProfilePreviewStep', () => {
     })
 
     expect(
-      screen.getByText(
-        'No data in this scope. Adjust the filters or pick a wider range.',
-      ),
+      screen.getByText('No data in this scope. Adjust the filters or pick a wider range.')
     ).toBeInTheDocument()
   })
 

@@ -101,7 +101,7 @@ const showTargetTick = computed(
   () =>
     props.targetValue !== undefined &&
     props.targetValue >= props.scaleMin &&
-    props.targetValue <= props.scaleMax,
+    props.targetValue <= props.scaleMax
 )
 
 const targetTickY = computed(() => {

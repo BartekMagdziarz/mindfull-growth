@@ -42,7 +42,7 @@ describe('planning Dexie repositories', () => {
       normalizeAnnualPlanPayload({
         yearRef: parsePeriodRef('2026-05') as YearRef,
         status: 'draft',
-      }),
+      })
     ).toThrow('AnnualPlan.yearRef must be a YearRef')
   })
 
@@ -108,14 +108,16 @@ describe('planning Dexie repositories', () => {
       })
     }
 
-    await expect(priorityDexieRepository.create({
-      title: 'Sixth priority',
-      years: ['2026' as YearRef],
-      status: 'active',
-      lifeAreaIds: [],
-      progressSignals: [],
-      riskSignals: [],
-    })).rejects.toThrow('Failed to create priority in database')
+    await expect(
+      priorityDexieRepository.create({
+        title: 'Sixth priority',
+        years: ['2026' as YearRef],
+        status: 'active',
+        lifeAreaIds: [],
+        progressSignals: [],
+        riskSignals: [],
+      })
+    ).rejects.toThrow('Failed to create priority in database')
 
     await priorityDexieRepository.create({
       title: 'Draft priority',
@@ -217,7 +219,7 @@ describe('planning Dexie repositories', () => {
           value: 1,
         },
         status: 'open',
-      }),
+      })
     ).rejects.toThrow('Failed to create key result in database')
   })
 

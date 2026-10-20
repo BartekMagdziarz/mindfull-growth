@@ -1,10 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { DayRef, WeekRef } from '@/domain/period'
 import type { Habit, KeyResult, Tracker } from '@/domain/planning'
-import type {
-  DailyMeasurementEntry,
-  MeasurementSubjectType,
-} from '@/domain/planningState'
+import type { DailyMeasurementEntry, MeasurementSubjectType } from '@/domain/planningState'
 import type { MeasurementPlanningSummary } from '@/services/planningStateQueries'
 import {
   buildContextChipData,
@@ -23,7 +20,7 @@ function makeEntry(
   subjectType: MeasurementSubjectType,
   subjectId: string,
   dayRef: string,
-  value: number | null = null,
+  value: number | null = null
 ): DailyMeasurementEntry {
   return {
     id: `entry-${dayRef}-${subjectId}`,
@@ -85,7 +82,9 @@ function makeTracker(id: string, overrides: Partial<Tracker> = {}): Tracker {
   }
 }
 
-function makePlanning(overrides: Partial<MeasurementPlanningSummary> = {}): MeasurementPlanningSummary {
+function makePlanning(
+  overrides: Partial<MeasurementPlanningSummary> = {}
+): MeasurementPlanningSummary {
   return {
     scheduledDayRefs: [],
     ...overrides,
@@ -103,7 +102,16 @@ describe('buildWeeklySliceCompletionSlots — always 7 uniform weekday circles',
         cadence: 'monthly',
         target: { kind: 'count', operator: 'min', value: 30 },
       })
-      const slots = buildWeeklySliceCompletionSlots(habit, 'habit', [], [], makePlanning(), WEEK_REF, TODAY, 'en')
+      const slots = buildWeeklySliceCompletionSlots(
+        habit,
+        'habit',
+        [],
+        [],
+        makePlanning(),
+        WEEK_REF,
+        TODAY,
+        'en'
+      )
       expect(slots).toHaveLength(7)
     })
 
@@ -114,7 +122,16 @@ describe('buildWeeklySliceCompletionSlots — always 7 uniform weekday circles',
         makeEntry('habit', 'h1', '2026-03-10'), // Tue
         makeEntry('habit', 'h1', '2026-03-12'), // Thu = today
       ]
-      const slots = buildWeeklySliceCompletionSlots(habit, 'habit', entries, [], makePlanning(), WEEK_REF, TODAY, 'en')
+      const slots = buildWeeklySliceCompletionSlots(
+        habit,
+        'habit',
+        entries,
+        [],
+        makePlanning(),
+        WEEK_REF,
+        TODAY,
+        'en'
+      )
 
       expect(slots).toHaveLength(7)
       expect(slots[0].state).toBe('done') // Mon
@@ -125,12 +142,21 @@ describe('buildWeeklySliceCompletionSlots — always 7 uniform weekday circles',
       expect(slots[4].state).toBe('not-assigned') // Fri
       expect(slots[5].state).toBe('not-assigned') // Sat
       expect(slots[6].state).toBe('not-assigned') // Sun
-      expect(slots.filter((s) => s.state === 'missed')).toHaveLength(0)
+      expect(slots.filter(s => s.state === 'missed')).toHaveLength(0)
     })
 
     it('marks today without entry as today-pending (loggable)', () => {
       const habit = makeHabit('h1')
-      const slots = buildWeeklySliceCompletionSlots(habit, 'habit', [], [], makePlanning(), WEEK_REF, TODAY, 'en')
+      const slots = buildWeeklySliceCompletionSlots(
+        habit,
+        'habit',
+        [],
+        [],
+        makePlanning(),
+        WEEK_REF,
+        TODAY,
+        'en'
+      )
       expect(slots[3].state).toBe('today-pending')
     })
 
@@ -139,11 +165,23 @@ describe('buildWeeklySliceCompletionSlots — always 7 uniform weekday circles',
         cadence: 'monthly',
         target: { kind: 'count', operator: 'min', value: 15 },
       })
-      const entries = [makeEntry('habit', 'meditate', '2026-03-09'), makeEntry('habit', 'meditate', '2026-03-11')]
-      const slots = buildWeeklySliceCompletionSlots(habit, 'habit', entries, [], makePlanning(), WEEK_REF, TODAY, 'en')
+      const entries = [
+        makeEntry('habit', 'meditate', '2026-03-09'),
+        makeEntry('habit', 'meditate', '2026-03-11'),
+      ]
+      const slots = buildWeeklySliceCompletionSlots(
+        habit,
+        'habit',
+        entries,
+        [],
+        makePlanning(),
+        WEEK_REF,
+        TODAY,
+        'en'
+      )
 
       expect(slots).toHaveLength(7) // NOT 15
-      expect(slots.filter((s) => s.state === 'done').length).toBe(2)
+      expect(slots.filter(s => s.state === 'done').length).toBe(2)
     })
 
     it('weekly count target → 7 slots, entry days done, unfilled days not-assigned, never red', () => {
@@ -156,13 +194,22 @@ describe('buildWeeklySliceCompletionSlots — always 7 uniform weekday circles',
         makeEntry('habit', 'h1', '2026-03-10'), // Tue
       ]
       const planning = makePlanning({ scheduleScope: 'whole-week' })
-      const slots = buildWeeklySliceCompletionSlots(habit, 'habit', entries, [], planning, WEEK_REF, TODAY, 'en')
+      const slots = buildWeeklySliceCompletionSlots(
+        habit,
+        'habit',
+        entries,
+        [],
+        planning,
+        WEEK_REF,
+        TODAY,
+        'en'
+      )
 
       expect(slots).toHaveLength(7)
       expect(slots[0].state).toBe('done') // Mon
       expect(slots[1].state).toBe('done') // Tue
       expect(slots[3].state).toBe('today-pending') // Thu = today
-      expect(slots.filter((s) => s.state === 'missed')).toHaveLength(0)
+      expect(slots.filter(s => s.state === 'missed')).toHaveLength(0)
     })
 
     it('a count target under-hit after the week ended does NOT redden days (chip carries the deficit)', () => {
@@ -170,23 +217,44 @@ describe('buildWeeklySliceCompletionSlots — always 7 uniform weekday circles',
         cadence: 'weekly',
         target: { kind: 'count', operator: 'min', value: 5 },
       })
-      const entries = [makeEntry('habit', 'h1', '2026-03-09'), makeEntry('habit', 'h1', '2026-03-10')]
+      const entries = [
+        makeEntry('habit', 'h1', '2026-03-09'),
+        makeEntry('habit', 'h1', '2026-03-10'),
+      ]
       const planning = makePlanning({ scheduleScope: 'whole-week' })
       const POST_WEEK = '2026-03-16' as DayRef // Mon of next week — W10 ended
-      const slots = buildWeeklySliceCompletionSlots(habit, 'habit', entries, [], planning, WEEK_REF, POST_WEEK, 'en')
+      const slots = buildWeeklySliceCompletionSlots(
+        habit,
+        'habit',
+        entries,
+        [],
+        planning,
+        WEEK_REF,
+        POST_WEEK,
+        'en'
+      )
 
       expect(slots).toHaveLength(7)
-      expect(slots.filter((s) => s.state === 'done').length).toBe(2)
-      expect(slots.filter((s) => s.state === 'missed').length).toBe(0)
+      expect(slots.filter(s => s.state === 'done').length).toBe(2)
+      expect(slots.filter(s => s.state === 'missed').length).toBe(0)
     })
 
     it('weekly tracker without a target → 7 slots, never red', () => {
       const tracker = makeTracker('t1', { cadence: 'weekly', entryMode: 'completion' })
       const entries = [makeEntry('tracker', 't1', '2026-03-09')] // Mon only
-      const slots = buildWeeklySliceCompletionSlots(tracker, 'tracker', entries, [], makePlanning(), WEEK_REF, TODAY, 'en')
+      const slots = buildWeeklySliceCompletionSlots(
+        tracker,
+        'tracker',
+        entries,
+        [],
+        makePlanning(),
+        WEEK_REF,
+        TODAY,
+        'en'
+      )
       expect(slots).toHaveLength(7)
       expect(slots[0].state).toBe('done') // Mon
-      expect(slots.filter((s) => s.state === 'missed').length).toBe(0)
+      expect(slots.filter(s => s.state === 'missed').length).toBe(0)
     })
   })
 
@@ -197,7 +265,16 @@ describe('buildWeeklySliceCompletionSlots — always 7 uniform weekday circles',
         scheduleScope: 'specific-days',
         scheduledDayRefs: ['2026-03-10', '2026-03-12'] as DayRef[], // Tue (past), Thu (today)
       })
-      const slots = buildWeeklySliceCompletionSlots(habit, 'habit', [], [], planning, WEEK_REF, TODAY, 'en')
+      const slots = buildWeeklySliceCompletionSlots(
+        habit,
+        'habit',
+        [],
+        [],
+        planning,
+        WEEK_REF,
+        TODAY,
+        'en'
+      )
 
       expect(slots).toHaveLength(7)
       expect(slots[0].state).toBe('not-assigned') // Mon — not scheduled
@@ -213,7 +290,16 @@ describe('buildWeeklySliceCompletionSlots — always 7 uniform weekday circles',
         scheduleScope: 'specific-days',
         scheduledDayRefs: ['2026-03-10'] as DayRef[], // Tue (past)
       })
-      const slots = buildWeeklySliceCompletionSlots(habit, 'habit', [], [], planning, WEEK_REF, TODAY, 'en')
+      const slots = buildWeeklySliceCompletionSlots(
+        habit,
+        'habit',
+        [],
+        [],
+        planning,
+        WEEK_REF,
+        TODAY,
+        'en'
+      )
 
       expect(slots).toHaveLength(7)
       expect(slots[1].state).toBe('missed') // Tue
@@ -226,7 +312,16 @@ describe('buildWeeklySliceCompletionSlots — always 7 uniform weekday circles',
         scheduledDayRefs: ['2026-03-10'] as DayRef[],
       })
       const entries = [makeEntry('habit', 'h1', '2026-03-10')]
-      const slots = buildWeeklySliceCompletionSlots(habit, 'habit', entries, [], planning, WEEK_REF, TODAY, 'en')
+      const slots = buildWeeklySliceCompletionSlots(
+        habit,
+        'habit',
+        entries,
+        [],
+        planning,
+        WEEK_REF,
+        TODAY,
+        'en'
+      )
 
       expect(slots[1].state).toBe('done') // Tue
     })
@@ -238,7 +333,16 @@ describe('buildWeeklySliceCompletionSlots — always 7 uniform weekday circles',
         scheduledDayRefs: ['2026-03-12'] as DayRef[], // Thu = today
       })
 
-      const withoutEntry = buildWeeklySliceCompletionSlots(habit, 'habit', [], [], planning, WEEK_REF, TODAY, 'en')
+      const withoutEntry = buildWeeklySliceCompletionSlots(
+        habit,
+        'habit',
+        [],
+        [],
+        planning,
+        WEEK_REF,
+        TODAY,
+        'en'
+      )
       expect(withoutEntry[3].state).toBe('today-pending') // Thu
 
       const withEntry = buildWeeklySliceCompletionSlots(
@@ -249,7 +353,7 @@ describe('buildWeeklySliceCompletionSlots — always 7 uniform weekday circles',
         planning,
         WEEK_REF,
         TODAY,
-        'en',
+        'en'
       )
       expect(withEntry[3].state).toBe('today-done') // Thu
     })
@@ -260,10 +364,19 @@ describe('buildWeeklySliceCompletionSlots — always 7 uniform weekday circles',
         scheduleScope: 'specific-days',
         scheduledDayRefs: ['2026-03-14'] as DayRef[], // Sat (future)
       })
-      const slots = buildWeeklySliceCompletionSlots(habit, 'habit', [], [], planning, WEEK_REF, TODAY, 'en')
+      const slots = buildWeeklySliceCompletionSlots(
+        habit,
+        'habit',
+        [],
+        [],
+        planning,
+        WEEK_REF,
+        TODAY,
+        'en'
+      )
 
       expect(slots[5].state).toBe('future') // Sat
-      expect(slots.filter((s) => s.state === 'missed')).toHaveLength(0)
+      expect(slots.filter(s => s.state === 'missed')).toHaveLength(0)
     })
   })
 })
@@ -479,8 +592,18 @@ describe('buildMonthlyContextFooter', () => {
         makeEntry('habit', 'h1', '2026-03-25'),
       ]
 
-      const w10 = buildMonthlyContextFooter(habit, entries, '2026-W10' as WeekRef, '2026-03-15' as DayRef)
-      const w11 = buildMonthlyContextFooter(habit, entries, '2026-W11' as WeekRef, '2026-03-22' as DayRef)
+      const w10 = buildMonthlyContextFooter(
+        habit,
+        entries,
+        '2026-W10' as WeekRef,
+        '2026-03-15' as DayRef
+      )
+      const w11 = buildMonthlyContextFooter(
+        habit,
+        entries,
+        '2026-W11' as WeekRef,
+        '2026-03-22' as DayRef
+      )
 
       // W10 cutoff = 2026-03-15: three entries (3, 9, 12) included; 18, 25 excluded.
       expect(w10!.current).toBe(3)
@@ -498,8 +621,18 @@ describe('buildMonthlyContextFooter', () => {
         makeEntry('tracker', 't1', '2026-03-22', 1),
       ]
 
-      const w10 = buildMonthlyContextFooter(tracker, entries, '2026-W10' as WeekRef, '2026-03-15' as DayRef)
-      const w11 = buildMonthlyContextFooter(tracker, entries, '2026-W11' as WeekRef, '2026-03-22' as DayRef)
+      const w10 = buildMonthlyContextFooter(
+        tracker,
+        entries,
+        '2026-W10' as WeekRef,
+        '2026-03-15' as DayRef
+      )
+      const w11 = buildMonthlyContextFooter(
+        tracker,
+        entries,
+        '2026-W11' as WeekRef,
+        '2026-03-22' as DayRef
+      )
 
       // W10 cutoff: avg of [5, 3] = 4
       expect(w10!.current).toBe(4)
@@ -539,7 +672,7 @@ describe('buildMonthlyContextFooter', () => {
       const weekSummary = buildMeasurementSummary(
         applyMeasurementTargetOverride(habit, { kind: 'count', operator: 'min', value: 3 }),
         entries,
-        '2026-W10' as WeekRef,
+        '2026-W10' as WeekRef
       )
 
       const chip = buildContextChipData(habit, weekSummary)
@@ -585,11 +718,11 @@ describe('buildMultiCompletionStackData', () => {
       makePlanning(),
       WEEK_REF,
       TODAY,
-      'pl',
+      'pl'
     )
 
     expect(data.slots).toHaveLength(7)
-    expect(data.rows.map((row) => row.id)).toEqual(['wake', 'meditate', 'train'])
+    expect(data.rows.map(row => row.id)).toEqual(['wake', 'meditate', 'train'])
     expect(data.threshold).toBe(4)
 
     const monday = data.slots[0]
@@ -623,10 +756,10 @@ describe('buildMultiCompletionStackData', () => {
       makePlanning(),
       WEEK_REF,
       TODAY,
-      'pl',
+      'pl'
     )
 
-    expect(data.rows.map((row) => row.id)).toEqual(['wake', 'meditate', 'train'])
+    expect(data.rows.map(row => row.id)).toEqual(['wake', 'meditate', 'train'])
     expect(data.rows[2].archived).toBe(true)
     // Threshold follows ACTIVE items only (wake + meditate).
     expect(data.threshold).toBe(2)

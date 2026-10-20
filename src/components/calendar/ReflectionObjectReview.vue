@@ -22,7 +22,11 @@
           >
             <AppIcon name="star" />
           </span>
-          <span v-if="hasComment(item.key)" class="review-item__has-comment" :title="t('planning.reflection.review.hasComment')">
+          <span
+            v-if="hasComment(item.key)"
+            class="review-item__has-comment"
+            :title="t('planning.reflection.review.hasComment')"
+          >
             <AppIcon name="comment" />
           </span>
           <WeekObjectTile
@@ -82,7 +86,7 @@ const { t } = useT()
 
 // Objects with an existing comment start expanded so the user sees them.
 const expanded = ref<Set<string>>(
-  new Set(Object.keys(comments.value).filter((key) => (comments.value[key] ?? '').trim().length > 0)),
+  new Set(Object.keys(comments.value).filter(key => (comments.value[key] ?? '').trim().length > 0))
 )
 
 function hasComment(key: string): boolean {

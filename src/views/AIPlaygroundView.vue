@@ -48,11 +48,7 @@
 
           <label class="space-y-2">
             <span class="field-label">{{ t('aiPlayground.model') }}</span>
-            <input
-              v-model="model"
-              class="neo-input w-full px-4 py-3"
-              :disabled="isRunning"
-            />
+            <input v-model="model" class="neo-input w-full px-4 py-3" :disabled="isRunning" />
           </label>
 
           <label class="space-y-2">
@@ -102,11 +98,13 @@
         <div class="flex flex-wrap gap-3">
           <AppButton :disabled="!canRun" @click="runTest">
             <AppIcon name="play_arrow" class="text-lg" />
-            {{ isRunning
-              ? t('aiPlayground.running')
-              : hasRun
-                ? t('aiPlayground.runAgain')
-                : t('aiPlayground.run') }}
+            {{
+              isRunning
+                ? t('aiPlayground.running')
+                : hasRun
+                  ? t('aiPlayground.runAgain')
+                  : t('aiPlayground.run')
+            }}
           </AppButton>
           <AppButton
             variant="text"
@@ -144,9 +142,7 @@
               {{ response }}<span v-if="isRunning" class="streaming-cursor"></span>
             </p>
             <p v-else class="text-on-surface-variant">
-              {{ isRunning
-                ? t('aiPlayground.waiting')
-                : t('aiPlayground.noResponse') }}
+              {{ isRunning ? t('aiPlayground.waiting') : t('aiPlayground.noResponse') }}
             </p>
           </div>
         </AppCard>
@@ -175,7 +171,11 @@
               {{ t('aiPlayground.tokens') }}
             </h2>
             <dl class="grid grid-cols-2 gap-3">
-              <div v-for="metric in tokenMetrics" :key="metric.label" class="neo-inset rounded-xl p-3">
+              <div
+                v-for="metric in tokenMetrics"
+                :key="metric.label"
+                class="neo-inset rounded-xl p-3"
+              >
                 <dt class="text-xs text-on-surface-variant">{{ metric.label }}</dt>
                 <dd class="mt-1 text-lg font-semibold text-on-surface">
                   {{ metric.value }}
@@ -205,7 +205,10 @@
               <summary class="cursor-pointer text-lg font-semibold text-on-surface">
                 {{ t('aiPlayground.rawMetadata') }}
               </summary>
-              <pre class="mt-4 max-h-72 overflow-auto whitespace-pre-wrap break-all rounded-xl bg-section p-3 text-xs text-on-surface-variant">{{ rawMetadata }}</pre>
+              <pre
+                class="mt-4 max-h-72 overflow-auto whitespace-pre-wrap break-all rounded-xl bg-section p-3 text-xs text-on-surface-variant"
+                >{{ rawMetadata }}</pre
+              >
             </details>
           </AppCard>
         </div>
@@ -233,10 +236,18 @@
                 <tr v-for="run in runs" :key="run.id" class="border-t border-outline/20">
                   <td class="py-3 pr-4 font-mono">{{ run.id }}</td>
                   <td class="py-3 pr-4">{{ run.reasoningEffort }}</td>
-                  <td class="py-3 pr-4 font-mono">{{ formatDuration(run.diagnostics.timing.firstContentMs) }}</td>
-                  <td class="py-3 pr-4 font-mono">{{ formatDuration(run.diagnostics.timing.reasoningDurationMs) }}</td>
-                  <td class="py-3 pr-4 font-mono">{{ formatDuration(run.diagnostics.timing.generationMs) }}</td>
-                  <td class="py-3 font-mono">{{ formatDuration(run.diagnostics.timing.totalMs) }}</td>
+                  <td class="py-3 pr-4 font-mono">
+                    {{ formatDuration(run.diagnostics.timing.firstContentMs) }}
+                  </td>
+                  <td class="py-3 pr-4 font-mono">
+                    {{ formatDuration(run.diagnostics.timing.reasoningDurationMs) }}
+                  </td>
+                  <td class="py-3 pr-4 font-mono">
+                    {{ formatDuration(run.diagnostics.timing.generationMs) }}
+                  </td>
+                  <td class="py-3 font-mono">
+                    {{ formatDuration(run.diagnostics.timing.totalMs) }}
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -298,30 +309,28 @@ const canRun = computed(() => {
 
 const reasoningControlHint = computed(() => {
   const isGemma4 =
-    settings.value?.provider === 'ollama' &&
-    model.value.trim().toLowerCase().startsWith('gemma4')
+    settings.value?.provider === 'ollama' && model.value.trim().toLowerCase().startsWith('gemma4')
 
-  return isGemma4
-    ? t('aiPlayground.gemma4ReasoningHint')
-    : t('aiPlayground.reasoningEffortHint')
+  return isGemma4 ? t('aiPlayground.gemma4ReasoningHint') : t('aiPlayground.reasoningEffortHint')
 })
 
 const timingMetrics = computed(() => [
   { label: t('aiPlayground.connection'), value: diagnostics.value?.timing.connectionMs },
   { label: t('aiPlayground.firstChunk'), value: diagnostics.value?.timing.firstChunkMs },
   { label: t('aiPlayground.reasoningStart'), value: diagnostics.value?.timing.reasoningStartMs },
-  { label: t('aiPlayground.reasoningDuration'), value: diagnostics.value?.timing.reasoningDurationMs },
+  {
+    label: t('aiPlayground.reasoningDuration'),
+    value: diagnostics.value?.timing.reasoningDurationMs,
+  },
   { label: t('aiPlayground.firstContent'), value: diagnostics.value?.timing.firstContentMs },
   { label: t('aiPlayground.generation'), value: diagnostics.value?.timing.generationMs },
   { label: t('aiPlayground.total'), value: diagnostics.value?.timing.totalMs },
 ])
 
 const reasoningTokens = computed(
-  () => diagnostics.value?.usage?.completion_tokens_details?.reasoning_tokens,
+  () => diagnostics.value?.usage?.completion_tokens_details?.reasoning_tokens
 )
-const completionTokens = computed(
-  () => diagnostics.value?.usage?.completion_tokens,
-)
+const completionTokens = computed(() => diagnostics.value?.usage?.completion_tokens)
 const answerTokens = computed(() => {
   if (completionTokens.value === undefined) return undefined
   return Math.max(0, completionTokens.value - (reasoningTokens.value ?? 0))
@@ -351,9 +360,10 @@ const tokenMetrics = computed(() => [
   },
   {
     label: t('aiPlayground.speed'),
-    value: answerSpeed.value === undefined
-      ? t('aiPlayground.notReported')
-      : `${answerSpeed.value.toFixed(1)} tok/s`,
+    value:
+      answerSpeed.value === undefined
+        ? t('aiPlayground.notReported')
+        : `${answerSpeed.value.toFixed(1)} tok/s`,
   },
 ])
 
@@ -386,8 +396,8 @@ const rawMetadata = computed(() =>
       rawMetadata: diagnostics.value?.rawMetadata,
     },
     null,
-    2,
-  ),
+    2
+  )
 )
 
 function formatDuration(value?: number): string {
@@ -417,14 +427,14 @@ async function runTest() {
         reasoningEffort: reasoningEffort.value,
         maxTokens: maxTokens.value,
         temperature: temperature.value,
-        onToken: (token) => {
+        onToken: token => {
           response.value += token
         },
         onReasoning: () => undefined,
-        onDiagnostics: (nextDiagnostics) => {
+        onDiagnostics: nextDiagnostics => {
           diagnostics.value = nextDiagnostics
         },
-      },
+      }
     )
 
     if (diagnostics.value) {
@@ -436,8 +446,7 @@ async function runTest() {
       runs.value = runs.value.slice(0, 10)
     }
   } catch (runError) {
-    error.value =
-      runError instanceof Error ? runError.message : String(runError)
+    error.value = runError instanceof Error ? runError.message : String(runError)
   } finally {
     isRunning.value = false
   }
@@ -461,8 +470,7 @@ onMounted(async () => {
     model.value = settings.value.model
     reasoningEffort.value = settings.value.reasoningEffort ?? 'low'
   } catch (settingsError) {
-    error.value =
-      settingsError instanceof Error ? settingsError.message : String(settingsError)
+    error.value = settingsError instanceof Error ? settingsError.message : String(settingsError)
   }
 })
 </script>

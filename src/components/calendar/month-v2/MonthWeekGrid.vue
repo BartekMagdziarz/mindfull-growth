@@ -28,7 +28,8 @@
               v-if="week.isBoundary"
               class="month-grid__week-marker"
               :title="t('planning.calendar.planner.matrix.boundaryHint')"
-            >◦</span>
+              >◦</span
+            >
             <span v-if="week.phase === 'current'" class="month-grid__week-badge">
               {{ t('planning.calendar.monthV2.currentWeek') }}
             </span>
@@ -43,7 +44,11 @@
             role="img"
             :aria-label="matrixTitle(week)"
           >
-            <span v-for="row in week.reflectionMatrix" :key="row.areaKey" class="month-grid__matrix-row">
+            <span
+              v-for="row in week.reflectionMatrix"
+              :key="row.areaKey"
+              class="month-grid__matrix-row"
+            >
               <span
                 v-for="cell in row.cells"
                 :key="cell.section"
@@ -52,7 +57,11 @@
               />
             </span>
           </span>
-          <span v-else class="month-grid__matrix-empty" :title="t('planning.calendar.monthV2.noReflection')">
+          <span
+            v-else
+            class="month-grid__matrix-empty"
+            :title="t('planning.calendar.monthV2.noReflection')"
+          >
             —
           </span>
         </button>
@@ -77,7 +86,11 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import type { WeekRef } from '@/domain/period'
-import type { MonthV2Section, MonthV2SectionKey, MonthV2WeekColumn } from '@/services/monthV2Overview'
+import type {
+  MonthV2Section,
+  MonthV2SectionKey,
+  MonthV2WeekColumn,
+} from '@/services/monthV2Overview'
 import { useT } from '@/composables/useT'
 import MonthObjectSection from './MonthObjectSection.vue'
 import type { MonthChartMode, MonthDensity } from './monthV2Types'
@@ -161,10 +174,7 @@ function weekRange(week: MonthV2WeekColumn): string {
 function matrixTitle(week: MonthV2WeekColumn): string {
   if (!week.reflectionMatrix) return ''
   return week.reflectionMatrix
-    .map(
-      (row) =>
-        `${row.areaKey}: ${row.cells.map((cell) => cell.rating ?? '—').join(' / ')}`
-    )
+    .map(row => `${row.areaKey}: ${row.cells.map(cell => cell.rating ?? '—').join(' / ')}`)
     .join('\n')
 }
 </script>
@@ -202,11 +212,7 @@ function matrixTitle(week: MonthV2WeekColumn): string {
 
 .month-grid__week {
   align-items: center;
-  background: linear-gradient(
-    145deg,
-    rgb(var(--neo-surface-top)),
-    rgb(var(--neo-surface-bottom))
-  );
+  background: linear-gradient(145deg, rgb(var(--neo-surface-top)), rgb(var(--neo-surface-bottom)));
   border: none;
   border-radius: 16px;
   box-shadow:
@@ -222,7 +228,9 @@ function matrixTitle(week: MonthV2WeekColumn): string {
   min-height: 74px;
   min-width: 0;
   padding: 8px 6px;
-  transition: box-shadow 0.15s ease, transform 0.15s ease;
+  transition:
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
 }
 
 .month-grid--compact .month-grid__week {

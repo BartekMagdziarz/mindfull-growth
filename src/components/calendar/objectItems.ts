@@ -24,12 +24,10 @@ import type { MonthCadencedPlanningItem } from '@/services/planningStateQueries'
 /** Flat list of every object active during the reflection week (KR→habit→tracker). */
 export function buildWeekObjectItems(reflection: WeekReflectionBundle): WeekObjectItem[] {
   const items: WeekObjectItem[] = []
-  const goalMap = new Map(reflection.relevant.goalItems.map((item) => [item.goal.id, item.goal]))
+  const goalMap = new Map(reflection.relevant.goalItems.map(item => [item.goal.id, item.goal]))
 
-  const krItems = reflection.relevant.cadencedItems.filter(
-    (item) => item.subjectType === 'keyResult',
-  )
-  const habitItems = reflection.relevant.cadencedItems.filter((item) => item.subjectType === 'habit')
+  const krItems = reflection.relevant.cadencedItems.filter(item => item.subjectType === 'keyResult')
+  const habitItems = reflection.relevant.cadencedItems.filter(item => item.subjectType === 'habit')
   const trackerItems = reflection.relevant.trackerItems
 
   const krsByGoal = new Map<string, WeekCadencedReflectionItem[]>()
@@ -97,8 +95,8 @@ export function extractWeekIntentions(reflection: WeekReflectionBundle): WeeklyI
   // the guard only excludes trackers, so weeklyIntention items ride along too.
   const items: WeekMeasurementReflectionItem[] = reflection.relevant.cadencedItems
   return items
-    .filter((item) => item.subjectType === 'weeklyIntention')
-    .map((item) => item.subject as WeeklyIntention)
+    .filter(item => item.subjectType === 'weeklyIntention')
+    .map(item => item.subject as WeeklyIntention)
 }
 
 /**
@@ -109,12 +107,15 @@ export function extractWeekIntentions(reflection: WeekReflectionBundle): WeeklyI
 function monthMeasurement(
   item: MonthCadencedPlanningItem,
   bundle: MonthPlanningBundle,
-  today: DayRef,
+  today: DayRef
 ): Pick<MonthObjectItem, 'measurement' | 'weekReadout' | 'weekEvaluations'> {
-  const measurement = item.measurement ?? buildMeasurementSummary(item.subject, bundle.rawEntries, bundle.monthRef)
+  const measurement =
+    item.measurement ?? buildMeasurementSummary(item.subject, bundle.rawEntries, bundle.monthRef)
   if (!item.weekEvaluations) return { measurement }
   const tally = tallyWeekStates(
-    item.weekEvaluations.map((week) => classifyWeek(week.weekRef, week.planned, week.measurement.evaluationStatus, today)),
+    item.weekEvaluations.map(week =>
+      classifyWeek(week.weekRef, week.planned, week.measurement.evaluationStatus, today)
+    )
   )
   return {
     measurement: { ...measurement, evaluationStatus: statusFromWeekTally(tally) },
@@ -130,13 +131,13 @@ function monthMeasurement(
  */
 export function buildMonthObjectItems(
   bundle: MonthPlanningBundle,
-  today: DayRef = getPeriodRefsForDate(new Date()).day,
+  today: DayRef = getPeriodRefsForDate(new Date()).day
 ): MonthObjectItem[] {
   const items: MonthObjectItem[] = []
-  const goalMap = new Map(bundle.goalItems.map((item) => [item.goal.id, item.goal]))
+  const goalMap = new Map(bundle.goalItems.map(item => [item.goal.id, item.goal]))
 
-  const krItems = bundle.cadencedItems.filter((item) => item.subjectType === 'keyResult')
-  const habitItems = bundle.cadencedItems.filter((item) => item.subjectType === 'habit')
+  const krItems = bundle.cadencedItems.filter(item => item.subjectType === 'keyResult')
+  const habitItems = bundle.cadencedItems.filter(item => item.subjectType === 'habit')
   const trackerItems = bundle.trackerItems
 
   const krsByGoal = new Map<string, MonthCadencedPlanningItem[]>()

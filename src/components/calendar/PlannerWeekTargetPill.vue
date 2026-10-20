@@ -31,7 +31,8 @@
         @keydown.enter.prevent="commitEntryDaysValue"
       />
       <span class="text-[10px] text-on-surface-variant">
-        {{ entryDays.operator === 'min' ? '≥' : '≤' }}{{ t('planning.objects.targetSentence.entryDaysUnit') }}
+        {{ entryDays.operator === 'min' ? '≥' : '≤'
+        }}{{ t('planning.objects.targetSentence.entryDaysUnit') }}
       </span>
     </template>
     <button
@@ -63,7 +64,7 @@ const props = withDefaults(
     /** Upper bound for the entry-days input (7 for week periods, 31 for months). */
     entryDaysMax?: number
   }>(),
-  { entryDaysMax: 7 },
+  { entryDaysMax: 7 }
 )
 
 const emit = defineEmits<{
@@ -108,7 +109,9 @@ function commitValue(): void {
 
 // Entry-days sub-input: same local-buffer pattern; the pill only adjusts the
 // value — adding/removing the condition lives in the target editors.
-const localEntryDaysValue = ref<string | number>(entryDays.value ? String(entryDays.value.value) : '')
+const localEntryDaysValue = ref<string | number>(
+  entryDays.value ? String(entryDays.value.value) : ''
+)
 watch(entryDays, condition => {
   localEntryDaysValue.value = condition ? String(condition.value) : ''
 })

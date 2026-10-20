@@ -1,7 +1,8 @@
 <template>
   <ExercisePage
     :title="t('exercises.cards.wheelOfLife.title')"
-    :subtitle="t('exercises.cards.wheelOfLife.subtitle')" width="default"
+    :subtitle="t('exercises.cards.wheelOfLife.subtitle')"
+    width="default"
   >
     <WheelOfLifeExercise
       :key="editingAssessmentId ?? 'new'"
@@ -66,7 +67,7 @@ async function handleDelete(assessmentId: string) {
           month: 'short',
           day: 'numeric',
           year: 'numeric',
-        },
+        }
       )
     : ''
 

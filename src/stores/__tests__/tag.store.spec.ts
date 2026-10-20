@@ -193,9 +193,7 @@ describe('useTagStore', () => {
       const store = useTagStore()
       const errorMessage = 'Database error'
 
-      vi.mocked(peopleTagDexieRepository.getAll).mockRejectedValue(
-        new Error(errorMessage)
-      )
+      vi.mocked(peopleTagDexieRepository.getAll).mockRejectedValue(new Error(errorMessage))
 
       await store.loadPeopleTags()
 
@@ -210,13 +208,11 @@ describe('useTagStore', () => {
 
       // Create a promise that we can control
       let resolvePromise: (value: PeopleTag[]) => void
-      const controlledPromise = new Promise<PeopleTag[]>((resolve) => {
+      const controlledPromise = new Promise<PeopleTag[]>(resolve => {
         resolvePromise = resolve
       })
 
-      vi.mocked(peopleTagDexieRepository.getAll).mockReturnValue(
-        controlledPromise
-      )
+      vi.mocked(peopleTagDexieRepository.getAll).mockReturnValue(controlledPromise)
 
       const loadPromise = store.loadPeopleTags()
 
@@ -267,9 +263,7 @@ describe('useTagStore', () => {
       const store = useTagStore()
       const errorMessage = 'Database error'
 
-      vi.mocked(contextTagDexieRepository.getAll).mockRejectedValue(
-        new Error(errorMessage)
-      )
+      vi.mocked(contextTagDexieRepository.getAll).mockRejectedValue(new Error(errorMessage))
 
       await store.loadContextTags()
 
@@ -296,9 +290,7 @@ describe('useTagStore', () => {
     it('retries on the next call when a load failed', async () => {
       const store = useTagStore()
       vi.mocked(peopleTagDexieRepository.getAll).mockResolvedValue([])
-      vi.mocked(contextTagDexieRepository.getAll).mockRejectedValueOnce(
-        new Error('Database error')
-      )
+      vi.mocked(contextTagDexieRepository.getAll).mockRejectedValueOnce(new Error('Database error'))
 
       await store.ensureLoaded()
 
@@ -365,14 +357,10 @@ describe('useTagStore', () => {
 
       store.peopleTags = [tag]
 
-      vi.mocked(peopleTagDexieRepository.delete).mockRejectedValue(
-        new Error('Delete failed')
-      )
+      vi.mocked(peopleTagDexieRepository.delete).mockRejectedValue(new Error('Delete failed'))
 
       // Expect the error to be thrown
-      await expect(store.deletePeopleTag('tag-1')).rejects.toThrow(
-        'Delete failed'
-      )
+      await expect(store.deletePeopleTag('tag-1')).rejects.toThrow('Delete failed')
 
       // Verify the tag was not removed
       expect(store.peopleTags).toHaveLength(1)
@@ -478,4 +466,3 @@ describe('useTagStore', () => {
     })
   })
 })
-

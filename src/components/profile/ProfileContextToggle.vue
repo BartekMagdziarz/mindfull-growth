@@ -5,24 +5,13 @@
     class="neo-pill text-xs gap-1.5 px-3 py-1.5"
     :class="modelValue ? 'neo-pill--primary' : ''"
     :aria-pressed="modelValue"
-    :aria-label="
-      modelValue
-        ? t('common.profileContext.on')
-        : t('common.profileContext.off')
-    "
+    :aria-label="modelValue ? t('common.profileContext.on') : t('common.profileContext.off')"
     data-test-profile-context-toggle
     @click="$emit('update:modelValue', !modelValue)"
   >
-    <AppIcon
-      :name="modelValue ? 'person_check' : 'person_off'"
-      class="text-base"
-    />
+    <AppIcon :name="modelValue ? 'person_check' : 'person_off'" class="text-base" />
     <span>
-      {{
-        modelValue
-          ? t('common.profileContext.on')
-          : t('common.profileContext.off')
-      }}
+      {{ modelValue ? t('common.profileContext.on') : t('common.profileContext.off') }}
     </span>
   </button>
 </template>
@@ -42,7 +31,14 @@ const { t } = useT()
 const available = ref(false)
 let subscription: { unsubscribe: () => void } | undefined
 onMounted(() => {
-  subscription = liveQuery(() => profileContextAvailable(props.scope)).subscribe({ next: value => { available.value = value }, error: () => { available.value = false } })
+  subscription = liveQuery(() => profileContextAvailable(props.scope)).subscribe({
+    next: value => {
+      available.value = value
+    },
+    error: () => {
+      available.value = false
+    },
+  })
 })
 onBeforeUnmount(() => subscription?.unsubscribe())
 </script>

@@ -47,7 +47,12 @@ Jesteś analitykiem systemów opartym na IFS. Zbadaj wewnętrzny system użytkow
   },
 
   enums: {
-    roles: { manager: 'menedżer', firefighter: 'strażak', exile: 'wygnaniec', unknown: 'rola nieznana' },
+    roles: {
+      manager: 'menedżer',
+      firefighter: 'strażak',
+      exile: 'wygnaniec',
+      unknown: 'rola nieznana',
+    },
     bodyLocations: {
       head: 'głowa',
       forehead: 'czoło',
@@ -86,7 +91,11 @@ Jesteś analitykiem systemów opartym na IFS. Zbadaj wewnętrzny system użytkow
       'protector-exile': 'protektor–wygnaniec',
       'no-relationship': 'brak bezpośredniej relacji',
     },
-    leadership: { 'mostly-self': 'głównie z Ja', 'mostly-part': 'głównie z części', mixed: 'pół na pół' },
+    leadership: {
+      'mostly-self': 'głównie z Ja',
+      'mostly-part': 'głównie z części',
+      mixed: 'pół na pół',
+    },
     practiceTypes: {
       'weather-report': 'Raport pogodowy części',
       'gratitude-to-part': 'Wdzięczność dla części',

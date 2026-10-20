@@ -32,7 +32,10 @@ describe('program content migration', () => {
     for (const program of PROGRAM_CATALOG) {
       const version = program.contentVersion ?? 1
       for (let earlier = 1; earlier < version; earlier += 1) {
-        expect(LEGACY_PROGRAM_STEPS[program.slug]?.[earlier], `${program.slug} v${earlier}`).toBeDefined()
+        expect(
+          LEGACY_PROGRAM_STEPS[program.slug]?.[earlier],
+          `${program.slug} v${earlier}`
+        ).toBeDefined()
       }
     }
     // The v1 list is the shape that shipped 2026-09-23 (14 steps, image at 7);
@@ -46,20 +49,30 @@ describe('program content migration', () => {
   it('anger v1 after the pause plan and anxiety v1 after the thought record land on their v2 gaps', () => {
     const anger = getProgramDefinition('anger-signal')!
     const angerRow = migrateEnrollmentContent(
-      enrollment({ id: 'enr-anger', programSlug: 'anger-signal', currentStepIndex: 3, completedSteps: [0, 1, 2].map((stepIndex) => ({ stepIndex, completedAt: at(1) })) }),
-      anger,
+      enrollment({
+        id: 'enr-anger',
+        programSlug: 'anger-signal',
+        currentStepIndex: 3,
+        completedSteps: [0, 1, 2].map(stepIndex => ({ stepIndex, completedAt: at(1) })),
+      }),
+      anger
     )!
     // barometer · map · pause plan → the new "Mój znak" (index 2) is the first gap
-    expect(angerRow.completedSteps.map((step) => step.stepIndex)).toEqual([0, 1, 3])
+    expect(angerRow.completedSteps.map(step => step.stepIndex)).toEqual([0, 1, 3])
     expect(angerRow.currentStepIndex).toBe(2)
     expect(angerRow.contentVersion).toBe(2)
     const anxiety = getProgramDefinition('anxiety-approach')!
     const anxietyRow = migrateEnrollmentContent(
-      enrollment({ id: 'enr-anxiety', programSlug: 'anxiety-approach', currentStepIndex: 6, completedSteps: [0, 1, 2, 3, 4, 5].map((stepIndex) => ({ stepIndex, completedAt: at(1) })) }),
-      anxiety,
+      enrollment({
+        id: 'enr-anxiety',
+        programSlug: 'anxiety-approach',
+        currentStepIndex: 6,
+        completedSteps: [0, 1, 2, 3, 4, 5].map(stepIndex => ({ stepIndex, completedAt: at(1) })),
+      }),
+      anxiety
     )!
     // gad-7 · ius-12 · map · worry tree · distortions · thought record → "Mój znak" (index 3) is the first gap
-    expect(anxietyRow.completedSteps.map((step) => step.stepIndex)).toEqual([0, 1, 2, 4, 5, 6])
+    expect(anxietyRow.completedSteps.map(step => step.stepIndex)).toEqual([0, 1, 2, 4, 5, 6])
     expect(anxietyRow.currentStepIndex).toBe(3)
   })
 
@@ -72,10 +85,10 @@ describe('program content migration', () => {
           { stepIndex: 1, completedAt: at(1) },
         ],
       }),
-      shame,
+      shame
     )!
     // v3: scs-sf → 0, shame-map → 2; the new step 1 (fscrs) is the first gap
-    expect(migrated.completedSteps.map((s) => s.stepIndex)).toEqual([0, 2])
+    expect(migrated.completedSteps.map(s => s.stepIndex)).toEqual([0, 2])
     expect(migrated.currentStepIndex).toBe(1)
     expect(shame.steps[1]!.exerciseSlug).toBe('fscrs')
     expect(migrated.contentVersion).toBe(3)
@@ -85,13 +98,13 @@ describe('program content migration', () => {
     const migrated = migrateEnrollmentContent(
       enrollment({
         currentStepIndex: 4,
-        completedSteps: [0, 1, 2, 3].map((stepIndex) => ({ stepIndex, completedAt: at(stepIndex) })),
+        completedSteps: [0, 1, 2, 3].map(stepIndex => ({ stepIndex, completedAt: at(stepIndex) })),
       }),
-      shame,
+      shame
     )!
     // v1: scs, map, shame-or-guilt, thought-record → v3 indices 0, 2, 8, 9
-    expect(migrated.completedSteps.map((s) => s.stepIndex)).toEqual([0, 2, 8, 9])
-    expect(migrated.completedSteps.map((s) => s.completedAt)).toEqual([at(0), at(1), at(2), at(3)])
+    expect(migrated.completedSteps.map(s => s.stepIndex)).toEqual([0, 2, 8, 9])
+    expect(migrated.completedSteps.map(s => s.completedAt)).toEqual([at(0), at(1), at(2), at(3)])
     expect(migrated.currentStepIndex).toBe(1)
   })
 
@@ -100,12 +113,15 @@ describe('program content migration', () => {
       enrollment({
         contentVersion: 2,
         currentStepIndex: 5,
-        completedSteps: [0, 1, 2, 3, 4].map((stepIndex) => ({ stepIndex, completedAt: at(stepIndex) })),
+        completedSteps: [0, 1, 2, 3, 4].map(stepIndex => ({
+          stepIndex,
+          completedAt: at(stepIndex),
+        })),
       }),
-      shame,
+      shame
     )!
     // v2: scs, map, image, response, shame-or-guilt → v3 indices 0, 2, 5, 7, 8
-    expect(migrated.completedSteps.map((s) => s.stepIndex)).toEqual([0, 2, 5, 7, 8])
+    expect(migrated.completedSteps.map(s => s.stepIndex)).toEqual([0, 2, 5, 7, 8])
     expect(migrated.currentStepIndex).toBe(1)
     expect(migrated.contentVersion).toBe(3)
   })
@@ -118,9 +134,9 @@ describe('program content migration', () => {
         currentStepIndex: v1.length,
         completedSteps: v1.map((_, stepIndex) => ({ stepIndex, completedAt: at(stepIndex) })),
       }),
-      shame,
+      shame
     )!
-    const indices = migrated.completedSteps.map((s) => s.stepIndex)
+    const indices = migrated.completedSteps.map(s => s.stepIndex)
     expect(indices).toContain(0)
     expect(indices).toContain(10) // second scs-sf → the mid-path measurement
     expect(indices).not.toContain(3) // my-sign never existed in v1
@@ -131,7 +147,12 @@ describe('program content migration', () => {
   it('is a no-op for rows already on the definition version or without a legacy list', () => {
     expect(needsContentMigration(enrollment({ contentVersion: 3 }), shame)).toBe(false)
     expect(migrateEnrollmentContent(enrollment({ contentVersion: 3 }), shame)).toBeNull()
-    expect(migrateEnrollmentContent(enrollment({ programSlug: 'ifs-parts' }), getProgramDefinition('ifs-parts')!)).toBeNull()
+    expect(
+      migrateEnrollmentContent(
+        enrollment({ programSlug: 'ifs-parts' }),
+        getProgramDefinition('ifs-parts')!
+      )
+    ).toBeNull()
   })
 
   it('migrateEnrollmentsContent persists changed rows and drops their pending step items only', async () => {
@@ -150,7 +171,13 @@ describe('program content migration', () => {
     })
     const migrated = await migrateEnrollmentsContent({
       enrollments: [
-        enrollment({ currentStepIndex: 2, completedSteps: [{ stepIndex: 0, completedAt: at(0) }, { stepIndex: 1, completedAt: at(1) }] }),
+        enrollment({
+          currentStepIndex: 2,
+          completedSteps: [
+            { stepIndex: 0, completedAt: at(0) },
+            { stepIndex: 1, completedAt: at(1) },
+          ],
+        }),
         enrollment({ id: 'enr-new', contentVersion: 3 }),
       ],
       planItems: [
@@ -159,10 +186,10 @@ describe('program content migration', () => {
         item({ id: 'done-step', status: 'done' }),
         item({ id: 'other', sourceRef: 'enr-new' }),
       ],
-      putEnrollment: async (row) => void writes.push(`put:${row.id}:${row.currentStepIndex}`),
-      deletePlanItem: async (id) => void writes.push(`del:${id}`),
+      putEnrollment: async row => void writes.push(`put:${row.id}:${row.currentStepIndex}`),
+      deletePlanItem: async id => void writes.push(`del:${id}`),
     })
-    expect(migrated.map((row) => row.id)).toEqual(['enr-shame'])
+    expect(migrated.map(row => row.id)).toEqual(['enr-shame'])
     expect(writes).toEqual(['put:enr-shame:1', 'del:stale-step'])
   })
 })

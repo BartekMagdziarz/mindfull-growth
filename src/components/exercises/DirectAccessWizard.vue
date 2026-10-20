@@ -15,14 +15,19 @@
       <template v-if="currentStep === 'part-select'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-lg font-bold text-on-surface">{{ t('exerciseWizards.directAccess.partSelect.title') }}</h2>
+            <h2 class="text-lg font-bold text-on-surface">
+              {{ t('exerciseWizards.directAccess.partSelect.title') }}
+            </h2>
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.directAccess.partSelect.description') }}
             </p>
             <IFSSafetyBanner />
 
             <div v-if="!partStore.sortedParts.length" class="neo-surface p-4 rounded-xl">
-              <p class="text-sm text-on-surface-variant" v-html="t('exerciseWizards.directAccess.partSelect.emptyState')" />
+              <p
+                class="text-sm text-on-surface-variant"
+                v-html="t('exerciseWizards.directAccess.partSelect.emptyState')"
+              />
             </div>
 
             <PartSelector
@@ -46,7 +51,9 @@
       <template v-else-if="currentStep === 'self-check'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.directAccess.selfCheck.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.directAccess.selfCheck.title') }}
+            </h2>
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.directAccess.selfCheck.description') }}
             </p>
@@ -54,7 +61,11 @@
 
             <div class="neo-surface p-6 rounded-xl text-center">
               <p class="text-lg font-semibold text-on-surface">
-                {{ t('exerciseWizards.directAccess.selfCheck.question', { partName: selectedPartName }) }}
+                {{
+                  t('exerciseWizards.directAccess.selfCheck.question', {
+                    partName: selectedPartName,
+                  })
+                }}
               </p>
             </div>
 
@@ -66,7 +77,9 @@
               >
                 <div class="flex items-center gap-3">
                   <AppIcon name="wb_sunny" class="text-xl text-insight-intention-on shrink-0" />
-                  <span class="text-sm text-on-surface">{{ tg('exerciseWizards.directAccess.selfCheck.options.selfEnergy') }}</span>
+                  <span class="text-sm text-on-surface">{{
+                    tg('exerciseWizards.directAccess.selfCheck.options.selfEnergy')
+                  }}</span>
                 </div>
               </button>
               <button
@@ -76,7 +89,9 @@
               >
                 <div class="flex items-center gap-3">
                   <AppIcon name="error" class="text-xl text-status-warn shrink-0" />
-                  <span class="text-sm text-on-surface">{{ t('exerciseWizards.directAccess.selfCheck.options.notQuite') }}</span>
+                  <span class="text-sm text-on-surface">{{
+                    t('exerciseWizards.directAccess.selfCheck.options.notQuite')
+                  }}</span>
                 </div>
               </button>
             </div>
@@ -86,7 +101,10 @@
               enter-active-class="transition-all duration-200"
               enter-from-class="opacity-0 -translate-y-2"
             >
-              <div v-if="showBreathing" class="neo-surface p-6 rounded-2xl flex flex-col items-center gap-4">
+              <div
+                v-if="showBreathing"
+                class="neo-surface p-6 rounded-2xl flex flex-col items-center gap-4"
+              >
                 <div
                   class="w-24 h-24 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center"
                   :class="breathingActive ? 'breathing-circle' : ''"
@@ -94,7 +112,13 @@
                   <span class="text-xs text-primary font-medium">{{ breathingLabel }}</span>
                 </div>
                 <p class="text-sm text-on-surface-variant">
-                  {{ breathingActive ? t('exerciseWizards.directAccess.selfCheck.breathingInstructions') : (breathingDone ? t('exerciseWizards.directAccess.selfCheck.breathingDone') : t('exerciseWizards.directAccess.selfCheck.breathingPrompt')) }}
+                  {{
+                    breathingActive
+                      ? t('exerciseWizards.directAccess.selfCheck.breathingInstructions')
+                      : breathingDone
+                        ? t('exerciseWizards.directAccess.selfCheck.breathingDone')
+                        : t('exerciseWizards.directAccess.selfCheck.breathingPrompt')
+                  }}
                 </p>
                 <AppButton
                   v-if="!breathingActive && !breathingDone"
@@ -111,11 +135,16 @@
                   <div v-if="breathingDone" class="w-full space-y-2">
                     <button
                       class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
-                      @click="selfCheckPassed = true; nextStep()"
+                      @click="confirmSelfCheckAndContinue"
                     >
                       <div class="flex items-center gap-3">
-                        <AppIcon name="wb_sunny" class="text-xl text-insight-intention-on shrink-0" />
-                        <span class="text-sm text-on-surface">{{ tg('exerciseWizards.directAccess.selfCheck.continueButton') }}</span>
+                        <AppIcon
+                          name="wb_sunny"
+                          class="text-xl text-insight-intention-on shrink-0"
+                        />
+                        <span class="text-sm text-on-surface">{{
+                          tg('exerciseWizards.directAccess.selfCheck.continueButton')
+                        }}</span>
                       </div>
                     </button>
                     <button
@@ -124,7 +153,9 @@
                     >
                       <div class="flex items-center gap-3">
                         <AppIcon name="bedtime" class="text-xl text-on-surface-variant shrink-0" />
-                        <span class="text-sm text-on-surface">{{ t('exerciseWizards.directAccess.selfCheck.notTodayButton') }}</span>
+                        <span class="text-sm text-on-surface">{{
+                          t('exerciseWizards.directAccess.selfCheck.notTodayButton')
+                        }}</span>
                       </div>
                     </button>
                   </div>
@@ -161,10 +192,7 @@
             </div>
 
             <!-- Message history -->
-            <div
-              ref="chatContainer"
-              class="space-y-3 max-h-96 overflow-y-auto p-2"
-            >
+            <div ref="chatContainer" class="space-y-3 max-h-96 overflow-y-auto p-2">
               <div v-if="!messages.length" class="text-center py-8">
                 <p class="text-sm text-on-surface-variant">
                   {{ t('exerciseWizards.directAccess.dialogue.emptyState') }}
@@ -185,11 +213,22 @@
               <!-- Loading -->
               <div v-if="isLoadingResponse" class="flex justify-start">
                 <div class="neo-surface shadow-neu-pressed rounded-2xl px-4 py-3 max-w-[85%]">
-                  <p class="text-xs font-medium text-on-surface-variant mb-1">{{ selectedPartName }}</p>
+                  <p class="text-xs font-medium text-on-surface-variant mb-1">
+                    {{ selectedPartName }}
+                  </p>
                   <div class="flex gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-on-surface-variant/40 animate-bounce" style="animation-delay: 0ms" />
-                    <span class="w-2 h-2 rounded-full bg-on-surface-variant/40 animate-bounce" style="animation-delay: 150ms" />
-                    <span class="w-2 h-2 rounded-full bg-on-surface-variant/40 animate-bounce" style="animation-delay: 300ms" />
+                    <span
+                      class="w-2 h-2 rounded-full bg-on-surface-variant/40 animate-bounce"
+                      style="animation-delay: 0ms"
+                    />
+                    <span
+                      class="w-2 h-2 rounded-full bg-on-surface-variant/40 animate-bounce"
+                      style="animation-delay: 150ms"
+                    />
+                    <span
+                      class="w-2 h-2 rounded-full bg-on-surface-variant/40 animate-bounce"
+                      style="animation-delay: 300ms"
+                    />
                   </div>
                 </div>
               </div>
@@ -233,7 +272,9 @@
             leave-to-class="opacity-0 -translate-y-2"
           >
             <AppCard v-if="showInsightForm" padding="md" class="space-y-3">
-              <h3 class="text-sm font-semibold text-on-surface">{{ t('exerciseWizards.directAccess.dialogue.insightForm.title') }}</h3>
+              <h3 class="text-sm font-semibold text-on-surface">
+                {{ t('exerciseWizards.directAccess.dialogue.insightForm.title') }}
+              </h3>
               <textarea
                 v-model="insightContent"
                 rows="2"
@@ -245,14 +286,20 @@
                   v-for="tag in insightTags"
                   :key="tag.value"
                   class="exercise-pill text-xs px-2 py-1 neo-focus transition-all"
-                  :class="insightTag === tag.value ? `${tag.activeClass} shadow-neu-pressed` : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'"
+                  :class="
+                    insightTag === tag.value
+                      ? `${tag.activeClass} shadow-neu-pressed`
+                      : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'
+                  "
                   @click="insightTag = tag.value"
                 >
                   {{ tag.label }}
                 </button>
               </div>
               <div class="flex gap-2 justify-end">
-                <AppButton variant="text" @click="closeInsightForm()">{{ t('common.buttons.cancel') }}</AppButton>
+                <AppButton variant="text" @click="closeInsightForm()">{{
+                  t('common.buttons.cancel')
+                }}</AppButton>
                 <AppButton
                   variant="filled"
                   :disabled="!insightContent.trim() || !insightTag"
@@ -266,7 +313,9 @@
 
           <!-- Saved insights -->
           <div v-if="insights.length" class="space-y-2">
-            <h3 class="text-sm font-semibold text-on-surface">{{ t('exerciseWizards.directAccess.dialogue.savedInsights') }}</h3>
+            <h3 class="text-sm font-semibold text-on-surface">
+              {{ t('exerciseWizards.directAccess.dialogue.savedInsights') }}
+            </h3>
             <IFSInsightCard
               v-for="insight in insights"
               :key="insight.id"
@@ -289,15 +338,21 @@
       <template v-else-if="currentStep === 'summary'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.directAccess.summary.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.directAccess.summary.title') }}
+            </h2>
 
             <div class="neo-surface p-3 rounded-lg flex items-center justify-between">
-              <span class="text-sm text-on-surface-variant">{{ t('exerciseWizards.directAccess.summary.messageCount') }}</span>
+              <span class="text-sm text-on-surface-variant">{{
+                t('exerciseWizards.directAccess.summary.messageCount')
+              }}</span>
               <span class="text-lg font-bold text-primary">{{ messages.length }}</span>
             </div>
 
             <div v-if="insights.length" class="space-y-2">
-              <p class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.directAccess.summary.insightsLabel') }}</p>
+              <p class="text-xs font-medium text-on-surface-variant">
+                {{ t('exerciseWizards.directAccess.summary.insightsLabel') }}
+              </p>
               <IFSInsightCard
                 v-for="insight in insights"
                 :key="insight.id"
@@ -308,7 +363,9 @@
             </div>
 
             <div class="space-y-1">
-              <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.directAccess.summary.summaryLabel') }}</label>
+              <label class="text-xs font-medium text-on-surface-variant">{{
+                t('exerciseWizards.directAccess.summary.summaryLabel')
+              }}</label>
               <textarea
                 v-model="summary"
                 rows="3"
@@ -319,33 +376,51 @@
 
             <!-- Discoveries -->
             <div class="space-y-3">
-              <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.directAccess.summary.discoveryHeading', { partName: selectedPartName }) }}</p>
+              <p class="text-sm font-medium text-on-surface">
+                {{
+                  t('exerciseWizards.directAccess.summary.discoveryHeading', {
+                    partName: selectedPartName,
+                  })
+                }}
+              </p>
               <div class="space-y-2">
                 <div>
-                  <label class="text-xs text-on-surface-variant">{{ t('exerciseWizards.directAccess.summary.discoveries.job.label') }}</label>
+                  <label class="text-xs text-on-surface-variant">{{
+                    t('exerciseWizards.directAccess.summary.discoveries.job.label')
+                  }}</label>
                   <input
                     v-model="partJobDiscovered"
                     type="text"
                     class="neo-input w-full text-sm"
-                    :placeholder="t('exerciseWizards.directAccess.summary.discoveries.job.placeholder')"
+                    :placeholder="
+                      t('exerciseWizards.directAccess.summary.discoveries.job.placeholder')
+                    "
                   />
                 </div>
                 <div>
-                  <label class="text-xs text-on-surface-variant">{{ t('exerciseWizards.directAccess.summary.discoveries.fear.label') }}</label>
+                  <label class="text-xs text-on-surface-variant">{{
+                    t('exerciseWizards.directAccess.summary.discoveries.fear.label')
+                  }}</label>
                   <input
                     v-model="partFearDiscovered"
                     type="text"
                     class="neo-input w-full text-sm"
-                    :placeholder="t('exerciseWizards.directAccess.summary.discoveries.fear.placeholder')"
+                    :placeholder="
+                      t('exerciseWizards.directAccess.summary.discoveries.fear.placeholder')
+                    "
                   />
                 </div>
                 <div>
-                  <label class="text-xs text-on-surface-variant">{{ t('exerciseWizards.directAccess.summary.discoveries.need.label') }}</label>
+                  <label class="text-xs text-on-surface-variant">{{
+                    t('exerciseWizards.directAccess.summary.discoveries.need.label')
+                  }}</label>
                   <input
                     v-model="partNeedDiscovered"
                     type="text"
                     class="neo-input w-full text-sm"
-                    :placeholder="t('exerciseWizards.directAccess.summary.discoveries.need.placeholder')"
+                    :placeholder="
+                      t('exerciseWizards.directAccess.summary.discoveries.need.placeholder')
+                    "
                   />
                 </div>
               </div>
@@ -365,50 +440,76 @@
       <template v-else-if="currentStep === 'save'">
         <div class="space-y-6">
           <AppCard variant="raised" padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.directAccess.save.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.directAccess.save.title') }}
+            </h2>
 
             <!-- Review summary -->
             <div class="space-y-3">
               <div class="flex items-center gap-2">
-                <span class="text-sm text-on-surface-variant">{{ t('exerciseWizards.directAccess.save.partLabel') }}</span>
+                <span class="text-sm text-on-surface-variant">{{
+                  t('exerciseWizards.directAccess.save.partLabel')
+                }}</span>
                 <span class="text-sm font-medium text-on-surface">{{ selectedPartName }}</span>
                 <PartRoleBadge v-if="selectedPartRole" :role="selectedPartRole" />
               </div>
 
               <div class="neo-surface p-3 rounded-lg grid grid-cols-2 gap-3">
                 <div>
-                  <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.directAccess.save.stats.messages') }}</p>
+                  <p class="text-xs text-on-surface-variant">
+                    {{ t('exerciseWizards.directAccess.save.stats.messages') }}
+                  </p>
                   <p class="text-lg font-bold text-primary">{{ messages.length }}</p>
                 </div>
                 <div>
-                  <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.directAccess.save.stats.insights') }}</p>
+                  <p class="text-xs text-on-surface-variant">
+                    {{ t('exerciseWizards.directAccess.save.stats.insights') }}
+                  </p>
                   <p class="text-lg font-bold text-primary">{{ insights.length }}</p>
                 </div>
               </div>
 
-              <div v-if="partJobDiscovered || partFearDiscovered || partNeedDiscovered" class="space-y-1">
-                <p class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.directAccess.save.discoveries.heading') }}</p>
+              <div
+                v-if="partJobDiscovered || partFearDiscovered || partNeedDiscovered"
+                class="space-y-1"
+              >
+                <p class="text-xs font-medium text-on-surface-variant">
+                  {{ t('exerciseWizards.directAccess.save.discoveries.heading') }}
+                </p>
                 <p v-if="partJobDiscovered" class="text-xs text-on-surface">
-                  <span class="text-on-surface-variant">{{ t('exerciseWizards.directAccess.save.discoveries.job') }}</span> {{ partJobDiscovered }}
+                  <span class="text-on-surface-variant">{{
+                    t('exerciseWizards.directAccess.save.discoveries.job')
+                  }}</span>
+                  {{ partJobDiscovered }}
                 </p>
                 <p v-if="partFearDiscovered" class="text-xs text-on-surface">
-                  <span class="text-on-surface-variant">{{ t('exerciseWizards.directAccess.save.discoveries.fear') }}</span> {{ partFearDiscovered }}
+                  <span class="text-on-surface-variant">{{
+                    t('exerciseWizards.directAccess.save.discoveries.fear')
+                  }}</span>
+                  {{ partFearDiscovered }}
                 </p>
                 <p v-if="partNeedDiscovered" class="text-xs text-on-surface">
-                  <span class="text-on-surface-variant">{{ t('exerciseWizards.directAccess.save.discoveries.need') }}</span> {{ partNeedDiscovered }}
+                  <span class="text-on-surface-variant">{{
+                    t('exerciseWizards.directAccess.save.discoveries.need')
+                  }}</span>
+                  {{ partNeedDiscovered }}
                 </p>
                 <label class="flex items-start gap-2 pt-2 cursor-pointer">
                   <input v-model="updatePartCard" type="checkbox" class="mt-0.5 neo-focus" />
                   <span class="text-xs text-on-surface">
                     {{ t('exerciseWizards.directAccess.save.updatePartLabel') }}
-                    <span class="block text-on-surface-variant">{{ t('exerciseWizards.directAccess.save.updatePartHint') }}</span>
+                    <span class="block text-on-surface-variant">{{
+                      t('exerciseWizards.directAccess.save.updatePartHint')
+                    }}</span>
                   </span>
                 </label>
               </div>
             </div>
 
             <div class="space-y-1">
-              <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.directAccess.save.notesLabel') }}</label>
+              <label class="text-xs font-medium text-on-surface-variant">{{
+                t('exerciseWizards.directAccess.save.notesLabel')
+              }}</label>
               <textarea
                 v-model="notes"
                 rows="2"
@@ -421,7 +522,11 @@
           <div class="flex justify-between">
             <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
             <AppButton variant="filled" :disabled="isSaving" @click="handleSave">
-              {{ isSaving ? t('exerciseWizards.directAccess.save.saving') : t('exerciseWizards.directAccess.save.saveButton') }}
+              {{
+                isSaving
+                  ? t('exerciseWizards.directAccess.save.saving')
+                  : t('exerciseWizards.directAccess.save.saveButton')
+              }}
             </AppButton>
           </div>
         </div>
@@ -449,10 +554,7 @@ import { useIFSPartStore } from '@/stores/ifsPart.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import type { IFSInsight } from '@/domain/exercises'
-import {
-  IFS_ROLE_STROKE_VAR,
-  INSIGHT_TAG_CLASSES,
-} from '@/constants/exerciseColorRoles'
+import { IFS_ROLE_STROKE_VAR, INSIGHT_TAG_CLASSES } from '@/constants/exerciseColorRoles'
 
 /** A path step may name the part to talk with (`?partTag=shame-compass:attackSelf`); the list stays as fallback. */
 const props = defineProps<{ initialPartTag?: string }>()
@@ -473,9 +575,7 @@ const partStore = useIFSPartStore()
 const userPreferencesStore = useUserPreferencesStore()
 const useProfileDialogue = ref(userPreferencesStore.profileContextDefault)
 
-const STEPS: DirectAccessStep[] = [
-  'part-select', 'self-check', 'dialogue', 'summary', 'save',
-]
+const STEPS: DirectAccessStep[] = ['part-select', 'self-check', 'dialogue', 'summary', 'save']
 
 const stepLabels = computed(() => [
   t('exerciseWizards.directAccess.steps.partSelect'),
@@ -512,17 +612,19 @@ const {
 } = useDirectAccessWizard()
 
 // Part helpers
-const selectedPart = computed(() => partId.value ? partStore.getPartById(partId.value) : null)
-const selectedPartName = computed(() => selectedPart.value?.name ?? t('exerciseWizards.directAccess.partSelect.defaultName'))
+const selectedPart = computed(() => (partId.value ? partStore.getPartById(partId.value) : null))
+const selectedPartName = computed(
+  () => selectedPart.value?.name ?? t('exerciseWizards.directAccess.partSelect.defaultName')
+)
 
 watch(
   () => [props.initialPartTag, partStore.sortedParts.length] as const,
   ([tag]) => {
     if (!tag || partId.value) return
-    const part = partStore.sortedParts.find((candidate) => candidate.tags?.includes(tag))
+    const part = partStore.sortedParts.find(candidate => candidate.tags?.includes(tag))
     if (part) partId.value = part.id
   },
-  { immediate: true },
+  { immediate: true }
 )
 const selectedPartRole = computed(() => selectedPart.value?.role ?? null)
 const selectedPartColor = computed(() => {
@@ -535,7 +637,9 @@ const selectedPartColor = computed(() => {
 const messageInput = ref('')
 const chatContainer = ref<HTMLElement | null>(null)
 
-const suggestedQuestions = computed(() => tList('exerciseWizards.directAccess.dialogue.suggestedQuestions'))
+const suggestedQuestions = computed(() =>
+  tList('exerciseWizards.directAccess.dialogue.suggestedQuestions')
+)
 
 async function handleSend() {
   if (!messageInput.value.trim() || isLoadingResponse.value || !selectedPart.value) return
@@ -601,14 +705,40 @@ const insightContent = ref('')
 const insightTag = ref<IFSInsight['tag'] | null>(null)
 const bookmarkedIndices = ref(new Set<number>())
 
-const insightTags = computed<{ value: IFSInsight['tag']; label: string; activeClass: string }[]>(() => [
-  { value: 'core-fear', label: t('exerciseWizards.directAccess.dialogue.insightTags.coreFear'), activeClass: INSIGHT_TAG_CLASSES['core-fear'] },
-  { value: 'need', label: t('exerciseWizards.directAccess.dialogue.insightTags.need'), activeClass: INSIGHT_TAG_CLASSES.need },
-  { value: 'positive-intention', label: t('exerciseWizards.directAccess.dialogue.insightTags.positiveIntention'), activeClass: INSIGHT_TAG_CLASSES['positive-intention'] },
-  { value: 'memory', label: t('exerciseWizards.directAccess.dialogue.insightTags.memory'), activeClass: INSIGHT_TAG_CLASSES.memory },
-  { value: 'belief', label: t('exerciseWizards.directAccess.dialogue.insightTags.belief'), activeClass: INSIGHT_TAG_CLASSES.belief },
-  { value: 'other', label: t('exerciseWizards.directAccess.dialogue.insightTags.other'), activeClass: 'bg-neu-base text-on-surface' },
-])
+const insightTags = computed<{ value: IFSInsight['tag']; label: string; activeClass: string }[]>(
+  () => [
+    {
+      value: 'core-fear',
+      label: t('exerciseWizards.directAccess.dialogue.insightTags.coreFear'),
+      activeClass: INSIGHT_TAG_CLASSES['core-fear'],
+    },
+    {
+      value: 'need',
+      label: t('exerciseWizards.directAccess.dialogue.insightTags.need'),
+      activeClass: INSIGHT_TAG_CLASSES.need,
+    },
+    {
+      value: 'positive-intention',
+      label: t('exerciseWizards.directAccess.dialogue.insightTags.positiveIntention'),
+      activeClass: INSIGHT_TAG_CLASSES['positive-intention'],
+    },
+    {
+      value: 'memory',
+      label: t('exerciseWizards.directAccess.dialogue.insightTags.memory'),
+      activeClass: INSIGHT_TAG_CLASSES.memory,
+    },
+    {
+      value: 'belief',
+      label: t('exerciseWizards.directAccess.dialogue.insightTags.belief'),
+      activeClass: INSIGHT_TAG_CLASSES.belief,
+    },
+    {
+      value: 'other',
+      label: t('exerciseWizards.directAccess.dialogue.insightTags.other'),
+      activeClass: 'bg-neu-base text-on-surface',
+    },
+  ]
+)
 
 function openInsightForm(messageIdx: number) {
   if (bookmarkedIndices.value.has(messageIdx)) {
@@ -643,6 +773,13 @@ async function handleSave() {
 onUnmounted(() => {
   if (breathingTimer) clearTimeout(breathingTimer)
 })
+
+// Multi-statement inline handlers do not survive prettier's semi: false (the
+// template parser needs the semicolons), so they live here as functions.
+function confirmSelfCheckAndContinue(): void {
+  selfCheckPassed.value = true
+  nextStep()
+}
 </script>
 
 <style scoped>
@@ -651,8 +788,15 @@ onUnmounted(() => {
 }
 
 @keyframes breathe {
-  0%, 100% { transform: scale(1); }
-  40% { transform: scale(1.3); }
-  60% { transform: scale(1.3); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.3);
+  }
+  60% {
+    transform: scale(1.3);
+  }
 }
 </style>

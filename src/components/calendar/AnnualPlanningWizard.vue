@@ -5,11 +5,17 @@
         <h2 class="text-lg font-bold text-on-surface">
           {{ t('planning.annual.title') }}
         </h2>
-        <span v-if="stepSubtitle" class="text-xs text-on-surface-variant">- {{ stepSubtitle }}</span>
+        <span v-if="stepSubtitle" class="text-xs text-on-surface-variant"
+          >- {{ stepSubtitle }}</span
+        >
       </div>
 
       <div class="flex items-center gap-3">
-        <div class="flex items-center gap-1.5" role="group" :aria-label="t('planning.annual.progress')">
+        <div
+          class="flex items-center gap-1.5"
+          role="group"
+          :aria-label="t('planning.annual.progress')"
+        >
           <button
             v-for="(label, idx) in stepLabels"
             :key="label"
@@ -67,7 +73,9 @@
           :body="t('planning.annual.brief.body')"
         />
         <label class="block space-y-2">
-          <span class="text-xs font-semibold text-on-surface">{{ t('planning.annual.brief.note') }}</span>
+          <span class="text-xs font-semibold text-on-surface">{{
+            t('planning.annual.brief.note')
+          }}</span>
           <textarea
             v-model="annualBriefNote"
             rows="5"
@@ -78,22 +86,25 @@
       </div>
 
       <div v-else-if="currentStep === 'life-areas'" key="life-areas" class="space-y-4">
-        <div v-if="lifeAreas.length === 0" class="neo-inset rounded-[1.75rem] p-5 text-sm text-on-surface-variant">
+        <div
+          v-if="lifeAreas.length === 0"
+          class="neo-inset rounded-[1.75rem] p-5 text-sm text-on-surface-variant"
+        >
           {{ t('planning.annual.lifeAreas.empty') }}
         </div>
 
         <div v-else class="grid gap-3 lg:grid-cols-2">
-          <article
-            v-for="area in lifeAreas"
-            :key="area.id"
-            class="neo-inset rounded-[1.5rem] p-3"
-          >
+          <article v-for="area in lifeAreas" :key="area.id" class="neo-inset rounded-[1.5rem] p-3">
             <div class="flex w-full flex-col gap-3 text-left sm:flex-row sm:items-center">
               <EntityIcon v-if="area.icon" :icon="area.icon" size="sm" />
               <div class="min-w-0 flex-1">
                 <div class="truncate text-sm font-semibold text-on-surface">{{ area.name }}</div>
                 <div class="text-[11px] text-on-surface-variant">
-                  {{ t('planning.annual.lifeAreas.score', { score: assessmentItem(area.id)?.score ?? '-' }) }}
+                  {{
+                    t('planning.annual.lifeAreas.score', {
+                      score: assessmentItem(area.id)?.score ?? '-',
+                    })
+                  }}
                 </div>
               </div>
               <div class="flex flex-wrap items-center gap-1 sm:justify-end">
@@ -102,7 +113,11 @@
                   :key="score"
                   type="button"
                   class="h-7 w-7 rounded-lg text-[11px] font-semibold transition-all"
-                  :class="assessmentItem(area.id)?.score === score ? 'neo-pill neo-pill--primary text-primary' : 'neo-pill text-on-surface-variant'"
+                  :class="
+                    assessmentItem(area.id)?.score === score
+                      ? 'neo-pill neo-pill--primary text-primary'
+                      : 'neo-pill text-on-surface-variant'
+                  "
                   @click.stop="void updateLifeAreaScore(area.id, score)"
                 >
                   {{ score }}
@@ -111,7 +126,11 @@
               <button
                 type="button"
                 class="neo-icon-button neo-focus h-9 w-9 shrink-0 rounded-xl"
-                :aria-label="expandedAreaIds.has(area.id) ? t('common.buttons.close') : t('planning.annual.lifeAreas.expand')"
+                :aria-label="
+                  expandedAreaIds.has(area.id)
+                    ? t('common.buttons.close')
+                    : t('planning.annual.lifeAreas.expand')
+                "
                 @click="toggleAreaExpanded(area.id)"
               >
                 <AppIcon
@@ -165,7 +184,11 @@
         </div>
       </div>
 
-      <div v-else-if="currentStep === 'narrative'" key="narrative" class="grid gap-3 md:grid-cols-2">
+      <div
+        v-else-if="currentStep === 'narrative'"
+        key="narrative"
+        class="grid gap-3 md:grid-cols-2"
+      >
         <NarrativeField
           v-model="narrativeTheme"
           icon="flag"
@@ -195,17 +218,16 @@
       <div v-else-if="currentStep === 'priorities'" key="priorities" class="space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div class="neo-inset rounded-2xl px-4 py-3">
-            <div class="text-[10px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
+            <div
+              class="text-[10px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant"
+            >
               {{ t('planning.annual.priorities.counter') }}
             </div>
             <div class="mt-1 text-lg font-semibold text-on-surface">
               {{ activePriorityCount }}/{{ maxActivePriorities }}
             </div>
           </div>
-          <AppButton
-            variant="filled"
-            @click="startPriorityRitual"
-          >
+          <AppButton variant="filled" @click="startPriorityRitual">
             <AppIcon name="edit_square" class="text-base" />
             {{ t('planning.priorityRitual.entry.start') }}
           </AppButton>
@@ -252,7 +274,9 @@
           :body="t('planning.annual.execution.body')"
         />
         <label class="block space-y-2">
-          <span class="text-xs font-semibold text-on-surface">{{ t('planning.annual.execution.note') }}</span>
+          <span class="text-xs font-semibold text-on-surface">{{
+            t('planning.annual.execution.note')
+          }}</span>
           <textarea
             v-model="executionPlaceholderNote"
             rows="5"
@@ -265,21 +289,31 @@
       <div v-else key="summary" class="space-y-4">
         <div class="grid gap-3 md:grid-cols-3">
           <div class="neo-inset rounded-[1.5rem] px-4 py-4">
-            <div class="text-[10px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
+            <div
+              class="text-[10px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant"
+            >
               {{ t('planning.annual.summary.status') }}
             </div>
             <div class="mt-2 text-lg font-semibold text-on-surface">
-              {{ annualPlan?.status === 'completed' ? t('planning.annual.summary.completed') : t('planning.annual.summary.draft') }}
+              {{
+                annualPlan?.status === 'completed'
+                  ? t('planning.annual.summary.completed')
+                  : t('planning.annual.summary.draft')
+              }}
             </div>
           </div>
           <div class="neo-inset rounded-[1.5rem] px-4 py-4">
-            <div class="text-[10px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
+            <div
+              class="text-[10px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant"
+            >
               {{ t('planning.annual.summary.lifeAreas') }}
             </div>
             <div class="mt-2 text-lg font-semibold text-on-surface">{{ lifeAreas.length }}</div>
           </div>
           <div class="neo-inset rounded-[1.5rem] px-4 py-4">
-            <div class="text-[10px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
+            <div
+              class="text-[10px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant"
+            >
               {{ t('planning.annual.summary.priorities') }}
             </div>
             <div class="mt-2 text-lg font-semibold text-on-surface">
@@ -287,7 +321,9 @@
             </div>
           </div>
         </div>
-        <div class="neo-inset rounded-[1.75rem] p-5 text-sm leading-relaxed text-on-surface-variant">
+        <div
+          class="neo-inset rounded-[1.75rem] p-5 text-sm leading-relaxed text-on-surface-variant"
+        >
           {{ t('planning.annual.summary.body') }}
         </div>
       </div>
@@ -333,7 +369,10 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import EntityIcon from '@/components/shared/EntityIcon.vue'
 import AnnualPlanningPriorityCard from '@/components/calendar/AnnualPlanningPriorityCard.vue'
 import PlanningStatePanel from '@/components/planning/PlanningStatePanel.vue'
-import { useAnnualPlanningWizard, type AnnualPlanningStep } from '@/composables/useAnnualPlanningWizard'
+import {
+  useAnnualPlanningWizard,
+  type AnnualPlanningStep,
+} from '@/composables/useAnnualPlanningWizard'
 import { useT } from '@/composables/useT'
 import type { YearRef } from '@/domain/period'
 
@@ -412,18 +451,25 @@ const stepLabels = computed(() => [
 
 const stepSubtitle = computed(() => {
   switch (currentStep.value) {
-    case 'brief': return t('planning.annual.stepsSubtitles.brief')
-    case 'life-areas': return t('planning.annual.stepsSubtitles.lifeAreas')
-    case 'narrative': return t('planning.annual.stepsSubtitles.narrative')
-    case 'priorities': return t('planning.annual.stepsSubtitles.priorities')
-    case 'execution': return t('planning.annual.stepsSubtitles.execution')
-    case 'summary': return t('planning.annual.stepsSubtitles.summary')
-    default: return ''
+    case 'brief':
+      return t('planning.annual.stepsSubtitles.brief')
+    case 'life-areas':
+      return t('planning.annual.stepsSubtitles.lifeAreas')
+    case 'narrative':
+      return t('planning.annual.stepsSubtitles.narrative')
+    case 'priorities':
+      return t('planning.annual.stepsSubtitles.priorities')
+    case 'execution':
+      return t('planning.annual.stepsSubtitles.execution')
+    case 'summary':
+      return t('planning.annual.stepsSubtitles.summary')
+    default:
+      return ''
   }
 })
 
 const lifeAreaOptions = computed(() =>
-  lifeAreas.value.map((area) => ({ id: area.id, label: area.name })),
+  lifeAreas.value.map(area => ({ id: area.id, label: area.name }))
 )
 
 const priorityStatusOptions = computed(() => [
@@ -439,7 +485,7 @@ function toggleAreaExpanded(id: string): void {
 function handleLifeAreaText(
   lifeAreaId: string,
   field: 'meaning' | 'desiredState' | 'typicalRisks' | 'reflectionSignals',
-  event: Event,
+  event: Event
 ): void {
   void updateLifeAreaField(lifeAreaId, field, (event.target as HTMLTextAreaElement).value)
 }
@@ -469,7 +515,11 @@ const PlaceholderPanel = defineComponent({
           ]),
           h('div', { class: 'min-w-0 space-y-1' }, [
             h('h3', { class: 'text-base font-semibold text-on-surface' }, componentProps.title),
-            h('p', { class: 'text-sm leading-relaxed text-on-surface-variant' }, componentProps.body),
+            h(
+              'p',
+              { class: 'text-sm leading-relaxed text-on-surface-variant' },
+              componentProps.body
+            ),
           ]),
         ]),
       ])
@@ -494,7 +544,8 @@ const NarrativeField = defineComponent({
         h('textarea', {
           value: componentProps.modelValue,
           rows: 7,
-          class: 'min-h-[11rem] w-full resize-y bg-transparent text-sm leading-relaxed text-on-surface outline-none placeholder:text-on-surface-variant/45',
+          class:
+            'min-h-[11rem] w-full resize-y bg-transparent text-sm leading-relaxed text-on-surface outline-none placeholder:text-on-surface-variant/45',
           placeholder: componentProps.placeholder,
           onInput: (event: Event) =>
             componentEmit('update:modelValue', (event.target as HTMLTextAreaElement).value),

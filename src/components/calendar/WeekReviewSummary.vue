@@ -43,10 +43,7 @@ import WeekKontextCard from './WeekKontextCard.vue'
 import WeekObjectsGrid from './WeekObjectsGrid.vue'
 import type { DayRef, WeekRef } from '@/domain/period'
 import type { WeeklyIntention } from '@/domain/planning'
-import type {
-  DailyMeasurementEntry,
-  MeasurementDayAssignment,
-} from '@/domain/planningState'
+import type { DailyMeasurementEntry, MeasurementDayAssignment } from '@/domain/planningState'
 import type { WeekObjectItem } from '@/services/reflectionDataQueries'
 import { buildWeeklyPlanSummary } from '@/services/weeklyPlanSummary'
 
@@ -64,7 +61,7 @@ const props = withDefaults(
     /** The week's weekly intentions — feed the plan-vs-execution "Intencje" ring. */
     weeklyIntentions?: WeeklyIntention[]
   }>(),
-  { kontekstActions: true, hasPlan: false, weeklyIntentions: () => [] },
+  { kontekstActions: true, hasPlan: false, weeklyIntentions: () => [] }
 )
 
 const emit = defineEmits<{
@@ -75,6 +72,11 @@ const emit = defineEmits<{
 }>()
 
 const planSummary = computed(() =>
-  buildWeeklyPlanSummary(props.weekObjectItems, props.rawEntries, props.weekRef, props.weeklyIntentions),
+  buildWeeklyPlanSummary(
+    props.weekObjectItems,
+    props.rawEntries,
+    props.weekRef,
+    props.weeklyIntentions
+  )
 )
 </script>

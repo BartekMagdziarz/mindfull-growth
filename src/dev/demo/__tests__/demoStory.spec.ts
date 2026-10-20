@@ -12,10 +12,15 @@ import {
 } from '../demoStory'
 import { DEMO_SHAME_STEP_SLUGS, SHAME_STEP_DAYS, priorityForIntention } from '../demoSeed'
 
-const groupSlugs = new Set(Object.values(GROUPS_BY_QUADRANT).flat().map(group => group.slug))
+const groupSlugs = new Set(
+  Object.values(GROUPS_BY_QUADRANT)
+    .flat()
+    .map(group => group.slug)
+)
 const shame = PROGRAM_CATALOG.find(program => program.slug === 'shame-compassion')!
 const momentsDef = MICRO_EXERCISES.find(exercise => exercise.slug === 'moments')!
-const optionsOf = (key: string) => (momentsDef.steps.find(step => step.key === key) as unknown as { options: string[] }).options
+const optionsOf = (key: string) =>
+  (momentsDef.steps.find(step => step.key === key) as unknown as { options: string[] }).options
 
 describe('demo story', () => {
   it('covers half a year of weeks and six months', () => {
@@ -44,7 +49,9 @@ describe('demo story', () => {
   })
 
   it('matches the shame path definition step by step', () => {
-    expect([...DEMO_SHAME_STEP_SLUGS]).toEqual(shame.steps.slice(0, DEMO_SHAME_STEP_SLUGS.length).map(step => step.exerciseSlug))
+    expect([...DEMO_SHAME_STEP_SLUGS]).toEqual(
+      shame.steps.slice(0, DEMO_SHAME_STEP_SLUGS.length).map(step => step.exerciseSlug)
+    )
     expect(shame.steps[DEMO_SHAME_STEP_SLUGS.length - 1].closesPath).toBe(true)
     expect(SHAME_STEP_DAYS).toHaveLength(DEMO_SHAME_STEP_SLUGS.length)
     let previous: number | null = null
@@ -53,7 +60,8 @@ describe('demo story', () => {
         expect(shame.steps[index].optional).toBe(true)
         continue
       }
-      if (previous !== null) expect(previous - daysAgo).toBeGreaterThanOrEqual(shame.steps[index].minGapDays)
+      if (previous !== null)
+        expect(previous - daysAgo).toBeGreaterThanOrEqual(shame.steps[index].minGapDays)
       previous = daysAgo
     }
   })

@@ -31,7 +31,10 @@ function fiveWeeks(build: (weekRef: WeekRef, i: number) => Partial<MonthV2WeekDa
   return WEEK_REFS.map((weekRef, i) => makeWeekDatum({ weekRef, ...build(weekRef, i) }))
 }
 
-function makeColumn(weekRef: WeekRef, overrides: Partial<MonthV2WeekColumn> = {}): MonthV2WeekColumn {
+function makeColumn(
+  weekRef: WeekRef,
+  overrides: Partial<MonthV2WeekColumn> = {}
+): MonthV2WeekColumn {
   return {
     weekRef,
     weekStart: '2026-07-06' as DayRef,
@@ -119,8 +122,20 @@ describe('MonthSeriesChart', () => {
 
   it('renders multi-completion met/partial/empty day states with the MET-days value', () => {
     const multiDays = [
-      { dayRef: '2026-07-06' as DayRef, inMonth: true, state: 'met' as const, points: 3, threshold: 3 },
-      { dayRef: '2026-07-07' as DayRef, inMonth: true, state: 'partial' as const, points: 1, threshold: 3 },
+      {
+        dayRef: '2026-07-06' as DayRef,
+        inMonth: true,
+        state: 'met' as const,
+        points: 3,
+        threshold: 3,
+      },
+      {
+        dayRef: '2026-07-07' as DayRef,
+        inMonth: true,
+        state: 'partial' as const,
+        points: 1,
+        threshold: 3,
+      },
       ...Array.from({ length: 5 }, (_, i) => ({
         dayRef: `2026-07-0${i + 8}` as DayRef,
         inMonth: true,
@@ -151,9 +166,7 @@ describe('MonthSeriesChart', () => {
     const series: MonthV2Series = {
       kind: 'completion-progress',
       display: 'segments',
-      weeks: [
-        makeWeekDatum({ actualValue: 2, entryCount: 2, status: 'missed', targetValue: 3 }),
-      ],
+      weeks: [makeWeekDatum({ actualValue: 2, entryCount: 2, status: 'missed', targetValue: 3 })],
     }
     const { container } = render(MonthSeriesChart, { props: { series } })
     expect(container.querySelectorAll('.month-series__segment')).toHaveLength(3)
@@ -209,7 +222,12 @@ describe('MonthObjectSection', () => {
           rows: [
             makeRow(
               { kind: 'completion-progress', display: 'bullet', weeks: fiveWeeks(() => ({})) },
-              { key: 'keyResult:kr-1', subjectId: 'kr-1', subjectType: 'keyResult', title: 'Sierota' }
+              {
+                key: 'keyResult:kr-1',
+                subjectId: 'kr-1',
+                subjectType: 'keyResult',
+                title: 'Sierota',
+              }
             ),
           ],
         },

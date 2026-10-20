@@ -83,7 +83,9 @@
         </button>
       </div>
 
-      <footer class="mt-2.5 flex items-center justify-between gap-3 text-[11px] text-on-surface-variant">
+      <footer
+        class="mt-2.5 flex items-center justify-between gap-3 text-[11px] text-on-surface-variant"
+      >
         <span>{{ yearHint }}</span>
         <button
           v-if="modelValue"
@@ -203,9 +205,9 @@ function onKeydown(event: KeyboardEvent): void {
     return
   }
   const cells = Array.from(
-    panelRef.value?.querySelectorAll<HTMLButtonElement>('.objects-period__cell') ?? [],
+    panelRef.value?.querySelectorAll<HTMLButtonElement>('.objects-period__cell') ?? []
   )
-  const index = cells.findIndex((cell) => cell === document.activeElement)
+  const index = cells.findIndex(cell => cell === document.activeElement)
   if (index === -1) return
   const step: Record<string, number> = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: 4, ArrowUp: -4 }
   const delta = step[event.key]
@@ -225,7 +227,7 @@ watch(
   () => props.modelValue,
   () => {
     if (!open.value) anchorCursor()
-  },
+  }
 )
 
 onMounted(() => {

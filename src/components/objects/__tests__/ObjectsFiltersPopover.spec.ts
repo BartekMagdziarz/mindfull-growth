@@ -56,7 +56,10 @@ describe('ObjectsFiltersPopover', () => {
   })
 
   it('summarises selections and disables an empty select', async () => {
-    renderPopover(makeQuery({ lifeAreaIds: ['la-1', 'la-2', 'la-3'] }), { lifeAreas, priorities: [] })
+    renderPopover(makeQuery({ lifeAreaIds: ['la-1', 'la-2', 'la-3'] }), {
+      lifeAreas,
+      priorities: [],
+    })
     await fireEvent.click(screen.getByRole('button', { name: /Filters/ }))
     expect(screen.getByRole('button', { name: 'Life areas' })).toHaveTextContent('Health +2')
     const prioritySelect = screen.getByRole('button', { name: 'Priorities' })
@@ -87,7 +90,12 @@ describe('ObjectsFiltersPopover', () => {
     await fireEvent.click(screen.getByRole('button', { name: 'Filters' }))
     expect(screen.queryByRole('button', { name: 'Reset filters' })).not.toBeInTheDocument()
 
-    await rerender({ ...labels, lifeAreas, priorities, query: makeQuery({ priorityIds: ['pr-1'] }) })
+    await rerender({
+      ...labels,
+      lifeAreas,
+      priorities,
+      query: makeQuery({ priorityIds: ['pr-1'] }),
+    })
     await fireEvent.click(screen.getByRole('button', { name: 'Reset filters' }))
     expect(emitted()['reset:filters']).toHaveLength(1)
   })

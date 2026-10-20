@@ -5,7 +5,11 @@
     :period-title="periodTitle"
     :steps="steps"
     :current="current"
-    :count="current === 0 ? `${selectedKeys.length} ${plural(selectedKeys.length, 'wybrane', 'wybrane', 'wybranych')}` : ''"
+    :count="
+      current === 0
+        ? `${selectedKeys.length} ${plural(selectedKeys.length, 'wybrane', 'wybrane', 'wybranych')}`
+        : ''
+    "
     :wide="current === 2"
     :saving="Boolean(planner.savingKey.value) || isSaving"
     finish-label="Zakończ planowanie"
@@ -16,11 +20,17 @@
     <!-- 1 · Fokus — what deserves attention this week -->
     <div v-if="current === 0" class="qr-focus">
       <!-- Program paths propose one real-world task per week; the user decides (plan §5). -->
-      <section v-if="proposals.length" class="qr-path-proposals" :aria-label="t('programs.week.proposalsLabel')">
+      <section
+        v-if="proposals.length"
+        class="qr-path-proposals"
+        :aria-label="t('programs.week.proposalsLabel')"
+      >
         <article v-for="proposal in proposals" :key="proposal.enrollment.id" class="qr-path-card">
           <header class="qr-path-card__head">
             <AppIcon :name="proposal.program.icon" />
-            <span>{{ t('programs.week.fromPath', { title: t(`${proposal.program.i18nKey}.title`) }) }}</span>
+            <span>{{
+              t('programs.week.fromPath', { title: t(`${proposal.program.i18nKey}.title`) })
+            }}</span>
           </header>
           <!-- 2–3 tasks of the phase to pick from, earlier phases behind a disclosure (plan v2 §4.3). -->
           <ProgramTaskChoice
@@ -34,13 +44,28 @@
             :name="`program-task-${proposal.enrollment.id}`"
           />
           <div class="qr-path-card__actions">
-            <button type="button" class="qr-primary" :disabled="isSaving" @click="acceptProposal(proposal)">
+            <button
+              type="button"
+              class="qr-primary"
+              :disabled="isSaving"
+              @click="acceptProposal(proposal)"
+            >
               {{ t('programs.week.accept') }}
             </button>
-            <button type="button" class="qr-quiet" :disabled="isSaving" @click="editProposal(proposal)">
+            <button
+              type="button"
+              class="qr-quiet"
+              :disabled="isSaving"
+              @click="editProposal(proposal)"
+            >
               {{ t('programs.week.edit') }}
             </button>
-            <button type="button" class="qr-quiet" :disabled="isSaving" @click="declineProposal(proposal)">
+            <button
+              type="button"
+              class="qr-quiet"
+              :disabled="isSaving"
+              @click="declineProposal(proposal)"
+            >
               {{ t('programs.week.decline') }}
             </button>
           </div>
@@ -79,7 +104,11 @@
               <strong>{{ candidate.title }}</strong>
               <small>{{ candidate.targetLabel }}</small>
             </span>
-            <span class="mg-well qr-well" :class="{ 'mg-well--done': selectedKeys.includes(candidate.key) }" aria-hidden="true"></span>
+            <span
+              class="mg-well qr-well"
+              :class="{ 'mg-well--done': selectedKeys.includes(candidate.key) }"
+              aria-hidden="true"
+            ></span>
           </button>
           <button
             v-if="candidate.intention"
@@ -120,7 +149,12 @@
           <button type="submit" class="qr-primary" :disabled="!intentionTitle.trim() || isSaving">
             {{ editingIntentionId ? 'Zapisz' : 'Dodaj' }}
           </button>
-          <button type="button" class="qr-icon" aria-label="Anuluj edycję intencji" @click="closeComposer">
+          <button
+            type="button"
+            class="qr-icon"
+            aria-label="Anuluj edycję intencji"
+            @click="closeComposer"
+          >
             <AppIcon name="close" />
           </button>
         </div>
@@ -129,11 +163,18 @@
           <fieldset>
             <legend>Powiąż z kierunkami</legend>
             <label v-for="priority in priorityOptions" :key="priority.id">
-              <input v-model="intentionPriorityIds" type="checkbox" :value="priority.id" />{{ priority.title }}
+              <input v-model="intentionPriorityIds" type="checkbox" :value="priority.id" />{{
+                priority.title
+              }}
             </label>
             <p v-if="!priorityOptions.length">Brak aktywnych kierunków w tym miesiącu.</p>
           </fieldset>
-          <button v-if="editingIntentionId" type="button" class="qr-quiet" @click="removeIntention(editingIntentionId)">
+          <button
+            v-if="editingIntentionId"
+            type="button"
+            class="qr-quiet"
+            @click="removeIntention(editingIntentionId)"
+          >
             <AppIcon name="delete" />Usuń intencję
           </button>
         </details>
@@ -146,7 +187,9 @@
         <div class="qr-table">
           <div class="qr-table-head">
             <span>{{ selectedRows.length ? 'Fokus tygodnia' : 'W tym tygodniu' }}</span>
-            <span v-for="day in days" :key="day.dayRef">{{ day.shortLabel }}<small>{{ day.dayNumber }}</small></span>
+            <span v-for="day in days" :key="day.dayRef"
+              >{{ day.shortLabel }}<small>{{ day.dayNumber }}</small></span
+            >
             <span>Cel</span>
             <span aria-hidden="true"></span>
           </div>
@@ -155,7 +198,9 @@
             <article v-for="row in group.rows" :key="planner.rowKey(row)" class="qr-plan-row">
               <div class="qr-table-row">
                 <span class="qr-row-name">
-                  <AppIcon :name="row.icon ?? SUBJECT_ICON[row.subjectType]" /><strong>{{ row.title }}</strong>
+                  <AppIcon :name="row.icon ?? SUBJECT_ICON[row.subjectType]" /><strong>{{
+                    row.title
+                  }}</strong>
                 </span>
                 <button
                   v-if="planner.rowSoftKind(row) === 'whole-week'"
@@ -192,7 +237,9 @@
                   :title="targetTitle(row)"
                   :aria-expanded="targetOpen === planner.rowKey(row)"
                   :disabled="!planner.weekTargetEditable(row)"
-                  @click="targetOpen = targetOpen === planner.rowKey(row) ? null : planner.rowKey(row)"
+                  @click="
+                    targetOpen = targetOpen === planner.rowKey(row) ? null : planner.rowKey(row)
+                  "
                 >
                   {{ planner.editableTarget(row)?.value ?? '—' }}
                 </button>
@@ -262,14 +309,22 @@
                 <AppIcon name="event_upcoming" />
                 <p>
                   Cel <strong>{{ planner.deadlineProposal.value!.goalTitle }}</strong> kończy się
-                  {{ onDayPhrase(planner.deadlineProposal.value!.currentTargetDate) }}.
-                  Przesunąć termin na {{ dayPhrase(planner.deadlineProposal.value!.dayRef) }} i zaplanować ten dzień?
+                  {{ onDayPhrase(planner.deadlineProposal.value!.currentTargetDate) }}. Przesunąć
+                  termin na {{ dayPhrase(planner.deadlineProposal.value!.dayRef) }} i zaplanować ten
+                  dzień?
                 </p>
                 <div class="qr-deadline-actions">
-                  <button type="button" class="qr-primary" :disabled="Boolean(planner.savingKey.value)" @click="planner.confirmDeadlineProposal()">
+                  <button
+                    type="button"
+                    class="qr-primary"
+                    :disabled="Boolean(planner.savingKey.value)"
+                    @click="planner.confirmDeadlineProposal()"
+                  >
                     Przesuń termin
                   </button>
-                  <button type="button" class="qr-quiet" @click="planner.dismissDeadlineProposal()">Zostaw</button>
+                  <button type="button" class="qr-quiet" @click="planner.dismissDeadlineProposal()">
+                    Zostaw
+                  </button>
                 </div>
               </div>
             </article>
@@ -280,10 +335,18 @@
         Nie udało się zapisać zmiany: {{ planner.mutationError.value }}
       </p>
       <p v-if="!selectedKeys.length" class="qr-empty">
-        Nie wybrano fokusu. <button type="button" class="qr-quiet" @click="go(0)">Wybierz działania</button>
+        Nie wybrano fokusu.
+        <button type="button" class="qr-quiet" @click="go(0)">Wybierz działania</button>
       </p>
-      <button v-if="restRows.length" type="button" class="qr-quiet" :aria-expanded="showRest" @click="showRest = !showRest">
-        {{ showRest ? 'Zwiń pozostałe działania' : `Pozostałe działania (${restRows.length})` }}<AppIcon name="expand_more" />
+      <button
+        v-if="restRows.length"
+        type="button"
+        class="qr-quiet"
+        :aria-expanded="showRest"
+        @click="showRest = !showRest"
+      >
+        {{ showRest ? 'Zwiń pozostałe działania' : `Pozostałe działania (${restRows.length})`
+        }}<AppIcon name="expand_more" />
       </button>
     </section>
 
@@ -292,8 +355,15 @@
       <div class="qr-week-cards" aria-label="Plan na poszczególne dni">
         <article v-for="day in days" :key="day.dayRef" class="qr-day-card">
           <header>
-            <h2>{{ day.fullLabel }}<span>{{ day.dayNumber }}</span></h2>
-            <button type="button" class="qr-icon" :aria-label="`Zmień plan: ${day.fullLabel}`" @click="go(1)">
+            <h2>
+              {{ day.fullLabel }}<span>{{ day.dayNumber }}</span>
+            </h2>
+            <button
+              type="button"
+              class="qr-icon"
+              :aria-label="`Zmień plan: ${day.fullLabel}`"
+              @click="go(1)"
+            >
               <AppIcon name="edit_calendar" />
             </button>
           </header>
@@ -413,7 +483,10 @@ function rowCandidate(row: PlannerMeasurementRow): Candidate {
     icon: row.icon ?? SUBJECT_ICON[row.subjectType],
     targetLabel: target ? formatMeasurementTargetSummary(target, t) : 'Bez celu',
     row,
-    intention: row.subjectType === 'weeklyIntention' ? intentions.value.find(item => item.id === row.id) : undefined,
+    intention:
+      row.subjectType === 'weeklyIntention'
+        ? intentions.value.find(item => item.id === row.id)
+        : undefined,
   }
 }
 
@@ -431,7 +504,10 @@ const restCandidates = computed<Candidate[]>(() => [
 const visibleCandidates = computed(() =>
   showAll.value
     ? [...primaryCandidates.value, ...restCandidates.value]
-    : [...primaryCandidates.value, ...restCandidates.value.filter(candidate => selectedKeys.value.includes(candidate.key))],
+    : [
+        ...primaryCandidates.value,
+        ...restCandidates.value.filter(candidate => selectedKeys.value.includes(candidate.key)),
+      ]
 )
 
 /**
@@ -443,12 +519,12 @@ const monthSupport = computed(() =>
     row =>
       planner.rowHasWeekPlacement(row) &&
       (row.cadence === 'monthly' || planner.rowSoftKind(row) === 'whole-month') &&
-      !selectedKeys.value.includes(planner.rowKey(row)),
-  ),
+      !selectedKeys.value.includes(planner.rowKey(row))
+  )
 )
 
 const selectedRows = computed(() =>
-  planner.allRows.value.filter(row => selectedKeys.value.includes(planner.rowKey(row))),
+  planner.allRows.value.filter(row => selectedKeys.value.includes(planner.rowKey(row)))
 )
 const isSelected = (row: PlannerMeasurementRow) => selectedKeys.value.includes(planner.rowKey(row))
 /** Non-focus objects already engaged in this week — they get planned here anyway, so they stay open. */
@@ -458,33 +534,53 @@ const weekRows = computed(() =>
     ...planner.engagedHabitRows.value,
     ...planner.engagedIntentionRows.value,
     ...planner.engagedTrackerRows.value,
-  ].filter(row => !isSelected(row)),
+  ].filter(row => !isSelected(row))
 )
 /** Objects with no involvement this week wait behind one reveal. */
 const restRows = computed(() => planner.dormantRows.value.filter(row => !isSelected(row)))
 const plannerGroups = computed(() =>
   [
     { key: 'focus', label: '', rows: selectedRows.value },
-    { key: 'week', label: selectedRows.value.length ? 'Też w tym tygodniu' : '', rows: weekRows.value },
+    {
+      key: 'week',
+      label: selectedRows.value.length ? 'Też w tym tygodniu' : '',
+      rows: weekRows.value,
+    },
     { key: 'rest', label: 'Pozostałe działania', rows: showRest.value ? restRows.value : [] },
-  ].filter(group => group.rows.length),
+  ].filter(group => group.rows.length)
 )
 const unplaced = computed(() => selectedRows.value.filter(row => !planner.rowHasWeekPlacement(row)))
 const flexibleItems = computed<QuietPlanGroupItem[]>(() =>
-  planner.allRows.value.filter(row => planner.rowSoftKind(row) === 'whole-week').map(planItem),
+  planner.allRows.value.filter(row => planner.rowSoftKind(row) === 'whole-week').map(planItem)
 )
 
 function planItem(row: PlannerMeasurementRow): QuietPlanGroupItem {
-  return { key: planner.rowKey(row), title: row.title, subjectType: row.subjectType, icon: row.icon }
+  return {
+    key: planner.rowKey(row),
+    title: row.title,
+    subjectType: row.subjectType,
+    icon: row.icon,
+  }
 }
 
 function dayItems(dayRef: DayRef): QuietPlanGroupItem[] {
   return planner.allRows.value
-    .filter(row => planner.rowSoftKind(row) !== 'whole-week' && planner.dayCellState(row, dayRef) !== 'empty')
+    .filter(
+      row =>
+        planner.rowSoftKind(row) !== 'whole-week' && planner.dayCellState(row, dayRef) !== 'empty'
+    )
     .map(planItem)
 }
 
-const WEEKDAY_ACCUSATIVE = ['poniedziałek', 'wtorek', 'środę', 'czwartek', 'piątek', 'sobotę', 'niedzielę']
+const WEEKDAY_ACCUSATIVE = [
+  'poniedziałek',
+  'wtorek',
+  'środę',
+  'czwartek',
+  'piątek',
+  'sobotę',
+  'niedzielę',
+]
 
 /** „środę 30 wrz” — weekday (accusative, after „na”) + short date. */
 function dayPhrase(dayRef: DayRef): string {
@@ -510,7 +606,10 @@ function targetTitle(row: PlannerMeasurementRow): string {
 }
 
 onMounted(() => void load())
-watch(() => props.weekRef, () => void load())
+watch(
+  () => props.weekRef,
+  () => void load()
+)
 
 async function load() {
   const monthRef = getParentPeriod(props.weekRef)
@@ -518,17 +617,21 @@ async function load() {
     periodPlanDexieRepository.getWeekPlan(props.weekRef),
     listWeeklyIntentions(props.weekRef),
     getActivePrioritiesForMonth(monthRef),
-    listWeeklyTaskProposals(props.weekRef).catch((err) => {
+    listWeeklyTaskProposals(props.weekRef).catch(err => {
       console.error('Failed to load program task proposals:', err)
       return [] as ProgramTaskProposal[]
     }),
   ])
   proposals.value = pathProposals
   for (const proposal of pathProposals) {
-    const known = [...proposal.current, ...proposal.earlier].some((task) => task.key === chosenTaskKeys[proposal.enrollment.id])
+    const known = [...proposal.current, ...proposal.earlier].some(
+      task => task.key === chosenTaskKeys[proposal.enrollment.id]
+    )
     if (!known) chosenTaskKeys[proposal.enrollment.id] = proposal.suggested.key
   }
-  selectedKeys.value = (weekPlan?.topPriorities ?? []).map(ref => `${ref.subjectType}:${ref.subjectId}`)
+  selectedKeys.value = (weekPlan?.topPriorities ?? []).map(
+    ref => `${ref.subjectType}:${ref.subjectId}`
+  )
   intentions.value = weekIntentions
   priorityOptions.value = priorities
 }
@@ -541,7 +644,12 @@ async function persistFocus() {
   const refs: WeekTopPriorityRef[] = selectedKeys.value.flatMap(key => {
     const separator = key.indexOf(':')
     if (separator < 0) return []
-    return [{ subjectType: key.slice(0, separator) as WeekTopPriorityRef['subjectType'], subjectId: key.slice(separator + 1) }]
+    return [
+      {
+        subjectType: key.slice(0, separator) as WeekTopPriorityRef['subjectType'],
+        subjectId: key.slice(separator + 1),
+      },
+    ]
   })
   isSaving.value = true
   try {
@@ -584,7 +692,9 @@ async function onEntryDays(row: PlannerMeasurementRow, event: Event) {
 /** The task picked in the card (the suggestion until the user changes it). */
 function chosenTask(proposal: ProgramTaskProposal): ProgramWeeklyTask {
   const key = chosenTaskKeys[proposal.enrollment.id]
-  return [...proposal.current, ...proposal.earlier].find((task) => task.key === key) ?? proposal.suggested
+  return (
+    [...proposal.current, ...proposal.earlier].find(task => task.key === key) ?? proposal.suggested
+  )
 }
 
 function taskTitle(proposal: ProgramTaskProposal): string {
@@ -602,7 +712,7 @@ async function acceptProposal(
   proposal: ProgramTaskProposal,
   title = taskTitle(proposal),
   times = chosenTask(proposal).times,
-  priorityIds: string[] = [],
+  priorityIds: string[] = []
 ) {
   isSaving.value = true
   try {
@@ -633,7 +743,9 @@ async function editProposal(proposal: ProgramTaskProposal) {
 async function declineProposal(proposal: ProgramTaskProposal) {
   isSaving.value = true
   try {
-    enrollmentStore.applyUpdate(await declineWeeklyTask(proposal.enrollment.id, props.weekRef, chosenTask(proposal).key))
+    enrollmentStore.applyUpdate(
+      await declineWeeklyTask(proposal.enrollment.id, props.weekRef, chosenTask(proposal).key)
+    )
   } finally {
     isSaving.value = false
   }

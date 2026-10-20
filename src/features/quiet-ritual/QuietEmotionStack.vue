@@ -1,5 +1,11 @@
 <template>
-  <span class="eds" :class="{ 'eds--empty': !emotions.length }" role="img" :aria-label="label" :title="label">
+  <span
+    class="eds"
+    :class="{ 'eds--empty': !emotions.length }"
+    role="img"
+    :aria-label="label"
+    :title="label"
+  >
     <i
       v-for="segment in segments"
       :key="segment.quadrant"
@@ -28,7 +34,7 @@ const props = withDefaults(
     slotLabel?: string
     maxHeight?: number
   }>(),
-  { slotLabel: '', maxHeight: 36 },
+  { slotLabel: '', maxHeight: 36 }
 )
 
 const QUADRANT_LABEL: Record<Quadrant, string> = {
@@ -40,7 +46,8 @@ const QUADRANT_LABEL: Record<Quadrant, string> = {
 
 const counts = computed(() => {
   const map = new Map<Quadrant, number>()
-  for (const emotion of props.emotions) map.set(emotion.quadrant, (map.get(emotion.quadrant) ?? 0) + 1)
+  for (const emotion of props.emotions)
+    map.set(emotion.quadrant, (map.get(emotion.quadrant) ?? 0) + 1)
   return map
 })
 
@@ -58,7 +65,7 @@ const label = computed(() => {
   const prefix = props.slotLabel ? `${props.slotLabel}: ` : ''
   if (!props.emotions.length) return `${prefix}bez zapisu emocji`
   const parts = QUADRANTS_IN_ORDER.filter(quadrant => counts.value.has(quadrant)).map(
-    quadrant => `${QUADRANT_LABEL[quadrant]} ${counts.value.get(quadrant)}`,
+    quadrant => `${QUADRANT_LABEL[quadrant]} ${counts.value.get(quadrant)}`
   )
   return `${prefix}${props.emotions.map(emotion => emotion.name).join(', ')} (${parts.join(' · ')})`
 })

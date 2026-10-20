@@ -40,6 +40,10 @@ Format: sam tekst, bez nagłówków, bez list.`,
       unknown: 'nie podano',
     },
     nonePart: 'żadna część',
-    nonePartByKind: { shame: 'żadna część, osoba została przy sobie', anger: 'pauza zamiast reakcji', anxiety: 'podejście zamiast uniku' },
+    nonePartByKind: {
+      shame: 'żadna część, osoba została przy sobie',
+      anger: 'pauza zamiast reakcji',
+      anxiety: 'podejście zamiast uniku',
+    },
   },
 }

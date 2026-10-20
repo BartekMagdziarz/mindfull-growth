@@ -4,7 +4,7 @@ import { resetDatabase } from '@/__tests__/utils/dbTestUtils'
 import type { CreateProfilePeriodSummaryPayload } from '@/domain/profilePeriodSummary'
 
 function makePayload(
-  over: Partial<CreateProfilePeriodSummaryPayload> = {},
+  over: Partial<CreateProfilePeriodSummaryPayload> = {}
 ): CreateProfilePeriodSummaryPayload {
   return {
     periodRef: '2026-W15',
@@ -24,7 +24,7 @@ describe('profilePeriodSummaryDexieRepository', () => {
 
   it('returns undefined for an unknown period', async () => {
     expect(
-      await profilePeriodSummaryDexieRepository.getByPeriod('2026-W15', 'deterministic'),
+      await profilePeriodSummaryDexieRepository.getByPeriod('2026-W15', 'deterministic')
     ).toBeUndefined()
   })
 
@@ -35,7 +35,7 @@ describe('profilePeriodSummaryDexieRepository', () => {
 
     const fetched = await profilePeriodSummaryDexieRepository.getByPeriod(
       '2026-W15',
-      'deterministic',
+      'deterministic'
     )
     expect(fetched?.content).toContain('2 entries')
     expect(fetched?.inputHash).toBe('hash-1')
@@ -44,7 +44,7 @@ describe('profilePeriodSummaryDexieRepository', () => {
   it('replaces the existing row on re-upsert (same id, no duplicate)', async () => {
     const first = await profilePeriodSummaryDexieRepository.upsert(makePayload())
     const second = await profilePeriodSummaryDexieRepository.upsert(
-      makePayload({ content: 'updated', inputHash: 'hash-2', recordCount: 3 }),
+      makePayload({ content: 'updated', inputHash: 'hash-2', recordCount: 3 })
     )
 
     expect(second.id).toBe(first.id)
@@ -58,14 +58,11 @@ describe('profilePeriodSummaryDexieRepository', () => {
   it('keeps deterministic and narrative summaries for the same period separate', async () => {
     await profilePeriodSummaryDexieRepository.upsert(makePayload({ kind: 'deterministic' }))
     await profilePeriodSummaryDexieRepository.upsert(
-      makePayload({ kind: 'narrative', content: 'prose', model: 'gemma' }),
+      makePayload({ kind: 'narrative', content: 'prose', model: 'gemma' })
     )
 
     expect(await profilePeriodSummaryDexieRepository.list()).toHaveLength(2)
-    const narrative = await profilePeriodSummaryDexieRepository.getByPeriod(
-      '2026-W15',
-      'narrative',
-    )
+    const narrative = await profilePeriodSummaryDexieRepository.getByPeriod('2026-W15', 'narrative')
     expect(narrative?.model).toBe('gemma')
   })
 

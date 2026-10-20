@@ -32,8 +32,13 @@ describe('resolveMonthlySliceVizType', () => {
     for (const cadence of ['weekly', 'monthly'] as const) {
       expect(
         resolveMonthlySliceVizType(
-          measurement({ panelType: 'habit', entryMode: 'completion', target: COUNT_TARGET, cadence }),
-        ),
+          measurement({
+            panelType: 'habit',
+            entryMode: 'completion',
+            target: COUNT_TARGET,
+            cadence,
+          })
+        )
       ).toBe('monthly-completion-bars')
     }
   })
@@ -41,8 +46,8 @@ describe('resolveMonthlySliceVizType', () => {
   it('routes completion-tracker without target to monthly-completion-bars too', () => {
     expect(
       resolveMonthlySliceVizType(
-        measurement({ panelType: 'tracker', entryMode: 'completion', cadence: 'weekly' }),
-      ),
+        measurement({ panelType: 'tracker', entryMode: 'completion', cadence: 'weekly' })
+      )
     ).toBe('monthly-completion-bars')
   })
 
@@ -50,8 +55,8 @@ describe('resolveMonthlySliceVizType', () => {
     for (const cadence of ['weekly', 'monthly'] as const) {
       expect(
         resolveMonthlySliceVizType(
-          measurement({ panelType: 'habit', entryMode: 'rating', cadence }),
-        ),
+          measurement({ panelType: 'habit', entryMode: 'rating', cadence })
+        )
       ).toBe('rating-segmented')
     }
   })
@@ -60,8 +65,8 @@ describe('resolveMonthlySliceVizType', () => {
     for (const cadence of ['weekly', 'monthly'] as const) {
       expect(
         resolveMonthlySliceVizType(
-          measurement({ panelType: 'tracker', entryMode: 'counter', target: COUNT_TARGET, cadence }),
-        ),
+          measurement({ panelType: 'tracker', entryMode: 'counter', target: COUNT_TARGET, cadence })
+        )
       ).toBe('daily-bars')
     }
   })
@@ -74,8 +79,8 @@ describe('resolveMonthlySliceVizType', () => {
           entryMode: 'value',
           target: VALUE_SUM_TARGET,
           cadence: 'weekly',
-        }),
-      ),
+        })
+      )
     ).toBe('daily-bars')
     expect(
       resolveMonthlySliceVizType(
@@ -84,16 +89,16 @@ describe('resolveMonthlySliceVizType', () => {
           entryMode: 'value',
           target: VALUE_AVG_TARGET,
           cadence: 'weekly',
-        }),
-      ),
+        })
+      )
     ).toBe('value-line')
   })
 
   it('routes value entries without target to value-line', () => {
     expect(
       resolveMonthlySliceVizType(
-        measurement({ panelType: 'tracker', entryMode: 'value', cadence: 'weekly' }),
-      ),
+        measurement({ panelType: 'tracker', entryMode: 'value', cadence: 'weekly' })
+      )
     ).toBe('value-line')
   })
 })
@@ -107,8 +112,8 @@ describe('resolveMonthlySliceVizType — multi-completion', () => {
           entryMode: 'multi-completion',
           target: { kind: 'count', operator: 'min', value: 3 },
           cadence: 'weekly',
-        }),
-      ),
+        })
+      )
     ).toBe('monthly-completion-bars')
   })
 })

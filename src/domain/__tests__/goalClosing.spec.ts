@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { evaluateClosingMonths, goalHasStartMirror, suggestGoalOutcome } from '@/domain/goalClosing'
-import type { CreateGoalPayload, GoalClosingMonthState, GoalClosingReflection } from '@/domain/planning'
+import type {
+  CreateGoalPayload,
+  GoalClosingMonthState,
+  GoalClosingReflection,
+} from '@/domain/planning'
 import { goalStatusForOutcome, normalizeGoalPayload } from '@/domain/planning'
 
 const month = (state: GoalClosingMonthState) => ({ state })
@@ -24,7 +28,13 @@ describe('evaluateClosingMonths', () => {
 
   it('is met when the last decided month was met even with a low share', () => {
     expect(
-      evaluateClosingMonths([month('missed'), month('missed'), month('missed'), month('met'), month('no-data')]),
+      evaluateClosingMonths([
+        month('missed'),
+        month('missed'),
+        month('missed'),
+        month('met'),
+        month('no-data'),
+      ])
     ).toMatchObject({ evaluation: 'met', monthsMet: 1, monthsPlanned: 5 })
   })
 
@@ -101,11 +111,17 @@ describe('normalizeGoalPayload · closingReflection', () => {
   }
 
   it('rejects a reflection on an open goal', () => {
-    expect(() => normalizeGoalPayload({ ...base, closingReflection: reflection })).toThrow(/closed goals/)
+    expect(() => normalizeGoalPayload({ ...base, closingReflection: reflection })).toThrow(
+      /closed goals/
+    )
   })
 
   it('keeps a trimmed, deduplicated reflection on a completed goal', () => {
-    const normalized = normalizeGoalPayload({ ...base, status: 'completed', closingReflection: reflection })
+    const normalized = normalizeGoalPayload({
+      ...base,
+      status: 'completed',
+      closingReflection: reflection,
+    })
     expect(normalized.closingReflection).toMatchObject({
       closedAt: '2026-10-04',
       outcome: 'partial',
@@ -113,7 +129,10 @@ describe('normalizeGoalPayload · closingReflection', () => {
       followUp: { kind: 'habit', createdHabitIds: ['h-1'] },
       window: { weeksPlanned: 29 },
     })
-    expect(normalized.closingReflection?.keyResults[0]).toMatchObject({ evaluation: 'met', monthsMet: 6 })
+    expect(normalized.closingReflection?.keyResults[0]).toMatchObject({
+      evaluation: 'met',
+      monthsMet: 6,
+    })
     // frozen before weeks were tracked: no week fields appear
     expect(normalized.closingReflection?.keyResults[0]).not.toHaveProperty('weeks')
   })
@@ -136,7 +155,11 @@ describe('normalizeGoalPayload · closingReflection', () => {
         },
       ],
     }
-    const normalized = normalizeGoalPayload({ ...base, status: 'completed', closingReflection: weekly })
+    const normalized = normalizeGoalPayload({
+      ...base,
+      status: 'completed',
+      closingReflection: weekly,
+    })
     expect(normalized.closingReflection?.keyResults[0]).toMatchObject({
       weeksMet: 1,
       weeksPlanned: 1,
@@ -149,21 +172,26 @@ describe('normalizeGoalPayload · closingReflection', () => {
 
   it('refuses a status that contradicts the outcome', () => {
     expect(() =>
-      normalizeGoalPayload({ ...base, status: 'dropped', closingReflection: reflection }),
+      normalizeGoalPayload({ ...base, status: 'dropped', closingReflection: reflection })
     ).toThrow(/does not match closing outcome/)
     expect(() =>
       normalizeGoalPayload({
         ...base,
         status: 'completed',
         closingReflection: { ...reflection, outcome: 'abandoned' },
-      }),
+      })
     ).toThrow(/does not match closing outcome/)
     expect(goalStatusForOutcome('abandoned')).toBe('dropped')
     expect(goalStatusForOutcome('missed')).toBe('completed')
   })
 
   it('drops the reflection and the deferral when the goal is reopened', () => {
-    const closed = { ...base, status: 'completed' as const, closingReflection: reflection, closingDeferredUntil: '2026-10-11' }
+    const closed = {
+      ...base,
+      status: 'completed' as const,
+      closingReflection: reflection,
+      closingDeferredUntil: '2026-10-11',
+    }
     const existing = { ...normalizeGoalPayload(closed), id: 'g', createdAt: 'x', updatedAt: 'x' }
     const reopened = normalizeGoalPayload({ status: 'open' }, existing)
     expect(reopened.closingReflection).toBeUndefined()
@@ -174,9 +202,15 @@ describe('normalizeGoalPayload · closingReflection', () => {
     const deferred = normalizeGoalPayload({ ...base, closingDeferredUntil: '2026-10-11' })
     expect(deferred.closingDeferredUntil).toBe('2026-10-11')
     const existing = { ...deferred, id: 'g', createdAt: 'x', updatedAt: 'x' }
-    expect(normalizeGoalPayload({ title: 'Renamed' }, existing).closingDeferredUntil).toBe('2026-10-11')
-    expect(normalizeGoalPayload({ closingDeferredUntil: '' }, existing).closingDeferredUntil).toBeUndefined()
-    expect(() => normalizeGoalPayload({ ...base, closingDeferredUntil: 'soon' })).toThrow(/ISO date/)
+    expect(normalizeGoalPayload({ title: 'Renamed' }, existing).closingDeferredUntil).toBe(
+      '2026-10-11'
+    )
+    expect(
+      normalizeGoalPayload({ closingDeferredUntil: '' }, existing).closingDeferredUntil
+    ).toBeUndefined()
+    expect(() => normalizeGoalPayload({ ...base, closingDeferredUntil: 'soon' })).toThrow(
+      /ISO date/
+    )
   })
 
   it('validates the hindsight confidence on the wizard scale', () => {
@@ -185,7 +219,7 @@ describe('normalizeGoalPayload · closingReflection', () => {
         ...base,
         status: 'completed',
         closingReflection: { ...reflection, confidenceInHindsight: 11 },
-      }),
+      })
     ).toThrow(/between 1 and 10/)
   })
 })

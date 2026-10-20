@@ -13,7 +13,12 @@ import {
 } from '@/domain/momentsProgress'
 import { getPeriodRefsForDate } from '@/utils/periods'
 
-function entry(id: string, createdAt: string, responses: MicroExerciseEntry['responses'], slug = 'moments'): MicroExerciseEntry {
+function entry(
+  id: string,
+  createdAt: string,
+  responses: MicroExerciseEntry['responses'],
+  slug = 'moments'
+): MicroExerciseEntry {
   return { id, exerciseSlug: slug, createdAt, updatedAt: createdAt, responses }
 }
 
@@ -24,14 +29,51 @@ const W3 = week('2026-09-28')
 
 const entries = [
   // week 1: two moments, nothing done, noticed late, critic only
-  entry('a', '2026-09-14T19:00:00', { kind: 'shame', hadMoment: 'yes', compass: 'withdraw', noticed: 'later', response: ['nothing'], criticSaid: 'x', strength: 4 }),
-  entry('b', '2026-09-16T23:30:00', { kind: 'shame', hadMoment: 'yes', compass: 'attackSelf', noticed: 'hours', response: ['nothing'], criticSaid: 'y', kindVoice: 'Zapomniałeś raz.', strength: 5 }),
+  entry('a', '2026-09-14T19:00:00', {
+    kind: 'shame',
+    hadMoment: 'yes',
+    compass: 'withdraw',
+    noticed: 'later',
+    response: ['nothing'],
+    criticSaid: 'x',
+    strength: 4,
+  }),
+  entry('b', '2026-09-16T23:30:00', {
+    kind: 'shame',
+    hadMoment: 'yes',
+    compass: 'attackSelf',
+    noticed: 'hours',
+    response: ['nothing'],
+    criticSaid: 'y',
+    kindVoice: 'Zapomniałeś raz.',
+    strength: 5,
+  }),
   // week 2: quiet
   entry('q', '2026-09-23T19:00:00', { kind: 'shame', hadMoment: 'none', quietDay: 'walk' }),
   // week 3: three moments, two with a response, noticed early, a v2 entry without noticed
-  entry('c', '2026-09-28T19:00:00', { kind: 'shame', hadMoment: 'yes', compass: 'withdraw', noticed: 'during', response: ['breath', 'unblend'], kindVoice: 'Widzę cię.', strength: 2 }),
-  entry('d', '2026-09-30T19:00:00', { kind: 'shame', hadMoment: 'yes', compass: 'none', noticed: 'soon', response: ['sentence'], kindVoice: 'Widzę cię.' }),
-  entry('e', '2026-10-02T19:00:00', { kind: 'shame', hadMoment: 'yes', compass: 'attackOthers', response: ['nothing'] }),
+  entry('c', '2026-09-28T19:00:00', {
+    kind: 'shame',
+    hadMoment: 'yes',
+    compass: 'withdraw',
+    noticed: 'during',
+    response: ['breath', 'unblend'],
+    kindVoice: 'Widzę cię.',
+    strength: 2,
+  }),
+  entry('d', '2026-09-30T19:00:00', {
+    kind: 'shame',
+    hadMoment: 'yes',
+    compass: 'none',
+    noticed: 'soon',
+    response: ['sentence'],
+    kindVoice: 'Widzę cię.',
+  }),
+  entry('e', '2026-10-02T19:00:00', {
+    kind: 'shame',
+    hadMoment: 'yes',
+    compass: 'attackOthers',
+    response: ['nothing'],
+  }),
   // other kinds and exercises never count
   entry('anger', '2026-09-29T19:00:00', { kind: 'anger', hadMoment: 'yes', intensity: 6 }),
   entry('map', '2026-09-15T12:00:00', { compass: ['withdraw', 'attackSelf'] }, 'shame-map'),
@@ -68,7 +110,7 @@ describe('momentsProgress', () => {
   it('sums each part over the weeks with its share and mean strength (unrated moments count, not rate)', () => {
     const stats = momentsProgress(entries, [W1, W2, W3])
     const summary = partSummary(stats)
-    expect(summary.map((p) => [p.part, p.count, p.meanStrength])).toEqual([
+    expect(summary.map(p => [p.part, p.count, p.meanStrength])).toEqual([
       ['withdraw', 2, 3],
       ['attackSelf', 1, 5],
       ['attackOthers', 1, null],
@@ -76,7 +118,7 @@ describe('momentsProgress', () => {
       ['none', 1, null],
     ])
     expect(summary[0]!.share).toBeCloseTo(2 / 5)
-    expect(partSummary([]).every((p) => p.share === 0 && p.meanStrength === null)).toBe(true)
+    expect(partSummary([]).every(p => p.share === 0 && p.meanStrength === null)).toBe(true)
   })
 
   it('derives the response share and the shift in noticing, ignoring entries without `noticed`', () => {
@@ -93,12 +135,27 @@ describe('collectOwnSentences', () => {
   it('gathers the compassionate sentences newest first and de-duplicates by text', () => {
     const own = collectOwnSentences([
       ...entries,
-      entry('img', '2026-09-17T12:00:00', { message: 'Jesteś człowiekiem i to boli.' }, 'compassionate-image'),
+      entry(
+        'img',
+        '2026-09-17T12:00:00',
+        { message: 'Jesteś człowiekiem i to boli.' },
+        'compassionate-image'
+      ),
       entry('self', '2026-09-19T12:00:00', { toPart: 'Widzę cię.' }, 'compassionate-self'),
-      entry('resp', '2026-09-20T12:00:00', { sentence: '„Widzę cię”', unblendSentence: 'To mój Krytyk mówi, nie ja.' }, 'shame-response'),
-      entry('def', '2026-10-03T12:00:00', { mySentence: 'Zrobiłem błąd i nadal jestem w porządku.' }, 'defender-voice'),
+      entry(
+        'resp',
+        '2026-09-20T12:00:00',
+        { sentence: '„Widzę cię”', unblendSentence: 'To mój Krytyk mówi, nie ja.' },
+        'shame-response'
+      ),
+      entry(
+        'def',
+        '2026-10-03T12:00:00',
+        { mySentence: 'Zrobiłem błąd i nadal jestem w porządku.' },
+        'defender-voice'
+      ),
     ])
-    expect(own.map((s) => [s.source, s.text])).toEqual([
+    expect(own.map(s => [s.source, s.text])).toEqual([
       ['defender', 'Zrobiłem błąd i nadal jestem w porządku.'],
       ['moment', 'Widzę cię.'],
       ['unblend', 'To mój Krytyk mówi, nie ja.'],
@@ -131,7 +188,13 @@ describe('practice helpfulness and days', () => {
       { exerciseSlug: 'thought-record', dayRef: '2026-09-17' },
       { exerciseSlug: 'self-compassion-break', dayRef: '2026-09-21' },
     ]
-    expect(practiceDaysInWeek(completions, W1, ['self-compassion-break', 'moment-shame', 'paced-breathing'])).toBe(2)
+    expect(
+      practiceDaysInWeek(completions, W1, [
+        'self-compassion-break',
+        'moment-shame',
+        'paced-breathing',
+      ])
+    ).toBe(2)
     expect(practiceDaysInWeek(completions, W2, ['self-compassion-break'])).toBe(1)
   })
 })

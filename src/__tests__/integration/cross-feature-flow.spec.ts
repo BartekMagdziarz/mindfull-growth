@@ -1,9 +1,5 @@
 import { describe, it, beforeEach, expect } from 'vitest'
-import {
-  resetDatabase,
-  getAllPeopleTags,
-  getAllContextTags,
-} from '../utils/dbTestUtils'
+import { resetDatabase, getAllPeopleTags, getAllContextTags } from '../utils/dbTestUtils'
 import { initializeStores } from './testUtils'
 import type { Emotion } from '@/domain/emotion'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
@@ -82,7 +78,7 @@ describe('Cross Feature Integrations', () => {
     await emotionLogStore.loadLogs()
 
     const happyEmotion =
-      getAllEmotions(emotionStore).find((emotion) => emotion.name === 'Happy') ??
+      getAllEmotions(emotionStore).find(emotion => emotion.name === 'Happy') ??
       getAllEmotions(emotionStore)[0]
 
     const entry = await journalStore.createEntry({

@@ -24,7 +24,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
-import type { ObjectsLibraryFilterOption, ObjectsLibraryQuery } from '@/services/objectsLibraryQueries'
+import type {
+  ObjectsLibraryFilterOption,
+  ObjectsLibraryQuery,
+} from '@/services/objectsLibraryQueries'
 
 interface ActiveFilterChip {
   key: string
@@ -58,12 +61,22 @@ const chips = computed<ActiveFilterChip[]>(() => {
   }
   for (const option of props.lifeAreas) {
     if (props.query.lifeAreaIds.includes(option.id)) {
-      result.push({ key: `lifeArea:${option.id}`, kind: 'lifeArea', id: option.id, label: option.label })
+      result.push({
+        key: `lifeArea:${option.id}`,
+        kind: 'lifeArea',
+        id: option.id,
+        label: option.label,
+      })
     }
   }
   for (const option of props.priorities) {
     if (props.query.priorityIds.includes(option.id)) {
-      result.push({ key: `priority:${option.id}`, kind: 'priority', id: option.id, label: option.label })
+      result.push({
+        key: `priority:${option.id}`,
+        kind: 'priority',
+        id: option.id,
+        label: option.label,
+      })
     }
   }
   return result

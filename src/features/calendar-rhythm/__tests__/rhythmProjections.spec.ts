@@ -46,7 +46,15 @@ describe('unitsFor', () => {
   })
 
   it('gives a week seven days and a year twelve months', () => {
-    expect(unitsFor('week', WEEK, CLOCK).map(unit => unit.label)).toEqual(['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'])
+    expect(unitsFor('week', WEEK, CLOCK).map(unit => unit.label)).toEqual([
+      'Pn',
+      'Wt',
+      'Śr',
+      'Cz',
+      'Pt',
+      'So',
+      'Nd',
+    ])
     expect(unitsFor('year', '2026', CLOCK)).toHaveLength(12)
   })
 })
@@ -86,7 +94,11 @@ describe('seriesFor', () => {
   })
 
   it('sums a monthly-cadence object into Σ and keeps a whole-period plan out of it', () => {
-    const object = habit({ key: 'habit:h2', cadence: 'monthly', target: { kind: 'count', operator: 'min', value: 4 } })
+    const object = habit({
+      key: 'habit:h2',
+      cadence: 'monthly',
+      target: { kind: 'count', operator: 'min', value: 4 },
+    })
     const state = scenario({
       objects: [object],
       entries: [
@@ -109,8 +121,16 @@ describe('effectiveTarget', () => {
     const state = scenario({
       objects: [object],
       overrides: [
-        { objectKey: object.key, scope: { kind: 'month', ref: MONTH }, target: { kind: 'count', operator: 'min', value: 5 } },
-        { objectKey: object.key, scope: { kind: 'week', ref: WEEK }, target: { kind: 'count', operator: 'min', value: 2 } },
+        {
+          objectKey: object.key,
+          scope: { kind: 'month', ref: MONTH },
+          target: { kind: 'count', operator: 'min', value: 5 },
+        },
+        {
+          objectKey: object.key,
+          scope: { kind: 'week', ref: WEEK },
+          target: { kind: 'count', operator: 'min', value: 2 },
+        },
       ],
     })
 
@@ -123,8 +143,12 @@ describe('effectiveTarget', () => {
 describe('resolveMarkKind', () => {
   it('follows entry mode, target and cadence', () => {
     expect(resolveMarkKind(habit(), 'month')).toBe('slots')
-    expect(resolveMarkKind(habit({ target: { kind: 'count', operator: 'min', value: 12 } }), 'month')).toBe('day-slots')
-    expect(resolveMarkKind(habit({ entryMode: 'rating', target: undefined }), 'month')).toBe('rating-point')
+    expect(
+      resolveMarkKind(habit({ target: { kind: 'count', operator: 'min', value: 12 } }), 'month')
+    ).toBe('day-slots')
+    expect(resolveMarkKind(habit({ entryMode: 'rating', target: undefined }), 'month')).toBe(
+      'rating-point'
+    )
     expect(resolveMarkKind(habit({ entryMode: 'counter' }), 'month')).toBe('bar-target')
     expect(resolveMarkKind(habit(), 'year')).toBe('bar-target')
   })
@@ -149,20 +173,38 @@ describe('objectCompletion', () => {
       ],
     })
 
-    const completion = objectCompletion(state, object, 'month', MONTH, unitsFor('month', MONTH, CLOCK))
+    const completion = objectCompletion(
+      state,
+      object,
+      'month',
+      MONTH,
+      unitsFor('month', MONTH, CLOCK)
+    )
 
     expect(completion.basis).toBe('targets')
     expect(completion.ratio).toEqual({ done: 1, total: 2 })
   })
 
   it('falls back to presence for an object without a target', () => {
-    const object = habit({ key: 'tracker:t1', family: 'tracker', target: undefined, evidenceRole: 'observation', entryMode: 'rating' })
+    const object = habit({
+      key: 'tracker:t1',
+      family: 'tracker',
+      target: undefined,
+      evidenceRole: 'observation',
+      entryMode: 'rating',
+    })
     const state = scenario({
       objects: [object],
       entries: [{ id: 'e1', objectKey: object.key, dayRef: '2026-07-14' as DayRef, value: 4 }],
     })
 
-    const completion = objectCompletion(state, object, 'month', MONTH, unitsFor('month', MONTH, CLOCK))
+    const completion = objectCompletion(
+      state,
+      object,
+      'month',
+      MONTH,
+      unitsFor('month', MONTH, CLOCK)
+    )
 
     expect(completion.basis).toBe('presence')
     expect(completion.ratio.done).toBe(1)
@@ -219,7 +261,13 @@ describe('areaSeriesFor · load/state ribbons', () => {
     expect(weekRefs.length).toBeGreaterThan(3)
     const state = scenario({
       weeklyReflections: [
-        { weekRef: weekRefs[0], status: 'done', load: [5, 1, 3, 2], state: [4, 2, 3, 5], anchors: { good: '', hard: '', lessons: '' } },
+        {
+          weekRef: weekRefs[0],
+          status: 'done',
+          load: [5, 1, 3, 2],
+          state: [4, 2, 3, 5],
+          anchors: { good: '', hard: '', lessons: '' },
+        },
       ],
     })
     const series = areaSeriesFor(state, weekRefs)

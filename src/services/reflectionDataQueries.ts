@@ -14,12 +14,14 @@ import { useEmotionStore } from '@/stores/emotion.store'
 import { useJournalStore } from '@/stores/journal.store'
 import { useTagStore } from '@/stores/tag.store'
 import { getChildPeriods, getPeriodBounds, getPeriodRefsForDate } from '@/utils/periods'
-import { classifyWeek, statusFromWeekTally, tallyWeekStates, type WeekState } from '@/domain/weeklyCadence'
-import { getUserDatabase } from '@/services/userDatabase.service'
 import {
-  getWeekRelevantObjects,
-  getMonthPlanningBundle,
-} from '@/services/planningStateQueries'
+  classifyWeek,
+  statusFromWeekTally,
+  tallyWeekStates,
+  type WeekState,
+} from '@/domain/weeklyCadence'
+import { getUserDatabase } from '@/services/userDatabase.service'
+import { getWeekRelevantObjects, getMonthPlanningBundle } from '@/services/planningStateQueries'
 import type {
   MeasurementPlanningSummary,
   MonthMeasurementPlanningItem,
@@ -35,12 +37,14 @@ import type { MeasureableSubject, MeasurementSummary } from '@/services/measurem
 import type { MeasurementSubjectType } from '@/domain/planningState'
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
 import type { WeeklyReflection } from '@/domain/reflection'
-import {
-  WEEKLY_DEMANDS_KEYS,
-  WEEKLY_ACTIONS_KEYS,
-  WEEKLY_STATE_KEYS,
-} from '@/domain/reflection'
-import type { Goal, GoalStatus, MeasurementEntryMode, MeasurementTarget, PlanningCadence } from '@/domain/planning'
+import { WEEKLY_DEMANDS_KEYS, WEEKLY_ACTIONS_KEYS, WEEKLY_STATE_KEYS } from '@/domain/reflection'
+import type {
+  Goal,
+  GoalStatus,
+  MeasurementEntryMode,
+  MeasurementTarget,
+  PlanningCadence,
+} from '@/domain/planning'
 import type { DailyMeasurementEntry, MeasurementDayAssignment } from '@/domain/planningState'
 import type { MeasurementEvaluationStatus } from '@/services/measurementProgress'
 
@@ -341,7 +345,7 @@ export interface ReflectionEntrySources {
  */
 export async function getReflectionEntrySources(
   startDate: string,
-  endDate: string,
+  endDate: string
 ): Promise<ReflectionEntrySources> {
   const journalStore = useJournalStore()
   const emotionLogStore = useEmotionLogStore()
@@ -357,30 +361,29 @@ export async function getReflectionEntrySources(
 
   const resolveEmotions = (ids: string[] | undefined): string[] =>
     (ids ?? [])
-      .map((id) => emotionStore.getEmotionById(id)?.name)
+      .map(id => emotionStore.getEmotionById(id)?.name)
       .filter((n): n is string => typeof n === 'string')
   const resolveQuadrants = (ids: string[] | undefined): Quadrant[] =>
     (ids ?? [])
-      .map((id) => emotionStore.getEmotionById(id))
+      .map(id => emotionStore.getEmotionById(id))
       .filter((e): e is NonNullable<typeof e> => !!e)
-      .map((e) => getQuadrant(e))
+      .map(e => getQuadrant(e))
   const resolvePeople = (ids: string[] | undefined): string[] =>
     (ids ?? [])
-      .map((id) => tagStore.getPeopleTagById(id)?.name)
+      .map(id => tagStore.getPeopleTagById(id)?.name)
       .filter((n): n is string => typeof n === 'string')
   const resolveContexts = (ids: string[] | undefined): string[] =>
     (ids ?? [])
-      .map((id) => tagStore.getContextTagById(id)?.name)
+      .map(id => tagStore.getContextTagById(id)?.name)
       .filter((n): n is string => typeof n === 'string')
 
-  const inRange = (createdAt: string): boolean =>
-    createdAt >= startDate && createdAt <= endDate
+  const inRange = (createdAt: string): boolean => createdAt >= startDate && createdAt <= endDate
 
   // sortedEntries / sortedLogs are newest-first; reverse the filtered slice so
   // the model reads the week/month chronologically.
   const journalEntries: ReflectionJournalEntryDetail[] = journalStore.sortedEntries
-    .filter((e) => inRange(e.createdAt))
-    .map((e) => ({
+    .filter(e => inRange(e.createdAt))
+    .map(e => ({
       id: e.id,
       createdAt: e.createdAt,
       title: getDisplayTitle(e),
@@ -392,8 +395,8 @@ export async function getReflectionEntrySources(
     .reverse()
 
   const emotionLogs: ReflectionEmotionLogDetail[] = emotionLogStore.sortedLogs
-    .filter((l) => inRange(l.createdAt))
-    .map((l) => ({
+    .filter(l => inRange(l.createdAt))
+    .map(l => ({
       id: l.id,
       createdAt: l.createdAt,
       emotions: resolveEmotions(l.emotionIds),
@@ -416,7 +419,7 @@ function buildEmotionSummary(startDate: string, endDate: string): EmotionSummary
   const emotionStore = useEmotionStore()
 
   const logs = emotionLogStore.sortedLogs.filter(
-    (log) => log.createdAt >= startDate && log.createdAt <= endDate
+    log => log.createdAt >= startDate && log.createdAt <= endDate
   )
 
   const emotionCounts = new Map<string, number>()
@@ -446,7 +449,7 @@ function buildEmotionSummary(startDate: string, endDate: string): EmotionSummary
         emotionId,
         name: emotion?.name ?? emotionId,
         count,
-        quadrant: emotion ? getQuadrant(emotion) : 'low-energy-low-pleasantness' as Quadrant,
+        quadrant: emotion ? getQuadrant(emotion) : ('low-energy-low-pleasantness' as Quadrant),
       }
     })
 
@@ -460,15 +463,14 @@ function buildEmotionSummary(startDate: string, endDate: string): EmotionSummary
 function buildJournalSummary(startDate: string, endDate: string): JournalSummary {
   const journalStore = useJournalStore()
   const entries = journalStore.sortedEntries.filter(
-    (entry) => entry.createdAt >= startDate && entry.createdAt <= endDate
+    entry => entry.createdAt >= startDate && entry.createdAt <= endDate
   )
 
   return {
     totalEntries: entries.length,
-    entries: entries.map((e) => ({ id: e.id, title: getDisplayTitle(e), createdAt: e.createdAt })),
+    entries: entries.map(e => ({ id: e.id, title: getDisplayTitle(e), createdAt: e.createdAt })),
   }
 }
-
 
 // ---------------------------------------------------------------------------
 // Exercise helpers
@@ -520,7 +522,7 @@ const EXERCISE_TABLES: { table: string; type: string }[] = [
 
 export async function getExerciseEntriesForPeriod(
   startDate: string,
-  endDate: string,
+  endDate: string
 ): Promise<ExerciseEntry[]> {
   const db = getUserDatabase()
   const results: ExerciseEntry[] = []
@@ -562,7 +564,7 @@ export interface ExerciseSessionBundle {
  */
 export async function getExerciseSessionBundlesForPeriod(
   startDate: string,
-  endDate: string,
+  endDate: string
 ): Promise<ExerciseSessionBundle[]> {
   const db = getUserDatabase()
   const results: ExerciseSessionBundle[] = []
@@ -598,7 +600,7 @@ export async function getExerciseSessionBundlesForPeriod(
 function buildExerciseSummary(exerciseEntries: ExerciseEntry[]): ExerciseSummary {
   return {
     totalCompleted: exerciseEntries.length,
-    types: [...new Set(exerciseEntries.map((e) => e.type))],
+    types: [...new Set(exerciseEntries.map(e => e.type))],
   }
 }
 
@@ -612,7 +614,7 @@ function buildDailyBreakdown(
   reflectionItems: WeekMeasurementReflectionItem[],
   exerciseEntries: ExerciseEntry[],
   startDate: string,
-  endDate: string,
+  endDate: string
 ): DailyActivityBreakdown[] {
   const days = getChildPeriods(weekRef) as DayRef[]
   const emotionLogStore = useEmotionLogStore()
@@ -621,17 +623,17 @@ function buildDailyBreakdown(
 
   // Pre-filter for the week
   const weekEmotionLogs = emotionLogStore.sortedLogs.filter(
-    (log) => log.createdAt >= startDate && log.createdAt <= endDate
+    log => log.createdAt >= startDate && log.createdAt <= endDate
   )
   const weekJournalEntries = journalStore.sortedEntries.filter(
-    (entry) => entry.createdAt >= startDate && entry.createdAt <= endDate
+    entry => entry.createdAt >= startDate && entry.createdAt <= endDate
   )
 
-  const habits = reflectionItems.filter((m) => m.subjectType === 'habit')
-  const krs = reflectionItems.filter((m) => m.subjectType === 'keyResult')
-  const trackers = reflectionItems.filter((m) => m.subjectType === 'tracker')
+  const habits = reflectionItems.filter(m => m.subjectType === 'habit')
+  const krs = reflectionItems.filter(m => m.subjectType === 'keyResult')
+  const trackers = reflectionItems.filter(m => m.subjectType === 'tracker')
 
-  return days.map((dayRef) => {
+  return days.map(dayRef => {
     const dayStart = dayRef + 'T00:00:00.000Z'
     const dayEnd = dayRef + 'T23:59:59.999Z'
 
@@ -639,8 +641,8 @@ function buildDailyBreakdown(
     // Note: completion-mode habits store value: null — entry existence = done
     const dayHabitEntries = new Map(
       rawEntries
-        .filter((e) => e.dayRef === dayRef && e.subjectType === 'habit')
-        .map((e) => [e.subjectId, e.value] as const)
+        .filter(e => e.dayRef === dayRef && e.subjectType === 'habit')
+        .map(e => [e.subjectId, e.value] as const)
     )
 
     const habitItems: DailyHabitItem[] = []
@@ -682,7 +684,7 @@ function buildDailyBreakdown(
 
     // Emotions
     const dayEmotionLogs = weekEmotionLogs.filter(
-      (log) => log.createdAt >= dayStart && log.createdAt <= dayEnd
+      log => log.createdAt >= dayStart && log.createdAt <= dayEnd
     )
     const seenEmotionIds = new Set<string>()
     const emotionItems: { emotionId: string; name: string; quadrant: Quadrant }[] = []
@@ -710,7 +712,7 @@ function buildDailyBreakdown(
         }
       }
     }
-    const emotionSessions = dayEmotionLogs.map((log) => ({
+    const emotionSessions = dayEmotionLogs.map(log => ({
       createdAt: log.createdAt,
       emotionIds: [...log.emotionIds],
       note: log.note,
@@ -718,29 +720,29 @@ function buildDailyBreakdown(
 
     // Journal
     const dayJournalEntries = weekJournalEntries.filter(
-      (entry) => entry.createdAt >= dayStart && entry.createdAt <= dayEnd
+      entry => entry.createdAt >= dayStart && entry.createdAt <= dayEnd
     )
 
     // Exercises
     const dayExercises = exerciseEntries.filter(
-      (e) => e.createdAt >= dayStart && e.createdAt <= dayEnd
+      e => e.createdAt >= dayStart && e.createdAt <= dayEnd
     )
 
     // Key Results — only days with entries
     // Note: completion-mode KRs store value: null — entry existence = done
     const krItems = rawEntries
-      .filter((e) => e.dayRef === dayRef && e.subjectType === 'keyResult')
-      .map((e) => {
-        const kr = krs.find((k) => k.subject.id === e.subjectId)
+      .filter(e => e.dayRef === dayRef && e.subjectType === 'keyResult')
+      .map(e => {
+        const kr = krs.find(k => k.subject.id === e.subjectId)
         return { id: e.subjectId, name: kr?.subject.title ?? '', value: e.value }
       })
 
     // Trackers — only days with entries
     // Note: completion-mode trackers store value: null — entry existence = done
     const trackerItems = rawEntries
-      .filter((e) => e.dayRef === dayRef && e.subjectType === 'tracker')
-      .map((e) => {
-        const tracker = trackers.find((t) => t.subject.id === e.subjectId)
+      .filter(e => e.dayRef === dayRef && e.subjectType === 'tracker')
+      .map(e => {
+        const tracker = trackers.find(t => t.subject.id === e.subjectId)
         return { id: e.subjectId, name: tracker?.subject.title ?? '', value: e.value }
       })
 
@@ -754,7 +756,7 @@ function buildDailyBreakdown(
         sessions: emotionSessions,
       },
       journal: {
-        items: dayJournalEntries.map((e) => ({
+        items: dayJournalEntries.map(e => ({
           id: e.id,
           title: getDisplayTitle(e),
           body: e.body,
@@ -763,7 +765,7 @@ function buildDailyBreakdown(
       },
       exercises: {
         count: dayExercises.length,
-        types: [...new Set(dayExercises.map((e) => e.type))],
+        types: [...new Set(dayExercises.map(e => e.type))],
         items: dayExercises.map((e, idx) => ({
           id: `${dayRef}-${idx}`,
           type: e.type,
@@ -786,24 +788,21 @@ function buildWeeklySummary(
   weekRef: WeekRef,
   emotionSummary: EmotionSummary,
   journalSummary: JournalSummary,
-  exerciseSummary: ExerciseSummary,
+  exerciseSummary: ExerciseSummary
 ): WeeklySummary {
-  const habits = reflectionItems.filter((m) => m.subjectType === 'habit')
+  const habits = reflectionItems.filter(m => m.subjectType === 'habit')
   const weekBounds = getPeriodBounds(weekRef)
   const weekStart = weekBounds.start
   const weekEnd = weekBounds.end
 
   // Weekly habits: whole-week or unassigned scope with weekly cadence
   const weeklyHabits = habits
-    .filter(
-      (h) =>
-        h.subject.cadence === 'weekly' &&
-        h.planning.scheduleScope !== 'specific-days'
-    )
-    .map((h) => ({
+    .filter(h => h.subject.cadence === 'weekly' && h.planning.scheduleScope !== 'specific-days')
+    .map(h => ({
       id: h.subject.id,
       name: h.subject.title,
-      evaluationStatus: h.measurement.evaluationStatus ?? ('no-data' as MeasurementEvaluationStatus),
+      evaluationStatus:
+        h.measurement.evaluationStatus ?? ('no-data' as MeasurementEvaluationStatus),
       actualValue: h.measurement.actualValue,
       target: h.measurement.target,
       entryCount: h.measurement.entryCount,
@@ -811,11 +810,11 @@ function buildWeeklySummary(
 
   // Monthly habits: count entries within this week only
   const monthlyHabits = habits
-    .filter((h) => h.subject.cadence === 'monthly')
-    .map((h) => {
+    .filter(h => h.subject.cadence === 'monthly')
+    .map(h => {
       // Note: completion-mode habits store value: null — entry existence = done
       const weekEntries = rawEntries.filter(
-        (e) =>
+        e =>
           e.subjectType === 'habit' &&
           e.subjectId === h.subject.id &&
           e.dayRef >= weekStart &&
@@ -829,7 +828,7 @@ function buildWeeklySummary(
         weekValue: weekValue || undefined,
       }
     })
-    .filter((h) => h.weekEntryCount > 0)
+    .filter(h => h.weekEntryCount > 0)
 
   return {
     weeklyHabits,
@@ -846,7 +845,7 @@ function buildWeeklySummary(
 
 export async function getWeeklyReflectionDataBundle(
   weekRef: WeekRef,
-  asOfDayRef?: DayRef,
+  asOfDayRef?: DayRef
 ): Promise<WeeklyReflectionDataBundle> {
   const bounds = getPeriodBounds(weekRef)
   const startDate = bounds.start + 'T00:00:00.000Z'
@@ -883,7 +882,7 @@ export async function getWeeklyReflectionDataBundle(
   try {
     const relevant = await getWeekRelevantObjects(weekRef, asOfDayRef)
     const reflectionMeasurements = relevant.reflection.measurementItems
-    const habits = reflectionMeasurements.filter((m) => m.subjectType === 'habit')
+    const habits = reflectionMeasurements.filter(m => m.subjectType === 'habit')
 
     let metCount = 0
     let missedCount = 0
@@ -899,7 +898,7 @@ export async function getWeeklyReflectionDataBundle(
       reflectionMeasurements,
       exerciseEntries,
       startDate,
-      endDate,
+      endDate
     )
 
     weeklySummary = buildWeeklySummary(
@@ -908,12 +907,12 @@ export async function getWeeklyReflectionDataBundle(
       weekRef,
       emotionSummary,
       journalSummary,
-      exerciseSummary,
+      exerciseSummary
     )
 
     rawEntries = relevant.rawEntries
     habitReflectionItems = relevant.reflection.cadencedItems.filter(
-      (item) => item.subjectType === 'habit',
+      item => item.subjectType === 'habit'
     )
     trackerReflectionItems = relevant.reflection.trackerItems
 
@@ -924,7 +923,7 @@ export async function getWeeklyReflectionDataBundle(
     // Build goal -> KRs groups for the reflection summary. We pull goals from
     // the reflection bundle's goalItems and match KRs by goalId.
     const keyResultItems = relevant.reflection.cadencedItems.filter(
-      (item) => item.subjectType === 'keyResult',
+      item => item.subjectType === 'keyResult'
     )
     const goalMap = new Map<string, Goal>()
     for (const goalItem of relevant.reflection.goalItems) {
@@ -936,7 +935,7 @@ export async function getWeeklyReflectionDataBundle(
       for (const goal of core.goals) {
         if (!goalMap.has(goal.id)) {
           const hasKR = keyResultItems.some(
-            (kr) => 'goalId' in kr.subject && kr.subject.goalId === goal.id,
+            kr => 'goalId' in kr.subject && kr.subject.goalId === goal.id
           )
           if (hasKR) goalMap.set(goal.id, goal)
         }
@@ -1012,7 +1011,7 @@ export async function getWeeklyReflectionDataBundle(
     // Week-scoped intentions (own subjectType; pulled from the full measurement list,
     // since cadencedItems is typed/narrowed to KR/habit).
     relevant.reflection.measurementItems
-      .filter((item) => item.subjectType === 'weeklyIntention')
+      .filter(item => item.subjectType === 'weeklyIntention')
       .forEach((intention, i) => {
         weekObjectItems.push({
           key: `weeklyIntention:${intention.subject.id}`,
@@ -1048,7 +1047,7 @@ export async function getWeeklyReflectionDataBundle(
 }
 
 export async function loadDayAssignmentsForMonths(
-  monthRefs: MonthRef[],
+  monthRefs: MonthRef[]
 ): Promise<MeasurementDayAssignment[]> {
   if (monthRefs.length === 0) return []
   const boundsKeys = new Set<string>()
@@ -1061,8 +1060,8 @@ export async function loadDayAssignmentsForMonths(
       bounds.push({ start: b.start as DayRef, end: b.end as DayRef })
     }
   }
-  const starts = bounds.map((b) => b.start).sort()
-  const ends = bounds.map((b) => b.end).sort()
+  const starts = bounds.map(b => b.start).sort()
+  const ends = bounds.map(b => b.end).sort()
   const start = starts[0]
   const end = ends[ends.length - 1]
   if (!start || !end) return []
@@ -1081,17 +1080,21 @@ export async function loadDayAssignmentsForMonths(
  */
 function buildWeeklyBreakdown(
   item: MonthMeasurementPlanningItem,
-  today: DayRef,
-): { weeklyBreakdown?: KRWeeklyBreakdown[]; weekReadout?: WeekReadout; weekStatus?: MeasurementEvaluationStatus } {
+  today: DayRef
+): {
+  weeklyBreakdown?: KRWeeklyBreakdown[]
+  weekReadout?: WeekReadout
+  weekStatus?: MeasurementEvaluationStatus
+} {
   if (!item.weekEvaluations) return {}
-  const weeklyBreakdown = item.weekEvaluations.map((week) => ({
+  const weeklyBreakdown = item.weekEvaluations.map(week => ({
     weekRef: week.weekRef,
     evaluationStatus: week.measurement.evaluationStatus ?? 'no-data',
     actualValue: week.measurement.actualValue,
     planned: week.planned,
     state: classifyWeek(week.weekRef, week.planned, week.measurement.evaluationStatus, today),
   }))
-  const tally = tallyWeekStates(weeklyBreakdown.map((week) => week.state))
+  const tally = tallyWeekStates(weeklyBreakdown.map(week => week.state))
   return {
     weeklyBreakdown,
     weekReadout: { met: tally.met, planned: tally.planned },
@@ -1125,8 +1128,8 @@ export async function getMonthlyReflectionDataBundle(
     const planningBundle = await getMonthPlanningBundle(monthRef)
 
     // Habits — individual details with weekly breakdown
-    const habits = planningBundle.measurementItems.filter((m) => m.subjectType === 'habit')
-    habitDetails = habits.map((habit) => {
+    const habits = planningBundle.measurementItems.filter(m => m.subjectType === 'habit')
+    habitDetails = habits.map(habit => {
       const monthSummary = buildMeasurementSummary(
         habit.subject,
         planningBundle.rawEntries,
@@ -1151,9 +1154,9 @@ export async function getMonthlyReflectionDataBundle(
 
     // Trackers — individual details with daily entries
     const trackers = planningBundle.trackerItems ?? []
-    trackerDetails = trackers.map((t) => {
+    trackerDetails = trackers.map(t => {
       const subjectEntries = planningBundle.rawEntries
-        .filter((e) => e.subjectId === t.subject.id && e.subjectType === 'tracker')
+        .filter(e => e.subjectId === t.subject.id && e.subjectType === 'tracker')
         .sort((a, b) => a.dayRef.localeCompare(b.dayRef))
       const lastEntry = subjectEntries.at(-1)
       return {
@@ -1161,15 +1164,15 @@ export async function getMonthlyReflectionDataBundle(
         title: t.subject.title,
         icon: (t.subject as import('@/domain/planning').Tracker).icon,
         entryMode: t.subject.entryMode,
-        entries: subjectEntries.map((e) => ({ dayRef: e.dayRef, value: e.value })),
+        entries: subjectEntries.map(e => ({ dayRef: e.dayRef, value: e.value })),
         latestValue: lastEntry?.value ?? undefined,
       }
     })
 
     // Goals with KR progress + weekly breakdown
-    goalSummaries = planningBundle.goalItems.map((goalItem) => {
+    goalSummaries = planningBundle.goalItems.map(goalItem => {
       const krs = planningBundle.cadencedItems.filter(
-        (m) =>
+        m =>
           m.subjectType === 'keyResult' &&
           'goalId' in m.subject &&
           m.subject.goalId === goalItem.goal.id
@@ -1181,12 +1184,8 @@ export async function getMonthlyReflectionDataBundle(
           icon: goalItem.goal.icon,
           status: goalItem.goal.status,
         },
-        keyResults: krs.map((kr) => {
-          const summary = buildMeasurementSummary(
-            kr.subject,
-            planningBundle.rawEntries,
-            monthRef
-          )
+        keyResults: krs.map(kr => {
+          const summary = buildMeasurementSummary(kr.subject, planningBundle.rawEntries, monthRef)
           const krSubject = kr.subject as import('@/domain/planning').KeyResult
           const { weekStatus, ...weekly } = buildWeeklyBreakdown(kr, today)
 
@@ -1236,7 +1235,7 @@ export async function getMonthlyReflectionDataBundle(
 export function buildWeeklyRatingTrends(reflections: WeeklyReflection[]): WeeklyRatingTrendEntry[] {
   return [...reflections]
     .sort((a, b) => a.weekRef.localeCompare(b.weekRef))
-    .map((r) => ({
+    .map(r => ({
       weekRef: r.weekRef,
       // Demands
       [WEEKLY_DEMANDS_KEYS[0]]: r[WEEKLY_DEMANDS_KEYS[0]],
@@ -1256,11 +1255,10 @@ export function buildWeeklyRatingTrends(reflections: WeeklyReflection[]): Weekly
     })) as WeeklyRatingTrendEntry[]
 }
 
-
 function buildWeeklyDetails(reflections: WeeklyReflection[]): WeeklyReflectionDetail[] {
   return [...reflections]
     .sort((a, b) => a.weekRef.localeCompare(b.weekRef))
-    .map((r) => ({
+    .map(r => ({
       weekRef: r.weekRef,
       freeformReflection: r.freeformReflection,
       promptResponses: r.promptResponses,

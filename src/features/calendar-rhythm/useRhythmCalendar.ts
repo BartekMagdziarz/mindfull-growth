@@ -19,7 +19,9 @@ export function useRhythmCalendar(scale: Ref<Scale>, periodRef: Ref<string>) {
   const route = useRoute()
   const router = useRouter()
 
-  const scenario = shallowRef<RhythmScenario>(emptyRhythmScenario(getPeriodRefsForDate(new Date()).day))
+  const scenario = shallowRef<RhythmScenario>(
+    emptyRhythmScenario(getPeriodRefsForDate(new Date()).day)
+  )
   const isLoading = ref(true)
   const error = ref<string | null>(null)
 
@@ -35,7 +37,9 @@ export function useRhythmCalendar(scale: Ref<Scale>, periodRef: Ref<string>) {
 
   const clock = computed(() => scenario.value.clock)
   const units = computed(() => unitsFor(scale.value, periodRef.value, clock.value))
-  const view = computed(() => resolveView(scenario.value, scale.value, periodRef.value, units.value, requestedView.value))
+  const view = computed(() =>
+    resolveView(scenario.value, scale.value, periodRef.value, units.value, requestedView.value)
+  )
   const periodState = computed<'past' | 'current' | 'future'>(() => {
     const bounds = getPeriodBounds(periodRef.value as PeriodRef)
     if (bounds.end < clock.value) return 'past'
@@ -52,7 +56,7 @@ export function useRhythmCalendar(scale: Ref<Scale>, periodRef: Ref<string>) {
     () => {
       void load()
     },
-    { immediate: true },
+    { immediate: true }
   )
 
   // Back/forward: the lens and the reveals come from the URL, never from memory.
@@ -62,7 +66,7 @@ export function useRhythmCalendar(scale: Ref<Scale>, periodRef: Ref<string>) {
       requestedView.value = query('view') ?? null
       fineKeys.value = parseList(query('fine'))
       summaryOpen.value = query('summary') === '1'
-    },
+    }
   )
 
   async function load(): Promise<void> {

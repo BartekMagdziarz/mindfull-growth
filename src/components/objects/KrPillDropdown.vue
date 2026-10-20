@@ -13,7 +13,12 @@
       @click.stop="toggle"
     >
       {{ selectedLabel }}
-      <AppIcon v-if="!disabled" name="expand_more" class="text-xs transition-transform duration-200" :class="open ? 'rotate-180' : ''" />
+      <AppIcon
+        v-if="!disabled"
+        name="expand_more"
+        class="text-xs transition-transform duration-200"
+        :class="open ? 'rotate-180' : ''"
+      />
     </button>
     <div
       v-if="open"
@@ -51,7 +56,7 @@ const props = withDefaults(
     tone: undefined,
     flat: false,
     disabled: false,
-  },
+  }
 )
 
 const emit = defineEmits<{
@@ -62,7 +67,7 @@ const rootRef = ref<HTMLElement | null>(null)
 const open = ref(false)
 
 const selectedLabel = computed(() => {
-  const opt = props.options.find((o) => o.value === props.modelValue)
+  const opt = props.options.find(o => o.value === props.modelValue)
   return opt?.label ?? props.modelValue
 })
 

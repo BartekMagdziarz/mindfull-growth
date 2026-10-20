@@ -37,14 +37,18 @@ describe('streamData · number helpers', () => {
 
   it('pillFraction maps monthly status and weekly ratios', () => {
     expect(pillFraction({ id: 'a', title: 'A', cadence: 'monthly', monthlyStatus: 'met' })).toBe(1)
-    expect(pillFraction({ id: 'a', title: 'A', cadence: 'monthly', monthlyStatus: 'missed' })).toBe(0)
+    expect(pillFraction({ id: 'a', title: 'A', cadence: 'monthly', monthlyStatus: 'missed' })).toBe(
+      0
+    )
     expect(
-      pillFraction({ id: 'a', title: 'A', cadence: 'monthly', monthlyStatus: 'no-data' }),
+      pillFraction({ id: 'a', title: 'A', cadence: 'monthly', monthlyStatus: 'no-data' })
     ).toBeNull()
     expect(
-      pillFraction({ id: 'a', title: 'A', cadence: 'weekly', weeksMet: 2, weeksTotal: 4 }),
+      pillFraction({ id: 'a', title: 'A', cadence: 'weekly', weeksMet: 2, weeksTotal: 4 })
     ).toBe(0.5)
-    expect(pillFraction({ id: 'a', title: 'A', cadence: 'weekly', weeksMet: 0, weeksTotal: 0 })).toBeNull()
+    expect(
+      pillFraction({ id: 'a', title: 'A', cadence: 'weekly', weeksMet: 0, weeksTotal: 0 })
+    ).toBeNull()
   })
 
   it('ratingToValue normalises 1–5 ratings to 0..1', () => {
@@ -65,7 +69,7 @@ describe('streamData · emotion segments', () => {
     }
     const segments = quadrantSegments(counts)
     expect(segments).toHaveLength(3)
-    expect(segments.map((s) => s.weight)).toEqual([2, 1, 3])
+    expect(segments.map(s => s.weight)).toEqual([2, 1, 3])
   })
 
   it('returns no segments when there are no emotions', () => {
@@ -75,7 +79,7 @@ describe('streamData · emotion segments', () => {
         'high-energy-low-pleasantness': 0,
         'low-energy-high-pleasantness': 0,
         'low-energy-low-pleasantness': 0,
-      }),
+      })
     ).toHaveLength(0)
   })
 })
@@ -83,10 +87,10 @@ describe('streamData · emotion segments', () => {
 describe('streamData · matrix from weekly reflection', () => {
   it('renders 4 area rows × 2 empty cells when the week has no reflection', () => {
     const matrix = matrixFromReflection(undefined)
-    expect(matrix.map((row) => row.areaKey)).toEqual(['body', 'emotions', 'tasks', 'closeOnes'])
+    expect(matrix.map(row => row.areaKey)).toEqual(['body', 'emotions', 'tasks', 'closeOnes'])
     for (const row of matrix) {
-      expect(row.cells.map((cell) => cell.section)).toEqual(['load', 'state'])
-      expect(row.cells.every((cell) => cell.rating === null && cell.color === null)).toBe(true)
+      expect(row.cells.map(cell => cell.section)).toEqual(['load', 'state'])
+      expect(row.cells.every(cell => cell.rating === null && cell.color === null)).toBe(true)
     }
   })
 
@@ -100,12 +104,12 @@ describe('streamData · matrix from weekly reflection', () => {
       moodRating: 5,
     } as unknown as WeeklyReflection
     const matrix = matrixFromReflection(reflection)
-    const tasks = matrix.find((row) => row.areaKey === 'tasks')!
-    const body = matrix.find((row) => row.areaKey === 'body')!
-    const emotions = matrix.find((row) => row.areaKey === 'emotions')!
+    const tasks = matrix.find(row => row.areaKey === 'tasks')!
+    const body = matrix.find(row => row.areaKey === 'body')!
+    const emotions = matrix.find(row => row.areaKey === 'emotions')!
 
     // Heavy task load, bad state → strain quadrant on the state cell; load cell is full ink.
-    expect(tasks.cells.map((cell) => cell.rating)).toEqual([5, 1])
+    expect(tasks.cells.map(cell => cell.rating)).toEqual([5, 1])
     expect(tasks.cells[0].color).toBe(loadInkCss(5))
     expect(tasks.cells[1].color).toBe(pairColor(5, 1))
 
@@ -121,8 +125,8 @@ describe('streamData · matrix from weekly reflection', () => {
 describe('streamData · rings', () => {
   it('future periods read "—" (null, plan-only)', () => {
     const rings = ringsForPeriod([], [], '2020-01' as MonthRef, 'future', '2020-01-31' as DayRef)
-    expect(rings.map((r) => r.key)).toEqual(['goals', 'habits', 'intentions'])
-    expect(rings.every((r) => r.pct === null && r.planOnly)).toBe(true)
+    expect(rings.map(r => r.key)).toEqual(['goals', 'habits', 'intentions'])
+    expect(rings.every(r => r.pct === null && r.planOnly)).toBe(true)
   })
 
   it('intentions ring is the met-ratio across evaluated weekly intentions', () => {
@@ -151,8 +155,14 @@ describe('streamData · rings', () => {
       { subjectType: 'weeklyIntention', subjectId: 'i-missed', dayRef: '2020-01-08', value: 1 },
     ] as DailyMeasurementEntry[]
 
-    const rings = ringsForPeriod(subjects, entries, '2020-W01' as WeekRef, 'past', '2020-01-12' as DayRef)
-    const intentions = rings.find((r) => r.key === 'intentions')!
+    const rings = ringsForPeriod(
+      subjects,
+      entries,
+      '2020-W01' as WeekRef,
+      'past',
+      '2020-01-12' as DayRef
+    )
+    const intentions = rings.find(r => r.key === 'intentions')!
     // i-met 2/2 → met, i-missed 1/3 → missed, i-no-data has no entries → excluded.
     expect(intentions.pct).toBe(50)
     expect(intentions.num).toBe(1)
@@ -162,20 +172,28 @@ describe('streamData · rings', () => {
   it('year-month rings are Goals + Habits only (no intentions ring)', () => {
     const summary = {
       goalGroups: [
-        { goalId: 'g1', pills: [{ cadence: 'weekly', weeksMet: 2, weeksTotal: 4 } as YearMonthPillData] },
+        {
+          goalId: 'g1',
+          pills: [{ cadence: 'weekly', weeksMet: 2, weeksTotal: 4 } as YearMonthPillData],
+        },
       ],
-      habitGroups: [{ habitId: 'h1', pill: { cadence: 'monthly', monthlyStatus: 'met' } as YearMonthPillData }],
+      habitGroups: [
+        { habitId: 'h1', pill: { cadence: 'monthly', monthlyStatus: 'met' } as YearMonthPillData },
+      ],
     } as unknown as CalendarYearMonthSummary
     const rings = yearMonthRings(summary, 'past', 6)
-    expect(rings.map((r) => r.key)).toEqual(['goals', 'habits'])
-    expect(rings.find((r) => r.key === 'goals')!.pct).toBe(50)
-    expect(rings.find((r) => r.key === 'habits')!.pct).toBe(100)
+    expect(rings.map(r => r.key)).toEqual(['goals', 'habits'])
+    expect(rings.find(r => r.key === 'goals')!.pct).toBe(50)
+    expect(rings.find(r => r.key === 'habits')!.pct).toBe(100)
   })
 
   it('goals ring weights each goal once, not each KR', () => {
     const summary = {
       goalGroups: [
-        { goalId: 'g1', pills: [{ cadence: 'monthly', monthlyStatus: 'missed' } as YearMonthPillData] },
+        {
+          goalId: 'g1',
+          pills: [{ cadence: 'monthly', monthlyStatus: 'missed' } as YearMonthPillData],
+        },
         {
           goalId: 'g2',
           pills: [
@@ -187,12 +205,16 @@ describe('streamData · rings', () => {
       habitGroups: [],
     } as unknown as CalendarYearMonthSummary
     // goal means: g1 = 0, g2 = 1 → average 0.5 (KR-weighting would give ≈67).
-    expect(yearMonthRings(summary, 'past', 6).find((r) => r.key === 'goals')!.pct).toBe(50)
+    expect(yearMonthRings(summary, 'past', 6).find(r => r.key === 'goals')!.pct).toBe(50)
   })
 
   it('caps weekly attainment to elapsed weeks so a current month is not diluted', () => {
-    expect(pillFraction({ id: 'a', title: 'A', cadence: 'weekly', weeksMet: 2, weeksTotal: 4 }, 2)).toBe(1)
-    expect(pillFraction({ id: 'a', title: 'A', cadence: 'weekly', weeksMet: 2, weeksTotal: 4 })).toBe(0.5)
+    expect(
+      pillFraction({ id: 'a', title: 'A', cadence: 'weekly', weeksMet: 2, weeksTotal: 4 }, 2)
+    ).toBe(1)
+    expect(
+      pillFraction({ id: 'a', title: 'A', cadence: 'weekly', weeksMet: 2, weeksTotal: 4 })
+    ).toBe(0.5)
   })
 
   it('day rings measure engagement (objects with an entry that day)', () => {
@@ -200,21 +222,21 @@ describe('streamData · rings', () => {
       { subjectType: 'keyResult', subjectId: 'k1', dayRef: '2020-01-02', value: 1 },
     ] as DailyMeasurementEntry[]
     const rings = dayRings(new Set(['k1', 'k2']), new Set(['h1']), entries, 'past')
-    expect(rings.find((r) => r.key === 'goals')!.pct).toBe(50) // 1 of 2 KRs logged
-    expect(rings.find((r) => r.key === 'habits')!.pct).toBe(0) // 0 of 1 habit logged
+    expect(rings.find(r => r.key === 'goals')!.pct).toBe(50) // 1 of 2 KRs logged
+    expect(rings.find(r => r.key === 'habits')!.pct).toBe(0) // 0 of 1 habit logged
   })
 })
 
 describe('streamData · monthly-dimension bars', () => {
   it('returns the 5 monthly reflection dimensions, dim for future months', () => {
     const bars = monthlyDimensionBars(undefined, 'future')
-    expect(bars.map((b) => b.key)).toEqual(['balance', 'purpose', 'growth', 'coherence', 'agency'])
-    expect(bars.every((b) => b.value === null)).toBe(true)
+    expect(bars.map(b => b.key)).toEqual(['balance', 'purpose', 'growth', 'coherence', 'agency'])
+    expect(bars.every(b => b.value === null)).toBe(true)
   })
 
   it('is empty when a past month has no monthly reflection', () => {
     const bars = monthlyDimensionBars(undefined, 'past')
-    expect(bars.every((b) => b.value === null)).toBe(true)
+    expect(bars.every(b => b.value === null)).toBe(true)
   })
 
   it('maps the monthly reflection ratings to bar heights', () => {
@@ -226,7 +248,7 @@ describe('streamData · monthly-dimension bars', () => {
       agencyRating: 4,
     } as unknown as MonthlyReflection
     const bars = monthlyDimensionBars(reflection, 'past')
-    const byKey = Object.fromEntries(bars.map((b) => [b.key, b.value]))
+    const byKey = Object.fromEntries(bars.map(b => [b.key, b.value]))
     expect(byKey.balance).toBe(1) // 5/5
     expect(byKey.purpose).toBeNull() // unrated
     expect(byKey.growth).toBeCloseTo(0.6) // 3/5
@@ -244,26 +266,38 @@ describe('streamData · month priorities', () => {
   it('resolves top-3 ids to name + effort, padding empty slots with a "—"', () => {
     const out = monthPriorities(['p1', 'p2'], priorities, effort)
     expect(out).toHaveLength(3)
-    expect(out[0]).toMatchObject({ key: 'p1', name: 'Zdrowie', icon: 'cardiology', rating: 4, empty: false })
+    expect(out[0]).toMatchObject({
+      key: 'p1',
+      name: 'Zdrowie',
+      icon: 'cardiology',
+      rating: 4,
+      empty: false,
+    })
     // missing icon falls back to a neutral one; effort null = picked-not-rated
-    expect(out[1]).toMatchObject({ key: 'p2', name: 'Kariera', icon: 'flag', rating: null, empty: false })
+    expect(out[1]).toMatchObject({
+      key: 'p2',
+      name: 'Kariera',
+      icon: 'flag',
+      rating: null,
+      empty: false,
+    })
     expect(out[2].empty).toBe(true)
   })
 
   it('returns 3 empty slots when nothing is picked', () => {
     const out = monthPriorities(undefined, priorities, effort)
     expect(out).toHaveLength(3)
-    expect(out.every((s) => s.empty)).toBe(true)
+    expect(out.every(s => s.empty)).toBe(true)
   })
 
   it('skips ids whose priority no longer exists, then pads', () => {
     const out = monthPriorities(['p1', 'gone'], priorities, effort)
-    expect(out.filter((s) => !s.empty)).toHaveLength(1)
+    expect(out.filter(s => !s.empty)).toHaveLength(1)
     expect(out[0].key).toBe('p1')
   })
 
   it('caps at the first 3 ids', () => {
     const out = monthPriorities(['p1', 'p2', 'p1', 'p2'], priorities, effort)
-    expect(out.filter((s) => !s.empty)).toHaveLength(3)
+    expect(out.filter(s => !s.empty)).toHaveLength(3)
   })
 })

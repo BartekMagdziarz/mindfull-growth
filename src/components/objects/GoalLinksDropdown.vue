@@ -11,7 +11,9 @@
       >
         <AppIcon name="link" class="text-base" />
       </button>
-      <span v-if="totalLinked > 0" class="mg-v2-icon-count" aria-hidden="true">{{ totalLinked }}</span>
+      <span v-if="totalLinked > 0" class="mg-v2-icon-count" aria-hidden="true">{{
+        totalLinked
+      }}</span>
     </div>
     <!-- Pill trigger (default) -->
     <button
@@ -22,15 +24,15 @@
     >
       {{ t('planning.objects.actions.links') }}
       <span v-if="totalLinked > 0" class="text-primary">({{ totalLinked }})</span>
-      <AppIcon name="expand_more" class="text-xs transition-transform duration-200" :class="open ? 'rotate-180' : ''" />
+      <AppIcon
+        name="expand_more"
+        class="text-xs transition-transform duration-200"
+        :class="open ? 'rotate-180' : ''"
+      />
     </button>
 
     <!-- Level 1 -->
-    <div
-      v-if="open"
-      class="mg-v2-popover absolute left-0 z-20 mt-1 min-w-[160px]"
-      @click.stop
-    >
+    <div v-if="open" class="mg-v2-popover absolute left-0 z-20 mt-1 min-w-[160px]" @click.stop>
       <button
         v-if="goalOptions && goalOptions.length > 0"
         type="button"
@@ -82,7 +84,11 @@
           class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[11px] font-medium text-on-surface hover:bg-primary-soft/30"
           @click="toggleOption(option.id)"
         >
-          <AppIcon v-if="isLinked(option.id)" name="check" class="text-xs flex-shrink-0 text-primary" />
+          <AppIcon
+            v-if="isLinked(option.id)"
+            name="check"
+            class="text-xs flex-shrink-0 text-primary"
+          />
           <span v-else class="h-3 w-3 flex-shrink-0" />
           {{ option.label }}
         </button>
@@ -109,7 +115,7 @@ const props = withDefaults(
     /** Render only the popover; the host opens it through `openAt()`. */
     triggerless?: boolean
   }>(),
-  { iconOnly: false, goalId: undefined, goalOptions: undefined, triggerless: false },
+  { iconOnly: false, goalId: undefined, goalOptions: undefined, triggerless: false }
 )
 
 const emit = defineEmits<{
@@ -123,7 +129,9 @@ const rootRef = ref<HTMLElement | null>(null)
 const open = ref(false)
 const activeCategory = ref<'lifeArea' | 'priority' | 'goal' | null>(null)
 
-const totalLinked = computed(() => props.priorityIds.length + props.lifeAreaIds.length + (props.goalId ? 1 : 0))
+const totalLinked = computed(
+  () => props.priorityIds.length + props.lifeAreaIds.length + (props.goalId ? 1 : 0)
+)
 
 const linkedPrioritySet = computed(() => new Set(props.priorityIds))
 const linkedLifeAreaSet = computed(() => new Set(props.lifeAreaIds))

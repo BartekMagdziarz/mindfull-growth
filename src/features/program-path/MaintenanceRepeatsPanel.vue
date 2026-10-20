@@ -1,5 +1,9 @@
 <template>
-  <section v-if="practices.length" class="mg-v2-surface mg-v2-surface--raised-sm maintenance" data-testid="maintenance-repeats">
+  <section
+    v-if="practices.length"
+    class="mg-v2-surface mg-v2-surface--raised-sm maintenance"
+    data-testid="maintenance-repeats"
+  >
     <div class="maintenance__copy">
       <h2>{{ t('programs.maintenance.title') }}</h2>
       <p v-if="!planned">{{ t('programs.maintenance.lead', { rhythm: rhythmLabel }) }}</p>
@@ -12,7 +16,13 @@
         </li>
       </ul>
     </div>
-    <button v-if="!planned" type="button" class="mg-v2-button mg-v2-button--primary" :disabled="busy" @click="plan">
+    <button
+      v-if="!planned"
+      type="button"
+      class="mg-v2-button mg-v2-button--primary"
+      :disabled="busy"
+      @click="plan"
+    >
       {{ t('programs.maintenance.cta') }}
     </button>
   </section>
@@ -42,25 +52,34 @@ const busy = ref(false)
 const planned = ref(false)
 
 const RHYTHM_DAYS: Record<string, number> = { daily: 1, every2: 2, every3: 3, weekly: 7 }
-const rhythm = computed(() => (typeof props.responses.rhythm === 'string' ? props.responses.rhythm : 'every2'))
+const rhythm = computed(() =>
+  typeof props.responses.rhythm === 'string' ? props.responses.rhythm : 'every2'
+)
 const days = computed(() => RHYTHM_DAYS[rhythm.value] ?? 2)
-const rhythmLabel = computed(() => t(`exerciseWizards.micro.maintenancePlan.rhythm.options.${rhythm.value}`))
+const rhythmLabel = computed(() =>
+  t(`exerciseWizards.micro.maintenancePlan.rhythm.options.${rhythm.value}`)
+)
 const firstDay = computed(() => addDaysToDayRef(getPeriodRefsForDate(new Date()).day, days.value))
 const firstDateLabel = computed(() => formatDayShort(firstDay.value, locale.value))
 
 const practices = computed(() => {
   const keep = props.responses.keep
-  const slugs = Array.isArray(keep) ? keep.filter((item): item is string => typeof item === 'string' && item !== 'response') : []
-  return slugs.flatMap((slug) => {
+  const slugs = Array.isArray(keep)
+    ? keep.filter((item): item is string => typeof item === 'string' && item !== 'response')
+    : []
+  return slugs.flatMap(slug => {
     const entry = getCatalogEntry(slug)
-    return entry ? [{ slug, icon: entry.icon, title: t(`exercises.cards.${entry.i18nKey}.title`) }] : []
+    return entry
+      ? [{ slug, icon: entry.icon, title: t(`exercises.cards.${entry.i18nKey}.title`) }]
+      : []
   })
 })
 
 async function plan(): Promise<void> {
   busy.value = true
   try {
-    for (const practice of practices.value) await planStore.createPlan(practice.slug, firstDay.value, 'repeat')
+    for (const practice of practices.value)
+      await planStore.createPlan(practice.slug, firstDay.value, 'repeat')
     planned.value = true
   } catch (err) {
     console.error('Failed to plan the kept practices:', err)

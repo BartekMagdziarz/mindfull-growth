@@ -1,5 +1,7 @@
 <template>
-  <div class="mg-design-v2 emotions-v2 mx-auto w-full max-w-6xl px-2 sm:px-4 md:px-6 py-6 flex flex-col gap-6 min-h-screen">
+  <div
+    class="mg-design-v2 emotions-v2 mx-auto w-full max-w-6xl px-2 sm:px-4 md:px-6 py-6 flex flex-col gap-6 min-h-screen"
+  >
     <!-- Loading State -->
     <div v-if="isLoading" class="flex items-center justify-center min-h-[200px]">
       <p class="text-on-surface-variant">{{ t('emotionViews.editor.loading') }}</p>
@@ -35,10 +37,15 @@
               role="dialog"
               aria-modal="true"
             >
-              <h2 class="text-lg font-semibold text-on-surface mb-4">{{ t('emotionViews.editor.dateTimeTitle') }}</h2>
+              <h2 class="text-lg font-semibold text-on-surface mb-4">
+                {{ t('emotionViews.editor.dateTimeTitle') }}
+              </h2>
               <div class="space-y-4">
                 <div>
-                  <label for="log-date" class="block text-sm font-medium text-on-surface-variant mb-1">
+                  <label
+                    for="log-date"
+                    class="block text-sm font-medium text-on-surface-variant mb-1"
+                  >
                     {{ t('emotionViews.editor.dateLabel') }}
                   </label>
                   <input
@@ -49,7 +56,10 @@
                   />
                 </div>
                 <div>
-                  <label for="log-time" class="block text-sm font-medium text-on-surface-variant mb-1">
+                  <label
+                    for="log-time"
+                    class="block text-sm font-medium text-on-surface-variant mb-1"
+                  >
                     {{ t('emotionViews.editor.timeLabel') }}
                   </label>
                   <input
@@ -61,7 +71,9 @@
                 </div>
               </div>
               <div class="flex gap-3 justify-end mt-6">
-                <DsButton variant="quiet" @click="showDateTimePicker = false">{{ t('emotionViews.editor.cancel') }}</DsButton>
+                <DsButton variant="quiet" @click="showDateTimePicker = false">{{
+                  t('emotionViews.editor.cancel')
+                }}</DsButton>
                 <DsButton @click="applyDateTime">{{ t('emotionViews.editor.apply') }}</DsButton>
               </div>
             </div>
@@ -95,10 +107,11 @@
         <!-- Prawa kolumna: notatka, osoby, kontekst, akcje -->
         <div class="flex flex-col gap-4 min-w-0">
           <!-- Note Section -->
-          <section
-            class="mg-v2-surface mg-v2-surface--raised-sm px-5 py-4 flex flex-col gap-3"
-          >
-            <label for="note" class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+          <section class="mg-v2-surface mg-v2-surface--raised-sm px-5 py-4 flex flex-col gap-3">
+            <label
+              for="note"
+              class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant"
+            >
               {{ t('emotionViews.editor.note') }}
             </label>
             <textarea
@@ -110,9 +123,7 @@
           </section>
 
           <!-- People Tags Section -->
-          <section
-            class="mg-v2-surface mg-v2-surface--raised-sm px-5 py-4 flex flex-col gap-3"
-          >
+          <section class="mg-v2-surface mg-v2-surface--raised-sm px-5 py-4 flex flex-col gap-3">
             <header>
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                 {{ t('emotionViews.editor.people') }}
@@ -130,9 +141,7 @@
           </section>
 
           <!-- Context Tags Section -->
-          <section
-            class="mg-v2-surface mg-v2-surface--raised-sm px-5 py-4 flex flex-col gap-3"
-          >
+          <section class="mg-v2-surface mg-v2-surface--raised-sm px-5 py-4 flex flex-col gap-3">
             <header>
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                 {{ t('emotionViews.editor.context') }}
@@ -151,18 +160,10 @@
 
           <!-- Akcje na dole prawej kolumny (zamiast osobnego paska pod całością) -->
           <div class="mt-auto flex justify-end gap-3 pt-1">
-            <DsButton
-              variant="quiet"
-              @click="handleCancel"
-              :disabled="isSaving"
-            >
+            <DsButton variant="quiet" @click="handleCancel" :disabled="isSaving">
               {{ t('emotionViews.editor.cancel') }}
             </DsButton>
-            <DsButton
-              @click="handleSave"
-              :disabled="isSaving"
-              class="min-w-[140px]"
-            >
+            <DsButton @click="handleSave" :disabled="isSaving" class="min-w-[140px]">
               {{ isSaving ? t('emotionViews.editor.saving') : t('emotionViews.editor.save') }}
             </DsButton>
           </div>
@@ -208,7 +209,7 @@ const showSnackbarThenNavigate = async (message: string, path: string) => {
   await nextTick()
   // Keep the snackbar visible long enough for the user to perceive the message
   // before the route change unmounts the current view.
-  await new Promise((resolve) => setTimeout(resolve, 500))
+  await new Promise(resolve => setTimeout(resolve, 500))
   await router.push(path)
 }
 
@@ -269,8 +270,8 @@ function applyDateTime() {
     if (
       dateParts.length === 3 &&
       timeParts.length >= 2 &&
-      dateParts.every((n) => !isNaN(n)) &&
-      timeParts.every((n) => !isNaN(n))
+      dateParts.every(n => !isNaN(n)) &&
+      timeParts.every(n => !isNaN(n))
     ) {
       const [year, month, day] = dateParts
       const [hours, minutes] = timeParts
@@ -280,17 +281,23 @@ function applyDateTime() {
       if (!isNaN(newDate.getTime())) {
         customCreatedAt.value = newDate
       } else {
-        console.warn('applyDateTime: Created invalid date from inputs', { selectedDate: selectedDate.value, selectedTime: selectedTime.value })
+        console.warn('applyDateTime: Created invalid date from inputs', {
+          selectedDate: selectedDate.value,
+          selectedTime: selectedTime.value,
+        })
       }
     } else {
-      console.warn('applyDateTime: Invalid date/time input format', { selectedDate: selectedDate.value, selectedTime: selectedTime.value })
+      console.warn('applyDateTime: Invalid date/time input format', {
+        selectedDate: selectedDate.value,
+        selectedTime: selectedTime.value,
+      })
     }
   }
   showDateTimePicker.value = false
 }
 
 // Initialize picker values when modal opens
-watch(showDateTimePicker, (isOpen) => {
+watch(showDateTimePicker, isOpen => {
   if (isOpen) {
     initDateTimePicker()
   }
@@ -305,7 +312,9 @@ const isEmotionSectionLoading = computed(() => {
 })
 
 const isPeopleSectionLoading = computed(() => {
-  return arePeopleTagsLoading.value || (!hasLoadedPeopleTags.value && tagStore.peopleTags.length === 0)
+  return (
+    arePeopleTagsLoading.value || (!hasLoadedPeopleTags.value && tagStore.peopleTags.length === 0)
+  )
 })
 
 const isContextSectionLoading = computed(() => {
@@ -376,8 +385,7 @@ const ensureEmotionData = async () => {
   try {
     await emotionStore.loadEmotions()
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : t('emotionViews.loadEmotionsError')
+    const message = error instanceof Error ? error.message : t('emotionViews.loadEmotionsError')
     snackbarRef.value?.show(message)
     console.error('Error loading emotions:', error)
   } finally {
@@ -395,8 +403,7 @@ const ensurePeopleTags = async () => {
   try {
     await tagStore.loadPeopleTags()
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : t('emotionViews.loadPeopleError')
+    const message = error instanceof Error ? error.message : t('emotionViews.loadPeopleError')
     snackbarRef.value?.show(message)
     console.error('Error loading people tags:', error)
   } finally {
@@ -419,8 +426,7 @@ const ensureContextTags = async () => {
   try {
     await tagStore.loadContextTags()
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : t('emotionViews.loadContextError')
+    const message = error instanceof Error ? error.message : t('emotionViews.loadContextError')
     snackbarRef.value?.show(message)
     console.error('Error loading context tags:', error)
   } finally {
@@ -436,7 +442,7 @@ const ensureContextTags = async () => {
 const loadLog = async (id: string) => {
   isLoading.value = true
   try {
-    const storeLog = emotionLogStore.logs.find((log) => log.id === id)
+    const storeLog = emotionLogStore.logs.find(log => log.id === id)
     if (storeLog) {
       syncLogToForm(storeLog)
       return
@@ -450,10 +456,7 @@ const loadLog = async (id: string) => {
 
     syncLogToForm(log)
   } catch (error) {
-    const message =
-      error instanceof Error
-        ? error.message
-        : t('emotionViews.editor.loadError')
+    const message = error instanceof Error ? error.message : t('emotionViews.editor.loadError')
     console.error('Error loading emotion log:', error)
     await showSnackbarThenNavigate(message, '/emotions')
   } finally {
@@ -475,7 +478,7 @@ const handleSave = async () => {
   const payload = {
     emotionIds: [],
     emotionFamilyIds: groupSelectionsToFamilyIds(wheelSelections.value),
-    emotions: wheelSelections.value.map((s) => ({ ...s })),
+    emotions: wheelSelections.value.map(s => ({ ...s })),
     note: note.value.trim() || undefined,
     peopleTagIds:
       selectedPeopleTagIds.value.length > 0 ? [...selectedPeopleTagIds.value] : undefined,
@@ -500,10 +503,7 @@ const handleSave = async () => {
     await showSnackbarThenNavigate(t('emotionViews.editor.savedSuccess'), '/emotions')
     resetForm()
   } catch (error) {
-    const message =
-      error instanceof Error
-        ? error.message
-        : t('emotionViews.editor.saveError')
+    const message = error instanceof Error ? error.message : t('emotionViews.editor.saveError')
     snackbarRef.value?.show(message)
     console.error('Error saving emotion log:', error)
   } finally {
@@ -549,7 +549,9 @@ onMounted(async () => {
 
 .dialog-enter-active .dialog-panel,
 .dialog-leave-active .dialog-panel {
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
 }
 
 .dialog-enter-from,

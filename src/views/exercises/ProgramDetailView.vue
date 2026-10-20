@@ -13,11 +13,19 @@
         <small>{{ t('programs.ui.mySign') }}</small>
         <em>„{{ sign }}”</em>
       </p>
-      <p v-if="openEnrollment?.status === 'paused'" class="path-view__note">{{ t('programs.ui.pausedNote') }}</p>
+      <p v-if="openEnrollment?.status === 'paused'" class="path-view__note">
+        {{ t('programs.ui.pausedNote') }}
+      </p>
       <p v-if="error" class="path-view__error">{{ error }}</p>
     </template>
     <template #actions>
-      <button v-if="!enrollment" type="button" class="mg-v2-button mg-v2-button--primary" :disabled="busy" @click="handleEnroll">
+      <button
+        v-if="!enrollment"
+        type="button"
+        class="mg-v2-button mg-v2-button--primary"
+        :disabled="busy"
+        @click="handleEnroll"
+      >
         {{ t('programs.ui.enroll') }}
       </button>
       <div v-else-if="openEnrollment" class="path-view__menu">
@@ -31,13 +39,30 @@
           <AppIcon name="more_horiz" />
         </button>
         <div v-if="menuOpen" class="path-view__menu-list" role="menu">
-          <button v-if="openEnrollment.status === 'active'" type="button" role="menuitem" :disabled="busy" @click="menuAction(handlePause)">
+          <button
+            v-if="openEnrollment.status === 'active'"
+            type="button"
+            role="menuitem"
+            :disabled="busy"
+            @click="menuAction(handlePause)"
+          >
             {{ t('programs.ui.pause') }}
           </button>
-          <button v-else type="button" role="menuitem" :disabled="busy" @click="menuAction(handleResume)">
+          <button
+            v-else
+            type="button"
+            role="menuitem"
+            :disabled="busy"
+            @click="menuAction(handleResume)"
+          >
             {{ t('programs.ui.resume') }}
           </button>
-          <button type="button" role="menuitem" :disabled="busy" @click="menuAction(() => (abandonDialogOpen = true))">
+          <button
+            type="button"
+            role="menuitem"
+            :disabled="busy"
+            @click="menuAction(() => (abandonDialogOpen = true))"
+          >
             {{ t('programs.ui.abandon') }}
           </button>
         </div>
@@ -60,19 +85,41 @@
         @restart="handleRestart"
       >
         <!-- Completed state + finale (design §4.5: the foundation build is the path's finale) -->
-        <div v-if="enrollment?.status === 'completed'" class="path-view__closed" data-testid="path-closed">
+        <div
+          v-if="enrollment?.status === 'completed'"
+          class="path-view__closed"
+          data-testid="path-closed"
+        >
           <span class="path-view__closed-icon"><AppIcon :name="closedIcon" /></span>
           <span class="path-view__closed-copy">
-            <strong>{{ program.finaleRouteName ? t('programs.ui.completedTitle') : t('programs.ui.closedTitle') }}</strong>
-            <small v-if="program.finaleRouteName">{{ t(`${program.i18nKey}.finaleDescription`) }}</small>
+            <strong>{{
+              program.finaleRouteName
+                ? t('programs.ui.completedTitle')
+                : t('programs.ui.closedTitle')
+            }}</strong>
+            <small v-if="program.finaleRouteName">{{
+              t(`${program.i18nKey}.finaleDescription`)
+            }}</small>
             <span class="path-view__closed-actions">
-            <button v-if="program.finaleRouteName" type="button" class="pp-chip pp-chip--primary" @click="router.push({ name: program.finaleRouteName })">
-              {{ t(`${program.i18nKey}.finaleCta`) }}
-            </button>
-            <button v-else-if="maintenanceRoute" type="button" class="pp-chip" @click="router.push(maintenanceRoute)">
-              {{ maintenanceTitle }}
-            </button>
-            <button type="button" class="pp-chip" :disabled="busy" @click="handleEnroll">{{ t('programs.ui.reenroll') }}</button>
+              <button
+                v-if="program.finaleRouteName"
+                type="button"
+                class="pp-chip pp-chip--primary"
+                @click="router.push({ name: program.finaleRouteName })"
+              >
+                {{ t(`${program.i18nKey}.finaleCta`) }}
+              </button>
+              <button
+                v-else-if="maintenanceRoute"
+                type="button"
+                class="pp-chip"
+                @click="router.push(maintenanceRoute)"
+              >
+                {{ maintenanceTitle }}
+              </button>
+              <button type="button" class="pp-chip" :disabled="busy" @click="handleEnroll">
+                {{ t('programs.ui.reenroll') }}
+              </button>
             </span>
           </span>
         </div>
@@ -91,7 +138,13 @@
           @letter-opened="markLetterRead"
         />
 
-        <PathDoseCard v-if="dose" :proposal="dose" :busy="busy" @apply="applyDose" @keep="keepDose" />
+        <PathDoseCard
+          v-if="dose"
+          :proposal="dose"
+          :busy="busy"
+          @apply="applyDose"
+          @keep="keepDose"
+        />
 
         <section
           v-if="enrollment && (showGlance || hasOutcomes)"
@@ -99,9 +152,13 @@
           :aria-label="t('programs.ui.progressTitle')"
           data-testid="path-progress"
         >
-          <header class="pp-card__head"><span>{{ t('programs.ui.progressTitle') }}</span></header>
+          <header class="pp-card__head">
+            <span>{{ t('programs.ui.progressTitle') }}</span>
+          </header>
           <div v-if="showGlance" class="pp-block">
-            <header class="pp-block__head"><span class="pp-block__label">{{ glanceTitle }}</span></header>
+            <header class="pp-block__head">
+              <span class="pp-block__label">{{ glanceTitle }}</span>
+            </header>
             <PathMomentsGlance :stats="momentStats" :slots="glanceSlots" />
           </div>
           <div v-if="hasOutcomes" class="pp-block">
@@ -109,7 +166,11 @@
           </div>
         </section>
 
-        <PathSentencesCard v-if="sentencesKind && enrollment" :entries="pathEntries" :kind="sentencesKind" />
+        <PathSentencesCard
+          v-if="sentencesKind && enrollment"
+          :entries="pathEntries"
+          :kind="sentencesKind"
+        />
 
         <PathKnowledgeCard
           :program-slug="program.slug"
@@ -120,7 +181,11 @@
       </aside>
     </div>
 
-    <MomentPickerDialog v-model="launcher.pickerOpen.value" :moments="launcher.pickerMoments.value" @pick="launcher.picked($event)" />
+    <MomentPickerDialog
+      v-model="launcher.pickerOpen.value"
+      :moments="launcher.pickerMoments.value"
+      @pick="launcher.picked($event)"
+    />
     <AppDialog
       v-model="abandonDialogOpen"
       :title="t('programs.ui.abandonConfirmTitle')"
@@ -152,14 +217,20 @@ import PathJourney from '@/features/program-path/PathJourney.vue'
 import PathKnowledgeCard from '@/features/program-path/PathKnowledgeCard.vue'
 import PathMeasureTracks from '@/features/program-path/PathMeasureTracks.vue'
 import PathMomentsGlance from '@/features/program-path/PathMomentsGlance.vue'
-import PathPracticesCard, { type PathPracticesMode } from '@/features/program-path/PathPracticesCard.vue'
+import PathPracticesCard, {
+  type PathPracticesMode,
+} from '@/features/program-path/PathPracticesCard.vue'
 import PathSentencesCard from '@/features/program-path/PathSentencesCard.vue'
 import PathDoseCard from '@/features/program-path/PathDoseCard.vue'
 import MomentPickerDialog from '@/features/program-path/MomentPickerDialog.vue'
 import { useStepLauncher } from '@/features/program-path/useStepLauncher'
 import { currentGroupIndex, pathGroups, weekCount } from '@/features/program-path/pathModel'
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
-import { canUndoLastStep, deriveStepStates, isPracticeItem } from '@/services/programSchedulerService'
+import {
+  canUndoLastStep,
+  deriveStepStates,
+  isPracticeItem,
+} from '@/services/programSchedulerService'
 import { currentPhase as phaseOf, unloggedSeries } from '@/services/programWeekService'
 import { useExercisePlanStore } from '@/stores/exercisePlan.store'
 import { useMicroExerciseEntryStore } from '@/stores/microExerciseEntry.store'
@@ -200,12 +271,20 @@ const reflections = ref<WeeklyReflection[]>([])
 /** Active/paused first, else the latest completed (abandoned = not enrolled). */
 const enrollment = computed(() => enrollmentStore.enrollmentForProgram(slug.value))
 const openEnrollment = computed(() =>
-  enrollment.value?.status === 'active' || enrollment.value?.status === 'paused' ? enrollment.value : undefined,
+  enrollment.value?.status === 'active' || enrollment.value?.status === 'paused'
+    ? enrollment.value
+    : undefined
 )
-const stepStates = computed(() => (program.value ? deriveStepStates(program.value, enrollment.value ?? null) : []))
+const stepStates = computed(() =>
+  program.value ? deriveStepStates(program.value, enrollment.value ?? null) : []
+)
 const groups = computed(() => (program.value ? pathGroups(program.value) : []))
 const currentGroup = computed(() => groups.value[currentGroupIndex(groups.value, stepStates.value)])
-const currentPhase = computed(() => (program.value && enrollment.value ? phaseOf(program.value, enrollment.value) : program.value?.phases?.[0]))
+const currentPhase = computed(() =>
+  program.value && enrollment.value
+    ? phaseOf(program.value, enrollment.value)
+    : program.value?.phases?.[0]
+)
 
 // ── Header ──
 const goal = computed(() => {
@@ -218,7 +297,9 @@ const eyebrow = computed(() => {
   const section = t('exercises.tabs.programs')
   if (!program.value || !enrollment.value) return section
   if (enrollment.value.status === 'completed') {
-    const state = currentGroup.value?.isReturn ? t('programs.ui.statusReturn') : t('programs.ui.statusClosed')
+    const state = currentGroup.value?.isReturn
+      ? t('programs.ui.statusReturn')
+      : t('programs.ui.statusClosed')
     return `${section} · ${state}`
   }
   const weeks = weekCount(groups.value)
@@ -233,10 +314,10 @@ const sign = computed(() => {
   // Several paths share "Mój znak": an entry written with a `kind` belongs to that path (older shame entries carry none).
   const kind = program.value?.momentKind
   const entry = entryStore.sortedEntries.find(
-    (item) =>
+    item =>
       item.exerciseSlug === signSlug &&
       item.createdAt >= enrollment.value!.startedAt &&
-      (item.responses.kind === undefined || item.responses.kind === kind),
+      (item.responses.kind === undefined || item.responses.kind === kind)
   )
   const value = entry?.responses.sign
   return typeof value === 'string' ? value.trim() : ''
@@ -246,15 +327,18 @@ const sign = computed(() => {
 const nowStepIndex = computed(() => {
   if (!program.value) return undefined
   if (!enrollment.value) return 0
-  const index = stepStates.value.findIndex((state) => state.state === 'current')
+  const index = stepStates.value.findIndex(state => state.state === 'current')
   return index >= 0 ? index : undefined
 })
-const nowStep = computed<ProgramStep | undefined>(() => (nowStepIndex.value === undefined ? undefined : program.value?.steps[nowStepIndex.value]))
+const nowStep = computed<ProgramStep | undefined>(() =>
+  nowStepIndex.value === undefined ? undefined : program.value?.steps[nowStepIndex.value]
+)
 /** Praktyki: the open phase's tiles; "Gdy wrócisz" when paused; on the return the letter and the plan as links. */
 const practicesMode = computed<PathPracticesMode | null>(() => {
   if (!program.value || !enrollment.value) return null
   if (enrollment.value.status === 'paused') return 'paused'
-  if (enrollment.value.status === 'completed') return nowStep.value?.afterCompletion ? 'return' : null
+  if (enrollment.value.status === 'completed')
+    return nowStep.value?.afterCompletion ? 'return' : null
   return enrollment.value.status === 'active' ? 'active' : null
 })
 
@@ -262,7 +346,12 @@ const practicesMode = computed<PathPracticesMode | null>(() => {
 const pendingStepDay = computed(
   () =>
     openEnrollment.value &&
-    planStore.pendingItems.find((item) => item.source === 'program' && item.sourceRef === openEnrollment.value?.id && !isPracticeItem(item))?.dayRef,
+    planStore.pendingItems.find(
+      item =>
+        item.source === 'program' &&
+        item.sourceRef === openEnrollment.value?.id &&
+        !isPracticeItem(item)
+    )?.dayRef
 )
 const todayRef = computed<DayRef>(() => getPeriodRefsForDate(new Date()).day)
 const currentNote = computed(() => {
@@ -278,34 +367,60 @@ const currentNote = computed(() => {
 })
 
 // ── Progress ──
-const hasOutcomes = computed(() => Boolean(program.value?.outcomeSlugs?.length || program.value?.outcomeSlug))
+const hasOutcomes = computed(() =>
+  Boolean(program.value?.outcomeSlugs?.length || program.value?.outcomeSlug)
+)
 /** Paths that log Momenty with a reaction family (shame parts, anger / anxiety reactions) get the chart. */
-const glanceKind = computed<MomentFamilyKind | null>(() => (isMomentFamilyKind(program.value?.momentKind) ? program.value!.momentKind : null))
+const glanceKind = computed<MomentFamilyKind | null>(() =>
+  isMomentFamilyKind(program.value?.momentKind) ? program.value!.momentKind : null
+)
 const showGlance = computed(() => glanceKind.value !== null && Boolean(enrollment.value))
-const glanceTitle = computed(() => (glanceKind.value === 'shame' ? t('programs.ui.partsTitle') : t('programs.ui.reactionsTitle')))
+const glanceTitle = computed(() =>
+  glanceKind.value === 'shame' ? t('programs.ui.partsTitle') : t('programs.ui.reactionsTitle')
+)
 /** "Moje zdania" (shame) or "Moje słowa" (anger); the anxiety path has no sentence sources. */
-const sentencesKind = computed<MomentFamilyKind | null>(() => (glanceKind.value === 'shame' || glanceKind.value === 'anger' ? glanceKind.value : null))
+const sentencesKind = computed<MomentFamilyKind | null>(() =>
+  glanceKind.value === 'shame' || glanceKind.value === 'anger' ? glanceKind.value : null
+)
 const pathEntries = computed<MicroExerciseEntry[]>(() =>
-  enrollment.value ? entryStore.entries.filter((entry) => entry.createdAt >= enrollment.value!.startedAt) : [],
+  enrollment.value
+    ? entryStore.entries.filter(entry => entry.createdAt >= enrollment.value!.startedAt)
+    : []
 )
 const glanceWeeks = computed<WeekRef[]>(() => {
   if (!enrollment.value) return []
   const startWeek = getPeriodRefsForDate(new Date(enrollment.value.startedAt)).week
-  const lastWeek = getPeriodRefsForDate(enrollment.value.completedAt ? new Date(enrollment.value.completedAt) : new Date()).week
+  const lastWeek = getPeriodRefsForDate(
+    enrollment.value.completedAt ? new Date(enrollment.value.completedAt) : new Date()
+  ).week
   const trail = weekRefsEndingAt(lastWeek, 12)
   const from = trail.indexOf(startWeek)
   return from >= 0 ? trail.slice(from) : trail
 })
-const glanceSlots = computed(() => Math.max(program.value?.estimatedWeeks ?? 0, glanceWeeks.value.length))
+const glanceSlots = computed(() =>
+  Math.max(program.value?.estimatedWeeks ?? 0, glanceWeeks.value.length)
+)
 const momentStats = computed(() =>
   enrollment.value && glanceKind.value
-    ? momentsProgress(pathEntries.value, glanceWeeks.value, unloggedSeries(enrollment.value.id, reflections.value), glanceKind.value)
-    : [],
+    ? momentsProgress(
+        pathEntries.value,
+        glanceWeeks.value,
+        unloggedSeries(enrollment.value.id, reflections.value),
+        glanceKind.value
+      )
+    : []
 )
 const responseEntry = computed(() => {
-  const responseSlug = program.value?.momentKind === 'anxiety' ? 'anxiety-map' : program.value?.momentKind === 'anger' ? 'pause-plan' : program.value?.momentKind === 'shame' ? 'shame-response' : undefined
+  const responseSlug =
+    program.value?.momentKind === 'anxiety'
+      ? 'anxiety-map'
+      : program.value?.momentKind === 'anger'
+        ? 'pause-plan'
+        : program.value?.momentKind === 'shame'
+          ? 'shame-response'
+          : undefined
   return [...pathEntries.value]
-    .filter((entry) => entry.exerciseSlug === responseSlug)
+    .filter(entry => entry.exerciseSlug === responseSlug)
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0]
 })
 /**
@@ -316,25 +431,33 @@ const responseEntry = computed(() => {
  */
 const letterEnrollment = computed<ProgramEnrollment | undefined>(() => {
   const candidates = enrollmentStore.enrollments.filter(
-    (candidate) =>
+    candidate =>
       candidate.programSlug === slug.value &&
       candidate.status !== 'abandoned' &&
       candidate.futureLetter &&
-      futureLetterDue(candidate, todayRef.value),
+      futureLetterDue(candidate, todayRef.value)
   )
-  const asked = typeof route.query.enrollment === 'string' ? candidates.find((candidate) => candidate.id === route.query.enrollment) : undefined
+  const asked =
+    typeof route.query.enrollment === 'string'
+      ? candidates.find(candidate => candidate.id === route.query.enrollment)
+      : undefined
   if (asked) return asked
-  if (enrollment.value && candidates.some((candidate) => candidate.id === enrollment.value!.id)) return enrollment.value
-  return [...candidates].sort((a, b) => b.futureLetter!.showAt.localeCompare(a.futureLetter!.showAt))[0]
+  if (enrollment.value && candidates.some(candidate => candidate.id === enrollment.value!.id))
+    return enrollment.value
+  return [...candidates].sort((a, b) =>
+    b.futureLetter!.showAt.localeCompare(a.futureLetter!.showAt)
+  )[0]
 })
 /** The letter to a future self: on the return, or from its own day (`futureLetter.showAt`) on. */
 const letter = computed(() => {
   const owner = letterEnrollment.value
-  const byId = owner?.futureLetter ? entryStore.entries.find((item) => item.id === owner.futureLetter!.entryId) : undefined
+  const byId = owner?.futureLetter
+    ? entryStore.entries.find(item => item.id === owner.futureLetter!.entryId)
+    : undefined
   // Older closed runs without a recorded letter: the run's own letter entry, as before.
   const fallback =
     !byId && enrollment.value?.status === 'completed'
-      ? pathEntries.value.find((item) => item.exerciseSlug === 'letter-to-future-self')
+      ? pathEntries.value.find(item => item.exerciseSlug === 'letter-to-future-self')
       : undefined
   const value = (byId ?? fallback)?.responses.letter
   return typeof value === 'string' ? value.trim() : ''
@@ -343,12 +466,17 @@ const letter = computed(() => {
 /** Opening the letter's quote marks it read, so "Najbliżej" stops asking. */
 function markLetterRead(): void {
   const id = letterEnrollment.value?.id
-  if (id) void enrollmentStore.markFutureLetterRead(id).catch((err) => console.error('Failed to mark the letter as read:', err))
+  if (id)
+    void enrollmentStore
+      .markFutureLetterRead(id)
+      .catch(err => console.error('Failed to mark the letter as read:', err))
 }
 
 // ── Czy nie za dużo? → a calmer rhythm proposed once, decided with one click ──
 const dose = computed(() =>
-  program.value && openEnrollment.value?.status === 'active' ? doseProposal(program.value, openEnrollment.value, pathEntries.value) : null,
+  program.value && openEnrollment.value?.status === 'active'
+    ? doseProposal(program.value, openEnrollment.value, pathEntries.value)
+    : null
 )
 async function applyDose(): Promise<void> {
   const target = openEnrollment.value
@@ -357,31 +485,43 @@ async function applyDose(): Promise<void> {
   await run(() =>
     enrollmentStore.applyPracticeOverrides(
       target.id,
-      Object.fromEntries(proposal.items.map((item) => [item.slug, { everyDays: item.to }])),
-    ),
+      Object.fromEntries(proposal.items.map(item => [item.slug, { everyDays: item.to }]))
+    )
   )
 }
 async function keepDose(): Promise<void> {
   const target = openEnrollment.value
   if (!target || !program.value) return
-  await run(() => enrollmentStore.applyPracticeOverrides(target.id, keepRhythmOverrides(program.value!, target)))
+  await run(() =>
+    enrollmentStore.applyPracticeOverrides(target.id, keepRhythmOverrides(program.value!, target))
+  )
 }
 
 // ── Closed ──
-const maintenanceIndex = computed(() => program.value?.steps.findIndex((step) => step.closesPath) ?? -1)
+const maintenanceIndex = computed(
+  () => program.value?.steps.findIndex(step => step.closesPath) ?? -1
+)
 const maintenanceRoute = computed<RouteLocationRaw | null>(() => {
-  const step = maintenanceIndex.value >= 0 ? program.value?.steps[maintenanceIndex.value] : undefined
+  const step =
+    maintenanceIndex.value >= 0 ? program.value?.steps[maintenanceIndex.value] : undefined
   const entry = step ? getCatalogEntry(step.exerciseSlug) : undefined
   return entry ? { path: entry.route, query: { continue: 'latest' } } : null
 })
 const maintenanceTitle = computed(() => {
-  const step = maintenanceIndex.value >= 0 ? program.value?.steps[maintenanceIndex.value] : undefined
+  const step =
+    maintenanceIndex.value >= 0 ? program.value?.steps[maintenanceIndex.value] : undefined
   if (!program.value || !step) return ''
   const entry = getCatalogEntry(step.exerciseSlug)
-  return programStepTitle(t, program.value.i18nKey, maintenanceIndex.value, entry ? t(`exercises.cards.${entry.i18nKey}.title`) : step.exerciseSlug)
+  return programStepTitle(
+    t,
+    program.value.i18nKey,
+    maintenanceIndex.value,
+    entry ? t(`exercises.cards.${entry.i18nKey}.title`) : step.exerciseSlug
+  )
 })
 const closedIcon = computed(() => {
-  const step = maintenanceIndex.value >= 0 ? program.value?.steps[maintenanceIndex.value] : undefined
+  const step =
+    maintenanceIndex.value >= 0 ? program.value?.steps[maintenanceIndex.value] : undefined
   return (step && getCatalogEntry(step.exerciseSlug)?.icon) || 'workspace_premium'
 })
 
@@ -394,14 +534,19 @@ onMounted(() => {
     void router.replace('/exercises')
     return
   }
-  void Promise.all([enrollmentStore.ensureLoaded(), planStore.ensureLoaded(), entryStore.loadEntries(), loadReflections()])
+  void Promise.all([
+    enrollmentStore.ensureLoaded(),
+    planStore.ensureLoaded(),
+    entryStore.loadEntries(),
+    loadReflections(),
+  ])
 })
 watch(slug, () => {
   if (route.name === 'program-detail' && !program.value) void router.replace('/exercises')
 })
 watch(
   () => enrollment.value?.id,
-  () => void loadReflections(),
+  () => void loadReflections()
 )
 
 async function run(action: () => Promise<unknown>): Promise<void> {
@@ -460,7 +605,10 @@ async function handleUndo(): Promise<void> {
 }
 function markRead(key: string): void {
   const id = enrollment.value?.id
-  if (id) void enrollmentStore.markCardRead(id, key).catch((err) => console.error('Failed to mark the card as read:', err))
+  if (id)
+    void enrollmentStore
+      .markCardRead(id, key)
+      .catch(err => console.error('Failed to mark the card as read:', err))
 }
 </script>
 

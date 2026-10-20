@@ -64,7 +64,7 @@ function normalizeStatus(value: unknown, fallback: AnnualPlanStatus): AnnualPlan
 
 function normalizeNarrative(
   value: unknown,
-  fallback?: AnnualPlanNarrative,
+  fallback?: AnnualPlanNarrative
 ): AnnualPlanNarrative | undefined {
   const source = value ?? fallback
   if (source === undefined) return undefined
@@ -89,17 +89,20 @@ function normalizeNarrative(
 
 export function normalizeAnnualPlanPayload(
   data: CreateAnnualPlanPayload | UpdateAnnualPlanPayload,
-  existing?: AnnualPlan,
+  existing?: AnnualPlan
 ): Omit<AnnualPlan, 'id' | 'createdAt' | 'updatedAt'> {
   return {
     yearRef: normalizeYearRef(data.yearRef, existing?.yearRef),
     status: normalizeStatus(data.status, existing?.status ?? 'draft'),
     annualBriefNote: normalizeOptionalText(data.annualBriefNote, existing?.annualBriefNote),
-    lifeAreaAssessmentId: normalizeOptionalText(data.lifeAreaAssessmentId, existing?.lifeAreaAssessmentId),
+    lifeAreaAssessmentId: normalizeOptionalText(
+      data.lifeAreaAssessmentId,
+      existing?.lifeAreaAssessmentId
+    ),
     narrative: normalizeNarrative(data.narrative, existing?.narrative),
     executionPlaceholderNote: normalizeOptionalText(
       data.executionPlaceholderNote,
-      existing?.executionPlaceholderNote,
+      existing?.executionPlaceholderNote
     ),
   }
 }

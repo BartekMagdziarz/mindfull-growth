@@ -2,7 +2,12 @@
   <div class="space-y-6">
     <div class="flex items-center justify-between gap-4">
       <div class="text-xs font-semibold uppercase tracking-[0.2em] text-on-surface-variant">
-        {{ t('exerciseWizards.wheelOfLife.stepIndicator', { step: wizard.currentStep.value + 1, total: wizard.steps.value.length }) }}
+        {{
+          t('exerciseWizards.wheelOfLife.stepIndicator', {
+            step: wizard.currentStep.value + 1,
+            total: wizard.steps.value.length,
+          })
+        }}
       </div>
       <div class="flex items-center gap-2">
         <template v-for="(_step, i) in wizard.steps.value" :key="_step.id">
@@ -28,14 +33,27 @@
 
     <AppCard padding="lg">
       <div v-if="wizard.currentStepDef.value?.id === 'intro'" class="space-y-6">
-        <div
-          v-if="wizard.isLoadingAreas.value"
-          class="flex items-center justify-center py-10"
-        >
+        <div v-if="wizard.isLoadingAreas.value" class="flex items-center justify-center py-10">
           <div class="flex items-center gap-3 text-on-surface-variant text-sm">
-            <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            <svg
+              class="animate-spin h-5 w-5"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              />
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
             </svg>
             <span>{{ t('exerciseWizards.wheelOfLife.loadingAreas') }}</span>
           </div>
@@ -62,7 +80,9 @@
 
         <div v-else class="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] items-center">
           <div class="space-y-4">
-            <h3 class="text-xl font-semibold text-on-surface">{{ t('exerciseWizards.wheelOfLife.intro.snapshotHeading') }}</h3>
+            <h3 class="text-xl font-semibold text-on-surface">
+              {{ t('exerciseWizards.wheelOfLife.intro.snapshotHeading') }}
+            </h3>
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.wheelOfLife.intro.snapshotDescription') }}
             </p>
@@ -99,8 +119,12 @@
         :areas="wizard.areas.value"
         :current-index="wizard.currentAreaIndex.value"
         @rate="wizard.rateArea(wizard.currentAreaIndex.value, $event)"
-        @set-positive-influences="wizard.setAreaPositiveInfluences(wizard.currentAreaIndex.value, $event)"
-        @set-negative-influences="wizard.setAreaNegativeInfluences(wizard.currentAreaIndex.value, $event)"
+        @set-positive-influences="
+          wizard.setAreaPositiveInfluences(wizard.currentAreaIndex.value, $event)
+        "
+        @set-negative-influences="
+          wizard.setAreaNegativeInfluences(wizard.currentAreaIndex.value, $event)
+        "
         @set-vision="wizard.setAreaVisionSnapshot(wizard.currentAreaIndex.value, $event)"
       />
 
@@ -122,11 +146,7 @@
 
     <div class="flex items-center justify-between">
       <div>
-        <AppButton
-          v-if="!wizard.isFirstStep.value"
-          variant="text"
-          @click="wizard.back()"
-        >
+        <AppButton v-if="!wizard.isFirstStep.value" variant="text" @click="wizard.back()">
           {{ t('exerciseWizards.wheelOfLife.back') }}
         </AppButton>
         <AppButton v-else-if="showCancel" variant="text" @click="$emit('cancel')">
@@ -143,12 +163,7 @@
         >
           {{ t('exerciseWizards.wheelOfLife.save') }}
         </AppButton>
-        <AppButton
-          v-else
-          variant="filled"
-          :disabled="!canAdvance"
-          @click="wizard.next()"
-        >
+        <AppButton v-else variant="filled" :disabled="!canAdvance" @click="wizard.next()">
           {{ t('exerciseWizards.wheelOfLife.continue') }}
         </AppButton>
       </div>
@@ -182,7 +197,7 @@ const props = withDefaults(
     mode: 'standalone',
     assessmentId: undefined,
     showCancel: false,
-  },
+  }
 )
 
 const emit = defineEmits<{

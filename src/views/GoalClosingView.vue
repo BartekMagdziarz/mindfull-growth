@@ -36,7 +36,9 @@ function queryString(name: string): string | undefined {
 /** The card's status menu pre-selects the outcome (?outcome=abandoned). */
 const presetOutcome = computed<GoalOutcome | null>(() => {
   const value = queryString('outcome')
-  return value && (GOAL_OUTCOMES as readonly string[]).includes(value) ? (value as GoalOutcome) : null
+  return value && (GOAL_OUTCOMES as readonly string[]).includes(value)
+    ? (value as GoalOutcome)
+    : null
 })
 
 /** Same-app relative path to go back to; the library otherwise. */

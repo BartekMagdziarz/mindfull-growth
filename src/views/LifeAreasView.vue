@@ -70,16 +70,13 @@ const isLoading = computed(() => lifeAreaStore.isLoading)
 const sortedAreas = computed(() => lifeAreaStore.sortedLifeAreas)
 
 onMounted(async () => {
-  await Promise.all([
-    lifeAreaStore.loadLifeAreas(),
-    assessmentStore.loadAssessments(),
-  ])
+  await Promise.all([lifeAreaStore.loadLifeAreas(), assessmentStore.loadAssessments()])
 })
 
 function getLatestScore(lifeAreaId: string): number | undefined {
   const latest = assessmentStore.latestFullAssessment
   if (!latest) return undefined
-  return latest.items.find((item) => item.lifeAreaId === lifeAreaId)?.score
+  return latest.items.find(item => item.lifeAreaId === lifeAreaId)?.score
 }
 
 async function handleSeedDefaults() {

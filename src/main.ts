@@ -33,22 +33,24 @@ if (
     import('./repositories/habitDexieRepository'),
     import('./repositories/keyResultDexieRepository'),
     import('./repositories/trackerDexieRepository'),
-  ]).then(async ([
-    { auditMeasurementRecords },
-    { habitDexieRepository },
-    { keyResultDexieRepository },
-    { trackerDexieRepository },
-  ]) => {
-    const [habits, keyResults, trackers] = await Promise.all([
-      habitDexieRepository.listAll(),
-      keyResultDexieRepository.listAll(),
-      trackerDexieRepository.listAll(),
-    ])
-    const invalid = auditMeasurementRecords(habits, keyResults, trackers)
-    if (invalid.length > 0) {
-      console.warn('[Today viz audit] Found invalid measurement records:', invalid)
+  ]).then(
+    async ([
+      { auditMeasurementRecords },
+      { habitDexieRepository },
+      { keyResultDexieRepository },
+      { trackerDexieRepository },
+    ]) => {
+      const [habits, keyResults, trackers] = await Promise.all([
+        habitDexieRepository.listAll(),
+        keyResultDexieRepository.listAll(),
+        trackerDexieRepository.listAll(),
+      ])
+      const invalid = auditMeasurementRecords(habits, keyResults, trackers)
+      if (invalid.length > 0) {
+        console.warn('[Today viz audit] Found invalid measurement records:', invalid)
+      }
     }
-  })
+  )
 }
 
 async function start(): Promise<void> {

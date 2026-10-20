@@ -8,12 +8,32 @@ import NextDayCalendarCard from '../NextDayCalendarCard.vue'
 
 const TODAY = '2026-03-12' as DayRef // Thursday
 const markers: DayMarker[] = [
-  { key: 'w', kind: 'ritual', dayRef: '2026-03-16' as DayRef, state: 'due', ritual: 'week', action: 'plan', weekRef: '2026-W12' as WeekRef },
-  { key: 'r', kind: 'ritual', dayRef: '2026-03-15' as DayRef, state: 'done', ritual: 'week', action: 'reflect', weekRef: '2026-W11' as WeekRef },
+  {
+    key: 'w',
+    kind: 'ritual',
+    dayRef: '2026-03-16' as DayRef,
+    state: 'due',
+    ritual: 'week',
+    action: 'plan',
+    weekRef: '2026-W12' as WeekRef,
+  },
+  {
+    key: 'r',
+    kind: 'ritual',
+    dayRef: '2026-03-15' as DayRef,
+    state: 'done',
+    ritual: 'week',
+    action: 'reflect',
+    weekRef: '2026-W11' as WeekRef,
+  },
 ]
 
-function mountCard(props: Partial<{ dayRef: DayRef; targeting: boolean; targetingWeekRef: WeekRef | null }> = {}) {
-  return mount(NextDayCalendarCard, { props: { dayRef: TODAY, todayRef: TODAY, markers, targeting: false, ...props } })
+function mountCard(
+  props: Partial<{ dayRef: DayRef; targeting: boolean; targetingWeekRef: WeekRef | null }> = {}
+) {
+  return mount(NextDayCalendarCard, {
+    props: { dayRef: TODAY, todayRef: TODAY, markers, targeting: false, ...props },
+  })
 }
 
 describe('NextDayCalendarCard', () => {
@@ -42,14 +62,20 @@ describe('NextDayCalendarCard', () => {
     expect(cells[0].find('strong').text()).toBe('9') // Monday of the viewed week
     expect(wrapper.find('.next-day-cal__day.is-today strong').text()).toBe('12')
     expect(wrapper.find('.next-day-cal__day.is-selected strong').text()).toBe('13')
-    expect(wrapper.find('.next-day-cal__period strong').text()).toBe(`T${Number(getPeriodRefsForDate(new Date('2026-03-09T12:00:00')).week.slice(-2))}`)
+    expect(wrapper.find('.next-day-cal__period strong').text()).toBe(
+      `T${Number(getPeriodRefsForDate(new Date('2026-03-09T12:00:00')).week.slice(-2))}`
+    )
 
     await wrapper.find('.next-day-cal__switch button:last-child').trigger('click')
     const monthCells = wrapper.findAll('.next-day-cal__day--month')
     expect(monthCells.length).toBeGreaterThanOrEqual(35)
     // Titles also contain ritual date ranges, so match the cell's day itself.
-    const day16 = monthCells.find(cell => !cell.classes().includes('is-out') && cell.find('strong').text() === '16')!
-    const day15 = monthCells.find(cell => !cell.classes().includes('is-out') && cell.find('strong').text() === '15')!
+    const day16 = monthCells.find(
+      cell => !cell.classes().includes('is-out') && cell.find('strong').text() === '16'
+    )!
+    const day15 = monthCells.find(
+      cell => !cell.classes().includes('is-out') && cell.find('strong').text() === '15'
+    )!
     expect(day16.find('.next-day-cal__marks i.is-ritual').exists()).toBe(true)
     expect(day16.find('.next-day-cal__marks i.is-done').exists()).toBe(false)
     expect(day15.find('.next-day-cal__marks i.is-ritual.is-done').exists()).toBe(true)
@@ -82,7 +108,15 @@ describe('NextDayCalendarCard', () => {
     const cells = wrapper.findAll('.next-day-cal__day--week')
 
     // Forward view: Fri 13 … Thu 19 — only Fri/Sat/Sun stay in the locked week.
-    expect(cells.map(cell => cell.classes().includes('is-pickable'))).toEqual([true, true, true, false, false, false, false])
+    expect(cells.map(cell => cell.classes().includes('is-pickable'))).toEqual([
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+    ])
     await cells[4].trigger('click')
     expect(wrapper.emitted('pick')).toBeUndefined()
     await cells[1].trigger('click')

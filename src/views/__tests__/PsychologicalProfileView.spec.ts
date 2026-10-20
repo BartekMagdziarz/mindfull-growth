@@ -2,10 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/vue'
 import userEvent from '@testing-library/user-event'
 import PsychologicalProfileView from '../PsychologicalProfileView.vue'
-import {
-  createEmptySections,
-  type UserProfile,
-} from '@/domain/userProfile'
+import { createEmptySections, type UserProfile } from '@/domain/userProfile'
 import type { FoundationItemStatus } from '@/services/foundationCompleteness'
 
 const mockPush = vi.fn()
@@ -23,10 +20,10 @@ const foundationMock = vi.hoisted(() => ({
 vi.mock('@/services/foundationCompleteness', () => {
   const GROUP_ORDER = ['values', 'meaning', 'personality', 'lifeBalance'] as const
   const groupProgress = (statuses: FoundationItemStatus[]) =>
-    GROUP_ORDER.map((group) => {
-      const inGroup = statuses.filter((status) => status.group === group)
+    GROUP_ORDER.map(group => {
+      const inGroup = statuses.filter(status => status.group === group)
       const completed = inGroup.filter(
-        (status) => status.state === 'completed' || status.state === 'outdated',
+        status => status.state === 'completed' || status.state === 'outdated'
       ).length
       return { group, total: inGroup.length, completed, minRequired: 1, satisfied: completed >= 1 }
     })
@@ -36,13 +33,12 @@ vi.mock('@/services/foundationCompleteness', () => {
     FOUNDATION_GROUP_MIN_REQUIRED: { values: 1, meaning: 1, personality: 1, lifeBalance: 1 },
     computeFoundationStatuses: () => foundationMock.statuses,
     foundationCompletionCount: (statuses: FoundationItemStatus[]) =>
-      statuses.filter((status) => status.state === 'completed' || status.state === 'outdated')
-        .length,
+      statuses.filter(status => status.state === 'completed' || status.state === 'outdated').length,
     isFoundationOutdated: (statuses: FoundationItemStatus[]) =>
-      statuses.some((status) => status.state === 'outdated'),
+      statuses.some(status => status.state === 'outdated'),
     computeFoundationGroupProgress: groupProgress,
     isFoundationBuildUnlocked: (statuses: FoundationItemStatus[]) =>
-      groupProgress(statuses).every((g) => g.satisfied),
+      groupProgress(statuses).every(g => g.satisfied),
     loadFoundationSourceData: foundationMock.loadFoundationSourceData,
   }
 })
@@ -128,16 +124,14 @@ function makeFoundationStatus(
   id: FoundationItemStatus['id'],
   group: FoundationItemStatus['group'],
   state: FoundationItemStatus['state'] = 'not-started',
-  routeParams?: Record<string, string>,
+  routeParams?: Record<string, string>
 ): FoundationItemStatus {
   return {
     id,
     group,
     state,
     lastCompletedAt:
-      state === 'completed' || state === 'outdated'
-        ? '2025-01-01T00:00:00.000Z'
-        : undefined,
+      state === 'completed' || state === 'outdated' ? '2025-01-01T00:00:00.000Z' : undefined,
     routeName: routeParams ? 'exercise-assessment' : `exercise-${id}`,
     routeParams,
   }
@@ -145,7 +139,7 @@ function makeFoundationStatus(
 
 function makeFoundationStatuses(
   completedCount = 0,
-  outdatedIds: FoundationItemStatus['id'][] = [],
+  outdatedIds: FoundationItemStatus['id'][] = []
 ): FoundationItemStatus[] {
   const items: Array<{
     id: FoundationItemStatus['id']
@@ -190,12 +184,10 @@ describe('PsychologicalProfileView', () => {
     vi.mocked(userProfileDexieRepository.delete).mockResolvedValue(undefined)
     // User settings start empty — the preferences store will fall back to
     // its defaults (including `includeProfileInChatContext: false`).
-    vi.mocked(userSettingsDexieRepository.get).mockImplementation(
-      async (key) => {
-        if (key === 'preferences.locale') return 'en'
-        return undefined
-      },
-    )
+    vi.mocked(userSettingsDexieRepository.get).mockImplementation(async key => {
+      if (key === 'preferences.locale') return 'en'
+      return undefined
+    })
     vi.mocked(userSettingsDexieRepository.set).mockResolvedValue(undefined)
     vi.mocked(userSettingsDexieRepository.delete).mockResolvedValue(undefined)
     // Reset route query and sessionStorage between tests so the
@@ -214,12 +206,12 @@ describe('PsychologicalProfileView', () => {
     expect(
       screen.getByRole('button', {
         name: 'Complete one exercise in each group to unlock',
-      }),
+      })
     ).toBeInTheDocument()
     expect(
       screen.queryByText(
-        'Pick which data to include, let the AI build a first draft, and review it before saving.',
-      ),
+        'Pick which data to include, let the AI build a first draft, and review it before saving.'
+      )
     ).not.toBeInTheDocument()
   })
 
@@ -310,13 +302,11 @@ describe('PsychologicalProfileView', () => {
     expect(deleteBtn).toBeInTheDocument()
     expect(deleteBtn).toBeDisabled()
     // Helper text appears next to the disabled button.
-    expect(
-      document.querySelector('[data-test-delete-blocked]'),
-    ).toBeInTheDocument()
+    expect(document.querySelector('[data-test-delete-blocked]')).toBeInTheDocument()
     expect(
       screen.getByText(
-        'The current version is protected. Build a newer version first, then you can delete this one.',
-      ),
+        'The current version is protected. Build a newer version first, then you can delete this one.'
+      )
     ).toBeInTheDocument()
   })
 
@@ -327,9 +317,7 @@ describe('PsychologicalProfileView', () => {
     render(PsychologicalProfileView)
 
     await waitFor(() => {
-      expect(
-        screen.getByRole('button', { name: 'Delete this version' }),
-      ).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Delete this version' })).toBeInTheDocument()
     })
   })
 
@@ -349,9 +337,7 @@ describe('PsychologicalProfileView', () => {
     await user.selectOptions(select, 'older')
 
     await waitFor(() => {
-      expect(
-        screen.getByRole('button', { name: 'Delete this version' }),
-      ).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Delete this version' })).toBeInTheDocument()
     })
   })
 
@@ -420,7 +406,7 @@ describe('PsychologicalProfileView', () => {
         expect(screen.getByText('Summary')).toBeInTheDocument()
       })
       expect(
-        screen.queryByText('Some foundation data is over 6 months old'),
+        screen.queryByText('Some foundation data is over 6 months old')
       ).not.toBeInTheDocument()
     })
 
@@ -432,9 +418,7 @@ describe('PsychologicalProfileView', () => {
       render(PsychologicalProfileView)
 
       await waitFor(() => {
-        expect(
-          screen.getByText('Some foundation data is over 6 months old'),
-        ).toBeInTheDocument()
+        expect(screen.getByText('Some foundation data is over 6 months old')).toBeInTheDocument()
       })
       expect(screen.getByText(/1 foundation item/)).toBeInTheDocument()
     })
@@ -457,7 +441,7 @@ describe('PsychologicalProfileView', () => {
         expect(screen.getByText('Summary')).toBeInTheDocument()
       })
       expect(
-        screen.queryByText('Some foundation data is over 6 months old'),
+        screen.queryByText('Some foundation data is over 6 months old')
       ).not.toBeInTheDocument()
     })
 
@@ -476,9 +460,7 @@ describe('PsychologicalProfileView', () => {
       render(PsychologicalProfileView)
 
       await waitFor(() => {
-        expect(
-          screen.getByText('Some foundation data is over 6 months old'),
-        ).toBeInTheDocument()
+        expect(screen.getByText('Some foundation data is over 6 months old')).toBeInTheDocument()
       })
     })
 
@@ -519,12 +501,12 @@ describe('PsychologicalProfileView', () => {
       await waitFor(() => {
         expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
           'profile.foundationRefreshDismissedAt',
-          '2026-05-09T12:00:00.000Z',
+          '2026-05-09T12:00:00.000Z'
         )
       })
       await waitFor(() => {
         expect(
-          screen.queryByText('Some foundation data is over 6 months old'),
+          screen.queryByText('Some foundation data is over 6 months old')
         ).not.toBeInTheDocument()
       })
     })
@@ -540,9 +522,7 @@ describe('PsychologicalProfileView', () => {
     const editBtn = await screen.findByRole('button', { name: /Edit this version/ })
     await user.click(editBtn)
 
-    expect(window.sessionStorage.getItem('profile-build-edit-source')).toBe(
-      'src-edit',
-    )
+    expect(window.sessionStorage.getItem('profile-build-edit-source')).toBe('src-edit')
     expect(mockPush).toHaveBeenCalledWith({
       name: 'profile-psychological-build',
     })
@@ -578,7 +558,10 @@ describe('PsychologicalProfileView', () => {
   })
 
   it('falls back to the current version when route.query.versionId points at a missing profile', async () => {
-    const sole = makeProfile({ id: 'only', sections: { ...createEmptySections(), summary: 'Only one' } })
+    const sole = makeProfile({
+      id: 'only',
+      sections: { ...createEmptySections(), summary: 'Only one' },
+    })
     vi.mocked(userProfileDexieRepository.list).mockResolvedValue([sole])
 
     mockRouteQuery.versionId = 'does-not-exist'
@@ -600,14 +583,14 @@ describe('PsychologicalProfileView', () => {
       name: 'Delete this version',
     })
     expect(deleteBtn).not.toBeDisabled()
-    expect(
-      document.querySelector('[data-test-delete-blocked]'),
-    ).toBeNull()
+    expect(document.querySelector('[data-test-delete-blocked]')).toBeNull()
   })
 
   describe('profile context defaults', () => {
     async function findToggle(
-      attr: 'data-test-profile-context-default-toggle' | 'data-test-profile-context-default-journal-toggle',
+      attr:
+        | 'data-test-profile-context-default-toggle'
+        | 'data-test-profile-context-default-journal-toggle'
     ): Promise<HTMLElement> {
       let el: HTMLElement | null = null
       await waitFor(() => {
@@ -621,12 +604,8 @@ describe('PsychologicalProfileView', () => {
       // Empty storage → store falls back to module defaults: both true.
       render(PsychologicalProfileView)
 
-      const generalToggle = await findToggle(
-        'data-test-profile-context-default-toggle',
-      )
-      const journalToggle = await findToggle(
-        'data-test-profile-context-default-journal-toggle',
-      )
+      const generalToggle = await findToggle('data-test-profile-context-default-toggle')
+      const journalToggle = await findToggle('data-test-profile-context-default-journal-toggle')
       expect(generalToggle).toHaveAttribute('aria-checked', 'true')
       expect(journalToggle).toHaveAttribute('aria-checked', 'true')
     })
@@ -635,9 +614,7 @@ describe('PsychologicalProfileView', () => {
       const user = userEvent.setup()
       render(PsychologicalProfileView)
 
-      const toggle = await findToggle(
-        'data-test-profile-context-default-toggle',
-      )
+      const toggle = await findToggle('data-test-profile-context-default-toggle')
       expect(toggle).toHaveAttribute('aria-checked', 'true')
 
       await user.click(toggle)
@@ -645,7 +622,7 @@ describe('PsychologicalProfileView', () => {
       await waitFor(() => {
         expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
           'preferences.profileContext.default',
-          'false',
+          'false'
         )
       })
       expect(toggle).toHaveAttribute('aria-checked', 'false')
@@ -655,15 +632,13 @@ describe('PsychologicalProfileView', () => {
       const user = userEvent.setup()
       render(PsychologicalProfileView)
 
-      const toggle = await findToggle(
-        'data-test-profile-context-default-journal-toggle',
-      )
+      const toggle = await findToggle('data-test-profile-context-default-journal-toggle')
       await user.click(toggle)
 
       await waitFor(() => {
         expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
           'preferences.profileContext.defaultJournal',
-          'false',
+          'false'
         )
       })
       expect(toggle).toHaveAttribute('aria-checked', 'false')
@@ -675,9 +650,7 @@ describe('PsychologicalProfileView', () => {
       render(PsychologicalProfileView)
 
       await waitFor(() => {
-        expect(
-          document.querySelector('[data-test-profile-context-no-profile]'),
-        ).toBeInTheDocument()
+        expect(document.querySelector('[data-test-profile-context-no-profile]')).toBeInTheDocument()
       })
     })
 
@@ -690,9 +663,7 @@ describe('PsychologicalProfileView', () => {
       await waitFor(() => {
         expect(screen.getByText('Summary')).toBeInTheDocument()
       })
-      expect(
-        document.querySelector('[data-test-profile-context-no-profile]'),
-      ).toBeNull()
+      expect(document.querySelector('[data-test-profile-context-no-profile]')).toBeNull()
     })
   })
 })

@@ -9,8 +9,13 @@ export function formatRelativeDay(day: string, today: string, locale: string): s
   const weeks = Math.round((monday(viewed) - monday(current)) / 604800000)
   if (!weeks) return formatter.format(days, 'day')
   if (Math.abs(weeks) <= 4) return formatter.format(weeks, 'week')
-  const months = (viewed.getUTCFullYear() - current.getUTCFullYear()) * 12 + viewed.getUTCMonth() - current.getUTCMonth()
-  return Math.abs(months) < 12 ? formatter.format(months, 'month') : formatter.format(Math.trunc(months / 12), 'year')
+  const months =
+    (viewed.getUTCFullYear() - current.getUTCFullYear()) * 12 +
+    viewed.getUTCMonth() -
+    current.getUTCMonth()
+  return Math.abs(months) < 12
+    ? formatter.format(months, 'month')
+    : formatter.format(Math.trunc(months / 12), 'year')
 }
 
 /** Route day prefill for a new entry; never accepts normalized invalid dates. */
@@ -18,6 +23,6 @@ export function entryDateFromDay(value: unknown): Date | null {
   if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null
   const date = new Date(`${value}T12:00:00`)
   if (!Number.isFinite(date.getTime())) return null
-  const local = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`
+  const local = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   return local === value ? date : null
 }

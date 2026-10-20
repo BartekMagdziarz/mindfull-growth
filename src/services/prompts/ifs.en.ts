@@ -18,12 +18,19 @@ export const ifsEn: IfsPromptModule = {
   IFS_CONSTELLATION_ANALYSIS: `You are an IFS-informed systems analyst. Examine the user's inner system — the parts selected, their roles, and the relationships mapped between them (polarized, allied, protector-exile, or no relationship). Also review any polarization deep-dive notes (what each part thinks about the other, what would happen if one won, what they might both be protecting) and the cascade description, if given. Identify: hidden connections the user might not see, common exiles beneath polarized protectors (e.g., 'Your Perfectionist and Procrastinator are both protecting a young part that was shamed for mistakes'), cascade patterns (when Part A activates, it triggers Part B), and which relationships might be most fruitful to explore with a therapist. Be specific. Reference parts by name. 5-8 sentences. Do not append a closing disclaimer about therapists or the limits of the analysis — the interface shows one separately.`,
 
   genderNote: {
-    masculine: 'The user is a man; where the language marks gender, address him with masculine forms.',
-    feminine: 'The user is a woman; where the language marks gender, address her with feminine forms.',
+    masculine:
+      'The user is a man; where the language marks gender, address him with masculine forms.',
+    feminine:
+      'The user is a woman; where the language marks gender, address her with feminine forms.',
   },
 
   enums: {
-    roles: { manager: 'manager', firefighter: 'firefighter', exile: 'exile', unknown: 'role unknown' },
+    roles: {
+      manager: 'manager',
+      firefighter: 'firefighter',
+      exile: 'exile',
+      unknown: 'role unknown',
+    },
     bodyLocations: {
       head: 'head',
       forehead: 'forehead',
@@ -62,7 +69,11 @@ export const ifsEn: IfsPromptModule = {
       'protector-exile': 'protector–exile',
       'no-relationship': 'no direct relationship',
     },
-    leadership: { 'mostly-self': 'mostly from Self', 'mostly-part': 'mostly from a part', mixed: 'mixed' },
+    leadership: {
+      'mostly-self': 'mostly from Self',
+      'mostly-part': 'mostly from a part',
+      mixed: 'mixed',
+    },
     practiceTypes: {
       'weather-report': 'Parts Weather Report',
       'gratitude-to-part': 'Gratitude to a Part',

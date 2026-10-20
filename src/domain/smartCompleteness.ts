@@ -32,9 +32,10 @@ function hasText(value?: string): boolean {
 
 export function computeSmartCompleteness(
   goal: GoalLike | Goal,
-  keyResultCount: number,
+  keyResultCount: number
 ): SmartCompleteness {
-  const specific = hasText(goal.title) && (hasText(goal.successDefinition) || hasText(goal.description))
+  const specific =
+    hasText(goal.title) && (hasText(goal.successDefinition) || hasText(goal.description))
   const measurable = keyResultCount >= 1
   const achievable =
     hasText(goal.achievabilityRationale) || hasText(goal.obstacles) || hasText(goal.resources)
@@ -58,7 +59,7 @@ export function computeSmartCompleteness(
     A: achievable,
     R: relevant,
     T: timeBound,
-    score: letters.filter((l) => l.ok).length,
-    missing: letters.filter((l) => !l.ok).map((l) => l.key),
+    score: letters.filter(l => l.ok).length,
+    missing: letters.filter(l => !l.ok).map(l => l.key),
   }
 }

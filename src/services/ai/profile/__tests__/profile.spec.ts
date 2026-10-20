@@ -193,7 +193,8 @@ describe('approved profile', () => {
       'profileChanges',
       'profileTasks',
       'companionIntroductions',
-      'historyDigests', 'journalDrafts',
+      'historyDigests',
+      'journalDrafts',
     ]
     const schema = Object.fromEntries(
       candidate.tables

@@ -10,7 +10,9 @@
       </p>
 
       <p v-if="retakeEligibleAt && !canRetake" class="text-xs text-on-surface-variant">
-        {{ t('assessments.common.results.retakeEligibleOn', { date: formatDate(retakeEligibleAt) }) }}
+        {{
+          t('assessments.common.results.retakeEligibleOn', { date: formatDate(retakeEligibleAt) })
+        }}
       </p>
 
       <p v-if="canRetake" class="text-xs text-success">
@@ -23,9 +25,11 @@
         class="neo-pill px-3 py-1.5 text-xs font-medium"
         @click="$emit('toggle-centering', !centeredEnabled)"
       >
-        {{ centeredEnabled
-          ? t('assessments.common.results.centeredToggleOff')
-          : t('assessments.common.results.centeredToggleOn') }}
+        {{
+          centeredEnabled
+            ? t('assessments.common.results.centeredToggleOff')
+            : t('assessments.common.results.centeredToggleOn')
+        }}
       </button>
     </AppCard>
 
@@ -47,11 +51,21 @@
           <p class="font-semibold text-on-surface text-right">
             {{ sumTotalLabel(score) }}
           </p>
-          <p v-if="score.deltaFromPrevious !== undefined" class="text-on-surface-variant col-span-2">
-            {{ t('assessments.common.results.deltaTotal', { delta: formatIntDelta(score.deltaFromPrevious) }) }}
+          <p
+            v-if="score.deltaFromPrevious !== undefined"
+            class="text-on-surface-variant col-span-2"
+          >
+            {{
+              t('assessments.common.results.deltaTotal', {
+                delta: formatIntDelta(score.deltaFromPrevious),
+              })
+            }}
           </p>
         </div>
-        <p v-if="sumBandId(score) && interpretationTextFor(sumBandId(score)!)" class="text-xs text-on-surface-variant">
+        <p
+          v-if="sumBandId(score) && interpretationTextFor(sumBandId(score)!)"
+          class="text-xs text-on-surface-variant"
+        >
           {{ interpretationTextFor(sumBandId(score)!) }}
         </p>
       </AppCard>
@@ -78,24 +92,41 @@
 
         <div class="grid grid-cols-2 gap-2 text-sm">
           <p class="text-on-surface-variant">{{ t('assessments.common.results.normalized') }}</p>
-          <p class="font-semibold text-on-surface text-right">{{ formatScore(score.normalizedMean) }}</p>
+          <p class="font-semibold text-on-surface text-right">
+            {{ formatScore(score.normalizedMean) }}
+          </p>
 
           <p class="text-on-surface-variant">{{ t('assessments.common.results.raw') }}</p>
           <p class="font-semibold text-on-surface text-right">{{ formatScore(score.rawMean) }}</p>
 
-          <p v-if="score.deltaFromPrevious !== undefined" class="text-on-surface-variant col-span-2">
-            {{ t('assessments.common.results.deltaFromPrevious', { delta: formatDelta(score.deltaFromPrevious) }) }}
+          <p
+            v-if="score.deltaFromPrevious !== undefined"
+            class="text-on-surface-variant col-span-2"
+          >
+            {{
+              t('assessments.common.results.deltaFromPrevious', {
+                delta: formatDelta(score.deltaFromPrevious),
+              })
+            }}
           </p>
 
           <template v-if="hasVlqDetails(score)">
             <p class="text-on-surface-variant">{{ t('assessments.vlq.fields.importance') }}</p>
-            <p class="font-semibold text-on-surface text-right">{{ formatScore(asNumber(score.details?.importance)) }}</p>
+            <p class="font-semibold text-on-surface text-right">
+              {{ formatScore(asNumber(score.details?.importance)) }}
+            </p>
             <p class="text-on-surface-variant">{{ t('assessments.vlq.fields.consistency') }}</p>
-            <p class="font-semibold text-on-surface text-right">{{ formatScore(asNumber(score.details?.consistency)) }}</p>
+            <p class="font-semibold text-on-surface text-right">
+              {{ formatScore(asNumber(score.details?.consistency)) }}
+            </p>
             <p class="text-on-surface-variant">{{ t('assessments.vlq.fields.gap') }}</p>
-            <p class="font-semibold text-on-surface text-right">{{ formatScore(asNumber(score.details?.gap)) }}</p>
+            <p class="font-semibold text-on-surface text-right">
+              {{ formatScore(asNumber(score.details?.gap)) }}
+            </p>
             <p class="text-on-surface-variant">{{ t('assessments.vlq.fields.weighted') }}</p>
-            <p class="font-semibold text-on-surface text-right">{{ formatScore(asNumber(score.details?.weighted)) }}</p>
+            <p class="font-semibold text-on-surface text-right">
+              {{ formatScore(asNumber(score.details?.weighted)) }}
+            </p>
           </template>
         </div>
 
@@ -105,11 +136,15 @@
       </AppCard>
 
       <AppCard
-        v-if="computation.overallSummary.topValues && computation.overallSummary.topValues.length > 0"
+        v-if="
+          computation.overallSummary.topValues && computation.overallSummary.topValues.length > 0
+        "
         padding="lg"
         class="space-y-2"
       >
-        <h4 class="text-sm font-semibold text-on-surface">{{ t('assessments.common.results.topValues') }}</h4>
+        <h4 class="text-sm font-semibold text-on-surface">
+          {{ t('assessments.common.results.topValues') }}
+        </h4>
         <div
           v-for="entry in computation.overallSummary.topValues"
           :key="`top-${entry.scaleId}`"
@@ -121,11 +156,16 @@
       </AppCard>
 
       <AppCard
-        v-if="computation.overallSummary.biggestGaps && computation.overallSummary.biggestGaps.length > 0"
+        v-if="
+          computation.overallSummary.biggestGaps &&
+          computation.overallSummary.biggestGaps.length > 0
+        "
         padding="lg"
         class="space-y-2"
       >
-        <h4 class="text-sm font-semibold text-on-surface">{{ t('assessments.common.results.biggestGaps') }}</h4>
+        <h4 class="text-sm font-semibold text-on-surface">
+          {{ t('assessments.common.results.biggestGaps') }}
+        </h4>
         <div
           v-for="entry in computation.overallSummary.biggestGaps"
           :key="`gap-${entry.scaleId}`"
@@ -162,7 +202,12 @@ import AppButton from '@/components/AppButton.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import RepeatPlanPrompt from '@/components/exercises/RepeatPlanPrompt.vue'
-import type { AssessmentComputation, AssessmentDefinition, ScaleBand, ScaleScore } from '@/domain/assessments'
+import type {
+  AssessmentComputation,
+  AssessmentDefinition,
+  ScaleBand,
+  ScaleScore,
+} from '@/domain/assessments'
 import { useT } from '@/composables/useT'
 import { formatExerciseDate } from '@/utils/exerciseDate'
 import { retakeSuggestedDays } from '@/services/exercisePlanService'
@@ -189,7 +234,7 @@ const { t, locale } = useT()
 const suggestedRetakeDays = computed(() => retakeSuggestedDays(props.retakeEligibleAt))
 
 const scaleLabelById = computed(() => {
-  return new Map(props.definition.scales.map((scale) => [scale.id, scale.labelKey]))
+  return new Map(props.definition.scales.map(scale => [scale.id, scale.labelKey]))
 })
 
 const interpretationPrefix = computed(() => {
@@ -233,7 +278,7 @@ function formatIntDelta(value: number): string {
 const sumNotice = computed(() => {
   const config = props.definition.sumScoring
   if (!config?.notice || !props.computation) return null
-  const primary = props.computation.computedScales.find((s) => s.scaleId === config.primaryScaleId)
+  const primary = props.computation.computedScales.find(s => s.scaleId === config.primaryScaleId)
   const total = asNumber(primary?.details?.total)
   return total !== null && total >= config.notice.minTotal ? config.notice.textKey : null
 })

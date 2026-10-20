@@ -5,21 +5,47 @@ import type { MonthRef, WeekRef, YearRef } from '@/domain/period'
 import type { Priority, WeeklyIntention } from '@/domain/planning'
 import type { MeasurementDayAssignment } from '@/domain/planningState'
 import type { CalendarScale, PlanningViewState } from '@/design-system/contracts'
-import type { StreamDayVM, StreamMonthVM, StreamWeekVM } from '@/components/calendar/stream/streamModel'
+import type {
+  StreamDayVM,
+  StreamMonthVM,
+  StreamWeekVM,
+} from '@/components/calendar/stream/streamModel'
 import type { CalendarYearSummary, MonthReflectionBundle } from '@/services/calendarViewQueries'
-import type { MonthPlanningBundle, WeekPlanningBundle, WeekReflectionBundle } from '@/services/planningStateQueries'
+import type {
+  MonthPlanningBundle,
+  WeekPlanningBundle,
+  WeekReflectionBundle,
+} from '@/services/planningStateQueries'
 import type { MonthObjectItem, WeekObjectItem } from '@/services/reflectionDataQueries'
 import { annualPlanDexieRepository } from '@/repositories/annualPlanDexieRepository'
 import { priorityDexieRepository } from '@/repositories/priorityDexieRepository'
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
-import { buildMonthObjectItems, buildWeekObjectItems, extractWeekIntentions } from '@/components/calendar/objectItems'
-import { loadStreamMonth, loadStreamWeek, loadStreamYear } from '@/components/calendar/stream/streamData'
+import {
+  buildMonthObjectItems,
+  buildWeekObjectItems,
+  extractWeekIntentions,
+} from '@/components/calendar/objectItems'
+import {
+  loadStreamMonth,
+  loadStreamWeek,
+  loadStreamYear,
+} from '@/components/calendar/stream/streamData'
 import { clearTrendCache } from '@/services/calendarChartData'
 import { getCalendarYearSummary, getMonthReflectionBundle } from '@/services/calendarViewQueries'
-import { getMonthPlanningBundle, getWeekPlanningBundle, getWeekReflectionBundle } from '@/services/planningStateQueries'
+import {
+  getMonthPlanningBundle,
+  getWeekPlanningBundle,
+  getWeekReflectionBundle,
+} from '@/services/planningStateQueries'
 import { loadDayAssignmentsForMonths } from '@/services/reflectionDataQueries'
 import { listWeeklyIntentionsForMonth } from '@/services/weeklyIntentionService'
-import { classifyPlanningState, countMonthObjects, countWeekObjects, countYearObjects, totalPlanningObjects } from './viewModels'
+import {
+  classifyPlanningState,
+  countMonthObjects,
+  countWeekObjects,
+  countYearObjects,
+  totalPlanningObjects,
+} from './viewModels'
 
 export interface YearPlanningData {
   scale: 'year'
@@ -60,16 +86,15 @@ export function usePlanningPeriodData(scale: Ref<CalendarScale>, periodRef: Ref<
 
   const itemCount = computed(() => {
     if (!data.value) return 0
-    if (data.value.scale === 'year') return totalPlanningObjects(countYearObjects(data.value.summary))
-    if (data.value.scale === 'month') return totalPlanningObjects(countMonthObjects(data.value.planning))
+    if (data.value.scale === 'year')
+      return totalPlanningObjects(countYearObjects(data.value.summary))
+    if (data.value.scale === 'month')
+      return totalPlanningObjects(countMonthObjects(data.value.planning))
     return totalPlanningObjects(countWeekObjects(data.value.planning))
   })
-  const state = computed<PlanningViewState>(() => classifyPlanningState(
-    isLoading.value,
-    error.value,
-    Boolean(data.value),
-    itemCount.value,
-  ))
+  const state = computed<PlanningViewState>(() =>
+    classifyPlanningState(isLoading.value, error.value, Boolean(data.value), itemCount.value)
+  )
 
   async function load(): Promise<void> {
     isLoading.value = true
@@ -91,14 +116,15 @@ export function usePlanningPeriodData(scale: Ref<CalendarScale>, periodRef: Ref<
 
       if (scale.value === 'month') {
         const monthRef = periodRef.value as MonthRef
-        const [planning, reflection, structuredReflection, weeks, intentions, priorities] = await Promise.all([
-          getMonthPlanningBundle(monthRef),
-          getMonthReflectionBundle(monthRef),
-          structuredReflectionDexieRepository.getMonthly(monthRef),
-          loadStreamMonth(monthRef),
-          listWeeklyIntentionsForMonth(monthRef),
-          priorityDexieRepository.listAll(),
-        ])
+        const [planning, reflection, structuredReflection, weeks, intentions, priorities] =
+          await Promise.all([
+            getMonthPlanningBundle(monthRef),
+            getMonthReflectionBundle(monthRef),
+            structuredReflectionDexieRepository.getMonthly(monthRef),
+            loadStreamMonth(monthRef),
+            listWeeklyIntentionsForMonth(monthRef),
+            priorityDexieRepository.listAll(),
+          ])
         data.value = {
           scale: 'month',
           planning,
