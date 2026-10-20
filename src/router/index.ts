@@ -425,7 +425,7 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach(async (to, _from, next) => {
+router.beforeEach(async to => {
   const authStore = useAuthStore()
 
   // Initialize auth state if not already done
@@ -439,15 +439,14 @@ router.beforeEach(async (to, _from, next) => {
   if (!isAuthenticated && !isPublicRoute) {
     // Not authenticated and trying to access protected route
     // Redirect to login with return URL
-    next({ name: 'login', query: { redirect: to.fullPath } })
-  } else if (isAuthenticated && isPublicRoute) {
+    return { name: 'login', query: { redirect: to.fullPath } }
+  }
+  if (isAuthenticated && isPublicRoute) {
     // Already authenticated and trying to access login/signup
     // Redirect to home
-    next({ name: 'today' })
-  } else {
-    // Proceed normally
-    next()
+    return { name: 'today' }
   }
+  // Proceed normally
 })
 
 export default router
