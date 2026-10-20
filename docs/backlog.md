@@ -27,6 +27,60 @@ wracania do rozmowy, w której go znaleziono.
 
 ## Błędy
 
+### B-7 · Siedem testów `npm run test:e2e:verify` pada niezależnie od bieżących zmian
+
+`otwarte` · Znaleziono 2026-10-20 przy sunsecie `?ui=legacy` (audyt repo) · e2e weryfikacyjne, Dzisiaj, rytuał tygodnia, ścieżki, asystent
+
+**Objaw.** Pełny przebieg `npx playwright test --project=verification` kończy się 7 czerwonymi
+testami. Te same 7 pada na commicie sprzed sunsetu (59af8b5) i po nim (9241981), więc nie są
+regresją tej zmiany; testy miesiąca V2 i kafla legacy, które usunięto razem z kodem, też były
+już czerwone. Każdy z siedmiu przechodzi lub pada deterministycznie (nie flaky — flaky okazał się
+tylko `verification-observations`, zielony 2/2 w izolacji).
+
+**Jak odtworzyć.** `npx playwright test --project=verification` (Playwright sam podnosi
+`dev:verify` na 5199). Lista:
+
+1. `verification-smoke.spec.ts:86` „weekly ritual on a closed week opens with the seeded plan
+   content” — `.qr-tail header small` nie zawiera „dorysowany”; słowo nie występuje już w `src/`
+   (kopia rytuału zmieniła się przy wdrożeniu Obciążenie/Stan 2026-09-20 lub później).
+2. `verification-smoke.spec.ts:136` „today: explicit selection, calendar evidence with undo and
+   compass pin” — brak `.day-plan-calendar__selection` z tekstem „Poranna checklista”; element
+   istnieje w `NextDayPlanCalendar.vue:164` pod `v-if="selected"`, więc zmienił się sposób
+   zaznaczania wiersza po przebudowie Dzisiaj na kafle (2026-10-11/17).
+3. `verification-anger-v2.spec.ts:30` „path view…” — `[data-testid=path-moments-glance]
+   .pc__week:not(.is-slot)` ma inną liczbę niż 3.
+4. `verification-anger-v2.spec.ts:127` „the weekly reflection: the anger block…” —
+   `.qr-path-block` nie zawiera „Tydzień 3 · Inne spojrzenie”.
+5. `verification-shame-v3.spec.ts:30` „path view: nine week rows…” — ten sam licznik
+   `.pc__week:not(.is-slot)` ≠ 4.
+6. `verification-problem-paths.spec.ts:152` „the previous week reflection has a Ścieżka step…” —
+   `.qr-path-task__disc` ≠ `${counted}/2`.
+7. `verification-companion.spec.ts:155` „topics, sources, custom conversation…” —
+   `expect(api.count()).toBe(callsBeforeClear)` (linia 275): reset kontekstu wywołuje mock
+   dostawcy inną liczbę razy niż zakłada test.
+
+**Przyczyna (hipotezy do potwierdzenia).** Punkty 3–6 dotyczą wspólnie `PathMomentsGlance` /
+`PathPartsChart` i bloku ścieżki w refleksji, przebudowanych 2026-10-11 (krok „Ścieżka”,
+`countRule`, backfill momentów) i 2026-10-17 (widok ścieżki v2); seed v11 był dopasowany do
+wcześniejszych liczników. Seed używa dat względnych (`new Date()` w `verificationSeed.ts:109,381`),
+więc dryf kalendarzowy jest mniej prawdopodobny niż dryf UI. Punkty 1–2 to zmieniona kopia i
+interakcja Dzisiaj. Punkt 7 to zmieniona semantyka `clearContext` w panelu asystenta.
+
+**Dlaczego to błąd.** `test:e2e:verify` jest w README jako kontrola jakości, a w planie CI jako
+drugi job; czerwony zestaw bazowy uniemożliwia wykrycie prawdziwych regresji (sunset trzeba było
+porównywać z osobnym worktree).
+
+**Propozycja naprawy.** Dla każdego testu zdecydować: oczekiwanie nieaktualne (poprawić test pod
+dzisiejsze UI, licząc wartości z seedu zamiast stałych) czy regresja produktu (naprawić produkt).
+Zacząć od 1–2 (najtańsze), potem 3–6 razem, 7 osobno. Po zielonym przebiegu dodać job e2e do
+`.github/workflows/ci.yml`.
+
+**Kryteria akceptacji.** `npx playwright test --project=verification` → 0 failed na czystym
+drzewie; asercje liczników ścieżek wyliczane z seedu, nie zaszyte na stałe.
+
+**Uwagi.** Pełne logi obu przebiegów z 2026-10-20 były w scratchpadzie sesji audytu (nie w repo).
+B-5 (piątek–niedziela) to osobny, znany problem tej samej suity.
+
 ### B-6 · Komunikat „AI provider is not configured…” po angielsku w kreatorach z AI
 
 `otwarte` · Znaleziono 2026-10-17 przy przeglądzie designu kreatorów ćwiczeń · usługi LLM, kreatory z AI
@@ -307,6 +361,66 @@ przenieść do locale, ale to osobny zakres. Oceń z użytkownikiem.
 ---
 
 ## Pomysły
+
+### P-2 · `reportError` z przyczyną zamiast 700× `console.error` + `throw new Error('Failed …')`
+
+`otwarte` · Znaleziono 2026-10-20 przy audycie repo · repozytoria, store'y, testy
+
+**Kontekst.** Repozytoria Dexie i store'y powtarzają wzorzec `catch (error) { console.error(…);
+throw new Error('Failed to …') }` (≈700 wystąpień). Oryginalny błąd ginie, a każdy test błędu
+pisze na stderr — log vitest ma ~1 200 linii oczekiwanego szumu, w którym ginie jedyna realna
+porażka. `lib` zawiera już `ES2022.Error`, a `{ cause }` jest użyte w 20 miejscach.
+
+**Propozycja.** `src/utils/reportError.ts` z `reportError(scope, error)`; reguła
+`throw new Error(msg, { cause })`; w `src/test/setup.ts` reporter mockowany. Wdrażać hurtem przez
+P-3, a poza tym przy dotykaniu pliku.
+
+**Kryteria.** Log `npx vitest run` bez stderr z oczekiwanych błędów; `error.cause` dostępne w
+komunikatach UI, które go potrzebują.
+
+### P-3 · Factory CRUD dla repozytoriów ćwiczeń i factory store'ów ćwiczeń
+
+`otwarte` · Znaleziono 2026-10-20 przy audycie repo · `src/repositories`, `src/stores`
+
+**Kontekst.** `exercisesDexieRepository.ts` (2 808 linii) to 30 bloków
+getAll/getById/create/update/delete różniących się nazwą tabeli; 29 innych `*DexieRepository.ts`
+ma ten sam kształt. ~30 store'ów „per ćwiczenie” ma identyczną anatomię
+(items/loading/error/loadAll/create/update/remove + session scope).
+
+**Propozycja.** `createDexieCrudRepository<T>(table, label)` w `src/repositories/_crud.ts`,
+nadpisania tylko tam, gdzie repo ma coś ponad CRUD; potem `defineExerciseStore(name, repo)`.
+Wzorzec zrobić ręcznie na dwóch repozytoriach, resztę mechanicznie. Store'y z własną logiką
+(today, programEnrollment, objectsLibrary) nie ruszane. Szacunek: −2 000 linii.
+
+**Kryteria.** Istniejące specy repozytoriów i store'ów przechodzą bez zmian;
+`migration-edge-cases.spec` zielony; backup/restore w `dev:verify` działa.
+
+### P-4 · Migracje Dexie w osobnych plikach
+
+`otwarte` · Znaleziono 2026-10-20 przy audycie repo · `src/services/userDatabase.service.ts`
+
+**Kontekst.** 34 bloki `version(n).stores().upgrade()` w jednym pliku o 1 778 liniach.
+
+**Propozycja.** `src/services/db/migrations/v01..v34.ts`, każdy eksportuje `{ stores, upgrade }`;
+serwis bazy je rejestruje w pętli. Czysto mechaniczne; stare wersje muszą zostać (bazy użytkowników).
+
+**Kryteria.** `migration.spec`, `migration-edge-cases.spec` i `persistenceMigration.spec` bez zmian
+zielone; otwarcie bazy z `dev:demo` i `dev:verify` bez błędów.
+
+### P-5 · Biblioteka obiektów jako `src/features/objects-library/`
+
+`otwarte` · Znaleziono 2026-10-20 przy audycie repo · `src/views/ObjectsLibraryView.vue`, `src/components/objects`
+
+**Kontekst.** `ObjectsLibraryView.vue` ma 2 480 linii, a biblioteka żyje po staremu w
+`components/objects/`, podczas gdy pozostałe obszary (planning-next, quiet-ritual, program-path,
+goal-closing) mają własne katalogi w `features/` z css i view-modelami (reguła w CLAUDE.md).
+
+**Propozycja.** Przenieść do `src/features/objects-library/` i podzielić widok na belkę, listę,
+kartę i edytor; css do `objects-library.css`. Bez zmiany zachowania.
+
+**Kryteria.** Specy kart i belki bez zmian zielone; `verification-smoke` i
+`verification-multi-completion` (karta biblioteki) zielone; `check:design-system` bez nowych
+wpisów.
 
 ### P-1 · Wspólne helpery dla seedów dev (`verificationSeed` i `demoSeed`)
 
