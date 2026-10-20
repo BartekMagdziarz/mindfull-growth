@@ -111,7 +111,9 @@ test.describe('verification environment', () => {
       await expect(step).toHaveAttribute('aria-pressed', 'true')
     }
     await expect(ritual.locator('.qr-bars .qr-axis--paired')).toHaveCount(1)
-    await expect(ritual.locator('.qr-tail header small')).toContainText('dorysowany')
+    // The tail's last hit zone is this week: once both axes are rated its tooltip reads the pair.
+    await tail.locator('.ls-ribbon__hit').last().hover()
+    await expect(tail.locator('.ls-ribbon__tip')).toContainText('obciążenie 4 · stan 4')
     await ritual.getByRole('button', { name: 'Poprzedni krok' }).click()
     await expect(ritual.getByRole('heading', { name: 'Co wydarzyło się naprawdę?' })).toBeVisible()
   })
@@ -133,7 +135,7 @@ test.describe('verification environment', () => {
     await expect(page.locator('.ps__multiple')).toHaveCount(4)
   })
 
-  test('today: explicit selection, calendar evidence, move/add with undo and compass pin', async ({
+  test('today: explicit selection, history strip, move/add with undo and compass pin', async ({
     page,
   }) => {
     test.setTimeout(120_000)
@@ -144,16 +146,17 @@ test.describe('verification environment', () => {
     await expect(rail.locator('.ndi').first()).toBeVisible()
 
     await expect(page).toHaveURL(new RegExp(`/today/${refs.day}$`))
-    // Nothing is selected on entry. Selection reveals evidence in the calendar.
+    // Nothing is selected on entry. Selection stages the row and unfolds its last-seven-days strip
+    // (the day calendar itself opens only for week planning).
     await expect(rail.locator('.ndi--staged')).toHaveCount(0)
     const selectedRow = rail.locator('.ndi', { hasText: 'Poranna checklista' }).first()
     await selectedRow.locator('button.ndi__label').click()
     await expect(selectedRow).toHaveClass(/ndi--staged/)
-    await expect(page.locator('.day-plan-calendar__selection')).toHaveText('Poranna checklista')
-    await expect(page.locator('.day-plan-calendar__chart')).toBeVisible()
+    await expect(selectedRow).toHaveClass(/ndi--history/)
+    await expect(selectedRow.locator('.ndi__strip')).toBeVisible()
     await selectedRow.locator('button.ndi__label').click()
     await expect(rail.locator('.ndi--staged')).toHaveCount(0)
-    await expect(page.locator('.day-plan-calendar__chart')).toHaveCount(0)
+    await expect(selectedRow.locator('.ndi__strip')).toHaveCount(0)
 
     // Use a row with an available move action; the move must run, never silently skip.
     const movableRow = rail

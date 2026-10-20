@@ -26,6 +26,21 @@ async function bootSeededApp(page: Page): Promise<void> {
   await expect(page).not.toHaveURL(/login/)
 }
 
+/**
+ * Calendar weeks the path has touched so far, counted from a seed date `daysAgo`
+ * days back (src/dev/verificationSeed.ts): the Postęp chart draws one column per
+ * calendar week from the start week to this one, so the count moves with the weekday.
+ */
+function weeksSince(daysAgo: number): number {
+  const weeks = new Set<string>()
+  for (let back = daysAgo; back >= 0; back -= 1) {
+    const day = new Date()
+    day.setDate(day.getDate() - back)
+    weeks.add(getPeriodRefsForDate(day).week)
+  }
+  return weeks.size
+}
+
 test.describe('anger path v2', () => {
   test('path view: seven week rows, the barometer halfway as the current tile, Praktyki, Reakcje, Moje słowa and knowledge', async ({
     page,
@@ -75,7 +90,8 @@ test.describe('anger path v2', () => {
       'Milczenie',
       'Ja',
     ])
-    await expect(glance.locator('.pc__week:not(.is-slot)')).toHaveCount(3)
+    // One column per calendar week since the enrollment started 18 days ago (angerStart in the seed).
+    await expect(glance.locator('.pc__week:not(.is-slot)')).toHaveCount(weeksSince(18))
     await glance.locator('summary').click()
     await glance.getByRole('button', { name: 'Liczby' }).click()
     await expect(glance.getByRole('table')).toContainText('Razem')

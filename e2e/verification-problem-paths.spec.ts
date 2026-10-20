@@ -167,7 +167,11 @@ test.describe('problem paths', () => {
       day.setDate(day.getDate() - daysAgo)
       return getPeriodRefsForDate(day).week === prevWeek
     }).length
-    await expect(block.locator('.qr-path-task__disc')).toHaveText(`${counted}/2`)
+    // The tile's label reads "<task>: done z target"; the disc shows no number once the target is met.
+    await expect(block.locator('.qr-path-task')).toHaveAttribute(
+      'aria-label',
+      new RegExp(`: ${counted} z 2$`)
+    )
     expectNoAppErrors(consoleErrors)
   })
 })
