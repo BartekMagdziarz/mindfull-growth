@@ -27,13 +27,10 @@
     "ai:benchmark": "node scripts/runCompanionBenchmark.mjs"
   },
   "dependencies": {
-    "argon2-browser": "^1.18.0",
     "dexie": "^4.0.8",
-    "embla-carousel-vue": "^8.6.0",
     "pinia": "^2.3.0",
     "vue": "^3.5.13",
-    "vue-router": "^4.5.0",
-    "vuedraggable": "^4.1.0"
+    "vue-router": "^4.5.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
@@ -61,8 +58,6 @@
     "tailwindcss": "^3.4.17",
     "typescript": "~5.7.2",
     "vite": "^6.0.5",
-    "vite-plugin-top-level-await": "^1.6.0",
-    "vite-plugin-wasm": "^3.5.0",
     "vitest": "^2.1.8",
     "vue-eslint-parser": "^10.2.0",
     "vue-tsc": "^2.1.10"

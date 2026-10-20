@@ -6,9 +6,6 @@ import { companionDevProxy } from './scripts/companionDevProxy'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [vue(), companionDevProxy()],
-  optimizeDeps: {
-    exclude: ['argon2-browser'],
-  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
@@ -52,8 +49,7 @@ export default defineConfig({
 
           if (
             id.includes('/src/domain/exercises.ts') ||
-            id.includes('/src/repositories/exercisesDexieRepository.ts') ||
-            id.includes('/src/stores/wheelOfLife.store.ts')
+            id.includes('/src/repositories/exercisesDexieRepository.ts')
           ) {
             return 'exercise-data'
           }
