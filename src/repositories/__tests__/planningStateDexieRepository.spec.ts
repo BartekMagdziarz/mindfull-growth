@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { habitDexieRepository } from '@/repositories/habitDexieRepository'
-import { initiativeDexieRepository } from '@/repositories/initiativeDexieRepository'
 import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
@@ -390,14 +389,6 @@ describe('planningState Dexie repository', () => {
       entryMode: 'completion',
       status: 'open',
     })
-    const initiative = await initiativeDexieRepository.create({
-      title: 'Book venue',
-      isActive: true,
-      priorityIds: [],
-      lifeAreaIds: [],
-      status: 'open',
-    })
-
     const dayRef = parsePeriodRef('2026-03-12') as DayRef
 
     const created = await planningStateDexieRepository.upsertDailyMeasurementEntry({
@@ -425,14 +416,6 @@ describe('planningState Dexie repository', () => {
         value: 1,
       })
     ).rejects.toThrow('Failed to persist daily measurement entry in database')
-
-    const initiativeState = await planningStateDexieRepository.upsertInitiativePlanState({
-      initiativeId: initiative.id,
-      monthRef: parsePeriodRef('2026-03') as MonthRef,
-      weekRef: parsePeriodRef('2026-W10') as WeekRef,
-    })
-
-    expect(initiativeState.initiativeId).toBe(initiative.id)
   })
 
   it('validates multi-completion entries against the subject item list', async () => {
@@ -531,13 +514,6 @@ describe('planningState Dexie repository', () => {
       },
       status: 'open',
     })
-    const initiative = await initiativeDexieRepository.create({
-      title: 'Ship Today view',
-      isActive: true,
-      priorityIds: [],
-      lifeAreaIds: [],
-      status: 'open',
-    })
     const dayRef = parsePeriodRef('2026-03-12') as DayRef
 
     const created = await planningStateDexieRepository.upsertTodayHiddenState({
@@ -550,14 +526,9 @@ describe('planningState Dexie repository', () => {
       subjectType: 'habit',
       subjectId: habit.id,
     })
-    await planningStateDexieRepository.upsertTodayHiddenState({
-      dayRef,
-      subjectType: 'initiative',
-      subjectId: initiative.id,
-    })
 
     expect(updated.id).toBe(created.id)
-    expect(await planningStateDexieRepository.listTodayHiddenStates()).toHaveLength(2)
+    expect(await planningStateDexieRepository.listTodayHiddenStates()).toHaveLength(1)
   })
 
   it('supports scoped reads for months, weeks, and day ranges', async () => {

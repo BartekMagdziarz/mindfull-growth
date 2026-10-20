@@ -2,14 +2,12 @@ import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import type {
   CreateDailyMeasurementEntryPayload,
   CreateGoalMonthStatePayload,
-  CreateInitiativePlanStatePayload,
   CreateMeasurementDayAssignmentPayload,
   CreateMeasurementMonthStatePayload,
   CreateTodayHiddenStatePayload,
   CreateMeasurementWeekStatePayload,
   DailyMeasurementEntry,
   GoalMonthState,
-  InitiativePlanState,
   MeasurementDayAssignment,
   MeasurementMonthState,
   MeasurementSubjectType,
@@ -17,7 +15,6 @@ import type {
   TodayHiddenState,
   UpdateDailyMeasurementEntryPayload,
   UpdateGoalMonthStatePayload,
-  UpdateInitiativePlanStatePayload,
   UpdateMeasurementDayAssignmentPayload,
   UpdateMeasurementMonthStatePayload,
   UpdateTodayHiddenStatePayload,
@@ -129,11 +126,4 @@ export interface PlanningStateRepository {
     subjectType: TodayHiddenSubjectType,
     subjectId: string
   ): Promise<void>
-
-  getInitiativePlanState(initiativeId: string): Promise<InitiativePlanState | undefined>
-  listInitiativePlanStates(): Promise<InitiativePlanState[]>
-  upsertInitiativePlanState(
-    data: CreateInitiativePlanStatePayload | UpdateInitiativePlanStatePayload
-  ): Promise<InitiativePlanState>
-  deleteInitiativePlanState(initiativeId: string): Promise<void>
 }

@@ -3,7 +3,6 @@ import type {
   CreatePriorityPayload,
   Goal,
   Habit,
-  Initiative,
   Priority,
   Tracker,
   UpdatePriorityPayload,
@@ -30,15 +29,7 @@ class PriorityDexieRepository implements PriorityRepository {
   async getById(id: string): Promise<Priority | undefined> {
     return userDatabaseOperation(
       'r',
-      [
-        'priorities',
-        'priorityLinks',
-        'goals',
-        'habits',
-        'trackers',
-        'weeklyIntentions',
-        'initiatives',
-      ],
+      ['priorities', 'priorityLinks', 'goals', 'habits', 'trackers', 'weeklyIntentions'],
       async db => {
         try {
           return await db.priorities.get(id)
@@ -53,15 +44,7 @@ class PriorityDexieRepository implements PriorityRepository {
   async listAll(): Promise<Priority[]> {
     return userDatabaseOperation(
       'r',
-      [
-        'priorities',
-        'priorityLinks',
-        'goals',
-        'habits',
-        'trackers',
-        'weeklyIntentions',
-        'initiatives',
-      ],
+      ['priorities', 'priorityLinks', 'goals', 'habits', 'trackers', 'weeklyIntentions'],
       async db => {
         try {
           return await db.priorities.toArray()
@@ -76,15 +59,7 @@ class PriorityDexieRepository implements PriorityRepository {
   async create(data: CreatePriorityPayload): Promise<Priority> {
     return userDatabaseOperation(
       'rw',
-      [
-        'priorities',
-        'priorityLinks',
-        'goals',
-        'habits',
-        'trackers',
-        'weeklyIntentions',
-        'initiatives',
-      ],
+      ['priorities', 'priorityLinks', 'goals', 'habits', 'trackers', 'weeklyIntentions'],
       async db => {
         try {
           const normalized = normalizePriorityPayload(data)
@@ -118,15 +93,7 @@ class PriorityDexieRepository implements PriorityRepository {
   async update(id: string, data: UpdatePriorityPayload): Promise<Priority> {
     return userDatabaseOperation(
       'rw',
-      [
-        'priorities',
-        'priorityLinks',
-        'goals',
-        'habits',
-        'trackers',
-        'weeklyIntentions',
-        'initiatives',
-      ],
+      ['priorities', 'priorityLinks', 'goals', 'habits', 'trackers', 'weeklyIntentions'],
       async db => {
         try {
           const existing = requireRecord(
@@ -166,15 +133,7 @@ class PriorityDexieRepository implements PriorityRepository {
   async delete(id: string): Promise<void> {
     return userDatabaseOperation(
       'rw',
-      [
-        'priorities',
-        'priorityLinks',
-        'goals',
-        'habits',
-        'trackers',
-        'weeklyIntentions',
-        'initiatives',
-      ],
+      ['priorities', 'priorityLinks', 'goals', 'habits', 'trackers', 'weeklyIntentions'],
       async db => {
         try {
           await db.transaction(
@@ -186,7 +145,6 @@ class PriorityDexieRepository implements PriorityRepository {
               db.habits,
               db.trackers,
               db.weeklyIntentions,
-              db.initiatives,
             ],
             async () => {
               await db.priorities.delete(id)
@@ -196,7 +154,6 @@ class PriorityDexieRepository implements PriorityRepository {
                 this.unlinkPriorityFromTable<Habit>(db.habits, id),
                 this.unlinkPriorityFromTable<Tracker>(db.trackers, id),
                 this.unlinkPriorityFromTable<WeeklyIntention>(db.weeklyIntentions, id),
-                this.unlinkPriorityFromTable<Initiative>(db.initiatives, id),
               ])
               await this.normalizeActivePriorityOrders()
             }

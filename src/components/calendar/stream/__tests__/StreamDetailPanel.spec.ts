@@ -25,7 +25,6 @@ vi.mock('@/services/planningStateQueries', () => ({
       measurementItems: [],
       cadencedItems: [],
       trackerItems: [],
-      initiativeItems: [],
     },
   }),
 }))

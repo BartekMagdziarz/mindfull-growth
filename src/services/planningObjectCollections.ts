@@ -1,8 +1,7 @@
 import type { LifeArea } from '@/domain/lifeArea'
-import type { Goal, Habit, Initiative, KeyResult, Priority, Tracker } from '@/domain/planning'
+import type { Goal, Habit, KeyResult, Priority, Tracker } from '@/domain/planning'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { habitDexieRepository } from '@/repositories/habitDexieRepository'
-import { initiativeDexieRepository } from '@/repositories/initiativeDexieRepository'
 import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
 import { lifeAreaDexieRepository } from '@/repositories/lifeAreaDexieRepository'
 import { priorityDexieRepository } from '@/repositories/priorityDexieRepository'
@@ -14,7 +13,6 @@ interface PlanningCoreObjects {
   keyResults: KeyResult[]
   habits: Habit[]
   trackers: Tracker[]
-  initiatives: Initiative[]
 }
 
 export interface PlanningLibraryObjects extends PlanningCoreObjects {
@@ -33,12 +31,11 @@ const planningLibraryObjectsCache = new Map<
 
 export async function loadPlanningCoreObjects(): Promise<PlanningCoreObjects> {
   return loadPlanningCached(planningCoreObjectsCache, 'core', async () => {
-    const [goals, keyResults, habits, trackers, initiatives] = await Promise.all([
+    const [goals, keyResults, habits, trackers] = await Promise.all([
       goalDexieRepository.listAll(),
       keyResultDexieRepository.listAll(),
       habitDexieRepository.listAll(),
       trackerDexieRepository.listAll(),
-      initiativeDexieRepository.listAll(),
     ])
 
     return {
@@ -46,7 +43,6 @@ export async function loadPlanningCoreObjects(): Promise<PlanningCoreObjects> {
       keyResults,
       habits,
       trackers,
-      initiatives,
     }
   })
 }

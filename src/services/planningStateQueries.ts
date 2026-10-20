@@ -1,7 +1,6 @@
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import type {
   Goal,
-  Initiative,
   Habit,
   KeyResult,
   MeasurementTarget,
@@ -11,7 +10,6 @@ import type {
 import type {
   DailyMeasurementEntry,
   GoalMonthState,
-  InitiativePlanState,
   MeasurementDayAssignment,
   MeasurementMonthState,
   MeasurementSubjectType,
@@ -97,11 +95,6 @@ export type MonthTrackerPlanningItem = MonthMeasurementPlanningItem & {
   subject: Tracker
 }
 
-export interface MonthInitiativePlanningItem {
-  initiative: Initiative
-  planState: InitiativePlanState
-}
-
 export interface MonthPlanningBundle {
   monthRef: MonthRef
   monthPlan?: MonthPlan
@@ -109,7 +102,6 @@ export interface MonthPlanningBundle {
   measurementItems: MonthMeasurementPlanningItem[]
   cadencedItems: MonthCadencedPlanningItem[]
   trackerItems: MonthTrackerPlanningItem[]
-  initiativeItems: MonthInitiativePlanningItem[]
   rawEntries: DailyMeasurementEntry[]
 }
 
@@ -156,20 +148,9 @@ export type WeekTrackerReflectionItem = WeekMeasurementReflectionItem & {
   subject: Tracker
 }
 
-export interface WeekInitiativePlanningItem {
-  initiative: Initiative
-  planState: InitiativePlanState
-  placement: WeekMeasurementPlacement
-}
-
 export interface WeekGoalReflectionItem {
   goal: Goal
   monthStates: GoalMonthState[]
-}
-
-export interface WeekInitiativeReflectionItem {
-  initiative: Initiative
-  planState: InitiativePlanState
 }
 
 export interface WeekRelevantObjects {
@@ -180,14 +161,12 @@ export interface WeekRelevantObjects {
     measurementItems: WeekMeasurementPlanningItem[]
     cadencedItems: WeekCadencedPlanningItem[]
     trackerItems: WeekTrackerPlanningItem[]
-    initiativeItems: WeekInitiativePlanningItem[]
   }
   reflection: {
     goalItems: WeekGoalReflectionItem[]
     measurementItems: WeekMeasurementReflectionItem[]
     cadencedItems: WeekCadencedReflectionItem[]
     trackerItems: WeekTrackerReflectionItem[]
-    initiativeItems: WeekInitiativeReflectionItem[]
   }
 }
 
@@ -214,13 +193,11 @@ interface PlanningStateDependencies {
   measurementWeekStates: MeasurementWeekState[]
   measurementDayAssignments: MeasurementDayAssignment[]
   dailyMeasurementEntries: DailyMeasurementEntry[]
-  initiativePlanStates: InitiativePlanState[]
   goals: Goal[]
   keyResults: KeyResult[]
   habits: Habit[]
   trackers: Tracker[]
   weeklyIntentions: WeeklyIntention[]
-  initiatives: Initiative[]
 }
 
 const monthPlanningBundleCache = new Map<
@@ -341,21 +318,6 @@ function isEntryInMonth(entry: DailyMeasurementEntry, monthRef: MonthRef): boole
 
 function isEntryInWeek(entry: DailyMeasurementEntry, weekRef: WeekRef): boolean {
   return getPeriodRefsForDate(entry.dayRef).week === weekRef
-}
-
-function isInitiativePlanInMonth(planState: InitiativePlanState, monthRef: MonthRef): boolean {
-  return (
-    planState.monthRef === monthRef ||
-    (planState.weekRef ? getWeekOverlappingMonths(planState.weekRef).includes(monthRef) : false) ||
-    (planState.dayRef ? getPeriodRefsForDate(planState.dayRef).month === monthRef : false)
-  )
-}
-
-function isInitiativePlanInWeek(planState: InitiativePlanState, weekRef: WeekRef): boolean {
-  return (
-    planState.weekRef === weekRef ||
-    (planState.dayRef ? getPeriodRefsForDate(planState.dayRef).week === weekRef : false)
-  )
 }
 
 function buildPlanningSummary(
@@ -533,7 +495,6 @@ async function loadMonthPlanningDependencies(
     measurementWeekStates,
     measurementDayAssignments,
     dailyMeasurementEntries,
-    initiativePlanStates,
     objects,
   ] = await Promise.all([
     planningStateDexieRepository.listGoalMonthStatesForMonths([monthRef]),
@@ -549,7 +510,6 @@ async function loadMonthPlanningDependencies(
       monthEntryBounds.start,
       monthEntryBounds.end
     ),
-    planningStateDexieRepository.listInitiativePlanStates(),
     loadPlanningCoreObjects(),
   ])
 
@@ -559,14 +519,12 @@ async function loadMonthPlanningDependencies(
     measurementWeekStates,
     measurementDayAssignments,
     dailyMeasurementEntries,
-    initiativePlanStates,
     goals: objects.goals,
     keyResults: objects.keyResults,
     habits: objects.habits,
     trackers: objects.trackers,
     // Weekly intentions are week-scoped; never relevant to a whole-month bundle.
     weeklyIntentions: [],
-    initiatives: objects.initiatives,
   }
 }
 
@@ -580,7 +538,6 @@ async function loadWeekPlanningDependencies(weekRef: WeekRef): Promise<PlanningS
     measurementWeekStates,
     measurementDayAssignments,
     dailyMeasurementEntries,
-    initiativePlanStates,
     objects,
     weeklyIntentions,
   ] = await Promise.all([
@@ -595,7 +552,6 @@ async function loadWeekPlanningDependencies(weekRef: WeekRef): Promise<PlanningS
       monthContextBounds.start,
       monthContextBounds.end
     ),
-    planningStateDexieRepository.listInitiativePlanStates(),
     loadPlanningCoreObjects(),
     weeklyIntentionDexieRepository.listByWeek(weekRef),
   ])
@@ -606,13 +562,11 @@ async function loadWeekPlanningDependencies(weekRef: WeekRef): Promise<PlanningS
     measurementWeekStates,
     measurementDayAssignments,
     dailyMeasurementEntries,
-    initiativePlanStates,
     weeklyIntentions,
     goals: objects.goals,
     keyResults: objects.keyResults,
     habits: objects.habits,
     trackers: objects.trackers,
-    initiatives: objects.initiatives,
   }
 }
 
@@ -768,18 +722,6 @@ export async function getMonthPlanningBundle(monthRef: MonthRef): Promise<MonthP
 
     const measurementItems = sortMeasurementItems(monthMeasurementItems)
 
-    const visibleInitiatives = new Map(
-      deps.initiatives
-        .filter(initiative => initiative.isActive)
-        .map(initiative => [initiative.id, initiative])
-    )
-    const initiativeItems = deps.initiativePlanStates
-      .filter(planState => isInitiativePlanInMonth(planState, monthRef))
-      .flatMap(planState => {
-        const initiative = visibleInitiatives.get(planState.initiativeId)
-        return initiative ? [{ initiative, planState }] : []
-      })
-
     return {
       monthRef,
       monthPlan,
@@ -787,7 +729,6 @@ export async function getMonthPlanningBundle(monthRef: MonthRef): Promise<MonthP
       measurementItems,
       cadencedItems: measurementItems.filter(isMonthCadencedPlanningItem),
       trackerItems: measurementItems.filter(isMonthTrackerPlanningItem),
-      initiativeItems,
       rawEntries: deps.dailyMeasurementEntries,
     }
   })
@@ -1053,34 +994,6 @@ export async function getWeekRelevantObjects(
         }
       }
 
-      const visibleInitiatives = new Map(
-        deps.initiatives
-          .filter(initiative => initiative.isActive)
-          .map(initiative => [initiative.id, initiative])
-      )
-      const planningInitiatives = deps.initiativePlanStates.flatMap(planState => {
-        const initiative = visibleInitiatives.get(planState.initiativeId)
-        if (!initiative) {
-          return []
-        }
-
-        const placement = planState.dayRef
-          ? 'assigned'
-          : planState.weekRef === weekRef
-            ? 'planned'
-            : planState.monthRef && overlappingMonthRefs.includes(planState.monthRef)
-              ? 'unassigned'
-              : undefined
-
-        return placement
-          ? [{ initiative, planState, placement: placement as WeekMeasurementPlacement }]
-          : []
-      })
-
-      const reflectionInitiatives = planningInitiatives
-        .filter(item => isInitiativePlanInWeek(item.planState, weekRef))
-        .map(item => ({ initiative: item.initiative, planState: item.planState }))
-
       const visibleGoals = new Map(
         deps.goals.filter(goal => goal.isActive).map(goal => [goal.id, goal])
       )
@@ -1095,12 +1008,6 @@ export async function getWeekRelevantObjects(
           reflectionGoalIds.add(item.subject.goalId)
         }
       }
-      for (const item of reflectionInitiatives) {
-        if (item.initiative.goalId) {
-          reflectionGoalIds.add(item.initiative.goalId)
-        }
-      }
-
       const goalItems = [...reflectionGoalIds].flatMap(goalId => {
         const goal = visibleGoals.get(goalId)
         if (!goal) {
@@ -1122,18 +1029,12 @@ export async function getWeekRelevantObjects(
           measurementItems: sortMeasurementItems(planningItems),
           cadencedItems: sortMeasurementItems(planningItems.filter(isWeekCadencedPlanningItem)),
           trackerItems: sortMeasurementItems(planningItems.filter(isWeekTrackerPlanningItem)),
-          initiativeItems: [...planningInitiatives].sort((left, right) =>
-            left.initiative.title.localeCompare(right.initiative.title)
-          ),
         },
         reflection: {
           goalItems,
           measurementItems: sortMeasurementItems(reflectionItems),
           cadencedItems: sortMeasurementItems(reflectionItems.filter(isWeekCadencedReflectionItem)),
           trackerItems: sortMeasurementItems(reflectionItems.filter(isWeekTrackerReflectionItem)),
-          initiativeItems: reflectionInitiatives.sort((left, right) =>
-            left.initiative.title.localeCompare(right.initiative.title)
-          ),
         },
       }
     }

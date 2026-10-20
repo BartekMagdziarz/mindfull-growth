@@ -1,4 +1,4 @@
-import type { Goal, Initiative } from '@/domain/planning'
+import type { Goal } from '@/domain/planning'
 import type { MeasureableSubject } from '@/services/measurementProgress'
 
 /**
@@ -21,8 +21,4 @@ export function isGoalOpen(goal: Goal): boolean {
 
 export function isMeasurementSubjectOpen(subject: MeasureableSubject): boolean {
   return subject.isActive && subject.status === 'open'
-}
-
-export function isInitiativeActive(initiative: Initiative): boolean {
-  return initiative.isActive && initiative.status === 'open'
 }

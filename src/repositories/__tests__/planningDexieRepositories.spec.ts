@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { habitDexieRepository } from '@/repositories/habitDexieRepository'
-import { initiativeDexieRepository } from '@/repositories/initiativeDexieRepository'
 import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
 import { priorityDexieRepository } from '@/repositories/priorityDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
@@ -186,13 +185,6 @@ describe('planning Dexie repositories', () => {
       entryMode: 'completion',
       status: 'open',
     })
-    const initiative = await initiativeDexieRepository.create({
-      title: 'Initiative',
-      isActive: true,
-      priorityIds: [priority.id],
-      lifeAreaIds: [],
-      status: 'open',
-    })
 
     await priorityDexieRepository.delete(priority.id)
 
@@ -200,7 +192,6 @@ describe('planning Dexie repositories', () => {
     expect((await goalDexieRepository.getById(goal.id))?.priorityIds).toEqual([])
     expect((await habitDexieRepository.getById(habit.id))?.priorityIds).toEqual([])
     expect((await trackerDexieRepository.getById(tracker.id))?.priorityIds).toEqual([])
-    expect((await initiativeDexieRepository.getById(initiative.id))?.priorityIds).toEqual([])
   })
 
   it('rejects KeyResult creation when the owning Goal does not exist', async () => {
@@ -254,7 +245,7 @@ describe('planning Dexie repositories', () => {
     expect(await keyResultDexieRepository.getById(keyResult.id)).toBeUndefined()
   })
 
-  it('supports CRUD for Habit, Tracker, and Initiative without plan-state fields', async () => {
+  it('supports CRUD for Habit and Tracker without plan-state fields', async () => {
     const habit = await habitDexieRepository.create({
       title: 'Morning review',
       isActive: false,
@@ -278,15 +269,6 @@ describe('planning Dexie repositories', () => {
       entryMode: 'rating',
       status: 'open',
     })
-    const initiative = await initiativeDexieRepository.create({
-      title: 'Email designer',
-      isActive: true,
-      goalId: '',
-      priorityIds: ['priority-1'],
-      lifeAreaIds: ['la-2'],
-      status: 'open',
-    })
-
     const updatedHabit = await habitDexieRepository.update(habit.id, {
       status: 'open',
       isActive: true,
@@ -295,14 +277,9 @@ describe('planning Dexie repositories', () => {
       entryMode: 'value',
       cadence: 'monthly',
     })
-    const updatedInitiative = await initiativeDexieRepository.update(initiative.id, {
-      goalId: 'goal-42',
-    })
-
     expect(updatedHabit.status).toBe('open')
     expect(updatedHabit.isActive).toBe(true)
     expect(updatedTracker.entryMode).toBe('value')
     expect(updatedTracker.cadence).toBe('monthly')
-    expect(updatedInitiative.goalId).toBe('goal-42')
   })
 })

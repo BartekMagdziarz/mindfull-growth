@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
-import { initiativeDexieRepository } from '@/repositories/initiativeDexieRepository'
 import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'
 import { connectTestDatabase } from '@/test/testDatabase'
 import type { MonthRef, WeekRef } from '@/domain/period'
@@ -39,7 +38,7 @@ describe('reflection Dexie repository', () => {
   })
 
   it('upserts object reflections by [periodType+periodRef+subjectType+subjectId]', async () => {
-    const initiative = await initiativeDexieRepository.create({
+    const goal = await goalDexieRepository.create({
       title: 'Prepare deck',
       isActive: true,
       priorityIds: [],
@@ -51,15 +50,15 @@ describe('reflection Dexie repository', () => {
     const created = await reflectionDexieRepository.upsertPeriodObjectReflection({
       periodType: 'month',
       periodRef: monthRef,
-      subjectType: 'initiative',
-      subjectId: initiative.id,
+      subjectType: 'goal',
+      subjectId: goal.id,
       note: '  Good momentum ',
     })
     const updated = await reflectionDexieRepository.upsertPeriodObjectReflection({
       periodType: 'month',
       periodRef: monthRef,
-      subjectType: 'initiative',
-      subjectId: initiative.id,
+      subjectType: 'goal',
+      subjectId: goal.id,
       note: 'Great finish',
     })
 

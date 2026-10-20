@@ -4,14 +4,12 @@ import type { Habit, KeyResult, Tracker, WeeklyIntention } from '@/domain/planni
 import type {
   CreateDailyMeasurementEntryPayload,
   CreateGoalMonthStatePayload,
-  CreateInitiativePlanStatePayload,
   CreateMeasurementDayAssignmentPayload,
   CreateMeasurementMonthStatePayload,
   CreateMeasurementWeekStatePayload,
   CreateTodayHiddenStatePayload,
   DailyMeasurementEntry,
   GoalMonthState,
-  InitiativePlanState,
   MeasurementDayAssignment,
   MeasurementMonthState,
   MeasurementSubjectType,
@@ -20,7 +18,6 @@ import type {
   TodayHiddenSubjectType,
   UpdateDailyMeasurementEntryPayload,
   UpdateGoalMonthStatePayload,
-  UpdateInitiativePlanStatePayload,
   UpdateMeasurementDayAssignmentPayload,
   UpdateMeasurementMonthStatePayload,
   UpdateMeasurementWeekStatePayload,
@@ -29,7 +26,6 @@ import type {
 import {
   normalizeDailyMeasurementEntryPayload,
   normalizeGoalMonthStatePayload,
-  normalizeInitiativePlanStatePayload,
   normalizeMeasurementDayAssignmentPayload,
   normalizeMeasurementMonthStatePayload,
   normalizeMeasurementWeekStatePayload,
@@ -68,7 +64,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         try {
@@ -102,7 +97,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         try {
@@ -131,7 +125,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         if (monthRefs.length === 0) {
@@ -166,7 +159,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         try {
@@ -211,7 +203,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         try {
@@ -250,7 +241,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         try {
@@ -288,7 +278,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         try {
@@ -321,7 +310,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         if (monthRefs.length === 0) {
@@ -359,7 +347,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         try {
@@ -399,7 +386,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         try {
@@ -459,7 +445,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         try {
@@ -503,7 +488,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         try {
@@ -550,7 +534,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         try {
@@ -581,7 +564,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         if (weekRefs.length === 0) {
@@ -619,7 +601,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         try {
@@ -659,7 +640,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         try {
@@ -721,7 +701,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         try {
@@ -769,7 +748,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         try {
@@ -807,7 +785,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         try {
@@ -841,7 +818,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         try {
@@ -877,7 +853,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         try {
@@ -940,7 +915,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         try {
@@ -983,7 +957,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         try {
@@ -1021,7 +994,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         try {
@@ -1055,7 +1027,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         try {
@@ -1091,7 +1062,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         try {
@@ -1150,7 +1120,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         try {
@@ -1193,7 +1162,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         try {
@@ -1230,7 +1198,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         try {
@@ -1259,7 +1226,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         try {
@@ -1290,7 +1256,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         try {
@@ -1350,7 +1315,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'dailyMeasurementEntries',
         'todayHiddenStates',
         'initiatives',
-        'initiativePlanStates',
       ],
       async db => {
         try {
@@ -1365,154 +1329,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
             error
           )
           throw new Error(`Failed to delete Today hidden state for ${subjectType}:${subjectId}`, {
-            cause: error,
-          })
-        }
-      }
-    )
-  }
-
-  async getInitiativePlanState(initiativeId: string): Promise<InitiativePlanState | undefined> {
-    return userDatabaseOperation(
-      'r',
-      [
-        'goalMonthStates',
-        'goals',
-        'measurementMonthStates',
-        'keyResults',
-        'habits',
-        'trackers',
-        'weeklyIntentions',
-        'measurementWeekStates',
-        'measurementDayAssignments',
-        'dailyMeasurementEntries',
-        'todayHiddenStates',
-        'initiatives',
-        'initiativePlanStates',
-      ],
-      async db => {
-        try {
-          return await db.initiativePlanStates.where('initiativeId').equals(initiativeId).first()
-        } catch (error) {
-          console.error(`Failed to get initiative plan state for ${initiativeId}:`, error)
-          throw new Error(`Failed to retrieve initiative plan state for ${initiativeId}`, {
-            cause: error,
-          })
-        }
-      }
-    )
-  }
-
-  async listInitiativePlanStates(): Promise<InitiativePlanState[]> {
-    return userDatabaseOperation(
-      'r',
-      [
-        'goalMonthStates',
-        'goals',
-        'measurementMonthStates',
-        'keyResults',
-        'habits',
-        'trackers',
-        'weeklyIntentions',
-        'measurementWeekStates',
-        'measurementDayAssignments',
-        'dailyMeasurementEntries',
-        'todayHiddenStates',
-        'initiatives',
-        'initiativePlanStates',
-      ],
-      async db => {
-        try {
-          return await db.initiativePlanStates.toArray()
-        } catch (error) {
-          console.error('Failed to list initiative plan states:', error)
-          throw new Error('Failed to retrieve initiative plan states from database', {
-            cause: error,
-          })
-        }
-      }
-    )
-  }
-
-  async upsertInitiativePlanState(
-    data: CreateInitiativePlanStatePayload | UpdateInitiativePlanStatePayload
-  ): Promise<InitiativePlanState> {
-    return userDatabaseOperation(
-      'rw',
-      [
-        'goalMonthStates',
-        'goals',
-        'measurementMonthStates',
-        'keyResults',
-        'habits',
-        'trackers',
-        'weeklyIntentions',
-        'measurementWeekStates',
-        'measurementDayAssignments',
-        'dailyMeasurementEntries',
-        'todayHiddenStates',
-        'initiatives',
-        'initiativePlanStates',
-      ],
-      async db => {
-        try {
-          const record = await db.transaction(
-            'rw',
-            [db.initiativePlanStates, db.initiatives],
-            async () => {
-              const existing = await this.findExistingInitiativePlanState(data)
-              const normalized = normalizeInitiativePlanStatePayload(data, existing)
-              await this.assertInitiativeExists(normalized.initiativeId)
-
-              if (existing) {
-                const updated = updatePlanningRecord(existing, normalized)
-                await db.initiativePlanStates.put(toPlain(updated))
-                return updated
-              }
-
-              const created = createPlanningRecord<InitiativePlanState>(normalized)
-              await db.initiativePlanStates.add(toPlain(created))
-              return created
-            }
-          )
-          invalidatePlanningQueryCache()
-          return record
-        } catch (error) {
-          console.error('Failed to upsert initiative plan state:', error)
-          throw new Error('Failed to persist initiative plan state in database', { cause: error })
-        }
-      }
-    )
-  }
-
-  async deleteInitiativePlanState(initiativeId: string): Promise<void> {
-    return userDatabaseOperation(
-      'rw',
-      [
-        'goalMonthStates',
-        'goals',
-        'measurementMonthStates',
-        'keyResults',
-        'habits',
-        'trackers',
-        'weeklyIntentions',
-        'measurementWeekStates',
-        'measurementDayAssignments',
-        'dailyMeasurementEntries',
-        'todayHiddenStates',
-        'initiatives',
-        'initiativePlanStates',
-      ],
-      async db => {
-        try {
-          const existing = await this.getInitiativePlanState(initiativeId)
-          if (!existing) return
-
-          await db.initiativePlanStates.delete(existing.id)
-          invalidatePlanningQueryCache()
-        } catch (error) {
-          console.error(`Failed to delete initiative plan state for ${initiativeId}:`, error)
-          throw new Error(`Failed to delete initiative plan state for ${initiativeId}`, {
             cause: error,
           })
         }
@@ -1583,16 +1399,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     }
 
     return this.getTodayHiddenState(data.dayRef, data.subjectType, data.subjectId)
-  }
-
-  private async findExistingInitiativePlanState(
-    data: CreateInitiativePlanStatePayload | UpdateInitiativePlanStatePayload
-  ): Promise<InitiativePlanState | undefined> {
-    if (!data.initiativeId) {
-      return undefined
-    }
-
-    return this.getInitiativePlanState(data.initiativeId)
   }
 
   private async assertGoalExists(goalId: string): Promise<void> {

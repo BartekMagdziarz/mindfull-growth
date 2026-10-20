@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { habitDexieRepository } from '@/repositories/habitDexieRepository'
-import { initiativeDexieRepository } from '@/repositories/initiativeDexieRepository'
 import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'
@@ -34,7 +33,6 @@ describe('planningStateQueries', () => {
       measurementItems: [],
       cadencedItems: [],
       trackerItems: [],
-      initiativeItems: [],
       rawEntries: [],
     })
     expect(await getWeekReflectionBundle(weekRef)).toMatchObject({
@@ -44,7 +42,6 @@ describe('planningStateQueries', () => {
         measurementItems: [],
         cadencedItems: [],
         trackerItems: [],
-        initiativeItems: [],
       },
     })
   })
@@ -440,15 +437,6 @@ describe('planningStateQueries', () => {
       },
       status: 'open',
     })
-    const initiative = await initiativeDexieRepository.create({
-      title: 'Review rollout',
-      isActive: true,
-      goalId: goal.id,
-      priorityIds: [],
-      lifeAreaIds: [],
-      status: 'open',
-    })
-
     await planningStateDexieRepository.upsertGoalMonthState({
       monthRef,
       goalId: goal.id,
@@ -489,11 +477,6 @@ describe('planningStateQueries', () => {
       dayRef,
       value: null,
     })
-    await planningStateDexieRepository.upsertInitiativePlanState({
-      initiativeId: initiative.id,
-      monthRef,
-      weekRef,
-    })
     await reflectionDexieRepository.upsertPeriodReflection({
       periodType: 'week',
       periodRef: weekRef,
@@ -501,7 +484,6 @@ describe('planningStateQueries', () => {
     })
 
     const relevant = await getWeekRelevantObjects(weekRef)
-    const planningBundle = await getWeekPlanningBundle(weekRef)
     const reflectionBundle = await getWeekReflectionBundle(weekRef)
 
     expect(relevant.planning.measurementItems.map(item => item.placement)).toEqual(
@@ -512,7 +494,6 @@ describe('planningStateQueries', () => {
       relevant.planning.cadencedItems.find(item => item.subject.id === habit.id)?.planning
         .scheduledDayRefs
     ).toEqual([dayRef])
-    expect(planningBundle.relevant.initiativeItems).toHaveLength(1)
     expect(reflectionBundle.periodReflection?.note).toBe('Strong execution week')
     expect(reflectionBundle.relevant.goalItems).toHaveLength(1)
     expect(
