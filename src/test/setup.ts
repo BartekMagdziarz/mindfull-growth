@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, vi } from 'vitest'
 import { cleanup } from '@testing-library/vue'
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import 'fake-indexeddb/auto'
 import { config } from '@vue/test-utils'
 import { defineComponent, h, type App, type Plugin } from 'vue'

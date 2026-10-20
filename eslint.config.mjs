@@ -90,7 +90,7 @@ export default [
       '@typescript-eslint': typescript,
     },
     rules: {
-      ...vue.configs['vue3-essential'].rules,
+      ...vue.configs.essential.rules,
       '@typescript-eslint/no-unused-vars': [
         'error',
         {

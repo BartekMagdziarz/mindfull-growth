@@ -21,7 +21,6 @@ export default defineConfig({
       'ux-lab/**',
     ],
     pool: 'forks',
-    threads: false,
   },
   resolve: {
     alias: {

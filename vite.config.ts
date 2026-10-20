@@ -12,41 +12,56 @@ export default defineConfig({
     },
   },
   build: {
-    rollupOptions: {
+    rolldownOptions: {
       output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (id.includes('/vue/') || id.includes('/vue-router/') || id.includes('/pinia/')) {
-              return 'vue-vendor'
-            }
+        // Rollup's `manualChunks` decided a chunk per module. Rolldown's
+        // `codeSplitting` groups would also pull a captured module's
+        // dependencies into the same chunk (Dexie landed inside `ai-prompts`),
+        // so recursion is off to keep the original per-module assignment.
+        codeSplitting: {
+          includeDependenciesRecursively: false,
+          groups: [
+            {
+              name(id) {
+                if (id.includes('node_modules')) {
+                  if (
+                    id.includes('/vue/') ||
+                    id.includes('/vue-router/') ||
+                    id.includes('/pinia/')
+                  ) {
+                    return 'vue-vendor'
+                  }
 
-            if (id.includes('/dexie/')) {
-              return 'dexie'
-            }
+                  if (id.includes('/dexie/')) {
+                    return 'dexie'
+                  }
 
-            return 'vendor'
-          }
+                  return 'vendor'
+                }
 
-          if (id.includes('/src/locales/')) {
-            return 'locales'
-          }
+                if (id.includes('/src/locales/')) {
+                  return 'locales'
+                }
 
-          if (
-            id.includes('/src/services/prompts/') ||
-            id.includes('/src/services/chatPrompts.ts') ||
-            id.includes('/src/services/cbtLLMAssists.ts') ||
-            id.includes('/src/services/ifsLLMAssists.ts') ||
-            id.includes('/src/services/logotherapyLLMAssists.ts')
-          ) {
-            return 'ai-prompts'
-          }
+                if (
+                  id.includes('/src/services/prompts/') ||
+                  id.includes('/src/services/chatPrompts.ts') ||
+                  id.includes('/src/services/cbtLLMAssists.ts') ||
+                  id.includes('/src/services/ifsLLMAssists.ts') ||
+                  id.includes('/src/services/logotherapyLLMAssists.ts')
+                ) {
+                  return 'ai-prompts'
+                }
 
-          if (
-            id.includes('/src/domain/exercises.ts') ||
-            id.includes('/src/repositories/exercisesDexieRepository.ts')
-          ) {
-            return 'exercise-data'
-          }
+                if (
+                  id.includes('/src/domain/exercises.ts') ||
+                  id.includes('/src/repositories/exercisesDexieRepository.ts')
+                ) {
+                  return 'exercise-data'
+                }
+              },
+            },
+          ],
         },
       },
     },
