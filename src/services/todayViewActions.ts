@@ -1,13 +1,11 @@
 import type { DayRef, MonthRef } from '@/domain/period'
 import type { MeasurementSubjectType } from '@/domain/planningState'
 import { habitDexieRepository } from '@/repositories/habitDexieRepository'
-import { initiativeDexieRepository } from '@/repositories/initiativeDexieRepository'
 import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
 import type {
   TodayAddCandidate,
-  TodayInitiativeItem,
   TodayItem,
   TodayMeasurementItem,
 } from '@/services/todayViewQueries'
@@ -17,12 +15,6 @@ import { getPeriodRefsForDate } from '@/utils/periods'
 function assertMeasurementSchedulingAllowed(item: TodayMeasurementItem): void {
   if (!item.canReschedule) {
     throw new Error('Only items explicitly assigned to today can be rescheduled here.')
-  }
-}
-
-function assertInitiativeSchedulingAllowed(item: TodayInitiativeItem): void {
-  if (!item.canReschedule) {
-    throw new Error('Only initiatives explicitly assigned to today can be rescheduled here.')
   }
 }
 
@@ -80,22 +72,6 @@ async function deleteMeasurementPlanningState(
       ),
     ...hiddenStates
       .filter(state => state.subjectType === subjectType && state.subjectId === subjectId)
-      .map(state =>
-        planningStateDexieRepository.deleteTodayHiddenState(
-          state.dayRef,
-          state.subjectType,
-          state.subjectId
-        )
-      ),
-  ])
-}
-
-async function deleteInitiativePlanningState(initiativeId: string): Promise<void> {
-  const hiddenStates = await planningStateDexieRepository.listTodayHiddenStates()
-  await Promise.all([
-    planningStateDexieRepository.deleteInitiativePlanState(initiativeId),
-    ...hiddenStates
-      .filter(state => state.subjectType === 'initiative' && state.subjectId === initiativeId)
       .map(state =>
         planningStateDexieRepository.deleteTodayHiddenState(
           state.dayRef,
@@ -360,36 +336,6 @@ export async function clearTodayMeasurementAssignment(
   )
 }
 
-export async function moveTodayInitiative(
-  item: TodayInitiativeItem,
-  toDayRef: DayRef
-): Promise<void> {
-  assertInitiativeSchedulingAllowed(item)
-
-  if (item.planState.dayRef === toDayRef) {
-    return
-  }
-
-  const refs = getPeriodRefsForDate(toDayRef)
-  await planningStateDexieRepository.upsertInitiativePlanState({
-    initiativeId: item.initiative.id,
-    monthRef: refs.month,
-    weekRef: refs.week,
-    dayRef: toDayRef,
-  })
-}
-
-export async function clearTodayInitiative(item: TodayInitiativeItem): Promise<void> {
-  assertInitiativeSchedulingAllowed(item)
-
-  await planningStateDexieRepository.upsertInitiativePlanState({
-    initiativeId: item.initiative.id,
-    monthRef: item.planState.monthRef,
-    weekRef: item.planState.weekRef,
-    dayRef: undefined,
-  })
-}
-
 export async function hideTodayItem(item: TodayItem, dayRef: DayRef): Promise<void> {
   if (!item.canHide) {
     throw new Error('Only week and month context items can be hidden for today.')
@@ -397,28 +343,22 @@ export async function hideTodayItem(item: TodayItem, dayRef: DayRef): Promise<vo
 
   await planningStateDexieRepository.upsertTodayHiddenState({
     dayRef,
-    subjectType: item.kind === 'initiative' ? 'initiative' : item.subjectType,
-    subjectId: item.kind === 'initiative' ? item.initiative.id : item.subject.id,
+    subjectType: item.subjectType,
+    subjectId: item.subject.id,
   })
 }
 
 export async function restoreTodayItem(item: TodayItem, dayRef: DayRef): Promise<void> {
   await planningStateDexieRepository.deleteTodayHiddenState(
     dayRef,
-    item.kind === 'initiative' ? 'initiative' : item.subjectType,
-    item.kind === 'initiative' ? item.initiative.id : item.subject.id
+    item.subjectType,
+    item.subject.id
   )
 }
 
 export async function deleteTodayItem(item: TodayItem): Promise<void> {
   if (!item.canDelete) {
     throw new Error('Only items explicitly scheduled for today can be deleted here.')
-  }
-
-  if (item.kind === 'initiative') {
-    await deleteInitiativePlanningState(item.initiative.id)
-    await initiativeDexieRepository.delete(item.initiative.id)
-    return
   }
 
   await deleteMeasurementPlanningState(item.subjectType, item.subject.id)

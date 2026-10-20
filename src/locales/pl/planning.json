@@ -93,7 +93,6 @@
       "keyResults": "Kluczowe rezultaty",
       "habits": "Nawyki",
       "trackers": "Trackery",
-      "initiatives": "Inicjatywy",
       "reflectionContext": "Kontekst do refleksji",
       "scheduledToday": "Zaplanowane na dziś",
       "entriesToday": "Dzisiejsze wpisy",
@@ -114,14 +113,12 @@
       "activeGoals": "Aktywne cele",
       "activeCadenced": "Aktywne KR i nawyki",
       "activeTrackers": "Aktywne trackery",
-      "activeInitiatives": "Aktywne inicjatywy",
       "linkedKeyResults": "{n} powiązanych kluczowych rezultatów"
     },
     "metricsShort": {
       "activeGoals": "Cele",
       "activeCadenced": "KR i nawyki",
-      "activeTrackers": "Trackery",
-      "activeInitiatives": "Inicjatywy"
+      "activeTrackers": "Trackery"
     },
     "labels": {
       "priority": "Priorytet",
@@ -214,7 +211,6 @@
       "keyResults": "Brak kluczowych rezultatów dla tego okresu.",
       "habits": "Brak nawyków dla tego okresu.",
       "trackers": "Brak trackerów dla tego okresu.",
-      "initiatives": "Brak inicjatyw dla tego okresu.",
       "reflection": "Brak obiektów do refleksji.",
       "today": "Brak przypisań dziennych dla tej daty.",
       "entries": "Brak wpisów dla tej daty.",
@@ -368,8 +364,7 @@
       "goalsKrs": "Cele",
       "habits": "Nawyki",
       "trackers": "Trackery",
-      "weeklyIntentions": "Intencje tygodnia",
-      "initiatives": "Inicjatywy"
+      "weeklyIntentions": "Intencje tygodnia"
     },
     "topPriorityBadge": "Priorytet tego tygodnia",
     "emptyColumn": "Brak aktywnych elementów",
@@ -716,7 +711,6 @@
       "keyResult": "Kluczowy rezultat",
       "habit": "Nawyk",
       "tracker": "Tracker",
-      "initiative": "Inicjatywa",
       "weeklyIntention": "Intencja"
     },
     "header": {
@@ -877,7 +871,6 @@
       "goalMonthState": "Aktywny w tym miesiącu",
       "objectReflection": "Ma refleksję w tym okresie",
       "linkedKeyResult": "Kluczowy rezultat aktywny w tym okresie",
-      "linkedInitiative": "Inicjatywa aktywna w tym okresie",
       "priorityYear": "Powiązany z rokiem priorytetu",
       "activeThisMonth": "Aktywny w tym miesiącu",
       "scheduledThisMonth": "Zaplanowany w tym miesiącu",

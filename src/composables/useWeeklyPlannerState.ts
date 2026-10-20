@@ -16,16 +16,11 @@ import type {
 } from '@/domain/planningState'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { habitDexieRepository } from '@/repositories/habitDexieRepository'
-import { initiativeDexieRepository } from '@/repositories/initiativeDexieRepository'
 import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
 import { weeklyIntentionDexieRepository } from '@/repositories/weeklyIntentionDexieRepository'
-import {
-  isGoalOpen,
-  isInitiativeActive,
-  isMeasurementSubjectOpen,
-} from '@/services/planningVisibility'
+import { isGoalOpen, isMeasurementSubjectOpen } from '@/services/planningVisibility'
 import {
   materializeMeasurementDayAssignments,
   materializeMeasurementWeekPlacements,
@@ -43,7 +38,6 @@ import {
 } from '@/utils/periods'
 import type {
   GoalSection,
-  PlannerInitiativeRow,
   PlannerMeasurementRow,
   PlannerWeekDay,
   SubjectKind,
@@ -81,7 +75,6 @@ export function useWeeklyPlannerState(
   const habitRows = ref<PlannerMeasurementRow[]>([])
   const trackerRows = ref<PlannerMeasurementRow[]>([])
   const intentionRows = ref<PlannerMeasurementRow[]>([])
-  const initiativeRows = ref<PlannerInitiativeRow[]>([])
   const hasLoadedOnce = ref(false)
 
   const overlappingMonthRefs = computed(() => getWeekOverlappingMonths(weekRef.value))
@@ -374,19 +367,16 @@ export function useWeeklyPlannerState(
         habits,
         trackers,
         intentions,
-        initiatives,
         goalStates,
         monthStates,
         weekStates,
         dayAssignments,
-        initiativePlanStates,
       ] = await Promise.all([
         goalDexieRepository.listAll(),
         keyResultDexieRepository.listAll(),
         habitDexieRepository.listAll(),
         trackerDexieRepository.listAll(),
         weeklyIntentionDexieRepository.listByWeek(weekRef.value),
-        initiativeDexieRepository.listAll(),
         planningStateDexieRepository.listGoalMonthStatesForMonths(monthRefs),
         planningStateDexieRepository.listMeasurementMonthStatesForMonths(monthRefs),
         planningStateDexieRepository.listMeasurementWeekStatesForWeeks([weekRef.value]),
@@ -394,7 +384,6 @@ export function useWeeklyPlannerState(
           bounds.value.start,
           bounds.value.end
         ),
-        planningStateDexieRepository.listInitiativePlanStates(),
       ])
 
       const activeGoalIds = new Set(
@@ -419,13 +408,10 @@ export function useWeeklyPlannerState(
       const openKeyResults = keyResults.filter(isMeasurementSubjectOpen)
       const openHabits = habits.filter(isMeasurementSubjectOpen)
       const openTrackers = trackers.filter(isMeasurementSubjectOpen)
-      const openInitiatives = initiatives.filter(isInitiativeActive)
 
       const goalIconMap = new Map<string, string>()
-      const goalTitleMap = new Map<string, string>()
       for (const goal of openGoals) {
         if (goal.icon) goalIconMap.set(goal.id, goal.icon)
-        goalTitleMap.set(goal.id, goal.title)
       }
 
       goalSections.value = openGoals.map(goal => ({
@@ -467,31 +453,6 @@ export function useWeeklyPlannerState(
         .map(item =>
           buildMeasurementRow(item, 'weeklyIntention', monthStateMap, weekStates, dayAssignments)
         )
-
-      // Build initiative rows — show if plan state has weekRef matching this week or dayRef in this week
-      const weekDays = weekDayRefSet.value
-      initiativeRows.value = openInitiatives
-        .map(initiative => {
-          const planState = initiativePlanStates.find(s => s.initiativeId === initiative.id)
-          const isPlannedThisWeek = planState
-            ? planState.weekRef === weekRef.value ||
-              Boolean(planState.dayRef && weekDays.has(planState.dayRef))
-            : false
-
-          const assignedDayRefs: DayRef[] =
-            planState?.dayRef && weekDays.has(planState.dayRef) ? [planState.dayRef] : []
-
-          return {
-            id: initiative.id,
-            title: initiative.title,
-            description: initiative.description,
-            goalId: initiative.goalId,
-            goalTitle: initiative.goalId ? goalTitleMap.get(initiative.goalId) : undefined,
-            isPlannedThisWeek,
-            assignedDayRefs,
-          }
-        })
-        .filter(row => row.isPlannedThisWeek)
 
       hasLoadedOnce.value = true
     } catch (error) {
@@ -727,7 +688,6 @@ export function useWeeklyPlannerState(
     habitRows,
     trackerRows,
     intentionRows,
-    initiativeRows,
     allRows,
     calendarDays,
     weekdayHeaders,

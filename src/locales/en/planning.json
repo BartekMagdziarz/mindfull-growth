@@ -93,7 +93,6 @@
       "keyResults": "Key results",
       "habits": "Habits",
       "trackers": "Trackers",
-      "initiatives": "Initiatives",
       "reflectionContext": "Reflection context",
       "scheduledToday": "Scheduled today",
       "entriesToday": "Entries today",
@@ -114,14 +113,12 @@
       "activeGoals": "Active goals",
       "activeCadenced": "Active KRs & habits",
       "activeTrackers": "Active trackers",
-      "activeInitiatives": "Active initiatives",
       "linkedKeyResults": "{n} linked key results"
     },
     "metricsShort": {
       "activeGoals": "Goals",
       "activeCadenced": "KR + habits",
-      "activeTrackers": "Trackers",
-      "activeInitiatives": "Initiatives"
+      "activeTrackers": "Trackers"
     },
     "labels": {
       "priority": "Priority",
@@ -214,7 +211,6 @@
       "keyResults": "No key results for this period.",
       "habits": "No habits for this period.",
       "trackers": "No trackers for this period.",
-      "initiatives": "No initiatives for this period.",
       "reflection": "No reflection-relevant objects yet.",
       "today": "No day assignments for this date.",
       "entries": "No entries for this date.",
@@ -368,8 +364,7 @@
       "goalsKrs": "Goals",
       "habits": "Habits",
       "trackers": "Trackers",
-      "weeklyIntentions": "Week intentions",
-      "initiatives": "Initiatives"
+      "weeklyIntentions": "Week intentions"
     },
     "topPriorityBadge": "Top priority this week",
     "emptyColumn": "No active items",
@@ -716,7 +711,6 @@
       "keyResult": "Key result",
       "habit": "Habit",
       "tracker": "Tracker",
-      "initiative": "Initiative",
       "weeklyIntention": "Intention"
     },
     "header": {
@@ -877,7 +871,6 @@
       "goalMonthState": "Active this month",
       "objectReflection": "Reflected in this period",
       "linkedKeyResult": "Key result active in this period",
-      "linkedInitiative": "Initiative active in this period",
       "priorityYear": "Linked to this priority year",
       "activeThisMonth": "Active this month",
       "scheduledThisMonth": "Scheduled this month",

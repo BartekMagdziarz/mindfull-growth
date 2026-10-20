@@ -789,7 +789,6 @@ const PROPOSAL_ICONS: Record<string, string> = {
   habit: 'routine',
   tracker: 'monitoring',
   weeklyIntention: 'gps_fixed',
-  initiative: 'rocket_launch',
 }
 
 function proposalIcon(type?: string): string {
@@ -798,7 +797,7 @@ function proposalIcon(type?: string): string {
 
 function proposalTypeLabel(type?: string): string {
   if (!type) return ''
-  const key = type === 'keyResult' || type === 'initiative' ? 'goal' : type
+  const key = type === 'keyResult' ? 'goal' : type
   return t(`planning.priorityRitual.support.types.${key}`)
 }
 

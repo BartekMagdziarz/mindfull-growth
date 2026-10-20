@@ -4,12 +4,10 @@ import type { DayRef } from '@/domain/period'
 import type { TodayMeasurementItem, TodayViewBundle } from '@/services/todayViewQueries'
 
 vi.mock('@/services/todayViewActions', () => ({
-  clearTodayInitiative: vi.fn(),
   clearTodayMeasurementAssignment: vi.fn(),
   clearTodayMeasurementEntry: vi.fn(),
   deleteTodayItem: vi.fn(),
   hideTodayItem: vi.fn(async () => {}),
-  moveTodayInitiative: vi.fn(),
   moveTodayMeasurementAssignment: vi.fn(async () => {}),
   restoreTodayItem: vi.fn(async () => {}),
   saveTodayMeasurementEntry: vi.fn(),

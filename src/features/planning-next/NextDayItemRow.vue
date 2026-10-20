@@ -243,7 +243,7 @@
            right edge of the rail stays a single straight column. Staged with history
            it becomes the seventh, live point of the strip. -->
     <div class="ndi__entry" data-flip="disc" @click.stop>
-      <!-- Completion (and the dormant initiative kind): done fills the disc -->
+      <!-- Completion: done fills the disc -->
       <button
         v-if="isCompletionToggle"
         type="button"
@@ -443,7 +443,6 @@ const PANEL_TYPE_ICONS: Record<string, string> = {
   tracker: 'monitoring',
   keyResult: 'flag',
   weeklyIntention: 'target',
-  initiative: 'rocket_launch',
 }
 
 const { t, locale } = useT()
@@ -460,35 +459,26 @@ const viz = useTodayItemVisualization(
   computed(() => locale.value)
 )
 
-const title = computed(() =>
-  props.item.kind === 'initiative' ? props.item.initiative.title : props.item.subject.title
-)
+const title = computed(() => props.item.subject.title)
 const iconName = computed(() => {
-  if (props.item.kind === 'initiative')
-    return props.item.initiative.icon || PANEL_TYPE_ICONS.initiative
   if (props.item.panelType === 'keyResult' && props.item.goalIcon) return props.item.goalIcon
   const subject = props.item.subject as { icon?: string }
   return subject.icon || PANEL_TYPE_ICONS[props.item.panelType] || 'circle'
 })
-// Weekly intentions and initiatives have no object page; their tray offers the period context instead.
+// Weekly intentions have no object page; their tray offers the period context instead.
 const canOpenObject = computed(
   () => props.item.kind === 'measurement' && props.item.panelType !== 'weeklyIntention'
 )
 // Scheduled rows move; week/month measurement rows can be re-homed on another day (hidden here).
 const canReschedule = computed(() => canRescheduleItem(props.item))
 const canTomorrow = computed(() => canMoveToTomorrow(props.item, props.todayDayRef))
-const isCompletionToggle = computed(
-  () => props.item.kind === 'initiative' || viz.entryMode.value === 'completion'
-)
+const isCompletionToggle = computed(() => viz.entryMode.value === 'completion')
 const completionDone = computed(() =>
-  props.item.kind === 'initiative'
-    ? Boolean(props.item.planState.dayRef)
-    : viz.completionSlots.value.some(slot => slot.state === 'today-done')
+  viz.completionSlots.value.some(slot => slot.state === 'today-done')
 )
 const isRating = computed(() => viz.entryMode.value === 'rating')
 const isStepperMode = computed(() => viz.entryMode.value === 'counter' || isRating.value)
 const hasTodayEntry = computed(() => {
-  if (props.item.kind === 'initiative') return Boolean(props.item.planState.dayRef)
   const entry = props.item.todayEntry
   if (!entry) return false
   if (props.item.subject.entryMode === 'completion') return true

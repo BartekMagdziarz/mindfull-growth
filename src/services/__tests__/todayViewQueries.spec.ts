@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { habitDexieRepository } from '@/repositories/habitDexieRepository'
-import { initiativeDexieRepository } from '@/repositories/initiativeDexieRepository'
 import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
@@ -84,29 +83,6 @@ describe('todayViewQueries', () => {
       target: { kind: 'count', operator: 'min', value: 1 },
       status: 'open',
     })
-    const initiativeToday = await initiativeDexieRepository.create({
-      title: 'Call designer',
-      isActive: true,
-      priorityIds: [],
-      lifeAreaIds: [],
-      goalId: goal.id,
-      status: 'open',
-    })
-    const initiativeWeek = await initiativeDexieRepository.create({
-      title: 'Review copy',
-      isActive: true,
-      priorityIds: [],
-      lifeAreaIds: [],
-      status: 'open',
-    })
-    const initiativeMonth = await initiativeDexieRepository.create({
-      title: 'Collect references',
-      isActive: true,
-      priorityIds: [],
-      lifeAreaIds: [],
-      status: 'open',
-    })
-
     await planningStateDexieRepository.upsertGoalMonthState({
       monthRef: refs.month as MonthRef,
       goalId: goal.id,
@@ -211,45 +187,20 @@ describe('todayViewQueries', () => {
         subjectType: 'tracker',
         subjectId: hiddenTracker.id,
       }),
-      planningStateDexieRepository.upsertInitiativePlanState({
-        initiativeId: initiativeToday.id,
-        monthRef: refs.month,
-        weekRef: refs.week,
-        dayRef,
-      }),
-      planningStateDexieRepository.upsertInitiativePlanState({
-        initiativeId: initiativeWeek.id,
-        monthRef: refs.month,
-        weekRef: refs.week,
-      }),
-      planningStateDexieRepository.upsertInitiativePlanState({
-        initiativeId: initiativeMonth.id,
-        monthRef: refs.month,
-      }),
     ])
 
     const bundle = await getTodayViewBundleForDay(dayRef)
 
-    expect(
-      bundle.sections.scheduled.map(item =>
-        item.kind === 'initiative' ? item.initiative.title : item.subject.title
-      )
-    ).toEqual(expect.arrayContaining(['Ship Today route', 'Call designer']))
-    expect(
-      bundle.sections.week.map(item =>
-        item.kind === 'initiative' ? item.initiative.title : item.subject.title
-      )
-    ).toEqual(expect.arrayContaining(['Weekly review', 'Focus streak', 'Review copy']))
-    expect(
-      bundle.sections.month.map(item =>
-        item.kind === 'initiative' ? item.initiative.title : item.subject.title
-      )
-    ).toEqual(expect.arrayContaining(['Monthly audit', 'Collect references']))
-    expect(
-      bundle.hiddenItems.map(item =>
-        item.kind === 'initiative' ? item.initiative.title : item.subject.title
-      )
-    ).toEqual(['Energy score'])
+    expect(bundle.sections.scheduled.map(item => item.subject.title)).toEqual(
+      expect.arrayContaining(['Ship Today route'])
+    )
+    expect(bundle.sections.week.map(item => item.subject.title)).toEqual(
+      expect.arrayContaining(['Weekly review', 'Focus streak'])
+    )
+    expect(bundle.sections.month.map(item => item.subject.title)).toEqual(
+      expect.arrayContaining(['Monthly audit'])
+    )
+    expect(bundle.hiddenItems.map(item => item.subject.title)).toEqual(['Energy score'])
     // Priority links ride along: key results borrow the parent goal's, habits carry their own.
     const priorityIdsOf = (title: string) => {
       const match = [...bundle.sections.scheduled, ...bundle.sections.week].find(
@@ -260,27 +211,9 @@ describe('todayViewQueries', () => {
     expect(priorityIdsOf('Ship Today route')).toEqual(['priority-ship'])
     expect(priorityIdsOf('Weekly review')).toEqual(['priority-review'])
     expect(priorityIdsOf('Focus streak')).toEqual([])
-    expect(
-      bundle.sections.scheduled.some(
-        item =>
-          (item.kind === 'initiative' ? item.initiative.title : item.subject.title) ===
-          'Friday prep'
-      )
-    ).toBe(false)
-    expect(
-      bundle.sections.week.some(
-        item =>
-          (item.kind === 'initiative' ? item.initiative.title : item.subject.title) ===
-          'Friday prep'
-      )
-    ).toBe(false)
-    expect(
-      bundle.sections.month.some(
-        item =>
-          (item.kind === 'initiative' ? item.initiative.title : item.subject.title) ===
-          'Energy score'
-      )
-    ).toBe(false)
+    expect(bundle.sections.scheduled.some(item => item.subject.title === 'Friday prep')).toBe(false)
+    expect(bundle.sections.week.some(item => item.subject.title === 'Friday prep')).toBe(false)
+    expect(bundle.sections.month.some(item => item.subject.title === 'Energy score')).toBe(false)
   })
 
   it('deduplicates overlapping monthly subjects and hidden state expires the next day', async () => {

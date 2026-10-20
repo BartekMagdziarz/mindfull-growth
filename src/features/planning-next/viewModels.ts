@@ -47,7 +47,7 @@ export function countYearObjects(summary: CalendarYearSummary): PlanningDataCoun
     goals: summary.totals.activeGoalCount,
     habits: summary.totals.activeCadencedCount,
     trackers: summary.totals.activeTrackerCount,
-    intentions: summary.totals.activeInitiativeCount,
+    intentions: summary.totals.activeIntentionCount,
   }
 }
 

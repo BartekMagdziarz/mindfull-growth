@@ -68,9 +68,6 @@ type MatrixRow = {
  * `resolveTodayVizType`, this table must be updated explicitly — no silent drift.
  */
 const MATRIX: MatrixRow[] = [
-  // ---- initiative (no axes) ----
-  { label: 'initiative', input: { kind: 'initiative' }, expected: 'initiative-check' },
-
   // ---- completion ----
   // habit — count ≤ 7 → dots (cadence-independent)
   {
@@ -440,11 +437,10 @@ describe('resolveTodayVizType — exhaustive matrix', () => {
     })
   }
 
-  it('covers all 10 viz types', () => {
+  it('covers all 9 Today viz types', () => {
     const covered = new Set(MATRIX.map(r => r.expected))
     expect(covered).toEqual(
       new Set([
-        'initiative-check',
         'completion-dots',
         'completion-ring',
         'daily-bars',

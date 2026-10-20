@@ -301,11 +301,10 @@ async function loadDay() {
 }
 
 function itemTitle(item: TodayItem): string {
-  return item.kind === 'initiative' ? item.initiative.title : item.subject.title
+  return item.subject.title
 }
 
 function hasEntry(item: TodayItem): boolean {
-  if (item.kind === 'initiative') return Boolean(item.planState.dayRef)
   const entry = item.todayEntry
   if (!entry) return false
   if (item.subject.entryMode === 'multi-completion') return (entry.checkedItemIds?.length ?? 0) > 0
@@ -314,7 +313,6 @@ function hasEntry(item: TodayItem): boolean {
 }
 
 function isCompletedForCollapse(item: TodayItem): boolean {
-  if (item.kind === 'initiative') return Boolean(item.planState.dayRef)
   if (item.subject.entryMode === 'completion') return Boolean(item.todayEntry)
   if (item.subject.entryMode === 'multi-completion') {
     const active = (item.subject.multiItems ?? []).filter(entry => !entry.archived)

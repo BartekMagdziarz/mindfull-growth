@@ -56,11 +56,7 @@ export function useTodayItemVisualization(
   locale: Ref<string>
 ) {
   const vizType = computed<TodayVizType>(() => {
-    const current = item.value
-    if (current.kind === 'initiative') {
-      return resolveTodayVizType({ kind: 'initiative' })
-    }
-    const m = current as TodayMeasurementItem
+    const m = item.value
     return resolveTodayVizType({
       kind: 'measurement',
       panelType: m.panelType,

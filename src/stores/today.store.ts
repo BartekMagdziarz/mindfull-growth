@@ -5,12 +5,10 @@ import type { DayRef } from '@/domain/period'
 import type { DailyMeasurementEntry, MeasurementDayAssignment } from '@/domain/planningState'
 import {
   addMeasurementToDay,
-  clearTodayInitiative,
   clearTodayMeasurementAssignment,
   clearTodayMeasurementEntry,
   deleteTodayItem,
   hideTodayItem,
-  moveTodayInitiative,
   moveTodayMeasurementAssignment,
   removeMeasurementFromDay,
   rescheduleContextItem as rescheduleContextItemAction,
@@ -24,7 +22,6 @@ import {
   getTodayViewBundle,
   getTodayViewBundleForDay,
   type TodayAddCandidate,
-  type TodayInitiativeItem,
   type TodayItem,
   type TodayMeasurementItem,
   type TodaySectionId,
@@ -54,11 +51,7 @@ function withoutItem(items: TodayItem[], key: string): TodayItem[] {
 }
 
 function sortItems(items: TodayItem[]): TodayItem[] {
-  return [...items].sort((left, right) => {
-    const leftTitle = left.kind === 'initiative' ? left.initiative.title : left.subject.title
-    const rightTitle = right.kind === 'initiative' ? right.initiative.title : right.subject.title
-    return leftTitle.localeCompare(rightTitle)
-  })
+  return [...items].sort((left, right) => left.subject.title.localeCompare(right.subject.title))
 }
 
 function sectionPriority(sectionId: string): number {
@@ -78,9 +71,7 @@ function sortBySectionThenTitle<T extends TodayItem>(items: T[]): T[] {
   return [...items].sort((a, b) => {
     const sectionDiff = sectionPriority(a.sectionId) - sectionPriority(b.sectionId)
     if (sectionDiff !== 0) return sectionDiff
-    const aTitle = a.kind === 'initiative' ? a.initiative.title : a.subject.title
-    const bTitle = b.kind === 'initiative' ? b.initiative.title : b.subject.title
-    return aTitle.localeCompare(bTitle)
+    return a.subject.title.localeCompare(b.subject.title)
   })
 }
 
@@ -163,14 +154,6 @@ export const useTodayStore = defineStore('today', () => {
   )
 
   const topPriorityKeys = computed<string[]>(() => bundle.value?.topPriorityKeys ?? [])
-
-  const initiativeItems = computed<TodayInitiativeItem[]>(() =>
-    sortBySectionThenTitle(
-      allVisibleItems.value.filter(
-        (item): item is TodayInitiativeItem => item.kind === 'initiative'
-      )
-    )
-  )
 
   interface GoalGroup {
     goal: { id: string; title: string }
@@ -612,21 +595,13 @@ export const useTodayStore = defineStore('today', () => {
       removeItem(item)
 
       try {
-        if (item.kind === 'initiative') {
-          await operation.wait(moveTodayInitiative(item, toDayRef))
-        } else {
-          await operation.wait(moveTodayMeasurementAssignment(item, fromDayRef, toDayRef))
-        }
+        await operation.wait(moveTodayMeasurementAssignment(item, fromDayRef, toDayRef))
         undoState.value = {
           kind: 'move',
           itemKey: item.key,
           run: async () => {
             operation.assertCurrent()
-            if (item.kind === 'initiative') {
-              await operation.wait(moveTodayInitiative(item, fromDayRef))
-            } else {
-              await operation.wait(moveTodayMeasurementAssignment(item, toDayRef, fromDayRef))
-            }
+            await operation.wait(moveTodayMeasurementAssignment(item, toDayRef, fromDayRef))
             await operation.wait(reloadCurrentDay())
           },
         }
@@ -744,11 +719,7 @@ export const useTodayStore = defineStore('today', () => {
       removeItem(item)
 
       try {
-        if (item.kind === 'initiative') {
-          await operation.wait(clearTodayInitiative(item))
-        } else {
-          await operation.wait(clearTodayMeasurementAssignment(item, bundle.value.dayRef))
-        }
+        await operation.wait(clearTodayMeasurementAssignment(item, bundle.value.dayRef))
         await operation.wait(reloadCurrentDay())
       } catch (err) {
         if (!operation.isCurrent()) return
@@ -881,7 +852,6 @@ export const useTodayStore = defineStore('today', () => {
     habitItems,
     trackerItems,
     intentionItems,
-    initiativeItems,
     goalGroupedKrItems,
     topPriorityKeys,
     isLoading,

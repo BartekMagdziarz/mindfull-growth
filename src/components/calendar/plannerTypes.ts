@@ -138,13 +138,3 @@ export interface PlannerSectionRows {
   needsPlanning: PlannerDisplayRow[]
   planned: PlannerDisplayRow[]
 }
-
-export interface PlannerInitiativeRow {
-  id: string
-  title: string
-  description?: string
-  goalId?: string
-  goalTitle?: string
-  isPlannedThisWeek: boolean
-  assignedDayRefs: DayRef[]
-}

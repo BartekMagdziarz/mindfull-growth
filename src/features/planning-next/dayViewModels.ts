@@ -35,19 +35,17 @@ const PANEL_TYPE_ICONS: Record<string, string> = {
   tracker: 'monitoring',
   keyResult: 'flag',
   weeklyIntention: 'target',
-  initiative: 'rocket_launch',
 }
 
 /** Same icon resolution the day row uses: own icon → parent goal icon → family icon. */
 export function dayItemIcon(item: TodayItem): string {
-  if (item.kind === 'initiative') return item.initiative.icon || PANEL_TYPE_ICONS.initiative
   if (item.panelType === 'keyResult' && item.goalIcon) return item.goalIcon
   const subject = item.subject as { icon?: string }
   return subject.icon || PANEL_TYPE_ICONS[item.panelType] || 'circle'
 }
 
 export function dayItemTitle(item: TodayItem): string {
-  return item.kind === 'initiative' ? item.initiative.title : item.subject.title
+  return item.subject.title
 }
 
 /** Priority tone by position in the month focus — Today palette: blue, lavender, rose. */

@@ -310,7 +310,7 @@ przenieść do locale, ale to osobny zakres. Oceń z użytkownikiem.
 
 ### P-6 · Usunięcie uśpionej encji Initiative (ścieżki kodu; tabela Dexie zostaje)
 
-`otwarte` · Znaleziono 2026-10-20 przy audycie repo (decyzja usera: usunąć kod, zostawić dane) · planowanie, Dzisiaj, repozytoria
+`w toku (sesja initiative-removal, 2026-10-20)` · Znaleziono 2026-10-20 przy audycie repo (decyzja usera: usunąć kod, zostawić dane) · planowanie, Dzisiaj, repozytoria
 
 **Kontekst.** Inicjatywy zastąpiły intencje tygodniowe w lipcu 2026; trasa `/objects/initiatives`
 przekierowuje na `/objects/intentions`, żaden kreator ich nie tworzy, seedy dev ich nie zakładają.

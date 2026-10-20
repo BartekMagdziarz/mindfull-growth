@@ -216,7 +216,7 @@ const items = computed<ObjectItem[]>(() =>
 const intentionCount = computed(() =>
   props.data.scale === 'week' || props.data.scale === 'month'
     ? props.data.intentions.length
-    : props.data.summary.totals.activeInitiativeCount
+    : props.data.summary.totals.activeIntentionCount
 )
 const baseCategories = computed<Category[]>(() => [
   {

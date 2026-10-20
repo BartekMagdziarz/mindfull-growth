@@ -9,7 +9,6 @@ import type { MeasurementSubjectType } from '@/domain/planningState'
  * large number) introduced by Epic 10 Stories 2-5.
  */
 export type TodayVizType =
-  | 'initiative-check'
   | 'completion-dots'
   | 'completion-ring'
   | 'daily-bars'
@@ -38,17 +37,16 @@ export type TodayVizType =
  * dependency so the rule module can be unit-tested in isolation and reused by
  * any future caller (e.g. Story 1's audit utility, or Story 7's snapshot tests).
  *
- * `panelType` is typed against the real {@link MeasurementSubjectType} union
- * plus the initiative marker, matching what `TodayItem.panelType` actually holds
- * at runtime. Goals are never surfaced as measurement cards on Today view.
+ * `panelType` is typed against the real {@link MeasurementSubjectType} union,
+ * matching what `TodayItem.panelType` actually holds at runtime. Goals are
+ * never surfaced as measurement cards on Today view.
  *
- * `cadence` is effectively required for measurement branches — when omitted,
- * the decision function treats the item as weekly for backward compatibility
- * with the initiative path (which does not depend on cadence).
+ * `cadence` is effectively required — when omitted, the decision function
+ * treats the item as weekly.
  */
 export interface VisualizationDecisionInput {
-  kind: 'initiative' | 'measurement'
-  panelType?: MeasurementSubjectType | 'initiative'
+  kind: 'measurement'
+  panelType?: MeasurementSubjectType
   entryMode?: MeasurementEntryMode
   target?: MeasurementTarget
   cadence?: PlanningCadence
@@ -63,8 +61,6 @@ export interface VisualizationDecisionInput {
  * aggregation, then pick the detail-vs-summary form from cadence.
  *
  * Routing table:
- *
- *   initiative                                          → 'initiative-check'
  *
  *   completion + count target ≤ 7                       → 'completion-dots'
  *   completion + count target > 7                       → 'completion-ring'
@@ -88,10 +84,6 @@ export interface VisualizationDecisionInput {
  *   value + no target OR avg/last target + monthly      → 'value-sparkline-summary'
  */
 export function resolveTodayVizType(input: VisualizationDecisionInput): TodayVizType {
-  if (input.kind === 'initiative') {
-    return 'initiative-check'
-  }
-
   const isMonthly = input.cadence === 'monthly'
 
   // --- completion ---
@@ -167,8 +159,6 @@ export function resolveTodayVizType(input: VisualizationDecisionInput): TodayViz
  *
  * Routing table (note the differences vs. Today are flagged with `*`):
  *
- *   initiative                                          → 'initiative-check'
- *
  *   completion + count target ≤ 7                       → 'completion-dots'
  *   completion + count target > 7                       → 'completion-dots'  *
  *   completion + tracker (no target)                    → 'completion-dots'  * (always, even monthly)
@@ -187,10 +177,6 @@ export function resolveTodayVizType(input: VisualizationDecisionInput): TodayViz
  * that's where the monthly summary information lives in this scope.
  */
 export function resolveWeeklySliceVizType(input: VisualizationDecisionInput): TodayVizType {
-  if (input.kind === 'initiative') {
-    return 'initiative-check'
-  }
-
   if (input.entryMode === 'completion') {
     // Always 7 day-slots — even for "Meditation 15x/month" the user sees Mon-Sun.
     return 'completion-dots'
@@ -232,10 +218,6 @@ export function resolveWeeklySliceVizType(input: VisualizationDecisionInput): To
  * touch the weekly-scope path.
  */
 export function resolveMonthlySliceVizType(input: VisualizationDecisionInput): TodayVizType {
-  if (input.kind === 'initiative') {
-    return 'initiative-check'
-  }
-
   // Completion entries render as bars whose height reflects the number of
   // entries in each week and whose color reflects the per-week status. The
   // 4-5 weekly slots make bar-height comparisons meaningful (unlike the dot

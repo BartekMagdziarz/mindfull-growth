@@ -209,7 +209,7 @@ describe('closed objects stay in historical views, out of forward-looking ones',
         ...before.sections.scheduled,
         ...before.sections.week,
         ...before.sections.month,
-      ].some(item => item.kind !== 'initiative' && item.subject.id === habit.id)
+      ].some(item => item.subject.id === habit.id)
       expect(presentBefore).toBe(true)
 
       await habitDexieRepository.update(habit.id, { status: 'retired' })
@@ -220,7 +220,7 @@ describe('closed objects stay in historical views, out of forward-looking ones',
         ...after.sections.week,
         ...after.sections.month,
         ...after.hiddenItems,
-      ].some(item => item.kind !== 'initiative' && item.subject.id === habit.id)
+      ].some(item => item.subject.id === habit.id)
       expect(presentAfter).toBe(false)
     })
   })

@@ -37,10 +37,6 @@ function measurement(input: Omit<VisualizationDecisionInput, 'kind'>): Visualiza
 }
 
 describe('resolveWeeklySliceVizType', () => {
-  it('routes initiatives to the checkmark visualization', () => {
-    expect(resolveWeeklySliceVizType({ kind: 'initiative' })).toBe('initiative-check')
-  })
-
   describe('completion entries', () => {
     it('routes small count target (weekly) to completion-dots', () => {
       expect(

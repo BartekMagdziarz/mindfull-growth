@@ -57,10 +57,6 @@ function measurement(input: Omit<VisualizationDecisionInput, 'kind'>): Visualiza
 }
 
 describe('resolveTodayVizType', () => {
-  it('routes initiatives to the checkmark visualization', () => {
-    expect(resolveTodayVizType({ kind: 'initiative' })).toBe('initiative-check')
-  })
-
   it('routes completion entries with small count targets to CompletionDots', () => {
     expect(
       resolveTodayVizType(

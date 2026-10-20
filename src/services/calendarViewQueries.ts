@@ -1,4 +1,4 @@
-import type { DayRef, MonthRef, WeekRef, YearRef } from '@/domain/period'
+import type { MonthRef, WeekRef, YearRef } from '@/domain/period'
 import type { KeyResult, Habit, Tracker, WeeklyIntention } from '@/domain/planning'
 import type {
   DailyMeasurementEntry,
@@ -9,6 +9,7 @@ import type {
 import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'
+import { weeklyIntentionDexieRepository } from '@/repositories/weeklyIntentionDexieRepository'
 import {
   applyMeasurementTargetCascade,
   applyMeasurementTargetOverride,
@@ -23,12 +24,7 @@ import type {
   MonthPlanningBundle,
 } from '@/services/planningStateQueries'
 import { resolvePlannedWeekRefs } from '@/services/planningStateQueries'
-import {
-  getChildPeriods,
-  getPeriodBounds,
-  getPeriodRefsForDate,
-  getWeekOverlappingMonths,
-} from '@/utils/periods'
+import { getChildPeriods, getPeriodBounds, getPeriodRefsForDate } from '@/utils/periods'
 
 type MeasureableSubject = KeyResult | Habit | Tracker | WeeklyIntention
 
@@ -61,7 +57,8 @@ export interface CalendarYearMonthSummary {
   activeGoalCount: number
   activeCadencedCount: number
   activeTrackerCount: number
-  activeInitiativeCount: number
+  /** Non-archived weekly intentions whose week overlaps the month (same rule as the month overview). */
+  activeIntentionCount: number
   goalGroups: YearMonthGoalGroup[]
   habitGroups: YearMonthHabitGroup[]
 }
@@ -73,7 +70,7 @@ export interface CalendarYearSummary {
     activeGoalCount: number
     activeCadencedCount: number
     activeTrackerCount: number
-    activeInitiativeCount: number
+    activeIntentionCount: number
   }
 }
 
@@ -124,17 +121,6 @@ function resolveSubjectType(subject: MeasureableSubject): MeasurementSubjectType
   return 'target' in subject ? 'habit' : 'tracker'
 }
 
-function isInitiativePlanInMonth(
-  planState: { monthRef?: MonthRef; weekRef?: WeekRef; dayRef?: DayRef },
-  monthRef: MonthRef
-): boolean {
-  return (
-    planState.monthRef === monthRef ||
-    (planState.weekRef ? getWeekOverlappingMonths(planState.weekRef).includes(monthRef) : false) ||
-    (planState.dayRef ? getPeriodRefsForDate(planState.dayRef).month === monthRef : false)
-  )
-}
-
 export async function getMonthReflectionBundle(monthRef: MonthRef): Promise<MonthReflectionBundle> {
   return loadPlanningCached(monthReflectionBundleCache, monthRef, async () => {
     const [periodReflection, objectReflections] = await Promise.all([
@@ -168,7 +154,7 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
       periodReflections,
       goalMonthStates,
       measurementMonthStates,
-      initiativePlanStates,
+      weeklyIntentions,
       objects,
       allEntries,
       measurementWeekStates,
@@ -178,7 +164,7 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
       reflectionDexieRepository.listPeriodReflections(),
       planningStateDexieRepository.listGoalMonthStatesForMonths(monthRefs),
       planningStateDexieRepository.listMeasurementMonthStatesForMonths(monthRefs),
-      planningStateDexieRepository.listInitiativePlanStates(),
+      weeklyIntentionDexieRepository.listAll(),
       loadPlanningCoreObjects(),
       planningStateDexieRepository.listDailyMeasurementEntriesForDayRange(entryStart, entryEnd),
       planningStateDexieRepository.listMeasurementWeekStatesForWeeks([
@@ -215,9 +201,13 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
         .filter(isTracker)
         .map(tracker => `${resolveSubjectType(tracker)}:${tracker.id}`)
     )
-    const activeInitiativeIds = new Set(
-      objects.initiatives.filter(initiative => initiative.isActive).map(initiative => initiative.id)
+    // Weekly intentions belong to exactly one week; a week counts for every
+    // month it overlaps — the same child-period rule the month overview uses.
+    const visibleIntentions = weeklyIntentions.filter(intention => intention.isActive)
+    const monthWeekRefs = new Map(
+      monthRefs.map(monthRef => [monthRef, new Set(getChildPeriods(monthRef) as WeekRef[])])
     )
+    const yearWeekRefs = new Set([...monthWeekRefs.values()].flatMap(refs => [...refs]))
 
     // Filter entries by subject type for pill data
     const krEntries = allEntries.filter(entry => entry.subjectType === 'keyResult')
@@ -407,15 +397,9 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
             )
             .map(state => `${state.subjectType}:${state.subjectId}`)
         ).size,
-        activeInitiativeCount: new Set(
-          initiativePlanStates
-            .filter(
-              state =>
-                activeInitiativeIds.has(state.initiativeId) &&
-                isInitiativePlanInMonth(state, monthRef)
-            )
-            .map(state => state.initiativeId)
-        ).size,
+        activeIntentionCount: visibleIntentions.filter(intention =>
+          monthWeekRefs.get(monthRef)?.has(intention.weekRef)
+        ).length,
         goalGroups: buildGoalGroupsForMonth(monthRef),
         habitGroups: buildHabitGroupsForMonth(monthRef),
       })),
@@ -452,15 +436,9 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
             )
             .map(state => `${state.subjectType}:${state.subjectId}`)
         ).size,
-        activeInitiativeCount: new Set(
-          initiativePlanStates
-            .filter(
-              state =>
-                activeInitiativeIds.has(state.initiativeId) &&
-                monthRefs.some(monthRef => isInitiativePlanInMonth(state, monthRef))
-            )
-            .map(state => state.initiativeId)
-        ).size,
+        activeIntentionCount: visibleIntentions.filter(intention =>
+          yearWeekRefs.has(intention.weekRef)
+        ).length,
       },
     }
   })

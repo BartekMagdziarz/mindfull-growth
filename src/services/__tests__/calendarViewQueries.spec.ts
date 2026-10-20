@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
-import { initiativeDexieRepository } from '@/repositories/initiativeDexieRepository'
 import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
 import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
+import { weeklyIntentionDexieRepository } from '@/repositories/weeklyIntentionDexieRepository'
 import { resetPlanningTestData } from '@/test/planningTestUtils'
 import type { DayRef, MonthRef, WeekRef, YearRef } from '@/domain/period'
 import { toggleMeasurementWeekAssignment } from '@/services/planningMutations'
@@ -51,11 +51,14 @@ describe('calendarViewQueries', () => {
       entryMode: 'rating',
       status: 'open',
     })
-    const initiative = await initiativeDexieRepository.create({
+    await weeklyIntentionDexieRepository.create({
+      weekRef: parsePeriodRef('2026-W10') as WeekRef,
       title: 'Review sidebar copy',
       isActive: true,
       priorityIds: [],
-      lifeAreaIds: [],
+      entryMode: 'completion',
+      cadence: 'weekly',
+      target: { kind: 'count', operator: 'min', value: 1 },
       status: 'open',
     })
 
@@ -103,11 +106,6 @@ describe('calendarViewQueries', () => {
       activityState: 'active',
       scheduleScope: 'unassigned',
     })
-    await planningStateDexieRepository.upsertInitiativePlanState({
-      initiativeId: initiative.id,
-      monthRef,
-    })
-
     const summary = await getCalendarYearSummary(yearRef)
     const march = summary.months.find(item => item.monthRef === monthRef)
 
@@ -117,7 +115,7 @@ describe('calendarViewQueries', () => {
       activeGoalCount: 1,
       activeCadencedCount: 1,
       activeTrackerCount: 1,
-      activeInitiativeCount: 1,
+      activeIntentionCount: 1,
     })
     expect(march!.goalGroups).toHaveLength(1)
     expect(march!.goalGroups[0].goalId).toBe(goal.id)
@@ -131,7 +129,7 @@ describe('calendarViewQueries', () => {
       activeGoalCount: 1,
       activeCadencedCount: 1,
       activeTrackerCount: 1,
-      activeInitiativeCount: 1,
+      activeIntentionCount: 1,
     })
   })
 

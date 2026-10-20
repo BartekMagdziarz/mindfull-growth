@@ -24,10 +24,6 @@ function measurement(input: Omit<VisualizationDecisionInput, 'kind'>): Visualiza
 }
 
 describe('resolveMonthlySliceVizType', () => {
-  it('routes initiatives to the checkmark visualization', () => {
-    expect(resolveMonthlySliceVizType({ kind: 'initiative' })).toBe('initiative-check')
-  })
-
   it('routes completion entries to monthly-completion-bars regardless of cadence', () => {
     for (const cadence of ['weekly', 'monthly'] as const) {
       expect(
