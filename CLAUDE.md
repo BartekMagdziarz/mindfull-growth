@@ -36,6 +36,23 @@ problems · `npm run format:check` → clean · `npm run check-locales` → gree
   `src/services/`) — never raw IndexedDB.
 - Dev-only code: `import.meta.env.DEV` guard + dynamic `import()` (see
   `src/main.ts`), so it drops out of prod builds.
+- Language (decision 2026-10-20): the product is Polish-first. Feature areas
+  (`src/features/*`, rituals, Today, calendar) are written in Polish directly;
+  English is maintained only where it already exists — exercises,
+  questionnaires and shared components under `t()`/`tg()`. Keep `check-locales`
+  green for those namespaces; do not add English for new feature UI.
+- `src/services/` file names: `xxxService.ts` for side effects and
+  orchestration, `xxxQueries.ts` for pure reads/projections, `xxxMutations.ts`
+  for writes. No `.service.ts` infix.
+- `src/features/<area>/` = a screen or area with its own css and view-models;
+  `src/components/` = pieces shared between areas. New screens go to
+  `features/`.
+- Soft size ceiling: ~800 lines for a `.vue`, ~1 000 for a `.ts` (data files
+  and seeds excepted). Split before adding to a file over the ceiling.
+- Tests sit next to the code in `__tests__/`; `src/__tests__/` is only for
+  cross-store integration and performance specs.
+- The `?ui=legacy` interface and the month v2 experiment were removed on
+  2026-10-20; Planning Next is the only UI.
 
 ## Verifying features ("zweryfikuj X")
 
