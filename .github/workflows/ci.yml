@@ -27,6 +27,8 @@ jobs:
         run: npx vue-tsc --noEmit
       - name: lint
         run: npx eslint .
+      - name: format
+        run: npm run format:check
       - name: locale keys
         run: npm run check-locales
       - name: unit tests

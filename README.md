@@ -44,6 +44,7 @@ npm run test:run
 npm run build
 npm run check-locales
 npm run lint
+npm run format:check
 npm run check:design-system
 npm run test:e2e:verify
 ```

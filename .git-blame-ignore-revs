@@ -1,0 +1,2 @@
+# Whole-tree formatting commits; git blame skips them (git config blame.ignoreRevsFile .git-blame-ignore-revs).
+c2a996b333cee7d3e81dec8e6cefac2febde7525

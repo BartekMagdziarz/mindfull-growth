@@ -22,7 +22,8 @@
     "test:e2e:verify": "playwright test --project=verification",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write src/",
+    "format": "prettier --write src e2e scripts \"*.{ts,js,mjs}\"",
+    "format:check": "prettier --check src e2e scripts \"*.{ts,js,mjs}\"",
     "check-locales": "node scripts/check-locale-keys.mjs",
     "check:design-system": "node scripts/check-design-system.mjs",
     "ai:benchmark": "node scripts/runCompanionBenchmark.mjs"
