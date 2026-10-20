@@ -446,6 +446,7 @@ import type { ChatIntention, ChatSession } from '@/domain/chatSession'
 import { CHAT_INTENTIONS } from '@/domain/chatSession'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
+import { reportError } from '@/utils/reportError'
 
 const router = useRouter()
 const route = useRoute()
@@ -670,7 +671,7 @@ const ensureEmotionData = async () => {
     const errorMessage =
       error instanceof Error ? error.message : 'Failed to load emotions. Please try again.'
     snackbarRef.value?.show(errorMessage)
-    console.error('Error loading emotions:', error)
+    reportError('JournalEditorView.ensureEmotionData', error)
   } finally {
     isEmotionDataLoading.value = false
   }
@@ -688,7 +689,7 @@ const ensurePeopleTags = async () => {
     const errorMessage =
       error instanceof Error ? error.message : 'Failed to load people tags. Please try again.'
     snackbarRef.value?.show(errorMessage)
-    console.error('Error loading people tags:', error)
+    reportError('JournalEditorView.ensurePeopleTags', error)
   } finally {
     arePeopleTagsLoading.value = false
     if (tagStore.error) {
@@ -710,7 +711,7 @@ const ensureContextTags = async () => {
     const errorMessage =
       error instanceof Error ? error.message : 'Failed to load context tags. Please try again.'
     snackbarRef.value?.show(errorMessage)
-    console.error('Error loading context tags:', error)
+    reportError('JournalEditorView.ensureContextTags', error)
   } finally {
     areContextTagsLoading.value = false
     if (tagStore.error) {
@@ -744,7 +745,7 @@ const loadEntry = async (id: string) => {
     const errorMessage =
       error instanceof Error ? error.message : 'Failed to load journal entry. Please try again.'
     snackbarRef.value?.show(errorMessage)
-    console.error('Error loading journal entry:', error)
+    reportError('JournalEditorView.loadEntry', error)
     router.push('/journal')
   } finally {
     isLoading.value = false
@@ -861,7 +862,7 @@ const handleSave = async () => {
     const errorMessage =
       error instanceof Error ? error.message : 'Failed to save journal entry. Please try again.'
     snackbarRef.value?.show(errorMessage)
-    console.error('Error saving journal entry:', error)
+    reportError('JournalEditorView.handleSave', error)
   } finally {
     draftReady.value = true
     isSaving.value = false
@@ -944,7 +945,7 @@ const startChat = async (intention: ChatIntention, customPrompt?: string) => {
     const errorMessage =
       error instanceof Error ? error.message : 'Failed to start chat. Please try again.'
     snackbarRef.value?.show(errorMessage)
-    console.error('Error starting chat:', error)
+    reportError('JournalEditorView.startChat', error)
   } finally {
     draftReady.value = true
     isStartingChat.value = false
@@ -975,7 +976,7 @@ const handleConfirmDeleteChatSession = async () => {
     const errorMessage =
       error instanceof Error ? error.message : 'Failed to delete chat session. Please try again.'
     snackbarRef.value?.show(errorMessage)
-    console.error('Error deleting chat session:', error)
+    reportError('JournalEditorView.handleConfirmDeleteChatSession', error)
   } finally {
     showDeleteChatDialog.value = false
     chatSessionToDelete.value = null

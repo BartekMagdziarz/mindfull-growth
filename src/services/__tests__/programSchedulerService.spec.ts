@@ -326,12 +326,15 @@ describe('advanceEnrollmentForPlan', () => {
   })
 
   it('no-ops on a slug mismatch (stale item)', async () => {
+    // The mismatch is logged on purpose; keep it out of the test output.
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     vi.mocked(programEnrollmentDexieRepository.getById).mockResolvedValueOnce(
       enrollment({ currentStepIndex: 2 })
     )
 
     expect(await advanceEnrollmentForPlan(planItem({ exerciseSlug: 'unblending' }))).toBeNull()
     expect(programEnrollmentDexieRepository.update).not.toHaveBeenCalled()
+    consoleError.mockRestore()
   })
 
   it('no-ops for non-program plans, unknown or non-active enrollments', async () => {

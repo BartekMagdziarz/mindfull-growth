@@ -52,6 +52,7 @@ async function mountOnBodyStep() {
   const wrapper = mount(QuietWeeklyReflection, {
     props: { weekRef: WEEK },
     attachTo: document.body,
+    global: { stubs: { RouterLink: { template: '<a><slot /></a>' } } },
   })
   await flushPromises()
   await wrapper.find('.qr-arrow--next').trigger('click')

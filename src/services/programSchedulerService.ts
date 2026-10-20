@@ -44,6 +44,7 @@ import { exercisePlanDexieRepository } from '@/repositories/exercisePlanDexieRep
 import { programEnrollmentDexieRepository } from '@/repositories/programEnrollmentDexieRepository'
 import { skipPlan } from '@/services/exercisePlanService'
 import { addDaysToDayRef, getPeriodRefsForDate } from '@/utils/periods'
+import { reportError } from '@/utils/reportError'
 
 /** Practice plan items created / hard-deleted by one reconciliation pass. */
 export interface PracticeReconciliation {
@@ -364,7 +365,7 @@ export async function runProgramScheduler(): Promise<ExercisePlanItem[]> {
       created.push(...(await session.wait(reconcilePractices(enrollment))).created)
     } catch (err) {
       session.assertCurrent()
-      console.error(`Failed to materialize program step for enrollment ${stored.id}:`, err)
+      reportError('programSchedulerService.runProgramScheduler', err)
     }
   }
   return created

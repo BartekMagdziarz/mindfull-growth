@@ -26,6 +26,7 @@ import {
   assembleProfilePayload,
   ProfilePayloadTooLargeError,
 } from '@/services/profilePayloadAssembler'
+import { reportError } from '@/utils/reportError'
 
 /**
  * Typed failure modes for `buildProfile`. We keep this deliberately small —
@@ -94,7 +95,7 @@ export const useUserProfileStore = defineStore('userProfile', () => {
       } catch (err) {
         if (!operation.isCurrent()) return
         error.value = err instanceof Error ? err.message : 'Failed to load profiles'
-        console.error('Error loading user profiles:', err)
+        reportError('userProfileStore.loadProfiles', err)
       } finally {
         if (operation.isCurrent()) {
           isLoading.value = false

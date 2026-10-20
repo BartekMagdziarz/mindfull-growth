@@ -4,6 +4,7 @@ import { ref, computed } from 'vue'
 import type { JournalEntry } from '@/domain/journal'
 import type { EmotionGroupSelection as EmotionSelection } from '@/domain/emotionGroups'
 import { journalDexieRepository } from '@/repositories/journalDexieRepository'
+import { reportError } from '@/utils/reportError'
 
 export const useJournalStore = defineStore('journal', () => {
   const sessionScope = createStoreSessionScope()
@@ -45,7 +46,7 @@ export const useJournalStore = defineStore('journal', () => {
         operation.assertCurrent()
         const errorMessage = err instanceof Error ? err.message : 'Failed to load journal entries'
         error.value = errorMessage
-        console.error('Error loading journal entries:', err)
+        reportError('journalStore.loadEntries', err)
       } finally {
         if (operation.isCurrent()) {
           isLoading.value = false
@@ -102,7 +103,7 @@ export const useJournalStore = defineStore('journal', () => {
       operation.assertCurrent()
       const errorMessage = err instanceof Error ? err.message : 'Failed to create journal entry'
       error.value = errorMessage
-      console.error('Error creating journal entry:', err)
+      reportError('journalStore.createEntry', err)
       throw err
     }
   }
@@ -122,7 +123,7 @@ export const useJournalStore = defineStore('journal', () => {
       operation.assertCurrent()
       const errorMessage = err instanceof Error ? err.message : 'Failed to update journal entry'
       error.value = errorMessage
-      console.error('Error updating journal entry:', err)
+      reportError('journalStore.updateEntry', err)
       throw err
     }
   }
@@ -139,7 +140,7 @@ export const useJournalStore = defineStore('journal', () => {
         operation.assertCurrent()
         const errorMessage = err instanceof Error ? err.message : 'Failed to delete journal entry'
         error.value = errorMessage
-        console.error('Error deleting journal entry:', err)
+        reportError('journalStore.deleteEntry', err)
         throw err
       }
     } catch (error) {
@@ -170,7 +171,7 @@ export const useJournalStore = defineStore('journal', () => {
       const errorMessage =
         err instanceof Error ? err.message : `Failed to retrieve journal entry with id ${id}`
       error.value = errorMessage
-      console.error(`Error retrieving journal entry with id ${id}:`, err)
+      reportError('journalStore.getEntryById', err)
       throw err
     }
   }

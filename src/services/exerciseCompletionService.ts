@@ -26,6 +26,7 @@ import {
 import { recordTaskProgress } from '@/services/programTaskBridgeService'
 import { ensureShamePartsForEntry } from '@/services/shamePartsService'
 import { getPeriodRefsForDate } from '@/utils/periods'
+import { reportError } from '@/utils/reportError'
 
 export interface RecordCompletionResult {
   completion: ExerciseCompletion
@@ -93,7 +94,7 @@ export async function recordCompletion(
     session.assertCurrent()
     if (!planFailed) throw err
     // A failed plan transaction is rolled back before the standalone fallback.
-    console.error('Failed to auto-complete exercise plan:', err)
+    reportError('exerciseCompletionService.recordCompletion', err)
     const completion = await exerciseCompletionDexieRepository.create({
       exerciseSlug: slug,
       completedAt: now.toISOString(),
@@ -115,7 +116,7 @@ export async function recordCompletion(
   } catch (err) {
     session.assertCurrent()
     // Task bookkeeping must never block the completion log write.
-    console.error('Failed to count the completion towards a program task:', err)
+    reportError('exerciseCompletionService.recordCompletion', err)
   }
   if (slug === 'shame-map' && recordId) {
     try {
@@ -125,7 +126,7 @@ export async function recordCompletion(
     } catch (err) {
       session.assertCurrent()
       // Part bookkeeping must never block the completion log write.
-      console.error('Failed to create the shame-map parts:', err)
+      reportError('exerciseCompletionService.recordCompletion', err)
     }
   }
   let programAdvancement: ProgramAdvancement | null = null
@@ -140,7 +141,7 @@ export async function recordCompletion(
     } catch (err) {
       session.assertCurrent()
       // Program bookkeeping must never block the completion log write.
-      console.error('Failed to advance program enrollment:', err)
+      reportError('exerciseCompletionService.recordCompletion', err)
     }
   }
   session.assertCurrent()

@@ -1,6 +1,7 @@
 import { userSettingsDexieRepository } from '@/repositories/userSettingsDexieRepository'
 import { CHAT_COPY } from '@/constants/chatCopy'
 import { captureUserSession } from '@/services/userSessionScope'
+import { reportError } from '@/utils/reportError'
 
 // Default model configuration. gpt-5.4-nano is OpenAI's smallest/cheapest
 // reasoning model (alias `gpt-5.4-nano`, snapshot gpt-5.4-nano-2026-03-17,
@@ -973,12 +974,12 @@ export async function sendMessage(
 
     // Handle network errors
     if (error instanceof TypeError && error.message.includes('fetch')) {
-      console.error('Network error during API call:', error)
-      throw new Error(CHAT_COPY.errors.network)
+      reportError('llmService.sendMessage', error)
+      throw new Error(CHAT_COPY.errors.network, { cause: error })
     }
 
     // Log other errors for debugging (without exposing API key)
-    console.error('Error during LLM API call:', error)
+    reportError('llmService.sendMessage', error)
 
     // Re-throw if it's already a user-friendly error
     if (error instanceof Error) {
@@ -986,7 +987,7 @@ export async function sendMessage(
     }
 
     // Fallback error message
-    throw new Error('An unexpected error occurred. Please try again.')
+    throw new Error('An unexpected error occurred. Please try again.', { cause: error })
   } finally {
     clearTimeout(timer)
     unsubscribe()

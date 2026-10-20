@@ -195,6 +195,7 @@ import type { EmotionGroupSelection as EmotionSelection } from '@/domain/emotion
 import { legacyToGroupSelections, groupSelectionsToFamilyIds } from '@/domain/emotionGroups'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
+import { reportError } from '@/utils/reportError'
 
 const router = useRouter()
 const route = useRoute()
@@ -387,7 +388,7 @@ const ensureEmotionData = async () => {
   } catch (error) {
     const message = error instanceof Error ? error.message : t('emotionViews.loadEmotionsError')
     snackbarRef.value?.show(message)
-    console.error('Error loading emotions:', error)
+    reportError('EmotionLogEditorView.ensureEmotionData', error)
   } finally {
     isEmotionDataLoading.value = false
   }
@@ -405,7 +406,7 @@ const ensurePeopleTags = async () => {
   } catch (error) {
     const message = error instanceof Error ? error.message : t('emotionViews.loadPeopleError')
     snackbarRef.value?.show(message)
-    console.error('Error loading people tags:', error)
+    reportError('EmotionLogEditorView.ensurePeopleTags', error)
   } finally {
     arePeopleTagsLoading.value = false
     hasLoadedPeopleTags.value = true
@@ -428,7 +429,7 @@ const ensureContextTags = async () => {
   } catch (error) {
     const message = error instanceof Error ? error.message : t('emotionViews.loadContextError')
     snackbarRef.value?.show(message)
-    console.error('Error loading context tags:', error)
+    reportError('EmotionLogEditorView.ensureContextTags', error)
   } finally {
     areContextTagsLoading.value = false
     hasLoadedContextTags.value = true
@@ -457,7 +458,7 @@ const loadLog = async (id: string) => {
     syncLogToForm(log)
   } catch (error) {
     const message = error instanceof Error ? error.message : t('emotionViews.editor.loadError')
-    console.error('Error loading emotion log:', error)
+    reportError('EmotionLogEditorView.loadLog', error)
     await showSnackbarThenNavigate(message, '/emotions')
   } finally {
     isLoading.value = false
@@ -505,7 +506,7 @@ const handleSave = async () => {
   } catch (error) {
     const message = error instanceof Error ? error.message : t('emotionViews.editor.saveError')
     snackbarRef.value?.show(message)
-    console.error('Error saving emotion log:', error)
+    reportError('EmotionLogEditorView.handleSave', error)
   } finally {
     isSaving.value = false
   }

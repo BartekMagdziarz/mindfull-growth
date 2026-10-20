@@ -14,6 +14,7 @@ import { useUserPreferencesStore } from './userPreferences.store'
 import { useUserProfileStore } from './userProfile.store'
 import type { JournalEntry } from '@/domain/journal'
 import { CHAT_COPY } from '@/constants/chatCopy'
+import { reportError } from '@/utils/reportError'
 
 export const useChatStore = defineStore('chat', () => {
   const sessionScope = createStoreSessionScope()
@@ -185,7 +186,7 @@ export const useChatStore = defineStore('chat', () => {
             ? err.message
             : 'An unexpected error occurred while sending the message.'
         error.value = errorMessage
-        console.error('Error sending message to LLM:', err)
+        reportError('chatStore.sendMessage', err)
         if (currentChatSession.value && userMessageAdded && assistantMessageAdded) {
           currentChatSession.value.messages.splice(-2, 2)
         }
@@ -306,7 +307,7 @@ export const useChatStore = defineStore('chat', () => {
         const errorMessage =
           err instanceof Error ? err.message : 'Failed to save chat session to journal entry.'
         error.value = errorMessage
-        console.error('Error saving chat session:', err)
+        reportError('chatStore.saveChatSession', err)
         throw err
       } finally {
         if (operation.isCurrent()) {
@@ -346,7 +347,7 @@ export const useChatStore = defineStore('chat', () => {
           err instanceof Error ? err.message : `Failed to load chat sessions for entry ${entryId}`
         error.value = errorMessage
       }
-      console.error(`Error loading chat sessions for entry ${entryId}:`, err)
+      reportError('chatStore.loadChatSessionsForEntry', err)
       throw err
     }
   }
@@ -411,7 +412,7 @@ export const useChatStore = defineStore('chat', () => {
             : `Failed to load chat session ${chatSessionId} for entry ${entryId}`
         error.value = errorMessage
       }
-      console.error(`Error loading chat session ${chatSessionId} for entry ${entryId}:`, err)
+      reportError('chatStore.loadChatSession', err)
       throw err
     }
   }
@@ -455,7 +456,7 @@ export const useChatStore = defineStore('chat', () => {
             ? err.message
             : `Failed to delete chat session ${chatSessionId} for entry ${entryId}`
         error.value = errorMessage
-        console.error(`Error deleting chat session ${chatSessionId} for entry ${entryId}:`, err)
+        reportError('chatStore.deleteChatSession', err)
         throw err
       }
     } catch (error) {

@@ -249,6 +249,7 @@ import type { ChatIntention } from '@/domain/chatSession'
 import { CHAT_INTENTIONS } from '@/domain/chatSession'
 import { formatMessageTimestamp } from '@/utils/dateFormat'
 import { useT } from '@/composables/useT'
+import { reportError } from '@/utils/reportError'
 
 const route = useRoute()
 const router = useRouter()
@@ -385,7 +386,7 @@ async function loadEntry() {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : t('chat.loadEntryError')
     entryError.value = errorMessage
-    console.error('Error loading journal entry:', error)
+    reportError('ChatView.loadEntry', error)
   } finally {
     isLoadingEntry.value = false
   }
@@ -416,7 +417,7 @@ async function handleSave() {
     if (snackbarRef.value && error.value) {
       snackbarRef.value.show(error.value)
     }
-    console.error('Error saving conversation:', err)
+    reportError('ChatView.handleSave', err)
   }
 }
 
@@ -472,7 +473,7 @@ async function handleSend() {
     messageInputRef.value?.focus()
   } catch (err) {
     // Error is handled by chat store, message remains in input
-    console.error('Error sending message:', err)
+    reportError('ChatView.handleSend', err)
   }
 }
 

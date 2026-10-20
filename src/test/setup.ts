@@ -1,4 +1,4 @@
-import { afterEach, beforeEach } from 'vitest'
+import { afterEach, beforeEach, vi } from 'vitest'
 import { cleanup } from '@testing-library/vue'
 import '@testing-library/jest-dom'
 import 'fake-indexeddb/auto'
@@ -6,6 +6,11 @@ import { config } from '@vue/test-utils'
 import { defineComponent, h, type App, type Plugin } from 'vue'
 import { createPinia, getActivePinia, setActivePinia } from 'pinia'
 import { connectTestDatabase } from '@/test/testDatabase'
+import { reportError } from '@/utils/reportError'
+
+// Expected failures in specs would otherwise print to stderr through
+// `reportError`; the mock keeps the log readable and lets specs assert on it.
+vi.mock('@/utils/reportError', () => ({ reportError: vi.fn() }))
 
 if (!window.matchMedia) {
   window.matchMedia = (query: string) => ({
@@ -122,6 +127,7 @@ config.global.stubs = {
 }
 
 beforeEach(async () => {
+  vi.mocked(reportError).mockClear()
   setActivePinia(createPinia())
   const db = await connectTestDatabase()
 

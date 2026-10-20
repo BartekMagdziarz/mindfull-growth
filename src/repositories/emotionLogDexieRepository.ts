@@ -1,6 +1,7 @@
 import { userDatabaseOperation } from './userDatabaseOperation'
 import type { EmotionLog } from '@/domain/emotionLog'
 import type { EmotionLogRepository } from './emotionLogRepository'
+import { reportError } from '@/utils/reportError'
 
 function toPlain<T>(obj: T): T {
   return JSON.parse(JSON.stringify(obj))
@@ -12,8 +13,8 @@ export class EmotionLogDexieRepository implements EmotionLogRepository {
       try {
         return await db.emotionLogs.toArray()
       } catch (error) {
-        console.error('Failed to get all emotion logs:', error)
-        throw new Error('Failed to retrieve emotion logs from database')
+        reportError('emotionLogs.getAll', error)
+        throw new Error('Failed to retrieve emotion logs from database', { cause: error })
       }
     })
   }
@@ -23,8 +24,8 @@ export class EmotionLogDexieRepository implements EmotionLogRepository {
       try {
         return await db.emotionLogs.get(id)
       } catch (error) {
-        console.error(`Failed to get emotion log with id ${id}:`, error)
-        throw new Error(`Failed to retrieve emotion log with id ${id}`)
+        reportError('emotionLogs.getById', error)
+        throw new Error(`Failed to retrieve emotion log with id ${id}`, { cause: error })
       }
     })
   }
@@ -57,8 +58,8 @@ export class EmotionLogDexieRepository implements EmotionLogRepository {
         await db.emotionLogs.add(toPlain(log))
         return log
       } catch (error) {
-        console.error('Failed to create emotion log:', error)
-        throw new Error('Failed to create emotion log in database')
+        reportError('emotionLogs.create', error)
+        throw new Error('Failed to create emotion log in database', { cause: error })
       }
     })
   }
@@ -78,8 +79,8 @@ export class EmotionLogDexieRepository implements EmotionLogRepository {
         await db.emotionLogs.put(toPlain(updatedLog))
         return updatedLog
       } catch (error) {
-        console.error(`Failed to update emotion log with id ${log.id}:`, error)
-        throw new Error(`Failed to update emotion log with id ${log.id}`)
+        reportError('emotionLogs.update', error)
+        throw new Error(`Failed to update emotion log with id ${log.id}`, { cause: error })
       }
     })
   }
@@ -89,8 +90,8 @@ export class EmotionLogDexieRepository implements EmotionLogRepository {
       try {
         await db.emotionLogs.delete(id)
       } catch (error) {
-        console.error(`Failed to delete emotion log with id ${id}:`, error)
-        throw new Error(`Failed to delete emotion log with id ${id}`)
+        reportError('emotionLogs.delete', error)
+        throw new Error(`Failed to delete emotion log with id ${id}`, { cause: error })
       }
     })
   }

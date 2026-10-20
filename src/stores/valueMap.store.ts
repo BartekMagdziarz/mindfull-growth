@@ -4,6 +4,7 @@ import { computed, ref } from 'vue'
 import type { CreateValueMapPayload, UpdateValueMapPayload, ValueMap } from '@/domain/exercises'
 import { valueMapDexieRepository } from '@/repositories/exercisesDexieRepository'
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
+import { reportError } from '@/utils/reportError'
 
 export const useValueMapStore = defineStore('valueMap', () => {
   const sessionScope = createStoreSessionScope()
@@ -32,7 +33,7 @@ export const useValueMapStore = defineStore('valueMap', () => {
       } catch (err) {
         if (!operation.isCurrent()) return
         error.value = err instanceof Error ? err.message : 'Failed to load value maps'
-        console.error('Error loading value maps:', err)
+        reportError('valueMapStore.loadMaps', err)
       } finally {
         if (operation.isCurrent()) {
           isLoading.value = false
@@ -52,13 +53,13 @@ export const useValueMapStore = defineStore('valueMap', () => {
       const map = await operation.wait(valueMapDexieRepository.create(data))
       void useExerciseCompletionsStore()
         .record('value-map', map.id)
-        .catch(err => console.error('Failed to record exercise completion:', err))
+        .catch(err => reportError('valueMapStore.recordCompletion', err))
       maps.value.push(map)
       return map
     } catch (err) {
       operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to create value map'
-      console.error('Error creating value map:', err)
+      reportError('valueMapStore.createMap', err)
       throw err
     }
   }
@@ -81,7 +82,7 @@ export const useValueMapStore = defineStore('valueMap', () => {
     } catch (err) {
       operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to update value map'
-      console.error('Error updating value map:', err)
+      reportError('valueMapStore.updateMap', err)
       throw err
     }
   }
@@ -97,7 +98,7 @@ export const useValueMapStore = defineStore('valueMap', () => {
       } catch (err) {
         if (!operation.isCurrent()) return
         error.value = err instanceof Error ? err.message : 'Failed to delete value map'
-        console.error('Error deleting value map:', err)
+        reportError('valueMapStore.deleteMap', err)
         throw err
       }
     } catch (error) {

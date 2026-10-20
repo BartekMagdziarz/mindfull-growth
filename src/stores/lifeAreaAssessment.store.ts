@@ -16,6 +16,7 @@ import {
   getPreviousLifeAreaAssessmentForLifeArea,
   sortLifeAreaAssessmentsByCreatedAt,
 } from '@/utils/lifeAreaAssessments'
+import { reportError } from '@/utils/reportError'
 
 export const useLifeAreaAssessmentStore = defineStore('lifeAreaAssessment', () => {
   const sessionScope = createStoreSessionScope()
@@ -76,7 +77,7 @@ export const useLifeAreaAssessmentStore = defineStore('lifeAreaAssessment', () =
       } catch (err) {
         if (!operation.isCurrent()) return
         error.value = err instanceof Error ? err.message : 'Failed to load life area assessments'
-        console.error('Error loading life area assessments:', err)
+        reportError('lifeAreaAssessmentStore.loadAssessments', err)
       } finally {
         if (operation.isCurrent()) {
           isLoading.value = false
@@ -101,14 +102,14 @@ export const useLifeAreaAssessmentStore = defineStore('lifeAreaAssessment', () =
       if (created.scope === 'full') {
         void useExerciseCompletionsStore()
           .record('wheel-of-life', created.id)
-          .catch(err => console.error('Failed to record exercise completion:', err))
+          .catch(err => reportError('lifeAreaAssessmentStore.recordCompletion', err))
       }
       assessments.value = sortLifeAreaAssessmentsByCreatedAt([...assessments.value, created])
       return created
     } catch (err) {
       operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to create life area assessment'
-      console.error('Error creating life area assessment:', err)
+      reportError('lifeAreaAssessmentStore.createAssessment', err)
       throw err
     }
   }
@@ -132,7 +133,7 @@ export const useLifeAreaAssessmentStore = defineStore('lifeAreaAssessment', () =
     } catch (err) {
       operation.assertCurrent()
       error.value = err instanceof Error ? err.message : 'Failed to update life area assessment'
-      console.error('Error updating life area assessment:', err)
+      reportError('lifeAreaAssessmentStore.updateAssessment', err)
       throw err
     }
   }
@@ -149,7 +150,7 @@ export const useLifeAreaAssessmentStore = defineStore('lifeAreaAssessment', () =
       } catch (err) {
         if (!operation.isCurrent()) return
         error.value = err instanceof Error ? err.message : 'Failed to delete life area assessment'
-        console.error('Error deleting life area assessment:', err)
+        reportError('lifeAreaAssessmentStore.deleteAssessment', err)
         throw err
       }
     } catch (error) {

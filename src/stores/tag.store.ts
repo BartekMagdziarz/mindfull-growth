@@ -7,6 +7,7 @@ import {
   peopleTagDexieRepository,
   contextTagDexieRepository,
 } from '@/repositories/tagDexieRepository'
+import { reportError } from '@/utils/reportError'
 
 function normalizeTagName(name: string): string {
   return name.trim().replace(/\s+/g, ' ')
@@ -56,7 +57,7 @@ export const useTagStore = defineStore('tag', () => {
         operation.assertCurrent()
         const errorMessage = err instanceof Error ? err.message : 'Failed to load people tags'
         error.value = errorMessage
-        console.error('Error loading people tags:', err)
+        reportError('tagStore.loadPeopleTags', err)
       } finally {
         if (operation.isCurrent()) {
           isLoading.value = false
@@ -80,7 +81,7 @@ export const useTagStore = defineStore('tag', () => {
         operation.assertCurrent()
         const errorMessage = err instanceof Error ? err.message : 'Failed to load context tags'
         error.value = errorMessage
-        console.error('Error loading context tags:', err)
+        reportError('tagStore.loadContextTags', err)
       } finally {
         if (operation.isCurrent()) {
           isLoading.value = false
@@ -133,7 +134,7 @@ export const useTagStore = defineStore('tag', () => {
       operation.assertCurrent()
       const errorMessage = err instanceof Error ? err.message : 'Failed to create people tag'
       error.value = errorMessage
-      console.error('Error creating people tag:', err)
+      reportError('tagStore.createPeopleTag', err)
       throw err
     }
   }
@@ -161,7 +162,7 @@ export const useTagStore = defineStore('tag', () => {
       operation.assertCurrent()
       const errorMessage = err instanceof Error ? err.message : 'Failed to create context tag'
       error.value = errorMessage
-      console.error('Error creating context tag:', err)
+      reportError('tagStore.createContextTag', err)
       throw err
     }
   }
@@ -178,7 +179,7 @@ export const useTagStore = defineStore('tag', () => {
         if (!operation.isCurrent()) return
         const errorMessage = err instanceof Error ? err.message : 'Failed to delete people tag'
         error.value = errorMessage
-        console.error('Error deleting people tag:', err)
+        reportError('tagStore.deletePeopleTag', err)
         throw err
       }
     } catch (error) {
@@ -198,7 +199,7 @@ export const useTagStore = defineStore('tag', () => {
         if (!operation.isCurrent()) return
         const errorMessage = err instanceof Error ? err.message : 'Failed to delete context tag'
         error.value = errorMessage
-        console.error('Error deleting context tag:', err)
+        reportError('tagStore.deleteContextTag', err)
         throw err
       }
     } catch (error) {
@@ -233,7 +234,7 @@ export const useTagStore = defineStore('tag', () => {
       operation.assertCurrent()
       const errorMessage = err instanceof Error ? err.message : 'Failed to update people tag'
       error.value = errorMessage
-      console.error('Error updating people tag:', err)
+      reportError('tagStore.updatePeopleTag', err)
       throw err
     }
   }
@@ -265,7 +266,7 @@ export const useTagStore = defineStore('tag', () => {
       operation.assertCurrent()
       const errorMessage = err instanceof Error ? err.message : 'Failed to update context tag'
       error.value = errorMessage
-      console.error('Error updating context tag:', err)
+      reportError('tagStore.updateContextTag', err)
       throw err
     }
   }

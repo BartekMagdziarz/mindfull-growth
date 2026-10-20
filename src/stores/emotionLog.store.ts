@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { EmotionLog } from '@/domain/emotionLog'
 import { emotionLogDexieRepository } from '@/repositories/emotionLogDexieRepository'
+import { reportError } from '@/utils/reportError'
 
 const EMOTION_VALIDATION_ERROR = 'At least one emotion or family must be selected'
 
@@ -53,7 +54,7 @@ export const useEmotionLogStore = defineStore('emotionLog', () => {
         if (!operation.isCurrent()) return
         const message = err instanceof Error ? err.message : 'Failed to load emotion logs'
         error.value = message
-        console.error('Error loading emotion logs:', err)
+        reportError('emotionLogStore.loadLogs', err)
       } finally {
         if (operation.isCurrent()) {
           isLoading.value = false
@@ -99,7 +100,7 @@ export const useEmotionLogStore = defineStore('emotionLog', () => {
       operation.assertCurrent()
       const message = err instanceof Error ? err.message : 'Failed to create emotion log'
       error.value = message
-      console.error('Error creating emotion log:', err)
+      reportError('emotionLogStore.createLog', err)
       throw err
     }
   }
@@ -120,7 +121,7 @@ export const useEmotionLogStore = defineStore('emotionLog', () => {
       operation.assertCurrent()
       const message = err instanceof Error ? err.message : 'Failed to update emotion log'
       error.value = message
-      console.error(`Error updating emotion log with id ${log.id}:`, err)
+      reportError('emotionLogStore.updateLog', err)
       throw err
     }
   }
@@ -137,7 +138,7 @@ export const useEmotionLogStore = defineStore('emotionLog', () => {
         if (!operation.isCurrent()) return
         const message = err instanceof Error ? err.message : 'Failed to delete emotion log'
         error.value = message
-        console.error(`Error deleting emotion log with id ${id}:`, err)
+        reportError('emotionLogStore.deleteLog', err)
         throw err
       }
     } catch (error) {

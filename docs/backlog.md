@@ -353,7 +353,7 @@ o źródło licznika intencji to osobna, ostrożna sesja, nie „mechaniczne por
 
 ### P-2 · `reportError` z przyczyną zamiast 700× `console.error` + `throw new Error('Failed …')`
 
-`otwarte` · Znaleziono 2026-10-20 przy audycie repo · repozytoria, store'y, testy
+`w toku (sesja crud-factory, 2026-10-20)` · Znaleziono 2026-10-20 przy audycie repo · repozytoria, store'y, testy
 
 **Kontekst.** Repozytoria Dexie i store'y powtarzają wzorzec `catch (error) { console.error(…);
 throw new Error('Failed to …') }` (≈700 wystąpień). Oryginalny błąd ginie, a każdy test błędu
@@ -369,7 +369,7 @@ komunikatach UI, które go potrzebują.
 
 ### P-3 · Factory CRUD dla repozytoriów ćwiczeń i factory store'ów ćwiczeń
 
-`otwarte` · Znaleziono 2026-10-20 przy audycie repo · `src/repositories`, `src/stores`
+`w toku (sesja crud-factory, 2026-10-20)` · Znaleziono 2026-10-20 przy audycie repo · `src/repositories`, `src/stores`
 
 **Kontekst.** `exercisesDexieRepository.ts` (2 808 linii) to 30 bloków
 getAll/getById/create/update/delete różniących się nazwą tabeli; 29 innych `*DexieRepository.ts`

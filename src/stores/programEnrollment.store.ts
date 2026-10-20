@@ -30,6 +30,7 @@ import {
 } from '@/services/programSchedulerService'
 import { setPracticeOverrides as setPracticeOverridesService } from '@/services/programFollowUpService'
 import { useExercisePlanStore } from '@/stores/exercisePlan.store'
+import { reportError } from '@/utils/reportError'
 
 export const useProgramEnrollmentStore = defineStore('programEnrollment', () => {
   const sessionScope = createStoreSessionScope()
@@ -87,7 +88,7 @@ export const useProgramEnrollmentStore = defineStore('programEnrollment', () => 
       } catch (err) {
         if (!operation.isCurrent()) return
         error.value = err instanceof Error ? err.message : 'Failed to load program enrollments'
-        console.error('Error loading program enrollments:', err)
+        reportError('programEnrollmentStore.loadEnrollments', err)
       } finally {
         if (operation.isCurrent()) {
           isLoading.value = false
@@ -266,7 +267,7 @@ export const useProgramEnrollmentStore = defineStore('programEnrollment', () => 
         for (const item of created) mirrorPlanItem(item)
       } catch (err) {
         if (!operation.isCurrent()) return
-        console.error('Error running the program scheduler:', err)
+        reportError('programEnrollmentStore.runScheduler', err)
       }
     } catch (error) {
       if (operation.isCurrent()) throw error
