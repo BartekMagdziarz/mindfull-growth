@@ -91,7 +91,14 @@ test('observation → evidence and exception → discussion → edited hypothesi
   await page.getByLabel('Od', { exact: true }).fill('2026-09-01')
   await page.getByLabel('Do', { exact: true }).fill('2026-09-27')
   await page.getByRole('button', { name: 'Sprawdź możliwe obserwacje' }).click()
-  await expect(page.getByText('Obserwacja AI do sprawdzenia — nie fakt o Tobie')).toBeVisible()
+  // The analysis is a local history search between two model calls, after which the panel reloads
+  // its proposals: wait for the form's completion notice instead of racing the default 5 s.
+  await expect(
+    page.getByRole('status').filter({ hasText: /Nowe hipotezy do przejrzenia: \d+/ })
+  ).toBeVisible({ timeout: 60_000 })
+  await expect(page.getByText('Obserwacja AI do sprawdzenia — nie fakt o Tobie')).toBeVisible({
+    timeout: 15_000,
+  })
   const proposal = page
     .locator('article.profile-card')
     .filter({ hasText: 'Krótki ruch może czasem pomagać odpocząć.' })
