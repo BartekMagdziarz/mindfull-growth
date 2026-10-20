@@ -27,6 +27,38 @@ wracania do rozmowy, w której go znaleziono.
 
 ## Błędy
 
+### B-8 · Cztery testy e2e verify są flaky na runnerze GitHuba (stabilne lokalnie)
+
+`otwarte` · Znaleziono 2026-10-20 przy pierwszym zielonym przebiegu jobu `e2e` w CI (run 39497...) · e2e weryfikacyjne, CI
+
+**Objaw.** Job `e2e` kończy się zielono tylko dzięki `retries: 2` (CI): Playwright raportuje
+„4 flaky, 35 passed (10.5m)”. Lokalnie ta sama suita na tym samym commicie daje 39/39 w ~1,2 min,
+dwa razy z rzędu.
+
+**Które testy.** `verification-goal-closing.spec.ts:150` (saved weekly reflection invites to close
+overdue goals), `verification-multi-completion.spec.ts:51` (today row chips toggle items),
+`verification-observations.spec.ts:2` (observation → … → next conversation),
+`verification-shame-v3.spec.ts:147` (Momenty, shame variant). Pierwsze podejścia padają na
+`Test timeout of 120000ms exceeded` (×2, w tym `locator.click`) i `Timeout: 5000ms` w `expect`;
+w logu są też `Failed to upsert period object reflection: … missing-id not found` i
+`Failed to link build log to saved profile: log table corrupt` — to oczekiwane błędy z testów
+błędów (reportError w vitest je wycisza, Playwright nie), nie przyczyna.
+
+**Jak odtworzyć.** Push na main → job `e2e` w .github/workflows/ci.yml (ubuntu-latest, 1 worker,
+dev:verify podnoszony przez webServer Playwrighta) → artefakt `playwright-report`.
+
+**Przyczyna (hipoteza).** Runner jest ~8× wolniejszy niż lokalna maszyna (10,5 min vs 1,2 min dla
+całej suity); 5-sekundowy domyślny `expect` timeout i kroki, które czekają na seedowanie bazy
+(`window.__verifySeed()`), nie mieszczą się w czasie przy zimnym starcie Vite w trybie dev.
+
+**Propozycja naprawy.** W `playwright.config.ts` dla CI: `expect.timeout` 15 s i `actionTimeout`
+15 s (tylko gdy `process.env.CI`), rozgrzanie dev-servera przed pierwszym testem (jedno `page.goto`
+w `globalSetup`), a w czterech testach jawne `await expect(...).toBeVisible()` przed klikami zamiast
+polegania na auto-wait. Potem obniżyć `retries` do 1 i patrzeć, czy „flaky” znika.
+
+**Kryteria akceptacji.** Trzy kolejne przebiegi jobu `e2e` na main bez wpisów „flaky” w podsumowaniu;
+lokalnie dalej 39/39.
+
 ### B-6 · Komunikat „AI provider is not configured…” po angielsku w kreatorach z AI
 
 `otwarte` · Znaleziono 2026-10-17 przy przeglądzie designu kreatorów ćwiczeń · usługi LLM, kreatory z AI
