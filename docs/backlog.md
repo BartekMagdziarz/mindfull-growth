@@ -27,60 +27,6 @@ wracania do rozmowy, w której go znaleziono.
 
 ## Błędy
 
-### B-7 · Siedem testów `npm run test:e2e:verify` pada niezależnie od bieżących zmian
-
-`otwarte` · Znaleziono 2026-10-20 przy sunsecie `?ui=legacy` (audyt repo) · e2e weryfikacyjne, Dzisiaj, rytuał tygodnia, ścieżki, asystent
-
-**Objaw.** Pełny przebieg `npx playwright test --project=verification` kończy się 7 czerwonymi
-testami. Te same 7 pada na commicie sprzed sunsetu (59af8b5) i po nim (9241981), więc nie są
-regresją tej zmiany; testy miesiąca V2 i kafla legacy, które usunięto razem z kodem, też były
-już czerwone. Każdy z siedmiu przechodzi lub pada deterministycznie (nie flaky — flaky okazał się
-tylko `verification-observations`, zielony 2/2 w izolacji).
-
-**Jak odtworzyć.** `npx playwright test --project=verification` (Playwright sam podnosi
-`dev:verify` na 5199). Lista:
-
-1. `verification-smoke.spec.ts:86` „weekly ritual on a closed week opens with the seeded plan
-   content” — `.qr-tail header small` nie zawiera „dorysowany”; słowo nie występuje już w `src/`
-   (kopia rytuału zmieniła się przy wdrożeniu Obciążenie/Stan 2026-09-20 lub później).
-2. `verification-smoke.spec.ts:136` „today: explicit selection, calendar evidence with undo and
-   compass pin” — brak `.day-plan-calendar__selection` z tekstem „Poranna checklista”; element
-   istnieje w `NextDayPlanCalendar.vue:164` pod `v-if="selected"`, więc zmienił się sposób
-   zaznaczania wiersza po przebudowie Dzisiaj na kafle (2026-10-11/17).
-3. `verification-anger-v2.spec.ts:30` „path view…” — `[data-testid=path-moments-glance]
-   .pc__week:not(.is-slot)` ma inną liczbę niż 3.
-4. `verification-anger-v2.spec.ts:127` „the weekly reflection: the anger block…” —
-   `.qr-path-block` nie zawiera „Tydzień 3 · Inne spojrzenie”.
-5. `verification-shame-v3.spec.ts:30` „path view: nine week rows…” — ten sam licznik
-   `.pc__week:not(.is-slot)` ≠ 4.
-6. `verification-problem-paths.spec.ts:152` „the previous week reflection has a Ścieżka step…” —
-   `.qr-path-task__disc` ≠ `${counted}/2`.
-7. `verification-companion.spec.ts:155` „topics, sources, custom conversation…” —
-   `expect(api.count()).toBe(callsBeforeClear)` (linia 275): reset kontekstu wywołuje mock
-   dostawcy inną liczbę razy niż zakłada test.
-
-**Przyczyna (hipotezy do potwierdzenia).** Punkty 3–6 dotyczą wspólnie `PathMomentsGlance` /
-`PathPartsChart` i bloku ścieżki w refleksji, przebudowanych 2026-10-11 (krok „Ścieżka”,
-`countRule`, backfill momentów) i 2026-10-17 (widok ścieżki v2); seed v11 był dopasowany do
-wcześniejszych liczników. Seed używa dat względnych (`new Date()` w `verificationSeed.ts:109,381`),
-więc dryf kalendarzowy jest mniej prawdopodobny niż dryf UI. Punkty 1–2 to zmieniona kopia i
-interakcja Dzisiaj. Punkt 7 to zmieniona semantyka `clearContext` w panelu asystenta.
-
-**Dlaczego to błąd.** `test:e2e:verify` jest w README jako kontrola jakości, a w planie CI jako
-drugi job; czerwony zestaw bazowy uniemożliwia wykrycie prawdziwych regresji (sunset trzeba było
-porównywać z osobnym worktree).
-
-**Propozycja naprawy.** Dla każdego testu zdecydować: oczekiwanie nieaktualne (poprawić test pod
-dzisiejsze UI, licząc wartości z seedu zamiast stałych) czy regresja produktu (naprawić produkt).
-Zacząć od 1–2 (najtańsze), potem 3–6 razem, 7 osobno. Po zielonym przebiegu dodać job e2e do
-`.github/workflows/ci.yml`.
-
-**Kryteria akceptacji.** `npx playwright test --project=verification` → 0 failed na czystym
-drzewie; asercje liczników ścieżek wyliczane z seedu, nie zaszyte na stałe.
-
-**Uwagi.** Pełne logi obu przebiegów z 2026-10-20 były w scratchpadzie sesji audytu (nie w repo).
-B-5 (piątek–niedziela) to osobny, znany problem tej samej suity.
-
 ### B-6 · Komunikat „AI provider is not configured…” po angielsku w kreatorach z AI
 
 `otwarte` · Znaleziono 2026-10-17 przy przeglądzie designu kreatorów ćwiczeń · usługi LLM, kreatory z AI
@@ -487,4 +433,82 @@ przez `seedAssessment` + `backdate`.
 
 ## Zamknięte
 
-_Na razie brak._
+### B-7 · Siedem testów `npm run test:e2e:verify` pada niezależnie od bieżących zmian
+
+`zrobione (3ed5681, 7994c3a, 00229c0, 1abf1b2, fc91faa)` · Znaleziono 2026-10-20 przy sunsecie `?ui=legacy` (audyt repo) · e2e weryfikacyjne, Dzisiaj, rytuał tygodnia, ścieżki, asystent
+
+**Rozstrzygnięcie (2026-10-20, sesja e2e-verify-green).** Pięć z siedmiu to nieaktualne asercje,
+dwa to regresje produktu:
+
+- nieaktualne → `00229c0 test(e2e)`: (1) podpis „dorysowany” zniknął z ogona wstęgi 2026-10-05
+  (1848fa0) — test czyta dymek ostatniej strefy wstęgi; (2) od 2026-09-26 (3239df8) zaznaczenie
+  wiersza rozwija jego własną wstęgę historii (`.ndi__strip`), kalendarz dnia otwiera się tylko
+  do planowania tygodnia; (3, 5) wykres Postęp rysuje jedną kolumnę na tydzień kalendarzowy od
+  tygodnia startu — stałe 3/4 zgadzały się tylko w dzień tygodnia, w którym pisano spec; liczba
+  liczona teraz z dat seedu (`weeksSince(18)` / `weeksSince(24)`); (6) dysk zadania przy
+  komplecie nie pokazuje liczby — test czyta `aria-label` kafla (`done z target`);
+- regresja → `7994c3a fix(quiet-ritual)`: (4) blok „Ścieżka” numerował tydzień tygodniami
+  kalendarzowymi od startu zapisu, a widok ścieżki i kafel Dzisiaj — tygodniem fazy; od poniedziałku
+  do czwartku refleksja pokazywała „tydzień 4 z 6 · Tydzień 4 · Inne spojrzenie” przy „Tydzień 3 z 6”
+  w widoku ścieżki;
+- regresja → `3ed5681 fix(ai-companion)`: (7) „Wyczyść rozmowę” zerowało `topicsInitialized`, więc
+  hook montowania panelu (wznawianie przerwanego pierwszego przebiegu tematów) wołał model przy
+  następnym wejściu — wbrew decyzji z `docs/archive/ai-companion-e7b-review.md`;
+- `verification-observations` → `1abf1b2`: jawne oczekiwanie na komunikat zakończenia analizy
+  zamiast domyślnych 5 s na dwa wywołania modelu i przeszukanie historii;
+- job `e2e` w CI → `fc91faa` (po `gates`, chromium, artefakty przy porażce, `TZ=Europe/Warsaw`).
+
+Poza listą: `verification-multi-completion` „today row chips…” raz przekroczył limit w pełnym
+przebiegu (zielony 3/3 w izolacji) — czipy checklisty pojawiają się na hover; przy obciążeniu
+równoległym hover potrafi się zgubić. Nie ruszane. B-5 zostaje otwarte.
+
+**Objaw.** Pełny przebieg `npx playwright test --project=verification` kończy się 7 czerwonymi
+testami. Te same 7 pada na commicie sprzed sunsetu (59af8b5) i po nim (9241981), więc nie są
+regresją tej zmiany; testy miesiąca V2 i kafla legacy, które usunięto razem z kodem, też były
+już czerwone. Każdy z siedmiu przechodzi lub pada deterministycznie (nie flaky — flaky okazał się
+tylko `verification-observations`, zielony 2/2 w izolacji).
+
+**Jak odtworzyć.** `npx playwright test --project=verification` (Playwright sam podnosi
+`dev:verify` na 5199). Lista:
+
+1. `verification-smoke.spec.ts:86` „weekly ritual on a closed week opens with the seeded plan
+   content” — `.qr-tail header small` nie zawiera „dorysowany”; słowo nie występuje już w `src/`
+   (kopia rytuału zmieniła się przy wdrożeniu Obciążenie/Stan 2026-09-20 lub później).
+2. `verification-smoke.spec.ts:136` „today: explicit selection, calendar evidence with undo and
+   compass pin” — brak `.day-plan-calendar__selection` z tekstem „Poranna checklista”; element
+   istnieje w `NextDayPlanCalendar.vue:164` pod `v-if="selected"`, więc zmienił się sposób
+   zaznaczania wiersza po przebudowie Dzisiaj na kafle (2026-10-11/17).
+3. `verification-anger-v2.spec.ts:30` „path view…” — `[data-testid=path-moments-glance]
+   .pc__week:not(.is-slot)` ma inną liczbę niż 3.
+4. `verification-anger-v2.spec.ts:127` „the weekly reflection: the anger block…” —
+   `.qr-path-block` nie zawiera „Tydzień 3 · Inne spojrzenie”.
+5. `verification-shame-v3.spec.ts:30` „path view: nine week rows…” — ten sam licznik
+   `.pc__week:not(.is-slot)` ≠ 4.
+6. `verification-problem-paths.spec.ts:152` „the previous week reflection has a Ścieżka step…” —
+   `.qr-path-task__disc` ≠ `${counted}/2`.
+7. `verification-companion.spec.ts:155` „topics, sources, custom conversation…” —
+   `expect(api.count()).toBe(callsBeforeClear)` (linia 275): reset kontekstu wywołuje mock
+   dostawcy inną liczbę razy niż zakłada test.
+
+**Przyczyna (hipotezy do potwierdzenia).** Punkty 3–6 dotyczą wspólnie `PathMomentsGlance` /
+`PathPartsChart` i bloku ścieżki w refleksji, przebudowanych 2026-10-11 (krok „Ścieżka”,
+`countRule`, backfill momentów) i 2026-10-17 (widok ścieżki v2); seed v11 był dopasowany do
+wcześniejszych liczników. Seed używa dat względnych (`new Date()` w `verificationSeed.ts:109,381`),
+więc dryf kalendarzowy jest mniej prawdopodobny niż dryf UI. Punkty 1–2 to zmieniona kopia i
+interakcja Dzisiaj. Punkt 7 to zmieniona semantyka `clearContext` w panelu asystenta.
+
+**Dlaczego to błąd.** `test:e2e:verify` jest w README jako kontrola jakości, a w planie CI jako
+drugi job; czerwony zestaw bazowy uniemożliwia wykrycie prawdziwych regresji (sunset trzeba było
+porównywać z osobnym worktree).
+
+**Propozycja naprawy.** Dla każdego testu zdecydować: oczekiwanie nieaktualne (poprawić test pod
+dzisiejsze UI, licząc wartości z seedu zamiast stałych) czy regresja produktu (naprawić produkt).
+Zacząć od 1–2 (najtańsze), potem 3–6 razem, 7 osobno. Po zielonym przebiegu dodać job e2e do
+`.github/workflows/ci.yml`.
+
+**Kryteria akceptacji.** `npx playwright test --project=verification` → 0 failed na czystym
+drzewie; asercje liczników ścieżek wyliczane z seedu, nie zaszyte na stałe.
+
+**Uwagi.** Pełne logi obu przebiegów z 2026-10-20 były w scratchpadzie sesji audytu (nie w repo).
+B-5 (piątek–niedziela) to osobny, znany problem tej samej suity.
+
