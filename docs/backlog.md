@@ -351,39 +351,6 @@ i planuje bez błędów (spec normalizera z takim rekordem).
 2026-10-20. Nie robione w sesji audytu świadomie: 178 miejsc w rdzeniu planowania plus pytanie
 o źródło licznika intencji to osobna, ostrożna sesja, nie „mechaniczne porządki”.
 
-### P-2 · `reportError` z przyczyną zamiast 700× `console.error` + `throw new Error('Failed …')`
-
-`w toku (sesja crud-factory, 2026-10-20)` · Znaleziono 2026-10-20 przy audycie repo · repozytoria, store'y, testy
-
-**Kontekst.** Repozytoria Dexie i store'y powtarzają wzorzec `catch (error) { console.error(…);
-throw new Error('Failed to …') }` (≈700 wystąpień). Oryginalny błąd ginie, a każdy test błędu
-pisze na stderr — log vitest ma ~1 200 linii oczekiwanego szumu, w którym ginie jedyna realna
-porażka. `lib` zawiera już `ES2022.Error`, a `{ cause }` jest użyte w 20 miejscach.
-
-**Propozycja.** `src/utils/reportError.ts` z `reportError(scope, error)`; reguła
-`throw new Error(msg, { cause })`; w `src/test/setup.ts` reporter mockowany. Wdrażać hurtem przez
-P-3, a poza tym przy dotykaniu pliku.
-
-**Kryteria.** Log `npx vitest run` bez stderr z oczekiwanych błędów; `error.cause` dostępne w
-komunikatach UI, które go potrzebują.
-
-### P-3 · Factory CRUD dla repozytoriów ćwiczeń i factory store'ów ćwiczeń
-
-`w toku (sesja crud-factory, 2026-10-20)` · Znaleziono 2026-10-20 przy audycie repo · `src/repositories`, `src/stores`
-
-**Kontekst.** `exercisesDexieRepository.ts` (2 808 linii) to 30 bloków
-getAll/getById/create/update/delete różniących się nazwą tabeli; 29 innych `*DexieRepository.ts`
-ma ten sam kształt. ~30 store'ów „per ćwiczenie” ma identyczną anatomię
-(items/loading/error/loadAll/create/update/remove + session scope).
-
-**Propozycja.** `createDexieCrudRepository<T>(table, label)` w `src/repositories/_crud.ts`,
-nadpisania tylko tam, gdzie repo ma coś ponad CRUD; potem `defineExerciseStore(name, repo)`.
-Wzorzec zrobić ręcznie na dwóch repozytoriach, resztę mechanicznie. Store'y z własną logiką
-(today, programEnrollment, objectsLibrary) nie ruszane. Szacunek: −2 000 linii.
-
-**Kryteria.** Istniejące specy repozytoriów i store'ów przechodzą bez zmian;
-`migration-edge-cases.spec` zielony; backup/restore w `dev:verify` działa.
-
 ### P-4 · Migracje Dexie w osobnych plikach
 
 `otwarte` · Znaleziono 2026-10-20 przy audycie repo · `src/services/userDatabaseService.ts`
@@ -432,6 +399,41 @@ przez `seedAssessment` + `backdate`.
 ---
 
 ## Zamknięte
+
+### P-2 · `reportError` z przyczyną zamiast 700× `console.error` + `throw new Error('Failed …')`
+
+`zrobione (4c9681e, 4ce0f2a, 4a0df6f)` · Znaleziono 2026-10-20 przy audycie repo · repozytoria, store'y, testy
+
+**Rozstrzygnięcie (2026-10-20, sesja crud-factory).** `src/utils/reportError.ts`
+(`reportError(scope, error)` → `console.error('[scope]', error)`) plus reguła
+`throw new Error(msg, { cause: error })`; w `src/test/setup.ts` reporter jest `vi.fn()`, więc
+oczekiwane błędy nie piszą na stderr, a specy mogą asertować na `reportError` zamiast szpiegować
+konsolę. Hurtem wzorzec wszedł przez P-3 (fabryka repozytoriów i composable store'ów); ręcznie
+tylko w plikach, które hałasowały w `npx vitest run`: store'y tag/chat/journal/emotionLog/
+userProfile/programEnrollment/lifeAreaAssessment, serwisy llm/programScheduler/
+exerciseCompletion, trzy widoki edytorów i `emotionLogDexieRepository`. Log vitest: 792 → 34
+linii stderr (68 → 5 bloków). Zostały: dwa bloki z `reflectionDexieRepository` (plik sesji
+Initiative), `console.warn` w `useProfileBuildWizard`, ostrzeżenie DEV w `EmotionSelector`
+i `fireEvent.change` z testing-library — żaden nie jest wzorcem „log + throw”.
+
+### P-3 · Factory CRUD dla repozytoriów ćwiczeń i factory store'ów ćwiczeń
+
+`zrobione (4ce0f2a, 4a0df6f)` · Znaleziono 2026-10-20 przy audycie repo · `src/repositories`, `src/stores`
+
+**Rozstrzygnięcie (2026-10-20, sesja crud-factory).** `src/repositories/_crud.ts`:
+`createDexieCrudRepository({ table, label, labelPlural?, tables })` na `userDatabaseOperation`,
+stemple id/createdAt/updatedAt, klon JSON, błędy przez `reportError('<tabela>.<op>')` +
+`{ cause }`. `exercisesDexieRepository.ts`: 2 808 → 302 linii, te same eksporty z adnotacją
+interfejsu, jedyne nadpisanie ponad CRUD to `ifsPartDexieRepository.getByRole`. Komunikaty
+„Failed to …” bez zmian; przyczyna „not found” mówi teraz etykietą („IFS part with id … not
+found”), poprawiona literówka „entrys”. Store'y: `src/stores/_exerciseCollection.ts`
+(`useExerciseCollection({ repository, label, scope, completionSlug?, validateCreate?,
+validateUpdate? })`), 33 store'y zachowują publiczne nazwy przez aliasy; 25 to sam blok aliasów,
+8 dokłada własne computed/reguły (behavioralExperiment, structuredProblemSolving, ifsTrailhead,
+ifsSelfEnergy, ifsDailyCheckIn, ifsPart bez ukończenia, positiveDataLog z ukończeniem tylko przy
+nowym wpisie, valueMap z walidacją). `src/stores`: −4 179/+1 121 linii. Specy kontraktowe:
+`repositories/__tests__/_crud.spec.ts`, `stores/__tests__/_exerciseCollection.spec.ts`; smoke
+w trybie weryfikacji (check-in IFS + list dziedzictwa zapisane, po odświeżeniu obecne).
 
 ### B-7 · Siedem testów `npm run test:e2e:verify` pada niezależnie od bieżących zmian
 
