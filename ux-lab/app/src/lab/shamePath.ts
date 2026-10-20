@@ -60,7 +60,7 @@ export const weeks = phaseKeys.map((key, i) => ({
 }))
 export const totalSteps = steps.slice(0, 8).reduce((sum, list) => sum + list.length, 0)
 
-export const partLabels = ['Ukrywający', 'Krytyk', 'Oskarżyciel', 'Odwracający uwagę']
+export const partLabels = ['Ukrywający', 'Krytyk', 'Agresor', 'Odwracający uwagę']
 export const partKeys = ['withdraw', 'attackSelf', 'attackOthers', 'avoid'] as const
 export const noticingLabels = ['W trakcie', 'Po chwili', 'Po godzinach', 'Dopiero później']
 export const noticingKeys = ['during', 'soon', 'hours', 'later'] as const
@@ -126,11 +126,16 @@ export const ownEntries: MicroExerciseEntry[] = [
 export function weeksLived(sample: Sample): number {
   return sample === 'start' ? 1 : sample === 'completed' || sample === 'return' ? 8 : 4
 }
+/** The sample's moment records (what `statsFor` aggregates), oldest first. */
+export function recordsFor(sample: Sample): MicroExerciseEntry[] {
+  return sample === 'start' ? [] : sample === 'quiet' ? entries.filter(e => e.createdAt < '2026-09-28') : entries
+}
+export function weekRefsFor(sample: Sample): WeekRef[] {
+  return allWeekRefs.slice(0, weeksLived(sample))
+}
 export function statsFor(sample: Sample) {
-  const refs = allWeekRefs.slice(0, weeksLived(sample))
-  const records =
-    sample === 'start' ? [] : sample === 'quiet' ? entries.filter(e => e.createdAt < '2026-09-28') : entries
-  return momentsProgress(records, refs, sample === 'quiet' ? { [refs[3]!]: 4 } : {})
+  const refs = weekRefsFor(sample)
+  return momentsProgress(recordsFor(sample), refs, sample === 'quiet' ? { [refs[3]!]: 4 } : {})
 }
 export function cardsFor(phaseKey: string) {
   return orderedKnowledgeCards('shame-compassion', phaseKey).map(card => ({
@@ -178,8 +183,8 @@ export function skillsFor(sample: Sample): SkillRow[] {
   ]
   return [
     { key: 'scs', name: scaleLabels.total ?? 'Współczucie dla siebie', label: 'Współczucie dla siebie', instrument: 'SCS-SF', min: 1, max: 5, lessIsBetter: false, points: pick(2.2, 2.9, 3.4, 3.3) },
-    { key: 'reassured', name: scaleLabels.reassuredSelf ?? 'Uspokajam siebie', label: 'Uspokajam siebie', instrument: 'FSCRS', min: 0, max: 4, lessIsBetter: false, points: pick(1.7, null, 2.8, 2.7) },
-    { key: 'inadequate', name: scaleLabels.inadequateSelf ?? 'Nieadekwatne ja', label: 'Mniej „nieadekwatnego ja”', instrument: 'FSCRS', min: 0, max: 4, lessIsBetter: true, points: pick(3.1, null, 2.4, 2.5) },
-    { key: 'hated', name: scaleLabels.hatedSelf ?? 'Znienawidzone ja', label: 'Mniej „znienawidzonego ja”', instrument: 'FSCRS', min: 0, max: 4, lessIsBetter: true, points: pick(1.4, null, 0.8, 0.9) },
+    { key: 'reassured', name: scaleLabels.reassuredSelf ?? 'Uspokajanie siebie', label: 'Uspokajanie siebie', instrument: 'FSCRS', min: 0, max: 4, lessIsBetter: false, points: pick(1.7, null, 2.8, 2.7) },
+    { key: 'inadequate', name: scaleLabels.inadequateSelf ?? 'Poczucie, że nie wystarczam', label: 'Mniej poczucia, że nie wystarczam', instrument: 'FSCRS', min: 0, max: 4, lessIsBetter: true, points: pick(3.1, null, 2.4, 2.5) },
+    { key: 'hated', name: scaleLabels.hatedSelf ?? 'Niechęć do siebie', label: 'Mniej niechęci do siebie', instrument: 'FSCRS', min: 0, max: 4, lessIsBetter: true, points: pick(1.4, null, 0.8, 0.9) },
   ]
 }

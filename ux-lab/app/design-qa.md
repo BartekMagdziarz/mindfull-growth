@@ -360,3 +360,16 @@ final result: passed (do oceny użytkownika: czy lista w rogu jest wystarczając
 - Round 2 (user feedback): sentences back in `neo-surface` wells with `neo-badge` pills, copy trimmed, period strip redrawn as wrapping brush strokes (min 30 px per cell). Re-checked the six configurations above; no console errors.
 - Round 3: merged Wpis+Cel sentence verified for multi/rating/counter/value/tracker/intention at 1900 px; variants panel checked for weekly 17, weekly with gaps, monthly 12 (A had fixed 44 px cells overflowing at 12 months → `flex: 1 1 0; max-width: 44px`). 0 console errors.
 - Round 3b: month-row periods verified for weekly 5/17/gaps, monthly 12, none (hairline + „Bez okresów”); „dni ×” glued so the remove button never wraps alone. 0 console errors, vue-tsc clean.
+
+## Object card fields (2026-10-11)
+
+- Scope: `/concepts/object-card-fields` at 1700×1100, desktop only, UX notes hidden. Checked all four rules with both goal samples (2 KRs / 3 KRs) and the „Pokaż poziomy” overlay; three cards fit one row (`repeat(3, minmax(0, card))`). 0 console errors; build + boundary check pass.
+- Note: the rating gauge's track (sky-100 / 0.58) reads as darker columns once the chart sits on a mist field — acceptable, but revisit if B is ported.
+
+## Path week reflection (2026-10-11)
+
+- Scope: `/preview/path-week-reflection` at 1700×1100 (DPR 1 and 2) and `/concepts/path-week-reflection` with Lab chrome, desktop only. Checked: logged sample (disc 1/2, one counted day), quiet sample with "3–5" (dashed cap on an empty T3), backfill form → saved Moment (hatched segment, "dopisany" row, task disc counts it), "licznik dzisiejszego mostu", Szczegóły (list + numbers), AI proposal field, declined sample. 0 console errors; vitest (6 new specs, 131 total) green; vue-tsc clean; boundary check OK; build OK.
+- Fixed before hand-off: pressed chip lost its fill under the cursor (hover specificity); backfilled row stretched the column with the tag at the far edge → inline-flex, fit-content; chart baseline sat behind the columns → positioned under the axis; axis labels T1/T2 → T2/T3 to match the user's screenshot.
+- Note: the product's global `quiet-ritual.css` gives `.qr-card` a 710 px minimum height, so the stage shows empty card space under a short block — identical to the product.
+- Round 2 (same day): block rebuilt into three sections (task · Moments · phase week); re-checked logged / quiet + bucket / backfill at 1700×1100 DPR 2; axis reads T2 · T3; 0 console errors; vue-tsc clean.
+- Round 3 (same day): block → one centred 46 rem column; `qr-card` → `pwr-card` (the product's global flex/min-height clipped the block at 820 px, found with a computed-style probe). Re-checked logged / quiet + bucket + backfill / declined at 1700×1100 DPR 1 and 2; 0 console errors; vue-tsc clean; 131 tests green.

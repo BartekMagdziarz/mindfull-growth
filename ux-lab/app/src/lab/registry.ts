@@ -101,6 +101,11 @@ export const viewDefinitions = Object.fromEntries(
 
 export const navGroups: LabNavGroup[] = [
   {
+    id: 'ai-reflection-concepts',
+    label: 'Rozmowa z AI',
+    items: [{ id: 'reflection-wait', label: 'Chwila na odpowiedź', kicker: 'Propozycja · spokojny kontakt i animowane etapy pracy', icon: 'chat', path: '/concepts/reflection-wait', kind: 'concept' }],
+  },
+  {
     id: 'visual-language',
     label: 'Język wizualny',
     items: [{ id: 'icons', label: 'Własne ikony', kicker: 'Organic Outline · 293 ikony w dziewięciu kategoriach', icon: 'draw', path: '/concepts/icons', kind: 'concept' }],
@@ -134,7 +139,16 @@ export const navGroups: LabNavGroup[] = [
     id: 'today-concepts',
     label: 'Dzisiaj',
     items: [
+      { id: 'today-tiles', label: 'Prawa kolumna jako kafle', kicker: 'Runda 2 · WDROŻONE do produktu 11.10.2026 (plan dnia „Praktyki”, kafle Najbliżej, kafle postępu ścieżek)', icon: 'grid_view', path: '/concepts/today-tiles', kind: 'concept' },
       { id: 'today-row-expansion', label: 'Rozwinięty wiersz planu dnia', kicker: 'Eksperyment · dysk „dziś” kończy wstęgę 7 dni · jedno przejście z tacki do akcji', icon: 'unfold_more', path: '/concepts/today-row-expansion', kind: 'concept' },
+    ],
+  },
+  {
+    id: 'path-concepts',
+    label: 'Ścieżki',
+    items: [
+      { id: 'path-week-reflection', label: 'Krok „Ścieżka” w refleksji tygodnia', kicker: 'Wdrożone 11.10.2026 · zadanie liczy zadanie, dopisz moment (≤2), jedna kolumna z trzema sekcjami · runda 3b', icon: 'route', path: '/concepts/path-week-reflection', kind: 'concept' },
+      { id: 'path-view-v2', label: 'Widok ścieżki · runda 6', kicker: 'Propozycja · numer po lewej, dysk po prawej, kafle kroków, „co i po co”, reset', icon: 'route', path: '/concepts/path-view-v2', kind: 'concept' },
       { id: 'shame-path', label: 'Ze wstydu do współczucia', kicker: 'P2 · runda 5 · WDROŻONE do produktu 05.10.2026 (ProgramDetailView, refleksja, Dzisiaj)', icon: 'route', path: '/concepts/shame-path', kind: 'concept' },
       { id: 'today-path-panel', label: 'Pole „Ścieżki”', kicker: 'Eksperyment · małe pole w Dzisiaj + dashboard widoku ścieżki · runda 2', icon: 'route', path: '/concepts/today-path-panel', kind: 'concept' },
     ],
@@ -142,7 +156,10 @@ export const navGroups: LabNavGroup[] = [
   {
     id: 'objects-concepts',
     label: 'Obiekty',
-    items: [{ id: 'object-cards', label: 'Karta obiektu w edycji', kicker: 'Eksperyment · obecnie vs propozycja · rodziny × tryby wpisu', icon: 'view_agenda', path: '/concepts/object-cards', kind: 'concept' }],
+    items: [
+      { id: 'object-card-fields', label: 'Pola na kartach biblioteki', kicker: 'Eksperyment · pole pod wykresem? · cztery reguły × nawyk, tracker, cel · runda 1', icon: 'layers', path: '/concepts/object-card-fields', kind: 'concept' },
+      { id: 'object-cards', label: 'Karta obiektu w edycji', kicker: 'Eksperyment · obecnie vs propozycja · rodziny × tryby wpisu', icon: 'view_agenda', path: '/concepts/object-cards', kind: 'concept' },
+    ],
   },
   {
     id: 'priority-concepts',
