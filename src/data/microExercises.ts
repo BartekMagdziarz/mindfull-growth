@@ -88,16 +88,35 @@ export const MICRO_EXERCISES: MicroExerciseDefinition[] = [
   // kind + hadMoment. Shared keys (situation, body) keep one copy.
   // v3 (plan 2026-10-04 §2.1): the shame branch starts with five taps —
   // which part took over · when I noticed · what I did instead · how strong
-  // — then "Zapisz teraz"; the prose steps are optional. The anger / anxiety
-  // / other branches keep their v2 order and requirements.
+  // — then "Zapisz teraz"; the prose steps are optional. Since 2026-10-18
+  // (plan 2026-10-18-anger-anxiety-paths-v2 §2) the anger and anxiety
+  // branches do the same with their reaction families (`momentFamilies.ts`):
+  // a reaction instead of a part, the path's own moves, a 1–5 strength. The
+  // `other` branch keeps the v2 prose.
   {
     slug: 'moments',
     i18nKey: 'moments',
-    earlyFinishAfter: 'strength',
+    earlyFinishAfter: ['strength', 'angerStrength', 'anxietyStrength'],
     steps: [
       { key: 'kind', type: 'choice', options: ['shame', 'anger', 'anxiety', 'other'] },
       { key: 'hadMoment', type: 'choice', options: ['none', 'yes'] },
       { key: 'quietDay', type: 'textarea', optional: true, showWhen: { step: 'hadMoment', in: ['none'] } },
+      // ── anger: the quick five (reaction · noticed · moves · strength) ──
+      {
+        key: 'angerReaction',
+        type: 'choice',
+        options: ['sharp', 'outburst', 'silence', 'selfBlame', 'pause'],
+        showWhen: [{ step: 'kind', in: ['anger'] }, { step: 'hadMoment', in: ['yes'] }],
+        hintFrom: { source: 'latest', slug: 'anger-map', step: 'reactionKinds' },
+      },
+      // ── anxiety: the quick five ──
+      {
+        key: 'anxietyReaction',
+        type: 'choice',
+        options: ['postpone', 'withdraw', 'check', 'worry', 'approach'],
+        showWhen: [{ step: 'kind', in: ['anxiety'] }, { step: 'hadMoment', in: ['yes'] }],
+        hintFrom: { source: 'latest', slug: 'anxiety-map', step: 'reactionKinds' },
+      },
       // ── shame: the quick five ──
       {
         key: 'compass',
@@ -106,27 +125,49 @@ export const MICRO_EXERCISES: MicroExerciseDefinition[] = [
         labelsFromParts: { withdraw: 'shame-compass:withdraw', attackSelf: 'shame-compass:attackSelf', attackOthers: 'shame-compass:attackOthers', avoid: 'shame-compass:avoid' },
         showWhen: [{ step: 'kind', in: ['shame'] }, { step: 'hadMoment', in: ['yes'] }],
       },
+      // ── shared by the three paths: when I noticed ──
       {
         key: 'noticed',
         type: 'choice',
         options: ['during', 'soon', 'hours', 'later'],
-        showWhen: [{ step: 'kind', in: ['shame'] }, { step: 'hadMoment', in: ['yes'] }],
+        showWhen: [{ step: 'kind', in: ['shame', 'anger', 'anxiety'] }, { step: 'hadMoment', in: ['yes'] }],
       },
       {
         key: 'response',
         type: 'choice',
         multiple: true,
-        options: ['breath', 'named', 'unblend', 'question', 'sentence', 'defend', 'contact', 'repair', 'test', 'nothing'],
+        // kindAct · gesture · stayed · thanked: the week tasks' own moves (2026-10-11), so a task counts a day only when it happened.
+        options: ['breath', 'named', 'unblend', 'question', 'sentence', 'defend', 'contact', 'repair', 'test', 'kindAct', 'gesture', 'stayed', 'thanked', 'nothing'],
         showWhen: [{ step: 'kind', in: ['shame'] }, { step: 'hadMoment', in: ['yes'] }],
         hintFrom: { source: 'latest', slug: 'shame-response', step: 'move' },
       },
       { key: 'strength', type: 'slider', min: 1, max: 5, showWhen: [{ step: 'kind', in: ['shame'] }, { step: 'hadMoment', in: ['yes'] }] },
-      // ── shared (required for anger / anxiety / other, optional after the shame taps) ──
+      // ── anger: the moves (the week tasks' own: pause · announce · returned · altThought · need · request · step · repair) and the strength ──
+      {
+        key: 'angerResponse',
+        type: 'choice',
+        multiple: true,
+        options: ['breath', 'named', 'pause', 'announce', 'returned', 'altThought', 'need', 'request', 'step', 'repair', 'nothing'],
+        showWhen: [{ step: 'kind', in: ['anger'] }, { step: 'hadMoment', in: ['yes'] }],
+        hintFrom: { source: 'latest', slug: 'pause-plan', step: 'ifThen' },
+      },
+      { key: 'angerStrength', type: 'slider', min: 1, max: 5, showWhen: [{ step: 'kind', in: ['anger'] }, { step: 'hadMoment', in: ['yes'] }] },
+      // ── anxiety: the moves (stayed · anyway · noCheck · postponed · prediction · step · meaningful) and the strength ──
+      {
+        key: 'anxietyResponse',
+        type: 'choice',
+        multiple: true,
+        options: ['breath', 'named', 'stayed', 'anyway', 'noCheck', 'postponed', 'prediction', 'step', 'meaningful', 'nothing'],
+        showWhen: [{ step: 'kind', in: ['anxiety'] }, { step: 'hadMoment', in: ['yes'] }],
+        hintFrom: { source: 'latest', slug: 'anxiety-map', step: 'withoutFear' },
+      },
+      { key: 'anxietyStrength', type: 'slider', min: 1, max: 5, showWhen: [{ step: 'kind', in: ['anxiety'] }, { step: 'hadMoment', in: ['yes'] }] },
+      // ── shared (required for `other`, optional after the quick taps) ──
       {
         key: 'situation',
         type: 'textarea',
         showWhen: { step: 'hadMoment', in: ['yes'] },
-        optionalWhen: { step: 'kind', in: ['shame'] },
+        optionalWhen: { step: 'kind', in: ['shame', 'anger', 'anxiety'] },
       },
       // ── shame: the optional tail ──
       {
@@ -136,21 +177,27 @@ export const MICRO_EXERCISES: MicroExerciseDefinition[] = [
         optional: true,
         showWhen: [{ step: 'kind', in: ['shame'] }, { step: 'hadMoment', in: ['yes'] }],
       },
-      // ── anger ──
-      {
-        key: 'intensity',
-        type: 'slider',
-        min: 0,
-        max: 10,
-        showWhen: [{ step: 'kind', in: ['anger'] }, { step: 'hadMoment', in: ['yes'] }],
-      },
-      // ── shared (after the kind-specific sorting) ──
+      // ── shared (after the kind-specific sorting); the body hint comes from the path's own map ──
       {
         key: 'body',
         type: 'textarea',
         optional: true,
-        showWhen: { step: 'hadMoment', in: ['yes'] },
+        showWhen: [{ step: 'kind', in: ['shame', 'other'] }, { step: 'hadMoment', in: ['yes'] }],
         hintFrom: { source: 'latest', slug: 'shame-map', step: 'bodySigns', when: { step: 'kind', in: ['shame'] } },
+      },
+      {
+        key: 'angerBody',
+        type: 'textarea',
+        optional: true,
+        showWhen: [{ step: 'kind', in: ['anger'] }, { step: 'hadMoment', in: ['yes'] }],
+        hintFrom: { source: 'latest', slug: 'anger-map', step: 'bodySigns' },
+      },
+      {
+        key: 'anxietyBody',
+        type: 'textarea',
+        optional: true,
+        showWhen: [{ step: 'kind', in: ['anxiety'] }, { step: 'hadMoment', in: ['yes'] }],
+        hintFrom: { source: 'latest', slug: 'anxiety-map', step: 'bodySigns' },
       },
       // ── shame ──
       {
@@ -172,17 +219,34 @@ export const MICRO_EXERCISES: MicroExerciseDefinition[] = [
         optional: true,
         showWhen: [{ step: 'kind', in: ['shame'] }, { step: 'hadMoment', in: ['yes'] }],
       },
-      // ── anger, anxiety, other ──
+      // ── anger, anxiety, other: the thought (anxiety: the prediction) ──
       {
         key: 'thought',
         type: 'textarea',
         optional: true,
         showWhen: [{ step: 'kind', in: ['anger', 'anxiety', 'other'] }, { step: 'hadMoment', in: ['yes'] }],
       },
+      // ── anger: the need behind it (the same list as "Potrzeba i prośba") ──
+      {
+        key: 'need',
+        type: 'choice',
+        multiple: true,
+        optional: true,
+        options: ['respect', 'understanding', 'fairness', 'autonomy', 'safety', 'rest', 'support', 'closeness', 'appreciation', 'honesty', 'order', 'space', 'cooperation', 'predictability'],
+        showWhen: [{ step: 'kind', in: ['anger'] }, { step: 'hadMoment', in: ['yes'] }],
+      },
+      // ── anxiety: what really happened (prediction → outcome, inhibitory learning) ──
+      {
+        key: 'outcome',
+        type: 'textarea',
+        optional: true,
+        showWhen: [{ step: 'kind', in: ['anxiety'] }, { step: 'hadMoment', in: ['yes'] }],
+      },
+      // ── other: the v2 prose ──
       {
         key: 'behavior',
         type: 'textarea',
-        showWhen: [{ step: 'kind', in: ['anger'] }, { step: 'hadMoment', in: ['yes'] }],
+        showWhen: [{ step: 'kind', in: ['other'] }, { step: 'hadMoment', in: ['yes'] }],
       },
       {
         key: 'helped',
@@ -199,6 +263,8 @@ export const MICRO_EXERCISES: MicroExerciseDefinition[] = [
       { key: 'intro', type: 'info' },
       { key: 'triggers', type: 'textList', prompts: 5 },
       { key: 'bodySigns', type: 'textList', prompts: 3 },
+      // The reaction families of the anger Momenty (plan 2026-10-18 §2.2); the prose keeps the detail.
+      { key: 'reactionKinds', type: 'choice', multiple: true, options: ['sharp', 'outburst', 'silence', 'selfBlame'] },
       { key: 'reaction', type: 'textarea' },
       { key: 'cost', type: 'textarea' },
       { key: 'protects', type: 'textarea', optional: true },
@@ -209,11 +275,13 @@ export const MICRO_EXERCISES: MicroExerciseDefinition[] = [
     i18nKey: 'pausePlan',
     steps: [
       { key: 'intro', type: 'info' },
-      { key: 'earlySigns', type: 'textList', prompts: 3 },
+      { key: 'earlySigns', type: 'textList', prompts: 3, hintFrom: { source: 'latest', slug: 'anger-map', step: 'bodySigns' } },
       { key: 'ifThen', type: 'textarea' },
       { key: 'returnPromise', type: 'textarea' },
       { key: 'confidence', type: 'slider', min: 0, max: 100, step: 5 },
     ],
+    // After saving: log the moment the pause was used in (the anger counterpart of the shame response's hand-over).
+    afterSave: { route: '/exercises/micro/moment-anger', prefillFrom: { angerResponse: { set: ['pause'] } } },
   },
   {
     slug: 'need-behind-anger',
@@ -394,6 +462,8 @@ export const MICRO_EXERCISES: MicroExerciseDefinition[] = [
       { key: 'intro', type: 'info' },
       { key: 'situations', type: 'textList', prompts: 5 },
       { key: 'bodySigns', type: 'textList', prompts: 3 },
+      // The reaction families of the anxiety Momenty (plan 2026-10-18 §2.2).
+      { key: 'reactionKinds', type: 'choice', multiple: true, options: ['postpone', 'withdraw', 'check', 'worry'] },
       { key: 'avoidance', type: 'textList', prompts: 4 },
       { key: 'safetyBehaviors', type: 'textList', prompts: 4 },
       { key: 'cost', type: 'textarea' },
@@ -413,17 +483,38 @@ export const MICRO_EXERCISES: MicroExerciseDefinition[] = [
   },
   // ── Shame path v3 (plan ideas/html-plans/2026-10-04-shame-path-v3.html §3) ──
   // "Mój znak": the path's goal in the user's words — read by the dashboard header.
+  // Shared by the three problem paths: the step launches it with `?kind=`
+  // (a preset, like a variant), and the intro and the main target branch on it;
+  // entries without a kind are the shame path's older ones.
   {
     slug: 'my-sign',
     i18nKey: 'mySign',
     steps: [
-      { key: 'intro', type: 'info' },
+      { key: 'kind', type: 'choice', options: ['shame', 'anger', 'anxiety'], optional: true },
+      { key: 'intro', type: 'info', showWhen: { step: 'kind', in: ['shame'] } },
+      { key: 'introAnger', type: 'info', showWhen: { step: 'kind', in: ['anger'] } },
+      { key: 'introAnxiety', type: 'info', showWhen: { step: 'kind', in: ['anxiety'] } },
       {
         key: 'mainTarget',
         type: 'choice',
         options: ['withdraw', 'attackSelf', 'attackOthers', 'avoid'],
         labelsFromParts: { withdraw: 'shame-compass:withdraw', attackSelf: 'shame-compass:attackSelf', attackOthers: 'shame-compass:attackOthers', avoid: 'shame-compass:avoid' },
         hintFrom: { source: 'latest', slug: 'shame-map', step: 'compass' },
+        showWhen: { step: 'kind', in: ['shame'] },
+      },
+      {
+        key: 'angerTarget',
+        type: 'choice',
+        options: ['sharp', 'outburst', 'silence', 'selfBlame'],
+        hintFrom: { source: 'latest', slug: 'anger-map', step: 'reactionKinds' },
+        showWhen: { step: 'kind', in: ['anger'] },
+      },
+      {
+        key: 'anxietyTarget',
+        type: 'choice',
+        options: ['postpone', 'withdraw', 'check', 'worry'],
+        hintFrom: { source: 'latest', slug: 'anxiety-map', step: 'reactionKinds' },
+        showWhen: { step: 'kind', in: ['anxiety'] },
       },
       { key: 'sign', type: 'textarea' },
       { key: 'safePerson', type: 'textarea', optional: true },
@@ -548,10 +639,13 @@ export const MICRO_EXERCISES: MicroExerciseDefinition[] = [
     ],
   },
   // "Powrót": eight weeks after the path closed — what stayed, what came back.
+  // Shared by the three problem paths (`?kind=` preset): "what came back" lists
+  // the path's own parts or reactions.
   {
     slug: 'path-return',
     i18nKey: 'pathReturn',
     steps: [
+      { key: 'kind', type: 'choice', options: ['shame', 'anger', 'anxiety'], optional: true },
       {
         key: 'letter',
         type: 'info',
@@ -571,6 +665,21 @@ export const MICRO_EXERCISES: MicroExerciseDefinition[] = [
         multiple: true,
         options: ['withdraw', 'attackSelf', 'attackOthers', 'avoid', 'none'],
         labelsFromParts: { withdraw: 'shame-compass:withdraw', attackSelf: 'shame-compass:attackSelf', attackOthers: 'shame-compass:attackOthers', avoid: 'shame-compass:avoid' },
+        showWhen: { step: 'kind', in: ['shame'] },
+      },
+      {
+        key: 'returnedAnger',
+        type: 'choice',
+        multiple: true,
+        options: ['sharp', 'outburst', 'silence', 'selfBlame', 'none'],
+        showWhen: { step: 'kind', in: ['anger'] },
+      },
+      {
+        key: 'returnedAnxiety',
+        type: 'choice',
+        multiple: true,
+        options: ['postpone', 'withdraw', 'check', 'worry', 'none'],
+        showWhen: { step: 'kind', in: ['anxiety'] },
       },
       { key: 'next', type: 'textarea', optional: true },
     ],

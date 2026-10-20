@@ -1,9 +1,11 @@
 /**
- * Shame path v3 — progress read from Momenty (plan §2.3).
+ * Problem paths — progress read from Momenty (shame plan §2.3; anger and
+ * anxiety read the same pictures through their reaction families, see
+ * `momentFamilies.ts`).
  *
  * Three pictures, each with a reading rule written next to it in the UI:
- * 1. which part took the wheel, week by week (stacked counts per part,
- *    plus the "unlogged" estimate the weekly reflection asks for);
+ * 1. which part (or reaction) took the wheel, week by week (stacked counts
+ *    per key, plus the "unlogged" estimate the weekly reflection asks for);
  * 2. "a response instead of the reaction": the share of the week's moments
  *    where the user did something other than nothing;
  * 3. "when I notice": the share noticed as it happened or a moment later,
@@ -17,12 +19,15 @@
  */
 
 import type { MicroExerciseEntry } from '@/domain/microExercises'
+import { momentFamily, reactionOf, responsesOf, strengthOf, summaryKeys, type MomentFamilyConfig, type MomentFamilyKind } from '@/domain/momentFamilies'
 import { hadMoment, isMoment, momentDayRef } from '@/domain/moments'
 import type { WeekRef } from '@/domain/period'
 import { getPeriodBounds, getPreviousPeriod } from '@/utils/periods'
 
 export type ShamePartKey = 'withdraw' | 'attackSelf' | 'attackOthers' | 'avoid' | 'none'
 export const SHAME_PART_KEYS: readonly ShamePartKey[] = ['withdraw', 'attackSelf', 'attackOthers', 'avoid', 'none']
+/** A reaction key of any family (`ShamePartKey` for the shame path). */
+export type ReactionKey = string
 
 export type NoticedKey = 'during' | 'soon' | 'hours' | 'later' | 'unknown'
 export const NOTICED_KEYS: readonly NoticedKey[] = ['during', 'soon', 'hours', 'later', 'unknown']
@@ -39,9 +44,12 @@ export interface MomentsWeekStats {
   total: number
   /** Estimate from the weekly reflection (representative count), absent when not asked. */
   unlogged?: number
-  byPart: Record<ShamePartKey, number>
-  /** "Jak mocno" (1–5) summed per part, with how many moments carried a rating (v2 entries have none). */
-  strength: Record<ShamePartKey, { sum: number; rated: number }>
+  /** Which family the stats were read with. */
+  kind: MomentFamilyKind
+  /** Counts per reaction key of the family (`MOMENT_FAMILIES[kind].keys`). */
+  byPart: Record<ReactionKey, number>
+  /** "Jak mocno" (1–5) summed per key, with how many moments carried a rating (v2 entries have none). */
+  strength: Record<ReactionKey, { sum: number; rated: number }>
   /** Moments where `response` holds anything other than "nothing". */
   responded: number
   noticed: Record<NoticedKey, number>
@@ -52,18 +60,13 @@ export interface MomentsWeekStats {
   quiet: boolean
 }
 
-function emptyStats(weekRef: WeekRef): MomentsWeekStats {
+function emptyStats(weekRef: WeekRef, config: MomentFamilyConfig): MomentsWeekStats {
   return {
     weekRef,
+    kind: config.kind,
     total: 0,
-    byPart: { withdraw: 0, attackSelf: 0, attackOthers: 0, avoid: 0, none: 0 },
-    strength: {
-      withdraw: { sum: 0, rated: 0 },
-      attackSelf: { sum: 0, rated: 0 },
-      attackOthers: { sum: 0, rated: 0 },
-      avoid: { sum: 0, rated: 0 },
-      none: { sum: 0, rated: 0 },
-    },
+    byPart: Object.fromEntries(config.keys.map((key) => [key, 0])),
+    strength: Object.fromEntries(config.keys.map((key) => [key, { sum: 0, rated: 0 }])),
     responded: 0,
     noticed: { during: 0, soon: 0, hours: 0, later: 0, unknown: 0 },
     criticLogged: 0,
@@ -81,24 +84,14 @@ export function weekRefsEndingAt(last: WeekRef, count: number): WeekRef[] {
   return weeks
 }
 
-function partOf(entry: MicroExerciseEntry): ShamePartKey | undefined {
-  const value = entry.responses.compass
-  const picked = typeof value === 'string' ? value : Array.isArray(value) ? value[0] : undefined
-  return typeof picked === 'string' && (SHAME_PART_KEYS as readonly string[]).includes(picked)
-    ? (picked as ShamePartKey)
-    : undefined
-}
-
 function noticedOf(entry: MicroExerciseEntry): NoticedKey {
   const value = entry.responses.noticed
   return typeof value === 'string' && (NOTICED_KEYS as readonly string[]).includes(value) ? (value as NoticedKey) : 'unknown'
 }
 
 /** Anything other than "nothing" counts — a late attempt is still an attempt. */
-export function hasResponse(entry: MicroExerciseEntry): boolean {
-  const value = entry.responses.response
-  const picked = Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []
-  return picked.some((item) => item !== 'nothing')
+export function hasResponse(entry: MicroExerciseEntry, config: MomentFamilyConfig = momentFamily(entry.responses.kind)): boolean {
+  return responsesOf(entry.responses, config).some((item) => item !== 'nothing')
 }
 
 function hasText(value: unknown): boolean {
@@ -106,32 +99,35 @@ function hasText(value: unknown): boolean {
 }
 
 /**
- * Week-by-week statistics of the shame moments in `entries` for the given
- * weeks (oldest first). `unlogged` maps a week to the reflection's estimate.
+ * Week-by-week statistics of one kind's moments in `entries` for the given
+ * weeks (oldest first). `unlogged` maps a week to the reflection's estimate;
+ * `kind` picks the family (the shame compass by default).
  */
 export function momentsProgress(
   entries: readonly MicroExerciseEntry[],
   weeks: readonly WeekRef[],
   unlogged: Partial<Record<WeekRef, number>> = {},
+  kind: MomentFamilyKind = 'shame',
 ): MomentsWeekStats[] {
-  const moments = entries.filter((entry) => isMoment(entry, 'shame') && hadMoment(entry))
+  const config = momentFamily(kind)
+  const moments = entries.filter((entry) => isMoment(entry, kind) && hadMoment(entry))
   return weeks.map((weekRef) => {
-    const stats = emptyStats(weekRef)
+    const stats = emptyStats(weekRef, config)
     const { start, end } = getPeriodBounds(weekRef)
     for (const entry of moments) {
       const day = momentDayRef(entry)
       if (day < start || day > end) continue
       stats.total += 1
-      const part = partOf(entry)
+      const part = reactionOf(entry.responses, config)
       if (part) {
-        stats.byPart[part] += 1
-        const strength = entry.responses.strength
-        if (typeof strength === 'number' && strength >= 1 && strength <= 5) {
-          stats.strength[part].sum += strength
-          stats.strength[part].rated += 1
+        stats.byPart[part]! += 1
+        const strength = strengthOf(entry.responses, config)
+        if (strength !== undefined) {
+          stats.strength[part]!.sum += strength
+          stats.strength[part]!.rated += 1
         }
       }
-      if (hasResponse(entry)) stats.responded += 1
+      if (hasResponse(entry, config)) stats.responded += 1
       stats.noticed[noticedOf(entry)] += 1
       if (hasText(entry.responses.criticSaid)) stats.criticLogged += 1
       if (hasText(entry.responses.kindVoice)) stats.kindVoiceLogged += 1
@@ -144,7 +140,7 @@ export function momentsProgress(
 }
 
 export interface PartSummary {
-  part: ShamePartKey
+  part: ReactionKey
   count: number
   /** Share (0–1) of the moments in the given weeks that this part took; 0 without moments. */
   share: number
@@ -155,18 +151,20 @@ export interface PartSummary {
 /**
  * "Kto przejmuje ster" summed over the given weeks: how often each part took
  * the wheel and how strongly it did (the moment's own 1–5 rating). Order is
- * the compass order; `none` comes last and is the pattern the path works toward.
+ * the compass order; the self key comes last and is the pattern the path
+ * works toward.
  */
 export function partSummary(stats: readonly MomentsWeekStats[]): PartSummary[] {
   const total = stats.reduce((sum, week) => sum + week.total, 0)
-  return SHAME_PART_KEYS.map((part) => {
+  const config = momentFamily(stats[0]?.kind)
+  return summaryKeys(config).map((part) => {
     let count = 0
     let sum = 0
     let rated = 0
     for (const week of stats) {
-      count += week.byPart[part]
-      sum += week.strength[part].sum
-      rated += week.strength[part].rated
+      count += week.byPart[part] ?? 0
+      sum += week.strength[part]?.sum ?? 0
+      rated += week.strength[part]?.rated ?? 0
     }
     return {
       part,
@@ -209,7 +207,7 @@ export function respondedShare(stats: readonly MomentsWeekStats[]): number | nul
 
 // ── "Moje zdania" ────────────────────────────────────────────────────
 
-export type OwnSentenceSource = 'image' | 'self' | 'response' | 'unblend' | 'moment' | 'defender'
+export type OwnSentenceSource = 'image' | 'self' | 'response' | 'unblend' | 'moment' | 'defender' | 'request' | 'return'
 
 export interface OwnSentence {
   text: string
@@ -218,14 +216,29 @@ export interface OwnSentence {
   entryId: string
 }
 
-const SENTENCE_SOURCES: ReadonlyArray<{ slug: string; step: string; source: OwnSentenceSource; kind?: 'shame' }> = [
-  { slug: 'compassionate-image', step: 'message', source: 'image' },
-  { slug: 'compassionate-self', step: 'toPart', source: 'self' },
-  { slug: 'shame-response', step: 'sentence', source: 'response' },
-  { slug: 'shame-response', step: 'unblendSentence', source: 'unblend' },
-  { slug: 'defender-voice', step: 'mySentence', source: 'defender' },
-  { slug: 'moments', step: 'kindVoice', source: 'moment', kind: 'shame' },
-]
+interface SentenceSource {
+  slug: string
+  step: string
+  source: OwnSentenceSource
+  kind?: MomentFamilyKind
+}
+/** Per path kind: where the user's own sentences come from. The anxiety path has none ("Moje słowa" is not shown). */
+const SENTENCE_SOURCES: Readonly<Record<MomentFamilyKind, readonly SentenceSource[]>> = {
+  shame: [
+    { slug: 'compassionate-image', step: 'message', source: 'image' },
+    { slug: 'compassionate-self', step: 'toPart', source: 'self' },
+    { slug: 'shame-response', step: 'sentence', source: 'response' },
+    { slug: 'shame-response', step: 'unblendSentence', source: 'unblend' },
+    { slug: 'defender-voice', step: 'mySentence', source: 'defender' },
+    { slug: 'moments', step: 'kindVoice', source: 'moment', kind: 'shame' },
+  ],
+  // "Moje słowa": the request or boundary and the promise to return to the conversation.
+  anger: [
+    { slug: 'need-behind-anger', step: 'request', source: 'request' },
+    { slug: 'pause-plan', step: 'returnPromise', source: 'return' },
+  ],
+  anxiety: [],
+}
 
 function normalizeSentence(text: string): string {
   return text
@@ -242,12 +255,16 @@ function normalizeSentence(text: string): string {
  * ashamed part, the shame-response sentence and unblending sentence, the
  * defending sentence, and every kind voice written in a moment.
  */
-export function collectOwnSentences(entries: readonly MicroExerciseEntry[], limit = Infinity): OwnSentence[] {
+export function collectOwnSentences(
+  entries: readonly MicroExerciseEntry[],
+  limit = Infinity,
+  kind: MomentFamilyKind = 'shame',
+): OwnSentence[] {
   const seen = new Set<string>()
   const sentences: OwnSentence[] = []
   const sorted = [...entries].sort((a, b) => b.createdAt.localeCompare(a.createdAt))
   for (const entry of sorted) {
-    for (const rule of SENTENCE_SOURCES) {
+    for (const rule of SENTENCE_SOURCES[kind]) {
       if (entry.exerciseSlug !== rule.slug) continue
       if (rule.kind && entry.responses.kind !== rule.kind) continue
       const value = entry.responses[rule.step]

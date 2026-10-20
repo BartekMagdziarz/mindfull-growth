@@ -25,9 +25,9 @@
   },
   "compassParts": {
     "title": "Four parts that take the wheel",
-    "lead": "The Hider, the Critic, the Accuser and the Avoider. Each protects. None of them is you.",
+    "lead": "The Hider, the Critic, the Aggressor and the Avoider. Each protects. None of them is you.",
     "body": [
-      "Donald Nathanson described four automatic reactions to shame: withdrawal, attacking yourself, attacking others and avoidance. In parts language (IFS) each is a protector: a part that once learned to shield you from the pain of being seen. The Hider doesn't want you seen. The Critic gets ahead of other people's criticism so it hurts less. The Accuser pushes others away before the feeling of smallness can hurt. The Avoider moves the feeling itself out of the way.",
+      "Donald Nathanson described four automatic reactions to shame: withdrawal, attacking yourself, attacking others and avoidance. In parts language (IFS) each is a protector: a part that once learned to shield you from the pain of being seen. The Hider doesn't want you seen. The Critic gets ahead of other people's criticism so it hurts less. The Aggressor pushes others away before the feeling of smallness can hurt. The Avoider moves the feeling itself out of the way.",
       "Once the reaction has a name it stops being \"that's what I'm like\" and becomes \"my part took the wheel\". Someone in you is left who can hear it out and stay. That's what the unblending sentence in your shame response teaches, and every entry in Moments.",
       "Honestly: IFS is a frame here for understanding and talking with yourself. The evidence for the path's effectiveness comes mainly from compassion-focused therapy, the Mindful Self-Compassion programme and chairwork."
     ],
@@ -129,6 +129,123 @@
     ],
     "sources": [
       "Saraiya & Lopez-Castro 2016; Northover et al. 2021; Cai 2024"
+    ]
+  },
+  "angerPause": {
+    "title": "A pause that leaves room to choose",
+    "lead": "Anger can be a signal. You can practise how you respond to it.",
+    "body": [
+      "Think of a small, everyday situation. How do you recognise rising tension? You may speak faster or clench your jaw. In your pause plan, connect that signal with one simple action: a quiet moment, a comfortable breath or an explained break. Then return to your own words through “My plan”. You do not need to remember the whole exercise.",
+      "If the conversation is safe, suggest when you can return to it. After the break, you can say what happened, what you need and what you are asking for. A calm request does not guarantee agreement. This path invites you to notice your own action: was there a little more choice? You do not need to feel calm immediately or persuade the other person. One saved moment is enough to explore another response later."
+    ],
+    "sources": [
+      "NHS — Get help with anger: https://www.nhs.uk/mental-health/feelings-symptoms-behaviours/feelings-and-symptoms/anger/"
+    ]
+  },
+  "angerSafety": {
+    "title": "When support is needed",
+    "lead": "Understanding anger does not excuse hurting someone.",
+    "body": [
+      "This path is a place to practise responding to everyday tension. It does not replace help when there are threats, violence, damage to things or concern that someone may be hurt. At that point, stop the conversation and prioritise safety. If there is immediate danger, contact local emergency services. Do not wait to complete the next step in the app.",
+      "If anger regularly affects your life or relationships, speak with a professional about suitable support. You can share your notes, but you do not need any notes to ask for help. After hurtful behaviour, you can name the specific action and take responsibility for it without attacking yourself. The other person has a right to distance, to decline a conversation and to take their own time. A repair task never obliges them to reconnect or forgive."
+    ],
+    "sources": [
+      "NHS inform — Problems with anger self-help guide: https://www.nhsinform.scot/illnesses-and-conditions/mental-health/mental-health-self-help-guides/problems-with-anger-self-help-guide/"
+    ]
+  },
+  "anxietySmallSteps": {
+    "title": "An attempt, not a test",
+    "lead": "A small step can matter even when anxiety is still present.",
+    "body": [
+      "On your ladder, choose a situation that is safe but brings anxiety. Write down what you want to do and what you fear. Start with a manageable version: one question, a brief conversation or a minor decision. Repeating it offers a chance to learn about the situation. You do not have to move up with every attempt. You can return to the same rung or make the step smaller.",
+      "Afterwards, notice what actually happened and what you were able to do. Your anxiety level is one piece of information, not a grade for the whole attempt. Reducing unnecessary reassurance does not mean stopping medication, ignoring medical advice or removing real protection. Do not choose activities involving genuine danger. If safety is unclear or attempts feel overwhelming, discuss them with a professional. Your map should help you choose a step, not force you to take it."
+    ],
+    "sources": [
+      "NHS — Facing your fears: https://www.nhs.uk/every-mind-matters/mental-wellbeing-tips/self-help-cbt-techniques/facing-your-fears/"
+    ]
+  },
+  "anxietyWorry": {
+    "title": "Giving worries some room",
+    "lead": "Not every concern needs an answer right now.",
+    "body": [
+      "Worry time is an invitation to return briefly to your notes. During the day, you can write a thought in one sentence and bring attention back to what you are doing. You do not need to remove the thought or win an argument with it. If it returns, you can return to your activity again. Choose a time that fits your day and is not just before bed.",
+      "Looking at a note, ask: is there a concrete action within my reach? If so, choose one small step. If not, you can leave the question unresolved for now. Do not postpone urgent responsibilities or dangers until worry time. If anxiety regularly limits daily life, seek professional support. Panic, OCD and trauma call for an individually tailored approach; this path does not replace that support. You do not need to finish these exercises before asking for help."
+    ],
+    "sources": [
+      "NHS — Tackling your worries: https://www.nhs.uk/every-mind-matters/mental-wellbeing-tips/self-help-cbt-techniques/tackling-your-worries/",
+      "NHS — Get help with anxiety, fear or panic: https://www.nhs.uk/mental-health/feelings-symptoms-behaviours/feelings-and-symptoms/anxiety-fear-panic/"
+    ]
+  },
+  "angerRumination": {
+    "title": "Rumination keeps anger going",
+    "lead": "Anger you chew over does not fade. It grows.",
+    "body": [
+      "When you return to the situation in your mind, you replay what someone did and what they should have done. Every replay turns the tension up, as if it were happening again, and offers ever sharper versions of the same story. In research it is rumination, not anger itself, that best predicts the next outburst: not that you got angry, but how long you carried the anger.",
+      "Instead of fighting the thought, give it one of two exits. If it concerns something within your influence, write down one step and return to it at a chosen time. If not, notice the addition (“he does it on purpose”) and return to what you are doing right now. The worry tree, the thought record and a small step on the matter do exactly that. You do not have to stop thinking, only stop circling."
+    ],
+    "sources": [
+      "Sukhodolsky, Golub & Cromwell (2001). Development and validation of the Anger Rumination Scale. Personality and Individual Differences, 31, 689–700.",
+      "Saini (2009). A meta-analysis of the psychological treatment of anger. Journal of the American Academy of Psychiatry and the Law, 37, 473–488."
+    ]
+  },
+  "angerNeed": {
+    "title": "Anger defends a need",
+    "lead": "Behind anger stands something that matters: a boundary, respect, fairness, rest.",
+    "body": [
+      "Anger does not come from nowhere. It appears when something important was crossed or something you need was missing: respect, predictability, rest, honesty. An outburst says this indirectly, so the other person hears an attack, not a need, and defends instead of listening. A request says the same thing directly and leaves the other side room to answer.",
+      "In “A need and a request” you name the fact without judgement, the feeling, the need and one request that can actually be met. There is no guarantee the other person will agree. There is a fair chance they will hear you, and you know what you wanted before the anger drowned it out. In Moments the same list of needs waits under every entry, so you can name it calmly when there is no one left to ask."
+    ],
+    "sources": [
+      "Rosenberg (2015). Nonviolent Communication: A Language of Life (3rd ed.). PuddleDancer Press.",
+      "NHS inform — Problems with anger self-help guide: https://www.nhsinform.scot/illnesses-and-conditions/mental-health/mental-health-self-help-guides/problems-with-anger-self-help-guide/"
+    ]
+  },
+  "angerRepair": {
+    "title": "Repair breaks the loop",
+    "lead": "After an outburst comes shame, after shame tension, after tension the next outburst.",
+    "body": [
+      "An outburst rarely ends with the outburst. Guilt or shame remains, and they raise the tension from which the next one comes easily. Some people start blaming themselves at this point, some keep blaming others; both keep the loop going. Repair breaks it: you acknowledge a specific action, without explaining it away with the whole situation, and propose what comes next.",
+      "Repair does not require the other person to accept the apology at once. They may need time or not want to talk at all; that is their right. What counts is that the matter has been named and you no longer have to carry it. If the situation is not safe, stepping out of it can be the repair. The letter to yourself after a hard moment does the same towards you: kindness and responsibility in one sentence."
+    ],
+    "sources": [
+      "NHS — Get help with anger: https://www.nhs.uk/mental-health/feelings-symptoms-behaviours/feelings-and-symptoms/anger/",
+      "Saini (2009). A meta-analysis of the psychological treatment of anger. Journal of the American Academy of Psychiatry and the Law, 37, 473–488."
+    ]
+  },
+  "anxietyUncertainty": {
+    "title": "Room for the unknown",
+    "lead": "It is not about certainty. It is about being able to act without it.",
+    "body": [
+      "Checking, seeking reassurance and reading one more review bring relief for a moment. A moment later the uncertainty returns, and with it the need for another check, because the relief taught you that it cannot be borne without one. Over time the relief gets shorter and the checking more frequent. The problem is not the unknown itself but the belief that it has to be removed before anything can be done.",
+      "Experiments with a small unknown work the other way: you choose a minor decision without real risk, leave it without the last check and watch what happens. Usually not much, and if something, it can be lived with. It is the experience, not the persuasion, that changes how you relate to uncertainty. That is why on this path you write the prediction down before an attempt and what really happened after it."
+    ],
+    "sources": [
+      "Dugas & Robichaud (2007). Cognitive-Behavioral Treatment for Generalized Anxiety Disorder: From Science to Practice. Routledge.",
+      "NHS — Get help with anxiety, fear or panic: https://www.nhs.uk/mental-health/feelings-symptoms-behaviours/feelings-and-symptoms/anxiety-fear-panic/"
+    ]
+  },
+  "anxietyLearning": {
+    "title": "What a small attempt teaches",
+    "lead": "A drop in anxiety is not the goal of the attempt. What you learn is.",
+    "body": [
+      "For years it was thought an attempt worked when anxiety fell during it. Today we know what matters more is whether the prediction came true. If you feared you would not bear it, or that everyone would see, and you bore it and nobody reacted, the attempt worked, even if the anxiety stayed high to the end. The brain learns from the gap between what it expected and what happened.",
+      "That is why you write the prediction down before the attempt and what really happened after it. Different situations, different times and different people teach more than repeating one and the same. High anxiety during the attempt does not cancel the learning, and a drop in anxiety is not a condition of success. Genuine safety precautions stay: a seatbelt and a medicine your doctor prescribed are not safety behaviours."
+    ],
+    "sources": [
+      "Craske, Treanor, Conway, Zbozinek & Vervliet (2014). Maximizing exposure therapy: an inhibitory learning approach. Behaviour Research and Therapy, 58, 10–23.",
+      "NHS — Get help with anxiety, fear or panic: https://www.nhs.uk/mental-health/feelings-symptoms-behaviours/feelings-and-symptoms/anxiety-fear-panic/"
+    ]
+  },
+  "anxietySafety": {
+    "title": "Safety behaviours and safety",
+    "lead": "Not everything that calms you is a safety behaviour.",
+    "body": [
+      "A safety behaviour is something you do mainly for momentary relief: asking the same question again, a phone call “just in case”, sitting by the door, preparing an answer to every possible question. It brings relief and at the same time suggests the situation was dangerous and that you only survived it thanks to the precaution. That is why the anxiety returns next time at the same strength.",
+      "Medication, medical advice and genuine safety precautions are something else. Do not give them up as part of this path and do not make treatment decisions without a professional. If you are unsure which group something belongs to, ask: am I doing this because the situation requires it, or because otherwise I cannot bear the uncertainty? On the anxiety map you write down only the second group, and at first you only notice it."
+    ],
+    "sources": [
+      "NHS — Get help with anxiety, fear or panic: https://www.nhs.uk/mental-health/feelings-symptoms-behaviours/feelings-and-symptoms/anxiety-fear-panic/",
+      "Craske, Treanor, Conway, Zbozinek & Vervliet (2014). Maximizing exposure therapy: an inhibitory learning approach. Behaviour Research and Therapy, 58, 10–23."
     ]
   }
 }

@@ -98,7 +98,28 @@
     "markRead": "Read",
     "sources": "Sources",
     "more": "More",
-    "mySign": "My sign"
+    "mySign": "My sign",
+    "restartInline": "Start over",
+    "restartInlineQuestion": "Start the path from the first step? Completed exercises stay in your history.",
+    "restartInlineConfirm": "Start over",
+    "keep": "Keep",
+    "undo": "Undo",
+    "whyLabel": "Why",
+    "form": {
+      "measure": "Measure",
+      "imagery": "Imagery",
+      "reflection": "Reflection",
+      "action": "Action"
+    },
+    "stepsDoneOf": "{done} of {total} steps",
+    "practicesCard": "Practices",
+    "partsTitle": "Parts",
+    "logMomentShort": "Log",
+    "change": "Change",
+    "returnTitle": "Return",
+    "returnNote": "eight weeks later",
+    "reactionsTitle": "Reactions",
+    "wordsTitle": "My words"
   },
   "foundation": {
     "title": "Foundation of self-knowledge",
@@ -128,255 +149,482 @@
   },
   "anger-signal": {
     "title": "Anger as a Signal",
-    "description": "Six weeks of working with anger: from noticing triggers and body signals, through a pause plan and work with thoughts, to the need anger defends and new ways of acting. Alongside the steps you keep a short anger log and practise paced breathing every other day. Each week you get one task to try out in real life. This path is not enough if anger turns into violence or someone feels unsafe around you. Then professional help comes first.",
+    "description": "Six weeks: noticing, a pause, another perspective, what matters, a choice of your own and what stays. Work with your own situations at your own pace. Eight weeks after the end the path invites you to a Return. If anger leads to violence or someone feels unsafe around you, this path is not enough — seek professional support.",
     "reflection": {
       "severity": "How much did anger get in the way this week?"
     },
     "phases": {
-      "understanding": {
-        "title": "Understanding",
-        "question": "Which trigger came up most often?"
+      "w1": {
+        "title": "Noticing",
+        "why": "Name the anger: how it arrives, how it usually reacts and what you want to change.",
+        "question": "What helped you recognise tension building?"
       },
-      "pause": {
-        "title": "Body and pause",
-        "question": "When did you notice anger earlier than usual?"
+      "w2": {
+        "title": "The pause",
+        "why": "Prepare one small action for when tension starts to rise, and check what a thought adds.",
+        "question": "What helped you pause, even briefly?"
       },
-      "thoughts": {
-        "title": "Thoughts",
-        "question": "Which thought fuelled the anger most often?"
+      "w3": {
+        "title": "Another perspective",
+        "why": "Separate what happened from your first interpretation. Halfway: we check the dose, not the result.",
+        "question": "Which thought gave you more room to choose?"
       },
-      "need": {
-        "title": "Need and part",
-        "question": "Which need did your anger defend most often?"
+      "w4": {
+        "title": "What matters",
+        "why": "Listen for what this anger defends and find words for the need or boundary.",
+        "question": "What need or boundary could you name?"
       },
-      "action": {
-        "title": "Action",
-        "question": {
-          "m": "What happened when you did something differently than usual?",
-          "f": "What happened when you did something differently than usual?"
-        }
+      "w5": {
+        "title": "A choice of your own",
+        "why": "Try one change in a safe, everyday situation.",
+        "question": "What did the attempt show, even if the conversation did not go your way?"
       },
-      "consolidation": {
-        "title": "Consolidation",
-        "question": "What from this path do you want to keep for the long run?"
+      "w6": {
+        "title": "What stays",
+        "why": "Keep what helps and write yourself a letter for a worse day.",
+        "question": "What would you like to return to when anger rises again?"
+      },
+      "return": {
+        "title": "The return",
+        "why": "Eight weeks after the end: what stayed, what came back.",
+        "question": "What from this path stayed with you day to day?"
       }
     },
     "steps": {
       "step1": {
-        "intro": "Start with a short measurement. The same barometer returns at the end of the path so you can see what changed."
+        "title": "A starting point",
+        "intro": "Notice how anger affects your days. This barometer is an informal guide; you will return to it halfway, at the end and at the Return.",
+        "why": "Without a starting point you cannot see change. This measure is your reference for the whole way."
       },
       "step2": {
-        "intro": "Gather your triggers, first body signals and typical reactions. The next steps and the anger log build on this map."
+        "title": "How anger arrives",
+        "intro": "Look at one recent situation: what came before it, what happened in your body and how anger usually reacts.",
+        "why": "Anger is easier to notice when you know its signals and your typical reactions. The map gives names to what used to happen on its own."
       },
       "step3": {
-        "intro": "Take the three earliest signals from your log and build an “if I notice…, then…” plan. A pause is easier when you know in advance what it looks like."
+        "title": "How I will know it works",
+        "intro": "Say in your own words what you most want to change and how you will know it is working. The sentence stays at the top of the path.",
+        "why": "A goal in your own words holds the direction for six weeks and tells you how you will know the path works."
       },
       "step4": {
-        "intro": "Review distortions on one episode from your log. With anger, “shoulds”, mind reading, labelling and personalisation come up most often."
+        "title": "My pause plan",
+        "intro": "Choose an early signal and one doable action. Include how you will return to the conversation when it is safe.",
+        "why": "In the moment of anger there is no time to invent anything. A ready “if…, then…” does it for you."
       },
       "step5": {
-        "intro": "Take apart the hot thought from a recent episode, such as “he's doing it on purpose”. Work out an alternative thought you can recall during a pause."
+        "title": "Fact or interpretation",
+        "intro": "Take one thought that fuels anger. See which part is an observation and which is an assumption.",
+        "why": "Anger grows not only from the situation but from what you add to it. A named assumption loses some of its force."
       },
       "step6": {
-        "intro": "Treat your last strong anger episode as a trailhead to a part. It isn't “your problem”, it's a part with a job."
+        "title": "A thought that gives choice",
+        "intro": "Return to a saved moment. Find a fairer thought that respects both the facts and your boundaries.",
+        "why": "A fairer thought does not make you agree. It leaves you a choice of how to react."
       },
       "step7": {
-        "intro": "Get to know the angry part: what it defends and what it fears would happen if it stopped. Anger is rarely an enemy, more often an overzealous bodyguard."
+        "title": "The barometer halfway",
+        "intro": "Repeat the barometer. See in Progress whether anything moved, without judging yourself by the score.",
+        "why": "A measure halfway shows the direction before the path ends. Sometimes it is what says it is worth staying with what already works."
       },
       "step8": {
-        "intro": "Translate an anger episode into observation, feeling, need and request. The result should be one sentence you can actually say."
+        "title": "Is it too much?",
+        "intro": "Say honestly how many of the practices you really do. The path proposes a calmer rhythm if needed.",
+        "why": "People drop out of paths not because they do too little, but because the path looks disappointed. There is none of that here."
       },
       "step9": {
-        "intro": "Pick the provocation that repeats most often in your log and look for a solution. Changing the situation reduces anger more than self-control alone."
+        "title": "Listening to anger",
+        "intro": "Choose a moment you can comfortably revisit. If the language of parts fits, treat anger as a voice you can listen to.",
+        "why": "Anger that someone has listened to does not need to shout. The trailhead is the first such conversation."
       },
       "step10": {
-        "intro": "Test a prediction like “if I say it calmly, they'll ignore me”. Use the request from the “From Anger to a Request” step."
+        "title": "What it tries to protect",
+        "intro": "Explore this part’s intention. Understanding it does not mean agreeing with hurtful behaviour.",
+        "why": "A protector that knows you understand it hands over the wheel more easily than one you fight."
       },
       "step11": {
-        "intro": "Optional step. Write to yourself after an outburst you feel ashamed of. Kindness breaks the cycle of outburst, shame and tension."
+        "title": "A need and a request",
+        "intro": "Return to a saved moment. Name what matters and form a request or boundary you can express calmly.",
+        "why": "Anger usually defends a need. A request says directly what the outburst said indirectly."
       },
       "step12": {
-        "intro": "Take the barometer again. The completion screen shows both results side by side."
+        "title": "One possible change",
+        "intro": "Choose a recurring difficulty and a small step within your control.",
+        "why": "Rumination keeps anger going; one step on the matter releases it. Influence counts, not size."
       },
       "step13": {
-        "intro": "Decide which practices stay with you and how you'll know it's time to come back to the path."
+        "title": "Trying another way",
+        "intro": "Test one prediction, such as “no one will hear a calm request”. Choose a safe situation and see what happens.",
+        "why": "A prediction tested in life teaches more than ten rounds of thinking. The result need not be good to be valuable."
+      },
+      "step14": {
+        "title": "Kind and accountable",
+        "intro": "If you wish, write to yourself after a difficult moment. Make room for kindness and responsibility for a specific action.",
+        "why": "The letter breaks the loop outburst → shame → tension → outburst. Kindness does not excuse repair; it makes it possible."
+      },
+      "step15": {
+        "title": "The barometer at the end",
+        "intro": "Repeat the barometer and compare your results in Progress. Notice small changes the score may not capture, too.",
+        "why": "Two points on a track are a picture of change over time, not a verdict. The rest is in Moments."
+      },
+      "step16": {
+        "title": "A letter for a worse day",
+        "intro": "Write to the you of the future: what you already know, what helped, what to do in the first minute of anger. It returns in the week you choose.",
+        "why": "A worse day will come. A letter read weeks later works like the voice of someone who knows you and is on your side."
+      },
+      "step17": {
+        "title": "What I take with me",
+        "intro": "Choose a helpful practice, a signal to pause and a way to seek support. You do not need to keep everything.",
+        "why": "What stays in the week’s rhythm lasts after the path. This step closes the path and sets the repeats."
+      },
+      "step18": {
+        "title": "The barometer eight weeks on",
+        "intro": "Eight weeks after the end: repeat the barometer and see what stayed.",
+        "why": "A habit is measured in weeks, not days. This measure says whether the change stayed."
+      },
+      "step19": {
+        "title": "The return",
+        "intro": "Read your letter, mark what stayed and choose one small move for the coming week.",
+        "why": "The return is not an exam. It is the moment you can resume what helped before the old reaction settles back in."
       }
     },
     "practices": {
       "paced-breathing": {
-        "intro": "Every other day, three minutes. A longer exhale lowers arousal and makes a pause easier in a real situation."
+        "intro": "A few comfortable breaths, without forcing the rhythm. Stop if it feels unpleasant."
       },
       "moment-anger": {
-        "intro": "Daily, calm days included. The log shows the pattern: when anger shows up, what fuels it and what helps."
+        "intro": "Five taps: what took the wheel, when noticed, what instead, how strong. No need to wait for an outburst or catch up on empty days."
       }
     },
     "tasks": {
       "noticeSigns": {
-        "title": "Notice the first sign of anger in your body",
-        "why": "The earlier you notice anger, the more choice you have."
+        "title": "Notice a signal in your body",
+        "why": "Noticing and naming is enough. A note in Moments can help you return to the moment."
+      },
+      "noticeCost": {
+        "title": "Notice what came after the reaction",
+        "why": "Without judging. Seeing the effect shows what changing the reaction is for."
       },
       "pauseInConversation": {
-        "title": "Use your pause plan in a real conversation and come back to it",
-        "why": "A pause only works if you return to the conversation."
+        "title": "Try your pause",
+        "why": "Even a short one. Tick it in Moments, even if it came late."
+      },
+      "announceReturn": {
+        "title": "Announce the break and the return",
+        "why": "The other person accepts a pause more easily when they know you will come back."
+      },
+      "breathBefore": {
+        "title": "Take a breath before you answer",
+        "why": "One longer exhale gives the body the second the thought needs."
       },
       "altThought": {
-        "title": "Before you respond, recall your alternative thought",
-        "why": "The thought from your record should work in the moment, not just on paper."
+        "title": "Recall another thought",
+        "why": "See whether it gives you a little more choice."
+      },
+      "factOnly": {
+        "title": "Say just the fact, without the addition",
+        "why": "Facts without judgements are easier to hear and harder to argue with."
       },
       "requestNotReproach": {
-        "title": "Make a request instead of a reproach",
-        "why": "A request says what you need. A reproach only says you're angry."
+        "title": "Name a need or boundary",
+        "why": "You can ask for a change without a guarantee that the other person will agree."
+      },
+      "nameNeed": {
+        "title": "Name the need in your head",
+        "why": "You do not have to say it yet. A named need turns anger into information."
+      },
+      "returnToTalk": {
+        "title": "Return to the conversation after the pause",
+        "why": "The return matters more than the pause. It teaches that a break is not an escape."
       },
       "applySolution": {
-        "title": "Put one solution from problem solving into practice",
-        "why": "A recurring provocation weakens once the situation changes."
+        "title": "Take one small step",
+        "why": "Choose an action within your control."
       },
       "calmRequest": {
-        "title": "Ask calmly where you'd usually raise your voice",
-        "why": "This tests the prediction from your behavioural experiment."
+        "title": "Try a calm request",
+        "why": "Notice the response without judging yourself by the outcome."
+      },
+      "sayNoCalmly": {
+        "title": "Say “no” without raising your voice",
+        "why": "A boundary spoken calmly is a boundary. It does not need force."
       },
       "repairRelationship": {
-        "title": "Repair one relationship after a past outburst",
-        "why": "Repair closes the cycle of outburst, shame and tension."
+        "title": "Make room for repair",
+        "why": "If it is safe, acknowledge a specific action and offer repair. The other person may need time."
+      },
+      "keepPause": {
+        "title": "Stay with your pause",
+        "why": "Three times a week is enough for the move to outlast the path."
       }
+    },
+    "goal": "Notice anger earlier, make room for a pause and express what matters without hurting yourself or others.",
+    "scaleLabels": {
+      "total": "Anger intensity"
+    },
+    "planLabels": {
+      "earlySigns": "When I notice",
+      "ifThen": "My pause",
+      "returnPromise": "Returning to the conversation"
     }
   },
   "anxiety-approach": {
     "title": "Anxiety: Approach Instead of Avoid",
-    "description": "Eight weeks of working with anxiety and worry. You get to know your anxiety, learn to postpone worries and test predictions, then step by step approach what you avoid. Alongside the steps you have worry time every evening and paced breathing every other day. Each week you get one task to try out in real life. This path does not replace professional help for panic attacks, obsessive-compulsive disorder, trauma or thoughts of harming yourself.",
+    "description": "Eight weeks with worry and avoidance: your own map, examining thoughts, small everyday attempts and what stays. Set your own pace. Eight weeks after the end the path invites you to a Return. This path does not replace support for panic attacks, OCD, trauma or a crisis.",
     "reflection": {
       "severity": "How much did anxiety and worry limit this week?"
     },
     "phases": {
-      "map": {
-        "title": "Anxiety map",
-        "question": {
-          "m": "What did you avoid most often, and what did it cost you?",
-          "f": "What did you avoid most often, and what did it cost you?"
-        }
+      "w1": {
+        "title": "Noticing",
+        "why": "Name the anxiety: the situations, the body, what it makes you do and what you want to return to.",
+        "question": "What could you notice before the urge to withdraw?"
       },
-      "thoughts": {
-        "title": "Thoughts",
-        "question": "How accurate were your predictions?"
+      "w2": {
+        "title": "A worry or a task",
+        "why": "Postpone worries to a fixed time and sort which are a problem and which a hypothesis.",
+        "question": "Which worry turned out to be a task, and which a hypothesis?"
       },
-      "uncertainty": {
-        "title": "Uncertainty",
-        "question": {
-          "m": "What happened when you didn't make fully sure?",
-          "f": "What happened when you didn't make fully sure?"
-        }
+      "w3": {
+        "title": "Another perspective",
+        "why": "Notice the difference between a prediction and what is already known, and test one prediction in life.",
+        "question": "Which thought gave you more room to choose?"
       },
-      "problems": {
-        "title": "Real problems",
-        "question": "Which worry turned out to be a problem to solve, and which just a hypothetical?"
+      "w4": {
+        "title": "Within my reach",
+        "why": "Turn one worry into a doable step. Halfway: we check the dose, not the result.",
+        "question": "What step was within your reach, and which unknown could you leave?"
       },
-      "approach": {
-        "title": "Approach",
-        "question": "How did the anxiety change across attempts?"
+      "w5": {
+        "title": "A small approach",
+        "why": "Build the ladder and return to a safe situation in a manageable dose.",
+        "question": "What did the attempt show, regardless of your anxiety level?"
       },
-      "stance": {
-        "title": "Stance",
-        "question": {
-          "m": "What did you gain by doing something despite the anxiety?",
-          "f": "What did you gain by doing something despite the anxiety?"
-        }
+      "w6": {
+        "title": "Back to the attempt",
+        "why": "The same ladder, a second time. A repeat or a smaller step is progress too.",
+        "question": "What was different the second time?"
       },
-      "consolidation": {
-        "title": "Consolidation",
-        "question": "Which safety behaviour could most easily come back?"
+      "w7": {
+        "title": "What matters",
+        "why": "Choose a helpful way to return to life. You can skip these steps.",
+        "question": "What meaningful thing found some room alongside anxiety?"
+      },
+      "w8": {
+        "title": "What stays",
+        "why": "Keep what helps and write yourself a letter for a worse day.",
+        "question": "What small practice would you like to return to?"
+      },
+      "return": {
+        "title": "The return",
+        "why": "Eight weeks after the end: what stayed, what came back.",
+        "question": "What from this path stayed with you day to day?"
       }
     },
     "steps": {
       "step1": {
-        "intro": "Start with a short anxiety measurement. The same questionnaire returns at the end of the path."
+        "title": "A starting point",
+        "intro": "Notice how anxiety affects your days. This score is a reference point, not a diagnosis. You will return to it halfway, at the end and at the Return.",
+        "why": "Without a starting point you cannot see change. This measure is your reference for the whole way."
       },
       "step2": {
-        "intro": "Optional step. Measure how hard uncertainty is to bear. It's the mechanism the experiment step works on."
+        "title": "Living with unknowns",
+        "intro": "If you wish, explore your response to uncertainty. You can skip this measure; it returns at the end.",
+        "why": "Intolerance of uncertainty keeps worry going. Measured at the start and the end, it shows whether room for the unknown is growing."
       },
       "step3": {
-        "intro": "Gather the situations that make you anxious, what you avoid and how you keep yourself safe. This list becomes your exposure ladder."
+        "title": "My anxiety map",
+        "intro": "Name one situation, what anxiety makes you do and what you want to return to. The map will be available under “My plan”.",
+        "why": "Anxiety is easier to notice when you know its situations and your typical moves. The map gives names to what used to happen on its own."
       },
       "step4": {
-        "intro": "Learn to sort worries: postpone the hypothetical ones, plan the practical ones. From now on worry time sends a chosen worry here."
+        "title": "How I will know it works",
+        "intro": "Say in your own words what you most want to change and how you will know it is working. The sentence stays at the top of the path.",
+        "why": "A goal in your own words holds the direction for eight weeks and tells you how you will know the path works."
       },
       "step5": {
-        "intro": "Look at catastrophising, fortune telling and beliefs about worry itself, such as “worrying protects me”."
+        "title": "A worry or a task",
+        "intro": "See whether there is something you can do now, or whether the thought concerns what might happen.",
+        "why": "The worry tree separates a problem from a hypothesis. The problem gets a step; the hypothesis can wait for worry time."
       },
       "step6": {
-        "intro": {
-          "m": "Take apart one strong fear: how likely it is, what it would cost and how you would cope.",
-          "f": "Take apart one strong fear: how likely it is, what it would cost and how you would cope."
-        }
+        "title": "What anxiety adds",
+        "intro": "Look at one concern. Notice assumptions and generalisations without criticising yourself for having them.",
+        "why": "A named assumption loses some of its force. This is not about thinking positively, only about seeing what is known."
       },
       "step7": {
-        "intro": "Pick one safety behaviour from your map and drop it as a test, for example don't check your email three times. Write down your prediction."
+        "title": "A thought that makes room",
+        "intro": "Return to a saved moment. Check the facts and find a fairer thought — it does not need to promise everything will go well.",
+        "why": "A fairer thought makes room for uncertainty instead of removing it. That is enough to approach."
       },
       "step8": {
-        "intro": "Take a practical worry the tree sent to planning and work out a solution."
+        "title": "A small uncertainty experiment",
+        "intro": "Return to a saved moment and its prediction. Choose a safe, minor situation and one unnecessary check; see what happens.",
+        "why": "Anxiety predicts. One tested forecast teaches more than ten reassurances."
       },
       "step9": {
-        "intro": "Build a ladder from the avoided situations on your map and make a first attempt on the lowest rung, without safety behaviours."
+        "title": "One step within reach",
+        "intro": "Take a worry you can act on. Explore options and choose one doable step.",
+        "why": "A worry that gets a step stops circling. Influence counts, not size."
       },
       "step10": {
-        "intro": "Review last week's attempts and plan the next rungs. Return to the same ladder."
+        "title": "The measure halfway",
+        "intro": "Repeat the measure. See in Progress whether anything moved, without judging yourself by the score.",
+        "why": "A measure halfway shows the direction before the path ends. Sometimes it is what says it is worth staying with what already works."
       },
       "step11": {
-        "intro": "Optional step, for fear of symptoms such as blushing, trembling or insomnia. Try to deliberately want more of the symptom instead of fighting it."
+        "title": "Is it too much?",
+        "intro": "Say honestly how many of the practices you really do. The path proposes a calmer rhythm if needed.",
+        "why": "People drop out of paths not because they do too little, but because the path looks disappointed. There is none of that here."
       },
       "step12": {
-        "intro": "Optional step. When attention circles around symptoms, redirect it to the task and to what matters."
+        "title": "My ladder of small attempts",
+        "intro": "Arrange a few safe situations from easier to harder. Begin with a small attempt and keep genuine safety precautions.",
+        "why": "Approaching in a small dose teaches that it can be borne and that the prediction does not come true. A drop in anxiety is not the goal of the attempt."
       },
       "step13": {
-        "intro": "Optional step. If avoidance has narrowed your week, plan activities in line with your values."
+        "title": "Returning to my attempt",
+        "intro": "Open the same ladder. Look at what your attempts teach you and choose a repeat or a smaller step. You do not have to move up yet.",
+        "why": "The second attempt teaches more than the first: that is when you see what changes and what does not."
       },
       "step14": {
-        "intro": "Take the anxiety measurement again. The completion screen shows both results."
+        "title": "Another stance towards a symptom",
+        "intro": "An optional change of stance towards a familiar, mild symptom. Do not induce breathlessness or other concerning sensations. If unsure, skip this step and discuss it with a professional.",
+        "why": "Fear of a symptom keeps the symptom going. Inviting it with humour takes its power away."
       },
       "step15": {
-        "intro": "Decide what stays. Usually that's worry time twice a week and a ladder to finish."
+        "title": "Attention on what I am doing",
+        "intro": "If you wish, shift attention from monitoring yourself to the activity at hand. Anxiety does not need to disappear first.",
+        "why": "Monitoring yourself turns anxiety up. Attention on the activity leaves it in the background, where it fades on its own."
+      },
+      "step16": {
+        "title": "Room for something meaningful",
+        "intro": "Optionally plan one small activity that matters to you. Adjust it to what is manageable today.",
+        "why": "The life you return to is the reason for all this work. One meaningful thing a week is enough to feel it."
+      },
+      "step17": {
+        "title": "The measure at the end",
+        "intro": "Repeat the measure and compare results in Progress. Also notice what you could return to, even with anxiety present.",
+        "why": "Two points on a track are a picture of change over time, not a verdict. The rest is in Moments and on the ladder."
+      },
+      "step18": {
+        "title": "Unknowns at the end",
+        "intro": "If you wish, repeat the intolerance-of-uncertainty measure and compare it with the start.",
+        "why": "Room for the unknown is the aim of this path. This measure says whether it grew."
+      },
+      "step19": {
+        "title": "A letter for a worse day",
+        "intro": "Write to the you of the future: what you already know, what helped, what to do in the first minute of anxiety. It returns in the week you choose.",
+        "why": "A worse day will come. A letter read weeks later works like the voice of someone who knows you and is on your side."
+      },
+      "step20": {
+        "title": "What I take with me",
+        "intro": "Choose a helpful practice, a small attempt to repeat and a way to seek support. You do not need to keep everything.",
+        "why": "What stays in the week’s rhythm lasts after the path. This step closes the path and sets the repeats."
+      },
+      "step21": {
+        "title": "The measure eight weeks on",
+        "intro": "Eight weeks after the end: repeat the measure and see what stayed.",
+        "why": "A habit is measured in weeks, not days. This measure says whether the change stayed."
+      },
+      "step22": {
+        "title": "The return",
+        "intro": "Read your letter, mark what stayed and choose one small move for the coming week.",
+        "why": "The return is not an exam. It is the moment you can resume what helped before avoidance settles back in."
       }
     },
     "practices": {
-      "worry-postponement": {
-        "intro": "Every evening at a fixed time. During the day you only note worries and set them aside for later."
-      },
       "paced-breathing": {
-        "intro": "Every other day throughout the path. The breath is there to help you approach a hard situation, not to make the anxiety disappear."
+        "intro": "Breathe at a comfortable pace without forcing it. This offers support; it is not a condition for taking action."
+      },
+      "moment-anxiety": {
+        "intro": "Five taps: what pulled, when noticed, what instead, how strong. No need to wait for a hard day or catch up on empty ones."
+      },
+      "worry-postponement": {
+        "intro": "Choose a brief, regular time, away from bedtime. During the day, note a worry and try returning to what you are doing."
       }
     },
     "tasks": {
       "noticeAvoidance": {
-        "title": "Notice situations where you steer around something or keep yourself safe",
-        "why": "Avoidance is often invisible until you name it."
+        "title": "Notice a moment of withdrawal",
+        "why": "Name it in Moments without judging yourself."
+      },
+      "noticeUrge": {
+        "title": "Notice the urge to check",
+        "why": "Just noticing, before you check. You do not have to give it up yet."
+      },
+      "postponeWorry": {
+        "title": "Postpone a worry to your worry time",
+        "why": "Every worry time counts a day. Three a week is enough."
+      },
+      "sortWorry": {
+        "title": "A worry or a task?",
+        "why": "With one worry, ask: is there a step within my reach? If so, write it down."
       },
       "predictionCheck": {
-        "title": "Write down a prediction before a hard situation and check it afterwards",
-        "why": "Anxiety predicts. Checking predictions teaches it accuracy."
+        "title": "Compare the worry with what happened",
+        "why": "Note a prediction beforehand and an observation afterwards."
       },
       "uncertainDecisions": {
-        "title": "Make a small decision without reassuring yourself",
-        "why": "For example, order something without reading reviews. Tolerance of uncertainty is built on small things."
+        "title": "Leave a small unknown",
+        "why": "Choose a minor decision without real risk, such as a film without another review."
       },
       "firstStep": {
-        "title": "Take the first step of your chosen solution",
-        "why": "A practical worry shrinks once you start acting."
+        "title": "Take one doable step",
+        "why": "Choose an action within your control."
+      },
+      "leaveOneUnknown": {
+        "title": "Do not check a second time",
+        "why": "One check is enough. Notice what happens to the anxiety without the second."
       },
       "exposureLow": {
-        "title": "Make an attempt on the lowest rung of your ladder, without safety behaviours",
-        "why": "Anxiety drops with repetition, not in a single attempt."
+        "title": "Try an easy rung",
+        "why": "Record what happened. A drop in anxiety is not the only sign of learning."
+      },
+      "stayAMinute": {
+        "title": "Stay a minute longer",
+        "why": "In a situation you would like to leave. A minute is enough."
       },
       "exposureNext": {
-        "title": "Make an attempt on the next rung of your ladder",
-        "why": "Move up once anxiety on the previous rung drops below half."
+        "title": "Repeat or adjust an attempt",
+        "why": "You can stay on the same rung, make it smaller or choose the next one."
+      },
+      "doItAnyway": {
+        "title": "Do it anyway",
+        "why": "One thing from the map you want to return to. Anxiety may come along."
       },
       "meaningfulAct": {
-        "title": "Do one thing anxiety has been postponing that matters to you",
-        "why": "Direction comes from what matters, not from the absence of anxiety."
+        "title": "Do one small meaningful thing",
+        "why": "Choose something that matters even when anxiety comes along."
+      },
+      "attentionOut": {
+        "title": "Attention on the activity, not on yourself",
+        "why": "When you notice monitoring yourself, return to what you are doing. Twice a week."
       },
       "planApproach": {
-        "title": "Plan one approach situation for next month",
-        "why": "Avoidance creeps back quietly. A planned approach is your safeguard."
+        "title": "Plan another small attempt",
+        "why": "Choose a realistic time and scale you would like to return to."
+      },
+      "keepWorryTime": {
+        "title": "Stay with your worry time",
+        "why": "Three times a week is enough for the practice to outlast the path."
       }
+    },
+    "goal": "Make room for uncertainty and take small steps towards what matters, even with anxiety present.",
+    "scaleLabels": {
+      "gad-7": {
+        "total": "Anxiety"
+      },
+      "ius-12": {
+        "total": "Intolerance of uncertainty",
+        "prospective": "Uncertainty about what will be",
+        "inhibitory": "Uncertainty that blocks"
+      }
+    },
+    "mapLabel": "My map",
+    "mapLabels": {
+      "withoutFear": "What I want to return to",
+      "avoidance": "What I put off",
+      "safetyBehaviors": "What I do for certainty"
     }
   },
   "shame-compassion": {
@@ -447,107 +695,134 @@
     "steps": {
       "step1": {
         "intro": "Start by measuring self-compassion. The same scale returns halfway, at the end and at the Return.",
-        "title": "Self-compassion — measure"
+        "title": "Self-compassion",
+        "why": "Without a starting point you cannot see change. This measure is your reference for the whole way."
       },
       "step2": {
         "intro": "A second measure: the three voices you answer yourself with when things go wrong. It returns at the end and at the Return.",
-        "title": "Three voices — measure"
+        "title": "Three voices",
+        "why": "Shame is kept alive by three inner voices. Once you measure them, you know which one needs the work most."
       },
       "step3": {
-        "intro": "See where shame speaks up most, how you react to it and which demand on yourself sits behind it. The reactions become parts in your registry."
+        "intro": "See where shame speaks up most, how you react to it and which demand on yourself sits behind it. The reactions become parts in your registry.",
+        "why": "Shame is easier to notice when you know its places and your usual reactions. The map names what used to just happen."
       },
       "step4": {
         "intro": "Say in your own words what you most want to change and how you'll know it's working. That sentence stays at the top of the path.",
-        "title": "How I will know it changed"
+        "title": "How I will know it changed",
+        "why": "Your own sense of the goal keeps the direction for eight weeks and tells you how you will know the path is working."
       },
       "step5": {
-        "intro": "Before you turn to yourself with warmth, build a place to return to when it gets too much, and name what your resistance says."
+        "intro": "Before you turn to yourself with warmth, build a place to return to when it gets too much, and name what your resistance says.",
+        "why": "Warmth toward yourself can be hard. You need a place to come back to when it gets too much."
       },
       "step6": {
         "intro": "Create an image of a compassionate figure, starting with someone you find easy to care for. Its sentence returns in the following steps.",
-        "title": "Compassionate figure"
+        "title": "Compassionate figure",
+        "why": "It is easier to receive warmth from a figure than to raise it in yourself from nothing. Its words will return in the next steps."
       },
       "step7": {
-        "intro": "Now you are the compassion. Posture, voice, the eight qualities of Self-energy and a sentence to the part that is ashamed."
+        "intro": "Now you are the compassion. Posture, voice, the eight qualities of Self-energy and a sentence to the part that is ashamed.",
+        "why": "The figure was a bridge. Now you learn to sound warm yourself toward the part that feels shame."
       },
       "step8": {
         "intro": "Build a personal plan for the moment of shame: signal, breath, an unblending sentence, one question, one sentence and a small move towards contact. From now on you practise it in life.",
-        "title": "Plan for a hard moment"
+        "title": "Plan for a hard moment",
+        "why": "In the moment of shame there is no time to think. A ready plan lets your response get ahead of the part."
       },
       "step9": {
-        "intro": "Take one moment from Moments and ask what the shame is about. A deed can be repaired, an event needs care, a demand needs checking."
+        "intro": "Take one moment from Moments and ask what the shame is about. A deed can be repaired, an event needs care, a demand needs checking.",
+        "why": "A deed, an event and a demand each need a different response. Without this question you treat them all the same."
       },
       "step10": {
         "intro": "Pick a moment and take apart the hot \"I am…\" thought. Look for evidence through the eyes of someone close to you, not a prosecutor.",
-        "title": "Thought record"
+        "title": "Thought record",
+        "why": "The hot thought “I am…” sounds like a fact. Laid out as evidence it loses its force."
       },
       "step11": {
         "intro": "Halfway: repeat the self-compassion scale. A picture of change, not a verdict.",
-        "title": "Self-compassion — halfway"
+        "title": "Self-compassion — halfway",
+        "why": "The second point shows the direction before you reach the end. It is a picture, not a grade."
       },
       "step12": {
         "intro": "Let's check the dose, not the result. If there are too many practices, fewer will stay; if you're doing none, the smallest one stays.",
-        "title": "Is it too much?"
+        "title": "Is it too much?",
+        "why": "The path has to fit into life. Better less and regular than a lot and never."
       },
       "step13": {
         "intro": "Pick a moment when the critic spoke up and treat it as a trailhead to the part. Enter from the position of your compassionate self.",
-        "title": "Trailhead"
+        "title": "Trailhead",
+        "why": "The Critic shows up in concrete moments. One of them is the door to a conversation with that part."
       },
       "step14": {
         "intro": "Get to know the Critic as a protector: what is it afraid would happen if it stopped? At the end write the sentence with which you take the wheel from it.",
-        "title": "What the Critic guards"
+        "title": "What the Critic guards",
+        "why": "The Critic is not an enemy but a protection that grew out of fear. Once you know what it guards, you can take the wheel from it."
       },
       "step15": {
         "intro": "Optional step. Talk to the Critic directly: the assistant plays its voice and you answer from Self.",
-        "title": "A talk with the Critic"
+        "title": "A talk with the Critic",
+        "why": "Some find it easier to hear a part when it has a voice of its own. Skip this if it does not feel like your way."
       },
       "step16": {
         "intro": "Pick a moment and write a letter to yourself in the voice of your compassionate self. At the end you'll check that the letter holds support, not advice.",
-        "title": "Letter to myself"
+        "title": "Letter to myself",
+        "why": "Writing slows the compassionate self's voice down enough to leave something you can return to."
       },
       "step17": {
         "intro": "The fierce side of compassion: how a friend would defend you and the sentence you defend yourself with, without \"sorry\" and without \"but\".",
-        "title": "In my own defence"
+        "title": "In my own defence",
+        "why": "Compassion is also firmness. A defending sentence said once is easier in a real situation."
       },
       "step18": {
         "intro": "Move from the demand to a belief about yourself. The fair demand from \"What is this shame about?\" becomes the alternative belief you now collect evidence for.",
-        "title": "What I think of myself"
+        "title": "What I think of myself",
+        "why": "Under a demand sits a belief about yourself. A new belief needs evidence, which you collect from now on."
       },
       "step19": {
         "intro": "Test in life the prediction \"if they see the real me, they'll reject me\". A small, safe situation, the prediction written down, then the result.",
-        "title": "Testing it in life"
+        "title": "Testing it in life",
+        "why": "The prediction “they will reject me” is only tested in the world. A small situation gives proof that rehearsing in your head cannot."
       },
       "step20": {
         "intro": "Optional step, only if the protectors agree. Stay with a younger part for a while, without fixing. \"Not yet\" is a good answer too and completes the step.",
-        "title": "With the younger part"
+        "title": "With the younger part",
+        "why": "Shame often has an old source. Being with it without fixing changes more than arguments — only with the consent of the parts that protect."
       },
       "step21": {
         "intro": "Repeat the self-compassion scale. You'll see the series: start, halfway, end.",
-        "title": "Self-compassion — at the end"
+        "title": "Self-compassion — at the end",
+        "why": "The third point closes the picture: start, middle, end. It is your proof of change."
       },
       "step22": {
         "intro": "Repeat the three-voices scale. The reassured self grows, the inadequate and hated selves weaken: that's the muscle you're training.",
-        "title": "Three voices — at the end"
+        "title": "Three voices — at the end",
+        "why": "You will see whether reassuring grew and harshness and dislike eased."
       },
       "step23": {
         "intro": "Write a letter to yourself for a worse day, in the voice of your compassionate self. It returns in the week you choose.",
-        "title": "Letter for a worse day"
+        "title": "Letter for a worse day",
+        "why": "Worse days will come back. A letter from a good day works when warmth toward yourself is just missing."
       },
       "step24": {
         "intro": "Decide which practices stay with you and in what rhythm. This step closes the path; the Return comes in eight weeks.",
-        "title": "What stays with me"
+        "title": "What stays with me",
+        "why": "Without a decision the practices fade. You choose a few that stay and a rhythm that will hold."
       },
       "step25": {
         "intro": "The Return after eight weeks: the self-compassion scale for the fourth time.",
-        "title": "Self-compassion — eight weeks on"
+        "title": "Self-compassion — eight weeks on",
+        "why": "The fourth measure tells what held without the path."
       },
       "step26": {
         "intro": "The Return: the three voices for the third time.",
-        "title": "Three voices — eight weeks on"
+        "title": "Three voices — eight weeks on",
+        "why": "The third measure of the voices: what remained of what was practised."
       },
       "step27": {
         "intro": "Read the letter from yourself. What stayed, what came back, one small move for the coming week.",
-        "title": "What stayed, what came back"
+        "title": "What stayed, what came back",
+        "why": "The return is not an exam. It is a look at what helps day to day and one small move further."
       }
     },
     "practices": {
@@ -741,8 +1016,8 @@
     "declinedThisWeek": "The path task was set aside this week",
     "noTaskThisWeek": "No path task this week",
     "outcomeQuestion": {
-      "m": "How did it go? What turned out differently than you expected?",
-      "f": "How did it go? What turned out differently than you expected?"
+      "m": "How did this task go? What turned out differently than you expected?",
+      "f": "How did this task go? What turned out differently than you expected?"
     },
     "severityHigh": "very much",
     "severityLow": "not at all",
@@ -769,6 +1044,33 @@
       "few": "1–2",
       "several": "3–5",
       "many": "more"
+    },
+    "sectionTask": "This week's task",
+    "sectionTaskHint": "One thing to try outside the app, accepted in the week plan.",
+    "sectionMoments": "Moments",
+    "sectionMomentsHint": "Entries from the “Moments” practice: what took the wheel, last week beside this one.",
+    "sectionWeek": "Week {n} · {phase}",
+    "weekOfPath": "week {n} of {total}",
+    "stayShort": "Stay with this task",
+    "stayHint": "Next week's plan keeps this task instead of proposing a new one.",
+    "declinedNext": "Next week's plan will bring a new proposal.",
+    "noDayYet": "no day yet",
+    "countedDayPlain": "ticked in the day plan",
+    "backfill": {
+      "add": "Add one",
+      "more": "more, no details",
+      "day": "Which day",
+      "part": "Which part took the wheel",
+      "response": "What you did instead",
+      "optional": "(optional)",
+      "save": "Add",
+      "cancel": "Leave it",
+      "note": "saved as “noticed only now”",
+      "tag": "added later",
+      "remove": "Remove the added moment",
+      "limit": "at most {n} — the ones you remember best",
+      "quietWeek": "A quiet week in the log.",
+      "reaction": "What took the wheel"
     }
   },
   "glance": {
@@ -793,7 +1095,16 @@
     "outOf": "{a} of {b}",
     "soFar": "So far",
     "beginning": "Beginning",
-    "lately": "Lately"
+    "lately": "Lately",
+    "selfShort": "Me",
+    "momentsCount": {
+      "one": "{n} moment",
+      "few": "{n} moments",
+      "many": "{n} moments"
+    },
+    "unloggedPlus": "+{n} unlogged",
+    "ahead": "still ahead",
+    "partsLegend": "Parts"
   },
   "momentPicker": {
     "title": "Which moment to start from?",

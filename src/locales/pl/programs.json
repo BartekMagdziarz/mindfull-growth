@@ -98,7 +98,28 @@
     "markRead": "Przeczytane",
     "sources": "Źródła",
     "more": "Więcej",
-    "mySign": "Mój znak"
+    "mySign": "Mój znak",
+    "restartInline": "Od nowa",
+    "restartInlineQuestion": "Zacząć ścieżkę od pierwszego kroku? Ukończone ćwiczenia zostają w historii.",
+    "restartInlineConfirm": "Zacznij od nowa",
+    "keep": "Zostaw",
+    "undo": "Cofnij",
+    "whyLabel": "Po co",
+    "form": {
+      "measure": "Pomiar",
+      "imagery": "Wyobraźnia",
+      "reflection": "Namysł",
+      "action": "Działanie"
+    },
+    "stepsDoneOf": "{done} z {total} kroków",
+    "practicesCard": "Praktyki",
+    "partsTitle": "Części",
+    "logMomentShort": "Zapisz",
+    "change": "Zmień",
+    "returnTitle": "Powrót",
+    "returnNote": "osiem tygodni później",
+    "reactionsTitle": "Reakcje",
+    "wordsTitle": "Moje słowa"
   },
   "foundation": {
     "title": "Fundament samopoznania",
@@ -128,255 +149,482 @@
   },
   "anger-signal": {
     "title": "Złość jako sygnał",
-    "description": "Sześć tygodni pracy ze złością: od zauważania wyzwalaczy i sygnałów w ciele, przez plan pauzy i pracę z myślami, po potrzebę, której złość broni, i nowe sposoby działania. Obok kroków prowadzisz krótki dziennik złości i co drugi dzień ćwiczysz oddech kojący. Co tydzień dostajesz jedno zadanie do wypróbowania w życiu. Ta ścieżka nie wystarczy, jeśli złość przechodzi w przemoc albo ktoś czuje się przy tobie niebezpiecznie. Wtedy najważniejsza jest pomoc specjalisty.",
+    "description": "Sześć tygodni: rozpoznanie, pauza, inne spojrzenie, to, co ważne, własny wybór i to, co zostaje. Pracujesz na własnych sytuacjach, w swoim tempie. Po ośmiu tygodniach od końca ścieżka zaprasza na Powrót. Jeśli złość prowadzi do przemocy lub ktoś czuje się przy Tobie zagrożony, ta ścieżka nie wystarczy — potrzebne jest wsparcie specjalisty.",
     "reflection": {
-      "severity": "Jak bardzo złość utrudniała ci ten tydzień?"
+      "severity": "Jak bardzo złość utrudniała Ci ten tydzień?"
     },
     "phases": {
-      "understanding": {
-        "title": "Rozumienie",
-        "question": "Jaki wyzwalacz powtarzał się najczęściej?"
+      "w1": {
+        "title": "Rozpoznanie",
+        "why": "Nazywasz złość: po czym przychodzi, jak zwykle reaguje i co chcesz zmienić.",
+        "question": "Po czym najłatwiej było rozpoznać narastające napięcie?"
       },
-      "pause": {
-        "title": "Ciało i pauza",
-        "question": "Kiedy udało ci się zauważyć złość wcześniej niż zwykle?"
+      "w2": {
+        "title": "Pauza",
+        "why": "Przygotowujesz jeden mały ruch na chwilę, gdy napięcie rośnie, i sprawdzasz, co dopowiada myśl.",
+        "question": "Co pomogło zrobić choć krótką pauzę?"
       },
-      "thoughts": {
-        "title": "Myśli",
-        "question": "Jaka myśl najczęściej podkręcała złość?"
+      "w3": {
+        "title": "Inne spojrzenie",
+        "why": "Oddzielasz to, co się wydarzyło, od pierwszej interpretacji. W połowie drogi sprawdzasz, czy praktyk nie jest za dużo.",
+        "question": "Która myśl zostawiła Ci więcej miejsca na wybór?"
       },
-      "need": {
-        "title": "Potrzeba i część",
-        "question": "Jakiej potrzeby najczęściej broniła twoja złość?"
+      "w4": {
+        "title": "To, co ważne",
+        "why": "Słuchasz, czego broni ta złość, i znajdujesz słowa na potrzebę albo granicę.",
+        "question": "Jaką potrzebę albo granicę udało się nazwać?"
       },
-      "action": {
-        "title": "Działanie",
-        "question": {
-          "m": "Co się stało, gdy zrobiłeś coś inaczej niż zwykle?",
-          "f": "Co się stało, gdy zrobiłaś coś inaczej niż zwykle?"
-        }
+      "w5": {
+        "title": "Własny wybór",
+        "why": "Wypróbowujesz jedną zmianę w bezpiecznej, codziennej sytuacji.",
+        "question": "Co pokazała próba, nawet jeśli rozmowa nie poszła po Twojej myśli?"
       },
-      "consolidation": {
-        "title": "Utrwalenie",
-        "question": "Co z tej ścieżki chcesz zachować na dłużej?"
+      "w6": {
+        "title": "Co zostaje",
+        "why": "Zachowujesz to, co pomaga, i piszesz do siebie list na gorszy dzień.",
+        "question": "Do czego chcesz wracać, gdy złość znów wzrośnie?"
+      },
+      "return": {
+        "title": "Powrót",
+        "why": "Osiem tygodni po końcu: co zostało, co wróciło.",
+        "question": "Co z tej ścieżki zostało z Tobą na co dzień?"
       }
     },
     "steps": {
       "step1": {
-        "intro": "Zacznij od krótkiego pomiaru. Ten sam barometr wróci na końcu ścieżki, żeby było widać, co się zmieniło."
+        "title": "Punkt wyjścia",
+        "intro": "Sprawdź, jak złość wpływa na Twoje dni. Barometr jest orientacyjny; wrócisz do niego w połowie drogi, na końcu i przy Powrocie.",
+        "why": "Bez punktu startu nie zobaczysz zmiany. Ten pomiar jest Twoim punktem odniesienia na całą drogę."
       },
       "step2": {
-        "intro": "Zbierz swoje wyzwalacze, pierwsze sygnały w ciele i typowe reakcje. Z tej mapy korzystają kolejne kroki i dziennik złości."
+        "title": "Jak przychodzi złość",
+        "intro": "Przyjrzyj się jednej niedawnej sytuacji: co ją poprzedziło, co działo się w ciele i jak zwykle reaguje złość.",
+        "why": "Złość łatwiej zauważyć, gdy znasz jej sygnały i swoje typowe reakcje. Mapa daje nazwy temu, co dotąd działo się samo."
       },
       "step3": {
-        "intro": "Weź trzy najwcześniejsze sygnały z dziennika i ułóż plan „jeśli zauważę…, to…”. Pauzę łatwiej zrobić, gdy wiesz wcześniej, jak ma wyglądać."
+        "title": "Po czym poznam zmianę",
+        "intro": "Powiedz własnymi słowami, co najbardziej chcesz zmienić i po czym poznasz, że działa. To zdanie zostanie na górze ścieżki.",
+        "why": "Własne zdanie o celu trzyma kierunek przez sześć tygodni i mówi, po czym poznasz, że ścieżka działa."
       },
       "step4": {
-        "intro": "Przejrzyj zniekształcenia na jednym epizodzie z dziennika. Przy złości najczęściej pojawiają się powinności, czytanie w myślach, etykietowanie i personalizacja."
+        "title": "Mój plan pauzy",
+        "intro": "Wybierz wczesny sygnał i jeden wykonalny ruch. Zapisz też, jak wrócisz do rozmowy, kiedy będzie bezpiecznie.",
+        "why": "W chwili złości nie ma czasu na wymyślanie. Gotowe „jeśli…, to…” robi to za Ciebie."
       },
       "step5": {
-        "intro": "Rozłóż gorącą myśl z ostatniego epizodu, na przykład „robi to specjalnie”. Wypracuj myśl alternatywną, którą da się przywołać w pauzie."
+        "title": "Fakt czy dopowiedzenie",
+        "intro": "Weź jedną myśl, która nasila złość. Sprawdź, co w niej jest obserwacją, a co domysłem.",
+        "why": "Złość rośnie nie tylko od sytuacji, ale od tego, co do niej dopowiadasz. Nazwane dopowiedzenie traci część siły."
       },
       "step6": {
-        "intro": "Potraktuj ostatni silny epizod złości jak trop do części. To nie „twój problem”, tylko część, która ma swoje zadanie."
+        "title": "Myśl, która daje wybór",
+        "intro": "Wróć do zapisanego momentu. Poszukaj uczciwszej myśli, która uwzględnia fakty i Twoje granice.",
+        "why": "Uczciwsza myśl nie każe się zgadzać. Zostawia Ci wybór, jak zareagować."
       },
       "step7": {
-        "intro": "Poznaj część, która się złości: czego broni i czego się boi, gdyby przestała. Złość rzadko jest wrogiem, częściej nadgorliwym ochroniarzem."
+        "title": "Barometr w połowie drogi",
+        "intro": "Powtórz barometr. Zobacz w Postępie, czy coś drgnęło, bez oceniania siebie za wynik.",
+        "why": "Pomiar w połowie pokazuje kierunek, zanim ścieżka się skończy. Czasem to on mówi, że warto zostać przy tym, co już działa."
       },
       "step8": {
-        "intro": "Przełóż epizod złości na obserwację, uczucie, potrzebę i prośbę. Wynikiem ma być jedno zdanie, które naprawdę możesz powiedzieć."
+        "title": "Czy nie za dużo?",
+        "intro": "Powiedz szczerze, ile praktyk naprawdę robisz. Ścieżka zaproponuje spokojniejszy rytm, jeśli trzeba.",
+        "why": "Ludzie porzucają ścieżki nie dlatego, że robią za mało, tylko dlatego, że ścieżka wygląda na rozczarowaną. Tu nic takiego nie ma."
       },
       "step9": {
-        "intro": "Wybierz prowokację, która w dzienniku powtarza się najczęściej, i poszukaj rozwiązania. Zmiana sytuacji zmniejsza złość skuteczniej niż samo panowanie nad sobą."
+        "title": "Posłuchać złości",
+        "intro": "Wybierz moment, do którego możesz teraz spokojnie wrócić. Jeśli pasuje Ci język części, potraktuj złość jako głos, którego można wysłuchać.",
+        "why": "Złość, której ktoś wysłuchał, nie musi krzyczeć. Punkt wejścia to pierwsza taka rozmowa."
       },
       "step10": {
-        "intro": "Sprawdź przewidywanie w rodzaju „jeśli powiem spokojnie, zignorują mnie”. Użyj prośby z kroku „Od złości do prośby”."
+        "title": "Co próbuje chronić",
+        "intro": "Przyjrzyj się intencji tej części. Rozumienie jej nie oznacza zgody na raniące zachowanie.",
+        "why": "Protektor, który wie, że go rozumiesz, odpuszcza ster łatwiej niż ten, z którym walczysz."
       },
       "step11": {
-        "intro": "Krok opcjonalny. Napisz do siebie po wybuchu, którego się wstydzisz. Życzliwość przerywa cykl wybuchu, wstydu i napięcia."
+        "title": "Potrzeba i prośba",
+        "intro": "Wróć do zapisanego momentu. Nazwij to, co jest ważne, i ułóż prośbę albo granicę, którą możesz spokojnie wyrazić.",
+        "why": "Złość zwykle broni potrzeby. Prośba o nią mówi wprost to, co wybuch mówił nie wprost."
       },
       "step12": {
-        "intro": "Powtórz barometr. Na ekranie ukończenia zobaczysz oba wyniki obok siebie."
+        "title": "Jedna możliwa zmiana",
+        "intro": "Wybierz powtarzającą się trudność i mały krok, na który masz wpływ.",
+        "why": "Przeżuwanie podtrzymuje złość; jeden krok w sprawie ją rozładowuje. Liczy się wpływ, nie rozmiar."
       },
       "step13": {
-        "intro": "Zdecyduj, które praktyki zostają z tobą i po czym poznasz, że warto wrócić do ścieżki."
+        "title": "Spróbować inaczej",
+        "intro": "Sprawdź jedno przewidywanie, np. „spokojnej prośby nikt nie usłyszy”. Wybierz sytuację bez zagrożenia i zobacz, co się wydarzy.",
+        "why": "Przewidywanie sprawdzone w życiu uczy więcej niż dziesięć przemyśleń. Wynik nie musi być dobry, żeby był cenny."
+      },
+      "step14": {
+        "title": "Życzliwie i odpowiedzialnie",
+        "intro": "Jeśli chcesz, napisz do siebie po trudnym momencie. Zrób miejsce na życzliwość i na odpowiedzialność za konkretny czyn.",
+        "why": "List przerywa pętlę wybuch → wstyd → napięcie → wybuch. Życzliwość nie zwalnia z naprawy, tylko ją umożliwia."
+      },
+      "step15": {
+        "title": "Barometr na koniec",
+        "intro": "Powtórz barometr i porównaj wyniki w Postępie. Zauważ też małe zmiany, których wynik może nie uchwycić.",
+        "why": "Dwa punkty na torze to obraz zmiany w czasie, nie ocena. Reszta jest w Momentach."
+      },
+      "step16": {
+        "title": "List na gorszy dzień",
+        "intro": "Napisz do siebie z przyszłości: co już umiesz, co pomagało, co zrobić w pierwszej minucie złości. Wróci w wybranym tygodniu.",
+        "why": "Gorszy dzień wróci. List czytany po tygodniach działa jak głos kogoś, kto Cię zna i jest po Twojej stronie."
+      },
+      "step17": {
+        "title": "Co zabieram ze sobą",
+        "intro": "Wybierz pomocną praktykę, sygnał do pauzy i sposób szukania wsparcia. Nie musisz zachowywać wszystkiego.",
+        "why": "To, co zostaje w rytmie tygodnia, utrzymuje się po ścieżce. Ten krok zamyka ścieżkę i ustawia powtórki."
+      },
+      "step18": {
+        "title": "Barometr po ośmiu tygodniach",
+        "intro": "Osiem tygodni po końcu: powtórz barometr i zobacz, co zostało.",
+        "why": "Nawyk mierzy się po tygodniach, nie po dniach. Ten pomiar mówi, czy zmiana została."
+      },
+      "step19": {
+        "title": "Powrót",
+        "intro": "Przeczytaj swój list, zaznacz, co zostało, i wybierz jeden mały ruch na najbliższy tydzień.",
+        "why": "Powrót to nie egzamin. To moment, w którym możesz wznowić to, co pomagało, zanim stara reakcja się utrwali."
       }
     },
     "practices": {
       "paced-breathing": {
-        "intro": "Co drugi dzień, trzy minuty. Dłuższy wydech obniża pobudzenie i ułatwia pauzę w prawdziwej sytuacji."
+        "intro": "Kilka spokojnych oddechów, bez wymuszania rytmu. Przerwij, jeśli robi się nieprzyjemnie."
       },
       "moment-anger": {
-        "intro": "Codziennie, także w spokojne dni. Dziennik pokazuje wzór: kiedy złość się pojawia, co ją podkręca i co pomaga."
+        "intro": "Pięć dotknięć: co przejęło ster, kiedy zauważone, co zamiast, jak silna. Nie trzeba czekać na wybuch ani nadrabiać pustych dni."
       }
     },
     "tasks": {
       "noticeSigns": {
-        "title": "Zauważ pierwszy sygnał złości w ciele",
-        "why": "Im wcześniej zauważysz złość, tym więcej masz wyboru."
+        "title": "Zauważ sygnał w ciele",
+        "why": "Wystarczy zauważyć i nazwać. Zapis w Momentach może pomóc wrócić do tej chwili."
+      },
+      "noticeCost": {
+        "title": "Zauważ, co było po reakcji",
+        "why": "Bez oceniania. Samo zauważenie skutku pokazuje, po co zmieniać reakcję."
       },
       "pauseInConversation": {
-        "title": "Użyj planu pauzy w prawdziwej rozmowie i wróć do niej",
-        "why": "Pauza działa tylko wtedy, gdy wracasz do rozmowy."
+        "title": "Wypróbuj swoją pauzę",
+        "why": "Choć krótką. Zaznacz ją w Momentach, nawet jeśli przyszła z opóźnieniem."
+      },
+      "announceReturn": {
+        "title": "Zapowiedz przerwę i powrót",
+        "why": "Druga osoba łatwiej przyjmie pauzę, gdy wie, że wrócisz."
+      },
+      "breathBefore": {
+        "title": "Weź oddech, zanim odpowiesz",
+        "why": "Jeden dłuższy wydech daje ciału sekundę, której myśl potrzebuje."
       },
       "altThought": {
-        "title": "Zanim odpowiesz, przypomnij sobie myśl alternatywną",
-        "why": "Myśl z rejestru ma zadziałać w sytuacji, nie tylko na papierze."
+        "title": "Przypomnij sobie inną myśl",
+        "why": "Sprawdź, czy zostawia Ci choć trochę więcej wyboru."
+      },
+      "factOnly": {
+        "title": "Powiedz sam fakt, bez dopowiedzenia",
+        "why": "Fakty bez ocen łatwiej usłyszeć drugiej osobie i trudniej się o nie spierać."
       },
       "requestNotReproach": {
-        "title": "Wypowiedz prośbę zamiast wyrzutu",
-        "why": "Prośba mówi, czego potrzebujesz. Wyrzut mówi tylko, że się złościsz."
+        "title": "Nazwij potrzebę lub granicę",
+        "why": "Możesz poprosić o zmianę bez gwarancji, że druga osoba się zgodzi."
+      },
+      "nameNeed": {
+        "title": "Nazwij potrzebę w myślach",
+        "why": "Nie trzeba jej od razu wypowiadać. Nazwana potrzeba zmienia złość w informację."
+      },
+      "returnToTalk": {
+        "title": "Wróć do rozmowy po pauzie",
+        "why": "Powrót jest ważniejszy niż pauza. On uczy, że przerwa nie jest ucieczką."
       },
       "applySolution": {
-        "title": "Wprowadź w życie jedno rozwiązanie z rozwiązywania problemów",
-        "why": "Powtarzalna prowokacja słabnie, gdy zmienisz sytuację."
+        "title": "Zrób jeden mały krok",
+        "why": "Wybierz działanie, na które masz wpływ."
       },
       "calmRequest": {
-        "title": "Poproś spokojnie tam, gdzie zwykle podnosisz głos",
-        "why": "To test przewidywania z eksperymentu behawioralnego."
+        "title": "Wypróbuj spokojną prośbę",
+        "why": "Zauważ odpowiedź, bez oceniania siebie za wynik rozmowy."
+      },
+      "sayNoCalmly": {
+        "title": "Powiedz „nie” bez podnoszenia głosu",
+        "why": "Granica wypowiedziana spokojnie jest granicą. Nie potrzebuje siły."
       },
       "repairRelationship": {
-        "title": "Napraw jedną relację po dawnym wybuchu",
-        "why": "Naprawa domyka cykl wybuchu, wstydu i napięcia."
+        "title": "Zrób miejsce na naprawę",
+        "why": "Jeśli to bezpieczne, uznaj konkretny czyn i zaproponuj naprawę. Druga osoba może potrzebować czasu."
+      },
+      "keepPause": {
+        "title": "Zostań przy swojej pauzie",
+        "why": "Trzy razy w tygodniu wystarczą, by ruch został po ścieżce."
       }
+    },
+    "goal": "Zauważać złość wcześniej, robić pauzę i mówić o tym, co ważne, bez ranienia siebie i innych.",
+    "scaleLabels": {
+      "total": "Natężenie złości"
+    },
+    "planLabels": {
+      "earlySigns": "Kiedy zauważę",
+      "ifThen": "Moja pauza",
+      "returnPromise": "Powrót do rozmowy"
     }
   },
   "anxiety-approach": {
     "title": "Lęk: podejść zamiast unikać",
-    "description": "Osiem tygodni pracy z niepokojem i zamartwianiem się. Poznajesz swój lęk, uczysz się odkładać zmartwienia i sprawdzać przewidywania, a potem krok po kroku podchodzisz do tego, czego unikasz. Obok kroków codziennie wieczorem masz porę na zmartwienia, a co drugi dzień oddech kojący. Co tydzień dostajesz jedno zadanie do wypróbowania w życiu. Ta ścieżka nie zastąpi pomocy specjalisty przy napadach paniki, zaburzeniach obsesyjno-kompulsyjnych, traumie albo myślach o zrobieniu sobie krzywdy.",
+    "description": "Osiem tygodni pracy z zamartwianiem i unikaniem: własna mapa, sprawdzanie myśli, małe próby w codziennym życiu i to, co zostaje. Tempo dopasowujesz do siebie. Po ośmiu tygodniach od końca ścieżka zaprasza na Powrót. Ścieżka nie zastępuje pomocy przy napadach paniki, OCD, traumie ani kryzysie.",
     "reflection": {
       "severity": "Jak bardzo lęk i zamartwianie się ograniczały ten tydzień?"
     },
     "phases": {
-      "map": {
-        "title": "Mapa lęku",
-        "question": {
-          "m": "Czego najczęściej unikałeś i ile cię to kosztowało?",
-          "f": "Czego najczęściej unikałaś i ile cię to kosztowało?"
-        }
+      "w1": {
+        "title": "Rozpoznanie",
+        "why": "Nazywasz lęk: sytuacje, ciało, to, co każe robić, i do czego chcesz wracać.",
+        "question": "Co udało się zauważyć, zanim pojawiła się chęć wycofania?"
       },
-      "thoughts": {
-        "title": "Myśli",
-        "question": "Na ile sprawdziły się twoje przewidywania?"
+      "w2": {
+        "title": "Zmartwienie czy zadanie",
+        "why": "Odkładasz zmartwienia do stałej pory i sprawdzasz, które są problemem, a które hipotezą.",
+        "question": "Które zmartwienie okazało się zadaniem, a które hipotezą?"
       },
-      "uncertainty": {
-        "title": "Niepewność",
-        "question": {
-          "m": "Co się stało, gdy nie upewniłeś się do końca?",
-          "f": "Co się stało, gdy nie upewniłaś się do końca?"
-        }
+      "w3": {
+        "title": "Inne spojrzenie",
+        "why": "Zauważasz różnicę między przewidywaniem a tym, co już wiadomo, i sprawdzasz jedno przewidywanie w życiu.",
+        "question": "Która myśl zostawiła Ci więcej miejsca na wybór?"
       },
-      "problems": {
-        "title": "Problemy realne",
-        "question": "Które zmartwienie okazało się problemem do rozwiązania, a które tylko hipotezą?"
+      "w4": {
+        "title": "Na co mam wpływ",
+        "why": "Jedno zmartwienie przekładasz na wykonalny krok. W połowie drogi sprawdzasz, czy praktyk nie jest za dużo.",
+        "question": "Jaki krok był w Twoim zasięgu, a którą niewiadomą udało się zostawić?"
       },
-      "approach": {
-        "title": "Podejście",
-        "question": "Jak zmieniał się lęk w kolejnych próbach?"
+      "w5": {
+        "title": "Małe podejście",
+        "why": "Układasz drabinę i wracasz do bezpiecznej sytuacji w dawce, którą możesz podjąć.",
+        "question": "Co pokazała próba, niezależnie od poziomu lęku?"
       },
-      "stance": {
-        "title": "Postawa",
-        "question": {
-          "m": "Co zyskałeś, robiąc coś mimo lęku?",
-          "f": "Co zyskałaś, robiąc coś mimo lęku?"
-        }
+      "w6": {
+        "title": "Wrócić do próby",
+        "why": "Ta sama drabina, drugi raz. Powtórka albo mniejszy krok też są postępem.",
+        "question": "Co było inne za drugim razem?"
       },
-      "consolidation": {
-        "title": "Utrwalenie",
-        "question": "Które zabezpieczenie najłatwiej może wrócić?"
+      "w7": {
+        "title": "To, co ważne",
+        "why": "Wybierasz pomocny sposób powrotu do życia. Te kroki możesz pominąć.",
+        "question": "Co ważnego znalazło trochę miejsca obok lęku?"
+      },
+      "w8": {
+        "title": "Co zostaje",
+        "why": "Zachowujesz to, co pomaga, i piszesz do siebie list na gorszy dzień.",
+        "question": "Do jakiej małej praktyki chcesz wracać?"
+      },
+      "return": {
+        "title": "Powrót",
+        "why": "Osiem tygodni po końcu: co zostało, co wróciło.",
+        "question": "Co z tej ścieżki zostało z Tobą na co dzień?"
       }
     },
     "steps": {
       "step1": {
-        "intro": "Zacznij od krótkiego pomiaru niepokoju. Ten sam kwestionariusz wróci na końcu ścieżki."
+        "title": "Punkt wyjścia",
+        "intro": "Zobacz, jak niepokój wpływa na Twoje dni. Wynik jest punktem odniesienia, nie diagnozą. Wrócisz do niego w połowie drogi, na końcu i przy Powrocie.",
+        "why": "Bez punktu startu nie zobaczysz zmiany. Ten pomiar jest Twoim punktem odniesienia na całą drogę."
       },
       "step2": {
-        "intro": "Krok opcjonalny. Zmierz, jak trudno znosisz niepewność. To mechanizm, na który działa krok z eksperymentem."
+        "title": "Jak znoszę niewiadomą",
+        "intro": "Jeśli chcesz, przyjrzyj się swojej reakcji na niepewność. Ten pomiar możesz pominąć; wróci na końcu.",
+        "why": "Nietolerancja niepewności podtrzymuje zamartwianie. Zmierzona na początku i na końcu pokazuje, czy miejsce na niewiadomą rośnie."
       },
       "step3": {
-        "intro": "Zbierz sytuacje, które budzą lęk, to, czego unikasz, i to, czym się zabezpieczasz. Z tej listy powstanie drabina ekspozycji."
+        "title": "Moja mapa lęku",
+        "intro": "Nazwij jedną sytuację, to, co lęk każe robić, i to, do czego chcesz wracać. Ta mapa będzie dostępna w „Mój plan”.",
+        "why": "Lęk łatwiej zauważyć, gdy znasz jego sytuacje i swoje typowe ruchy. Mapa daje nazwy temu, co dotąd działo się samo."
       },
       "step4": {
-        "intro": "Naucz się sortować zmartwienia: hipotetyczne odkładasz, praktyczne planujesz. Od teraz pora na zmartwienia odsyła tu wybrane zmartwienie."
+        "title": "Po czym poznam zmianę",
+        "intro": "Powiedz własnymi słowami, co najbardziej chcesz zmienić i po czym poznasz, że działa. To zdanie zostanie na górze ścieżki.",
+        "why": "Własne zdanie o celu trzyma kierunek przez osiem tygodni i mówi, po czym poznasz, że ścieżka działa."
       },
       "step5": {
-        "intro": "Przyjrzyj się katastrofizacji, przewidywaniu przyszłości i przekonaniom o samym martwieniu się, na przykład „martwienie mnie chroni”."
+        "title": "Zmartwienie czy zadanie",
+        "intro": "Sprawdź, czy możesz teraz coś zrobić, czy myśl dotyczy tego, co być może się wydarzy.",
+        "why": "Drzewo zmartwień rozdziela problem od hipotezy. Problem dostaje krok, hipoteza może poczekać do pory na zmartwienia."
       },
       "step6": {
-        "intro": {
-          "m": "Rozłóż jedną silną obawę: jak bardzo jest prawdopodobna, ile by kosztowała i jak byś sobie poradził.",
-          "f": "Rozłóż jedną silną obawę: jak bardzo jest prawdopodobna, ile by kosztowała i jak byś sobie poradziła."
-        }
+        "title": "Co dopowiada lęk",
+        "intro": "Przyjrzyj się jednej obawie. Poszukaj domysłów i uogólnień bez krytykowania siebie za ich obecność.",
+        "why": "Nazwany domysł traci część siły. Nie chodzi o to, by myśleć pozytywnie, tylko by widzieć, co jest wiadome."
       },
       "step7": {
-        "intro": "Wybierz jedno zabezpieczenie z mapy i zrezygnuj z niego na próbę, na przykład nie sprawdzaj trzy razy maila. Zapisz, co przewidujesz."
+        "title": "Myśl, która daje miejsce",
+        "intro": "Wróć do zapisanego momentu. Sprawdź fakty i ułóż uczciwszą myśl — nie musi obiecywać, że wszystko pójdzie dobrze.",
+        "why": "Uczciwsza myśl robi miejsce na niepewność zamiast ją usuwać. To wystarczy, żeby podejść."
       },
       "step8": {
-        "intro": "Weź praktyczne zmartwienie, które drzewo odsyłało do planowania, i rozpisz rozwiązanie."
+        "title": "Mała próba niepewności",
+        "intro": "Wróć do zapisanego momentu i jego przewidywania. Wybierz bezpieczną, drobną sytuację i jedno zbędne sprawdzenie; zobacz, co się wydarzy.",
+        "why": "Lęk przewiduje. Jedna sprawdzona prognoza uczy więcej niż dziesięć uspokojeń."
       },
       "step9": {
-        "intro": "Zbuduj drabinę z unikanych sytuacji z mapy i zrób pierwszą próbę na najniższym szczeblu, bez zabezpieczeń."
+        "title": "Jeden krok w moim zasięgu",
+        "intro": "Weź zmartwienie, na które masz wpływ. Rozważ możliwości i wybierz jeden wykonalny krok.",
+        "why": "Zmartwienie, które dostaje krok, przestaje krążyć. Liczy się wpływ, nie rozmiar."
       },
       "step10": {
-        "intro": "Przejrzyj próby z ostatniego tygodnia i zaplanuj kolejne szczeble. Wróć do tej samej drabiny."
+        "title": "Pomiar w połowie drogi",
+        "intro": "Powtórz pomiar. Zobacz w Postępie, czy coś drgnęło, bez oceniania siebie za wynik.",
+        "why": "Pomiar w połowie pokazuje kierunek, zanim ścieżka się skończy. Czasem to on mówi, że warto zostać przy tym, co już działa."
       },
       "step11": {
-        "intro": "Krok opcjonalny, przy lęku przed objawami, takimi jak rumieniec, drżenie albo bezsenność. Spróbuj celowo chcieć więcej objawu, zamiast z nim walczyć."
+        "title": "Czy nie za dużo?",
+        "intro": "Powiedz szczerze, ile praktyk naprawdę robisz. Ścieżka zaproponuje spokojniejszy rytm, jeśli trzeba.",
+        "why": "Ludzie porzucają ścieżki nie dlatego, że robią za mało, tylko dlatego, że ścieżka wygląda na rozczarowaną. Tu nic takiego nie ma."
       },
       "step12": {
-        "intro": "Krok opcjonalny. Gdy uwaga krąży wokół objawów, przekieruj ją na zadanie i na to, co ważne."
+        "title": "Moja drabina małych prób",
+        "intro": "Ułóż kilka bezpiecznych sytuacji od łatwiejszych do trudniejszych. Zacznij od małej próby; zachowaj realne środki bezpieczeństwa.",
+        "why": "Podejście w małej dawce uczy, że da się wytrzymać i że przewidywanie się nie sprawdza. Spadek lęku nie jest celem próby."
       },
       "step13": {
-        "intro": "Krok opcjonalny. Jeśli unikanie zawęziło twój tydzień, zaplanuj aktywności zgodne z wartościami."
+        "title": "Wrócić do swojej próby",
+        "intro": "Otwórz tę samą drabinę. Zobacz, czego uczą próby, i wybierz powtórkę lub mniejszy krok. Nie musisz od razu iść wyżej.",
+        "why": "Druga próba uczy więcej niż pierwsza: to wtedy widać, co się zmienia, a co nie."
       },
       "step14": {
-        "intro": "Powtórz pomiar niepokoju. Na ekranie ukończenia zobaczysz oba wyniki."
+        "title": "Inaczej wobec objawu",
+        "intro": "Opcjonalna zmiana nastawienia do znanego, łagodnego objawu. Nie wywołuj duszności ani innych niepokojących doznań. W razie wątpliwości pomiń ten krok i omów go ze specjalistą.",
+        "why": "Lęk przed objawem podtrzymuje objaw. Zaproszenie go z humorem odbiera mu władzę."
       },
       "step15": {
-        "intro": "Zdecyduj, co zostaje. Zwykle to pora na zmartwienia dwa razy w tygodniu i drabina do dokończenia."
+        "title": "Uwaga na to, co robię",
+        "intro": "Jeśli chcesz, przenieś uwagę z obserwowania siebie na obecną czynność. Lęk nie musi najpierw zniknąć.",
+        "why": "Obserwowanie siebie podkręca lęk. Uwaga na czynności zostawia go w tle, gdzie słabnie sam."
+      },
+      "step16": {
+        "title": "Miejsce na ważną rzecz",
+        "intro": "Opcjonalnie zaplanuj małą aktywność, która ma dla Ciebie znaczenie. Dopasuj ją do dzisiejszych możliwości.",
+        "why": "Życie, do którego wracasz, jest powodem całej tej pracy. Jedna ważna rzecz w tygodniu wystarczy, by to poczuć."
+      },
+      "step17": {
+        "title": "Pomiar na koniec",
+        "intro": "Powtórz pomiar i porównaj wyniki w Postępie. Zauważ też to, do czego udało się wrócić, nawet z lękiem.",
+        "why": "Dwa punkty na torze to obraz zmiany w czasie, nie ocena. Reszta jest w Momentach i na drabinie."
+      },
+      "step18": {
+        "title": "Niewiadoma na koniec",
+        "intro": "Jeśli chcesz, powtórz pomiar nietolerancji niepewności i porównaj go z początkiem.",
+        "why": "Miejsce na niewiadomą to cel tej ścieżki. Ten pomiar mówi, czy urosło."
+      },
+      "step19": {
+        "title": "List na gorszy dzień",
+        "intro": "Napisz do siebie z przyszłości: co już umiesz, co pomagało, co zrobić w pierwszej minucie lęku. Wróci w wybranym tygodniu.",
+        "why": "Gorszy dzień wróci. List czytany po tygodniach działa jak głos kogoś, kto Cię zna i jest po Twojej stronie."
+      },
+      "step20": {
+        "title": "Co zabieram ze sobą",
+        "intro": "Wybierz pomocną praktykę, małą próbę do powtórzenia i sposób szukania wsparcia. Nie trzeba zachowywać wszystkiego.",
+        "why": "To, co zostaje w rytmie tygodnia, utrzymuje się po ścieżce. Ten krok zamyka ścieżkę i ustawia powtórki."
+      },
+      "step21": {
+        "title": "Pomiar po ośmiu tygodniach",
+        "intro": "Osiem tygodni po końcu: powtórz pomiar i zobacz, co zostało.",
+        "why": "Nawyk mierzy się po tygodniach, nie po dniach. Ten pomiar mówi, czy zmiana została."
+      },
+      "step22": {
+        "title": "Powrót",
+        "intro": "Przeczytaj swój list, zaznacz, co zostało, i wybierz jeden mały ruch na najbliższy tydzień.",
+        "why": "Powrót to nie egzamin. To moment, w którym możesz wznowić to, co pomagało, zanim unikanie się utrwali."
       }
     },
     "practices": {
-      "worry-postponement": {
-        "intro": "Codziennie wieczorem, o stałej porze. W ciągu dnia tylko zapisujesz zmartwienia i odkładasz je na później."
-      },
       "paced-breathing": {
-        "intro": "Co drugi dzień przez całą ścieżkę. Oddech ma pomóc ci podejść do trudnej sytuacji, a nie sprawić, że lęk zniknie."
+        "intro": "Oddychaj w wygodnym rytmie, bez wymuszania. To chwila oparcia, nie warunek podjęcia działania."
+      },
+      "moment-anxiety": {
+        "intro": "Pięć dotknięć: co pociągnęło, kiedy zauważone, co zamiast, jak silny. Nie trzeba czekać na trudny dzień ani nadrabiać pustych."
+      },
+      "worry-postponement": {
+        "intro": "Wybierz krótką, stałą porę, nie tuż przed snem. W ciągu dnia zanotuj zmartwienie i spróbuj wrócić do obecnej czynności."
       }
     },
     "tasks": {
       "noticeAvoidance": {
-        "title": "Zauważ sytuacje, w których coś omijasz albo się zabezpieczasz",
-        "why": "Unikanie często jest niewidoczne, dopóki się go nie nazwie."
+        "title": "Zauważ chwilę wycofania",
+        "why": "Nazwij ją w Momentach bez oceniania siebie."
+      },
+      "noticeUrge": {
+        "title": "Zauważ chęć sprawdzenia",
+        "why": "Samo zauważenie, zanim sprawdzisz. Nie trzeba jeszcze rezygnować."
+      },
+      "postponeWorry": {
+        "title": "Odłóż zmartwienie do swojej pory",
+        "why": "Każda pora na zmartwienia liczy dzień. Trzy w tygodniu wystarczą."
+      },
+      "sortWorry": {
+        "title": "Zmartwienie czy zadanie?",
+        "why": "Przy jednym zmartwieniu zapytaj: jest tu krok w moim zasięgu? Jeśli tak, zapisz go."
       },
       "predictionCheck": {
-        "title": "Zapisz przewidywanie przed trudną sytuacją i sprawdź je po niej",
-        "why": "Lęk przewiduje. Sprawdzanie przewidywań uczy go trafności."
+        "title": "Porównaj obawę z tym, co się stało",
+        "why": "Zapisz przewidywanie przed sytuacją i obserwację po niej."
       },
       "uncertainDecisions": {
-        "title": "Podejmij małą decyzję bez upewniania się",
-        "why": "Na przykład zamów coś bez czytania recenzji. Tolerancję niepewności buduje się na drobiazgach."
+        "title": "Zostaw małą niewiadomą",
+        "why": "Wybierz drobną decyzję bez realnego ryzyka, np. wybór filmu bez kolejnej recenzji."
       },
       "firstStep": {
-        "title": "Zrób pierwszy krok wybranego rozwiązania",
-        "why": "Praktyczne zmartwienie maleje, gdy zaczniesz działać."
+        "title": "Zrób jeden wykonalny krok",
+        "why": "Wybierz działanie, na które masz wpływ."
+      },
+      "leaveOneUnknown": {
+        "title": "Nie sprawdzaj drugi raz",
+        "why": "Jedno sprawdzenie wystarczy. Zauważ, co się dzieje z lękiem, gdy nie ma drugiego."
       },
       "exposureLow": {
-        "title": "Zrób próbę z najniższego szczebla drabiny, bez zabezpieczeń",
-        "why": "Lęk spada w powtórzeniach, nie w pojedynczej próbie."
+        "title": "Wypróbuj łatwy szczebel",
+        "why": "Zapisz, co się wydarzyło. Spadek lęku nie jest jedyną oznaką uczenia się."
+      },
+      "stayAMinute": {
+        "title": "Zostań minutę dłużej",
+        "why": "W sytuacji, z której chciałoby się wyjść. Minuta wystarczy."
       },
       "exposureNext": {
-        "title": "Zrób próbę z kolejnego szczebla drabiny",
-        "why": "Idź wyżej, gdy lęk na poprzednim szczeblu spada poniżej połowy."
+        "title": "Powtórz lub dopasuj próbę",
+        "why": "Możesz zostać na tym samym szczeblu, zmniejszyć krok albo wybrać następny."
+      },
+      "doItAnyway": {
+        "title": "Zrób to mimo lęku",
+        "why": "Jedna rzecz z mapy, do której chcesz wracać. Lęk może iść obok."
       },
       "meaningfulAct": {
-        "title": "Zrób jedną rzecz, którą lęk odkładał, a która ma dla ciebie znaczenie",
-        "why": "Kierunek wyznacza to, co ważne, nie brak lęku."
+        "title": "Zrób małą ważną rzecz",
+        "why": "Wybierz coś, co ma znaczenie także wtedy, gdy towarzyszy temu lęk."
+      },
+      "attentionOut": {
+        "title": "Uwaga na czynność, nie na siebie",
+        "why": "Gdy zauważysz obserwowanie siebie, wróć do tego, co robisz. Dwa razy w tygodniu."
       },
       "planApproach": {
-        "title": "Zaplanuj jedną sytuację podejścia na przyszły miesiąc",
-        "why": "Unikanie wraca po cichu. Zaplanowane podejście to bezpiecznik."
+        "title": "Zaplanuj kolejną małą próbę",
+        "why": "Wybierz realny termin i skalę, do której chcesz wrócić."
+      },
+      "keepWorryTime": {
+        "title": "Zostań przy porze na zmartwienia",
+        "why": "Trzy razy w tygodniu wystarczą, by praktyka została po ścieżce."
       }
+    },
+    "goal": "Robić miejsce na niepewność i małymi krokami wracać do tego, co ważne, także z lękiem.",
+    "scaleLabels": {
+      "gad-7": {
+        "total": "Niepokój"
+      },
+      "ius-12": {
+        "total": "Nietolerancja niepewności",
+        "prospective": "Niepewność tego, co będzie",
+        "inhibitory": "Niepewność, która blokuje"
+      }
+    },
+    "mapLabel": "Moja mapa",
+    "mapLabels": {
+      "withoutFear": "Do czego chcę wracać",
+      "avoidance": "Co odkładam",
+      "safetyBehaviors": "Co robię dla pewności"
     }
   },
   "shame-compassion": {
@@ -447,107 +695,134 @@
     "steps": {
       "step1": {
         "intro": "Zacznij od pomiaru: jak traktujesz siebie w trudnych chwilach. Wrócisz do niego w połowie drogi, na końcu i przy Powrocie.",
-        "title": "Współczucie dla siebie — pomiar"
+        "title": "Współczucie dla siebie",
+        "why": "Bez punktu startu nie zobaczysz zmiany. Ten pomiar jest twoim punktem odniesienia na całą drogę."
       },
       "step2": {
         "intro": "Zmierz trzy głosy, którymi odpowiadasz sobie, gdy coś nie wychodzi. Wrócisz do nich na końcu i przy Powrocie.",
-        "title": "Trzy głosy — pomiar"
+        "title": "Trzy głosy",
+        "why": "Wstyd podtrzymują trzy wewnętrzne głosy. Gdy je zmierzysz, wiesz, który najbardziej potrzebuje pracy."
       },
       "step3": {
-        "intro": "Sprawdź, gdzie wstyd odzywa się najczęściej, jak na niego reagujesz i jakie wymaganie wobec siebie za nim stoi. Każda reakcja stanie się częścią w twoim rejestrze."
+        "intro": "Sprawdź, gdzie wstyd odzywa się najczęściej, jak na niego reagujesz i jakie wymaganie wobec siebie za nim stoi. Każda reakcja stanie się częścią w twoim rejestrze.",
+        "why": "Wstyd łatwiej zauważyć, gdy znasz jego miejsca i swoje typowe reakcje. Mapa daje nazwy temu, co dotąd działo się samo."
       },
       "step4": {
         "intro": "Powiedz własnymi słowami, co najbardziej chcesz zmienić i po czym poznasz, że działa. To zdanie zostanie na górze ścieżki.",
-        "title": "Po czym poznam zmianę"
+        "title": "Po czym poznam zmianę",
+        "why": "Własne zdanie o celu trzyma kierunek przez osiem tygodni i mówi, po czym poznasz, że ścieżka działa."
       },
       "step5": {
-        "intro": "Zanim zwrócisz się do siebie z ciepłem, zbuduj miejsce, do którego wrócisz, gdy będzie za dużo. Nazwij też, co mówi twój opór."
+        "intro": "Zanim zwrócisz się do siebie z ciepłem, zbuduj miejsce, do którego wrócisz, gdy będzie za dużo. Nazwij też, co mówi twój opór.",
+        "why": "Ciepło wobec siebie bywa trudne. Potrzebujesz miejsca, do którego wrócisz, gdy zrobi się za dużo."
       },
       "step6": {
         "intro": "Stwórz w wyobraźni współczującą postać. Zacznij od kogoś, komu łatwo ci współczuć. Jej zdanie będzie wracać w kolejnych krokach.",
-        "title": "Współczująca postać"
+        "title": "Współczująca postać",
+        "why": "Łatwiej przyjąć ciepło od postaci niż wywołać je w sobie z niczego. Jej zdanie będzie wracało w kolejnych krokach."
       },
       "step7": {
-        "intro": "Teraz ty jesteś współczuciem. Postawa, głos i zdanie do części, która się wstydzi."
+        "intro": "Teraz ty jesteś współczuciem. Postawa, głos i zdanie do części, która się wstydzi.",
+        "why": "Postać była pomostem. Teraz uczysz się, jak samemu brzmieć ciepło wobec części, która się wstydzi."
       },
       "step8": {
         "intro": "Ułóż swój plan na trudną chwilę: po czym poznasz wstyd, oddech, zdanie, które oddziela cię od części, jedno pytanie, jedno zdanie i mały krok w stronę ludzi. Od teraz ćwiczysz go w życiu.",
-        "title": "Plan na trudną chwilę"
+        "title": "Plan na trudną chwilę",
+        "why": "W chwili wstydu nie ma czasu na myślenie. Gotowy plan sprawia, że twoja odpowiedź wyprzedza część."
       },
       "step9": {
-        "intro": "Weź jeden moment z Momentów i zapytaj, o czym jest ten wstyd. Czyn da się naprawić, zdarzenie potrzebuje opieki, a wymaganie trzeba sprawdzić."
+        "intro": "Weź jeden moment z Momentów i zapytaj, o czym jest ten wstyd. Czyn da się naprawić, zdarzenie potrzebuje opieki, a wymaganie trzeba sprawdzić.",
+        "why": "Czyn, zdarzenie i wymaganie potrzebują innej odpowiedzi. Bez tego pytania wszystko traktujesz tak samo."
       },
       "step10": {
         "intro": "Wybierz moment i rozłóż gorącą myśl „jestem…”. Szukaj dowodów oczami bliskiej osoby, nie prokuratora.",
-        "title": "Zapis myśli"
+        "title": "Zapis myśli",
+        "why": "Gorąca myśl „jestem…” brzmi jak fakt. Rozłożona na dowody traci siłę."
       },
       "step11": {
         "intro": "Połowa drogi. Powtórz pomiar współczucia dla siebie — to obraz zmiany, nie ocena.",
-        "title": "Współczucie dla siebie — w połowie drogi"
+        "title": "Współczucie dla siebie — w połowie drogi",
+        "why": "Drugi punkt pokazuje kierunek, zanim dojdziesz do końca. To obraz, nie ocena."
       },
       "step12": {
         "intro": "Sprawdź, czy praktyk nie jest za dużo. Jeśli tak, zostanie mniej. Jeśli nie robisz ich wcale, zostanie to, co najmniejsze.",
-        "title": "Czy nie za dużo?"
+        "title": "Czy nie za dużo?",
+        "why": "Ścieżka ma się mieścić w życiu. Lepiej mniej i regularnie niż dużo i wcale."
       },
       "step13": {
         "intro": "Wybierz moment, w którym odezwał się Krytyk, i potraktuj go jako punkt wejścia do części. Wchodź z pozycji współczującego ja.",
-        "title": "Punkt wejścia"
+        "title": "Punkt wejścia",
+        "why": "Krytyk pokazuje się w konkretnych momentach. Jeden z nich jest drzwiami do rozmowy z tą częścią."
       },
       "step14": {
         "intro": "Poznaj Krytyka jako część, która chroni: czego się boi, że się stanie, gdy przestanie? Na końcu zapisz zdanie, którym przejmiesz od niego ster.",
-        "title": "Czego pilnuje Krytyk"
+        "title": "Czego pilnuje Krytyk",
+        "why": "Krytyk nie jest wrogiem, tylko ochroną, która wyrosła z lęku. Gdy wiesz, czego pilnuje, możesz przejąć od niego ster."
       },
       "step15": {
         "intro": "Krok opcjonalny. Porozmawiaj z Krytykiem wprost: asystent zagra jego głos, a ty odpowiesz z pozycji współczującego ja.",
-        "title": "Rozmowa z Krytykiem"
+        "title": "Rozmowa z Krytykiem",
+        "why": "Niektórym łatwiej usłyszeć część, gdy ma własny głos. Pomiń, jeśli nie czujesz, że to twoja droga."
       },
       "step16": {
         "intro": "Wybierz moment i napisz do siebie list głosem współczującego ja. Na końcu sprawdzisz, czy jest w nim wsparcie, a nie rady.",
-        "title": "List do siebie"
+        "title": "List do siebie",
+        "why": "Pisanie spowalnia głos współczującego ja na tyle, by zostało coś, do czego da się wrócić."
       },
       "step17": {
         "intro": "Stanowcza strona współczucia: jak broniłby cię przyjaciel i jakim zdaniem bronisz siebie — bez „przepraszam” i bez „ale”.",
-        "title": "W swojej obronie"
+        "title": "W swojej obronie",
+        "why": "Współczucie to także stanowczość. Zdanie obronne wypowiedziane raz jest łatwiejsze w prawdziwej sytuacji."
       },
       "step18": {
         "intro": "Zejdź od wymagania do przekonania o sobie. Rozsądne wymaganie z kroku „O czym jest ten wstyd?” staje się nowym przekonaniem, na które od teraz zbierasz dowody.",
-        "title": "Co myślę o sobie"
+        "title": "Co myślę o sobie",
+        "why": "Pod wymaganiem siedzi przekonanie o sobie. Nowe przekonanie potrzebuje dowodów, które od teraz zbierasz."
       },
       "step19": {
         "intro": "Sprawdź w życiu przewidywanie „jeśli zobaczą prawdziwego mnie, odrzucą”. Mała, bezpieczna sytuacja, zapisane przewidywanie, potem wynik.",
-        "title": "Sprawdzam w życiu"
+        "title": "Sprawdzam w życiu",
+        "why": "Przewidywanie „odrzucą mnie” sprawdza się dopiero w świecie. Mała sytuacja daje dowód, którego nie da ćwiczenie w głowie."
       },
       "step20": {
         "intro": "Krok opcjonalny, tylko jeśli części, które chronią, się zgadzają. Bądź przez chwilę przy młodszej części, bez naprawiania. „Jeszcze nie” też jest dobrą odpowiedzią i zalicza krok.",
-        "title": "Przy młodszej części"
+        "title": "Przy młodszej części",
+        "why": "Wstyd ma często stare źródło. Bycie przy nim bez naprawiania zmienia więcej niż argumenty — tylko w zgodzie z częściami, które chronią."
       },
       "step21": {
         "intro": "Powtórz pomiar współczucia dla siebie. Zobaczysz trzy punkty: start, połowa, koniec.",
-        "title": "Współczucie dla siebie — na koniec"
+        "title": "Współczucie dla siebie — na koniec",
+        "why": "Trzeci punkt domyka obraz: start, połowa, koniec. To twój dowód zmiany."
       },
       "step22": {
         "intro": "Powtórz pomiar trzech głosów. Uspokajanie rośnie, surowość i niechęć słabną — to mięsień, który ćwiczysz.",
-        "title": "Trzy głosy — na koniec"
+        "title": "Trzy głosy — na koniec",
+        "why": "Zobaczysz, czy uspokajanie urosło, a surowość i niechęć osłabły."
       },
       "step23": {
         "intro": "Napisz list do siebie na gorszy dzień, głosem współczującego ja. Wróci w wybranym tygodniu.",
-        "title": "List na gorszy dzień"
+        "title": "List na gorszy dzień",
+        "why": "Gorsze dni wrócą. List z dobrego dnia działa wtedy, gdy ciepła do siebie akurat brakuje."
       },
       "step24": {
         "intro": "Zdecyduj, które praktyki zostają z tobą i w jakim rytmie. Ten krok zamyka ścieżkę. Powrót przyjdzie za osiem tygodni.",
-        "title": "Co zostaje ze mną"
+        "title": "Co zostaje ze mną",
+        "why": "Bez decyzji praktyki wygasają. Wybierasz kilka, które zostają, i rytm, który się utrzyma."
       },
       "step25": {
         "intro": "Powrót po ośmiu tygodniach: pomiar współczucia dla siebie po raz czwarty.",
-        "title": "Współczucie dla siebie — po ośmiu tygodniach"
+        "title": "Współczucie dla siebie — po ośmiu tygodniach",
+        "why": "Czwarty pomiar mówi, co utrzymało się bez ścieżki."
       },
       "step26": {
         "intro": "Powrót: trzy głosy po raz trzeci.",
-        "title": "Trzy głosy — po ośmiu tygodniach"
+        "title": "Trzy głosy — po ośmiu tygodniach",
+        "why": "Trzeci pomiar głosów: co zostało z tego, co było ćwiczone."
       },
       "step27": {
         "intro": "Przeczytaj list od siebie. Co zostało, co wróciło, jeden mały ruch na najbliższy tydzień.",
-        "title": "Co zostało, co wróciło"
+        "title": "Co zostało, co wróciło",
+        "why": "Powrót nie jest egzaminem. To spojrzenie, co pomaga na co dzień, i jeden mały ruch dalej."
       }
     },
     "practices": {
@@ -664,9 +939,9 @@
       }
     },
     "scaleLabels": {
-      "inadequateSelf": "Czuję, że nie wystarczam",
+      "inadequateSelf": "Poczucie, że nie wystarczam",
       "hatedSelf": "Niechęć do siebie",
-      "reassuredSelf": "Uspokajam siebie",
+      "reassuredSelf": "Uspokajanie siebie",
       "total": "Współczucie dla siebie"
     },
     "goal": "Zauważać wstyd szybciej. Odpowiadać ciepłem, sobie i innym, zamiast atakiem albo ukryciem. Wracać do kontaktu."
@@ -741,8 +1016,8 @@
     "declinedThisWeek": "Zadanie ze ścieżki odłożone na ten tydzień",
     "noTaskThisWeek": "W tym tygodniu bez zadania ze ścieżki",
     "outcomeQuestion": {
-      "m": "Jak poszło? Co wyszło inaczej, niż się spodziewałeś?",
-      "f": "Jak poszło? Co wyszło inaczej, niż się spodziewałaś?"
+      "m": "Jak poszło z tym zadaniem? Co wyszło inaczej, niż się spodziewałeś?",
+      "f": "Jak poszło z tym zadaniem? Co wyszło inaczej, niż się spodziewałaś?"
     },
     "severityHigh": "bardzo",
     "severityLow": "wcale",
@@ -769,6 +1044,33 @@
       "few": "1–2",
       "several": "3–5",
       "many": "więcej"
+    },
+    "sectionTask": "Zadanie tygodnia",
+    "sectionTaskHint": "Jedna rzecz do wypróbowania poza aplikacją, przyjęta w planie tygodnia.",
+    "sectionMoments": "Momenty",
+    "sectionMomentsHint": "Zapisy z praktyki „Momenty”: co przejęło ster, poprzedni tydzień obok tego.",
+    "sectionWeek": "Tydzień {n} · {phase}",
+    "weekOfPath": "tydzień {n} z {total}",
+    "stayShort": "Zostań przy zadaniu",
+    "stayHint": "W planie następnego tygodnia to zadanie zostanie zamiast nowej propozycji.",
+    "declinedNext": "W planie następnego tygodnia dostaniesz nową propozycję.",
+    "noDayYet": "jeszcze bez dnia",
+    "countedDayPlain": "zaznaczone w planie dnia",
+    "backfill": {
+      "add": "Dopisz",
+      "more": "więcej, bez szczegółów",
+      "day": "Który dzień",
+      "part": "Która część przejęła ster",
+      "response": "Co zrobiłeś zamiast",
+      "optional": "(opcjonalnie)",
+      "save": "Dopisz",
+      "cancel": "Zostaw",
+      "note": "zapisze się jako „zauważony dopiero teraz”",
+      "tag": "dopisany",
+      "remove": "Usuń dopisany moment",
+      "limit": "najwyżej {n} — te, które pamiętasz najlepiej",
+      "quietWeek": "Cichy tydzień w zapisie.",
+      "reaction": "Co przejęło ster"
     }
   },
   "glance": {
@@ -793,7 +1095,16 @@
     "outOf": "{a} z {b}",
     "soFar": "Dotąd",
     "beginning": "Początek",
-    "lately": "Ostatnio"
+    "lately": "Ostatnio",
+    "selfShort": "Ja",
+    "momentsCount": {
+      "one": "{n} moment",
+      "few": "{n} momenty",
+      "many": "{n} momentów"
+    },
+    "unloggedPlus": "+{n} bez zapisu",
+    "ahead": "jeszcze przed tobą",
+    "partsLegend": "Części"
   },
   "momentPicker": {
     "title": "Od którego momentu zacząć?",

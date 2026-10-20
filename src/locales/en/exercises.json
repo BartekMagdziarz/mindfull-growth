@@ -18,6 +18,8 @@
     "pastExperiments": "Past Experiments",
     "pastPlans": "Past Plans",
     "pastHierarchies": "Past Hierarchies",
+    "hierarchyMeta": "{steps} steps · {done} completed",
+    "weekOf": "Week of {date}",
     "yourLogs": "Your Logs",
     "newLog": "New Log",
     "backToLogs": "Back to logs",
@@ -440,7 +442,7 @@
     "momentAnger": {
       "title": "Moment of Anger",
       "subtitle": "A Moments entry",
-      "description": "A short daily note: did anger show up, what triggered it, which thought fuelled it and what helped."
+      "description": "Five taps: what took the wheel, when you noticed, what you did instead and how strong the anger was. The rest if you wish."
     },
     "shameResponse": {
       "title": "Shame Response",
@@ -541,6 +543,11 @@
       "title": "How I treat myself (FSCRS)",
       "subtitle": "22 questions about three voices towards yourself",
       "description": "Inadequate self, hated self and reassured self. Three means the shame path measures at the start, at the end and at the Return."
+    },
+    "momentAnxiety": {
+      "title": "An anxious moment",
+      "subtitle": "A note in Moments",
+      "description": "Five taps: what pulled, when you noticed, what you did instead and how strong the anxiety was. The rest if you wish."
     }
   }
 }

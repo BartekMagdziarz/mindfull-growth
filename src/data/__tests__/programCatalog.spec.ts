@@ -252,6 +252,41 @@ describe('program catalog', () => {
     }
   })
 
+  it('anger and anxiety are on v2: weeks as phases, Mój znak, the measure halfway, the close and the return', () => {
+    const anger = getProgramDefinition('anger-signal')!
+    expect(anger.contentVersion).toBe(2)
+    expect(anger.steps).toHaveLength(19)
+    expect(anger.phases?.map((phase) => phase.key)).toEqual(['w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'return'])
+    expect(anger.signSlug).toBe('my-sign')
+    expect(anger.steps[2]).toMatchObject({ exerciseSlug: 'my-sign', launchQuery: { kind: 'anger' } })
+    expect(anger.steps[6]).toMatchObject({ exerciseSlug: 'anger-barometer' })
+    expect(anger.steps[7]).toMatchObject({ exerciseSlug: 'dose-check' })
+    expect(anger.steps[10]).toMatchObject({ exerciseSlug: 'need-behind-anger', startFrom: 'moment', momentPrefill: { observation: 'situation' } })
+    expect(anger.steps[16]).toMatchObject({ exerciseSlug: 'maintenance-plan', closesPath: true })
+    expect(anger.steps[17]).toMatchObject({ exerciseSlug: 'anger-barometer', minGapDays: 56, afterCompletion: true })
+    expect(anger.steps[18]).toMatchObject({ exerciseSlug: 'path-return', launchQuery: { kind: 'anger' } })
+    const anxiety = getProgramDefinition('anxiety-approach')!
+    expect(anxiety.contentVersion).toBe(2)
+    expect(anxiety.steps).toHaveLength(22)
+    expect(anxiety.phases?.map((phase) => phase.key)).toEqual(['w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'w7', 'w8', 'return'])
+    expect(anxiety.outcomeSlugs).toEqual(['gad-7', 'ius-12'])
+    expect(anxiety.steps[7]).toMatchObject({ exerciseSlug: 'behavioral-experiment', startFrom: 'moment' })
+    expect(anxiety.steps[9]).toMatchObject({ exerciseSlug: 'gad-7' })
+    expect(anxiety.steps[19]).toMatchObject({ exerciseSlug: 'maintenance-plan', closesPath: true })
+    expect(anxiety.steps[20]).toMatchObject({ exerciseSlug: 'gad-7', minGapDays: 56, afterCompletion: true })
+    // every step has its "why" and every task its count rule or a natural home
+    for (const program of [anger, anxiety]) {
+      for (const locale of [enPrograms, plPrograms]) {
+        const node = (locale as unknown as Record<string, { steps?: Record<string, { why?: unknown }>; phases?: Record<string, { why?: unknown }> }>)[program.slug]
+        program.steps.forEach((_, index) => expect(node?.steps?.[`step${index + 1}`]?.why, `${program.slug} step${index + 1}.why`).toBeTruthy())
+        for (const phase of program.phases ?? []) expect(node?.phases?.[phase.key]?.why, `${program.slug} ${phase.key}.why`).toBeTruthy()
+      }
+      for (const task of program.weeklyTasks ?? []) {
+        if (task.linkSlug === `moment-${program.momentKind}`) expect(task.countRule, `${program.slug} ${task.key}`).toBeDefined()
+      }
+    }
+  })
+
   it('content versions are positive integers and the shame path is on v3', () => {
     for (const program of PROGRAM_CATALOG) {
       const version = program.contentVersion ?? 1

@@ -15,6 +15,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'values',
     kind: 'wizard',
+    form: 'reflection',
     category: 'self-discovery',
     route: '/exercises/values',
     i18nKey: 'valuesDiscovery',
@@ -35,6 +36,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'wheel-of-life',
     kind: 'wizard',
+    form: 'reflection',
     category: 'self-discovery',
     route: '/exercises/wheel-of-life',
     i18nKey: 'wheelOfLife',
@@ -56,6 +58,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'purpose',
     kind: 'wizard',
+    form: 'reflection',
     category: 'self-discovery',
     route: '/exercises/purpose',
     i18nKey: 'transformativePurpose',
@@ -149,6 +152,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'worry-tree',
     kind: 'wizard',
+    form: 'reflection',
     category: 'cbt',
     route: '/exercises/worry-tree',
     i18nKey: 'worryTree',
@@ -161,6 +165,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'cognitive-distortions',
     kind: 'wizard',
+    form: 'reflection',
     category: 'cbt',
     route: '/exercises/cognitive-distortions',
     i18nKey: 'cognitiveDistortions',
@@ -172,6 +177,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'thought-record',
     kind: 'wizard',
+    form: 'reflection',
     category: 'cbt',
     route: '/exercises/thought-record',
     i18nKey: 'thoughtRecord',
@@ -183,6 +189,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'core-beliefs',
     kind: 'wizard',
+    form: 'reflection',
     category: 'cbt',
     route: '/exercises/core-beliefs',
     i18nKey: 'coreBeliefs',
@@ -194,6 +201,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'compassionate-letter',
     kind: 'wizard',
+    form: 'reflection',
     category: 'cbt',
     route: '/exercises/compassionate-letter',
     i18nKey: 'compassionateLetter',
@@ -206,6 +214,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'positive-data-log',
     kind: 'wizard',
+    form: 'reflection',
     category: 'cbt',
     route: '/exercises/positive-data-log',
     i18nKey: 'positiveDataLog',
@@ -219,6 +228,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'behavioral-experiment',
     kind: 'wizard',
+    form: 'action',
     category: 'cbt',
     route: '/exercises/behavioral-experiment',
     i18nKey: 'behavioralExperiment',
@@ -230,6 +240,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'behavioral-activation',
     kind: 'wizard',
+    form: 'action',
     category: 'cbt',
     route: '/exercises/behavioral-activation',
     i18nKey: 'behavioralActivation',
@@ -241,6 +252,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'structured-problem-solving',
     kind: 'wizard',
+    form: 'action',
     category: 'cbt',
     route: '/exercises/structured-problem-solving',
     i18nKey: 'structuredProblemSolving',
@@ -252,6 +264,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'graded-exposure',
     kind: 'wizard',
+    form: 'action',
     category: 'cbt',
     route: '/exercises/graded-exposure',
     i18nKey: 'gradedExposure',
@@ -286,6 +299,17 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     hiddenInCatalog: true,
   },
   {
+    slug: 'moment-anxiety',
+    kind: 'micro',
+    category: 'cbt',
+    route: '/exercises/micro/moment-anxiety',
+    i18nKey: 'momentAnxiety',
+    icon: 'mg-exercise-anxiety-log',
+    estimatedMinutes: 3,
+    variantOf: { slug: 'moments', preset: { kind: 'anxiety' } },
+    hiddenInCatalog: true,
+  },
+  {
     slug: 'moment-shame',
     kind: 'micro',
     category: 'cbt',
@@ -300,6 +324,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'anger-map',
     kind: 'micro',
+    form: 'reflection',
     category: 'cbt',
     route: '/exercises/micro/anger-map',
     i18nKey: 'angerMap',
@@ -309,6 +334,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'pause-plan',
     kind: 'micro',
+    form: 'action',
     category: 'cbt',
     route: '/exercises/micro/pause-plan',
     i18nKey: 'pausePlan',
@@ -318,6 +344,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'need-behind-anger',
     kind: 'micro',
+    form: 'reflection',
     category: 'cbt',
     route: '/exercises/micro/need-behind-anger',
     i18nKey: 'needBehindAnger',
@@ -329,6 +356,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'shame-map',
     kind: 'micro',
+    form: 'reflection',
     category: 'cbt',
     route: '/exercises/micro/shame-map',
     i18nKey: 'shameMap',
@@ -338,6 +366,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'shame-or-guilt',
     kind: 'micro',
+    form: 'reflection',
     category: 'cbt',
     route: '/exercises/micro/shame-or-guilt',
     i18nKey: 'shameOrGuilt',
@@ -349,6 +378,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'compassionate-image',
     kind: 'micro',
+    form: 'imagery',
     category: 'cbt',
     route: '/exercises/micro/compassionate-image',
     i18nKey: 'compassionateImage',
@@ -358,6 +388,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'shame-response',
     kind: 'micro',
+    form: 'action',
     category: 'cbt',
     route: '/exercises/micro/shame-response',
     i18nKey: 'shameResponse',
@@ -367,6 +398,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'worry-postponement',
     kind: 'micro',
+    form: 'action',
     category: 'cbt',
     route: '/exercises/micro/worry-postponement',
     i18nKey: 'worryPostponement',
@@ -377,6 +409,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'anxiety-map',
     kind: 'micro',
+    form: 'reflection',
     category: 'cbt',
     route: '/exercises/micro/anxiety-map',
     i18nKey: 'anxietyMap',
@@ -386,6 +419,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'maintenance-plan',
     kind: 'micro',
+    form: 'action',
     category: 'cbt',
     route: '/exercises/micro/maintenance-plan',
     i18nKey: 'maintenancePlan',
@@ -396,6 +430,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'my-sign',
     kind: 'micro',
+    form: 'action',
     category: 'cbt',
     route: '/exercises/micro/my-sign',
     i18nKey: 'mySign',
@@ -405,6 +440,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'safe-place',
     kind: 'micro',
+    form: 'imagery',
     category: 'cbt',
     route: '/exercises/micro/safe-place',
     i18nKey: 'safePlace',
@@ -415,6 +451,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'compassionate-self',
     kind: 'micro',
+    form: 'imagery',
     category: 'cbt',
     route: '/exercises/micro/compassionate-self',
     i18nKey: 'compassionateSelf',
@@ -425,6 +462,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'defender-voice',
     kind: 'micro',
+    form: 'reflection',
     category: 'cbt',
     route: '/exercises/micro/defender-voice',
     i18nKey: 'defenderVoice',
@@ -445,6 +483,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'dose-check',
     kind: 'micro',
+    form: 'action',
     category: 'cbt',
     route: '/exercises/micro/dose-check',
     i18nKey: 'doseCheck',
@@ -455,6 +494,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'letter-to-future-self',
     kind: 'micro',
+    form: 'reflection',
     category: 'cbt',
     route: '/exercises/micro/letter-to-future-self',
     i18nKey: 'letterToFutureSelf',
@@ -464,6 +504,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'path-return',
     kind: 'micro',
+    form: 'action',
     category: 'cbt',
     route: '/exercises/micro/path-return',
     i18nKey: 'pathReturn',
@@ -555,6 +596,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'paradoxical-intention',
     kind: 'wizard',
+    form: 'action',
     category: 'logotherapy',
     route: '/exercises/paradoxical-intention',
     i18nKey: 'paradoxicalIntention',
@@ -566,6 +608,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'dereflection',
     kind: 'wizard',
+    form: 'action',
     category: 'logotherapy',
     route: '/exercises/dereflection',
     i18nKey: 'dereflection',
@@ -611,6 +654,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'parts-mapping',
     kind: 'wizard',
+    form: 'imagery',
     category: 'ifs',
     route: '/exercises/parts-mapping',
     i18nKey: 'partsMapping',
@@ -623,6 +667,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'unblending',
     kind: 'wizard',
+    form: 'imagery',
     category: 'ifs',
     route: '/exercises/unblending',
     i18nKey: 'unblending',
@@ -633,6 +678,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'direct-access',
     kind: 'wizard',
+    form: 'imagery',
     category: 'ifs',
     route: '/exercises/direct-access',
     i18nKey: 'directAccess',
@@ -644,6 +690,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'trailhead',
     kind: 'wizard',
+    form: 'imagery',
     category: 'ifs',
     route: '/exercises/trailhead',
     i18nKey: 'trailhead',
@@ -654,6 +701,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'protector-appreciation',
     kind: 'wizard',
+    form: 'imagery',
     category: 'ifs',
     route: '/exercises/protector-appreciation',
     i18nKey: 'protectorAppreciation',
@@ -665,6 +713,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'exile-witnessing',
     kind: 'wizard',
+    form: 'imagery',
     category: 'ifs',
     route: '/exercises/exile-witnessing',
     i18nKey: 'exileWitnessing',
@@ -675,6 +724,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'self-energy',
     kind: 'wizard',
+    form: 'imagery',
     category: 'ifs',
     route: '/exercises/self-energy',
     i18nKey: 'selfEnergy',
@@ -686,6 +736,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   {
     slug: 'parts-dialogue',
     kind: 'wizard',
+    form: 'imagery',
     category: 'ifs',
     route: '/exercises/parts-dialogue',
     i18nKey: 'partsDialogue',

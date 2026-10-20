@@ -43,6 +43,26 @@ describe('program content migration', () => {
     expect(LEGACY_PROGRAM_STEPS['shame-compassion']![2]![2]).toBe('compassionate-image')
   })
 
+  it('anger v1 after the pause plan and anxiety v1 after the thought record land on their v2 gaps', () => {
+    const anger = getProgramDefinition('anger-signal')!
+    const angerRow = migrateEnrollmentContent(
+      enrollment({ id: 'enr-anger', programSlug: 'anger-signal', currentStepIndex: 3, completedSteps: [0, 1, 2].map((stepIndex) => ({ stepIndex, completedAt: at(1) })) }),
+      anger,
+    )!
+    // barometer · map · pause plan → the new "Mój znak" (index 2) is the first gap
+    expect(angerRow.completedSteps.map((step) => step.stepIndex)).toEqual([0, 1, 3])
+    expect(angerRow.currentStepIndex).toBe(2)
+    expect(angerRow.contentVersion).toBe(2)
+    const anxiety = getProgramDefinition('anxiety-approach')!
+    const anxietyRow = migrateEnrollmentContent(
+      enrollment({ id: 'enr-anxiety', programSlug: 'anxiety-approach', currentStepIndex: 6, completedSteps: [0, 1, 2, 3, 4, 5].map((stepIndex) => ({ stepIndex, completedAt: at(1) })) }),
+      anxiety,
+    )!
+    // gad-7 · ius-12 · map · worry tree · distortions · thought record → "Mój znak" (index 3) is the first gap
+    expect(anxietyRow.completedSteps.map((step) => step.stepIndex)).toEqual([0, 1, 2, 4, 5, 6])
+    expect(anxietyRow.currentStepIndex).toBe(3)
+  })
+
   it('a v1 enrollment after SCS-SF and the map comes back for the new FSCRS step', () => {
     const migrated = migrateEnrollmentContent(
       enrollment({
@@ -111,7 +131,7 @@ describe('program content migration', () => {
   it('is a no-op for rows already on the definition version or without a legacy list', () => {
     expect(needsContentMigration(enrollment({ contentVersion: 3 }), shame)).toBe(false)
     expect(migrateEnrollmentContent(enrollment({ contentVersion: 3 }), shame)).toBeNull()
-    expect(migrateEnrollmentContent(enrollment({ programSlug: 'anger-signal' }), getProgramDefinition('anger-signal')!)).toBeNull()
+    expect(migrateEnrollmentContent(enrollment({ programSlug: 'ifs-parts' }), getProgramDefinition('ifs-parts')!)).toBeNull()
   })
 
   it('migrateEnrollmentsContent persists changed rows and drops their pending step items only', async () => {

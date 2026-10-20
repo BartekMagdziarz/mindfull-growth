@@ -5,6 +5,8 @@ import {
   definitionSlugFor,
   microCandidates,
 } from '@/data/exerciseCatalog'
+import { PROGRAM_CATALOG } from '@/data/programCatalog'
+import { exerciseStepForm } from '@/domain/exerciseCatalog'
 import enExercises from '@/locales/en/exercises.json'
 import plExercises from '@/locales/pl/exercises.json'
 
@@ -26,9 +28,9 @@ function isCopyValue(value: unknown): boolean {
 
 describe('exercise catalog', () => {
   it('has unique slugs and unique i18n keys', () => {
-    const slugs = EXERCISE_CATALOG.map((e) => e.slug)
+    const slugs = EXERCISE_CATALOG.map(e => e.slug)
     expect(new Set(slugs).size).toBe(slugs.length)
-    const keys = EXERCISE_CATALOG.map((e) => e.i18nKey)
+    const keys = EXERCISE_CATALOG.map(e => e.i18nKey)
     expect(new Set(keys).size).toBe(keys.length)
   })
 
@@ -40,7 +42,7 @@ describe('exercise catalog', () => {
     expect(catalogEntriesForTab('cbt')).toHaveLength(32)
     expect(catalogEntriesForTab('logotherapy')).toHaveLength(8)
     expect(catalogEntriesForTab('ifs')).toHaveLength(10)
-    expect(EXERCISE_CATALOG).toHaveLength(75)
+    expect(EXERCISE_CATALOG).toHaveLength(76)
   })
 
   it('has card copy for every entry in both locales', () => {
@@ -49,10 +51,7 @@ describe('exercise catalog', () => {
         const card = cards(locale)[entry.i18nKey]
         expect(card, `cards.${entry.i18nKey} missing`).toBeDefined()
         for (const field of ['title', 'subtitle', 'description'] as const) {
-          expect(
-            isCopyValue(card?.[field]),
-            `cards.${entry.i18nKey}.${field} invalid`,
-          ).toBe(true)
+          expect(isCopyValue(card?.[field]), `cards.${entry.i18nKey}.${field} invalid`).toBe(true)
         }
       }
     }
@@ -60,7 +59,7 @@ describe('exercise catalog', () => {
 
   it('every assessment entry is a registered instrument', async () => {
     const { getAssessmentRegistryEntry } = await import('@/services/assessments/registry')
-    for (const entry of EXERCISE_CATALOG.filter((e) => e.kind === 'assessment')) {
+    for (const entry of EXERCISE_CATALOG.filter(e => e.kind === 'assessment')) {
       expect(() => getAssessmentRegistryEntry(entry.slug as never), entry.slug).not.toThrow()
     }
   })
@@ -86,7 +85,7 @@ describe('exercise catalog', () => {
 
   it('flags exactly the expected micro candidates', () => {
     const microSlugs = microCandidates()
-      .map((e) => e.slug)
+      .map(e => e.slug)
       .sort()
     expect(microSlugs).toEqual(
       [
@@ -103,7 +102,7 @@ describe('exercise catalog', () => {
         'paced-breathing',
         'need-behind-anger',
         'shame-or-guilt',
-      ].sort(),
+      ].sort()
     )
     // The micro tab shows all micro-eligible entries (user decision 2026-07-04).
     expect(catalogEntriesForTab('micro')).toHaveLength(microSlugs.length)
@@ -111,10 +110,12 @@ describe('exercise catalog', () => {
 
   it('every micro definition has a catalog entry and vice versa', async () => {
     const { MICRO_EXERCISES } = await import('@/data/microExercises')
-    const microKindSlugs = EXERCISE_CATALOG.filter((e) => e.kind === 'micro' && !e.variantOf).map((e) => e.slug)
-    expect(MICRO_EXERCISES.map((d) => d.slug).sort()).toEqual(microKindSlugs.sort())
+    const microKindSlugs = EXERCISE_CATALOG.filter(e => e.kind === 'micro' && !e.variantOf).map(
+      e => e.slug
+    )
+    expect(MICRO_EXERCISES.map(d => d.slug).sort()).toEqual(microKindSlugs.sort())
     for (const definition of MICRO_EXERCISES) {
-      const entry = EXERCISE_CATALOG.find((e) => e.slug === definition.slug)
+      const entry = EXERCISE_CATALOG.find(e => e.slug === definition.slug)
       expect(entry?.i18nKey).toBe(definition.i18nKey)
       expect(entry?.route).toBe(`/exercises/micro/${definition.slug}`)
     }
@@ -122,25 +123,32 @@ describe('exercise catalog', () => {
 
   it('variants run a real definition with answers to real choice steps, hidden from the tabs', async () => {
     const { MICRO_EXERCISES } = await import('@/data/microExercises')
-    const variants = EXERCISE_CATALOG.filter((e) => e.variantOf)
-    expect(variants.map((e) => e.slug).sort()).toEqual(['moment-anger', 'moment-shame'])
+    const variants = EXERCISE_CATALOG.filter(e => e.variantOf)
+    expect(variants.map(e => e.slug).sort()).toEqual([
+      'moment-anger',
+      'moment-anxiety',
+      'moment-shame',
+    ])
     for (const entry of variants) {
       expect(entry.kind, entry.slug).toBe('micro')
       expect(entry.hiddenInCatalog, entry.slug).toBe(true)
       expect(entry.micro, `${entry.slug} must not be a daily suggestion`).toBeFalsy()
       expect(entry.route).toBe(`/exercises/micro/${entry.slug}`)
       expect(definitionSlugFor(entry.slug)).toBe(entry.variantOf!.slug)
-      const definition = MICRO_EXERCISES.find((d) => d.slug === entry.variantOf!.slug)
+      const definition = MICRO_EXERCISES.find(d => d.slug === entry.variantOf!.slug)
       expect(definition, `${entry.slug} → ${entry.variantOf!.slug}`).toBeDefined()
       for (const [key, value] of Object.entries(entry.variantOf!.preset)) {
-        const step = definition!.steps.find((candidate) => candidate.key === key)
+        const step = definition!.steps.find(candidate => candidate.key === key)
         expect(step?.type, `${entry.slug} preset ${key}`).toBe('choice')
         if (step?.type === 'choice') expect(step.options).toContain(value)
       }
     }
     expect(definitionSlugFor('shame-map')).toBe('shame-map')
     for (const tab of ['cbt', 'micro'] as const) {
-      expect(catalogEntriesForTab(tab).some((e) => e.hiddenInCatalog), tab).toBe(false)
+      expect(
+        catalogEntriesForTab(tab).some(e => e.hiddenInCatalog),
+        tab
+      ).toBe(false)
     }
   })
 
@@ -148,6 +156,18 @@ describe('exercise catalog', () => {
     for (const entry of microCandidates()) {
       expect(entry.estimatedMinutes).toBeGreaterThanOrEqual(2)
       expect(entry.estimatedMinutes).toBeLessThanOrEqual(5)
+    }
+  })
+
+  it('gives every path step a form of work (assessments count as measure)', () => {
+    const stepSlugs = new Set(
+      PROGRAM_CATALOG.flatMap(program => program.steps.map(step => step.exerciseSlug))
+    )
+    for (const slug of stepSlugs) {
+      const entry = EXERCISE_CATALOG.find(candidate => candidate.slug === slug)
+      expect(entry, slug).toBeDefined()
+      expect(exerciseStepForm(entry), slug).toBeDefined()
+      if (entry!.kind === 'assessment') expect(entry!.form, slug).toBeUndefined()
     }
   })
 })

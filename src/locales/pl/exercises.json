@@ -18,6 +18,8 @@
     "pastExperiments": "Poprzednie eksperymenty",
     "pastPlans": "Poprzednie plany",
     "pastHierarchies": "Poprzednie hierarchie",
+    "hierarchyMeta": "{steps} kroków · {done} ukończonych",
+    "weekOf": "Tydzień od {date}",
     "yourLogs": "Twoje dzienniki",
     "newLog": "Nowy dziennik",
     "backToLogs": "Powrót do dzienników",
@@ -440,7 +442,7 @@
     "momentAnger": {
       "title": "Moment złości",
       "subtitle": "Zapis w Momentach",
-      "description": "Krótki zapis dnia: czy pojawiła się złość, co ją wywołało, jaka myśl ją podkręciła i co pomogło."
+      "description": "Pięć dotknięć: co przejęło ster, kiedy zauważone, co zamiast i jak silna była złość. Reszta, jeśli chcesz."
     },
     "shameResponse": {
       "title": "Plan na trudną chwilę",
@@ -541,6 +543,11 @@
       "title": "Jak traktuję siebie",
       "subtitle": "22 pytania o trzy głosy wobec siebie",
       "description": "Trzy głosy, którymi odpowiadasz sobie, gdy coś nie wychodzi. Skala FSCRS; ścieżka wstydu mierzy je na starcie, na końcu i przy Powrocie."
+    },
+    "momentAnxiety": {
+      "title": "Moment lęku",
+      "subtitle": "Zapis w Momentach",
+      "description": "Pięć dotknięć: co pociągnęło, kiedy zauważone, co zamiast i jak silny był lęk. Reszta, jeśli chcesz."
     }
   }
 }

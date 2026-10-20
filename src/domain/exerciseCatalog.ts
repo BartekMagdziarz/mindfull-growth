@@ -12,6 +12,24 @@ import type { MicroStepValue } from '@/domain/microExercises'
 
 export type ExerciseKind = 'wizard' | 'assessment' | 'micro'
 
+/**
+ * The form of work a path step asks for (decision 2026-10-17, four groups):
+ * `imagery` = inner work in the imagination or with a part, `reflection` =
+ * writing and thinking (records, letters, maps, beliefs), `action` = plans,
+ * experiments, decisions and checks. Questionnaires (`kind: 'assessment'`)
+ * are the fourth group, `measure`, derived from the kind — see
+ * `exerciseStepForm`. Shown as a small glyph before the step's title.
+ */
+export type ExerciseForm = 'imagery' | 'reflection' | 'action'
+export type ExerciseStepForm = ExerciseForm | 'measure'
+
+export function exerciseStepForm(
+  entry: Pick<ExerciseCatalogEntry, 'kind' | 'form'> | undefined
+): ExerciseStepForm | undefined {
+  if (!entry) return undefined
+  return entry.kind === 'assessment' ? 'measure' : entry.form
+}
+
 export type ExerciseCatalogCategory =
   | 'self-discovery'
   | 'cbt'
@@ -23,6 +41,8 @@ export interface ExerciseCatalogEntry {
   /** Stable id, reuses route slugs ('worry-tree', 'erq', …). */
   slug: string
   kind: ExerciseKind
+  /** Form of work for path step glyphs; assessments are `measure` implicitly. */
+  form?: ExerciseForm
   category: ExerciseCatalogCategory
   route: string
   /** camelCase key under `exercises.cards.*` (NOT the slug — e.g. 'valuesDiscovery' for slug 'values'). */

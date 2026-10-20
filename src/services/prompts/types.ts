@@ -244,7 +244,7 @@ export interface ChatPromptModule {
 // ============================================================================
 
 export interface PathPromptModule {
-  /** One descriptive sentence about a week of Momenty (shame path) — a proposal, never a judgement. */
+  /** One descriptive sentence about a week of Momenty (any problem path) — a proposal, never a judgement. */
   PATH_WEEK_PATTERN: string
 
   labels: {
@@ -252,11 +252,18 @@ export interface PathPromptModule {
     previousWeek: string
     moments: string
     unlogged: string
+    /** The path's emotion, named in the context ("Ścieżka: wstyd"). */
+    path: string
+    kinds: Record<'shame' | 'anger' | 'anxiety', string>
     parts: string
+    /** The anger / anxiety wording of `parts` (reactions, not parts). */
+    reactions: string
     noticed: string
     responded: string
     kindVoices: string
     noticing: Record<'during' | 'soon' | 'hours' | 'later' | 'unknown', string>
     nonePart: string
+    /** How the self key reads per kind ("pauza zamiast reakcji"). */
+    nonePartByKind: Record<'shame' | 'anger' | 'anxiety', string>
   }
 }

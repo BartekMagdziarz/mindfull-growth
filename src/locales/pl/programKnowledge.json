@@ -25,9 +25,9 @@
   },
   "compassParts": {
     "title": "Cztery części, które przejmują ster",
-    "lead": "Ukrywający, Krytyk, Oskarżyciel i Odwracający uwagę. Każda z nich chroni. Żadna nie jest tobą.",
+    "lead": "Ukrywający, Krytyk, Agresor i Odwracający uwagę. Każda z nich chroni. Żadna nie jest tobą.",
     "body": [
-      "Donald Nathanson opisał cztery automatyczne reakcje na wstyd: wycofanie, atak na siebie, atak na innych i unikanie. W języku części (IFS) każda z nich jest protektorem: częścią, która kiedyś nauczyła się chronić cię przed bólem bycia zobaczonym. Ukrywający nie chce, żeby cię zobaczono. Krytyk uprzedza cudzą krytykę, żeby zabolała mniej. Oskarżyciel odpycha innych, zanim poczucie małości zdąży zaboleć. Odwracający uwagę odsuwa samo poczucie.",
+      "Donald Nathanson opisał cztery automatyczne reakcje na wstyd: wycofanie, atak na siebie, atak na innych i unikanie. W języku części (IFS) każda z nich jest protektorem: częścią, która kiedyś nauczyła się chronić cię przed bólem bycia zobaczonym. Ukrywający nie chce, żeby cię zobaczono. Krytyk uprzedza cudzą krytykę, żeby zabolała mniej. Agresor odpycha innych, zanim poczucie małości zdąży zaboleć. Odwracający uwagę odsuwa samo poczucie.",
       "Gdy reakcja ma imię, przestaje być „taki jestem” i staje się „to moja część przejęła ster”. Zostaje w tobie ktoś, kto może jej wysłuchać i nie odejść. Tego uczy zdanie odmieszania w twojej planu na trudną chwilę i każdy zapis w Momentach.",
       "Uczciwie: IFS jest tu ramą do rozumienia i rozmowy z sobą. Dowody na skuteczność samej ścieżki pochodzą głównie z terapii skoncentrowanej na współczuciu, programu Mindful Self-Compassion i pracy z krzesłami."
     ],
@@ -129,6 +129,123 @@
     ],
     "sources": [
       "Saraiya & Lopez-Castro 2016; Northover i in. 2021; Cai 2024"
+    ]
+  },
+  "angerPause": {
+    "title": "Pauza, która zostawia wybór",
+    "lead": "Złość może być sygnałem. To, co zrobisz pod jej wpływem, można ćwiczyć.",
+    "body": [
+      "Pomyśl o niewielkiej, codziennej sytuacji. Po czym poznajesz, że napięcie rośnie? Może szybciej mówisz albo zaciskasz szczękę. W planie pauzy połącz taki sygnał z jednym prostym ruchem: chwilą ciszy, spokojnym oddechem lub zapowiedzianą przerwą. Potem zajrzyj do własnych słów przez „Mój plan”. Nie trzeba pamiętać całego ćwiczenia.",
+      "Jeśli rozmowa jest bezpieczna, zaproponuj, kiedy do niej wrócicie. Po przerwie możesz powiedzieć, co się wydarzyło, czego potrzebujesz i o co prosisz. Spokojna prośba nie gwarantuje zgody. W tej ścieżce przyglądasz się własnemu działaniu: czy pojawiło się trochę więcej wyboru? Nie musisz od razu czuć spokoju ani przekonywać drugiej osoby. Jeden zapisany moment wystarczy, żeby później poszukać innej odpowiedzi."
+    ],
+    "sources": [
+      "NHS — Get help with anger: https://www.nhs.uk/mental-health/feelings-symptoms-behaviours/feelings-and-symptoms/anger/"
+    ]
+  },
+  "angerSafety": {
+    "title": "Kiedy potrzebne jest wsparcie",
+    "lead": "Rozumienie złości nie usprawiedliwia krzywdzenia.",
+    "body": [
+      "Ta ścieżka jest miejscem do ćwiczenia odpowiedzi na codzienne napięcie. Nie zastępuje pomocy, gdy pojawiają się groźby, przemoc, niszczenie rzeczy albo obawa, że ktoś może zostać skrzywdzony. W takim momencie przerwij rozmowę i zadbaj o bezpieczeństwo. Jeśli zagrożenie jest bezpośrednie, skontaktuj się z lokalnymi służbami ratunkowymi. Nie czekaj na ukończenie kolejnego kroku w aplikacji.",
+      "Jeśli złość regularnie utrudnia Twoje życie lub relacje, porozmawiaj ze specjalistą o odpowiednim wsparciu. Możesz pokazać mu swoje notatki, ale nie musisz ich mieć, żeby poprosić o pomoc. Po raniącym zachowaniu warto nazwać konkretny czyn i wziąć za niego odpowiedzialność. Nie wymaga to atakowania siebie. Druga osoba ma prawo do dystansu, odmowy rozmowy i własnego tempa. Zadanie „naprawa” nie zobowiązuje jej do kontaktu ani wybaczenia."
+    ],
+    "sources": [
+      "NHS inform — Problems with anger self-help guide: https://www.nhsinform.scot/illnesses-and-conditions/mental-health/mental-health-self-help-guides/problems-with-anger-self-help-guide/"
+    ]
+  },
+  "anxietySmallSteps": {
+    "title": "Próba, nie sprawdzian",
+    "lead": "Mały krok może mieć znaczenie także wtedy, gdy lęk nadal jest obecny.",
+    "body": [
+      "Na drabinie wybierz sytuację, która jest bezpieczna, ale budzi niepokój. Zapisz, co chcesz zrobić i czego się obawiasz. Zacznij od wykonalnej wersji: jednego pytania, krótkiej rozmowy, niewielkiej decyzji. Powtarzanie daje okazję do poznawania tej sytuacji. Nie musisz przechodzić wyżej przy każdej próbie. Możesz wrócić do tego samego szczebla albo zmniejszyć krok.",
+      "Po próbie sprawdź, co faktycznie się wydarzyło i co udało się zrobić. Poziom lęku jest jedną z informacji, a nie oceną całej próby. Ograniczanie zbędnego upewniania się nie oznacza rezygnacji z leków, zaleceń medycznych czy rzeczywistej ochrony. Nie wybieraj ćwiczeń związanych z realnym zagrożeniem. Gdy trudno ocenić bezpieczeństwo albo próby są przytłaczające, omów je ze specjalistą. Twoja mapa ma pomagać dobierać krok, nie zmuszać do jego wykonania."
+    ],
+    "sources": [
+      "NHS — Facing your fears: https://www.nhs.uk/every-mind-matters/mental-wellbeing-tips/self-help-cbt-techniques/facing-your-fears/"
+    ]
+  },
+  "anxietyWorry": {
+    "title": "Dać zmartwieniom miejsce",
+    "lead": "Nie każda obawa wymaga odpowiedzi w tej chwili.",
+    "body": [
+      "Pora na zmartwienia to zaproszenie do krótkiego powrotu do swoich notatek. W ciągu dnia możesz zapisać myśl jednym zdaniem i skierować uwagę na bieżącą czynność. Nie trzeba usuwać myśli ani wygrać z nią dyskusji. Gdy pojawi się ponownie, możesz ponownie wrócić do tego, co robisz. Wybierz porę, która pasuje do Twojego dnia i nie wypada tuż przed snem.",
+      "Przy notatce zapytaj: czy jest tu konkretne działanie w moim zasięgu? Jeśli tak, wybierz mały krok. Jeśli nie, możesz zostawić tę sprawę na teraz bez rozstrzygnięcia. Pilnych obowiązków i zagrożeń nie odkładaj na porę zmartwień. Jeśli lęk stale ogranicza codzienność, warto szukać profesjonalnego wsparcia. Przy panice, OCD lub traumie plan ćwiczeń wymaga indywidualnego dopasowania; ta ścieżka go nie zastępuje."
+    ],
+    "sources": [
+      "NHS — Tackling your worries: https://www.nhs.uk/every-mind-matters/mental-wellbeing-tips/self-help-cbt-techniques/tackling-your-worries/",
+      "NHS — Get help with anxiety, fear or panic: https://www.nhs.uk/mental-health/feelings-symptoms-behaviours/feelings-and-symptoms/anxiety-fear-panic/"
+    ]
+  },
+  "angerRumination": {
+    "title": "Przeżuwanie podtrzymuje złość",
+    "lead": "Złość, którą się przeżuwa, nie gaśnie. Rośnie.",
+    "body": [
+      "Gdy wracasz myślami do sytuacji, powtarzasz w głowie to, co ktoś zrobił, i to, co powinien był zrobić. Każde powtórzenie podkręca napięcie, jakby sytuacja działa się jeszcze raz, i podsuwa coraz ostrzejsze wersje tej samej historii. W badaniach właśnie przeżuwanie, a nie sama złość, najlepiej przewiduje późniejszy wybuch: nie to, że się zezłościłeś, tylko to, jak długo tę złość nosiłeś.",
+      "Zamiast walczyć z myślą, daj jej jedno z dwóch wyjść. Jeśli dotyczy sprawy, na którą masz wpływ, zapisz jeden krok i wróć do niej o wybranej porze. Jeśli nie, zauważ dopowiedzenie („on to robi specjalnie”) i wróć do tego, co właśnie robisz. Drzewo zmartwień, zapis myśli i mały krok w sprawie robią dokładnie to. Nie trzeba przestać myśleć, wystarczy przestać krążyć."
+    ],
+    "sources": [
+      "Sukhodolsky, Golub & Cromwell (2001). Development and validation of the Anger Rumination Scale. Personality and Individual Differences, 31, 689–700.",
+      "Saini (2009). A meta-analysis of the psychological treatment of anger. Journal of the American Academy of Psychiatry and the Law, 37, 473–488."
+    ]
+  },
+  "angerNeed": {
+    "title": "Złość broni potrzeby",
+    "lead": "Za złością stoi coś ważnego: granica, szacunek, sprawiedliwość, odpoczynek.",
+    "body": [
+      "Złość nie bierze się znikąd. Pojawia się, gdy coś ważnego zostało naruszone albo zabrakło tego, czego potrzebujesz: szacunku, przewidywalności, odpoczynku, uczciwości. Wybuch mówi o tym nie wprost, więc druga osoba słyszy atak, a nie potrzebę, i broni się zamiast słuchać. Prośba mówi to samo wprost i zostawia drugiej stronie miejsce na odpowiedź.",
+      "W ćwiczeniu „Potrzeba i prośba” nazywasz fakt bez oceny, uczucie, potrzebę i jedną prośbę, którą da się spełnić. Nie ma gwarancji, że druga osoba się zgodzi. Jest za to spora szansa, że cię usłyszy, a ty wiesz, o co ci chodziło, zanim złość zdążyła to zagłuszyć. W Momentach ta sama lista potrzeb czeka pod każdym zapisem, żeby nazwać ją na zimno, gdy nie ma już kogo prosić."
+    ],
+    "sources": [
+      "Rosenberg (2015). Nonviolent Communication: A Language of Life (3rd ed.). PuddleDancer Press.",
+      "NHS inform — Problems with anger self-help guide: https://www.nhsinform.scot/illnesses-and-conditions/mental-health/mental-health-self-help-guides/problems-with-anger-self-help-guide/"
+    ]
+  },
+  "angerRepair": {
+    "title": "Naprawa przerywa pętlę",
+    "lead": "Po wybuchu przychodzi wstyd, po wstydzie napięcie, po napięciu kolejny wybuch.",
+    "body": [
+      "Wybuch rzadko kończy się na wybuchu. Zostaje poczucie winy albo wstyd, a one podnoszą napięcie, z którego łatwo o następny. Część osób w tym miejscu zaczyna obwiniać siebie, część obwinia dalej innych; jedno i drugie podtrzymuje pętlę. Naprawa ją przerywa: uznajesz konkretny czyn, bez tłumaczenia go całą sytuacją, i proponujesz, co dalej.",
+      "Naprawa nie wymaga, żeby druga osoba od razu przyjęła przeprosiny. Może potrzebować czasu albo wcale nie chcieć rozmawiać; to jej prawo. Liczy się to, że sprawa została nazwana i że nie musisz jej dalej nosić. Jeśli sytuacja nie jest bezpieczna, naprawą może być samo wycofanie się z niej. List do siebie po trudnym momencie robi to samo w stosunku do ciebie: życzliwość i odpowiedzialność w jednym zdaniu."
+    ],
+    "sources": [
+      "NHS — Get help with anger: https://www.nhs.uk/mental-health/feelings-symptoms-behaviours/feelings-and-symptoms/anger/",
+      "Saini (2009). A meta-analysis of the psychological treatment of anger. Journal of the American Academy of Psychiatry and the Law, 37, 473–488."
+    ]
+  },
+  "anxietyUncertainty": {
+    "title": "Miejsce na niewiadomą",
+    "lead": "Nie chodzi o pewność. Chodzi o to, żeby móc działać bez niej.",
+    "body": [
+      "Sprawdzanie, upewnianie się i czytanie kolejnej opinii przynoszą ulgę na chwilę. Po chwili niepewność wraca, a razem z nią potrzeba kolejnego sprawdzenia, bo ulga nauczyła, że bez niego nie da się wytrzymać. Z czasem ulga jest coraz krótsza, a sprawdzanie coraz częstsze. Problemem nie jest sama niewiadoma, tylko przekonanie, że trzeba ją usunąć, zanim zrobi się cokolwiek.",
+      "Eksperymenty z małą niewiadomą działają w drugą stronę: wybierasz drobną decyzję bez realnego ryzyka, zostawiasz ją bez ostatniego sprawdzenia i patrzysz, co się dzieje. Zwykle niewiele, a jeśli coś, to da się z tym żyć. To doświadczenie, nie przekonywanie, zmienia nastawienie do niepewności. Dlatego w tej ścieżce zapisujesz przewidywanie przed próbą i to, co naprawdę się stało, po niej."
+    ],
+    "sources": [
+      "Dugas & Robichaud (2007). Cognitive-Behavioral Treatment for Generalized Anxiety Disorder: From Science to Practice. Routledge.",
+      "NHS — Get help with anxiety, fear or panic: https://www.nhs.uk/mental-health/feelings-symptoms-behaviours/feelings-and-symptoms/anxiety-fear-panic/"
+    ]
+  },
+  "anxietyLearning": {
+    "title": "Czego uczy mała próba",
+    "lead": "Spadek lęku nie jest celem próby. Celem jest to, czego się nauczysz.",
+    "body": [
+      "Przez lata myślano, że próba działa wtedy, gdy lęk w jej trakcie opada. Dziś wiadomo, że ważniejsze jest, czy przewidywanie się sprawdziło. Jeśli bałaś się, że nie wytrzymasz albo że wszyscy to zobaczą, a wytrzymałaś i nikt nie zareagował, próba zadziałała, nawet jeśli lęk był wysoki do końca. Mózg uczy się z rozbieżności między tym, czego się spodziewał, a tym, co zaszło.",
+      "Dlatego przed próbą zapisujesz przewidywanie, a po niej to, co się naprawdę stało. Różne sytuacje, różne pory i różne osoby uczą więcej niż powtarzanie jednej i tej samej. Wysoki lęk w trakcie nie unieważnia nauki, a spadek lęku nie jest warunkiem sukcesu. Realne środki bezpieczeństwa zostają: pas w samochodie i lek przepisany przez lekarza to nie zachowania zabezpieczające."
+    ],
+    "sources": [
+      "Craske, Treanor, Conway, Zbozinek & Vervliet (2014). Maximizing exposure therapy: an inhibitory learning approach. Behaviour Research and Therapy, 58, 10–23.",
+      "NHS — Get help with anxiety, fear or panic: https://www.nhs.uk/mental-health/feelings-symptoms-behaviours/feelings-and-symptoms/anxiety-fear-panic/"
+    ]
+  },
+  "anxietySafety": {
+    "title": "Zabezpieczenia a bezpieczeństwo",
+    "lead": "Nie wszystko, co uspokaja, jest zachowaniem zabezpieczającym.",
+    "body": [
+      "Zachowanie zabezpieczające to coś, co robisz głównie dla chwilowej ulgi: kolejne pytanie o to samo, telefon „na wszelki wypadek”, siedzenie przy drzwiach, przygotowanie odpowiedzi na każde możliwe pytanie. Daje ulgę i jednocześnie podpowiada, że sytuacja była groźna i że przetrwałaś ją tylko dzięki zabezpieczeniu. Dlatego lęk wraca następnym razem w tej samej sile.",
+      "Leki, zalecenia lekarza i realne środki bezpieczeństwa to co innego. Nie rezygnuj z nich w ramach tej ścieżki i nie podejmuj decyzji o leczeniu bez specjalisty. Jeśli nie wiesz, do której grupy coś należy, zapytaj: czy robię to, bo sytuacja tego wymaga, czy dlatego, że inaczej nie wytrzymam niepewności? Na mapie lęku zapisujesz tylko tę drugą grupę i na początku jedynie ją zauważasz."
+    ],
+    "sources": [
+      "NHS — Get help with anxiety, fear or panic: https://www.nhs.uk/mental-health/feelings-symptoms-behaviours/feelings-and-symptoms/anxiety-fear-panic/",
+      "Craske, Treanor, Conway, Zbozinek & Vervliet (2014). Maximizing exposure therapy: an inhibitory learning approach. Behaviour Research and Therapy, 58, 10–23."
     ]
   }
 }

@@ -25,6 +25,18 @@ export interface KnowledgeCard {
 }
 
 export const PROGRAM_KNOWLEDGE: readonly KnowledgeCard[] = [
+  // anxiety v2 (2026-10-18): the two pinned reads plus one per theme — uncertainty, learning in a small attempt, safety behaviours
+  { key: 'anxietySmallSteps', programSlug: 'anxiety-approach', phaseKeys: [], i18nKey: 'anxietySmallSteps', pinned: true },
+  { key: 'anxietyWorry', programSlug: 'anxiety-approach', phaseKeys: ['w2'], i18nKey: 'anxietyWorry', pinned: true },
+  { key: 'anxietyUncertainty', programSlug: 'anxiety-approach', phaseKeys: ['w3', 'w4'], i18nKey: 'anxietyUncertainty' },
+  { key: 'anxietyLearning', programSlug: 'anxiety-approach', phaseKeys: ['w5', 'w6'], i18nKey: 'anxietyLearning' },
+  { key: 'anxietySafety', programSlug: 'anxiety-approach', phaseKeys: ['w1', 'w5'], i18nKey: 'anxietySafety' },
+  // anger v2: the pause, safety, plus rumination, the need behind anger and repair
+  { key: 'angerPause', programSlug: 'anger-signal', phaseKeys: ['w2'], i18nKey: 'angerPause' },
+  { key: 'angerSafety', programSlug: 'anger-signal', phaseKeys: [], i18nKey: 'angerSafety', pinned: true },
+  { key: 'angerRumination', programSlug: 'anger-signal', phaseKeys: ['w3'], i18nKey: 'angerRumination' },
+  { key: 'angerNeed', programSlug: 'anger-signal', phaseKeys: ['w4'], i18nKey: 'angerNeed' },
+  { key: 'angerRepair', programSlug: 'anger-signal', phaseKeys: ['w6'], i18nKey: 'angerRepair' },
   { key: 'whatShame', programSlug: 'shame-compassion', phaseKeys: ['w1'], i18nKey: 'whatShame' },
   { key: 'notYourFault', programSlug: 'shame-compassion', phaseKeys: ['w1'], i18nKey: 'notYourFault' },
   { key: 'compassParts', programSlug: 'shame-compassion', phaseKeys: ['w1', 'w5'], i18nKey: 'compassParts' },

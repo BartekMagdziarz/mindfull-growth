@@ -3,11 +3,11 @@ import { getPeriodRefsForDate, getPreviousPeriod } from '../src/utils/periods'
 import type { WeekRef } from '../src/domain/period'
 
 /**
- * Problem paths against the seeded instance (port 5199). Seed v5, §15b:
- * "Lęk: podejść zamiast unikać" at step 7/15 (behavioral experiment due
- * today), worry postponement pending since yesterday, paced breathing done
- * today, baseline GAD-7 13/21, two closed weeks with an accepted real-world
- * task and a reflection "Ścieżka" answer; the current week has no decision.
+ * Problem paths against the seeded instance (port 5199). Seed §15b:
+ * "Lęk: podejść zamiast unikać" v2 at step 8/22 (behavioral experiment due
+ * today), worry postponement pending since yesterday, seven anxiety Moments,
+ * baseline GAD-7 13/21, two closed weeks with an accepted real-world task
+ * and a reflection "Ścieżka" answer; the current week has no decision.
  *
  * The spec re-seeds first: other specs mutate the shared instance.
  */
@@ -53,7 +53,7 @@ test.describe('problem paths', () => {
 
     await page.goto('/today')
     await expect(page.getByText('Lęk: podejść zamiast unikać')).toBeVisible()
-    await page.locator('.next-day-exercises__row--child', { hasText: 'Pora na zmartwienia' }).click()
+    await page.locator('.ndp', { hasText: 'Pora na zmartwienia' }).locator('.ndp__well').click()
     await expect(page).toHaveURL(/\/exercises\/micro\/worry-postponement/)
 
     // Wait for each step heading: the runner cross-fades steps, so a click
@@ -77,19 +77,40 @@ test.describe('problem paths', () => {
     expectNoAppErrors(consoleErrors)
   })
 
-  test('path view: phases as rows, the measure behind Szczegóły, two practices and this week\'s proposal', async ({ page }) => {
+  test('path view (v2): weeks as rows, the experiment current in week 3, the measure behind Szczegóły, Reakcje, the sign and this week\'s proposal', async ({ page }) => {
     test.setTimeout(120_000)
     const consoleErrors = await bootFreshSeed(page)
 
     await page.goto('/exercises/programs/anxiety-approach')
+    await expect(page.locator('.mg-v2-page-head__eyebrow')).toContainText('Tydzień 3 z 8')
+    await expect(page.locator('.path-view__sign')).toContainText('Zadzwonię do urzędu')
     const journey = page.getByTestId('path-journey')
-    await expect(journey.locator('[data-test-path-week]')).toHaveCount(7)
-    await expect(journey.locator('[data-test-program-step="6"]')).toContainText('Rozpocznij')
+    await expect(journey.locator('[data-test-path-week]')).toHaveCount(9)
+    await expect(journey.locator('.wk__title').first()).toHaveText('Rozpoznanie')
+    await expect(journey.locator('.wk__title').last()).toHaveText('Powrót')
+    const current = journey.locator('[data-test-program-step="7"]')
+    await expect(current).toContainText('Mała próba niepewności')
+    await expect(current).toContainText('Po co:')
+    await expect(current.getByRole('button', { name: 'Rozpocznij' })).toBeVisible()
     const measure = page.getByTestId('path-measure')
     await measure.getByRole('button', { name: 'Szczegóły' }).click()
-    await expect(measure.getByRole('table')).toContainText('13 z 21')
-    await expect(page.getByTestId('path-practices').locator('.pp-pr')).toHaveCount(2)
+    // Two instruments now (GAD-7 and IUS-12): the first table is the GAD-7 series.
+    await expect(measure.getByRole('table').first()).toContainText('13 z 21')
+    // Postęp: the anxiety reaction families, time left → right, legend on the left.
+    const glance = page.getByTestId('path-moments-glance')
+    await expect(glance.locator('.pc__legend-name')).toHaveText(['Zamartwianie', 'Sprawdzanie', 'Wycofanie', 'Odkładanie', 'Ja'])
+    // Praktyki: the worry time and Momenty as tiles (the breath ended with the worry tree), the proposal for this week.
+    const practices = page.getByTestId('path-practices')
+    await expect(practices.getByTestId('path-practice-tile')).toHaveCount(1)
+    await expect(practices.getByTestId('path-moment-tile')).toHaveCount(1)
     await expect(page.getByTestId('path-world').getByRole('button', { name: 'Dodaj do tego tygodnia' })).toBeVisible()
+    // The experiment starts from a Moment: the picker lists the seven anxiety Moments.
+    await current.getByRole('button', { name: 'Rozpocznij' }).click()
+    const picker = page.getByTestId('moment-picker')
+    await expect(picker).toBeVisible()
+    await expect(picker.locator('li')).toHaveCount(7)
+    await picker.locator('button', { hasText: 'Zadzwoniłem do urzędu' }).click()
+    await expect(page).toHaveURL(/\/exercises\/behavioral-experiment\?momentId=/)
     expectNoAppErrors(consoleErrors)
   })
 
@@ -104,7 +125,9 @@ test.describe('problem paths', () => {
     await expect(card).toHaveCount(0)
 
     await page.goto('/exercises/programs/anxiety-approach')
-    await expect(page.getByTestId('path-world')).toContainText('odłożone')
+    // A declined week shows no task tile in Praktyki (the tile is the accepted task or the proposal).
+    await expect(page.getByTestId('path-practices')).toBeVisible()
+    await expect(page.getByTestId('path-world')).toHaveCount(0)
     expectNoAppErrors(consoleErrors)
   })
 
@@ -118,7 +141,13 @@ test.describe('problem paths', () => {
     const block = page.locator('.qr-path-block', { hasText: 'Lęk: podejść zamiast unikać' })
     await expect(block).toBeVisible()
     await expect(block.locator('textarea').first()).toHaveValue(/Przewidywałem katastrofę/)
-    await expect(block).toContainText('2 z 2')
+    // The seeded days (6 and 4 days ago) count only when they fall in the previous week — the same rule the seed applies.
+    const counted = [6, 4].filter((daysAgo) => {
+      const day = new Date()
+      day.setDate(day.getDate() - daysAgo)
+      return getPeriodRefsForDate(day).week === prevWeek
+    }).length
+    await expect(block.locator('.qr-path-task__disc')).toHaveText(`${counted}/2`)
     expectNoAppErrors(consoleErrors)
   })
 })

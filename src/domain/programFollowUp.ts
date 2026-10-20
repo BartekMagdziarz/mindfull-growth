@@ -20,14 +20,9 @@ export function futureLetterShowAt(responses: Record<string, MicroStepValue>, wr
   return addDaysToDayRef(writtenOn, RETURN_IN_DAYS[choice] ?? RETURN_IN_DAYS.w8!)
 }
 
-/** From its day on, the letter waits in the path view and in Today (Today keeps it a week). */
+/** From its day on, the letter waits in the path view and as a "Najbliżej" marker until it is read. */
 export function futureLetterDue(enrollment: Pick<ProgramEnrollment, 'futureLetter'>, today: DayRef): boolean {
   return Boolean(enrollment.futureLetter && enrollment.futureLetter.showAt <= today)
-}
-
-export function futureLetterFresh(enrollment: Pick<ProgramEnrollment, 'futureLetter'>, today: DayRef, days = 7): boolean {
-  const showAt = enrollment.futureLetter?.showAt
-  return Boolean(showAt && showAt <= today && today <= addDaysToDayRef(showAt as DayRef, days - 1))
 }
 
 // ── Czy nie za dużo? ────────────────────────────────────────────────

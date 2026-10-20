@@ -9,7 +9,8 @@
  * not the person.
  */
 
-import type { MomentsWeekStats, NoticedKey, ShamePartKey } from '@/domain/momentsProgress'
+import { momentFamily } from '@/domain/momentFamilies'
+import type { MomentsWeekStats, NoticedKey, ReactionKey } from '@/domain/momentsProgress'
 import { sendMessage, type ChatMessage } from '@/services/llmService'
 import type { LocaleId } from '@/services/locale.service'
 import { getPathPrompts } from '@/services/prompts'
@@ -18,20 +19,21 @@ import type { PathPromptModule } from '@/services/prompts/types'
 export interface WeekPatternParams {
   week: MomentsWeekStats
   previous?: MomentsWeekStats
-  /** Part labels as the UI shows them (the user may have renamed the parts). */
-  partLabels: Record<Exclude<ShamePartKey, 'none'>, string>
+  /** Part / reaction labels as the UI shows them (the user may have renamed the shame parts). */
+  partLabels: Record<ReactionKey, string>
   kindVoices: string[]
   locale: LocaleId
 }
 
 function describeWeek(label: string, week: MomentsWeekStats, params: WeekPatternParams, prompts: PathPromptModule): string {
   const l = prompts.labels
-  const parts = (Object.keys(week.byPart) as ShamePartKey[])
-    .filter((key) => week.byPart[key] > 0)
+  const family = momentFamily(week.kind)
+  const parts = (Object.keys(week.byPart) as ReactionKey[])
+    .filter((key) => (week.byPart[key] ?? 0) > 0)
     .map((key) => {
-      const name = key === 'none' ? l.nonePart : params.partLabels[key]
+      const name = key === family.selfKey ? l.nonePartByKind[family.kind] : (params.partLabels[key] ?? key)
       const strength = week.strength[key]
-      const mean = strength.rated ? ` · ${(strength.sum / strength.rated).toFixed(1)}` : ''
+      const mean = strength?.rated ? ` · ${(strength.sum / strength.rated).toFixed(1)}` : ''
       return `${name} ${week.byPart[key]}×${mean}`
     })
   const noticed = (Object.keys(week.noticed) as NoticedKey[])
@@ -39,8 +41,9 @@ function describeWeek(label: string, week: MomentsWeekStats, params: WeekPattern
     .map((key) => `${l.noticing[key]} ${week.noticed[key]}`)
   const lines = [
     `${label}:`,
+    `${l.path}: ${l.kinds[family.kind]}`,
     `${l.moments}: ${week.total}${week.unlogged ? ` (${l.unlogged}: ~${week.unlogged})` : ''}`,
-    parts.length ? `${l.parts}: ${parts.join(', ')}` : '',
+    parts.length ? `${family.kind === 'shame' ? l.parts : l.reactions}: ${parts.join(', ')}` : '',
     noticed.length ? `${l.noticed}: ${noticed.join(', ')}` : '',
     week.total ? `${l.responded}: ${week.responded}/${week.total}` : '',
   ]

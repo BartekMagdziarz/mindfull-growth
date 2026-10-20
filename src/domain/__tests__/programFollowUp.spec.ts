@@ -5,7 +5,6 @@ import type { ProgramDefinition, ProgramEnrollment } from '@/domain/program'
 import {
   doseProposal,
   futureLetterDue,
-  futureLetterFresh,
   futureLetterShowAt,
   keepRhythmOverrides,
 } from '@/domain/programFollowUp'
@@ -49,13 +48,11 @@ describe('future letter', () => {
     expect(futureLetterShowAt({ returnIn: 'w12' }, '2026-10-05' as DayRef)).toBe('2026-12-28')
   })
 
-  it('is due from its day on and fresh for a week in Today', () => {
+  it('is due from its day on', () => {
     const e = enrollment({ futureLetter: { entryId: 'l', showAt: '2026-11-02' } })
     expect(futureLetterDue(e, '2026-11-01' as DayRef)).toBe(false)
     expect(futureLetterDue(e, '2026-11-02' as DayRef)).toBe(true)
     expect(futureLetterDue(e, '2027-01-01' as DayRef)).toBe(true)
-    expect(futureLetterFresh(e, '2026-11-08' as DayRef)).toBe(true)
-    expect(futureLetterFresh(e, '2026-11-09' as DayRef)).toBe(false)
     expect(futureLetterDue(enrollment(), '2026-11-02' as DayRef)).toBe(false)
   })
 })

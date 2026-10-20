@@ -102,7 +102,7 @@ export type MicroExerciseStep = MicroStepBase &
         /**
          * optionId → IFS part tag: when the user has a part with that tag,
          * the option reads as the part's own name (the shame path's
-         * Ukrywający · Krytyk · Oskarżyciel · Odwracający uwagę, renameable).
+         * Ukrywający · Krytyk · Agresor · Odwracający uwagę, renameable).
          */
         labelsFromParts?: Record<string, string>
       }
@@ -151,6 +151,8 @@ export type MicroPrefillRule =
       /** Option-id translation between two choice steps (e.g. move → response). */
       map?: Record<string, string>
     }
+  /** A fixed answer for the target step (e.g. the pause plan hands over "pause" as the move). */
+  | { set: string | string[] }
 
 export interface MicroExerciseDefinition {
   /** Catalog slug (`kind: 'micro'` entries). */
@@ -168,7 +170,7 @@ export interface MicroExerciseDefinition {
    * optional) the runner offers "Zapisz teraz" — the quick Momenty entry
    * ends after five taps, the rest is there for whoever wants it.
    */
-  earlyFinishAfter?: string
+  earlyFinishAfter?: string | readonly string[]
   /**
    * A practice that turns compassion inward: the runner offers a quiet
    * "Za dużo na dziś" exit that saves what is there with `tooMuchToday`

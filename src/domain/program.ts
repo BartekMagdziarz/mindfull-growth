@@ -38,8 +38,14 @@ export interface ProgramStep {
    * (`?seed=fairDemand`). Honoured by the step tile (plan v3 §7.3).
    */
   startFrom?: 'moment' | 'fairDemand'
-  /** Extra route query for the exercise (e.g. `partTag` preselecting an IFS part). */
+  /** Extra route query for the exercise (e.g. `partTag` preselecting an IFS part, `kind` presetting a shared micro). */
   launchQuery?: Record<string, string>
+  /**
+   * For a micro step that starts from a moment: target step key → the
+   * moment's response key whose text is carried over as an editable
+   * prefill (`?prefill=`), e.g. `{ observation: 'situation' }`.
+   */
+  momentPrefill?: Record<string, string>
   /**
    * Completing this step closes the path (`status: 'completed'`,
    * `completedAt`). Steps after it must be `afterCompletion` follow-ups.
@@ -90,6 +96,25 @@ export interface ProgramWeeklyTask {
   times: number
   /** Where an occurrence is logged, when it has a natural home (graded-exposure attempts…). */
   linkSlug?: string
+  /**
+   * Which `linkSlug` entries count a day of the task. Without a rule every
+   * completion counts (the original bridge). With one, a Moment counts only
+   * when its answers say the task happened — see `taskCountsEntry`.
+   */
+  countRule?: TaskCountRule
+}
+
+/**
+ * How a Moment counts a day of a weekly task (shame path, Lab
+ * /concepts/path-week-reflection 2026-10-11):
+ * - `any`: any answer to "co zrobiłeś zamiast" other than "nothing";
+ * - `options`: at least one of these answers;
+ * - `part`: additionally, the part that took the wheel (`compass`).
+ */
+export interface TaskCountRule {
+  any?: true
+  options?: string[]
+  part?: string
 }
 
 /**
@@ -195,8 +220,8 @@ export interface ProgramEnrollment {
   completedAt?: string
   /** Practice rhythm overridden by the user (mid-path dose check / dashboard). */
   practiceOverrides?: Record<string, { everyDays: number }>
-  /** "List do siebie na później": the micro entry and the day it resurfaces. */
-  futureLetter?: { entryId: string; showAt: string }
+  /** "List do siebie na później": the micro entry, the day it resurfaces, and when it was opened. */
+  futureLetter?: { entryId: string; showAt: string; readAt?: string }
   /** Knowledge cards the user opened (marker only, never a gate). */
   readCards?: string[]
   /** IFS parts the path offered to create that the user removed — not recreated. */
@@ -238,7 +263,7 @@ export interface UpdateProgramEnrollmentPayload {
   contentVersion?: number
   completedAt?: string
   practiceOverrides?: Record<string, { everyDays: number }>
-  futureLetter?: { entryId: string; showAt: string }
+  futureLetter?: { entryId: string; showAt: string; readAt?: string }
   readCards?: string[]
   partsDismissed?: string[]
 }

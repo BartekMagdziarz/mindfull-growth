@@ -1495,9 +1495,11 @@ export async function seedVerificationData(): Promise<void> {
   const anxietyEnrollment = await programEnrollmentDexieRepository.create({
     programSlug: 'anxiety-approach',
     startedAt: `${anxietyStart}T12:00:00.000Z`,
+    contentVersion: 2,
   })
-  const anxietyStepDays = [16, 16, 15, 13, 10, 4] as const
-  const anxietyStepSlugs = ['gad-7', 'ius-12', 'anxiety-map', 'worry-tree', 'cognitive-distortions', 'thought-record'] as const
+  // v2 (2026-10-18): seven steps done (week 1 with "Mój znak", week 2, the thought record of week 3), the experiment due today.
+  const anxietyStepDays = [16, 16, 15, 14, 13, 10, 4] as const
+  const anxietyStepSlugs = ['gad-7', 'ius-12', 'anxiety-map', 'my-sign', 'worry-tree', 'cognitive-distortions', 'thought-record'] as const
   for (const [index, slug] of anxietyStepSlugs.entries()) {
     const dayRef = addDaysToDayRef(todayRef, -anxietyStepDays[index]!)
     await exerciseCompletionDexieRepository.create({
@@ -1513,6 +1515,81 @@ export async function seedVerificationData(): Promise<void> {
     source: 'program',
     sourceRef: anxietyEnrollment.id,
     programRole: 'step',
+    programStepIndex: 7,
+  })
+  // The map (with the v2 reaction families) and "Mój znak" written for this path.
+  await microExerciseEntryDexieRepository.create({
+    exerciseSlug: 'anxiety-map',
+    createdAt: `${addDaysToDayRef(todayRef, -15)}T12:00:00.000Z`,
+    responses: {
+      situations: ['Telefon do urzędu', 'Spotkanie z nowym zespołem'],
+      bodySigns: ['kołatanie serca', 'ścisk w żołądku'],
+      reactionKinds: ['postpone', 'check'],
+      avoidance: ['Odkładam telefony do urzędów', 'Omijam spotkania, na których trzeba się przedstawić'],
+      safetyBehaviors: ['Sprawdzam maila kilka razy przed wysłaniem', 'Pytam żonę, czy na pewno dobrze napisałem'],
+      cost: 'Sprawy leżą tygodniami, a ja i tak o nich myślę.',
+      withoutFear: 'Załatwiać sprawy od razu i poznawać ludzi bez przygotowywania każdego zdania.',
+    },
+  })
+  await microExerciseEntryDexieRepository.create({
+    exerciseSlug: 'my-sign',
+    createdAt: `${addDaysToDayRef(todayRef, -14)}T12:00:00.000Z`,
+    responses: {
+      kind: 'anxiety',
+      anxietyTarget: 'postpone',
+      sign: 'Zadzwonię do urzędu tego samego dnia, w którym o tym pomyślę.',
+      safePerson: 'Żona.',
+    },
+  })
+  // Anxiety Moments v2: the quick five (reaction · noticed · moves · strength), prose optional.
+  const anxietyMoments = [
+    { daysAgo: 13, anxietyReaction: 'postpone', noticed: 'hours', anxietyResponse: ['nothing'], anxietyStrength: 4, situation: 'Miałem zadzwonić do urzędu, przełożyłem na jutro.', thought: 'Na pewno zapytają o coś, czego nie będę wiedział.' },
+    { daysAgo: 11, anxietyReaction: 'check', noticed: 'soon', anxietyResponse: ['named'], anxietyStrength: 3, situation: 'Trzy razy sprawdziłem maila do szefa przed wysłaniem.', thought: 'Jeśli będzie błąd, uzna mnie za niechluja.' },
+    { daysAgo: 9, anxietyReaction: 'worry', noticed: 'hours', anxietyResponse: ['postponed', 'breath'], anxietyStrength: 4, situation: 'Wieczorem łańcuch „a co jeśli” o wynikach badań.' },
+    { daysAgo: 7, anxietyReaction: 'approach', noticed: 'during', anxietyResponse: ['prediction', 'anyway'], anxietyStrength: 3, situation: 'Przedstawiłem się na spotkaniu nowego zespołu.', thought: 'Zatnę się i wszyscy to zobaczą.', outcome: 'Zaciąłem się raz. Nikt nie zareagował.' },
+    { daysAgo: 5, anxietyReaction: 'check', noticed: 'during', anxietyResponse: ['noCheck'], anxietyStrength: 2, situation: 'Wysłałem wiadomość po jednym sprawdzeniu.' },
+    { daysAgo: 3, anxietyReaction: 'postpone', noticed: 'soon', anxietyResponse: ['named', 'step'], anxietyStrength: 3, situation: 'Znów odłożyłem telefon, ale zapisałem go na jutro rano.' },
+    { daysAgo: 1, anxietyReaction: 'approach', noticed: 'during', anxietyResponse: ['breath', 'prediction', 'anyway'], anxietyStrength: 3, situation: 'Zadzwoniłem do urzędu.', thought: 'Będą niemili i odłożą słuchawkę.', outcome: 'Pani była znudzona, ale wszystko wyjaśniła.' },
+  ] as const
+  for (const moment of anxietyMoments) {
+    const dayRef = addDaysToDayRef(todayRef, -moment.daysAgo)
+    const occurrence = await exercisePlanDexieRepository.create({
+      exerciseSlug: 'moment-anxiety',
+      dayRef,
+      source: 'program',
+      sourceRef: anxietyEnrollment.id,
+      programRole: 'practice',
+    })
+    const entry = await microExerciseEntryDexieRepository.create({
+      exerciseSlug: 'moments',
+      createdAt: `${dayRef}T19:00:00.000Z`,
+      responses: {
+        kind: 'anxiety',
+        hadMoment: 'yes',
+        anxietyReaction: moment.anxietyReaction,
+        noticed: moment.noticed,
+        anxietyResponse: [...moment.anxietyResponse],
+        anxietyStrength: moment.anxietyStrength,
+        situation: moment.situation,
+        ...('thought' in moment ? { thought: moment.thought } : {}),
+        ...('outcome' in moment ? { outcome: moment.outcome } : {}),
+      },
+    })
+    await exercisePlanDexieRepository.update(occurrence.id, { status: 'done', recordId: entry.id })
+    await exerciseCompletionDexieRepository.create({
+      exerciseSlug: 'moment-anxiety',
+      dayRef,
+      completedAt: `${dayRef}T19:00:00.000Z`,
+      recordId: entry.id,
+      source: 'plan',
+    })
+  }
+  await exercisePlanDexieRepository.create({
+    exerciseSlug: 'moment-anxiety',
+    dayRef: addDaysToDayRef(todayRef, 1),
+    source: 'program',
+    sourceRef: anxietyEnrollment.id,
+    programRole: 'practice',
   })
 
   // Worry postponement: ten handled evenings (skips on −9 and −5), yesterday pending.
@@ -1594,7 +1671,7 @@ export async function seedVerificationData(): Promise<void> {
   )
 
   await programEnrollmentDexieRepository.update(anxietyEnrollment.id, {
-    currentStepIndex: 6,
+    currentStepIndex: 7,
     // The baseline attempt is the first step's record, so the path view's measure finds it.
     completedSteps: anxietyStepSlugs.map((_, index) => ({
       stepIndex: index,
@@ -1671,7 +1748,184 @@ export async function seedVerificationData(): Promise<void> {
     ],
   })
 
-  console.log('[verificationSeed] Created 1 problem-path enrollment (anxiety-approach, step 7/15, 2 practices)')
+  console.log('[verificationSeed] Created 1 problem-path enrollment (anxiety-approach v2, step 8/22, 2 practices, 7 moments)')
+
+  // ── 16b. Anger path v2 (ideas/html-plans/2026-10-18-anger-anxiety-paths-v2.html) ──
+  // Enrolled 18 days ago, six steps done (barometer, map, sign, pause plan,
+  // distortions, thought record); the seventh — the barometer halfway, week
+  // 3 — due today. Eight anger Moments with the v2 quick taps (reaction ·
+  // noticed · moves · strength), the breath and Momenty pending, and an
+  // accepted task for the current week (altThought, one day via a Moment).
+  const angerStart = addDaysToDayRef(todayRef, -18)
+  const angerEnrollment = await programEnrollmentDexieRepository.create({
+    programSlug: 'anger-signal',
+    startedAt: `${angerStart}T12:00:00.000Z`,
+    contentVersion: 2,
+  })
+  const seedAttempt = async (assessmentId: 'anger-barometer', answers: readonly number[]) => {
+    const registry = getAssessmentRegistryEntry(assessmentId)
+    const attempt = await assessmentsDexieRepository.startAttempt({
+      assessmentId,
+      instrumentVersion: registry.definition.instrumentVersion,
+      language: 'pl',
+      scoringKeyVersion: registry.definition.scoringKeyVersion,
+      missingDataPolicyVersion: registry.definition.missingDataPolicy.id,
+      totalItems: registry.definition.items.length,
+    })
+    const responses = await assessmentsDexieRepository.bulkSaveResponses(
+      registry.definition.items.map((item, index) => ({
+        attemptId: attempt.id,
+        assessmentId,
+        itemId: item.id,
+        responseValue: answers[index] ?? answers[answers.length - 1] ?? 2,
+        reverseFlagAtTime: item.reverse,
+        scoringKeyVersion: registry.definition.scoringKeyVersion,
+      })),
+    )
+    await assessmentsDexieRepository.completeAttempt(attempt.id, registry.scorer.score({ definition: registry.definition, responses }))
+    return attempt
+  }
+  const angerBaseline = await seedAttempt('anger-barometer', [3, 3, 2, 3, 2])
+  const angerStepDays = [18, 17, 16, 14, 11, 8] as const
+  const angerStepSlugs = ['anger-barometer', 'anger-map', 'my-sign', 'pause-plan', 'cognitive-distortions', 'thought-record'] as const
+  for (const [index, slug] of angerStepSlugs.entries()) {
+    const dayRef = addDaysToDayRef(todayRef, -angerStepDays[index]!)
+    await exerciseCompletionDexieRepository.create({
+      exerciseSlug: slug,
+      dayRef,
+      completedAt: `${dayRef}T12:00:00.000Z`,
+      source: 'plan',
+    })
+  }
+  await exercisePlanDexieRepository.create({
+    exerciseSlug: 'anger-barometer',
+    dayRef: todayRef,
+    source: 'program',
+    sourceRef: angerEnrollment.id,
+    programRole: 'step',
+    programStepIndex: 6,
+  })
+  await microExerciseEntryDexieRepository.create({
+    exerciseSlug: 'anger-map',
+    createdAt: `${addDaysToDayRef(todayRef, -17)}T12:00:00.000Z`,
+    responses: {
+      triggers: ['Gdy ktoś mi przerywa', 'Bałagan po dzieciach wieczorem'],
+      bodySigns: ['napięte ramiona', 'szybsza mowa'],
+      reactionKinds: ['sharp', 'outburst'],
+      reaction: 'Najpierw sarkazm, potem podniesiony głos. Czasem trzaskam drzwiami.',
+      cost: 'Dzieci cichną, żona wychodzi z pokoju, a mnie zostaje wstyd.',
+      protects: 'Chyba poczucia, że mnie nie słuchają.',
+    },
+  })
+  await microExerciseEntryDexieRepository.create({
+    exerciseSlug: 'my-sign',
+    createdAt: `${addDaysToDayRef(todayRef, -16)}T12:00:00.000Z`,
+    responses: {
+      kind: 'anger',
+      angerTarget: 'outburst',
+      sign: 'Nie krzyknę na dzieci przy kolacji. Powiem, że potrzebuję minuty, i wrócę.',
+      safePerson: 'Brat.',
+    },
+  })
+  const pausePlanEntry = await microExerciseEntryDexieRepository.create({
+    exerciseSlug: 'pause-plan',
+    createdAt: `${addDaysToDayRef(todayRef, -14)}T12:00:00.000Z`,
+    responses: {
+      earlySigns: ['napięte ramiona', 'szybsza mowa'],
+      ifThen: 'Jeśli zauważę, że mówię szybciej, to powiem „potrzebuję minuty” i wyjdę do kuchni.',
+      returnPromise: 'Powiem: „Wracam za pięć minut i dokończymy”.',
+      confidence: 70,
+    },
+  })
+  const angerMoments = [
+    { daysAgo: 16, angerReaction: 'outburst', noticed: 'later', angerResponse: ['nothing'], angerStrength: 5, situation: 'Krzyknąłem na syna za rozlane mleko.', thought: 'Nigdy nie uważa.' },
+    { daysAgo: 13, angerReaction: 'sharp', noticed: 'hours', angerResponse: ['named'], angerStrength: 3, situation: 'Sarkazm, gdy żona zapytała o rachunki.', thought: 'Znowu ja mam wszystko pamiętać.' },
+    { daysAgo: 11, angerReaction: 'silence', noticed: 'hours', angerResponse: ['breath'], angerStrength: 3, situation: 'Przemilczałem uwagę kolegi na stand-upie i gotowałem się do wieczora.' },
+    { daysAgo: 9, angerReaction: 'pause', noticed: 'during', angerResponse: ['named', 'pause', 'announce'], angerStrength: 4, situation: 'Przerwano mi w połowie zdania; powiedziałem, że potrzebuję minuty.', thought: 'Nie szanują mojego czasu.', need: ['respect'] },
+    { daysAgo: 7, angerReaction: 'sharp', noticed: 'soon', angerResponse: ['breath', 'altThought'], angerStrength: 3, situation: 'Ostry ton do kuriera, który spóźnił się godzinę.', thought: 'Robi to specjalnie.' },
+    { daysAgo: 5, angerReaction: 'selfBlame', noticed: 'hours', angerResponse: ['named'], angerStrength: 3, situation: 'Po kłótni cały wieczór obwiniałem siebie.' },
+    { daysAgo: 3, angerReaction: 'pause', noticed: 'during', angerResponse: ['pause', 'returned', 'request'], angerStrength: 3, situation: 'Bałagan w salonie; wyszedłem na minutę i poprosiłem o sprzątnięcie przed bajką.', need: ['order', 'cooperation'] },
+    { daysAgo: 1, angerReaction: 'sharp', noticed: 'soon', angerResponse: ['named', 'altThought'], angerStrength: 2, situation: 'Przytyk do żony o spóźnienie; po chwili pomyślałem, że korki nie są jej winą.', thought: 'Zawsze się spóźnia.' },
+  ] as const
+  const angerMomentIds: string[] = []
+  for (const moment of angerMoments) {
+    const dayRef = addDaysToDayRef(todayRef, -moment.daysAgo)
+    const occurrence = await exercisePlanDexieRepository.create({
+      exerciseSlug: 'moment-anger',
+      dayRef,
+      source: 'program',
+      sourceRef: angerEnrollment.id,
+      programRole: 'practice',
+    })
+    const entry = await microExerciseEntryDexieRepository.create({
+      exerciseSlug: 'moments',
+      createdAt: `${dayRef}T19:00:00.000Z`,
+      responses: {
+        kind: 'anger',
+        hadMoment: 'yes',
+        angerReaction: moment.angerReaction,
+        noticed: moment.noticed,
+        angerResponse: [...moment.angerResponse],
+        angerStrength: moment.angerStrength,
+        situation: moment.situation,
+        ...('thought' in moment ? { thought: moment.thought } : {}),
+        ...('need' in moment ? { need: [...moment.need] } : {}),
+      },
+    })
+    angerMomentIds.push(entry.id)
+    await exercisePlanDexieRepository.update(occurrence.id, { status: 'done', recordId: entry.id })
+    await exerciseCompletionDexieRepository.create({
+      exerciseSlug: 'moment-anger',
+      dayRef,
+      completedAt: `${dayRef}T19:00:00.000Z`,
+      recordId: entry.id,
+      source: 'plan',
+    })
+  }
+  await exercisePlanDexieRepository.create({
+    exerciseSlug: 'moment-anger',
+    dayRef: addDaysToDayRef(todayRef, 1),
+    source: 'program',
+    sourceRef: angerEnrollment.id,
+    programRole: 'practice',
+  })
+  await exercisePlanDexieRepository.create({
+    exerciseSlug: 'paced-breathing',
+    dayRef: todayRef,
+    source: 'program',
+    sourceRef: angerEnrollment.id,
+    programRole: 'practice',
+  })
+  await programEnrollmentDexieRepository.update(angerEnrollment.id, {
+    currentStepIndex: 6,
+    completedSteps: angerStepSlugs.map((_, index) => ({
+      stepIndex: index,
+      completedAt: `${addDaysToDayRef(todayRef, -angerStepDays[index]!)}T12:00:00.000Z`,
+      ...(index === 0 ? { recordId: angerBaseline.id } : {}),
+      ...(index === 3 ? { recordId: pausePlanEntry.id } : {}),
+    })),
+  })
+  // This week's accepted task: "recall another thought" 2×; yesterday's Moment (altThought) counts as its first day.
+  const angerIntention = await createWeeklyIntention({
+    weekRef: refs.week,
+    title: 'Przypomnij sobie inną myśl',
+    entryMode: 'completion',
+    target: { kind: 'count', operator: 'min', value: 2 },
+    programLink: { enrollmentId: angerEnrollment.id, taskKey: 'altThought' },
+  })
+  const angerYesterday = addDaysToDayRef(todayRef, -1)
+  if (getPeriodRefsForDate(new Date(`${angerYesterday}T12:00:00`)).week === refs.week) {
+    await planningStateDexieRepository.upsertDailyMeasurementEntry({
+      subjectType: 'weeklyIntention',
+      subjectId: angerIntention.id,
+      dayRef: angerYesterday,
+      value: null,
+    })
+  }
+  await programEnrollmentDexieRepository.update(angerEnrollment.id, {
+    weekLog: [{ weekRef: refs.week, taskKey: 'altThought', decision: 'accepted', intentionId: angerIntention.id }],
+  })
+  console.log(`[verificationSeed] Created 1 problem-path enrollment (anger-signal v2, step 7/19, ${angerMomentIds.length} moments)`)
 
   // ── 17. Shame path v3 (ideas/html-plans/2026-10-04-shame-path-v3.html) ──
   // Enrolled 24 days ago, nine steps done (two measures, map, sign, safe
@@ -1888,4 +2142,37 @@ export async function seedVerificationData(): Promise<void> {
     weekLog: [{ weekRef: refs.week, taskKey: 'useResponse', decision: 'accepted', intentionId: shameIntention.id }],
   })
   console.log(`[verificationSeed] Created 1 problem-path enrollment (shame-compassion v3, step 10/27, ${shameMomentIds.length} moments)`)
+
+  // ── 18. A CLOSED shame path (the earlier run, "Zacznij od nowa" afterwards) ──
+  // Closed 50 days ago on the maintenance plan, so Powrót (56 days) is six days
+  // ahead; the letter to a future self was written the day before the close
+  // with "za 4 tygodnie", so it has been waiting in "Najbliżej" for 23 days.
+  const closedShameStart = addDaysToDayRef(todayRef, -110)
+  const closedShameEnd = addDaysToDayRef(todayRef, -50)
+  const closedShame = await programEnrollmentDexieRepository.create({
+    programSlug: 'shame-compassion',
+    startedAt: `${closedShameStart}T12:00:00.000Z`,
+    contentVersion: 3,
+  })
+  const letterEntry = await microExerciseEntryDexieRepository.create({
+    exerciseSlug: 'letter-to-future-self',
+    createdAt: `${addDaysToDayRef(todayRef, -51)}T12:00:00.000Z`,
+    responses: {
+      letter:
+        'Jeśli to czytasz w gorszy dzień: pamiętasz pomost nad jeziorem? Wstyd minie, jak mijał już wiele razy. Zostań w rozmowie, połóż dłoń na sercu i daj sobie minutę dłużej.',
+      returnIn: 'w4',
+    },
+  })
+  await programEnrollmentDexieRepository.update(closedShame.id, {
+    status: 'completed',
+    currentStepIndex: 24,
+    completedAt: `${closedShameEnd}T12:00:00.000Z`,
+    completedSteps: Array.from({ length: 24 }, (_, stepIndex) => ({
+      stepIndex,
+      completedAt: `${addDaysToDayRef(closedShameStart, Math.min(60, Math.round((stepIndex * 60) / 23)))}T12:00:00.000Z`,
+      ...(stepIndex === 22 ? { recordId: letterEntry.id } : {}),
+    })),
+    futureLetter: { entryId: letterEntry.id, showAt: addDaysToDayRef(todayRef, -23) },
+  })
+  console.log('[verificationSeed] Created 1 closed problem-path enrollment (shame-compassion v3, letter waiting, Powrót in 6 days)')
 }

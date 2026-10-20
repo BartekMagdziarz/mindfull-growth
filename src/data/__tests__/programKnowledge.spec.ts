@@ -31,6 +31,6 @@ describe('program knowledge cards', () => {
     const keys = orderedKnowledgeCards('shame-compassion', 'w5').map((card) => card.key)
     expect(keys.slice(0, 2)).toEqual(['whenWarmthHurts', 'whenTooMuch'])
     expect(keys.slice(2, 5)).toEqual(['compassParts', 'criticProtector', 'notIndulgence'])
-    expect(keys).toHaveLength(PROGRAM_KNOWLEDGE.length)
+    expect(keys).toHaveLength(PROGRAM_KNOWLEDGE.filter((card) => card.programSlug === 'shame-compassion').length)
   })
 })
