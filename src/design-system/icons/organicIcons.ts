@@ -1662,6 +1662,13 @@ const expansion: Draft[] = [
     path('M5 3h12q2 0 2 2v16H7q-2 0-2-2Z M9 3v18 M12 12q2.5 2 5 0 M13 14l-.5 1.5 M16 14l.5 1.5'),
   ],
   [
+    'exercise-anxiety-log',
+    'Dziennik lęku',
+    'exercises',
+    'ćwiczenie praktyka lęk niepokój dziennik anxiety-log',
+    path('M5 3h12q2 0 2 2v16H7q-2 0-2-2Z M9 3v18 M12 9q1.5-1.5 3 0t3 0 M12 13q1.5-1.5 3 0t3 0 M12 17q1.5-1.5 3 0t3 0'),
+  ],
+  [
     'exercise-shame-map',
     'Mapa wstydu',
     'exercises',
@@ -1808,6 +1815,36 @@ const expansion: Draft[] = [
     'exercises',
     'ćwiczenie praktyka powrót ścieżka path-return',
     path('M4 12a8 8 0 1 0 3-6.3 M4 4v5h5 M12 9v4l3 2'),
+  ],
+  // Forms of work on a path step (decision 2026-10-17): four small glyphs
+  // before the tile's title — a gauge, a cloud, a sheet with lines, a flag.
+  [
+    'form-measure',
+    'Pomiar',
+    'exercises',
+    'krok forma pomiar kwestionariusz skala',
+    path('M4 17a8 8 0 0 1 16 0 M12 17l3.5-5 M7 17h.01 M17 17h.01') + circle(12, 17, 1.2),
+  ],
+  [
+    'form-imagery',
+    'Wyobraźnia',
+    'exercises',
+    'krok forma wyobraźnia obraz część',
+    path('M7 18h10q3.5 0 3.5-3t-3.5-3q-1-5-6-5-4 0-5 4-3.5 0-3.5 3.5T7 18Z'),
+  ],
+  [
+    'form-reflection',
+    'Namysł',
+    'exercises',
+    'krok forma namysł pisanie myśli list',
+    path(sheet + ' M8 9.5h8 M8 13h8 M8 16.5h5'),
+  ],
+  [
+    'form-action',
+    'Działanie',
+    'exercises',
+    'krok forma działanie plan eksperyment',
+    path('M6 21V4.5q0-1 1-1h11.5l-3.5 4.5 3.5 4.5H7'),
   ],
 ]
 // Collection 04: digital boundaries, embodiment, movement and inner practice.

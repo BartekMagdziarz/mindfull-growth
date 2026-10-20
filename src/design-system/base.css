@@ -688,12 +688,17 @@
   background: var(--mg-color-paper);
 }
 
-/* Object timeline: the whole window is a pencil sketch (dashed hairline),
-   the elapsed part is drawn over it in ink, "today" and the end are the
-   stepper's dots. Overdue turns the ink rose; an open end fades the pencil. */
+/* Object timeline: the whole window is a cloud (a mist pill with a soft
+   inset), the elapsed part fills it with sky and feathers out under the
+   "today" disc, the deadline is simply where the cloud ends. An open end
+   lets the cloud dissolve to the right; overdue turns the sky and the disc
+   rose. Year dots (priorities) sit on the cloud as small wells: done =
+   filled sky, future = empty well, never a dashed outline. */
 .mg-v2-timeline {
   --mg-timeline-ink: var(--mg-color-primary-strong);
+  --mg-timeline-sky: var(--mg-color-data-fill);
   --mg-timeline-halo: color-mix(in srgb, var(--mg-color-primary-strong) 32%, transparent);
+  --mg-timeline-halo-ground: var(--mg-color-surface);
   display: grid;
   gap: var(--mg-space-2);
   min-width: 0;
@@ -701,72 +706,100 @@
 
 .mg-v2-timeline--overdue {
   --mg-timeline-ink: var(--mg-color-rose);
+  --mg-timeline-sky: var(--mg-color-effort-fill);
   --mg-timeline-halo: color-mix(in srgb, var(--mg-color-rose) 32%, transparent);
+}
+
+/* The axis is a button, but hovering it must not raise a paper field under
+   the cloud (user decision 2026-10-17): the pointer cursor and the picker it
+   opens are the affordance. Keyboard focus keeps the paper field. */
+.mg-v2-timeline.mg-v2-inline-trigger:hover {
+  background: transparent;
+}
+
+.mg-v2-timeline.mg-v2-inline-trigger:focus-visible {
+  --mg-timeline-halo-ground: var(--mg-color-paper);
 }
 
 .mg-v2-timeline__track {
   position: relative;
-  height: 0.9375rem;
+  height: 1.125rem;
   margin: 0 0.45rem;
 }
 
-.mg-v2-timeline__pencil {
+.mg-v2-timeline__cloud {
   position: absolute;
-  inset: 50% 0 auto 0;
-  height: 0;
-  border-top: 1.5px dashed color-mix(in srgb, var(--mg-color-muted) 58%, transparent);
-  transform: rotate(-0.15deg);
-}
-
-.mg-v2-timeline--open .mg-v2-timeline__pencil {
-  -webkit-mask: linear-gradient(90deg, #000 55%, transparent 100%);
-  mask: linear-gradient(90deg, #000 55%, transparent 100%);
-}
-
-.mg-v2-timeline__ink {
-  position: absolute;
-  top: calc(50% - 1.5px);
+  top: 50%;
+  right: 0;
   left: 0;
-  height: 3px;
-  border-radius: 2px 3px 2px 3px;
-  background: var(--mg-timeline-ink);
+  height: 1rem;
+  overflow: hidden;
+  border-radius: 14px 12px 13px 15px / 12px 14px 11px 13px;
+  background: var(--mg-color-mist);
+  box-shadow: inset 0 1px 2px rgb(var(--neo-inset-dark) / 0.16);
+  transform: translateY(-50%);
+}
+
+.mg-v2-timeline--open .mg-v2-timeline__cloud {
+  -webkit-mask: linear-gradient(90deg, #000 60%, transparent 100%);
+  mask: linear-gradient(90deg, #000 60%, transparent 100%);
+}
+
+/* The fill runs a little past today so the feather (mask + a round puff at
+   the tip) straddles the disc instead of ending under it. */
+.mg-v2-timeline__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: calc(var(--mg-timeline-progress, 0%) + 1.1rem);
+  border-radius: 0 10px 10px 0;
+  background: var(--mg-timeline-sky);
+  -webkit-mask: linear-gradient(90deg, #000 calc(100% - 2.4rem), transparent 100%);
+  mask: linear-gradient(90deg, #000 calc(100% - 2.4rem), transparent 100%);
   transition: width 420ms ease-out;
+}
+
+.mg-v2-timeline__fill::after {
+  position: absolute;
+  top: -0.2rem;
+  right: -0.4rem;
+  bottom: -0.2rem;
+  width: 2.2rem;
+  background: radial-gradient(closest-side, var(--mg-timeline-sky) 55%, transparent);
+  content: '';
 }
 
 .mg-v2-timeline__dot {
   position: absolute;
   top: 50%;
-  width: 0.6875rem;
-  height: 0.6875rem;
-  border: 1.5px dashed var(--mg-timeline-ink);
+  width: 0.625rem;
+  height: 0.625rem;
+  border: 0;
   border-radius: var(--mg-radius-organic-b);
-  background: transparent;
+  background: var(--mg-color-paper);
+  box-shadow:
+    inset 1px 1px 2px rgb(var(--neo-inset-dark) / 0.3),
+    inset -1px -1px 2px rgb(var(--neo-inset-light) / 0.8);
   transform: translate(-50%, -50%) rotate(8deg);
 }
 
-.mg-v2-timeline__dot--done {
-  border: 0;
-  background: var(--mg-color-primary);
+.mg-v2-timeline__dot--done,
+.mg-v2-timeline__dot--current {
+  background: var(--mg-color-state);
+  box-shadow: none;
 }
 
 .mg-v2-timeline__dot--today {
-  width: 0.9375rem;
-  height: 0.9375rem;
-  border: 0;
+  width: 1.0625rem;
+  height: 1.0625rem;
   border-radius: var(--mg-radius-organic-a);
   background: var(--mg-color-ink);
   box-shadow:
-    0 0 0 3px var(--mg-color-surface),
+    0 0 0 3px var(--mg-timeline-halo-ground),
     0 0 0 4.5px var(--mg-timeline-halo);
   transform: translate(-50%, -50%) rotate(-2deg);
 }
 
 .mg-v2-timeline--overdue .mg-v2-timeline__dot--today {
-  background: var(--mg-timeline-ink);
-}
-
-.mg-v2-timeline__dot--hit {
-  border: 0;
   background: var(--mg-timeline-ink);
 }
 
@@ -802,8 +835,8 @@
   font-weight: 700;
 }
 
-/* Affiliation glyphs: tiny icon boards. A life area is a filled sky board,
-   a priority is the same shape drawn with a dashed pencil outline. Hover or
+/* Affiliation glyphs: tiny round icon fields. A life area is a filled sky
+   field, a priority is the same circle drawn with a dashed pencil outline. Hover or
    focus slides the name out on paper; neighbours move aside. */
 .mg-v2-glyph-row {
   display: flex;
@@ -824,7 +857,7 @@
   min-width: 1.5rem;
   padding: 0 0.3rem;
   border: 1.5px solid transparent;
-  border-radius: var(--mg-radius-sm);
+  border-radius: var(--mg-radius-pill);
   color: var(--mg-color-primary-strong);
   background: var(--mg-color-sky-field);
   box-shadow: var(--mg-shadow-inset-sm);
@@ -1342,7 +1375,6 @@
   .mg-v2-icon-board,
   .mg-v2-tile,
   .mg-v2-stepper__dot,
-  .mg-v2-timeline__pencil,
   .mg-v2-glyph,
   .mg-v2-hairline,
   .mg-v2-surface--sheet::after {

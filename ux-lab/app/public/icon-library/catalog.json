@@ -1687,6 +1687,230 @@
     "collection": 3
   },
   {
+    "id": "exercise-paced-breathing",
+    "label": "Oddech kojący",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka oddech wydech spokój paced-breathing",
+    "collection": 3
+  },
+  {
+    "id": "exercise-anger-log",
+    "label": "Dziennik złości",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka złość gniew dziennik anger-log",
+    "collection": 3
+  },
+  {
+    "id": "exercise-anger-map",
+    "label": "Mapa złości",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka złość gniew mapa wyzwalacze anger-map",
+    "collection": 3
+  },
+  {
+    "id": "exercise-pause-plan",
+    "label": "Plan pauzy",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka pauza złość plan pause-plan",
+    "collection": 3
+  },
+  {
+    "id": "exercise-need-behind-anger",
+    "label": "Od złości do prośby",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka potrzeba prośba nvc need-behind-anger",
+    "collection": 3
+  },
+  {
+    "id": "exercise-shame-log",
+    "label": "Dziennik wstydu",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka wstyd dziennik shame-log",
+    "collection": 3
+  },
+  {
+    "id": "exercise-anxiety-log",
+    "label": "Dziennik lęku",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka lęk niepokój dziennik anxiety-log",
+    "collection": 3
+  },
+  {
+    "id": "exercise-shame-map",
+    "label": "Mapa wstydu",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka wstyd mapa obszary shame-map",
+    "collection": 3
+  },
+  {
+    "id": "exercise-moments",
+    "label": "Momenty",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka momenty moment zapis chwila moments",
+    "collection": 3
+  },
+  {
+    "id": "exercise-shame-response",
+    "label": "Odpowiedź na wstyd",
+    "category": "exercises",
+    "tags": "ćwiczenie plan wstyd odpowiedź oddech kontakt shame-response",
+    "collection": 3
+  },
+  {
+    "id": "exercise-shame-or-guilt",
+    "label": "Czyn czy ja",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka wstyd wina waga shame-or-guilt",
+    "collection": 3
+  },
+  {
+    "id": "exercise-compassionate-image",
+    "label": "Obraz współczujący",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka współczucie obraz cft compassionate-image",
+    "collection": 3
+  },
+  {
+    "id": "exercise-worry-postponement",
+    "label": "Pora na zmartwienia",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka zmartwienia odkładanie pora worry-postponement",
+    "collection": 3
+  },
+  {
+    "id": "exercise-anxiety-map",
+    "label": "Mapa lęku",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka lęk mapa unikanie anxiety-map",
+    "collection": 3
+  },
+  {
+    "id": "exercise-maintenance-plan",
+    "label": "Plan podtrzymania",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka podtrzymanie plan utrwalenie maintenance-plan",
+    "collection": 3
+  },
+  {
+    "id": "exercise-gad-7",
+    "label": "Niepokój (GAD-7)",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka kwestionariusz lęk niepokój gad-7",
+    "collection": 3
+  },
+  {
+    "id": "exercise-scs-sf",
+    "label": "Współczucie dla siebie (SCS-SF)",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka kwestionariusz współczucie scs-sf",
+    "collection": 3
+  },
+  {
+    "id": "exercise-anger-barometer",
+    "label": "Barometr złości",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka kwestionariusz złość barometr anger-barometer",
+    "collection": 3
+  },
+  {
+    "id": "exercise-ius-12",
+    "label": "Nietolerancja niepewności (IUS-12)",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka kwestionariusz niepewność ius-12",
+    "collection": 3
+  },
+  {
+    "id": "exercise-fscrs",
+    "label": "Jak traktuję siebie (FSCRS)",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka kwestionariusz samokrytyka fscrs",
+    "collection": 3
+  },
+  {
+    "id": "exercise-my-sign",
+    "label": "Mój znak",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka cel znak wstyd my-sign",
+    "collection": 3
+  },
+  {
+    "id": "exercise-safe-place",
+    "label": "Bezpieczne miejsce",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka bezpieczne miejsce opór safe-place",
+    "collection": 3
+  },
+  {
+    "id": "exercise-compassionate-self",
+    "label": "Współczujące ja",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka współczucie energia ja compassionate-self",
+    "collection": 3
+  },
+  {
+    "id": "exercise-defender-voice",
+    "label": "Głos obronny",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka obrona głos stanowczość defender-voice",
+    "collection": 3
+  },
+  {
+    "id": "exercise-shame-writing",
+    "label": "Pisanie po momencie",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka pisanie wstyd współczucie shame-writing",
+    "collection": 3
+  },
+  {
+    "id": "exercise-dose-check",
+    "label": "Czy dawka pasuje",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka dawka połowa sprawdzenie dose-check",
+    "collection": 3
+  },
+  {
+    "id": "exercise-letter-to-future-self",
+    "label": "List do siebie na później",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka list przyszłość letter-to-future-self",
+    "collection": 3
+  },
+  {
+    "id": "exercise-path-return",
+    "label": "Powrót",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka powrót ścieżka path-return",
+    "collection": 3
+  },
+  {
+    "id": "form-measure",
+    "label": "Pomiar",
+    "category": "exercises",
+    "tags": "krok forma pomiar kwestionariusz skala",
+    "collection": 3
+  },
+  {
+    "id": "form-imagery",
+    "label": "Wyobraźnia",
+    "category": "exercises",
+    "tags": "krok forma wyobraźnia obraz część",
+    "collection": 3
+  },
+  {
+    "id": "form-reflection",
+    "label": "Namysł",
+    "category": "exercises",
+    "tags": "krok forma namysł pisanie myśli list",
+    "collection": 3
+  },
+  {
+    "id": "form-action",
+    "label": "Działanie",
+    "category": "exercises",
+    "tags": "krok forma działanie plan eksperyment",
+    "collection": 3
+  },
+  {
     "id": "phone-free",
     "label": "Bez telefonu",
     "category": "media",

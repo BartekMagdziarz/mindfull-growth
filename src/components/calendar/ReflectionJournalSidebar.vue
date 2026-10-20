@@ -8,7 +8,7 @@
       >
         <div v-if="weekRef" class="mb-3 flex items-center gap-2.5">
           <div
-            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-neu-top text-primary shadow-neu-raised-sm"
+            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-neu-top text-primary shadow-neu-raised-sm"
           >
             <AppIcon name="menu_book" class="text-base" />
           </div>
@@ -90,7 +90,7 @@
             @click="aiSummaryOpen = !aiSummaryOpen"
           >
             <div
-              class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-primary/15 text-primary shadow-neu-raised-sm"
+              class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary shadow-neu-raised-sm"
             >
               <AppIcon name="auto_awesome" class="text-xs" />
             </div>
@@ -331,7 +331,7 @@
                 @click="toggleAnchorCategory(cat.key)"
               >
                 <div
-                  class="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-neu-base text-primary shadow-neu-raised-sm"
+                  class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-neu-base text-primary shadow-neu-raised-sm"
                 >
                   <AppIcon :name="cat.icon" class="text-xs" />
                 </div>

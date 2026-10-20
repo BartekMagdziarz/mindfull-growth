@@ -53,6 +53,14 @@
   --mg-color-effort-soft: rgb(var(--rose-200) / 0.72);
   --mg-color-state: rgb(var(--sky-600));
   --mg-color-state-soft: rgb(var(--sky-300) / 0.72);
+  /* Data blues (decision 2026-10-17): every chart and axis draws from this
+     one ladder so the blues on a card match. fill = what accumulated (met
+     bars, elapsed time, done discs); state-soft = partial / untargeted;
+     state = marks, endpoints, target lines (at reduced alpha); ink lines stay
+     --sky-800. effort-fill is the rose twin of fill for missed / overdue. */
+  --mg-color-data-fill: rgb(var(--sky-400) / 0.85);
+  --mg-color-effort-fill: rgb(var(--rose-300) / 0.85);
+  --mg-color-data-target: rgb(var(--sky-600) / 0.45);
   --mg-color-lavender: rgb(155 110 195);
   --mg-color-lavender-soft: rgb(214 205 244 / 0.7);
   --mg-color-mint: rgb(var(--color-success));
@@ -86,9 +94,16 @@
   --mg-radius-organic-a: 52% 48% 54% 46% / 47% 53% 46% 54%;
   --mg-radius-organic-b: 47% 53% 49% 51% / 54% 46% 53% 47%;
   --mg-radius-organic-c: 54% 46% 47% 53% / 48% 52% 55% 45%;
-  --mg-radius-icon-field-a: 22% 17% 20% 16% / 18% 24% 16% 22%;
-  --mg-radius-icon-field-b: 17% 22% 16% 20% / 24% 18% 22% 16%;
-  --mg-radius-icon-field-c: 20% 16% 22% 18% / 16% 22% 18% 24%;
+  /* Icon fields are round everywhere (row leads, entry tiles, catalog boards,
+     page headers): the organic circle, three finite variants. */
+  --mg-radius-icon-field-a: var(--mg-radius-organic-a);
+  --mg-radius-icon-field-b: var(--mg-radius-organic-b);
+  --mg-radius-icon-field-c: var(--mg-radius-organic-c);
+  /* Sketched rounded rectangle for chart bars and illustration panels —
+     never for a field that carries a single icon. */
+  --mg-radius-sketch-a: 22% 17% 20% 16% / 18% 24% 16% 22%;
+  --mg-radius-sketch-b: 17% 22% 16% 20% / 24% 18% 22% 16%;
+  --mg-radius-sketch-c: 20% 16% 22% 18% / 16% 22% 18% 24%;
   --mg-icon-board-size: 3.25rem;
 
   --mg-duration-fast: 160ms;

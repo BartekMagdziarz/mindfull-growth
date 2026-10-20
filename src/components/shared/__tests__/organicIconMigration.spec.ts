@@ -73,7 +73,7 @@ describe('organic icon migration', () => {
       global: { stubs: { teleport: true } },
     })
     await wrapper.find('button').trigger('click')
-    expect(wrapper.findAll('.grid button')).toHaveLength(320)
+    expect(wrapper.findAll('.grid button')).toHaveLength(325)
     await wrapper.find('input').setValue('youtube')
     expect(wrapper.findAll('.grid button')).toHaveLength(2)
     await wrapper.find('[data-glyph="youtube"]').trigger('click')

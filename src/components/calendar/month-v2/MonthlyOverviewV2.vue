@@ -1024,7 +1024,7 @@ function clearPriorityHighlight(): void {
 .month-v2__focus-row-custom-icon {
   align-items: center;
   background: rgb(var(--color-primary-soft) / 0.42);
-  border-radius: 50%;
+  border-radius: var(--mg-radius-icon-field-a);
   color: rgb(var(--color-primary-strong));
   display: flex;
   flex: 0 0 auto;
