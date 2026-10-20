@@ -63,7 +63,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         try {
@@ -96,7 +95,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         try {
@@ -124,7 +122,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         if (monthRefs.length === 0) {
@@ -158,7 +155,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         try {
@@ -202,7 +198,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         try {
@@ -240,7 +235,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         try {
@@ -277,7 +271,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         try {
@@ -309,7 +302,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         if (monthRefs.length === 0) {
@@ -346,7 +338,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         try {
@@ -385,7 +376,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         try {
@@ -444,7 +434,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         try {
@@ -487,7 +476,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         try {
@@ -533,7 +521,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         try {
@@ -563,7 +550,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         if (weekRefs.length === 0) {
@@ -600,7 +586,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         try {
@@ -639,7 +624,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         try {
@@ -700,7 +684,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         try {
@@ -747,7 +730,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         try {
@@ -784,7 +766,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         try {
@@ -817,7 +798,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         try {
@@ -852,7 +832,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         try {
@@ -914,7 +893,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         try {
@@ -956,7 +934,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         try {
@@ -993,7 +970,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         try {
@@ -1026,7 +1002,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         try {
@@ -1061,7 +1036,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         try {
@@ -1119,7 +1093,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         try {
@@ -1161,7 +1134,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         try {
@@ -1197,7 +1169,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         try {
@@ -1225,7 +1196,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         try {
@@ -1255,20 +1225,12 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         try {
           const record = await db.transaction(
             'rw',
-            [
-              db.todayHiddenStates,
-              db.initiatives,
-              db.keyResults,
-              db.habits,
-              db.trackers,
-              db.weeklyIntentions,
-            ],
+            [db.todayHiddenStates, db.keyResults, db.habits, db.trackers, db.weeklyIntentions],
             async () => {
               const existing = await this.findExistingTodayHiddenState(data)
               const normalized = normalizeTodayHiddenStatePayload(data, existing)
@@ -1314,7 +1276,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         'measurementDayAssignments',
         'dailyMeasurementEntries',
         'todayHiddenStates',
-        'initiatives',
       ],
       async db => {
         try {
@@ -1669,21 +1630,9 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
   }
 
   private async assertTodayHiddenStateAllowed(
-    normalized: Omit<TodayHiddenState, 'id' | 'createdAt' | 'updatedAt'>
+    normalized: CreateTodayHiddenStatePayload
   ): Promise<void> {
-    if (normalized.subjectType === 'initiative') {
-      await this.assertInitiativeExists(normalized.subjectId)
-      return
-    }
-
     await this.resolveMeasurementSubject(normalized.subjectType, normalized.subjectId)
-  }
-
-  private async assertInitiativeExists(initiativeId: string): Promise<void> {
-    const initiative = await this.db.initiatives.get(initiativeId)
-    if (!initiative) {
-      throw new Error(`Initiative with id ${initiativeId} not found`)
-    }
   }
 }
 

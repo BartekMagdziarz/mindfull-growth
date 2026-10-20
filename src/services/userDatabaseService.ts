@@ -48,6 +48,7 @@ import type {
   IFSDailyCheckIn,
   IFSConstellation,
 } from '@/domain/exercises'
+import type { Initiative, InitiativePlanState } from '@/domain/legacy/initiative'
 import type { LifeArea } from '@/domain/lifeArea'
 import type { LifeAreaAssessment } from '@/domain/lifeAreaAssessment'
 import type { AssessmentAttempt, AssessmentResponse } from '@/domain/assessments'
@@ -55,18 +56,16 @@ import {
   MAX_ACTIVE_PRIORITIES,
   type Goal,
   type Habit,
-  type Initiative,
   type KeyResult,
   type Priority,
   type PriorityLink,
-  type PriorityLinkSubjectType,
+  type StoredPriorityLinkSubjectType,
   type Tracker,
   type WeeklyIntention,
 } from '@/domain/planning'
 import type {
   DailyMeasurementEntry,
   GoalMonthState,
-  InitiativePlanState,
   MeasurementDayAssignment,
   MeasurementMonthState,
   MeasurementWeekState,
@@ -1608,7 +1607,9 @@ export class UserDatabase extends Dexie {
           (await trans.table('priorities').toArray()).map(priority => String(priority.id))
         )
 
-        const sources: Array<{ table: string; subjectType: PriorityLinkSubjectType }> = [
+        // Initiatives were still a live entity at v26; the backfill keeps
+        // producing their links so the upgrade stays deterministic.
+        const sources: Array<{ table: string; subjectType: StoredPriorityLinkSubjectType }> = [
           { table: 'goals', subjectType: 'goal' },
           { table: 'habits', subjectType: 'habit' },
           { table: 'trackers', subjectType: 'tracker' },

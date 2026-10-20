@@ -1,14 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import type {
   CreateDailyMeasurementEntryPayload,
-  CreateInitiativePlanStatePayload,
   CreateMeasurementMonthStatePayload,
   CreateMeasurementWeekStatePayload,
   CreatePeriodObjectReflectionPayload,
 } from '@/domain/planningState'
 import {
   normalizeDailyMeasurementEntryPayload,
-  normalizeInitiativePlanStatePayload,
   normalizeMeasurementMonthStatePayload,
   normalizeMeasurementWeekStatePayload,
   normalizePeriodObjectReflectionPayload,
@@ -199,31 +197,20 @@ describe('planningState domain normalization', () => {
     ).toThrow('DailyMeasurementEntry.value must be a finite number or null')
   })
 
-  it('validates hierarchical initiative scheduling', () => {
-    expect(() =>
-      normalizeInitiativePlanStatePayload({
-        initiativeId: 'initiative-1',
-        monthRef: '2026-03',
-        weekRef: '2026-W10',
-        dayRef: '2026-04-01',
-      } as CreateInitiativePlanStatePayload)
-    ).toThrow('dayRef must belong to weekRef')
-  })
-
   it('trims reflection notes and subject ids', () => {
     const normalized = normalizePeriodObjectReflectionPayload({
       periodType: 'week',
       periodRef: '2026-W10',
-      subjectType: 'initiative',
-      subjectId: ' initiative-1 ',
+      subjectType: 'goal',
+      subjectId: ' goal-1 ',
       note: '  Useful reflection  ',
     } as CreatePeriodObjectReflectionPayload)
 
     expect(normalized).toEqual({
       periodType: 'week',
       periodRef: '2026-W10',
-      subjectType: 'initiative',
-      subjectId: 'initiative-1',
+      subjectType: 'goal',
+      subjectId: 'goal-1',
       note: 'Useful reflection',
     })
   })

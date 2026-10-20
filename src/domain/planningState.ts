@@ -1,11 +1,10 @@
 import type { MeasurementEntryDaysCondition, MeasurementTarget } from '@/domain/planning'
 import type { DayRef, MonthRef, PeriodRef, WeekRef } from '@/domain/period'
 import {
-  assertPeriodRef,
-  getPeriodRefsForDate,
-  getPeriodType,
-  getWeekOverlappingMonths,
-} from '@/utils/periods'
+  isLegacyInitiativeSubjectType,
+  type LegacyInitiativeSubjectType,
+} from '@/domain/legacy/initiative'
+import { assertPeriodRef, getPeriodType, getWeekOverlappingMonths } from '@/utils/periods'
 
 export interface PlanningStateRecordBase {
   id: string
@@ -15,16 +14,20 @@ export interface PlanningStateRecordBase {
 
 export type PeriodActivityState = 'active' | 'paused'
 export type MeasurementSubjectType = 'keyResult' | 'habit' | 'tracker' | 'weeklyIntention'
-export type TodayHiddenSubjectType = MeasurementSubjectType | 'initiative'
+/** Subject types Today can hide for a day — the writable side of `TodayHiddenState`. */
+export type TodayHiddenSubjectType = MeasurementSubjectType
+/** As persisted: rows hidden before 2026-10-20 may still name a legacy initiative. */
+export type StoredTodayHiddenSubjectType = TodayHiddenSubjectType | LegacyInitiativeSubjectType
 export type ReflectionPeriodType = 'month' | 'week'
 export type ReflectionSubjectType =
   | 'goal'
   | 'keyResult'
   | 'habit'
   | 'tracker'
-  | 'initiative'
   | 'weeklyIntention'
   | 'priority'
+/** As persisted: reflections written before 2026-10-20 may still name a legacy initiative. */
+export type StoredReflectionSubjectType = ReflectionSubjectType | LegacyInitiativeSubjectType
 export type PriorityVerdict = 'continue' | 'adjust' | 'pause' | 'drop'
 export type MonthScheduleScope = 'unassigned' | 'specific-days' | 'whole-month'
 export type WeekScheduleScope = 'unassigned' | 'specific-days' | 'whole-week'
@@ -97,15 +100,8 @@ export interface DailyMeasurementEntry extends PlanningStateRecordBase {
 
 export interface TodayHiddenState extends PlanningStateRecordBase {
   dayRef: DayRef
-  subjectType: TodayHiddenSubjectType
+  subjectType: StoredTodayHiddenSubjectType
   subjectId: string
-}
-
-export interface InitiativePlanState extends PlanningStateRecordBase {
-  initiativeId: string
-  monthRef?: MonthRef
-  weekRef?: WeekRef
-  dayRef?: DayRef
 }
 
 export interface PeriodReflection extends PlanningStateRecordBase {
@@ -117,7 +113,7 @@ export interface PeriodReflection extends PlanningStateRecordBase {
 export interface PeriodObjectReflection extends PlanningStateRecordBase {
   periodType: ReflectionPeriodType
   periodRef: MonthRef | WeekRef
-  subjectType: ReflectionSubjectType
+  subjectType: StoredReflectionSubjectType
   subjectId: string
   note: string
   /** Subjective effort/engagement self-rating 1–5 (monthly priority assessment). */
@@ -178,48 +174,34 @@ export type UpdateDailyMeasurementEntryPayload = Partial<
   Omit<DailyMeasurementEntry, 'id' | 'createdAt' | 'updatedAt'>
 >
 
-export type CreateTodayHiddenStatePayload = Omit<TodayHiddenState, 'id' | 'createdAt' | 'updatedAt'>
-export type UpdateTodayHiddenStatePayload = Partial<
-  Omit<TodayHiddenState, 'id' | 'createdAt' | 'updatedAt'>
->
-
-export type CreateInitiativePlanStatePayload = Omit<
-  InitiativePlanState,
-  'id' | 'createdAt' | 'updatedAt'
->
-export type UpdateInitiativePlanStatePayload = Partial<
-  Omit<InitiativePlanState, 'id' | 'createdAt' | 'updatedAt'>
->
+/** Writes name a current subject type; the stored legacy value is read-only. */
+export type CreateTodayHiddenStatePayload = Omit<
+  TodayHiddenState,
+  'id' | 'createdAt' | 'updatedAt' | 'subjectType'
+> & { subjectType: TodayHiddenSubjectType }
+export type UpdateTodayHiddenStatePayload = Partial<CreateTodayHiddenStatePayload>
 
 export type CreatePeriodReflectionPayload = Omit<PeriodReflection, 'id' | 'createdAt' | 'updatedAt'>
 export type UpdatePeriodReflectionPayload = Partial<
   Omit<PeriodReflection, 'id' | 'createdAt' | 'updatedAt'>
 >
 
+/** Writes name a current subject type; the stored legacy value is read-only. */
 export type CreatePeriodObjectReflectionPayload = Omit<
   PeriodObjectReflection,
-  'id' | 'createdAt' | 'updatedAt'
->
-export type UpdatePeriodObjectReflectionPayload = Partial<
-  Omit<PeriodObjectReflection, 'id' | 'createdAt' | 'updatedAt'>
->
+  'id' | 'createdAt' | 'updatedAt' | 'subjectType'
+> & { subjectType: ReflectionSubjectType }
+export type UpdatePeriodObjectReflectionPayload = Partial<CreatePeriodObjectReflectionPayload>
 
 const PERIOD_ACTIVITY_STATES = ['active', 'paused'] as const
 const MEASUREMENT_SUBJECT_TYPES = ['keyResult', 'habit', 'tracker', 'weeklyIntention'] as const
-const TODAY_HIDDEN_SUBJECT_TYPES = [
-  'keyResult',
-  'habit',
-  'tracker',
-  'weeklyIntention',
-  'initiative',
-] as const
+const TODAY_HIDDEN_SUBJECT_TYPES = MEASUREMENT_SUBJECT_TYPES
 const REFLECTION_PERIOD_TYPES = ['month', 'week'] as const
 const REFLECTION_SUBJECT_TYPES = [
   'goal',
   'keyResult',
   'habit',
   'tracker',
-  'initiative',
   'weeklyIntention',
   'priority',
 ] as const
@@ -758,66 +740,31 @@ export function normalizeDailyMeasurementEntryPayload(
   }
 }
 
+/**
+ * Rows persisted with the legacy `initiative` subject type are tolerated on
+ * read but never re-validated: they are no fallback for a write, so a payload
+ * that leaves `subjectType` out while touching such a row is rejected like any
+ * other missing subject type.
+ */
+function writableSubjectTypeFallback<T extends string>(
+  value: T | LegacyInitiativeSubjectType | undefined
+): T | undefined {
+  return isLegacyInitiativeSubjectType(value) ? undefined : value
+}
+
 export function normalizeTodayHiddenStatePayload(
   data: CreateTodayHiddenStatePayload | UpdateTodayHiddenStatePayload,
   existing?: TodayHiddenState
-): Omit<TodayHiddenState, 'id' | 'createdAt' | 'updatedAt'> {
+): CreateTodayHiddenStatePayload {
   return {
     dayRef: normalizeDayRef(data.dayRef, 'dayRef', existing?.dayRef),
     subjectType: normalizeEnum(
       data.subjectType,
       'subjectType',
       TODAY_HIDDEN_SUBJECT_TYPES,
-      existing?.subjectType
+      writableSubjectTypeFallback(existing?.subjectType)
     ),
     subjectId: normalizeSubjectId(data.subjectId, 'subjectId', existing?.subjectId),
-  }
-}
-
-export function normalizeInitiativePlanStatePayload(
-  data: CreateInitiativePlanStatePayload | UpdateInitiativePlanStatePayload,
-  existing?: InitiativePlanState
-): Omit<InitiativePlanState, 'id' | 'createdAt' | 'updatedAt'> {
-  const hasMonthRef = Object.prototype.hasOwnProperty.call(data, 'monthRef')
-  const hasWeekRef = Object.prototype.hasOwnProperty.call(data, 'weekRef')
-  const hasDayRef = Object.prototype.hasOwnProperty.call(data, 'dayRef')
-
-  const monthRef =
-    hasMonthRef || existing?.monthRef
-      ? hasMonthRef && data.monthRef === undefined
-        ? undefined
-        : normalizeMonthRef(data.monthRef, 'monthRef', existing?.monthRef)
-      : undefined
-  const weekRef =
-    hasWeekRef || existing?.weekRef
-      ? hasWeekRef && data.weekRef === undefined
-        ? undefined
-        : normalizeWeekRef(data.weekRef, 'weekRef', existing?.weekRef)
-      : undefined
-  const dayRef =
-    hasDayRef || existing?.dayRef
-      ? hasDayRef && data.dayRef === undefined
-        ? undefined
-        : normalizeDayRef(data.dayRef, 'dayRef', existing?.dayRef)
-      : undefined
-
-  if (dayRef && weekRef && getPeriodRefsForDate(dayRef).week !== weekRef) {
-    throw new Error('dayRef must belong to weekRef')
-  }
-
-  if (dayRef && monthRef && getPeriodRefsForDate(dayRef).month !== monthRef) {
-    throw new Error('dayRef must belong to monthRef')
-  }
-
-  if (weekRef && monthRef && !getWeekOverlappingMonths(weekRef).includes(monthRef)) {
-    throw new Error('weekRef must overlap monthRef')
-  }
-
-  return {
-    initiativeId: normalizeTrimmedText(data.initiativeId, 'initiativeId', existing?.initiativeId),
-    monthRef,
-    weekRef,
-    dayRef,
   }
 }
 
@@ -847,7 +794,7 @@ export function normalizePeriodReflectionPayload(
 export function normalizePeriodObjectReflectionPayload(
   data: CreatePeriodObjectReflectionPayload | UpdatePeriodObjectReflectionPayload,
   existing?: PeriodObjectReflection
-): Omit<PeriodObjectReflection, 'id' | 'createdAt' | 'updatedAt'> {
+): CreatePeriodObjectReflectionPayload {
   const periodType = normalizeEnum(
     data.periodType,
     'periodType',
@@ -867,7 +814,7 @@ export function normalizePeriodObjectReflectionPayload(
       data.subjectType,
       'subjectType',
       REFLECTION_SUBJECT_TYPES,
-      existing?.subjectType
+      writableSubjectTypeFallback(existing?.subjectType)
     ),
     subjectId: normalizeReflectionSubjectId(data.subjectId, 'subjectId', existing?.subjectId),
     note: normalizeOptionalText(data.note, 'note', existing?.note) ?? '',

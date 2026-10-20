@@ -73,11 +73,7 @@ async function deleteMeasurementPlanningState(
     ...hiddenStates
       .filter(state => state.subjectType === subjectType && state.subjectId === subjectId)
       .map(state =>
-        planningStateDexieRepository.deleteTodayHiddenState(
-          state.dayRef,
-          state.subjectType,
-          state.subjectId
-        )
+        planningStateDexieRepository.deleteTodayHiddenState(state.dayRef, subjectType, subjectId)
       ),
   ])
 }

@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type {
   CreateHabitPayload,
-  CreateInitiativePayload,
   CreateKeyResultPayload,
   CreatePriorityPayload,
   CreateTrackerPayload,
@@ -10,7 +9,6 @@ import type { CreateGoalPayload } from '@/domain/planning'
 import {
   normalizeGoalPayload,
   normalizeHabitPayload,
-  normalizeInitiativePayload,
   normalizeKeyResultPayload,
   normalizePriorityPayload,
   normalizeTrackerPayload,
@@ -284,30 +282,6 @@ describe('planning domain normalization', () => {
         status: 'open',
       } as unknown as CreateKeyResultPayload)
     ).toThrow(/target\.kind must be one of: count/)
-  })
-
-  it('keeps initiative lifecycle separate from archive semantics', () => {
-    const normalized = normalizeInitiativePayload({
-      title: 'Call landlord',
-      isActive: false,
-      priorityIds: ['priority-1'],
-      lifeAreaIds: [],
-      status: 'completed',
-    } satisfies CreateInitiativePayload)
-
-    expect(normalized.isActive).toBe(false)
-    expect(normalized.status).toBe('completed')
-
-    expect(() =>
-      normalizeInitiativePayload({
-        title: 'Book dentist',
-        isActive: true,
-        priorityIds: [],
-        lifeAreaIds: [],
-        status: 'open',
-        checklist: ['step-1'],
-      } as CreateInitiativePayload)
-    ).toThrow('checklist is not supported for this planning object')
   })
 
   describe('normalizeGoalPayload SMART fields', () => {

@@ -41,7 +41,6 @@ class ReflectionDexieRepository implements ReflectionRepository {
         'keyResults',
         'habits',
         'trackers',
-        'initiatives',
         'weeklyIntentions',
         'priorities',
       ],
@@ -69,7 +68,6 @@ class ReflectionDexieRepository implements ReflectionRepository {
         'keyResults',
         'habits',
         'trackers',
-        'initiatives',
         'weeklyIntentions',
         'priorities',
       ],
@@ -96,7 +94,6 @@ class ReflectionDexieRepository implements ReflectionRepository {
         'keyResults',
         'habits',
         'trackers',
-        'initiatives',
         'weeklyIntentions',
         'priorities',
       ],
@@ -137,7 +134,6 @@ class ReflectionDexieRepository implements ReflectionRepository {
         'keyResults',
         'habits',
         'trackers',
-        'initiatives',
         'weeklyIntentions',
         'priorities',
       ],
@@ -171,7 +167,6 @@ class ReflectionDexieRepository implements ReflectionRepository {
         'keyResults',
         'habits',
         'trackers',
-        'initiatives',
         'weeklyIntentions',
         'priorities',
       ],
@@ -204,7 +199,6 @@ class ReflectionDexieRepository implements ReflectionRepository {
         'keyResults',
         'habits',
         'trackers',
-        'initiatives',
         'weeklyIntentions',
         'priorities',
       ],
@@ -231,7 +225,6 @@ class ReflectionDexieRepository implements ReflectionRepository {
         'keyResults',
         'habits',
         'trackers',
-        'initiatives',
         'weeklyIntentions',
         'priorities',
       ],
@@ -275,7 +268,6 @@ class ReflectionDexieRepository implements ReflectionRepository {
         'keyResults',
         'habits',
         'trackers',
-        'initiatives',
         'weeklyIntentions',
         'priorities',
       ],
@@ -352,11 +344,6 @@ class ReflectionDexieRepository implements ReflectionRepository {
       case 'tracker':
         if (!(await this.db.trackers.get(subjectId))) {
           throw new Error(`Tracker with id ${subjectId} not found`)
-        }
-        return
-      case 'initiative':
-        if (!(await this.db.initiatives.get(subjectId))) {
-          throw new Error(`Initiative with id ${subjectId} not found`)
         }
         return
       case 'weeklyIntention':

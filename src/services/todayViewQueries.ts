@@ -4,7 +4,7 @@ import type {
   DailyMeasurementEntry,
   MeasurementDayAssignment,
   MeasurementSubjectType,
-  TodayHiddenSubjectType,
+  StoredTodayHiddenSubjectType,
 } from '@/domain/planningState'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { type MeasureableSubject, type MeasurementSummary } from '@/services/measurementProgress'
@@ -137,7 +137,11 @@ function buildTodayEntryMap(
 
 function buildHiddenKeySet(
   dayRef: DayRef,
-  hiddenStates: Array<{ dayRef: DayRef; subjectType: TodayHiddenSubjectType; subjectId: string }>
+  hiddenStates: Array<{
+    dayRef: DayRef
+    subjectType: StoredTodayHiddenSubjectType
+    subjectId: string
+  }>
 ): Set<string> {
   return new Set(
     hiddenStates

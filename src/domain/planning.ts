@@ -1,4 +1,8 @@
 import type { WeekRef, YearRef } from '@/domain/period'
+import {
+  isLegacyInitiativeSubjectType,
+  type LegacyInitiativeSubjectType,
+} from '@/domain/legacy/initiative'
 
 const YEAR_REF_RE = /^\d{4}$/
 const WEEK_REF_RE = /^\d{4}-W\d{2}$/
@@ -24,7 +28,6 @@ export type KeyResultStatus = GoalStatus
 export type HabitStatus = 'open' | 'retired' | 'dropped'
 export type TrackerStatus = 'open' | 'retired' | 'dropped'
 export type WeeklyIntentionStatus = 'open' | 'retired' | 'dropped'
-export type InitiativeStatus = GoalStatus
 export type PriorityStatus = 'draft' | 'active' | 'paused' | 'closed'
 export type PriorityEndingType = 'open' | 'natural'
 export type CountTargetOperator = 'min' | 'max'
@@ -292,14 +295,6 @@ export interface WeeklyIntentionProgramLink {
   taskKey: string
 }
 
-export interface Initiative extends PlanningObjectBase {
-  goalId?: string
-  icon?: string
-  priorityIds: string[]
-  lifeAreaIds: string[]
-  status: InitiativeStatus
-}
-
 /**
  * First-class object↔priority relation (creator ritual, future priority hub).
  * Replaces the semantics-free `priorityIds[]` tag; during the transition the
@@ -311,13 +306,13 @@ export interface Initiative extends PlanningObjectBase {
  * are hard-deleted instead of retired.
  */
 export type PriorityLinkStatus = 'proposed' | 'active' | 'retired'
-export type PriorityLinkSubjectType =
-  | 'goal'
-  | 'keyResult'
-  | 'habit'
-  | 'tracker'
-  | 'weeklyIntention'
-  | 'initiative'
+export type PriorityLinkSubjectType = 'goal' | 'keyResult' | 'habit' | 'tracker' | 'weeklyIntention'
+/**
+ * Subject type as persisted. Links written before 2026-10-20 may still point
+ * at the dormant initiative entity; readers tolerate the value, new links
+ * cannot carry it (see `StoredPriorityLinkSubjectRef`).
+ */
+export type StoredPriorityLinkSubjectType = PriorityLinkSubjectType | LegacyInitiativeSubjectType
 /**
  * Object types the creator ritual can propose as new. Goals/habits/trackers
  * need later setup (checklist); intentions are complete with a title, so the
@@ -328,6 +323,12 @@ export type PriorityLinkProposalObjectType = 'goal' | 'habit' | 'tracker' | 'wee
 
 export interface PriorityLinkSubjectRef {
   subjectType: PriorityLinkSubjectType
+  subjectId: string
+}
+
+/** A link's subject as read from the database — may still name a legacy initiative. */
+export interface StoredPriorityLinkSubjectRef {
+  subjectType: StoredPriorityLinkSubjectType
   subjectId: string
 }
 
@@ -343,7 +344,7 @@ export interface PriorityLink {
   priorityId: string
   status: PriorityLinkStatus
   /** Present for 'active'/'retired'; absent while 'proposed'. */
-  subjectRef?: PriorityLinkSubjectRef
+  subjectRef?: StoredPriorityLinkSubjectRef
   /** Present only while 'proposed'. */
   proposal?: PriorityLinkProposal
   /** "Pomaga, ponieważ…" — may be empty on backfilled links. */
@@ -357,7 +358,13 @@ export interface PriorityLink {
   needsEnrichment?: boolean
 }
 
-export type CreatePriorityLinkPayload = Omit<PriorityLink, 'id' | 'createdAt' | 'updatedAt'>
+/** Writes name a current subject type; the stored legacy value is read-only. */
+export type CreatePriorityLinkPayload = Omit<
+  PriorityLink,
+  'id' | 'createdAt' | 'updatedAt' | 'subjectRef'
+> & {
+  subjectRef?: PriorityLinkSubjectRef
+}
 export type UpdatePriorityLinkPayload = Partial<CreatePriorityLinkPayload>
 
 export type CreatePriorityPayload = Omit<Priority, 'id' | 'createdAt' | 'updatedAt'>
@@ -380,9 +387,6 @@ export type UpdateWeeklyIntentionPayload = Partial<
   Omit<WeeklyIntention, 'id' | 'createdAt' | 'updatedAt'>
 >
 
-export type CreateInitiativePayload = Omit<Initiative, 'id' | 'createdAt' | 'updatedAt'>
-export type UpdateInitiativePayload = Partial<Omit<Initiative, 'id' | 'createdAt' | 'updatedAt'>>
-
 interface PlanningPayloadLike {
   title?: unknown
   description?: unknown
@@ -403,7 +407,6 @@ const PRIORITY_LINK_SUBJECT_TYPES = [
   'habit',
   'tracker',
   'weeklyIntention',
-  'initiative',
 ] as const
 const PRIORITY_LINK_PROPOSAL_TYPES = ['goal', 'habit', 'tracker', 'weeklyIntention'] as const
 const GOAL_STATUSES = ['open', 'completed', 'dropped'] as const
@@ -1501,27 +1504,17 @@ export function normalizeTrackerPayload(
   }
 }
 
-export function normalizeInitiativePayload(
-  data: CreateInitiativePayload | UpdateInitiativePayload,
-  existing?: Initiative
-): Omit<Initiative, 'id' | 'createdAt' | 'updatedAt'> {
-  assertForbiddenKeys(data as object, ['goalIds', 'subtasks', 'checklist'])
-
-  const base = normalizePlanningObjectBase(data, existing)
-
-  return {
-    ...base,
-    goalId: normalizeOptionalId(data.goalId, 'goalId', existing?.goalId),
-    priorityIds: normalizeIdArray(data.priorityIds, 'priorityIds', existing?.priorityIds),
-    lifeAreaIds: normalizeIdArray(data.lifeAreaIds, 'lifeAreaIds', existing?.lifeAreaIds),
-    status: normalizeEnum(data.status, 'status', GOAL_STATUSES, existing?.status ?? 'open'),
-  }
-}
-
 function normalizePriorityLinkSubjectRef(
   value: unknown,
-  fallback?: PriorityLinkSubjectRef
-): PriorityLinkSubjectRef | undefined {
+  fallback?: StoredPriorityLinkSubjectRef
+): StoredPriorityLinkSubjectRef | undefined {
+  // A link stored before the initiative entity was retired keeps its subject
+  // as is (retiring it must still work); only a payload that names a subject
+  // is validated against the writable set.
+  if (value === undefined && fallback && isLegacyInitiativeSubjectType(fallback.subjectType)) {
+    return fallback
+  }
+
   const source = value ?? fallback
   if (source === undefined) return undefined
   if (!isPlainObject(source)) {

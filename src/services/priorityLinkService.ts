@@ -17,7 +17,9 @@ import type {
   PriorityLink,
   PriorityLinkProposal,
   PriorityLinkSubjectRef,
+  StoredPriorityLinkSubjectRef,
 } from '@/domain/planning'
+import { isLegacyInitiativeSubjectType } from '@/domain/legacy/initiative'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { habitDexieRepository } from '@/repositories/habitDexieRepository'
 import { priorityDexieRepository } from '@/repositories/priorityDexieRepository'
@@ -56,7 +58,6 @@ const DUAL_WRITE_TABLES = {
   habit: 'habits',
   tracker: 'trackers',
   weeklyIntention: 'weeklyIntentions',
-  initiative: 'initiatives',
 } as const
 
 type DualWriteSubjectType = keyof typeof DUAL_WRITE_TABLES
@@ -105,15 +106,20 @@ async function addPriorityIdToSubject(
   )
 }
 
-/** Remove the priority id from the subject's legacy priorityIds[] (no-op for keyResult). */
+/**
+ * Remove the priority id from the subject's legacy priorityIds[] (no-op for
+ * keyResult, and for links that still point at the retired initiative entity —
+ * there is no table left to dual-write, the link itself is still retired).
+ */
 async function removePriorityIdFromSubject(
   db: UserDatabase,
-  subjectRef: PriorityLinkSubjectRef,
+  subjectRef: StoredPriorityLinkSubjectRef,
   priorityId: string,
   at: string
 ): Promise<void> {
   const session = captureUserSession()
   if (subjectRef.subjectType === 'keyResult') return
+  if (isLegacyInitiativeSubjectType(subjectRef.subjectType)) return
 
   const table = dualWriteTable(db, subjectRef.subjectType)
   const record = await session.wait(table.get(subjectRef.subjectId))
@@ -138,7 +144,6 @@ function ritualTransactionTables(db: UserDatabase) {
     db.habits,
     db.trackers,
     db.weeklyIntentions,
-    db.initiatives,
     db.drafts,
   ]
 }
