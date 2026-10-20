@@ -1,33 +1,24 @@
-import { createStoreSessionScope } from '@/services/userSessionScope'
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import type {
   IFSDailyCheckIn,
   CreateIFSDailyCheckInPayload,
   UpdateIFSDailyCheckInPayload,
 } from '@/domain/exercises'
 import { ifsDailyCheckInDexieRepository } from '@/repositories/exercisesDexieRepository'
-import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 import { addDaysToDayRef, getPeriodRefsForDate } from '@/utils/periods'
+import { useExerciseCollection } from './_exerciseCollection'
 
 export const useIFSDailyCheckInStore = defineStore('ifsDailyCheckIn', () => {
-  const sessionScope = createStoreSessionScope()
-  const checkIns = ref<IFSDailyCheckIn[]>([])
-  const isLoading = ref(false)
-  const error = ref<string | null>(null)
-
-  const sortedCheckIns = computed(() => {
-    return [...checkIns.value].sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-  })
-
-  const latestCheckIn = computed(() => {
-    return sortedCheckIns.value[0] ?? null
-  })
-
-  const getCheckInById = computed(() => {
-    return (id: string): IFSDailyCheckIn | undefined => {
-      return checkIns.value.find(c => c.id === id)
-    }
+  const checkIns = useExerciseCollection<
+    IFSDailyCheckIn,
+    CreateIFSDailyCheckInPayload,
+    UpdateIFSDailyCheckInPayload
+  >({
+    repository: ifsDailyCheckInDexieRepository,
+    label: 'daily check-in',
+    scope: 'ifsDailyCheckInStore',
+    completionSlug: 'daily-ifs-checkin',
   })
 
   /**
@@ -38,17 +29,14 @@ export const useIFSDailyCheckInStore = defineStore('ifsDailyCheckIn', () => {
   const currentWeekCheckIns = computed(() => {
     const todayRef = getPeriodRefsForDate(new Date()).day
     const fromRef = addDaysToDayRef(todayRef, -6)
-    return checkIns.value.filter(checkIn => {
+    return checkIns.items.value.filter(checkIn => {
       const day = getPeriodRefsForDate(checkIn.createdAt).day
       return day >= fromRef && day <= todayRef
     })
   })
 
-  const weeklyCheckInCount = computed(() => {
-    return currentWeekCheckIns.value.length
-  })
+  const weeklyCheckInCount = computed(() => currentWeekCheckIns.value.length)
 
-  /** How many check-ins in the rolling window unlock the weekly AI summary. */
   const WEEKLY_SUMMARY_THRESHOLD = 5
   const hasEnoughForWeeklySummary = computed(
     () => weeklyCheckInCount.value >= WEEKLY_SUMMARY_THRESHOLD
@@ -57,115 +45,21 @@ export const useIFSDailyCheckInStore = defineStore('ifsDailyCheckIn', () => {
     Math.max(0, WEEKLY_SUMMARY_THRESHOLD - weeklyCheckInCount.value)
   )
 
-  async function loadCheckIns(): Promise<void> {
-    const operation = sessionScope.capture()
-    operation.assertCurrent()
-    try {
-      isLoading.value = true
-      error.value = null
-      try {
-        checkIns.value = await operation.wait(ifsDailyCheckInDexieRepository.getAll())
-      } catch (err) {
-        if (!operation.isCurrent()) return
-        error.value = err instanceof Error ? err.message : 'Failed to load daily check-ins'
-        console.error('Error loading daily check-ins:', err)
-      } finally {
-        if (operation.isCurrent()) {
-          isLoading.value = false
-        }
-      }
-    } catch (error) {
-      if (operation.isCurrent()) throw error
-    }
-  }
-
-  async function createCheckIn(data: CreateIFSDailyCheckInPayload): Promise<IFSDailyCheckIn> {
-    const operation = sessionScope.capture()
-    operation.assertCurrent()
-    error.value = null
-    try {
-      const checkIn = await operation.wait(ifsDailyCheckInDexieRepository.create(data))
-      void useExerciseCompletionsStore()
-        .record('daily-ifs-checkin', checkIn.id)
-        .catch(err => console.error('Failed to record exercise completion:', err))
-      checkIns.value.push(checkIn)
-      return checkIn
-    } catch (err) {
-      operation.assertCurrent()
-      error.value = err instanceof Error ? err.message : 'Failed to create daily check-in'
-      console.error('Error creating daily check-in:', err)
-      throw err
-    }
-  }
-
-  async function updateCheckIn(
-    id: string,
-    data: UpdateIFSDailyCheckInPayload
-  ): Promise<IFSDailyCheckIn> {
-    const operation = sessionScope.capture()
-    operation.assertCurrent()
-    error.value = null
-    try {
-      const updated = await operation.wait(ifsDailyCheckInDexieRepository.update(id, data))
-      const index = checkIns.value.findIndex(c => c.id === id)
-      if (index !== -1) {
-        checkIns.value[index] = updated
-      }
-      return updated
-    } catch (err) {
-      operation.assertCurrent()
-      error.value = err instanceof Error ? err.message : 'Failed to update daily check-in'
-      console.error('Error updating daily check-in:', err)
-      throw err
-    }
-  }
-
-  async function deleteCheckIn(id: string): Promise<void> {
-    const operation = sessionScope.capture()
-    operation.assertCurrent()
-    try {
-      error.value = null
-      try {
-        await operation.wait(ifsDailyCheckInDexieRepository.delete(id))
-        checkIns.value = checkIns.value.filter(c => c.id !== id)
-      } catch (err) {
-        if (!operation.isCurrent()) return
-        error.value = err instanceof Error ? err.message : 'Failed to delete daily check-in'
-        console.error('Error deleting daily check-in:', err)
-        throw err
-      }
-    } catch (error) {
-      if (operation.isCurrent()) throw error
-    }
-  }
-
-  /**
-   * Resets all in-memory state to initial values. Called on user
-   * logout/login by `appStateReset` so user B does not see user A's
-   * data before the next `load*()` re-fetches from the new database.
-   */
-  function reset(): void {
-    sessionScope.reset()
-    checkIns.value = []
-    isLoading.value = false
-    error.value = null
-  }
-
   return {
-    checkIns,
-    isLoading,
-    error,
-    sortedCheckIns,
-    latestCheckIn,
-    getCheckInById,
+    checkIns: checkIns.items,
+    isLoading: checkIns.isLoading,
+    error: checkIns.error,
+    sortedCheckIns: checkIns.sorted,
+    latestCheckIn: checkIns.latest,
+    getCheckInById: checkIns.getById,
     currentWeekCheckIns,
     weeklyCheckInCount,
     hasEnoughForWeeklySummary,
     checkInsNeededForWeeklySummary,
-    loadCheckIns,
-    createCheckIn,
-    updateCheckIn,
-    deleteCheckIn,
-    reset,
+    loadCheckIns: checkIns.loadAll,
+    createCheckIn: checkIns.create,
+    updateCheckIn: checkIns.update,
+    deleteCheckIn: checkIns.remove,
+    reset: checkIns.reset,
   }
 })

@@ -1,4 +1,3 @@
-import { createStoreSessionScope } from '@/services/userSessionScope'
 /**
  * Dereflection Practice Store
  *
@@ -7,140 +6,37 @@ import { createStoreSessionScope } from '@/services/userSessionScope'
  */
 
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
 import type {
   DereflectionPractice,
   CreateDereflectionPayload,
   UpdateDereflectionPayload,
 } from '@/domain/exercises'
 import { dereflectionDexieRepository } from '@/repositories/exercisesDexieRepository'
-import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
+import { useExerciseCollection } from './_exerciseCollection'
 
 export const useDereflectionStore = defineStore('dereflection', () => {
-  const sessionScope = createStoreSessionScope()
-  const practices = ref<DereflectionPractice[]>([])
-  const isLoading = ref(false)
-  const error = ref<string | null>(null)
-
-  const sortedPractices = computed(() => {
-    return [...practices.value].sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+  const practices = useExerciseCollection<
+    DereflectionPractice,
+    CreateDereflectionPayload,
+    UpdateDereflectionPayload
+  >({
+    repository: dereflectionDexieRepository,
+    label: 'dereflection practice',
+    scope: 'dereflectionStore',
+    completionSlug: 'dereflection',
   })
-
-  const latestPractice = computed(() => {
-    return sortedPractices.value[0] ?? null
-  })
-
-  const getPracticeById = computed(() => {
-    return (id: string): DereflectionPractice | undefined => {
-      return practices.value.find(p => p.id === id)
-    }
-  })
-
-  async function loadPractices(): Promise<void> {
-    const operation = sessionScope.capture()
-    operation.assertCurrent()
-    try {
-      isLoading.value = true
-      error.value = null
-      try {
-        practices.value = await operation.wait(dereflectionDexieRepository.getAll())
-      } catch (err) {
-        if (!operation.isCurrent()) return
-        error.value = err instanceof Error ? err.message : 'Failed to load dereflection practices'
-        console.error('Error loading dereflection practices:', err)
-      } finally {
-        if (operation.isCurrent()) {
-          isLoading.value = false
-        }
-      }
-    } catch (error) {
-      if (operation.isCurrent()) throw error
-    }
-  }
-
-  async function createPractice(data: CreateDereflectionPayload): Promise<DereflectionPractice> {
-    const operation = sessionScope.capture()
-    operation.assertCurrent()
-    error.value = null
-    try {
-      const practice = await operation.wait(dereflectionDexieRepository.create(data))
-      void useExerciseCompletionsStore()
-        .record('dereflection', practice.id)
-        .catch(err => console.error('Failed to record exercise completion:', err))
-      practices.value.push(practice)
-      return practice
-    } catch (err) {
-      operation.assertCurrent()
-      error.value = err instanceof Error ? err.message : 'Failed to create dereflection practice'
-      console.error('Error creating dereflection practice:', err)
-      throw err
-    }
-  }
-
-  async function updatePractice(
-    id: string,
-    data: UpdateDereflectionPayload
-  ): Promise<DereflectionPractice> {
-    const operation = sessionScope.capture()
-    operation.assertCurrent()
-    error.value = null
-    try {
-      const updated = await operation.wait(dereflectionDexieRepository.update(id, data))
-      const index = practices.value.findIndex(p => p.id === id)
-      if (index !== -1) {
-        practices.value[index] = updated
-      }
-      return updated
-    } catch (err) {
-      operation.assertCurrent()
-      error.value = err instanceof Error ? err.message : 'Failed to update dereflection practice'
-      console.error('Error updating dereflection practice:', err)
-      throw err
-    }
-  }
-
-  async function deletePractice(id: string): Promise<void> {
-    const operation = sessionScope.capture()
-    operation.assertCurrent()
-    try {
-      error.value = null
-      try {
-        await operation.wait(dereflectionDexieRepository.delete(id))
-        practices.value = practices.value.filter(p => p.id !== id)
-      } catch (err) {
-        if (!operation.isCurrent()) return
-        error.value = err instanceof Error ? err.message : 'Failed to delete dereflection practice'
-        console.error('Error deleting dereflection practice:', err)
-        throw err
-      }
-    } catch (error) {
-      if (operation.isCurrent()) throw error
-    }
-  }
-
-  /**
-   * Resets all in-memory state to initial values. Called on user
-   * logout/login by `appStateReset` so user B does not see user A's
-   * data before the next `load*()` re-fetches from the new database.
-   */
-  function reset(): void {
-    sessionScope.reset()
-    practices.value = []
-    isLoading.value = false
-    error.value = null
-  }
 
   return {
-    practices,
-    isLoading,
-    error,
-    sortedPractices,
-    latestPractice,
-    getPracticeById,
-    loadPractices,
-    createPractice,
-    updatePractice,
-    deletePractice,
-    reset,
+    practices: practices.items,
+    isLoading: practices.isLoading,
+    error: practices.error,
+    sortedPractices: practices.sorted,
+    latestPractice: practices.latest,
+    getPracticeById: practices.getById,
+    loadPractices: practices.loadAll,
+    createPractice: practices.create,
+    updatePractice: practices.update,
+    deletePractice: practices.remove,
+    reset: practices.reset,
   }
 })

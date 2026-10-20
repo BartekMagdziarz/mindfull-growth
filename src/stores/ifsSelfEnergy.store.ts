@@ -1,6 +1,5 @@
-import { createStoreSessionScope } from '@/services/userSessionScope'
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import type {
   IFSSelfEnergyCheckIn,
   CreateIFSSelfEnergyPayload,
@@ -8,7 +7,7 @@ import type {
   SelfEnergyQuality,
 } from '@/domain/exercises'
 import { ifsSelfEnergyDexieRepository } from '@/repositories/exercisesDexieRepository'
-import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
+import { useExerciseCollection } from './_exerciseCollection'
 
 const ALL_QUALITIES: SelfEnergyQuality[] = [
   'calm',
@@ -22,38 +21,28 @@ const ALL_QUALITIES: SelfEnergyQuality[] = [
 ]
 
 export const useIFSSelfEnergyStore = defineStore('ifsSelfEnergy', () => {
-  const sessionScope = createStoreSessionScope()
-  const checkIns = ref<IFSSelfEnergyCheckIn[]>([])
-  const isLoading = ref(false)
-  const error = ref<string | null>(null)
-
-  const sortedCheckIns = computed(() => {
-    return [...checkIns.value].sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+  const checkIns = useExerciseCollection<
+    IFSSelfEnergyCheckIn,
+    CreateIFSSelfEnergyPayload,
+    UpdateIFSSelfEnergyPayload
+  >({
+    repository: ifsSelfEnergyDexieRepository,
+    label: 'self-energy check-in',
+    scope: 'ifsSelfEnergyStore',
+    completionSlug: 'self-energy',
   })
 
-  const latestCheckIn = computed(() => {
-    return sortedCheckIns.value[0] ?? null
-  })
-
-  const getCheckInById = computed(() => {
-    return (id: string): IFSSelfEnergyCheckIn | undefined => {
-      return checkIns.value.find(c => c.id === id)
-    }
-  })
-
-  const hasEnoughForReview = computed(() => {
-    return checkIns.value.length >= 14
-  })
+  const hasEnoughForReview = computed(() => checkIns.items.value.length >= 14)
 
   const averageRatings = computed(() => {
-    if (checkIns.value.length === 0) return null
+    if (checkIns.items.value.length === 0) return null
     const totals: Record<string, number> = {}
     const counts: Record<string, number> = {}
     for (const q of ALL_QUALITIES) {
       totals[q] = 0
       counts[q] = 0
     }
-    for (const checkIn of checkIns.value) {
+    for (const checkIn of checkIns.items.value) {
       for (const q of ALL_QUALITIES) {
         const val = checkIn.ratings[q]
         if (val != null) {
@@ -69,113 +58,19 @@ export const useIFSSelfEnergyStore = defineStore('ifsSelfEnergy', () => {
     return result
   })
 
-  async function loadCheckIns(): Promise<void> {
-    const operation = sessionScope.capture()
-    operation.assertCurrent()
-    try {
-      isLoading.value = true
-      error.value = null
-      try {
-        checkIns.value = await operation.wait(ifsSelfEnergyDexieRepository.getAll())
-      } catch (err) {
-        if (!operation.isCurrent()) return
-        error.value = err instanceof Error ? err.message : 'Failed to load self-energy check-ins'
-        console.error('Error loading self-energy check-ins:', err)
-      } finally {
-        if (operation.isCurrent()) {
-          isLoading.value = false
-        }
-      }
-    } catch (error) {
-      if (operation.isCurrent()) throw error
-    }
-  }
-
-  async function createCheckIn(data: CreateIFSSelfEnergyPayload): Promise<IFSSelfEnergyCheckIn> {
-    const operation = sessionScope.capture()
-    operation.assertCurrent()
-    error.value = null
-    try {
-      const checkIn = await operation.wait(ifsSelfEnergyDexieRepository.create(data))
-      void useExerciseCompletionsStore()
-        .record('self-energy', checkIn.id)
-        .catch(err => console.error('Failed to record exercise completion:', err))
-      checkIns.value.push(checkIn)
-      return checkIn
-    } catch (err) {
-      operation.assertCurrent()
-      error.value = err instanceof Error ? err.message : 'Failed to create self-energy check-in'
-      console.error('Error creating self-energy check-in:', err)
-      throw err
-    }
-  }
-
-  async function updateCheckIn(
-    id: string,
-    data: UpdateIFSSelfEnergyPayload
-  ): Promise<IFSSelfEnergyCheckIn> {
-    const operation = sessionScope.capture()
-    operation.assertCurrent()
-    error.value = null
-    try {
-      const updated = await operation.wait(ifsSelfEnergyDexieRepository.update(id, data))
-      const index = checkIns.value.findIndex(c => c.id === id)
-      if (index !== -1) {
-        checkIns.value[index] = updated
-      }
-      return updated
-    } catch (err) {
-      operation.assertCurrent()
-      error.value = err instanceof Error ? err.message : 'Failed to update self-energy check-in'
-      console.error('Error updating self-energy check-in:', err)
-      throw err
-    }
-  }
-
-  async function deleteCheckIn(id: string): Promise<void> {
-    const operation = sessionScope.capture()
-    operation.assertCurrent()
-    try {
-      error.value = null
-      try {
-        await operation.wait(ifsSelfEnergyDexieRepository.delete(id))
-        checkIns.value = checkIns.value.filter(c => c.id !== id)
-      } catch (err) {
-        if (!operation.isCurrent()) return
-        error.value = err instanceof Error ? err.message : 'Failed to delete self-energy check-in'
-        console.error('Error deleting self-energy check-in:', err)
-        throw err
-      }
-    } catch (error) {
-      if (operation.isCurrent()) throw error
-    }
-  }
-
-  /**
-   * Resets all in-memory state to initial values. Called on user
-   * logout/login by `appStateReset` so user B does not see user A's
-   * data before the next `load*()` re-fetches from the new database.
-   */
-  function reset(): void {
-    sessionScope.reset()
-    checkIns.value = []
-    isLoading.value = false
-    error.value = null
-  }
-
   return {
-    checkIns,
-    isLoading,
-    error,
-    sortedCheckIns,
-    latestCheckIn,
-    getCheckInById,
+    checkIns: checkIns.items,
+    isLoading: checkIns.isLoading,
+    error: checkIns.error,
+    sortedCheckIns: checkIns.sorted,
+    latestCheckIn: checkIns.latest,
+    getCheckInById: checkIns.getById,
     hasEnoughForReview,
     averageRatings,
-    loadCheckIns,
-    createCheckIn,
-    updateCheckIn,
-    deleteCheckIn,
-    reset,
+    loadCheckIns: checkIns.loadAll,
+    createCheckIn: checkIns.create,
+    updateCheckIn: checkIns.update,
+    deleteCheckIn: checkIns.remove,
+    reset: checkIns.reset,
   }
 })
