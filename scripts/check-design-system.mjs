@@ -38,7 +38,6 @@ const exemptPaths = [
   'src/components/objects/MeasurementTargetSentence.vue',
   'src/components/objects/KrPillDropdown.vue',
   'src/components/objects/MeasurementSparkline.vue',
-  'src/components/objects/ScalableSparkline.vue',
   'src/components/objects/sparklines/',
 ]
 const allowedExtensions = new Set(['.css', '.ts', '.vue'])

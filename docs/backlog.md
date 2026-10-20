@@ -185,7 +185,8 @@ W obu wariantach klucze w `weekObjectItems` muszą być unikalne.
   miesięczny.
 
 **Uwagi.** Ten sam `weekObjectItems` czytają też `WeekReviewSummary.vue`,
-`WeeklyReflectionWizard.vue`, `NextWeeklyReflectionRitual.vue` i `CalendarView.vue`. Zmiana w
+`WeeklyReflectionWizard.vue`, `NextWeeklyReflectionRitual.vue` i `CalendarView.vue`
+(ten ostatni usunięty 2026-10-20 razem z `?ui=legacy`). Zmiana w
 zapytaniu dotknie wszystkich, więc sprawdź każdy widok. Nie zmieniaj zachowania
 `getWeekRelevantObjects` dla planera. Por. pamięć „weekly cadence week by week”: obiekty
 tygodniowe są oceniane per tydzień, miesięczne per miesiąc.

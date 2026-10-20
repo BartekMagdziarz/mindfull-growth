@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { getPeriodRefsForDate } from '@/utils/periods'
-import { resolvePlanningUi } from './planningUi'
 
 const PUBLIC_ROUTES = ['login', 'signup']
 
@@ -51,7 +50,6 @@ const router = createRouter({
       component: () => import('@/views/TodayWorkspaceView.vue'),
       props: route => ({
         dayRef: route.params.dayRef,
-        ui: resolvePlanningUi(route.query),
       }),
     },
     {
@@ -79,7 +77,6 @@ const router = createRouter({
       props: route => ({
         scale: 'year',
         periodRef: route.params.yearRef,
-        ui: resolvePlanningUi(route.query),
       }),
     },
     {
@@ -89,7 +86,6 @@ const router = createRouter({
       props: route => ({
         scale: 'month',
         periodRef: route.params.monthRef,
-        ui: resolvePlanningUi(route.query),
       }),
     },
     {
@@ -99,7 +95,6 @@ const router = createRouter({
       props: route => ({
         scale: 'week',
         periodRef: route.params.weekRef,
-        ui: resolvePlanningUi(route.query),
       }),
     },
     // Alternative "Strumień" (stream) calendar view — a single drill-down stream

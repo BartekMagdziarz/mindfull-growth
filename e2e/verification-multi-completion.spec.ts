@@ -104,26 +104,6 @@ test.describe('multi-completion', () => {
     expectNoAppErrors(consoleErrors)
   })
 
-  test('legacy today overview tiles remain available with the 7-column item stack', async ({
-    page,
-  }) => {
-    test.setTimeout(120_000)
-    const consoleErrors = await bootSeededApp(page)
-
-    await page.goto('/today?ui=legacy')
-    const habitTile = page.locator('.overview-tile', { hasText: 'Poranna checklista' })
-    await expect(habitTile.locator('.mcs-container')).toBeVisible()
-    expect(await habitTile.locator('.mcs-col').count()).toBe(7)
-    expect(await habitTile.locator('.mcs-cell').count()).toBe(21)
-
-    const trackerTile = page.locator('.overview-tile', { hasText: 'Wieczorne wyciszenie' })
-    await expect(trackerTile.locator('.mcs-container')).toBeVisible()
-    expect(await trackerTile.locator('.mcs-cell').count()).toBe(14)
-
-    await habitTile.screenshot({ path: 'test-results/multi-completion-today-tile.png' })
-    expectNoAppErrors(consoleErrors)
-  })
-
   test('objects library card exposes the items editor with the points threshold', async ({
     page,
   }) => {

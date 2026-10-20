@@ -131,9 +131,9 @@ the exact `http://127.0.0.1:5201` origin and is not reachable in production.
 
 ## Flows to walk
 
-1. **Planning Next** — domyślny kalendarz. `/calendar` otwiera bieżący dzień;
-   przejdź przez dzień → tydzień → miesiąc → rok. Dodaj `?ui=legacy`, aby jawnie
-   uruchomić poprzedni interfejs regresyjny.
+1. **Planning Next** — jedyny kalendarz (poprzedni interfejs `?ui=legacy` został
+   usunięty 2026-10-20). `/calendar` otwiera bieżący tydzień; przejdź przez
+   tydzień → miesiąc → rok, a dzień pod `/today/<YYYY-MM-DD>`.
 2. **Stream (Strumień)** — alternatywny drill-down pod `/calendar/stream/<period>`:
    - year (`/calendar/stream/<YYYY>`): month cards with dimension bars,
      goal/habit rings, priority ribbon with effort rings on closed months;

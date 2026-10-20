@@ -20,7 +20,7 @@
  *      a thin footer beneath the weekly chart, ONLY for monthly-cadence
  *      objects.
  *
- * Why not use ScalableSparkline / MeasurementSparkline from the calendar
+ * Why not use MeasurementSparkline from the calendar
  * system: the calendar's chart pipeline uses different primitives, a separate
  * scale toggle, and aspect ratios tuned for month/year overviews. The weekly
  * reflection grid needs tile-sized charts that match the Today view 1:1, so

@@ -5,7 +5,6 @@ Lokalna aplikacja Vue 3 do planowania, codziennego działania i refleksji. Dane 
 ## Aktualny stan
 
 - Nowy obszar planowania (`Planning Next`) jest domyślnym UI dla dnia, tygodnia, miesiąca i roku.
-- Starszy interfejs nadal jest dostępny przez `?ui=legacy` jako tymczasowa powierzchnia regresyjna.
 - Rytuały tygodniowe i miesięczne łączą planowanie, przypisania, refleksję i dziennik.
 - Biblioteka obiektów obejmuje priorytety, cele, rezultaty kluczowe, nawyki, trackery i intencje tygodniowe.
 - Dziennik, emocje, ćwiczenia, obszary życia, profil oraz opcjonalne funkcje AI działają na tej samej lokalnej bazie użytkownika.

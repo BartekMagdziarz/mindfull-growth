@@ -115,7 +115,7 @@
 import { computed, ref, toRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { PeriodRef } from '@/domain/period'
-import type { CalendarScale, PlanningScale, PlanningUi } from '@/design-system/contracts'
+import type { CalendarScale, PlanningScale } from '@/design-system/contracts'
 import {
   DsPeriodNavigation,
   DsSegmentedControl,
@@ -147,7 +147,6 @@ import './planning-next.css'
 const props = defineProps<{
   scale: CalendarScale
   periodRef: string
-  ui: PlanningUi
 }>()
 
 const route = useRoute()
@@ -273,10 +272,9 @@ function handleMonthPicked(event: Event) {
   if (value) navigateToRef('month', value)
 }
 
-/** Query keys the ritual keeps across navigation (ui variant + ritual variant). */
+/** Query keys the ritual keeps across navigation (ritual and overview variants). */
 function keptQuery() {
   return {
-    ...(route.query.ui ? { ui: route.query.ui } : {}),
     ...(route.query.ritual ? { ritual: route.query.ritual } : {}),
     ...(route.query.overview ? { overview: route.query.overview } : {}),
   }
