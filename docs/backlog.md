@@ -308,6 +308,63 @@ przenieść do locale, ale to osobny zakres. Oceń z użytkownikiem.
 
 ## Pomysły
 
+### P-7 · vue-tsc 3.1+ zgłasza refy szablonu jako nieużywane (`noUnusedLocals`)
+
+Status · otwarte · Znaleziono 2026-10-20 (upgrade toolchainu, etap 2) · Toolchain / komponenty
+
+**Objaw** — po podniesieniu `vue-tsc` do 3.1.8, 3.2.9 lub 3.3.x `npx vue-tsc --noEmit` kończy się
+27 błędami `TS6133: '<nazwa>Ref' is declared but its value is never read` w 8 komponentach;
+vue-tsc 3.0.11 (dist-tag `v3.0`, obecnie przypięty `~3.0.11`) i 2.2.12 nie zgłaszają nic.
+
+**Jak odtworzyć** — `npx npm@latest install --no-save vue-tsc@3.3.13 && npx vue-tsc --noEmit`,
+potem `npm ci`, żeby wrócić do wersji z locka.
+
+**Przyczyna** — w `@vue/language-core` 3.1+ atrybut `ref="x"` w szablonie generuje tylko typ
+`__VLS_TemplateRefs` z cechą nawigacji (`codegen/template/element.js`, `getTemplateRef` →
+`ctx.addTemplateRef`); wersja 2.x/3.0 dodatkowo wywoływała `ctx.accessExternalVariable(x)`,
+czyli emitowała odczyt zmiennej skryptu. Zmienna w `<script setup>`, której nic poza
+`ref="…"` nie czyta, jest więc dla TypeScriptu nieużywana. Upstream:
+vuejs/language-tools#6147 (zamknięte bez odpowiedzi maintainerów, duplikaty #5981, #5908,
+#5857). Dotknięte miejsca (linie z 2026-10-20):
+- `src/components/calendar/AnnualPlanningPriorityCard.vue:132-192` — 7 refów
+  (`titleRef`, `whyNowRef`, `desiredDirectionRef`, `tradeoffsRef`, `yearsRef`,
+  `progressSignalsRef`, `riskSignalsRef`) destrukturyzowanych z `useEditableField()`;
+- `src/components/objects/ObjectsLibraryPriorityCard.vue:371-460` — 10 refów, j.w.;
+- `src/components/objects/ObjectsLibraryKrCard.vue:223,233` i
+  `src/components/objects/ObjectsLibraryMeasurementCard.vue:337` — 3 refy, j.w.;
+- `src/components/exercises/LegacyLetterWizard.vue:511,513`,
+  `SocraticDialogueWizard.vue:498,500`, `TragicOptimismWizard.vue:489,491` —
+  `messageContainer` i `inputRef` zadeklarowane przez `ref<…>(null)`, nigdzie nie czytane;
+- `src/views/JournalEditorView.vue:477` — `customPromptDialogRef`, j.w.
+
+`useEditableField` (`src/composables/useEditableField.ts:64-75`) sam tworzy `inputRef` i czyta
+go (`document.activeElement === inputRef.value`), więc komponent musi go związać z DOM-em —
+te 20 refów jest potrzebnych w runtime. Pozostałe 7 to martwe refy: nic ich nie czyta.
+
+**Dlaczego to blokuje** — bramka `npx vue-tsc --noEmit` musi mieć 0 błędów, a `noUnusedLocals`
+zostaje. Nie da się tego obejść bez zmian w kodzie produktu: `:ref="titleRef"` nie działa, bo
+w szablonie ref jest auto-odpakowany (kompilator emituje `ref: titleRef.value`, vue-tsc zgłasza
+`HTMLTextAreaElement | null` vs `VNodeRef`).
+
+**Propozycja naprawy** —
+1. martwe refy (7): usunąć deklarację i atrybut `ref="…"` z szablonu;
+2. refy z `useEditableField` (20): pozwolić composable przyjąć zewnętrzny ref, np.
+   `useEditableField({ …, inputRef: useTemplateRef<HTMLTextAreaElement>('title') })`
+   (Vue 3.5 `useTemplateRef`), a w szablonie `ref="title"`; wtedy zmienna jest czytana jako
+   argument. Alternatywa bez zmiany composable: nie destrukturyzować i wiązać przez
+   `:ref="titleField.inputRef"` (zagnieżdżona właściwość nie jest odpakowywana, `setRef`
+   obsługuje obiekt Ref) — mniej idiomatyczne.
+3. po sprzątnięciu podnieść `vue-tsc` do `^3.3` (TS 5.9 już jest; vue-tsc 3.3 wspiera TS 6/7,
+   co otwiera drogę do TypeScript 7).
+
+**Kryteria akceptacji** — `npx vue-tsc --noEmit` = 0 błędów na `vue-tsc@^3.3`; testy
+komponentów z listy zielone; kliknięcie w kartę priorytetu/KR nadal fokusuje pole
+(`useEditableField` dostaje element); kreatory dialogowe przewijają się do ostatniej
+wiadomości jak dotąd (sprawdzić, czy `messageContainer` nie był używany przez CSS/testy).
+
+**Uwagi** — zrobić w jednym PR z bumpem vue-tsc, żeby bramki nie były czerwone pomiędzy.
+Decyzja usera z 2026-10-20: upgrade toolchainu nie rusza kodu produktu, stąd pin `~3.0.11`.
+
 ### P-4 · Migracje Dexie w osobnych plikach
 
 `otwarte` · Znaleziono 2026-10-20 przy audycie repo · `src/services/userDatabaseService.ts`

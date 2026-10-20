@@ -18,7 +18,11 @@ npm run test:e2e:verify  # verification smoke only
 ```
 
 Use npm for this project. Do not switch to bun, pnpm, or yarn unless the user
-explicitly asks for a package-manager migration.
+explicitly asks for a package-manager migration. Node 22.12+ or 24 (vite 8 /
+vitest 5 engines; the Homebrew default `node` 23.7 only warns). npm 10.9's
+`npm update` crashes in arborist on this dependency graph (`reading
+'edgesOut'`) — run it as `npx npm@latest update`; `npm ci` and `npm install
+<pkg>` work on npm 10.9.
 
 ## Gates (before any commit)
 
