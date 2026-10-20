@@ -5,8 +5,7 @@
       v-if="showTargetLine"
       :d="targetPath"
       fill="none"
-      stroke="rgb(var(--color-primary))"
-      stroke-opacity="0.8"
+      stroke="var(--mg-color-data-target)"
       stroke-width="1"
       stroke-linecap="round"
       stroke-linejoin="round"
@@ -137,11 +136,11 @@ function barY(point: ObjectsLibraryChartPoint): number {
 function barFill(status: ObjectsLibraryChartPoint['status']): string {
   switch (status) {
     case 'met':
-      return 'rgb(var(--sky-200) / 0.72)'
+      return 'var(--mg-color-data-fill)'
     case 'missed':
-      return 'rgb(var(--rose-200) / 0.72)'
+      return 'var(--mg-color-effort-fill)'
     case 'no-target':
-      return 'rgb(var(--sky-300) / 0.72)'
+      return 'var(--mg-color-state-soft)'
     default:
       return 'rgb(var(--color-outline))'
   }

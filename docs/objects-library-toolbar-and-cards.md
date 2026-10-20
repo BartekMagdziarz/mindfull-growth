@@ -23,11 +23,30 @@ i mockupy: `ideas/html-plans/2026-09-12-objects-library-toolbar-and-cards.html`
 - **D4 Czas na karcie = jedna oś** (`ObjectCardTimeline`, geometria w
   `utils/objectWindow.ts`). Cel: start (data startu → pierwszy powiązany
   miesiąc → dzień utworzenia) → koniec (termin → ostatni miesiąc → otwarty).
-  Ołówek (kreskowana hairline) = okno, atrament = do dziś, kropki steppera =
-  dziś/koniec. Po terminie rose; bez terminu ołówek blaknie i etykieta „bez
-  terminu” (bez tonu ostrzegawczego — brak terminu jest legalny). Priorytet:
-  kropka na rok (min. 3, zawsze z bieżącym). Nawyki/trackery: bez osi —
-  sparkline niesie czas. Intencje i KR: bez zmian.
+  Chmura (pigułka mist z lekkim cieniem wklęsłym) = okno, błękit
+  (sky-400/0.85) wypełnia ją do dziś i rozpływa się piórkiem pod dyskiem
+  „dziś” (granat, aureola w tonie tła, pierścień). Termin = koniec chmury,
+  bez osobnego znacznika. Po terminie błękit i dysk rose; bez terminu chmura
+  rozpływa się w prawo i etykieta „bez terminu” (bez tonu ostrzegawczego —
+  brak terminu jest legalny). Żadnych kresek na osi: „jeszcze nie” mówi
+  pusta studzienka, jak w Dzisiaj (2026-10-17, plany
+  `ideas/html-plans/2026-10-17-goal-timeline-sky*.html`). Priorytet: kropka
+  na rok (min. 3, zawsze z bieżącym) na tej samej chmurze — minione lata
+  wypełnione, przyszłe = puste studzienki. Oś jest przyciskiem, ale hover nie
+  podnosi pola paper (tylko fokus klawiatury).
+- **D4a Błękity danych = jedna drabinka.** Oś i sparkline'y karty biorą kolor
+  z tokenów `--mg-color-data-fill` (spełnione / miniony czas, sky-400/0.85),
+  `--mg-color-state-soft` (częściowo / bez celu), `--mg-color-data-target`
+  (linie celu, sky-600/0.45) i `--mg-color-effort-fill` (niespełnione / po
+  terminie, rose-300/0.85); linie wartości zostają atramentem (sky-800).
+  Żadnych surowych `--sky-N` ani `--color-primary` w wykresach. Plan sweepu
+  reszty aplikacji: `ideas/html-plans/2026-10-17-data-blues-unification.html`. Nawyki/trackery: bez osi —
+  sparkline niesie czas. Intencje i KR: bez zmian. Oś celu jest widoczna tylko
+  dla aktywnych, otwartych celów. Zakończone, porzucone i zarchiwizowane cele
+  nie odliczają czasu ani opóźnienia; zachowują status i zapisane podsumowanie
+  zamknięcia. Wynik i data zamknięcia występują tylko w metadanych na górze
+  karty, bez powtórzenia w nagłówku podsumowania. Miesiące celu nadal można
+  sprawdzić lub edytować przez menu.
 - **D5 Przynależność = glify** (`ObjectCardAffiliation`): priorytety (kreskowany
   obrys) · obszary życia (wypełniona tablica sky-field), maks. 4 + „+N”.
   Hover/fokus wysuwa nazwę na paper. **Żadnych kolorów obszarów życia na

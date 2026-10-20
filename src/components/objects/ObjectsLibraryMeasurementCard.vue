@@ -104,23 +104,6 @@
         />
       </div>
 
-      <!-- Row 2: quiet facts. Collapses when expanded — the target sentence
-           below then shows cadence + mode + target in editable form. -->
-      <div
-        class="transition-all duration-200 ease-in-out"
-        :style="{ maxHeight: isExpanded ? '0' : '2.5rem', opacity: isExpanded ? 0 : 1, overflow: 'hidden' }"
-      >
-        <p class="mg-v2-meta px-1">
-          <span v-if="statusLabel" class="mg-v2-meta__status">{{ statusLabel }}</span>
-          <span v-if="!item.isActive">{{ t('planning.objects.badges.archived') }}</span>
-          <span>{{ cadenceLabel }}</span>
-          <span>{{ entryModeLabel }}</span>
-          <span v-if="panelType === 'habit' && item.target">
-            {{ formatMeasurementTargetSummary(item.target, t) }}
-          </span>
-        </p>
-      </div>
-
       <!-- Expanded section -->
       <div
         class="transition-all duration-200 ease-in-out"
@@ -222,13 +205,37 @@
         </div>
       </div>
 
-      <!-- Chart -->
-      <MeasurementSparkline
-        v-if="item.chartData"
-        :points="item.chartData"
-        :cadence="item.cadence ?? 'weekly'"
-        :entry-mode="item.entryMode ?? 'completion'"
-      />
+      <!-- Measurement field: quiet facts + chart as ONE thing, the same
+           anatomy as a KR inside a goal card (a habit reads like a goal with
+           a single KR). Facts collapse when expanded — the target sentence
+           above then shows cadence + mode + target in editable form. -->
+      <div
+        :class="item.chartData ? 'mg-v2-surface mg-v2-surface--flat p-2.5' : ''"
+        data-testid="measurement-field"
+      >
+        <div
+          class="transition-all duration-200 ease-in-out"
+          :class="isExpanded || !item.chartData ? '' : 'mb-2'"
+          :style="{ maxHeight: isExpanded ? '0' : '2.5rem', opacity: isExpanded ? 0 : 1, overflow: 'hidden' }"
+        >
+          <p class="mg-v2-meta px-1">
+            <span v-if="statusLabel" class="mg-v2-meta__status">{{ statusLabel }}</span>
+            <span v-if="!item.isActive">{{ t('planning.objects.badges.archived') }}</span>
+            <span>{{ cadenceLabel }}</span>
+            <span>{{ entryModeLabel }}</span>
+            <span v-if="panelType === 'habit' && item.target">
+              {{ formatMeasurementTargetSummary(item.target, t) }}
+            </span>
+          </p>
+        </div>
+
+        <MeasurementSparkline
+          v-if="item.chartData"
+          :points="item.chartData"
+          :cadence="item.cadence ?? 'weekly'"
+          :entry-mode="item.entryMode ?? 'completion'"
+        />
+      </div>
 
     </div>
   </article>

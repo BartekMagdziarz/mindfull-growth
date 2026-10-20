@@ -208,7 +208,7 @@ function onEntryDaysOperator(value: string): void {
   commitEntryDays({ ...current, operator: value as CountTargetOperator })
 }
 
-// Clearing the value is how the condition is removed (no separate delete button).
+// Clearing the value also removes the condition, alongside the explicit button.
 function commitEntryDaysValue(): void {
   const current = entryDays.value
   if (!current) return
@@ -331,6 +331,14 @@ function commitEntryDaysValue(): void {
       @click="addEntryDays"
     >
       {{ t('planning.objects.targetSentence.addEntryDays') }}
+    </button>
+    <button
+      v-if="entryDays && !disabled"
+      type="button"
+      class="rounded-full px-2 py-0.5 text-xs font-medium text-on-surface-variant underline decoration-dotted underline-offset-2 transition-colors hover:text-on-surface focus:outline-none focus:ring-2 focus:ring-focus"
+      @click="commitEntryDays(undefined)"
+    >
+      {{ t('planning.objects.targetSentence.removeEntryDays') }}
     </button>
   </div>
 </template>

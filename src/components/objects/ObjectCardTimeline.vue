@@ -12,25 +12,21 @@
     ]"
     @click="interactive ? $emit('click') : undefined"
   >
-    <!-- Linear: start → end, ink up to today -->
+    <!-- Linear: the window is a cloud, the elapsed part fills it with sky
+         (feathered at today), the deadline is simply where the cloud ends -->
     <template v-if="variant === 'linear' && window && window.state !== 'empty'">
       <div class="mg-v2-timeline__track" aria-hidden="true">
-        <span class="mg-v2-timeline__pencil" />
-        <span
-          v-if="inkWidth > 0"
-          class="mg-v2-timeline__ink"
-          :style="{ width: `${inkWidth}%` }"
-        />
+        <span class="mg-v2-timeline__cloud">
+          <span
+            v-if="inkWidth > 0"
+            class="mg-v2-timeline__fill"
+            :style="{ '--mg-timeline-progress': `${inkWidth}%` }"
+          />
+        </span>
         <span
           v-if="window.state !== 'upcoming'"
           class="mg-v2-timeline__dot mg-v2-timeline__dot--today"
           :style="{ left: `${todayLeft}%` }"
-        />
-        <span
-          v-if="window.end"
-          class="mg-v2-timeline__dot"
-          :class="isOverdue ? 'mg-v2-timeline__dot--hit' : ''"
-          style="left: 100%"
         />
       </div>
       <div class="mg-v2-timeline__labels">
@@ -45,21 +41,28 @@
     <!-- Years: one stepper dot per year -->
     <template v-else-if="variant === 'years' && years">
       <div class="mg-v2-timeline__track" aria-hidden="true">
-        <span class="mg-v2-timeline__pencil" />
-        <span
-          v-if="years.progress !== null"
-          class="mg-v2-timeline__ink"
-          :style="{ width: `${years.progress * 100}%` }"
-        />
+        <span class="mg-v2-timeline__cloud">
+          <span
+            v-if="years.progress !== null"
+            class="mg-v2-timeline__fill"
+            :style="{ '--mg-timeline-progress': `${years.progress * 100}%` }"
+          />
+        </span>
         <span
           v-for="(dot, index) in years.years"
           :key="dot.ref"
           class="mg-v2-timeline__dot"
           :class="{
             'mg-v2-timeline__dot--done': dot.state === 'done',
-            'mg-v2-timeline__dot--today': dot.state === 'current',
+            'mg-v2-timeline__dot--current': dot.state === 'current',
           }"
           :style="{ left: `${yearLeft(index)}%` }"
+        />
+        <!-- "Today" sits where the sky feathers out, not on the year's dot -->
+        <span
+          v-if="years.progress !== null"
+          class="mg-v2-timeline__dot mg-v2-timeline__dot--today"
+          :style="{ left: `${years.progress * 100}%` }"
         />
       </div>
       <div class="mg-v2-timeline__labels">

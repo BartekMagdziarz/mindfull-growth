@@ -124,8 +124,9 @@
         />
       </div>
 
-      <!-- Row 4: the goal's window in time; click edits linked months -->
+      <!-- Row 4: ongoing goals only; historical goals keep their closing metadata -->
       <ObjectCardTimeline
+        v-if="item.isActive && item.status === 'open'"
         variant="linear"
         :window="goalWindow"
         :start="startLabel"
