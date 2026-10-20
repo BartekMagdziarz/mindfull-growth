@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/hooks/design-system-post-edit.mjs",
+            "timeout": 30,
+            "statusMessage": "Design system guard"
+          }
+        ]
+      }
+    ]
+  }
+}
