@@ -235,14 +235,7 @@ export function respondedShare(stats: readonly MomentsWeekStats[]): number | nul
 // ── "Moje zdania" ────────────────────────────────────────────────────
 
 export type OwnSentenceSource =
-  | 'image'
-  | 'self'
-  | 'response'
-  | 'unblend'
-  | 'moment'
-  | 'defender'
-  | 'request'
-  | 'return'
+  'image' | 'self' | 'response' | 'unblend' | 'moment' | 'defender' | 'request' | 'return'
 
 export interface OwnSentence {
   text: string

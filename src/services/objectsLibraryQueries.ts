@@ -46,12 +46,7 @@ import {
 export type ObjectsLibraryFamily = 'priorities' | 'goals' | 'habits' | 'trackers' | 'intentions'
 export type ObjectsLibraryComposerMode = 'edit' | 'create'
 export type ObjectsLibraryPanelType =
-  | 'priority'
-  | 'goal'
-  | 'keyResult'
-  | 'habit'
-  | 'tracker'
-  | 'weeklyIntention'
+  'priority' | 'goal' | 'keyResult' | 'habit' | 'tracker' | 'weeklyIntention'
 
 export interface ObjectsLibraryQuery {
   family: ObjectsLibraryFamily

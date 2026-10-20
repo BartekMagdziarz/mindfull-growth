@@ -508,14 +508,7 @@ const useProfileCompassionate = ref(userPreferencesStore.profileContextDefault)
 
 // ─── Step State ──────────────────────────────────────────────────────────────
 type Step =
-  | 'intro'
-  | 'situation'
-  | 'emotions'
-  | 'critic'
-  | 'response'
-  | 'check'
-  | 'takeaways'
-  | 'summary'
+  'intro' | 'situation' | 'emotions' | 'critic' | 'response' | 'check' | 'takeaways' | 'summary'
 
 const currentStep = ref<Step>('intro')
 

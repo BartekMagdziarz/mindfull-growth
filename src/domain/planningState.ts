@@ -20,12 +20,7 @@ export type TodayHiddenSubjectType = MeasurementSubjectType
 export type StoredTodayHiddenSubjectType = TodayHiddenSubjectType | LegacyInitiativeSubjectType
 export type ReflectionPeriodType = 'month' | 'week'
 export type ReflectionSubjectType =
-  | 'goal'
-  | 'keyResult'
-  | 'habit'
-  | 'tracker'
-  | 'weeklyIntention'
-  | 'priority'
+  'goal' | 'keyResult' | 'habit' | 'tracker' | 'weeklyIntention' | 'priority'
 /** As persisted: reflections written before 2026-10-20 may still name a legacy initiative. */
 export type StoredReflectionSubjectType = ReflectionSubjectType | LegacyInitiativeSubjectType
 export type PriorityVerdict = 'continue' | 'adjust' | 'pause' | 'drop'

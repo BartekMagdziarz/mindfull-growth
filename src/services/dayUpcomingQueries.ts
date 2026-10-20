@@ -192,9 +192,11 @@ function returnMarker(program: ProgramDefinition, enrollment: ProgramEnrollment)
   if (index === -1) return null
   const anchor = enrollment.completedSteps
     .filter(completed => completed.stepIndex < index)
-    .reduce<
-      string | undefined
-    >((latest, completed) => (!latest || completed.completedAt > latest ? completed.completedAt : latest), undefined)
+    .reduce<string | undefined>(
+      (latest, completed) =>
+        !latest || completed.completedAt > latest ? completed.completedAt : latest,
+      undefined
+    )
   const anchorDay = getPeriodRefsForDate(
     anchor ?? enrollment.completedAt ?? enrollment.startedAt
   ).day

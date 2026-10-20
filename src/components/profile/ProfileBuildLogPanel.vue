@@ -112,8 +112,7 @@
             <pre
               class="text-xs p-2 bg-section rounded-xl whitespace-pre-wrap break-all"
               data-test-build-log-error
-              >{{ log.errorMessage }}</pre
-            >
+              >{{ log.errorMessage }}</pre>
           </div>
 
           <!-- Token usage grid -->
@@ -211,8 +210,7 @@
             <h4 class="text-xs font-semibold text-on-surface-variant mb-1">Scope</h4>
             <pre
               class="text-xs p-2 bg-section rounded-xl whitespace-pre-wrap break-all max-h-48 overflow-auto"
-              >{{ formatScopeSummary(log.scope) }}</pre
-            >
+              >{{ formatScopeSummary(log.scope) }}</pre>
           </div>
 
           <!-- Request body -->
@@ -221,8 +219,7 @@
             <pre
               class="text-xs p-2 bg-section rounded-xl whitespace-pre-wrap break-all max-h-96 overflow-auto"
               data-test-build-log-request
-              >{{ formatJsonIfPossible(log.requestBody) }}</pre
-            >
+              >{{ formatJsonIfPossible(log.requestBody) }}</pre>
           </div>
 
           <!-- Response body -->
@@ -231,8 +228,7 @@
             <pre
               class="text-xs p-2 bg-section rounded-xl whitespace-pre-wrap break-all max-h-96 overflow-auto"
               data-test-build-log-response
-              >{{ formatJsonIfPossible(log.responseBody) }}</pre
-            >
+              >{{ formatJsonIfPossible(log.responseBody) }}</pre>
           </div>
         </div>
       </li>

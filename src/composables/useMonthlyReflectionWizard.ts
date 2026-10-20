@@ -24,12 +24,7 @@ import type { CreateMonthlyReflectionPayload } from '@/domain/reflection'
 // priorities, then assign objects to weeks) then reflection steps (unlocked only in the month's
 // closing stretch — see isMonthlyReflectionUnlocked). Mirrors the weekly transition wizard.
 export type MonthlyReflectionStep =
-  | 'plan'
-  | 'weeks'
-  | 'priorities-review'
-  | 'ratings'
-  | 'anchors'
-  | 'journal'
+  'plan' | 'weeks' | 'priorities-review' | 'ratings' | 'anchors' | 'journal'
 
 const PLANNING_STEPS: MonthlyReflectionStep[] = ['plan', 'weeks']
 const REFLECTION_STEPS: MonthlyReflectionStep[] = [

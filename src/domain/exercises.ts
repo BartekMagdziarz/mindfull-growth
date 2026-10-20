@@ -115,11 +115,7 @@ export interface ValuesDiscovery {
 // ============================================================================
 
 export type ValueImportance =
-  | 'notImportant'
-  | 'somewhatImportant'
-  | 'important'
-  | 'veryImportant'
-  | 'mostImportant'
+  'notImportant' | 'somewhatImportant' | 'important' | 'veryImportant' | 'mostImportant'
 
 export interface ValueMapCustomValue {
   id: string
@@ -1447,10 +1443,7 @@ export type UpdateIFSPartsDialoguePayload = Partial<CreateIFSPartsDialoguePayloa
 // ---- IFS Exercise 9: Daily IFS Check-In ----
 
 export type IFSDailyCheckInType =
-  | 'weather-report'
-  | 'gratitude-to-part'
-  | 'self-energy-moment'
-  | 'evening-reflection'
+  'weather-report' | 'gratitude-to-part' | 'self-energy-moment' | 'evening-reflection'
 
 /**
  * An entry for a part that was active during a check-in.
@@ -1491,10 +1484,7 @@ export type UpdateIFSDailyCheckInPayload = Partial<CreateIFSDailyCheckInPayload>
 // ---- IFS Exercise 10: Inner System Constellation ----
 
 export type IFSConstellationRelationType =
-  | 'polarized'
-  | 'allied'
-  | 'protector-exile'
-  | 'no-relationship'
+  'polarized' | 'allied' | 'protector-exile' | 'no-relationship'
 
 /**
  * A relationship between two parts in a constellation analysis.

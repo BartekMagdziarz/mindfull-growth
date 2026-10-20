@@ -516,8 +516,7 @@ describe('Database Migration v13→v14 LifeArea clean model', () => {
     await migratedDb.open()
 
     const migratedArea = (await migratedDb.lifeAreas.get('la-legacy')) as
-      | Record<string, unknown>
-      | undefined
+      Record<string, unknown> | undefined
     expect(migratedArea).toBeDefined()
     expect(migratedArea?.id).toBe('la-legacy')
     expect(migratedArea?.name).toBe('Health')

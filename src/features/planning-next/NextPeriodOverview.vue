@@ -158,13 +158,7 @@ import type { NextObjectChartPoint } from './nextObjectChart'
 
 type ObjectItem = MonthObjectItem | WeekObjectItem
 type CategoryId =
-  | 'goals'
-  | 'habits'
-  | 'trackers'
-  | 'intentions'
-  | 'journal'
-  | 'emotions'
-  | 'reflections'
+  'goals' | 'habits' | 'trackers' | 'intentions' | 'journal' | 'emotions' | 'reflections'
 interface Category {
   id: CategoryId
   label: string

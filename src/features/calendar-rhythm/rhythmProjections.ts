@@ -44,12 +44,7 @@ export type Scale = 'year' | 'month' | 'week'
 export type TimeState = 'past' | 'current' | 'future'
 export type Presence = 'recorded' | 'planned-only' | 'empty'
 export type MarkKind =
-  | 'slots'
-  | 'day-slots'
-  | 'checklist-slots'
-  | 'bar-target'
-  | 'point'
-  | 'rating-point'
+  'slots' | 'day-slots' | 'checklist-slots' | 'bar-target' | 'point' | 'rating-point'
 export type DaySlot = 'met' | 'partial' | 'none' | 'future' | 'outside'
 /**
  * Dysk wykonania jak w „Plan dnia”: wykonane · częściowo (checklista) · zaplanowane bez wpisu · dziś, zaplanowane ·

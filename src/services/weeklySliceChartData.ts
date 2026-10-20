@@ -53,10 +53,7 @@ import {
 import { getPeriodBounds, getPeriodRefsForDate } from '@/utils/periods'
 
 export type MonthlyContextFooterVariant =
-  | 'count-progress'
-  | 'value-progress'
-  | 'avg-marker'
-  | 'value-label'
+  'count-progress' | 'value-progress' | 'avg-marker' | 'value-label'
 
 export type MonthlyContextAggregationLabel = 'sum' | 'avg' | 'last' | 'days'
 

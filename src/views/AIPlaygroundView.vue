@@ -207,8 +207,7 @@
               </summary>
               <pre
                 class="mt-4 max-h-72 overflow-auto whitespace-pre-wrap break-all rounded-xl bg-section p-3 text-xs text-on-surface-variant"
-                >{{ rawMetadata }}</pre
-              >
+                >{{ rawMetadata }}</pre>
             </details>
           </AppCard>
         </div>

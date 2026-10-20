@@ -97,9 +97,11 @@ export function eligibleDayForStep(
   // ACTUAL completion below this step (skips add no delay).
   const anchor = enrollment.completedSteps
     .filter(completed => completed.stepIndex < stepIndex)
-    .reduce<
-      string | undefined
-    >((latest, completed) => (!latest || completed.completedAt > latest ? completed.completedAt : latest), undefined)
+    .reduce<string | undefined>(
+      (latest, completed) =>
+        !latest || completed.completedAt > latest ? completed.completedAt : latest,
+      undefined
+    )
   const anchorDay = getPeriodRefsForDate(anchor ?? enrollment.startedAt).day
   return addDaysToDayRef(anchorDay, step.minGapDays)
 }
@@ -183,9 +185,11 @@ export function eligibleDayForPractice(
         ? undefined
         : enrollment.completedSteps
             .filter(completed => completed.stepIndex <= practice.startsAfterStep!)
-            .reduce<
-              string | undefined
-            >((latest, completed) => (!latest || completed.completedAt > latest ? completed.completedAt : latest), undefined)
+            .reduce<string | undefined>(
+              (latest, completed) =>
+                !latest || completed.completedAt > latest ? completed.completedAt : latest,
+              undefined
+            )
     base = getPeriodRefsForDate(anchor ?? enrollment.startedAt).day
   }
   return base < today ? today : base
@@ -237,9 +241,10 @@ export async function reconcilePractices(
               (item.status === 'done' || item.status === 'skipped') &&
               item.exerciseSlug === practice.exerciseSlug
           )
-          .reduce<
-            string | undefined
-          >((latest, item) => (!latest || item.updatedAt > latest ? item.updatedAt : latest), undefined)
+          .reduce<string | undefined>(
+            (latest, item) => (!latest || item.updatedAt > latest ? item.updatedAt : latest),
+            undefined
+          )
         created.push(
           await exercisePlanDexieRepository.create({
             exerciseSlug: practice.exerciseSlug,
@@ -594,9 +599,7 @@ export async function undoLastStep(id: string): Promise<{
 /** Whether "Cofnij" applies: the step before the current one was completed (not skipped) on an active enrollment. */
 export function canUndoLastStep(
   enrollment:
-    | Pick<ProgramEnrollment, 'status' | 'currentStepIndex' | 'completedSteps'>
-    | null
-    | undefined
+    Pick<ProgramEnrollment, 'status' | 'currentStepIndex' | 'completedSteps'> | null | undefined
 ): boolean {
   if (!enrollment || enrollment.status !== 'active') return false
   const previousIndex = enrollment.currentStepIndex - 1

@@ -35,11 +35,7 @@ import { reportError } from '@/utils/reportError'
  * whether to show the "Go to AI Settings" CTA without substring-matching.
  */
 export type ProfileBuildErrorCode =
-  | 'missingApiKey'
-  | 'contextTooLarge'
-  | 'emptyResponse'
-  | 'network'
-  | 'unknown'
+  'missingApiKey' | 'contextTooLarge' | 'emptyResponse' | 'network' | 'unknown'
 
 export class ProfileBuildError extends Error {
   constructor(

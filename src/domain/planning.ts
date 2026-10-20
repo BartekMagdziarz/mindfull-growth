@@ -18,11 +18,7 @@ export interface PlanningObjectBase {
 
 export type PlanningCadence = 'weekly' | 'monthly'
 export type MeasurementEntryMode =
-  | 'completion'
-  | 'counter'
-  | 'value'
-  | 'rating'
-  | 'multi-completion'
+  'completion' | 'counter' | 'value' | 'rating' | 'multi-completion'
 export type GoalStatus = 'open' | 'completed' | 'dropped'
 export type KeyResultStatus = GoalStatus
 export type HabitStatus = 'open' | 'retired' | 'dropped'

@@ -119,9 +119,12 @@ export function viewOptions(
       group: 'Kierunki',
     })
   out.push(
-    ...directions.map(
-      (p): ViewOption => ({ id: `dir:${p.key}`, label: p.title, icon: p.icon, group: 'Kierunki' })
-    )
+    ...directions.map((p): ViewOption => ({
+      id: `dir:${p.key}`,
+      label: p.title,
+      icon: p.icon,
+      group: 'Kierunki',
+    }))
   )
   if (scale !== 'week')
     out.push({
@@ -260,14 +263,12 @@ function weekFocusRows(s: RhythmScenario, units: TimeUnit[], ref: string): Board
   const scaleMax = sharedScaleMax(series)
   return [
     { kind: 'sublabel', id: 'focus:label', text: 'Fokus tygodnia' },
-    ...series.map(
-      (x): BoardRow => ({
-        kind: 'series',
-        id: `focus:obj:${x.objectKey}`,
-        series: x,
-        scaleMax: scaleMax(x),
-      })
-    ),
+    ...series.map((x): BoardRow => ({
+      kind: 'series',
+      id: `focus:obj:${x.objectKey}`,
+      series: x,
+      scaleMax: scaleMax(x),
+    })),
   ]
 }
 

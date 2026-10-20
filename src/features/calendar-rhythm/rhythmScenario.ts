@@ -51,9 +51,7 @@ export interface RhythmObject {
 }
 
 export type RhythmAssignmentScope =
-  | { kind: 'day'; ref: DayRef }
-  | { kind: 'week'; ref: WeekRef }
-  | { kind: 'month'; ref: MonthRef }
+  { kind: 'day'; ref: DayRef } | { kind: 'week'; ref: WeekRef } | { kind: 'month'; ref: MonthRef }
 
 export interface RhythmAssignment {
   id: string

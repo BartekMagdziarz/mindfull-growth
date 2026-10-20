@@ -189,9 +189,7 @@ export function useExileWitnessingWizard() {
         exilePartId: exilePartId.value,
         protectorPartIds: [...protectorPartIds.value],
         protectorPermission: protectorPermission.value as
-          | 'okay'
-          | 'nervous-but-willing'
-          | 'blocking',
+          'okay' | 'nervous-but-willing' | 'blocking',
         bodyLocation: bodyLocation.value,
         feltAge: feltAge.value ?? undefined,
         emotionIds: [...emotionIds.value],

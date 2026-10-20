@@ -31,12 +31,7 @@ import { periodsInDateRange } from '@/utils/periodSchedule'
 import { getPeriodRefsForDate, isPeriodRef, getWeekOverlappingMonths } from '@/utils/periods'
 
 export type GoalWizardStep =
-  | 'specific'
-  | 'measurable'
-  | 'achievable'
-  | 'relevant'
-  | 'timebound'
-  | 'review'
+  'specific' | 'measurable' | 'achievable' | 'relevant' | 'timebound' | 'review'
 
 export const GOAL_WIZARD_STEPS: readonly GoalWizardStep[] = [
   'specific',

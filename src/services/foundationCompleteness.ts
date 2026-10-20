@@ -19,12 +19,7 @@ export const FOUNDATION_OUTDATED_DAYS = 180
  * else) can no longer unlock a one-sided portrait.
  */
 export type FoundationGroup =
-  | 'values'
-  | 'meaning'
-  | 'personality'
-  | 'emotions'
-  | 'relationships'
-  | 'lifeBalance'
+  'values' | 'meaning' | 'personality' | 'emotions' | 'relationships' | 'lifeBalance'
 
 export const FOUNDATION_GROUP_ORDER: readonly FoundationGroup[] = [
   'values',

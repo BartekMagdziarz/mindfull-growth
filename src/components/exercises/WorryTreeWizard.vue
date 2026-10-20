@@ -497,13 +497,7 @@ const { t, tg } = useT()
 
 // ─── Step State ──────────────────────────────────────────────────────────────
 type Step =
-  | 'capture'
-  | 'classify'
-  | 'can-act'
-  | 'action-plan'
-  | 'schedule'
-  | 'letting-go'
-  | 'recheck'
+  'capture' | 'classify' | 'can-act' | 'action-plan' | 'schedule' | 'letting-go' | 'recheck'
 
 const currentStep = ref<Step>('capture')
 

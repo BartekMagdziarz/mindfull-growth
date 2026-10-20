@@ -1,9 +1,5 @@
 export type ChatIntention =
-  | 'reflect'
-  | 'help-see-differently'
-  | 'proactive'
-  | 'thinking-traps'
-  | 'custom'
+  'reflect' | 'help-see-differently' | 'proactive' | 'thinking-traps' | 'custom'
 
 export const CHAT_INTENTIONS = {
   REFLECT: 'reflect',

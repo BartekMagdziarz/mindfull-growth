@@ -69,12 +69,7 @@ export const IFS_ROLE_STROKE_VAR: Record<IFSPartRole, string> = {
 /* --------------------- Constellation relationship lines ------------------- */
 
 export type RelationshipType =
-  | 'polarized'
-  | 'allied'
-  | 'protector-exile'
-  | 'triggers'
-  | 'soothes'
-  | 'protects'
+  'polarized' | 'allied' | 'protector-exile' | 'triggers' | 'soothes' | 'protects'
 
 /** CSS color for SVG stroke. Reads CSS vars so themes can re-tint relations. */
 export const RELATIONSHIP_STROKE_VAR: Record<string, string> = {

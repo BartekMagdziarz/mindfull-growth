@@ -12,12 +12,7 @@ import { lifeAreaDexieRepository } from '@/repositories/lifeAreaDexieRepository'
 import { priorityDexieRepository } from '@/repositories/priorityDexieRepository'
 
 export type AnnualPlanningStep =
-  | 'brief'
-  | 'life-areas'
-  | 'narrative'
-  | 'priorities'
-  | 'execution'
-  | 'summary'
+  'brief' | 'life-areas' | 'narrative' | 'priorities' | 'execution' | 'summary'
 
 const STEP_ORDER: AnnualPlanningStep[] = [
   'brief',
