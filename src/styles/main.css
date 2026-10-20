@@ -28,12 +28,7 @@
 @layer base {
   body {
     @apply bg-background text-on-surface antialiased;
-    font-family:
-      'Roboto',
-      -apple-system,
-      BlinkMacSystemFont,
-      'Segoe UI',
-      sans-serif;
+    font-family: var(--mg-font-sans, 'Nunito', 'Avenir Next', sans-serif);
     /* One canvas behind every view and the navigation dock. */
     background-image: none;
   }

@@ -34,7 +34,8 @@
 
   /* --- Text & lines ------------------------------------------------------- */
   --color-on-surface: 15 39 69;
-  --color-on-surface-variant: 61 91 124;
+  /* The ONE muted ink (design system 2026-10-20): --mg-color-muted reads it. */
+  --color-on-surface-variant: 71 97 127;
   --color-outline: 169 191 220;
 
   /* --- Chips -------------------------------------------------------------- */
@@ -93,37 +94,40 @@
    * quadrant *identifier* (small badges where saturation aids recognition).
    * Updated to match the new `-bottom` for HEHP/LEHP after the blue refresh.
    * --------------------------------------------------------------------- */
-  --color-quadrant-high-energy-high-pleasantness: #85c0ff;
-  --color-quadrant-high-energy-high-pleasantness-top: #aad3ff;
-  --color-quadrant-high-energy-high-pleasantness-bottom: #85c0ff;
-  --color-quadrant-high-energy-high-pleasantness-tint: #e1efff;
-  --color-quadrant-high-energy-high-pleasantness-tint-soft: #edf6ff;
-  --color-quadrant-high-energy-high-pleasantness-border: #5cabff;
-  --color-quadrant-high-energy-high-pleasantness-selected: #007bff;
-  --color-quadrant-high-energy-high-pleasantness-text: #003975;
-  --color-quadrant-high-energy-low-pleasantness: #ffafcc;
-  --color-quadrant-high-energy-low-pleasantness-top: #ffe5ee;
-  --color-quadrant-high-energy-low-pleasantness-bottom: #ffc7db;
-  --color-quadrant-high-energy-low-pleasantness-tint: #ffebf2;
-  --color-quadrant-high-energy-low-pleasantness-tint-soft: #fff3f7;
-  --color-quadrant-high-energy-low-pleasantness-border: #e89ab5;
-  --color-quadrant-high-energy-low-pleasantness-selected: #ff7aa8;
-  --color-quadrant-high-energy-low-pleasantness-text: #6e1f3c;
-  --color-quadrant-low-energy-high-pleasantness: #cce4ff;
-  --color-quadrant-low-energy-high-pleasantness-top: #dbecff;
-  --color-quadrant-low-energy-high-pleasantness-bottom: #cce4ff;
-  --color-quadrant-low-energy-high-pleasantness-tint: #e9f3ff;
-  --color-quadrant-low-energy-high-pleasantness-tint-soft: #f0f7ff;
-  --color-quadrant-low-energy-high-pleasantness-border: #8ec5ff;
-  --color-quadrant-low-energy-high-pleasantness-selected: #5cabff;
-  --color-quadrant-low-energy-high-pleasantness-text: #004fa3;
+  /* Design system 2026-10-20 (proposal A): quadrants draw from the sky / rose /
+   * lavender families of the product palette instead of saturated web blues
+   * (#007bff, #5cabff) and hot pink; the stops are written out so JS can read them. */
+  --color-quadrant-high-energy-high-pleasantness: #b5cff7;
+  --color-quadrant-high-energy-high-pleasantness-top: #d0e1fd;
+  --color-quadrant-high-energy-high-pleasantness-bottom: #b5cff7;
+  --color-quadrant-high-energy-high-pleasantness-tint: #e8f0fe;
+  --color-quadrant-high-energy-high-pleasantness-tint-soft: #f5f8ff;
+  --color-quadrant-high-energy-high-pleasantness-border: #8db6ea;
+  --color-quadrant-high-energy-high-pleasantness-selected: #3e6eb8;
+  --color-quadrant-high-energy-high-pleasantness-text: #1b2f5a;
+  --color-quadrant-high-energy-low-pleasantness: #fac6d2;
+  --color-quadrant-high-energy-low-pleasantness-top: #ffe0e6;
+  --color-quadrant-high-energy-low-pleasantness-bottom: #fac6d2;
+  --color-quadrant-high-energy-low-pleasantness-tint: #fff1f4;
+  --color-quadrant-high-energy-low-pleasantness-tint-soft: #fff6f8;
+  --color-quadrant-high-energy-low-pleasantness-border: #f0a8ba;
+  --color-quadrant-high-energy-low-pleasantness-selected: #d85f7e;
+  --color-quadrant-high-energy-low-pleasantness-text: #5f1b33;
+  --color-quadrant-low-energy-high-pleasantness: #d0e1fd;
+  --color-quadrant-low-energy-high-pleasantness-top: #e8f0fe;
+  --color-quadrant-low-energy-high-pleasantness-bottom: #d0e1fd;
+  --color-quadrant-low-energy-high-pleasantness-tint: #f5f8ff;
+  --color-quadrant-low-energy-high-pleasantness-tint-soft: #f5f8ff;
+  --color-quadrant-low-energy-high-pleasantness-border: #b5cff7;
+  --color-quadrant-low-energy-high-pleasantness-selected: #5e92d8;
+  --color-quadrant-low-energy-high-pleasantness-text: #2d4d8b;
   --color-quadrant-low-energy-low-pleasantness: #cdb4db;
   --color-quadrant-low-energy-low-pleasantness-top: #efe6f3;
   --color-quadrant-low-energy-low-pleasantness-bottom: #dccbe6;
   --color-quadrant-low-energy-low-pleasantness-tint: #f3ecf6;
   --color-quadrant-low-energy-low-pleasantness-tint-soft: #f8f4fa;
   --color-quadrant-low-energy-low-pleasantness-border: #b59dc4;
-  --color-quadrant-low-energy-low-pleasantness-selected: #b08fc4;
+  --color-quadrant-low-energy-low-pleasantness-selected: #9b6ec3;
   --color-quadrant-low-energy-low-pleasantness-text: #3f1f55;
 
   /* Text colors on section backgrounds (default: dark text) */
@@ -277,21 +281,23 @@
   --activity-values-on: 107 45 165;
 
   /* --- Exercise category accents (5 tabs in ExercisesView) ---------------- */
-  --exercise-discovery: 220 105 155;
-  --exercise-discovery-soft: 252 231 243;
-  --exercise-discovery-on: 159 35 99;
-  --exercise-cbt: 75 170 130;
-  --exercise-cbt-soft: 209 250 229;
-  --exercise-cbt-on: 4 120 87;
-  --exercise-logo: 200 145 60;
-  --exercise-logo-soft: 254 243 199;
+  /* Pastel members of the palette families (rose / mint / amber / lavender /
+     sky) — design system 2026-10-20. */
+  --exercise-discovery: 216 95 126;
+  --exercise-discovery-soft: 255 236 240;
+  --exercise-discovery-on: 140 45 73;
+  --exercise-cbt: 54 140 103;
+  --exercise-cbt-soft: 226 243 234;
+  --exercise-cbt-on: 21 105 60;
+  --exercise-logo: 186 132 52;
+  --exercise-logo-soft: 252 243 224;
   --exercise-logo-on: 122 78 14;
-  --exercise-ifs: 120 110 200;
-  --exercise-ifs-soft: 224 231 255;
-  --exercise-ifs-on: 60 47 156;
-  --exercise-micro: 56 170 190;
-  --exercise-micro-soft: 207 246 250;
-  --exercise-micro-on: 14 116 144;
+  --exercise-ifs: 155 110 195;
+  --exercise-ifs-soft: 240 234 248;
+  --exercise-ifs-on: 107 45 165;
+  --exercise-micro: 94 146 216;
+  --exercise-micro-soft: 232 240 254;
+  --exercise-micro-on: 45 77 139;
 
   /* --- Constellation / Parts Mapping relationship types ------------------- */
   --rel-polarized: 220 95 110;
@@ -302,14 +308,14 @@
    * Used by the SelfEnergyWheel SVG, which reads these at runtime via
    * getComputedStyle and composes rgba(r, g, b, opacity) for segment fills.
    * --------------------------------------------------------------------- */
-  --self-calm: 59 130 246;
-  --self-curiosity: 139 92 246;
-  --self-compassion: 236 72 153;
-  --self-clarity: 6 182 212;
-  --self-courage: 249 115 22;
-  --self-creativity: 234 179 8;
-  --self-confidence: 34 197 94;
-  --self-connection: 20 184 166;
+  --self-calm: 94 146 216;
+  --self-curiosity: 155 110 195;
+  --self-compassion: 216 95 126;
+  --self-clarity: 62 110 184;
+  --self-courage: 200 145 60;
+  --self-creativity: 186 132 52;
+  --self-confidence: 54 140 103;
+  --self-connection: 75 170 130;
 
   /* --- Overlay (dialog scrim, modal backdrops) ---------------------------- */
   --overlay-scrim: 0 0 0;

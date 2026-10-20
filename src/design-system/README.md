@@ -85,3 +85,39 @@ Reguła koloru mieszka w `src/domain/loadState.ts` (`pairColor`, `pairInk`, `loa
 wstęga serii to `src/components/shared/charts/LoadStateRibbon.vue`. Różowa rodzina
 `--mg-color-effort*` należy do starej osi Działania (klasyczny wizard) i **nie** oznacza
 obciążenia — w nowych widokach jej nie używać.
+
+## Design system A „Cirrus” (2026-10-20)
+
+Wdrożenie propozycji A z audytu 2026-10-18 (plan i porównanie:
+`ideas/html-plans/2026-10-18-design-system-proposals.html`; zasady i procesy:
+`docs/design-system-governance.md`; powody: `docs/design-decisions.md`).
+
+- **Tokeny na `:root`.** `tokens.css` deklaruje semantykę na `:root, .mg-design-v2`;
+  dock, teleporty i `AppShell` czytają te same wartości. Korzeń `.mg-design-v2`
+  zostaje dla `color-scheme`, fokusu i reduced-motion.
+- **Nowe role:** `--mg-weight-body/label/strong/title` (400/600/700/800 — jedyne
+  dozwolone wagi), `--mg-font-size-chart` (11 px, tylko osie wykresów),
+  `--mg-radius-xs` (8 px), `--mg-radius-button` (= `md`; każdy przycisk tekstowy),
+  `--mg-shadow-control` (chipy/przyciski — w Cirrus `none`), `--mg-shadow-raised-md`,
+  `--mg-duration-base`, `--mg-color-text` (aliasy dla istniejących odwołań).
+- **Skala:** `--mg-font-size-xs` = 12 px (było 11). `--mg-color-muted` =
+  `rgb(var(--color-on-surface-variant))` — jedyny wyciszony atrament.
+- **Cienie** liczone na `--sky-700`/bieli, nie na `--neo-*`; `inset` płaski
+  (`0 1px 2px` / `0 2px 4px`).
+- **Kolory domenowe:** ćwiartki emocji, akcenty kategorii ćwiczeń i `--self-*`
+  w pastelach rodzin palety (`styles/tokens.css`). Literały w
+  `domain/emotionGroups.ts`, `emotionFamily.ts`, `program-path/partColors.ts`
+  czekają na K2 (wyjątki w strażniku).
+- **Mostek legacy** (`adapters.css`, sekcja „Design system 2026-10-20”):
+  `neo-raised/-card` → karta V2; `neo-panel/-embedded/-inset/-surface` → mgła;
+  `neo-input` → pole; `neo-control/-pill/-selector/-icon-button/-back-btn` →
+  kontrolki V2; `rounded-3xl/2xl/xl/lg/md` → `--mg-radius-xl/lg/md/sm/sm`;
+  `shadow-neu-*` → dwa cienie; `font-black/bold/semibold/medium` → cztery wagi;
+  `text-on-surface-variant` → `--mg-color-muted`. Mostek jest tymczasowy: nie
+  dodawaj nowych konsumentów klas po lewej stronie.
+- **Strażnik-zapadka:** `npm run check:design-system` skanuje całe `src/`
+  (9 reguł) i porównuje z `scripts/design-system-baseline.json`; hook
+  PostToolUse sprawdza każdy edytowany plik. `--list [--rule x]` wypisuje
+  naruszenia, `--update-baseline` zapisuje bazę (tylko gdy dług zmalał).
+- **Skill `design-system`** (`.claude/skills/design-system/SKILL.md`): procedura
+  użyj → rozszerz → dodaj rolę; obowiązkowa przy każdej zmianie wyglądu.

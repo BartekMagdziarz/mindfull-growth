@@ -3,8 +3,7 @@
     <Transition name="dialog">
       <div
         v-if="modelValue"
-        class="fixed inset-0 z-50 flex items-center justify-center"
-        :class="panelClass ? 'mg-design-v2 mg-v2-overlay' : ''"
+        class="mg-design-v2 mg-v2-overlay fixed inset-0 z-50 flex items-center justify-center"
         @click.self="handleBackdropClick"
       >
         <!-- Backdrop -->
@@ -17,7 +16,7 @@
           :aria-labelledby="titleId"
           :aria-describedby="messageId"
           class="dialog-panel relative z-10 p-6 w-full mx-4"
-          :class="[sizeClass, panelClass || 'neo-raised-strong rounded-2xl']"
+          :class="[sizeClass, panelClass || 'mg-v2-surface mg-v2-surface--raised']"
         >
           <!-- Title -->
           <h2 :id="titleId" class="text-xl font-semibold text-neu-text mb-4">

@@ -1,13 +1,25 @@
+/* Semantic tokens of Design System V2 (proposal A „Cirrus”, decision 2026-10-20).
+   Declared on :root as well as on the V2 root so that the dock, teleported
+   dialogs and anything outside <main> resolve the same values. */
+:root,
 .mg-design-v2 {
   color-scheme: light;
 
   --mg-font-sans: 'Nunito', 'Avenir Next', sans-serif;
-  --mg-font-size-xs: 0.6875rem;
+  --mg-font-size-xs: 0.75rem;
+  /* Chart tick labels only — never for UI text. */
+  --mg-font-size-chart: 0.6875rem;
   --mg-font-size-sm: 0.8125rem;
   --mg-font-size-md: 0.9375rem;
   --mg-font-size-lg: 1.125rem;
   --mg-font-size-xl: 1.5rem;
   --mg-font-size-2xl: 2rem;
+  /* Four weights only: body / label (meta, chips, subtitles) / strong
+     (buttons, selected labels) / title (headings, eyebrows). */
+  --mg-weight-body: 400;
+  --mg-weight-label: 600;
+  --mg-weight-strong: 700;
+  --mg-weight-title: 800;
 
   --mg-space-1: 0.25rem;
   --mg-space-2: 0.5rem;
@@ -31,9 +43,10 @@
   --mg-color-ink: rgb(var(--color-on-surface));
   /* Muted ink darkened vs legacy neo-muted: the bluer canvas/surface tones
      of the sky ladder would otherwise drop small labels below ~3:1. */
-  --mg-color-muted: color-mix(in srgb, rgb(var(--neo-muted)) 70%, rgb(var(--color-on-surface)));
-  --mg-color-border: rgb(var(--neo-border) / 0.14);
-  --mg-color-border-subtle: rgb(var(--neo-border) / 0.1);
+  --mg-color-muted: rgb(var(--color-on-surface-variant));
+  --mg-color-text: var(--mg-color-ink);
+  --mg-color-border: rgb(var(--sky-500) / 0.14);
+  --mg-color-border-subtle: rgb(var(--sky-500) / 0.09);
   --mg-color-primary: rgb(var(--color-primary));
   /* Deepened vs product primary-strong: small accent labels (eyebrows, active
      tabs, dock) must clear ~4:1 on the bluer sky-ladder backgrounds. */
@@ -52,7 +65,7 @@
     rgb(var(--sky-800))
   );
   /* Thin edge of flat fields/inputs (no inset shadow on content). */
-  --mg-color-field-border: rgb(var(--sky-400) / 0.22);
+  --mg-color-field-border: rgb(var(--sky-400) / 0.26);
   --mg-color-sky-field: rgb(var(--sky-200) / 0.72);
   --mg-color-sky-well: rgb(var(--sky-200) / 0.6);
   --mg-color-rose: rgb(var(--rose-700));
@@ -85,28 +98,30 @@
   --mg-color-inverse-ink: rgb(var(--color-surface-container));
   --mg-color-scrim: rgb(var(--overlay-scrim) / 0.5);
 
+  /* One shadow family: raised = overlay, raised-sm = first-level card,
+     control = chips/buttons (flat in Cirrus), inset(-sm) = controls only. */
   --mg-shadow-raised:
-    -5px -5px 11px rgb(var(--neo-shadow-light) / 0.7),
-    5px 5px 11px rgb(var(--neo-shadow-dark) / 0.16);
+    -4px -4px 10px rgb(255 255 255 / 0.7), 4px 6px 14px rgb(var(--sky-700) / 0.12);
+  --mg-shadow-raised-md: var(--mg-shadow-raised);
   --mg-shadow-raised-sm:
-    -2px -2px 5px rgb(var(--neo-shadow-light) / 0.6), 2px 2px 5px rgb(var(--neo-shadow-dark) / 0.13);
-  --mg-shadow-inset:
-    inset -5px -5px 12px rgb(var(--neo-inset-light) / 0.58),
-    inset 5px 5px 12px rgb(var(--neo-inset-dark) / 0.13);
-  --mg-shadow-inset-sm:
-    inset -2px -2px 5px rgb(var(--neo-inset-light) / 0.58),
-    inset 2px 2px 5px rgb(var(--neo-inset-dark) / 0.13);
+    -2px -2px 5px rgb(255 255 255 / 0.6), 2px 3px 7px rgb(var(--sky-700) / 0.1);
+  --mg-shadow-control: none;
+  --mg-shadow-inset: inset 0 2px 4px rgb(var(--sky-700) / 0.12);
+  --mg-shadow-inset-sm: inset 0 1px 2px rgb(var(--sky-700) / 0.1);
   /* Paper halo around the current stepper dot (sketch marker on a sheet). */
   --mg-shadow-stepper-halo: 0 0 0 3px var(--mg-color-paper);
   --mg-shadow-drag-preview: 0 18px 38px color-mix(in srgb, var(--mg-color-ink) 18%, transparent);
   --mg-shadow-drop-target: 0 6px 14px
     color-mix(in srgb, var(--mg-color-primary-strong) 18%, transparent);
 
+  --mg-radius-xs: 8px;
   --mg-radius-sm: 11px 14px 10px 13px;
   --mg-radius-md: 17px 14px 18px 15px;
   --mg-radius-lg: 25px 30px 24px 28px;
   --mg-radius-xl: 34px 27px 32px 25px;
   --mg-radius-pill: 999px;
+  /* Every text button shares one shape; icon buttons use the organic circle. */
+  --mg-radius-button: var(--mg-radius-md);
   --mg-radius-organic-a: 52% 48% 54% 46% / 47% 53% 46% 54%;
   --mg-radius-organic-b: 47% 53% 49% 51% / 54% 46% 53% 47%;
   --mg-radius-organic-c: 54% 46% 47% 53% / 48% 52% 55% 45%;
@@ -124,6 +139,7 @@
 
   --mg-duration-fast: 160ms;
   --mg-duration-normal: 240ms;
+  --mg-duration-base: var(--mg-duration-normal);
   --mg-ease-standard: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   --mg-focus-ring: 0 0 0 3px rgb(var(--sky-400) / 0.42);
 

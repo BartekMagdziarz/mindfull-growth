@@ -316,3 +316,213 @@
   background: var(--mg-color-paper);
   box-shadow: none;
 }
+
+/* ------------------------------------------------------------------ */
+/* Design system 2026-10-20 (proposal A „Cirrus”) — the legacy bridge.   */
+/* Tokens now live on :root, so these rules need no V2 prefix. Doubled   */
+/* classes beat the single-class legacy recipes and Tailwind utilities;  */
+/* mg-v2-* anatomies are untouched. Every rule here is scheduled for     */
+/* removal once its consumers migrate (docs/design-system-governance.md  */
+/* §5.4) — do NOT add new consumers of the classes on the left.          */
+/* ------------------------------------------------------------------ */
+
+/* One typeface everywhere, including controls and teleported overlays. */
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
+/* Legacy cards → first-level V2 card (surface + small cloud shadow). */
+.neo-raised.neo-raised,
+.neo-raised-strong.neo-raised-strong,
+.neo-card.neo-card {
+  background: var(--mg-color-surface);
+  background-image: none;
+  border: 1px solid var(--mg-color-border);
+  border-radius: var(--mg-radius-lg);
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+
+.neo-raised-strong.neo-raised-strong {
+  box-shadow: var(--mg-shadow-raised);
+}
+
+/* Legacy nested blocks → field tone, flat. */
+.neo-panel.neo-panel,
+.neo-embedded.neo-embedded,
+.neo-inset.neo-inset,
+.neo-surface.neo-surface {
+  background: var(--mg-color-mist);
+  background-image: none;
+  border: 1px solid var(--mg-color-border-subtle);
+  border-radius: var(--mg-radius-md);
+  box-shadow: none;
+}
+
+.neo-input.neo-input,
+.neo-card--composer.neo-card--composer {
+  background: var(--mg-color-mist);
+  background-image: none;
+  border: 1px solid var(--mg-color-field-border);
+  border-radius: var(--mg-radius-sm);
+  box-shadow: none;
+}
+
+/* Legacy controls → flat V2 controls. */
+.neo-control.neo-control,
+.neo-pill.neo-pill,
+.neo-selector.neo-selector,
+.neo-icon-button.neo-icon-button {
+  background: var(--mg-color-mist);
+  background-image: none;
+  border: 1px solid var(--mg-color-border);
+  box-shadow: var(--mg-shadow-control);
+  color: var(--mg-color-ink);
+}
+
+.neo-control.neo-control {
+  border-radius: var(--mg-radius-button);
+  font-weight: var(--mg-weight-strong);
+}
+
+.neo-pill.neo-pill,
+.neo-selector.neo-selector {
+  border-radius: var(--mg-radius-pill);
+}
+
+.neo-icon-button.neo-icon-button,
+.neo-icon-circle.neo-icon-circle,
+.neo-back-btn.neo-back-btn {
+  border-radius: var(--mg-radius-icon-field-a);
+  box-shadow: var(--mg-shadow-control);
+  background: var(--mg-color-mist);
+  background-image: none;
+  color: var(--mg-color-primary-strong);
+}
+
+.neo-control--accent.neo-control--accent,
+.neo-icon-button--primary.neo-icon-button--primary {
+  background: var(--mg-color-primary-fill);
+  color: var(--mg-color-on-primary);
+  border-color: transparent;
+}
+
+.neo-control--active.neo-control--active,
+.neo-selector--active.neo-selector--active {
+  background: var(--mg-color-paper);
+  border-color: var(--mg-color-primary);
+  box-shadow: none;
+}
+
+.neo-segmented.neo-segmented {
+  background: var(--mg-color-sky-well);
+  border-radius: var(--mg-radius-md);
+  box-shadow: var(--mg-shadow-inset-sm);
+}
+
+.neo-segmented__item--active.neo-segmented__item--active {
+  background: var(--mg-color-paper);
+  border-radius: var(--mg-radius-sm);
+  box-shadow: var(--mg-shadow-control);
+}
+
+/* Tailwind radius utilities → the radius scale (no per-view shapes). */
+.rounded-3xl,
+.rounded-\[1\.75rem\],
+.rounded-\[2rem\] {
+  border-radius: var(--mg-radius-xl);
+}
+
+.rounded-2xl {
+  border-radius: var(--mg-radius-lg);
+}
+
+.rounded-xl {
+  border-radius: var(--mg-radius-md);
+}
+
+.rounded-lg,
+.rounded-md {
+  border-radius: var(--mg-radius-sm);
+}
+
+.rounded,
+.rounded-sm {
+  border-radius: var(--mg-radius-xs);
+}
+
+/* Tailwind neumorphic shadows → the two elevation tokens. */
+.shadow-neu-raised-lg,
+.shadow-neu-raised {
+  box-shadow: var(--mg-shadow-raised);
+}
+
+.shadow-neu-raised-sm,
+.shadow-neu-hover,
+.shadow-neu-flat {
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+
+.shadow-neu-pressed,
+.shadow-neu-pressed-sm {
+  box-shadow: var(--mg-shadow-inset-sm);
+}
+
+/* Font weights: four steps only (body / label / strong / title). */
+.font-black,
+.font-extrabold {
+  font-weight: var(--mg-weight-title);
+}
+
+.font-bold {
+  font-weight: var(--mg-weight-strong);
+}
+
+.font-semibold {
+  font-weight: var(--mg-weight-label);
+}
+
+.font-medium {
+  font-weight: var(--mg-weight-body);
+}
+
+.mg-v2-page-head__title,
+.mg-v2-page-head__eyebrow,
+.mg-v2-wizard-shell__header span,
+.mg-v2-wizard-shell__chapters > header,
+.mg-v2-section-head h3,
+.mg-v2-field-wrap__label {
+  font-weight: var(--mg-weight-title);
+}
+
+.mg-v2-button,
+.mg-v2-segmented button {
+  font-weight: var(--mg-weight-strong);
+}
+
+.mg-v2-pill,
+.mg-v2-badge,
+.mg-v2-meta {
+  font-weight: var(--mg-weight-label);
+}
+
+/* Flat controls: chips and buttons carry no shadow in Cirrus. */
+.mg-v2-button.mg-v2-button:not(.mg-v2-button--primary),
+.mg-v2-pill.mg-v2-pill,
+.mg-v2-badge.mg-v2-badge,
+.mg-v2-segmented.mg-v2-segmented button[aria-selected='true'] {
+  box-shadow: var(--mg-shadow-control);
+}
+
+/* One muted ink. */
+.text-on-surface-variant,
+.text-neu-muted {
+  color: var(--mg-color-muted);
+}
+
+.text-on-surface,
+.text-neu-text {
+  color: var(--mg-color-ink);
+}
