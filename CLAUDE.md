@@ -2,8 +2,8 @@
 
 Local-first personal-growth app: Vue 3 + Vite + Pinia + Dexie (IndexedDB).
 No backend — auth and all data live in the browser, per-user database
-`MindfullGrowthDB_simplify_<userId>`, per-origin (host:port). UI is bilingual
-(PL/EN); the user works in Polish.
+`MindfullGrowthDB_simplify_<userId>`, per-origin (host:port). UI is Polish-first
+(English only for exercises and questionnaires); the user works in Polish.
 
 ## Commands
 
