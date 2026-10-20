@@ -110,7 +110,7 @@ const openHabit = item('habit', 'h2', 'Rozciąganie', 'completion', { scheduled:
 
 async function mountRail(items = [intention, doneKr, counterHabit, openHabit]) {
   vi.mocked(queries.getTodayViewBundleForDay).mockImplementation(async () => bundle(items))
-  const wrapper = mount(NextDayRail, { props: { dayRef: DAY }, attachTo: document.body })
+  const wrapper = mount(NextDayRail, { props: { dayRef: DAY }, attachTo: document.body, global: { stubs: { NextDayPractices: true } } })
   await flushPromises()
   return wrapper
 }

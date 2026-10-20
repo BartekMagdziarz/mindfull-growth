@@ -486,12 +486,23 @@
       "programFrom": "od {date}",
       "ariaProgramStart": "Rozpocznij krok ścieżki",
       "ariaProgramOpen": "Otwórz szczegóły ścieżki",
-      "plannedOverdueSince": "zaległe od {date}",
       "programPractice": "praktyka",
       "programStepLabel": "krok {n}",
       "programWeekProgress": "tydzień {current} z {total}",
-      "programLetter": "List od ciebie",
-      "programLetterContext": "napisany wcześniej na gorszy dzień"
+      "programsOpen": "Otwórz ścieżkę"
+    },
+    "practices": {
+      "title": "Praktyki",
+      "open": "Otwórz",
+      "start": "Rozpocznij",
+      "done": "Zrobione",
+      "overdue": "zaległe",
+      "thisWeek": "W tym tygodniu",
+      "task": "zadanie",
+      "nowToday": "Dziś: {step}",
+      "nowTomorrow": "Jutro: {step}",
+      "nowOverdue": "Zaległy krok: {step}",
+      "nowNext": "Najbliższy krok {date}: {step}"
     },
     "stage": {
       "tomorrow": "Jutro",
@@ -518,8 +529,8 @@
       "reflectMonth": "Podsumuj {month}",
       "overdue": "po terminie",
       "done": "zrobione",
-      "past": "Zrobione wcześniej ({n})",
-      "more": "Pokaż więcej ({n})",
+      "past": "Minione ({n})",
+      "more": "Jeszcze {n}",
       "less": "Zwiń",
       "planWeek_previous": "Zaplanuj poprzedni tydzień",
       "planWeek_current": "Zaplanuj ten tydzień",
@@ -533,7 +544,16 @@
       "reflected": "Podsumowany",
       "notPlanned": "Do zaplanowania",
       "toReflect": "Do refleksji",
-      "tomorrow": "jutro"
+      "tomorrow": "jutro",
+      "sinceYesterday": "od wczoraj",
+      "sinceDays": "od {n} dni",
+      "letter": "List od Ciebie",
+      "letterContext": "napisany wcześniej na gorszy dzień",
+      "toRead": "do przeczytania",
+      "read": "przeczytany",
+      "return": "Powrót",
+      "returnContext": "pomiar i spojrzenie wstecz po ośmiu tygodniach",
+      "returnDone": "zrobiony"
     },
     "calendar": {
       "today": "Dziś",
@@ -572,6 +592,21 @@
       "remove": "Usuń z planu",
       "save": "Zapisz zmianę",
       "retry": "Spróbuj ponownie"
+    },
+    "paths": {
+      "nextStep": "Następny krok",
+      "overdue": "zaległy",
+      "task": "Zadanie tygodnia",
+      "taskDays": {
+        "one": "{done} z {n} dnia",
+        "few": "{done} z {n} dni",
+        "many": "{done} z {n} dni"
+      },
+      "doseHint": "Po sprawdzeniu dawki czeka propozycja spokojniejszego rytmu.",
+      "doseSee": "Zobacz",
+      "ariaStep": "Rozpocznij: {step}, {when}",
+      "ariaTask": "Zadanie tygodnia: {title}, {days}",
+      "momentWhen": "w każdej chwili"
     }
   },
   "weekWizard": {
@@ -956,6 +991,7 @@
       "entryDaysUnit": "dni",
       "entryDaysValueLabel": "Liczba dni z wpisem",
       "addEntryDays": "+ warunek dni",
+      "removeEntryDays": "Usuń warunek dni",
       "mode": {
         "completion": "Wykonuj",
         "counter": "Zliczaj",

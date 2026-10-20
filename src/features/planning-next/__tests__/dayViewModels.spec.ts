@@ -174,6 +174,34 @@ describe('dayViewModels', () => {
     )
   })
 
+  it('labels path events: the letter waits instead of running late, the return behaves like a deadline', () => {
+    const t = (key: string) => key.split('.').at(-1)!
+    const today = '2026-03-12' as DayRef
+    const letter: DayMarker = {
+      key: 'letter:e1',
+      kind: 'letter',
+      dayRef: '2026-03-10' as DayRef,
+      state: 'due',
+      enrollmentId: 'e1',
+      programSlug: 'shame-compassion',
+      programTitleKey: 'programs.shame-compassion.title',
+    }
+    const ret: DayMarker = { ...letter, key: 'return:e1', kind: 'return', dayRef: '2026-03-18' as DayRef }
+
+    expect(markerTitle(letter, t, 'pl-PL', today)).toBe('letter · title')
+    expect(markerTitle(ret, t, 'pl-PL', today)).toBe('return · title')
+    expect(markerIcon(letter)).toBe('mail')
+    expect(markerIcon(ret)).toBe('replay')
+    expect(markerIcon({ ...letter, state: 'done' })).toBe('check')
+    expect(markerContextLabel(letter, today, t, 'pl-PL')).toBe('letterContext')
+    expect(markerContextLabel(ret, today, t, 'pl-PL')).toBe('returnContext')
+    expect(markerDateLabel(letter, today, t, 'pl-PL')).toBe('toRead')
+    expect(markerDateLabel({ ...letter, dayRef: today }, today, t, 'pl-PL')).toBe('today')
+    expect(markerDateLabel({ ...letter, state: 'done' }, today, t, 'pl-PL')).toBe('read')
+    expect(markerDateLabel({ ...ret, dayRef: '2026-03-10' as DayRef }, today, t, 'pl-PL')).toBe('overdue')
+    expect(markerDateLabel({ ...ret, state: 'done' }, today, t, 'pl-PL')).toBe('returnDone')
+  })
+
   it('locks weekly intentions to their week: no "Jutro" on the last day of the week', () => {
     const intention = {
       kind: 'measurement',

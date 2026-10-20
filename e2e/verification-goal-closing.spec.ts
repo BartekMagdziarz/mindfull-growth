@@ -48,12 +48,11 @@ test.describe('goal closing ritual', () => {
     await page.goto('/today')
 
     const upcoming = page.locator('.next-day-upcoming')
-    await expect(upcoming.locator('.next-day-upcoming__row').first()).toBeVisible()
-    const more = upcoming.getByRole('button', { name: /Pokaż więcej/ })
+    await expect(upcoming.locator('.next-day-upcoming__tile').first()).toBeVisible()
+    const more = upcoming.getByRole('button', { name: /^Jeszcze/ })
     if (await more.isVisible()) await more.click()
-    const item = upcoming.locator('.next-day-upcoming__item', { hasText: 'Blok treningowy' }).first()
-    await item.hover()
-    await item.getByRole('button', { name: 'Podsumuj cel' }).click()
+    const item = upcoming.locator('.next-day-upcoming__tile', { hasText: 'Blok treningowy' }).first()
+    await item.locator('.ndt__open').click()
 
     // Step 1: facts month by month, suggested verdict, side exit present.
     await expect(page.locator('.quiet-ritual h1')).toHaveText('Jak skończył się ten cel?')
@@ -94,17 +93,21 @@ test.describe('goal closing ritual', () => {
     expect(goal?.reflection?.keyResults).toHaveLength(2)
 
     // The closed goal folds into „Zrobione wcześniej” as „Podsumowany”.
-    const past = upcoming.locator('details.next-day-upcoming__past')
-    await expect(past).toBeVisible()
-    await past.locator('summary').click()
-    await expect(past.locator('.next-day-upcoming__row', { hasText: 'Blok treningowy' }).locator('em')).toHaveText('Podsumowany')
+    const pastToggle = upcoming.getByRole('button', { name: /^Minione/ })
+    await expect(pastToggle).toBeVisible()
+    await pastToggle.click()
+    const past = upcoming.locator('.next-day-upcoming__past')
+    await expect(past.locator('.next-day-upcoming__tile', { hasText: 'Blok treningowy' }).locator('.next-day-upcoming__glyph')).toHaveAttribute('title', 'Podsumowany')
 
     // Library card: outcome shade + closing summary, reachable with closed objects shown.
     await page.goto('/objects/goals?showClosed=1')
     const card = page.locator('article:has(.gc-summary)').first()
     await expect(card).toBeVisible()
     await expect(card.locator('.mg-v2-meta').first()).toContainText('częściowo')
+    await expect(card.locator('.gc-summary__head')).toHaveText('Podsumowanie')
     await expect(card.locator('.gc-summary__lead')).toContainText('realny rytm')
+    await expect(card.locator('.mg-v2-timeline')).toHaveCount(0)
+    await expect(card).not.toContainText('po terminie')
   })
 
   test('a bare goal gets three steps and „Przesuń termin” leaves it open', async ({ page }) => {
@@ -131,13 +134,14 @@ test.describe('goal closing ritual', () => {
     await bootSeededApp(page)
     await page.goto('/today')
     const upcoming = page.locator('.next-day-upcoming')
-    await expect(upcoming.locator('.next-day-upcoming__row').first()).toBeVisible()
-    const more = upcoming.getByRole('button', { name: /Pokaż więcej/ })
+    await expect(upcoming.locator('.next-day-upcoming__tile').first()).toBeVisible()
+    const more = upcoming.getByRole('button', { name: /^Jeszcze/ })
     if (await more.isVisible()) await more.click()
-    const past = upcoming.locator('details.next-day-upcoming__past')
-    if (await past.count()) await past.locator('summary').click()
+    const pastToggle = upcoming.getByRole('button', { name: /^Minione/ })
+    if (await pastToggle.count()) await pastToggle.click()
     await page
-      .locator('.next-day-upcoming__row.is-ritual', { hasText: /Podsumuj (ten|poprzedni) tydzień/ })
+      .locator('.next-day-upcoming__tile.is-ritual', { hasText: /Podsumuj (ten|poprzedni) tydzień/ })
+      .locator('.ndt__open')
       .first()
       .click()
 

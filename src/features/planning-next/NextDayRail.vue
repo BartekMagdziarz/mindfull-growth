@@ -71,6 +71,9 @@
         />
       </section>
 
+      <!-- The day's exercises (repeats, path steps and practices) as rows of the plan. -->
+      <NextDayPractices :day-ref="dayRef" :collapse-completed="collapseCompleted" />
+
       <button v-if="collapseCompleted && collapsedCount" type="button" class="next-day-rail__collapsed" @click="toggleCollapseCompleted">
         <AppIcon name="expand_more" />{{ t('planning.today.completedCount', { n: collapsedCount }) }}
       </button>
@@ -112,6 +115,7 @@ import { getPeriodRefsForDate } from '@/utils/periods'
 import { DsButton, DsState, DsSurface } from '@/design-system/components'
 import NextDayAddMenu, { type AddMenuGroup } from './NextDayAddMenu.vue'
 import NextDayItemRow from './NextDayItemRow.vue'
+import NextDayPractices from './NextDayPractices.vue'
 import { buildRecentDayChartPoints, type NextObjectChartPoint } from './nextObjectChart'
 import { canRescheduleItem, isRelatedToCompass } from './dayViewModels'
 import AppDialog from '@/components/AppDialog.vue'

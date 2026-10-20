@@ -189,23 +189,24 @@ test.describe('verification environment', () => {
     // Upcoming: the seeded goal deadlines are listed, the next week's planning ritual is due,
     // and the rituals already done this week (plan + last week's reflection) fold into „Zrobione wcześniej”.
     const upcoming = page.locator('.next-day-upcoming')
-    await expect(upcoming.locator('.next-day-upcoming__row').first()).toBeVisible()
+    await expect(upcoming.locator('.next-day-upcoming__tile').first()).toBeVisible()
     // The seeded date controls whether the list exceeds its four-row limit.
-    const more = upcoming.getByRole('button', { name: /Pokaż więcej/ })
+    const more = upcoming.getByRole('button', { name: /^Jeszcze/ })
     if (await more.isVisible()) await more.click()
     await expect(
-      upcoming.locator('.next-day-upcoming__row', { hasText: 'Wydać MVP aplikacji' })
+      upcoming.locator('.next-day-upcoming__tile', { hasText: 'Wydać MVP aplikacji' })
     ).toBeVisible()
     await expect(
-      upcoming.locator('.next-day-upcoming__row.is-ritual:not(.is-done)', {
+      upcoming.locator('.next-day-upcoming__tile.is-ritual:not(.is-done)', {
         hasText: 'Zaplanuj następny tydzień',
       })
     ).toBeVisible()
-    const past = upcoming.locator('details.next-day-upcoming__past')
-    await expect(past.locator('summary')).toContainText('Zrobione wcześniej')
-    await past.locator('summary').click()
+    const pastToggle = upcoming.getByRole('button', { name: /^Minione/ })
+    await expect(pastToggle).toBeVisible()
+    await pastToggle.click()
+    const past = upcoming.locator('.next-day-upcoming__past')
     await expect(
-      past.locator('.next-day-upcoming__row.is-done', { hasText: 'Podsumuj poprzedni tydzień' })
+      past.locator('.next-day-upcoming__tile.is-done', { hasText: 'Podsumuj poprzedni tydzień' })
     ).toBeVisible()
     await upcoming.screenshot({ path: 'test-results/upcoming-states.png' })
   })

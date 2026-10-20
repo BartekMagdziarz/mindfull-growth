@@ -8,7 +8,7 @@
       @hover="store.setHoverKey($event)"
       @select="store.togglePinnedKey($event)"
     />
-    <NextDayUpcoming :entries="context.upcoming.value" :today-ref="context.todayRef.value" :limit="4" />
+    <NextDayUpcoming :entries="context.upcoming.value" :today-ref="context.todayRef.value" :limit="9" />
     <NextDayPrograms :day-ref="dayRef" />
   </div>
 </template>

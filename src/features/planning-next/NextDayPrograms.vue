@@ -1,317 +1,302 @@
 <template>
-  <!-- Repeats and programs are actions of the current day only; each card exists only
-       when it has something to show. Same anatomy as „Najbliżej”: quiet header, rows
-       with an accent icon, title + context, date on the right, hairline separators. -->
-  <template v-if="isToday">
-    <DsSurface
-      v-if="repeatRows.length"
-      elevation="raised-sm"
-      class="next-day-exercises"
-      :aria-label="t('planning.today.wellness.plannedExercises')"
+  <!-- "Ścieżki" (2026-10-17, round 6): one block per ACTIVE path, the card's
+       width, a 3-column grid two rows tall. Left, both rows: the path (title,
+       the phase's name, the week/step dots — no numbers; the field opens the
+       path, its label floats in on hover). Top middle + right: two
+       ACTION tiles in the grammar of "Najbliżej" (centred icon field, title, a
+       quiet line; the eyebrow lives in the tooltip) — the next step and
+       "Zapisz moment", both lead into an exercise. Bottom
+       middle + right: the week task — title left, its state as dots right. The
+       dots are the day plan's marks (chart grammar). No fractions in text. The letter and the return live in "Najbliżej";
+       paused paths show nothing here. -->
+  <DsSurface
+    v-if="isToday && rows.length"
+    elevation="raised-sm"
+    class="ndt-card next-day-paths"
+    :aria-label="t('planning.today.wellness.programs')"
+  >
+    <header>
+      <span>{{ t('planning.today.wellness.programs') }}</span>
+    </header>
+    <section
+      v-for="row in rows"
+      :key="row.id"
+      class="ndpath"
+      :class="{ 'ndpath--no-step': !row.step, 'ndpath--no-moment': !row.moment, 'ndpath--no-task': !row.task }"
+      :aria-label="row.title"
+      data-testid="today-path-tile"
     >
-      <header>
-        <span>{{ t('planning.today.wellness.plannedExercises') }}</span>
-      </header>
-      <div class="next-day-exercises__list">
-        <div v-for="row in repeatRows" :key="row.id" class="next-day-exercises__row" :class="{ 'is-overdue': row.overdue }">
-          <button type="button" class="next-day-exercises__main" :aria-label="row.title" @click="router.push(row.route)">
-            <span class="next-day-exercises__icon"><AppIcon :name="row.icon" /></span>
-            <span class="next-day-exercises__copy">
-              <strong>{{ row.title }}</strong>
-              <span class="next-day-exercises__context">{{ row.context }}</span>
-            </span>
-          </button>
-          <span class="next-day-exercises__tray" :aria-label="t('planning.today.wellness.ariaPlannedActions')">
-            <button
-              type="button"
-              class="mg-v2-button mg-v2-button--icon-sm mg-v2-button--quiet"
-              :title="t('planning.today.wellness.plannedMoveTomorrow')"
-              :aria-label="`${t('planning.today.wellness.plannedMoveTomorrow')}: ${row.title}`"
-              @click="moveToTomorrow(row.id)"
-            >
-              <AppIcon name="redo" />
-            </button>
-            <button
-              type="button"
-              class="mg-v2-button mg-v2-button--icon-sm mg-v2-button--quiet"
-              :title="t('planning.today.wellness.plannedPickDate')"
-              :aria-label="`${t('planning.today.wellness.plannedPickDate')}: ${row.title}`"
-              @click="openDatePicker(row.id)"
-            >
-              <AppIcon name="edit_calendar" />
-            </button>
-            <button
-              type="button"
-              class="mg-v2-button mg-v2-button--icon-sm mg-v2-button--quiet"
-              :title="t('planning.today.wellness.plannedSkip')"
-              :aria-label="`${t('planning.today.wellness.plannedSkip')}: ${row.title}`"
-              @click="skip(row.id)"
-            >
-              <AppIcon name="close" />
-            </button>
+      <!-- The path field opens the path view; the label floats in on hover, no space reserved. -->
+      <RouterLink
+        :to="detailRoute(row.slug)"
+        class="ndpath__field ndpath__path"
+        :aria-label="`${row.title} — ${t('planning.today.wellness.programsOpen')}`"
+        data-testid="today-path-phase"
+      >
+        <span class="ndpath__title">
+          <span class="ndt__lead" aria-hidden="true"><AppIcon :name="row.icon" /></span>
+          <strong>{{ row.title }}</strong>
+        </span>
+        <span class="ndpath__phase">
+          <span v-if="row.phase.title" class="ndpath__text">{{ row.phase.title }}</span>
+          <span class="ndpath-dots" role="img" :aria-label="row.progressLabel" :title="row.progressLabel">
+            <i
+              v-for="n in row.dots.total"
+              :key="n"
+              :class="{ 'is-done': n <= row.dots.done, 'is-current': n === row.dots.current }"
+            />
           </span>
-        </div>
-      </div>
-      <input
-        ref="dateInputRef"
-        type="date"
-        class="next-day-exercises__date"
-        :min="minMoveDate"
-        tabindex="-1"
-        aria-hidden="true"
-        @change="handleDateChange"
-      />
-    </DsSurface>
+        </span>
+        <span class="ndpath__open" aria-hidden="true">{{ t('planning.today.wellness.programsOpen') }}</span>
+      </RouterLink>
 
-    <DsSurface
-      v-if="programGroups.length"
-      elevation="raised-sm"
-      class="next-day-exercises"
-      :aria-label="t('planning.today.wellness.programs')"
-    >
-      <header>
-        <span>{{ t('planning.today.wellness.programs') }}</span>
-      </header>
-      <div class="next-day-exercises__list">
-        <div v-for="group in programGroups" :key="group.id" class="next-day-exercises__group">
-          <button
-            type="button"
-            class="next-day-exercises__row next-day-exercises__main"
-            :aria-label="`${t('planning.today.wellness.ariaProgramOpen')}: ${group.title}`"
-            @click="router.push({ name: 'program-detail', params: { slug: group.slug } })"
-          >
-            <span class="next-day-exercises__icon"><AppIcon :name="group.icon" /></span>
-            <span class="next-day-exercises__copy">
-              <strong>{{ group.title }}</strong>
-              <span class="next-day-exercises__context">{{ group.context }}</span>
-            </span>
-          </button>
-          <button
-            v-for="action in group.actions"
-            :key="action.id"
-            type="button"
-            class="next-day-exercises__row next-day-exercises__main next-day-exercises__row--child"
-            :class="{ 'is-overdue': action.overdue, 'is-upcoming': action.upcoming }"
-            :aria-label="`${action.kind}: ${action.title}`"
-            @click="openAction(group.slug, action)"
-          >
-            <span class="next-day-exercises__icon"><AppIcon :name="action.icon" /></span>
-            <span class="next-day-exercises__copy">
-              <strong>{{ action.title }}</strong>
-              <span class="next-day-exercises__context">{{ action.kind }}</span>
-            </span>
-            <em>{{ action.dateLabel }}</em>
-          </button>
-          <button
-            v-if="group.letter"
-            type="button"
-            class="next-day-exercises__row next-day-exercises__main next-day-exercises__row--child"
-            :aria-label="t('planning.today.wellness.programLetter')"
-            data-testid="today-path-letter"
-            @click="router.push({ name: 'program-detail', params: { slug: group.slug } })"
-          >
-            <span class="next-day-exercises__icon"><AppIcon name="mg-exercise-letter-to-future-self" /></span>
-            <span class="next-day-exercises__copy">
-              <strong>{{ t('planning.today.wellness.programLetter') }}</strong>
-              <span class="next-day-exercises__context">{{ t('planning.today.wellness.programLetterContext') }}</span>
-            </span>
-          </button>
-          <!-- At most two quick actions per path (Lab round 2, D3): a moment and the plan. -->
-          <div v-if="group.quick.length" class="next-day-exercises__quick">
-            <RouterLink v-for="quick in group.quick" :key="quick.id" :to="quick.route" class="pp-chip">
-              <AppIcon :name="quick.icon" />{{ quick.label }}
-            </RouterLink>
-          </div>
-        </div>
-      </div>
-    </DsSurface>
+      <button
+        v-if="row.step"
+        type="button"
+        class="ndpath__field ndpath__action ndpath__step"
+        :title="row.step.what"
+        :aria-label="t('planning.today.paths.ariaStep', { step: row.step.title, when: row.step.when })"
+        data-testid="today-path-step"
+        @click="row.step.launch()"
+      >
+        <span class="ndpath__glyph" aria-hidden="true"><AppIcon name="play_arrow" /></span>
+        <span class="ndpath__text">{{ row.step.title }}</span>
+        <span class="ndpath__when">{{ row.step.when }}</span>
+      </button>
+
+      <RouterLink
+        v-if="row.moment"
+        :to="row.moment.route"
+        class="ndpath__field ndpath__action ndpath__moment"
+        :title="row.moment.eyebrow"
+        :aria-label="`${t('programs.ui.logMoment')} — ${row.moment.eyebrow}`"
+        data-testid="today-path-moment"
+      >
+        <span class="ndpath__glyph" aria-hidden="true"><AppIcon name="add" /></span>
+        <span class="ndpath__text">{{ t('programs.ui.logMoment') }}</span>
+        <span class="ndpath__when">{{ t('planning.today.paths.momentWhen') }}</span>
+      </RouterLink>
+
+      <RouterLink
+        v-if="row.task"
+        :to="detailRoute(row.slug)"
+        class="ndpath__field ndpath__action ndpath__task"
+        :title="row.task.days"
+        :aria-label="t('planning.today.paths.ariaTask', { title: row.task.title, days: row.task.days })"
+        data-testid="today-path-task"
+      >
+        <span class="ndpath__task-text">
+          <span class="ndpath__eyebrow">{{ t('planning.today.paths.task') }}</span>
+          <span class="ndpath__text">{{ row.task.title }}</span>
+        </span>
+        <span class="ndpath-dots ndpath__task-dots" aria-hidden="true">
+          <i v-for="n in row.task.target" :key="n" :class="{ 'is-done': n <= row.task.done }" />
+        </span>
+      </RouterLink>
+
+      <p v-if="row.dose" class="ndpath__hint" data-testid="today-path-dose">
+        {{ t('planning.today.paths.doseHint') }}
+        <RouterLink :to="detailRoute(row.slug)" class="ndt-link">{{ t('planning.today.paths.doseSee') }}</RouterLink>
+      </p>
+    </section>
     <MomentPickerDialog v-model="launcher.pickerOpen.value" :moments="launcher.pickerMoments.value" @pick="launcher.picked($event)" />
-  </template>
+  </DsSurface>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, toRef } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
-import '@/features/program-path/program-path.css'
+import { computed, onMounted, reactive, toRef, watch } from 'vue'
+import { RouterLink, type RouteLocationRaw } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import { getCatalogEntry } from '@/data/exerciseCatalog'
-import { programStepTitle } from '@/utils/programStepTitle'
 import { getProgramDefinition } from '@/data/programCatalog'
-import type { ExercisePlanItem } from '@/domain/exercisePlan'
 import type { DayRef } from '@/domain/period'
+import type { ProgramDefinition, ProgramEnrollment } from '@/domain/program'
+import { doseProposal } from '@/domain/programFollowUp'
 import { DsSurface } from '@/design-system/components'
-import { isPracticeItem } from '@/services/programSchedulerService'
-import { pathGroups, weekCount } from '@/features/program-path/pathModel'
-import { futureLetterFresh } from '@/domain/programFollowUp'
 import MomentPickerDialog from '@/features/program-path/MomentPickerDialog.vue'
+import { currentGroupIndex, groupState, pathGroups, stepItemState } from '@/features/program-path/pathModel'
 import { useStepLauncher } from '@/features/program-path/useStepLauncher'
-import { useMicroExerciseEntryStore } from '@/stores/microExerciseEntry.store'
+import { deriveStepStates, isPracticeItem } from '@/services/programSchedulerService'
+import { weekTaskState } from '@/services/programWeekService'
 import { useExercisePlanStore } from '@/stores/exercisePlan.store'
-import { addDaysToDayRef } from '@/utils/periods'
+import { useMicroExerciseEntryStore } from '@/stores/microExerciseEntry.store'
+import { useTodayStore } from '@/stores/today.store'
+import { programStepTitle } from '@/utils/programStepTitle'
+import { addDaysToDayRef, getPeriodRefsForDate } from '@/utils/periods'
 import { useDayWellness } from './useDayWellness'
 
+interface PathRow {
+  id: string
+  slug: string
+  icon: string
+  title: string
+  /** The phase's title; '' for a path without phases (the dots alone carry the position). */
+  phase: { title: string }
+  /** Weeks (phased path) or steps (unphased): behind / the current one (1-based, 0 = none). */
+  dots: { total: number; done: number; current: number }
+  /** "tydzień 4 z 8" · "krok 7 z 15" — the dots' accessible name. */
+  progressLabel: string
+  step?: { title: string; what: string; when: string; launch: () => void }
+  /** "Zapisz moment" with the moment variant's title as its eyebrow ("Moment wstydu"). */
+  moment?: { route: RouteLocationRaw; eyebrow: string }
+  task?: { title: string; done: number; target: number; days: string }
+  dose: boolean
+}
+
+interface TaskState {
+  title: string
+  done: number
+  target: number
+}
+
 const props = defineProps<{ dayRef: DayRef }>()
-const router = useRouter()
-const { t, locale } = useT()
+const { t, tp, locale } = useT()
 const planStore = useExercisePlanStore()
-const { isToday, duePlanItems, activeEnrollments, ensureLoaded } = useDayWellness(toRef(props, 'dayRef'))
+const entryStore = useMicroExerciseEntryStore()
+const todayStore = useTodayStore()
+const launcher = useStepLauncher()
+const { isToday, activeEnrollments, ensureLoaded } = useDayWellness(toRef(props, 'dayRef'))
 
-const dateInputRef = ref<HTMLInputElement | null>(null)
-const datePickFor = ref<string | null>(null)
-const minMoveDate = computed(() => addDaysToDayRef(props.dayRef, 1))
+onMounted(() => {
+  void ensureLoaded()
+  void entryStore.loadEntries()
+})
 
-onMounted(() => void ensureLoaded())
+/** This week's accepted task per enrollment (null = none), loaded asynchronously. */
+const tasks = reactive<Record<string, TaskState | null>>({})
 
-function formatDay(dayRef: DayRef): string {
-  return new Date(`${dayRef}T12:00:00`).toLocaleDateString(locale.value, { day: 'numeric', month: 'short' })
+// Only open paths: the closed ones live in "Najbliżej" (letter, return) and the day plan; paused ones show nothing.
+const openEnrollments = computed(() => activeEnrollments.value.filter((enrollment) => enrollment.status === 'active'))
+
+function detailRoute(slug: string): RouteLocationRaw {
+  return { name: 'program-detail', params: { slug } }
 }
 
-function dueLabel(item: ExercisePlanItem): string {
-  return item.dayRef < props.dayRef
-    ? t('planning.today.wellness.plannedOverdueSince', { date: formatDay(item.dayRef) })
-    : t('planning.today.wellness.plannedForToday')
+/** "dziś" · "jutro" · "zaległy" · "wt 21 paź" — quiet, never rose: the plan row carries the alarm. */
+function whenLabel(dayRef: DayRef): string {
+  if (dayRef < props.dayRef) return t('planning.today.paths.overdue')
+  if (dayRef === props.dayRef) return t('programs.ui.today')
+  if (dayRef === addDaysToDayRef(props.dayRef, 1)) return t('programs.ui.tomorrow')
+  return new Date(`${dayRef}T12:00:00`).toLocaleDateString(locale.value, { weekday: 'short', day: 'numeric', month: 'short' })
 }
 
-function entryFor(slug: string, programI18nKey?: string, stepIndex?: number) {
-  const entry = getCatalogEntry(slug)
-  const catalogTitle = entry ? t(`exercises.cards.${entry.i18nKey}.title`) : slug
+function taskDays(done: number, target: number): string {
+  return tp(target, 'planning.today.paths.taskDays.one', 'planning.today.paths.taskDays.few', 'planning.today.paths.taskDays.many').replace(
+    '{done}',
+    String(done),
+  )
+}
+
+function buildRow(enrollment: ProgramEnrollment, program: ProgramDefinition): PathRow {
+  const groups = pathGroups(program)
+  const states = deriveStepStates(program, enrollment)
+  const weekGroups = groups.filter((group) => group.week !== undefined)
+  const currentIndex = currentGroupIndex(groups, states)
+  const currentGroup = currentIndex >= 0 ? groups[currentIndex] : undefined
+
+  // Position: weeks when the path has them, else the steps themselves.
+  const phased = weekGroups.length > 0
+  const stepNumber = Math.min(enrollment.currentStepIndex + 1, program.steps.length)
+  const dots = phased
+    ? {
+        total: weekGroups.length,
+        done: weekGroups.filter((group) => groupState(group, states) === 'done').length,
+        current: currentGroup?.week ?? 0,
+      }
+    : {
+        total: program.steps.length,
+        done: states.filter((state) => stepItemState(state) === 'done').length,
+        current: enrollment.currentStepIndex < program.steps.length ? stepNumber : 0,
+      }
+  const progressLabel = phased
+    ? t('planning.today.wellness.programWeekProgress', { current: currentGroup?.week ?? dots.done, total: dots.total })
+    : t('planning.today.wellness.programStepProgress', { current: stepNumber, total: dots.total })
+  const phase = { title: currentGroup?.phase ? t(`${program.i18nKey}.phases.${currentGroup.phase.key}.title`) : '' }
+
+  // The next step: its pending plan item (due, overdue or ahead), else the current step by index.
+  const own = planStore.pendingItems.filter((item) => item.source === 'program' && item.sourceRef === enrollment.id)
+  const stepItem = own.find((item) => !isPracticeItem(item))
+  const stepIndex = stepItem?.programStepIndex ?? enrollment.currentStepIndex
+  const stepDef = program.steps[stepIndex]
+  const stepDayRef = stepItem?.dayRef ?? (states[stepIndex]?.eligibleDay as DayRef | undefined) ?? props.dayRef
+  const step = stepDef
+    ? (() => {
+        const entry = getCatalogEntry(stepDef.exerciseSlug)
+        const catalogTitle = entry ? t(`exercises.cards.${entry.i18nKey}.title`) : stepDef.exerciseSlug
+        return {
+          title: programStepTitle(t, program.i18nKey, stepIndex, catalogTitle),
+          what: stepDef.introKey ? t(stepDef.introKey) : '',
+          when: whenLabel(stepDayRef),
+          launch: () => void launcher.launch(program, stepIndex),
+        }
+      })()
+    : undefined
+
+  const momentEntry = program.momentKind ? getCatalogEntry(`moment-${program.momentKind}`) : undefined
+  const moment = program.momentKind
+    ? {
+        route: `/exercises/micro/moment-${program.momentKind}`,
+        eyebrow: momentEntry ? t(`exercises.cards.${momentEntry.i18nKey}.title`) : t('programs.ui.logMoment'),
+      }
+    : undefined
+  const taskState = tasks[enrollment.id]
+  const task = taskState ? { ...taskState, days: taskDays(taskState.done, taskState.target) } : undefined
+  const dose = doseProposal(program, enrollment, entryStore.entries) !== null
+
   return {
-    icon: entry?.icon ?? 'repeat',
-    route: entry?.route ?? '/exercises',
-    title: programStepTitle(t, programI18nKey, stepIndex, catalogTitle),
+    id: enrollment.id,
+    slug: enrollment.programSlug,
+    icon: program.icon ?? 'route',
+    title: t(`${program.i18nKey}.title`),
+    phase,
+    dots,
+    progressLabel,
+    ...(step ? { step } : {}),
+    ...(moment ? { moment } : {}),
+    ...(task ? { task } : {}),
+    dose,
   }
 }
 
-/** Repeats only — program steps and practices live in the paths card. */
-const repeatRows = computed(() =>
-  duePlanItems.value
-    .filter((item) => item.source !== 'program')
-    .map((item) => ({
-      id: item.id,
-      ...entryFor(item.exerciseSlug),
-      overdue: item.dayRef < props.dayRef,
-      context: dueLabel(item),
-    })),
-)
-
-const entryStore = useMicroExerciseEntryStore()
-onMounted(() => void entryStore.loadEntries())
-const launcher = useStepLauncher()
-
-/** A step row launches through the path's launcher (moment picker, context query); a practice row opens its exercise. */
-function openAction(programSlug: string, action: { route: string; stepIndex?: number }): void {
-  const program = getProgramDefinition(programSlug)
-  if (program && action.stepIndex !== undefined) void launcher.launch(program, action.stepIndex)
-  else void router.push(action.route)
-}
-
-/** "tydzień 4 z 8" for paths whose phases are weeks, else "krok n z m". */
-function progressLabel(
-  program: NonNullable<ReturnType<typeof getProgramDefinition>>,
-  enrollment: { currentStepIndex: number; status: string },
-): string {
-  if (enrollment.status === 'completed') return t('programs.ui.statusReturn')
-  const groups = pathGroups(program)
-  const weeks = weekCount(groups)
-  const current = groups.find(
-    (group) => group.stepIndices.includes(enrollment.currentStepIndex) && group.week !== undefined,
-  )
-  if (weeks && current?.week) return t('planning.today.wellness.programWeekProgress', { current: current.week, total: weeks })
-  return t('planning.today.wellness.programStepProgress', {
-    current: Math.min(enrollment.currentStepIndex + 1, program.steps.length),
-    total: program.steps.length,
-  })
-}
-
-/**
- * One group per active path: the path row (week or step progress), the next
- * step always (due today, overdue, or with its day), the practices due today,
- * then up to two quick actions.
- */
-const programGroups = computed(() =>
-  activeEnrollments.value.map((enrollment) => {
+const rows = computed<PathRow[]>(() =>
+  openEnrollments.value.flatMap((enrollment) => {
     const program = getProgramDefinition(enrollment.programSlug)
-    const own = planStore.pendingItems.filter(
-      (item) => item.source === 'program' && item.sourceRef === enrollment.id,
-    )
-    const step = own.find((item) => !isPracticeItem(item))
-    const context = program ? progressLabel(program, enrollment) : ''
-    // The letter to a future self waits in Today for a week from its day.
-    const letter = futureLetterFresh(enrollment, props.dayRef)
-    const listed = own
-      .filter((item) => item.dayRef <= props.dayRef || item === step)
-      .sort((a, b) => Number(isPracticeItem(a)) - Number(isPracticeItem(b)))
-    const hasResponse =
-      program?.momentKind === 'shame' &&
-      entryStore.entries.some((entry) => entry.exerciseSlug === 'shame-response' && entry.createdAt >= enrollment.startedAt)
-    const quick = [
-      ...(program?.momentKind
-        ? [{ id: 'moment', icon: 'add', label: t('programs.ui.logMoment'), route: `/exercises/micro/moment-${program.momentKind}` }]
-        : []),
-      ...(hasResponse
-        ? [{ id: 'plan', icon: 'mg-exercise-shame-response', label: t('programs.ui.myPlan'), route: { name: 'program-detail', params: { slug: enrollment.programSlug } } }]
-        : []),
-    ]
-    return {
-      id: enrollment.id,
-      slug: enrollment.programSlug,
-      icon: program?.icon ?? 'route',
-      title: program ? t(`${program.i18nKey}.title`) : enrollment.programSlug,
-      context,
-      actions: listed.map((item) => ({
-        id: item.id,
-        ...entryFor(
-          item.exerciseSlug,
-          program?.i18nKey,
-          isPracticeItem(item) ? undefined : item.programStepIndex,
-        ),
-        kind: isPracticeItem(item)
-          ? t('planning.today.wellness.programPractice')
-          : t('planning.today.wellness.programStepLabel', { n: enrollment.currentStepIndex + 1 }),
-        overdue: item.dayRef < props.dayRef,
-        upcoming: item.dayRef > props.dayRef,
-        ...(isPracticeItem(item) ? {} : { stepIndex: item.programStepIndex }),
-        dateLabel:
-          item.dayRef < props.dayRef
-            ? formatDay(item.dayRef)
-            : item.dayRef === props.dayRef
-              ? t('planning.today.wellness.plannedForToday')
-              : item.dayRef === addDaysToDayRef(props.dayRef, 1)
-                ? t('programs.ui.tomorrow')
-                : formatDay(item.dayRef),
-      })),
-      quick,
-      letter,
-    }
+    return program ? [buildRow(enrollment, program)] : []
   }),
 )
 
-function moveToTomorrow(id: string): void {
-  void planStore.movePlan(id, addDaysToDayRef(props.dayRef, 1)).catch((err) => {
-    console.error('Failed to move exercise plan:', err)
-  })
-}
-
-function openDatePicker(id: string): void {
-  datePickFor.value = id
-  dateInputRef.value?.showPicker()
-}
-
-function handleDateChange(event: Event): void {
-  const input = event.target as HTMLInputElement
-  if (input.value && datePickFor.value) {
-    void planStore.movePlan(datePickFor.value, input.value as DayRef).catch((err) => {
-      console.error('Failed to move exercise plan:', err)
-    })
+async function loadTask(enrollment: ProgramEnrollment, program: ProgramDefinition): Promise<void> {
+  if (!program.weeklyTasks?.length) {
+    tasks[enrollment.id] = null
+    return
   }
-  input.value = ''
-  datePickFor.value = null
+  try {
+    const state = await weekTaskState(program, enrollment, getPeriodRefsForDate(new Date(`${props.dayRef}T12:00:00`)).week)
+    tasks[enrollment.id] = state.intention
+      ? { title: state.intention.title, done: state.doneCount, target: state.intention.target.value ?? state.task?.times ?? 1 }
+      : null
+  } catch (err) {
+    console.error('Failed to read the week task:', err)
+    tasks[enrollment.id] = null
+  }
 }
 
-function skip(id: string): void {
-  void planStore.skipPlan(id).catch((err) => {
-    console.error('Failed to skip exercise plan:', err)
-  })
-}
+// The task's counted days change with plan checks and with Moments (the bridge),
+// so the state reloads with the enrollments, the Moments and the day bundle.
+watch(
+  () => [
+    openEnrollments.value.map((enrollment) => `${enrollment.id}:${enrollment.currentStepIndex}:${enrollment.weekLog?.length ?? 0}`).join('|'),
+    entryStore.entries.length,
+    todayStore.bundle,
+    props.dayRef,
+  ],
+  () => {
+    for (const enrollment of openEnrollments.value) {
+      const program = getProgramDefinition(enrollment.programSlug)
+      if (program) void loadTask(enrollment, program)
+    }
+  },
+  { immediate: true },
+)
 </script>

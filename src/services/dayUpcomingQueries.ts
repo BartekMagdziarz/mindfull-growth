@@ -1,6 +1,9 @@
+import { getProgramDefinition } from '@/data/programCatalog'
 import type { Goal } from '@/domain/planning'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
+import type { ProgramDefinition, ProgramEnrollment } from '@/domain/program'
 import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
+import { programEnrollmentDexieRepository } from '@/repositories/programEnrollmentDexieRepository'
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
 import { loadPlanningCoreObjects } from '@/services/planningObjectCollections'
 import { addDaysToDayRef, getNextPeriod, getPeriodBounds, getPeriodRefsForDate, getPreviousPeriod } from '@/utils/periods'
@@ -13,14 +16,25 @@ export type MarkerBucket = 'overdue' | 'upcoming' | 'pastDone'
 
 export type RitualAction = 'plan' | 'reflect'
 
+/** A path event bound to its enrollment, not to the current path (the path may already be closed). */
+export interface ProgramMarkerRef {
+  enrollmentId: string
+  programSlug: string
+  /** `programs.<key>.title` — resolved by the caller, the service stays i18n-free. */
+  programTitleKey: string
+}
+
 /**
- * A dated signal for the day surfaces: a goal deadline or a planning /
- * reflection ritual. Pure data — labels are resolved by the caller.
+ * A dated signal for the day surfaces: a goal deadline, a planning /
+ * reflection ritual, a path's letter to a future self or its return.
+ * Pure data — labels are resolved by the caller.
  */
 export type DayMarker =
   | { key: string; kind: 'deadline'; dayRef: DayRef; state: MarkerState; goal: Goal }
   | { key: string; kind: 'ritual'; dayRef: DayRef; state: MarkerState; ritual: 'week'; action: RitualAction; weekRef: WeekRef }
   | { key: string; kind: 'ritual'; dayRef: DayRef; state: MarkerState; ritual: 'month'; action: RitualAction; monthRef: MonthRef }
+  | ({ key: string; kind: 'letter'; dayRef: DayRef; state: MarkerState } & ProgramMarkerRef)
+  | ({ key: string; kind: 'return'; dayRef: DayRef; state: MarkerState } & ProgramMarkerRef)
 
 export interface DayMarkerRange {
   start: DayRef
@@ -97,6 +111,62 @@ function toRitualMarker(candidate: RitualCandidate, state: MarkerState): DayMark
   return { key, kind: 'ritual', dayRef: candidate.dayRef, state, ritual: 'month', action: candidate.action, monthRef: candidate.periodRef as MonthRef }
 }
 
+/**
+ * The letter to a future self: from its `showAt` on (never announced
+ * ahead — it was written "for a harder day"), waiting until read. Once
+ * read it sits on the day it was read, so "Minione" keeps it a week from then.
+ */
+function letterMarker(program: ProgramDefinition, enrollment: ProgramEnrollment, todayRef: DayRef): DayMarker | null {
+  const letter = enrollment.futureLetter
+  if (!letter || enrollment.status === 'abandoned') return null
+  if ((letter.showAt as DayRef) > todayRef) return null
+  const dayRef = letter.readAt ? getPeriodRefsForDate(letter.readAt).day : (letter.showAt as DayRef)
+  return {
+    key: `letter:${enrollment.id}`,
+    kind: 'letter',
+    dayRef,
+    state: letter.readAt ? 'done' : 'due',
+    enrollmentId: enrollment.id,
+    programSlug: enrollment.programSlug,
+    programTitleKey: `${program.i18nKey}.title`,
+  }
+}
+
+/**
+ * "Powrót": one marker per closed enrollment with follow-up steps, on the
+ * first follow-up step's eligible day (last completion + its gap; the
+ * close date when no completion is recorded), `done` once the last step is.
+ */
+function returnMarker(program: ProgramDefinition, enrollment: ProgramEnrollment): DayMarker | null {
+  if (enrollment.status !== 'completed') return null
+  const index = program.steps.findIndex(step => step.afterCompletion)
+  if (index === -1) return null
+  const anchor = enrollment.completedSteps
+    .filter(completed => completed.stepIndex < index)
+    .reduce<string | undefined>((latest, completed) => (!latest || completed.completedAt > latest ? completed.completedAt : latest), undefined)
+  const anchorDay = getPeriodRefsForDate(anchor ?? enrollment.completedAt ?? enrollment.startedAt).day
+  return {
+    key: `return:${enrollment.id}`,
+    kind: 'return',
+    dayRef: addDaysToDayRef(anchorDay, program.steps[index].minGapDays),
+    state: enrollment.currentStepIndex >= program.steps.length ? 'done' : 'due',
+    enrollmentId: enrollment.id,
+    programSlug: enrollment.programSlug,
+    programTitleKey: `${program.i18nKey}.title`,
+  }
+}
+
+async function programMarkers(todayRef: DayRef): Promise<DayMarker[]> {
+  const enrollments = await programEnrollmentDexieRepository.listAll()
+  return enrollments.flatMap(enrollment => {
+    const program = getProgramDefinition(enrollment.programSlug)
+    if (!program) return []
+    return [letterMarker(program, enrollment, todayRef), returnMarker(program, enrollment)].filter(
+      (marker): marker is DayMarker => marker !== null
+    )
+  })
+}
+
 function compareMarkers(left: DayMarker, right: DayMarker): number {
   return (
     left.dayRef.localeCompare(right.dayRef) ||
@@ -111,22 +181,33 @@ function compareMarkers(left: DayMarker, right: DayMarker): number {
  *   overdue open goals are included regardless of `range.start`
  *   (up to `OVERDUE_REACH_DAYS` back);
  * - the previous / current / next week and month rituals (see `ritualCandidates`),
- *   with `state` telling whether the plan or reflection already exists.
+ *   with `state` telling whether the plan or reflection already exists;
+ * - a path's letter to a future self (from its day on) and its return
+ *   (see `letterMarker` / `returnMarker`), overdue ones kept like goals.
  * Done markers older than `DONE_GRACE_DAYS` are dropped everywhere.
  */
 export async function getDayMarkers(range: DayMarkerRange, todayRef: DayRef): Promise<DayMarker[]> {
   const markers: DayMarker[] = []
   const graceStart = addDaysToDayRef(todayRef, -DONE_GRACE_DAYS)
   const overdueStart = addDaysToDayRef(todayRef, -OVERDUE_REACH_DAYS)
-  const { goals } = await loadPlanningCoreObjects()
+  const [{ goals }, pathMarkers] = await Promise.all([loadPlanningCoreObjects(), programMarkers(todayRef)])
+
+  /** Due markers behind today stay within the overdue reach; everything else must sit in `range`. */
+  const keep = (dayRef: DayRef, state: MarkerState): boolean => {
+    const overdue = state === 'due' && dayRef < todayRef && dayRef >= overdueStart && dayRef <= range.end
+    return overdue || inRange(dayRef, range)
+  }
 
   for (const goal of goals) {
     if (!goal.isActive || !goal.targetDate || goal.status === 'dropped') continue
     const dayRef = goal.targetDate as DayRef
     const state: MarkerState = goal.status === 'completed' ? 'done' : 'due'
-    const overdue = state === 'due' && dayRef < todayRef && dayRef >= overdueStart && dayRef <= range.end
-    if (!overdue && !inRange(dayRef, range)) continue
+    if (!keep(dayRef, state)) continue
     markers.push({ key: `deadline:${goal.id}`, kind: 'deadline', dayRef, state, goal })
+  }
+
+  for (const marker of pathMarkers) {
+    if (keep(marker.dayRef, marker.state)) markers.push(marker)
   }
 
   const candidates = ritualCandidates(todayRef).filter(candidate => inRange(candidate.dayRef, range))

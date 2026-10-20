@@ -486,12 +486,23 @@
       "programFrom": "from {date}",
       "ariaProgramStart": "Start the path's step",
       "ariaProgramOpen": "Open path details",
-      "plannedOverdueSince": "overdue since {date}",
       "programPractice": "practice",
       "programStepLabel": "step {n}",
       "programWeekProgress": "week {current} of {total}",
-      "programLetter": "A letter from you",
-      "programLetterContext": "written earlier for a worse day"
+      "programsOpen": "Open the path"
+    },
+    "practices": {
+      "title": "Practices",
+      "open": "Open",
+      "start": "Start",
+      "done": "Done",
+      "overdue": "overdue",
+      "thisWeek": "This week",
+      "task": "task",
+      "nowToday": "Today: {step}",
+      "nowTomorrow": "Tomorrow: {step}",
+      "nowOverdue": "Overdue step: {step}",
+      "nowNext": "Next step {date}: {step}"
     },
     "stage": {
       "tomorrow": "Tomorrow",
@@ -518,9 +529,9 @@
       "reflectMonth": "Reflect on {month}",
       "overdue": "overdue",
       "done": "done",
-      "past": "Previously done ({n})",
-      "more": "Show more ({n})",
-      "less": "Show less",
+      "past": "Past ({n})",
+      "more": "{n} more",
+      "less": "Collapse",
       "planWeek_previous": "Plan last week",
       "planWeek_current": "Plan this week",
       "planWeek_next": "Plan next week",
@@ -533,7 +544,16 @@
       "reflected": "Reflected",
       "notPlanned": "To plan",
       "toReflect": "To reflect on",
-      "tomorrow": "tomorrow"
+      "tomorrow": "tomorrow",
+      "sinceYesterday": "yesterday",
+      "sinceDays": "{n} days ago",
+      "letter": "Letter from you",
+      "letterContext": "written earlier for a harder day",
+      "toRead": "to read",
+      "read": "read",
+      "return": "Return",
+      "returnContext": "a measure and a look back after eight weeks",
+      "returnDone": "done"
     },
     "calendar": {
       "today": "Today",
@@ -572,6 +592,21 @@
       "remove": "Remove from plan",
       "save": "Save change",
       "retry": "Try again"
+    },
+    "paths": {
+      "nextStep": "Next step",
+      "overdue": "overdue",
+      "task": "Week task",
+      "taskDays": {
+        "one": "{done} of {n} day",
+        "few": "{done} of {n} days",
+        "many": "{done} of {n} days"
+      },
+      "doseHint": "After the dose check, a calmer rhythm is waiting for your decision.",
+      "doseSee": "See",
+      "ariaStep": "Start: {step}, {when}",
+      "ariaTask": "Week task: {title}, {days}",
+      "momentWhen": "any time"
     }
   },
   "weekWizard": {
@@ -956,6 +991,7 @@
       "entryDaysUnit": "days",
       "entryDaysValueLabel": "Days with an entry",
       "addEntryDays": "+ days condition",
+      "removeEntryDays": "Remove days condition",
       "mode": {
         "completion": "Do",
         "counter": "Count",

@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
+import { programEnrollmentDexieRepository } from '@/repositories/programEnrollmentDexieRepository'
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
 import { bucketMarker, getDayMarkers, getDayUpcoming, type DayMarker } from '@/services/dayUpcomingQueries'
 import { resetPlanningTestData } from '@/test/planningTestUtils'
@@ -13,14 +14,32 @@ function goal(title: string, targetDate: string, status: 'open' | 'completed' | 
   return goalDexieRepository.create({ title, isActive, priorityIds: [], lifeAreaIds: [], status, targetDate })
 }
 
-const brief = (marker: DayMarker) =>
-  marker.kind === 'deadline'
-    ? [marker.dayRef, marker.state, 'deadline', marker.goal.title]
-    : [marker.dayRef, marker.state, `${marker.ritual}:${marker.action}`, marker.ritual === 'week' ? marker.weekRef : marker.monthRef]
+const brief = (marker: DayMarker) => {
+  if (marker.kind === 'deadline') return [marker.dayRef, marker.state, 'deadline', marker.goal.title]
+  if (marker.kind === 'letter' || marker.kind === 'return') return [marker.dayRef, marker.state, marker.kind, marker.programSlug]
+  return [marker.dayRef, marker.state, `${marker.ritual}:${marker.action}`, marker.ritual === 'week' ? marker.weekRef : marker.monthRef]
+}
+
+/** A shame path closed on `closedOn` (steps 0–23 done, the return steps ahead), optionally with a letter. */
+async function closedShamePath(closedOn: string, letter?: { showAt: string; readAt?: string }, completedSteps = true) {
+  const enrollment = await programEnrollmentDexieRepository.create({
+    programSlug: 'shame-compassion',
+    startedAt: '2025-12-01T12:00:00.000Z',
+    contentVersion: 3,
+  })
+  return programEnrollmentDexieRepository.update(enrollment.id, {
+    status: 'completed',
+    currentStepIndex: 24,
+    completedAt: `${closedOn}T12:00:00.000Z`,
+    completedSteps: completedSteps ? [{ stepIndex: 23, completedAt: `${closedOn}T12:00:00.000Z` }] : [],
+    ...(letter ? { futureLetter: { entryId: 'letter-entry', ...letter } } : {}),
+  })
+}
 
 describe('dayUpcomingQueries', () => {
   beforeEach(async () => {
-    await resetPlanningTestData()
+    const db = await resetPlanningTestData()
+    await db.programEnrollments.clear()
   })
 
   it('emits the previous/current/next rituals for week and month, all due when nothing exists', async () => {
@@ -102,6 +121,44 @@ describe('dayUpcomingQueries', () => {
     expect(current?.dayRef).toBe(sunday)
     expect(current?.state).toBe('due')
     expect((await getDayMarkers(WIDE, TODAY)).some(marker => marker.key === 'ritual:week:reflect:2026-W10')).toBe(false)
+  })
+
+  it('announces the return 56 days after the close like a deadline, done once the last follow-up step is', async () => {
+    const enrollment = await closedShamePath('2026-01-20')
+    const markers = await getDayMarkers(WIDE, TODAY)
+
+    expect(markers.map(brief)).toContainEqual(['2026-03-17', 'due', 'return', 'shame-compassion'])
+    expect(markers.find(marker => marker.kind === 'return')?.key).toBe(`return:${enrollment.id}`)
+
+    await programEnrollmentDexieRepository.update(enrollment.id, { currentStepIndex: 27 })
+    expect((await getDayMarkers(WIDE, TODAY)).map(brief)).toContainEqual(['2026-03-17', 'done', 'return', 'shame-compassion'])
+  })
+
+  it('anchors the return on the close date when no completion is recorded, and keeps it overdue within reach', async () => {
+    await closedShamePath('2025-12-20', undefined, false)
+    const markers = await getDayUpcoming(TODAY)
+
+    expect(markers.map(brief)).toContainEqual(['2026-02-14', 'due', 'return', 'shame-compassion'])
+  })
+
+  it('shows the letter from its day on, never ahead, waiting until read, then on its reading day for a week', async () => {
+    await closedShamePath('2026-01-20', { showAt: '2026-03-20' })
+    expect((await getDayMarkers(WIDE, TODAY)).some(marker => marker.kind === 'letter')).toBe(false)
+
+    const db = await resetPlanningTestData()
+    await db.programEnrollments.clear()
+    const waiting = await closedShamePath('2026-01-20', { showAt: '2026-03-01' })
+    expect((await getDayUpcoming(TODAY)).map(brief)).toContainEqual(['2026-03-01', 'due', 'letter', 'shame-compassion'])
+
+    await programEnrollmentDexieRepository.update(waiting.id, {
+      futureLetter: { entryId: 'letter-entry', showAt: '2026-03-01', readAt: '2026-03-02T09:00:00.000Z' },
+    })
+    expect((await getDayMarkers(WIDE, TODAY)).some(marker => marker.kind === 'letter')).toBe(false)
+
+    await programEnrollmentDexieRepository.update(waiting.id, {
+      futureLetter: { entryId: 'letter-entry', showAt: '2026-02-20', readAt: '2026-03-10T09:00:00.000Z' },
+    })
+    expect((await getDayMarkers(WIDE, TODAY)).map(brief)).toContainEqual(['2026-03-10', 'done', 'letter', 'shame-compassion'])
   })
 
   it('buckets markers relative to today', () => {

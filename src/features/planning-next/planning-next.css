@@ -159,12 +159,12 @@
   align-items: start;
   justify-content: center;
   padding-top: 0.12rem;
-  border-radius: var(--mg-radius-icon-field-a);
+  border-radius: var(--mg-radius-sketch-a);
   transform: rotate(0.9deg);
 }
 
 .next-period-rail__bar-slots i:nth-child(2) {
-  border-radius: var(--mg-radius-icon-field-b);
+  border-radius: var(--mg-radius-sketch-b);
   transform: rotate(-1.2deg);
 }
 
@@ -476,7 +476,7 @@
   width: min(62%, 9.7rem);
   aspect-ratio: 1.48;
   max-height: 6.125rem;
-  border-radius: var(--mg-radius-icon-field-a);
+  border-radius: var(--mg-radius-sketch-a);
   color: var(--mg-color-primary-strong);
   background: var(--mg-color-sky-field);
   box-shadow: var(--mg-shadow-inset-sm);
@@ -484,12 +484,12 @@
 }
 
 .next-overview__row > button:nth-child(2) .next-overview__visual {
-  border-radius: var(--mg-radius-icon-field-b);
+  border-radius: var(--mg-radius-sketch-b);
   transform: rotate(-0.45deg);
 }
 
 .next-overview__row > button:nth-child(3) .next-overview__visual {
-  border-radius: var(--mg-radius-icon-field-c);
+  border-radius: var(--mg-radius-sketch-c);
   transform: rotate(0.25deg);
 }
 
@@ -2093,7 +2093,7 @@
   place-items: center;
   width: 1.7rem;
   height: 1.7rem;
-  border-radius: var(--mg-radius-organic-a);
+  border-radius: var(--mg-radius-icon-field-a);
   color: var(--mg-color-primary-strong);
   background: var(--mg-color-sky-well);
 }
@@ -2122,23 +2122,13 @@
 }
 
 .next-day-cal,
-.next-day-compass,
-.next-day-upcoming {
+.next-day-compass {
   display: grid;
   gap: var(--mg-space-2);
   padding: var(--mg-space-3);
 }
 
-/* Repeats + paths: same anatomy as the Upcoming card (see below). */
-.next-day-exercises {
-  display: grid;
-  gap: var(--mg-space-2);
-  padding: var(--mg-space-3);
-  container-type: inline-size;
-}
-
-.next-day-compass > header,
-.next-day-upcoming > header {
+.next-day-compass > header {
   color: var(--mg-color-primary-strong);
   font-size: var(--mg-font-size-xs);
   font-weight: 900;
@@ -2429,6 +2419,13 @@
   background: var(--mg-color-state);
 }
 
+/* Path events (letter from a future self, the return) — the primary tone, like the paths card. */
+.next-day-cal i.is-letter,
+.next-day-cal i.is-return {
+  background: var(--mg-color-primary);
+  opacity: 0.75;
+}
+
 .next-day-cal i.is-done {
   opacity: 0.3;
 }
@@ -2498,7 +2495,7 @@
   place-items: center;
   width: 2.1rem;
   height: 2.1rem;
-  border-radius: var(--mg-radius-organic-a);
+  border-radius: var(--mg-radius-icon-field-a);
   color: var(--mg-color-primary-strong);
   background: var(--mg-color-sky-well);
 }
@@ -2521,202 +2518,6 @@
   border-radius: var(--mg-radius-icon-field-a);
   background: var(--mg-color-paper);
   box-shadow: var(--mg-shadow-inset-sm);
-}
-
-/* Upcoming: title and context stay together; status is a quiet secondary cue. */
-.next-day-upcoming {
-  container-type: inline-size;
-}
-
-.next-day-upcoming > header {
-  color: var(--mg-color-muted);
-  font-weight: 700;
-  letter-spacing: 0.06em;
-}
-
-.next-day-upcoming__list {
-  display: grid;
-}
-
-.next-day-upcoming__item {
-  display: grid;
-  border-bottom: 1px solid var(--mg-color-border);
-}
-
-.next-day-upcoming__item:last-of-type {
-  border-bottom-color: transparent;
-}
-
-.next-day-upcoming__row {
-  display: grid;
-  grid-template-columns: 1.75rem minmax(0, 1fr) auto;
-  column-gap: var(--mg-space-3);
-  row-gap: var(--mg-space-1);
-  align-items: center;
-  min-height: 3.5rem;
-  padding: var(--mg-space-2) var(--mg-space-1);
-  border: 0;
-  border-radius: 0;
-  color: var(--mg-color-ink);
-  background: transparent;
-  text-align: left;
-  cursor: pointer;
-}
-
-/* Closing actions under an overdue goal: space reserved, revealed on hover/focus like card trays. */
-.next-day-upcoming__tray {
-  display: flex;
-  gap: var(--mg-space-2);
-  padding: 0 var(--mg-space-1) var(--mg-space-2) calc(1.75rem + var(--mg-space-3) + var(--mg-space-1));
-  opacity: 0;
-  transition: opacity var(--mg-duration-fast) ease;
-}
-
-.next-day-upcoming__item:hover .next-day-upcoming__tray,
-.next-day-upcoming__item:focus-within .next-day-upcoming__tray {
-  opacity: 1;
-}
-
-/* Double class: the root's `button { font: inherit }` would otherwise win on size. */
-.next-day-upcoming .next-day-upcoming__action {
-  padding: 0.2rem 0.65rem;
-  border: 0;
-  border-radius: var(--mg-radius-pill);
-  background: var(--mg-color-paper);
-  box-shadow: var(--mg-shadow-raised-sm);
-  color: var(--mg-color-primary-strong);
-  font-size: var(--mg-font-size-xs);
-  font-weight: 700;
-  line-height: 1.5;
-  cursor: pointer;
-}
-
-.next-day-upcoming .next-day-upcoming__action:hover {
-  background: var(--mg-color-mist);
-}
-
-.next-day-upcoming .next-day-upcoming__action:focus-visible {
-  outline: 2px solid var(--mg-color-focus);
-  outline-offset: 2px;
-}
-
-.next-day-upcoming__row:hover {
-  background: var(--mg-color-mist);
-}
-
-/* The hovered item spreads the row's tint over its tray so the pair reads as one. */
-.next-day-upcoming__item:hover {
-  background: var(--mg-color-mist);
-  border-radius: var(--mg-radius-sm);
-}
-
-.next-day-upcoming__row:focus-visible,
-.next-day-upcoming__more:focus-visible,
-.next-day-upcoming__past > summary:focus-visible {
-  outline: 2px solid var(--mg-color-focus);
-  outline-offset: 2px;
-  border-radius: var(--mg-radius-sm);
-}
-
-.next-day-upcoming__copy {
-  display: grid;
-  gap: 2px;
-  min-width: 0;
-}
-
-.next-day-upcoming__row strong {
-  font-size: var(--mg-font-size-sm);
-  font-weight: 650;
-  line-height: 1.4;
-  overflow-wrap: anywhere;
-}
-
-.next-day-upcoming__context,
-.next-day-upcoming__row em {
-  color: var(--mg-color-muted);
-  font-size: var(--mg-font-size-xs);
-  font-style: normal;
-  font-weight: 500;
-  line-height: 1.5;
-}
-
-.next-day-upcoming__row em {
-  text-align: right;
-}
-
-.next-day-upcoming__icon {
-  display: grid;
-  place-items: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  color: var(--mg-color-primary-strong);
-}
-
-.next-day-upcoming__icon .material-symbols-outlined {
-  font-size: var(--mg-font-size-lg);
-}
-
-.next-day-upcoming__list p {
-  margin: var(--mg-space-2) 0;
-  color: var(--mg-color-muted);
-  font-size: var(--mg-font-size-sm);
-}
-
-.next-day-upcoming__row.is-deadline.is-overdue em {
-  color: var(--mg-color-rose);
-}
-
-.next-day-upcoming__row.is-done strong,
-.next-day-upcoming__row.is-done .next-day-upcoming__icon {
-  color: var(--mg-color-muted);
-}
-
-.next-day-upcoming .next-day-upcoming__more,
-.next-day-upcoming__past > summary {
-  min-height: 2.75rem;
-  padding: var(--mg-space-2) var(--mg-space-1);
-  border: 0;
-  color: var(--mg-color-muted);
-  background: transparent;
-  font-size: var(--mg-font-size-xs);
-  font-weight: 600;
-  text-align: left;
-  cursor: pointer;
-}
-
-.next-day-upcoming__more:hover,
-.next-day-upcoming__past > summary:hover {
-  color: var(--mg-color-primary-strong);
-}
-
-.next-day-upcoming__past > summary {
-  display: flex;
-  align-items: center;
-  list-style: none;
-}
-
-.next-day-upcoming__past > summary::-webkit-details-marker {
-  display: none;
-}
-
-.next-day-upcoming__past > summary::before {
-  content: '▸';
-  margin-right: var(--mg-space-1);
-}
-
-.next-day-upcoming__past[open] > summary::before {
-  content: '▾';
-}
-
-@container (max-width: 360px) {
-  .next-day-upcoming__row {
-    grid-template-columns: 1.75rem minmax(0, 1fr);
-  }
-
-  .next-day-upcoming__row em {
-    grid-column: 2;
-    text-align: left;
-  }
 }
 
 /* Add-to-plan menu: one plus in the list header, cascade type → object. */
@@ -2918,7 +2719,9 @@ main:has(> .planning-next--today) { min-width:0; }
 }
 
 /* Compact Today: one date/entry toolbar, history stays in expanded task cards. */
-.today-calendar-layout { grid-template-columns:minmax(0,1.6fr) minmax(17rem,1fr); }
+.today-calendar-layout { grid-template-columns:minmax(0,1.16fr) minmax(17rem,1fr); }
+/* Wider breathing room around the two columns (+1.5rem per side at 1512 px). */
+.planning-next--today { padding-inline:calc(var(--mg-space-5) + 1.5rem); }
 .next-day-toolbar { display:flex; align-items:stretch; gap:var(--mg-space-2); padding:var(--mg-space-3); min-width:0; }
 .next-day-toolbar__date { position:relative; display:flex; align-items:center; gap:var(--mg-space-1); flex:1.4; min-width:0; padding-right:var(--mg-space-2); border-right:1px solid var(--mg-color-border); }
 .next-day-toolbar__date button { font:inherit; border:0; background:transparent; color:var(--mg-color-ink); cursor:pointer; padding:var(--mg-space-1); border-radius:var(--mg-radius-sm); }
@@ -2938,139 +2741,708 @@ main:has(> .planning-next--today) { min-width:0; }
 .next-day-toolbar .next-day-entries__icon { width:2.1rem; height:2.1rem; }
 .next-day-toolbar .next-day-entries__icon .material-symbols-outlined { font-size:var(--mg-font-size-md); }
 .next-day-toolbar button:focus-visible,.next-day-toolbar input:focus-visible { outline:2px solid var(--mg-color-primary-strong); outline-offset:2px; }
-@media (max-width:1100px) { .today-calendar-layout { grid-template-columns:minmax(0,1fr); } }
+@media (max-width:1100px) { .today-calendar-layout { grid-template-columns:minmax(0,1fr); } .planning-next--today { padding-inline:var(--mg-space-5); } }
 @media (max-width:520px) { .next-day-toolbar { flex-wrap:wrap; } .next-day-toolbar__date { flex-basis:100%; border-right:0; padding-right:0; justify-content:center; } .next-day-toolbar .next-day-entries.is-embedded { flex-basis:100%; } }
 
-/* Repeats + paths (NextDayPrograms): the Upcoming card's rows — accent icon, title
-   with a quiet context line, date on the right, hairline separators, mist hover. */
-.next-day-exercises > header {
-  color: var(--mg-color-muted);
+/* ─── Tiles of the right column (Lab /concepts/today-tiles, round 2) ───
+   One grammar for "Najbliżej" and "Ścieżki": a card with a quiet head (links
+   on the right) and equal tiles: a whole-tile title button, a state mark.
+   Today's tile is paper with a ring. "Najbliżej" lays the tiles out below
+   (Compass grammar). */
+.ndt-card {
+  display: grid;
+  gap: var(--mg-space-2);
+  padding: var(--mg-space-3);
+  container-type: inline-size;
+}
+
+.ndt-card > header {
+  display: flex;
+  gap: var(--mg-space-2);
+  align-items: center;
+  justify-content: space-between;
+  min-height: 1.5rem;
+  color: var(--mg-color-primary-strong);
   font-size: var(--mg-font-size-xs);
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  font-weight: 900;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
-.next-day-exercises__list {
-  display: grid;
+.ndt-card__links {
+  display: inline-flex;
+  gap: var(--mg-space-3);
 }
 
-.next-day-exercises__row {
-  position: relative;
-  display: flex;
-  align-items: center;
-  border-bottom: 1px solid var(--mg-color-border);
-}
-
-.next-day-exercises__group:last-child > :last-child,
-.next-day-exercises__list > .next-day-exercises__row:last-child {
-  border-bottom-color: transparent;
-}
-
-.next-day-exercises__main {
-  display: grid;
-  flex: 1;
-  grid-template-columns: 1.75rem minmax(0, 1fr) auto;
-  column-gap: var(--mg-space-3);
-  align-items: center;
-  width: 100%;
-  min-width: 0;
-  min-height: 3.5rem;
-  padding: var(--mg-space-2) var(--mg-space-1);
+.ndt-link,
+.mg-design-v2 .ndt-link {
+  padding: 2px 0;
   border: 0;
-  border-radius: 0;
-  color: var(--mg-color-ink);
-  background: transparent;
-  text-align: left;
+  background: none;
+  color: var(--mg-color-primary-strong);
+  font: inherit;
+  font-size: var(--mg-font-size-xs);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: none;
   cursor: pointer;
 }
 
-.next-day-exercises__main.next-day-exercises__row {
-  border-bottom: 1px solid var(--mg-color-border);
+.ndt-link:hover,
+.ndt-link.is-active {
+  text-decoration: underline;
 }
 
-.next-day-exercises__row--child {
-  min-height: 3rem;
-  padding-left: var(--mg-space-6);
-}
-
-.next-day-exercises__row:hover,
-.next-day-exercises__main:hover {
-  background: var(--mg-color-mist);
-}
-
-.next-day-exercises__main:focus-visible,
-.next-day-exercises__tray button:focus-visible {
+.ndt-link:focus-visible {
   outline: 2px solid var(--mg-color-focus);
   outline-offset: 2px;
   border-radius: var(--mg-radius-sm);
 }
 
-.next-day-exercises__icon {
+.ndt-empty {
+  margin: var(--mg-space-1) 0;
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-sm);
+}
+
+.ndt {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mg-space-1);
+  min-width: 0;
+  padding: 10px var(--mg-space-3);
+  border: 1px solid transparent;
+  border-radius: var(--mg-radius-md);
+  background: var(--mg-color-mist);
+  transition: background var(--mg-duration-fast) var(--mg-ease-standard), box-shadow var(--mg-duration-fast) var(--mg-ease-standard);
+}
+
+.ndt:has(> .ndt__open:hover) {
+  background: var(--mg-color-paper);
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+
+.ndt:has(> .ndt__open:focus-visible) {
+  outline: 2px solid var(--mg-color-focus);
+  outline-offset: 2px;
+}
+
+/* The title button: a whole-tile click target (stretched ::after); footer chips sit above it. */
+.ndt__open,
+.mg-design-v2 .ndt__open {
+  display: flex;
+  flex: 1 1 auto;
+  gap: var(--mg-space-2);
+  align-items: flex-start;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ndt__open::after {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  content: '';
+}
+
+.ndt__open:focus-visible {
+  outline: none;
+}
+
+.ndt__lead {
   display: grid;
+  flex: 0 0 auto;
   place-items: center;
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 1.4rem;
+  height: 1.4rem;
   color: var(--mg-color-primary-strong);
 }
 
-.next-day-exercises__icon .material-symbols-outlined {
-  font-size: var(--mg-font-size-lg);
+.ndt__lead .material-symbols-outlined {
+  font-size: var(--mg-font-size-md);
 }
 
-.next-day-exercises__copy {
-  display: grid;
-  gap: 2px;
+.ndt__title {
+  flex: 1 1 auto;
   min-width: 0;
-}
-
-.next-day-exercises__copy strong {
   font-size: var(--mg-font-size-sm);
-  font-weight: 650;
-  line-height: 1.4;
-  overflow-wrap: anywhere;
+  font-weight: 700;
+  display: -webkit-box;
+  overflow: hidden;
+  padding-top: 2px;
+  line-height: 1.3;
+  overflow-wrap: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
-.next-day-exercises__context,
-.next-day-exercises__main em {
+.ndt__open:hover .ndt__title {
+  color: var(--mg-color-primary-strong);
+}
+
+.ndt__mark {
   color: var(--mg-color-muted);
   font-size: var(--mg-font-size-xs);
-  font-style: normal;
-  font-weight: 500;
-  line-height: 1.5;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
-.next-day-exercises__main em {
-  text-align: right;
-}
-
-.next-day-exercises__row.is-overdue:not(.next-day-exercises__row--child) .next-day-exercises__context,
-.next-day-exercises__row.is-overdue em {
+.ndt__mark.is-rose {
   color: var(--mg-color-rose);
 }
 
-/* Actions tray: hidden until hover/focus, like the object card tray. */
-.next-day-exercises__tray {
-  display: flex;
-  gap: 2px;
-  padding-right: var(--mg-space-1);
-  opacity: 0;
-  transition: opacity var(--mg-duration-fast) ease;
+.ndt--today {
+  border-color: var(--mg-color-primary-soft);
+  background: var(--mg-color-paper);
+  box-shadow: 0 0 0 3px var(--mg-color-primary-soft);
 }
 
-.next-day-exercises__row:hover .next-day-exercises__tray,
-.next-day-exercises__row:focus-within .next-day-exercises__tray {
-  opacity: 1;
+.ndt--today .ndt__title {
+  font-weight: 800;
 }
 
-.next-day-exercises__date {
+/* "Najbliżej" in the Compass's grammar (2026-10-17): three columns, each tile a
+   centred column — icon field, title (≤ 2 lines), a short date at the bottom.
+   The state is the icon: done = blue and a touch bolder (those tiles lead the
+   list), open = grey and softer; an overdue date is rose, never a verdict. */
+.next-day-upcoming__list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--mg-space-2);
+}
+
+.next-day-upcoming .ndt {
+  padding: var(--mg-space-2) var(--mg-space-1);
+}
+
+.next-day-upcoming .ndt__open {
+  flex-direction: column;
+  gap: var(--mg-space-1);
+  align-items: center;
+  height: 100%;
+  text-align: center;
+}
+
+.next-day-upcoming .ndt__title {
+  flex: 0 0 auto;
+  max-width: 100%;
+  padding-top: 0;
+  font-size: 0.66rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.next-day-upcoming .ndt__mark {
+  margin-top: auto;
+  font-size: 0.62rem;
+}
+
+.next-day-upcoming__glyph {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: var(--mg-radius-icon-field-a);
+  color: color-mix(in srgb, var(--mg-color-muted) 70%, transparent);
+  background: color-mix(in srgb, var(--mg-color-muted) 5%, var(--mg-color-mist));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--mg-color-border) 85%, transparent);
+  transition: color var(--mg-duration-fast) var(--mg-ease-standard), background var(--mg-duration-fast) var(--mg-ease-standard);
+}
+
+.next-day-upcoming__glyph .material-symbols-outlined {
+  font-size: var(--mg-font-size-md);
+}
+
+.next-day-upcoming .is-done .next-day-upcoming__glyph {
+  color: var(--mg-color-primary);
+  background: var(--mg-color-sky-well);
+  box-shadow: none;
+}
+
+.next-day-upcoming .is-done .next-day-upcoming__glyph svg {
+  stroke-width: 2.25;
+}
+
+.next-day-upcoming .ndt__open:hover .next-day-upcoming__glyph {
+  color: var(--mg-color-primary-strong);
+}
+
+/* "Jeszcze n" / "Minione (n)": tiles without a surface — no field under the
+   icon, quiet ink; the tile only shows itself on hover or when open. */
+.next-day-upcoming__link-tile {
+  background: transparent;
+}
+
+.next-day-upcoming__link-tile .next-day-upcoming__glyph {
+  background: transparent;
+  box-shadow: none;
+}
+
+.next-day-upcoming__link-tile .ndt__title {
+  color: color-mix(in srgb, var(--mg-color-muted) 80%, transparent);
+  font-weight: 700;
+}
+
+.next-day-upcoming__link-tile.is-active .ndt__title,
+.next-day-upcoming__link-tile .ndt__open:hover .ndt__title {
+  color: var(--mg-color-primary-strong);
+}
+
+/* ─── "Ścieżki" (NextDayPrograms, 2026-10-17 round 6) ───
+   One block per active path: a 3-column grid, two rows. Left (both rows): the
+   path — title, the phase's name and its dots (no numbers). Top middle + right: two action
+   tiles in the grammar of "Najbliżej" (icon field, title, quiet line). Bottom middle +
+   right: the week task with its state as dots. Tones: card → block (mist) →
+   fields (paper). Checked at the canonical viewport (docs/agent-verification.md). */
+.ndpath {
+  display: grid;
+  grid-template-areas:
+    'path step moment'
+    'path task task';
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--mg-space-2);
+  align-items: stretch;
+  padding: var(--mg-space-2) var(--mg-space-3) var(--mg-space-3);
+  border-radius: var(--mg-radius-md);
+  background: var(--mg-color-mist);
+}
+
+.ndpath--no-task { grid-template-areas: 'path step moment'; }
+.ndpath--no-moment { grid-template-areas: 'path step step' 'path task task'; }
+.ndpath--no-step { grid-template-areas: 'path moment moment' 'path task task'; }
+.ndpath--no-moment.ndpath--no-task { grid-template-areas: 'path step step'; }
+.ndpath--no-step.ndpath--no-task { grid-template-areas: 'path moment moment'; }
+.ndpath--no-step.ndpath--no-moment { grid-template-areas: 'path task task'; }
+.ndpath--no-step.ndpath--no-moment.ndpath--no-task { grid-template-areas: 'path path path'; }
+
+.ndpath__path { grid-area: path; }
+.ndpath__step { grid-area: step; }
+.ndpath__moment { grid-area: moment; }
+.ndpath__task { grid-area: task; }
+
+.ndpath__field,
+.mg-design-v2 .ndpath__field {
+  display: grid;
+  gap: 4px;
+  align-content: start;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: var(--mg-radius-md);
+  background: var(--mg-color-paper);
+  color: var(--mg-color-ink);
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+}
+
+/* The path field: the title up, the phase down; a link to the path view whose
+   label floats in over the bottom edge on hover (no reserved space). */
+.ndpath__path,
+.mg-design-v2 .ndpath__path {
+  position: relative;
+  align-content: space-between;
+  gap: var(--mg-space-2);
+  cursor: pointer;
+  transition: box-shadow var(--mg-duration-fast) var(--mg-ease-standard);
+}
+
+.ndpath__path:hover {
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+
+.ndpath__path:focus-visible {
+  outline: 2px solid var(--mg-color-focus);
+  outline-offset: 2px;
+}
+
+.ndpath__open {
   position: absolute;
-  width: 1px;
-  height: 1px;
+  right: 8px;
+  bottom: 6px;
+  left: 8px;
+  padding: 4px 6px;
+  border-radius: var(--mg-radius-sm);
+  background: var(--mg-color-paper);
+  box-shadow: var(--mg-shadow-raised-sm);
+  color: var(--mg-color-primary-strong);
+  font-size: var(--mg-font-size-xs);
+  font-weight: 800;
+  text-align: center;
   opacity: 0;
+  transform: translateY(4px);
+  transition: opacity var(--mg-duration-fast) var(--mg-ease-standard), transform var(--mg-duration-fast) var(--mg-ease-standard);
   pointer-events: none;
 }
 
-/* Paths card: a step not due yet reads quieter; quick actions sit as chips under the group. */
-.next-day-exercises__row--child.is-upcoming .next-day-exercises__copy strong { color: var(--mg-color-muted); font-weight: 600; }
-.next-day-exercises__quick { display: flex; flex-wrap: wrap; gap: 6px; padding: var(--mg-space-1) var(--mg-space-1) var(--mg-space-2) var(--mg-space-6); }
+.ndpath__path:hover .ndpath__open,
+.ndpath__path:focus-visible .ndpath__open {
+  opacity: 1;
+  transform: none;
+}
+
+.ndpath__title {
+  display: flex;
+  gap: var(--mg-space-2);
+  align-items: center;
+  min-width: 0;
+}
+
+.ndpath__title > strong {
+  min-width: 0;
+  font-size: var(--mg-font-size-md);
+  font-weight: 800;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.ndpath__phase {
+  display: grid;
+  gap: 4px;
+}
+
+.ndpath__action {
+  cursor: pointer;
+  transition: box-shadow var(--mg-duration-fast) var(--mg-ease-standard);
+}
+
+.ndpath__action:hover {
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+
+.ndpath__action:hover .ndpath__text {
+  color: var(--mg-color-primary-strong);
+}
+
+.ndpath__action:focus-visible {
+  outline: 2px solid var(--mg-color-focus);
+  outline-offset: 2px;
+}
+
+/* The two action tiles (next step, "Zapisz moment") in the grammar of
+   "Najbliżej": a centred column — the icon field, the title, a quiet line at the
+   bottom. The field is the open, softer one; the icon inks up on hover. */
+.ndpath__step,
+.ndpath__moment,
+.mg-design-v2 .ndpath__step,
+.mg-design-v2 .ndpath__moment {
+  grid-template-rows: auto auto 1fr;
+  justify-items: center;
+  padding: var(--mg-space-2) var(--mg-space-1);
+  text-align: center;
+}
+
+.ndpath__glyph {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  margin-bottom: 2px;
+  border-radius: var(--mg-radius-icon-field-a);
+  background: color-mix(in srgb, var(--mg-color-muted) 5%, var(--mg-color-mist));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--mg-color-border) 85%, transparent);
+  color: color-mix(in srgb, var(--mg-color-muted) 70%, transparent);
+  transition: color var(--mg-duration-fast) var(--mg-ease-standard);
+}
+
+.ndpath__glyph .material-symbols-outlined {
+  font-size: var(--mg-font-size-md);
+}
+
+.ndpath__action:hover .ndpath__glyph {
+  color: var(--mg-color-primary-strong);
+}
+
+.ndpath__step .ndpath__text,
+.ndpath__moment .ndpath__text {
+  max-width: 100%;
+  font-size: 0.66rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.ndpath__step .ndpath__when,
+.ndpath__moment .ndpath__when {
+  align-self: end;
+  font-size: 0.62rem;
+}
+
+.ndpath__eyebrow {
+  color: var(--mg-color-muted);
+  font-size: 0.66rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.ndpath__text {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: var(--mg-font-size-sm);
+  font-weight: 700;
+  line-height: 1.3;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.ndpath__when {
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-xs);
+  font-weight: 700;
+}
+
+/* The week task: text left, its state right. */
+.ndpath__task,
+.mg-design-v2 .ndpath__task {
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--mg-space-3);
+  align-items: center;
+}
+
+.ndpath__task-text {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+/* Dots: the phase's weeks (or steps) and the task's days, in the day plan's
+   chart grammar (NextObjectChartCard): an organic disc, done = the sky field
+   with the state disc inside, current = the dashed pending mark. */
+.ndpath-dots {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  align-items: center;
+  padding-top: 2px;
+}
+
+/* Sized so the eight weeks of a path fit one line of the left field at the canonical width. */
+.ndpath-dots > i {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: var(--mg-radius-organic-a);
+  background: var(--mg-color-border);
+}
+
+.ndpath-dots > i:nth-child(even) {
+  border-radius: var(--mg-radius-organic-b);
+}
+
+.ndpath-dots > i.is-done {
+  background: var(--mg-color-sky-field);
+  box-shadow: var(--mg-shadow-inset-sm);
+}
+
+.ndpath-dots > i.is-done::after {
+  width: 70%;
+  aspect-ratio: 1;
+  border-radius: var(--mg-radius-organic-c);
+  background: var(--mg-color-state);
+  content: '';
+  transform: rotate(-2deg);
+}
+
+.ndpath-dots > i.is-current {
+  border: 1px dashed var(--mg-color-state-soft);
+  background: transparent;
+}
+
+.ndpath__task-dots {
+  padding-top: 0;
+}
+
+.ndpath__task-dots > i {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Below ~28rem the three columns starve: stack the fields. */
+@container (max-width: 28rem) {
+  .ndpath,
+  .ndpath--no-task,
+  .ndpath--no-moment,
+  .ndpath--no-step,
+  .ndpath--no-moment.ndpath--no-task,
+  .ndpath--no-step.ndpath--no-task,
+  .ndpath--no-step.ndpath--no-moment,
+  .ndpath--no-step.ndpath--no-moment.ndpath--no-task {
+    grid-template-areas: 'path' 'step' 'moment' 'task';
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* The calmer-rhythm proposal: one quiet sentence under the grid, inside the block. */
+.ndpath__hint {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 0 4px;
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-xs);
+  line-height: 1.5;
+}
+
+/* ─── "Praktyki" rows in the day plan (NextDayPractices) ───
+   The NextDayItemRow language: lead icon, title, the well on the right. The
+   well carries a play glyph and launches the exercise; its completion fills
+   it (plan items auto-complete). The tray sits right after the title. */
+.ndp {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--mg-space-2);
+  align-items: center;
+  padding: var(--mg-space-1) var(--mg-space-2);
+  border-radius: var(--mg-radius-sm);
+  transition: background var(--mg-duration-fast) var(--mg-ease-standard);
+}
+
+.ndp:hover {
+  background: var(--mg-color-mist);
+}
+
+.ndp__main {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--mg-space-2);
+  align-items: center;
+  min-width: 0;
+  min-height: 2.1rem;
+}
+
+.ndp__lead {
+  display: grid;
+  place-items: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: var(--mg-radius-icon-field-a);
+  color: var(--mg-color-primary-strong);
+  background: var(--mg-color-sky-well);
+}
+
+.ndp--done .ndp__lead {
+  background: var(--mg-color-sky-field);
+}
+
+.ndp__lead .material-symbols-outlined {
+  font-size: var(--mg-font-size-md);
+}
+
+.ndp__title {
+  position: relative;
+  display: flex;
+  gap: var(--mg-space-2);
+  align-items: center;
+  min-width: 0;
+}
+
+.ndp__label,
+.mg-design-v2 .ndp__label {
+  display: inline-flex;
+  gap: var(--mg-space-2);
+  align-items: baseline;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ndp__label strong {
+  overflow: hidden;
+  color: var(--mg-color-ink);
+  font-size: var(--mg-font-size-sm);
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ndp__label:hover strong {
+  color: var(--mg-color-primary-strong);
+}
+
+.ndp--done .ndp__label strong {
+  color: var(--mg-color-muted);
+}
+
+.ndp__late {
+  color: var(--mg-color-rose);
+  font-size: var(--mg-font-size-xs);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.ndp__tray {
+  display: inline-flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity var(--mg-duration-fast) var(--mg-ease-standard);
+}
+
+.ndp:hover .ndp__tray,
+.ndp:focus-within .ndp__tray {
+  opacity: 1;
+}
+
+.ndp__tray button,
+.mg-design-v2 .ndp__tray button {
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--mg-radius-sm);
+  color: var(--mg-color-muted);
+  background: transparent;
+  cursor: pointer;
+}
+
+.ndp__tray button:hover {
+  color: var(--mg-color-primary-strong);
+  background: var(--mg-color-sky-well);
+}
+
+.ndp__tray .material-symbols-outlined {
+  font-size: var(--mg-font-size-sm);
+}
+
+.ndp__well {
+  color: var(--mg-color-primary-strong);
+  cursor: pointer;
+}
+
+.ndp__well:disabled {
+  cursor: default;
+}
+
+.ndp__well .material-symbols-outlined {
+  font-size: var(--mg-font-size-md);
+  opacity: 0.75;
+  transition: opacity var(--mg-duration-fast) var(--mg-ease-standard);
+}
+
+.ndp:hover .ndp__well .material-symbols-outlined {
+  opacity: 1;
+}
+
+.next-day-practices__date {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}

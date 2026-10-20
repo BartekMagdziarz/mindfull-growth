@@ -69,6 +69,8 @@ export function markerTitle(
   todayRef?: DayRef
 ): string {
   if (marker.kind === 'deadline') return marker.goal.title
+  if (marker.kind === 'letter') return `${t('planning.today.upcoming.letter')} · ${t(marker.programTitleKey)}`
+  if (marker.kind === 'return') return `${t('planning.today.upcoming.return')} · ${t(marker.programTitleKey)}`
   if (marker.ritual === 'week') {
     const current = todayRef ? getPeriodRefsForDate(todayRef).week : undefined
     const relation = !current
@@ -99,6 +101,8 @@ export function markerTitle(
 export function markerIcon(marker: DayMarker): string {
   if (marker.state === 'done') return 'check'
   if (marker.kind === 'deadline') return marker.goal.icon || 'outlined_flag'
+  if (marker.kind === 'letter') return 'mail'
+  if (marker.kind === 'return') return 'replay'
   if (marker.action === 'reflect') return 'rate_review'
   return marker.ritual === 'week' ? 'edit_calendar' : 'date_range'
 }
@@ -113,6 +117,8 @@ export function markerContextLabel(
   if (marker.kind === 'deadline') {
     return `${t('planning.today.upcoming.plannedEnd')} · ${formatDayShort(marker.dayRef, locale, marker.dayRef.slice(0, 4) !== todayRef.slice(0, 4))}`
   }
+  if (marker.kind === 'letter') return t('planning.today.upcoming.letterContext')
+  if (marker.kind === 'return') return t('planning.today.upcoming.returnContext')
   if (marker.ritual === 'week') return formatWeekRange(marker.weekRef, locale)
   return formatMonthTitle(marker.monthRef, locale)
 }
@@ -129,6 +135,8 @@ export function markerDateLabel(
     if (marker.kind === 'deadline' && marker.goal.closingReflection) {
       return t('planning.goalClosing.upcoming.summarized')
     }
+    if (marker.kind === 'letter') return t(prefix + 'read')
+    if (marker.kind === 'return') return t(prefix + 'returnDone')
     return t(
       prefix +
         (marker.kind === 'deadline'
@@ -139,9 +147,11 @@ export function markerDateLabel(
     )
   }
   if (bucketMarker(marker, todayRef) === 'overdue') {
+    // A letter behind its day is waiting, not late.
+    if (marker.kind === 'letter') return t(prefix + 'toRead')
     return t(
       prefix +
-        (marker.kind === 'deadline'
+        (marker.kind === 'deadline' || marker.kind === 'return'
           ? 'overdue'
           : marker.action === 'plan'
             ? 'notPlanned'
@@ -153,6 +163,25 @@ export function markerDateLabel(
   const days = Math.round(
     (Date.parse(`${marker.dayRef}T00:00:00Z`) - Date.parse(`${todayRef}T00:00:00Z`)) / 86_400_000
   )
+  return new Intl.RelativeTimeFormat(locale, { numeric: 'always' }).format(days, 'day')
+}
+
+/** The tile's bottom line: only a date — "dziś", "jutro", "za 4 dni" ahead, "od 3 dni" behind
+ *  (a quiet fact instead of a verdict; the rose colour does the drawing of attention). */
+export function markerShortDate(
+  marker: DayMarker,
+  todayRef: DayRef,
+  t: Translate,
+  locale: string
+): string {
+  const prefix = 'planning.today.upcoming.'
+  const days = Math.round(
+    (Date.parse(`${marker.dayRef}T00:00:00Z`) - Date.parse(`${todayRef}T00:00:00Z`)) / 86_400_000
+  )
+  if (days === 0) return t(prefix + 'today')
+  if (days === 1) return t(prefix + 'tomorrow')
+  if (days === -1) return t(prefix + 'sinceYesterday')
+  if (days < 0) return t(prefix + 'sinceDays', { n: -days })
   return new Intl.RelativeTimeFormat(locale, { numeric: 'always' }).format(days, 'day')
 }
 

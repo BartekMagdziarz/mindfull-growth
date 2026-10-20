@@ -284,7 +284,7 @@ function pathFor(points: Array<{ x: number; y: number }>, offset = 0): string {
 .next-object-card__bars i {
   flex: 1;
   min-width: 4px;
-  border-radius: var(--mg-radius-icon-field-a);
+  border-radius: var(--mg-radius-sketch-a);
   background: var(--mg-color-sky-field);
   transform: rotate(0.8deg);
 }
