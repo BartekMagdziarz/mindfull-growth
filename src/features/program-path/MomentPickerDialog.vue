@@ -12,7 +12,7 @@
         <button type="button" class="moment-picker__card" @click="pick(moment.id)">
           <span class="moment-picker__date">{{ formatDate(moment.createdAt) }}</span>
           <strong v-if="seedOf(moment).situation" class="moment-picker__text">{{ seedOf(moment).situation }}</strong>
-          <span class="moment-picker__meta">
+          <span v-if="moment.responses.kind === 'shame'" class="moment-picker__meta">
             <template v-if="seedOf(moment).reaction">{{ partLabel(seedOf(moment).reaction!) }}</template>
             <template v-else>{{ t('programs.glance.nonePart') }}</template>
             <template v-if="seedOf(moment).about && seedOf(moment).about !== 'unsure'"> · {{ tg(`exerciseWizards.micro.moments.about.options.${seedOf(moment).about}`) }}</template>

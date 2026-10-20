@@ -117,9 +117,6 @@ const trackTitle = (instrument: OutcomeSeries, track: OutcomeTrack) =>
 .measure {
   display: grid;
   gap: 6px;
-  margin-top: var(--mg-space-4);
-  padding-top: var(--mg-space-3);
-  border-top: 1.5px dashed color-mix(in srgb, var(--mg-color-muted) 38%, transparent);
 }
 .measure__head {
   display: flex;
@@ -128,8 +125,11 @@ const trackTitle = (instrument: OutcomeSeries, track: OutcomeTrack) =>
   margin-bottom: 2px;
 }
 .measure__title {
-  font-size: var(--mg-font-size-xs);
-  font-weight: 800;
+  color: var(--mg-color-muted);
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 .sk {
   display: grid;

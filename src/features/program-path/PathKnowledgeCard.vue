@@ -6,15 +6,19 @@
         {{ showAll ? t('programs.ui.less') : t('programs.ui.all') }}
       </button>
     </header>
-    <ul class="kn">
-      <li v-for="card in visible" :key="card.key">
-        <button type="button" @click="openKey = card.key">
-          <AppIcon :name="readCards.includes(card.key) ? 'check' : 'menu_book'" />
-          <strong>{{ t(`programKnowledge.${card.i18nKey}.title`) }}</strong>
-          <AppIcon name="chevron_right" />
-        </button>
-      </li>
-    </ul>
+    <div class="kn">
+      <button
+        v-for="card in visible"
+        :key="card.key"
+        type="button"
+        class="kn__tile"
+        :class="{ 'is-read': readCards.includes(card.key) }"
+        @click="openKey = card.key"
+      >
+        <span class="kn__icon"><AppIcon :name="readCards.includes(card.key) ? 'check' : 'menu_book'" /></span>
+        <strong>{{ t(`programKnowledge.${card.i18nKey}.title`) }}</strong>
+      </button>
+    </div>
 
     <dialog
       ref="dialogRef"
@@ -52,10 +56,11 @@ import { useT } from '@/composables/useT'
 import { orderedKnowledgeCards, type KnowledgeCard } from '@/data/programKnowledge'
 
 /**
- * "Warto wiedzieć": the path's knowledge cards as titles — the pinned ones
- * and the current phase's first, two on the surface, the rest behind
- * "Wszystkie". A card opens in a side drawer; "Przeczytane" is a marker
- * the enrollment keeps (never a gate).
+ * "Warto wiedzieć": the path's knowledge cards as small tiles (Lab round 6:
+ * an icon field and the title in two lines, a check in the field once
+ * read) — the pinned ones and the current phase's first, two on the
+ * surface, the rest behind "Wszystkie". A card opens in a side drawer;
+ * "Przeczytane" is a marker the enrollment keeps (never a gate).
  */
 const props = defineProps<{
   programSlug: string
@@ -95,37 +100,47 @@ function markRead() {
 <style scoped>
 .kn {
   display: grid;
-  gap: 2px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--mg-space-2);
 }
-.kn button {
+.kn__tile {
   display: grid;
-  grid-template-columns: 18px minmax(0, 1fr) 18px;
+  grid-template-columns: auto minmax(0, 1fr);
   gap: var(--mg-space-2);
   align-items: center;
-  width: 100%;
-  min-height: 2.2rem;
-  padding: var(--mg-space-1) var(--mg-space-2);
+  min-height: 3.2rem;
+  padding: var(--mg-space-2);
   border: 0;
-  border-radius: var(--mg-radius-sm);
-  background: transparent;
+  border-radius: var(--mg-radius-md);
+  background: var(--mg-color-mist);
   color: inherit;
   font: inherit;
   text-align: left;
   cursor: pointer;
+  transition: background var(--mg-duration-fast) var(--mg-ease-standard);
 }
-.kn button:hover {
-  background: var(--mg-color-mist);
+.kn__tile:hover {
+  background: var(--mg-color-paper);
 }
-.kn .material-symbols-outlined {
-  color: var(--mg-color-primary-strong);
-  font-size: 18px;
-}
-.kn strong {
-  font-size: var(--mg-font-size-sm);
+.kn__tile strong {
+  font-size: var(--mg-font-size-xs);
   font-weight: 700;
+  line-height: 1.3;
+}
+.kn__icon {
+  display: grid;
+  place-items: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: var(--mg-radius-icon-field-b);
+  background: var(--mg-color-sky-well);
+  color: var(--mg-color-primary-strong);
+}
+.kn__icon .material-symbols-outlined {
+  font-size: 16px;
+}
+.kn__tile.is-read .kn__icon {
+  background: var(--mg-color-sky-field);
 }
 
 .drawer {
@@ -181,5 +196,10 @@ function markRead() {
 .drawer__sources p {
   font-size: var(--mg-font-size-xs);
   line-height: 1.5;
+}
+@media (prefers-reduced-motion: reduce) {
+  .kn__tile {
+    transition: none;
+  }
 }
 </style>

@@ -23,13 +23,21 @@ export type PathItemState = 'done' | 'current' | 'later'
 export function pathGroups(program: Pick<ProgramDefinition, 'steps' | 'phases'>): PathGroup[] {
   const phases = program.phases ?? []
   if (phases.length === 0) {
-    return [{ key: 'all', index: 0, isReturn: false, stepIndices: program.steps.map((_, index) => index) }]
+    return [
+      {
+        key: 'all',
+        index: 0,
+        isReturn: false,
+        stepIndices: program.steps.map((_, index) => index),
+      },
+    ]
   }
   return phases.map((phase, index) => {
     const end = phases[index + 1]?.fromStepIndex ?? program.steps.length
     const stepIndices: number[] = []
     for (let step = phase.fromStepIndex; step < end; step += 1) stepIndices.push(step)
-    const isReturn = phase.week === undefined && program.steps[phase.fromStepIndex]?.afterCompletion === true
+    const isReturn =
+      phase.week === undefined && program.steps[phase.fromStepIndex]?.afterCompletion === true
     return {
       key: phase.key,
       index,
@@ -48,18 +56,43 @@ export function stepItemState(state: ProgramStepState | undefined): PathItemStat
 }
 
 /** Current if it holds the current step; done once every step is done or skipped; later otherwise. */
-export function groupState(group: PathGroup, stepStates: readonly ProgramStepState[]): PathItemState {
-  const states = group.stepIndices.map((index) => stepItemState(stepStates[index]))
+export function groupState(
+  group: PathGroup,
+  stepStates: readonly ProgramStepState[]
+): PathItemState {
+  const states = group.stepIndices.map(index => stepItemState(stepStates[index]))
   if (states.includes('current')) return 'current'
-  return states.length > 0 && states.every((state) => state === 'done') ? 'done' : 'later'
+  return states.length > 0 && states.every(state => state === 'done') ? 'done' : 'later'
 }
 
 /** Index of the group with the current step, or -1 when nothing is current. */
-export function currentGroupIndex(groups: readonly PathGroup[], stepStates: readonly ProgramStepState[]): number {
-  return groups.findIndex((group) => groupState(group, stepStates) === 'current')
+export function currentGroupIndex(
+  groups: readonly PathGroup[],
+  stepStates: readonly ProgramStepState[]
+): number {
+  return groups.findIndex(group => groupState(group, stepStates) === 'current')
 }
 
 /** How many groups are weeks (the "z 8" of "Tydzień 4 z 8"). */
 export function weekCount(groups: readonly PathGroup[]): number {
-  return groups.filter((group) => group.week !== undefined).length
+  return groups.filter(group => group.week !== undefined).length
+}
+
+/**
+ * The first sentence of a step's intro, for the tiles that are not in focus
+ * (decision 2026-10-17: the focused tile shows the whole intro, the others
+ * one short sentence). Uses the browser's sentence segmenter when present,
+ * otherwise splits after the first `.`, `!`, `?` or `…` followed by a space.
+ */
+export function firstSentence(text: string): string {
+  const trimmed = text.trim()
+  if (!trimmed) return ''
+  const Segmenter = (Intl as unknown as { Segmenter?: typeof Intl.Segmenter }).Segmenter
+  if (Segmenter) {
+    const segments = new Segmenter(undefined, { granularity: 'sentence' }).segment(trimmed)
+    const first = segments[Symbol.iterator]().next().value
+    if (first) return first.segment.trim()
+  }
+  const match = /^.*?[.!?…](?=\s)/.exec(trimmed)
+  return match ? match[0] : trimmed
 }

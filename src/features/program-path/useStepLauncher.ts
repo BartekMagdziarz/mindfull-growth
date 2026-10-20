@@ -1,24 +1,35 @@
 import { computed, ref } from 'vue'
 import { useRouter, type RouteLocationRaw } from 'vue-router'
 import { getCatalogEntry } from '@/data/exerciseCatalog'
-import type { MicroExerciseEntry } from '@/domain/microExercises'
+import type { MicroExerciseEntry, MicroStepValue } from '@/domain/microExercises'
 import type { ProgramDefinition, ProgramStep } from '@/domain/program'
 import { useMicroExerciseEntryStore } from '@/stores/microExerciseEntry.store'
+import { encodeMicroPrefill } from '@/utils/microExerciseFlow'
 import { pickableMoments } from './momentSeed'
 
 /**
  * The route a program step launches: the exercise with the step's context
  * query — `continue=latest`, the step's own `launchQuery` (e.g. `partTag`),
- * `seed=fairDemand`, and `momentId` when a moment was picked.
+ * `seed=fairDemand`, `momentId` when a moment was picked, and for a micro
+ * step the picked moment's answers as an editable `prefill`
+ * (`step.momentPrefill`).
  */
-export function stepLaunchRoute(step: ProgramStep, momentId?: string | null): RouteLocationRaw | null {
+export function stepLaunchRoute(step: ProgramStep, momentId?: string | null, moment?: MicroExerciseEntry | null): RouteLocationRaw | null {
   const entry = getCatalogEntry(step.exerciseSlug)
   if (!entry) return null
+  const prefill: Record<string, MicroStepValue> = {}
+  if (moment && step.momentPrefill) {
+    for (const [target, source] of Object.entries(step.momentPrefill)) {
+      const value = moment.responses[source]
+      if (typeof value === 'string' && value.trim()) prefill[target] = value.trim()
+    }
+  }
   const query: Record<string, string> = {
     ...(step.continueLatest ? { continue: 'latest' } : {}),
     ...(step.launchQuery ?? {}),
     ...(step.startFrom === 'fairDemand' ? { seed: 'fairDemand' } : {}),
     ...(momentId ? { momentId } : {}),
+    ...(Object.keys(prefill).length ? { prefill: encodeMicroPrefill(prefill) } : {}),
   }
   return Object.keys(query).length ? { path: entry.route, query } : entry.route
 }
@@ -58,7 +69,8 @@ export function useStepLauncher() {
     const target = pending.value
     pending.value = null
     if (!target) return
-    const route = stepLaunchRoute(target.step, entryId)
+    const moment = entryId ? entryStore.entries.find((candidate) => candidate.id === entryId) : undefined
+    const route = stepLaunchRoute(target.step, entryId, moment)
     if (route) await router.push(route)
   }
 

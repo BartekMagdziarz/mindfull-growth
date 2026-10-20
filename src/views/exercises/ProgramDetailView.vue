@@ -37,9 +37,6 @@
           <button v-else type="button" role="menuitem" :disabled="busy" @click="menuAction(handleResume)">
             {{ t('programs.ui.resume') }}
           </button>
-          <button type="button" role="menuitem" :disabled="busy" @click="menuAction(() => (restartDialogOpen = true))">
-            {{ t('programs.ui.restart') }}
-          </button>
           <button type="button" role="menuitem" :disabled="busy" @click="menuAction(() => (abandonDialogOpen = true))">
             {{ t('programs.ui.abandon') }}
           </button>
@@ -55,17 +52,20 @@
         :current-note="currentNote"
         :paused="openEnrollment?.status === 'paused'"
         :busy="busy"
+        :can-undo="canUndoLastStep(enrollment)"
+        :restartable="Boolean(openEnrollment)"
         @start="startStep"
         @skip="handleSkip"
+        @undo="handleUndo"
+        @restart="handleRestart"
       >
         <!-- Completed state + finale (design §4.5: the foundation build is the path's finale) -->
         <div v-if="enrollment?.status === 'completed'" class="path-view__closed" data-testid="path-closed">
-          <AppIcon :name="closedIcon" />
+          <span class="path-view__closed-icon"><AppIcon :name="closedIcon" /></span>
           <span class="path-view__closed-copy">
             <strong>{{ program.finaleRouteName ? t('programs.ui.completedTitle') : t('programs.ui.closedTitle') }}</strong>
             <small v-if="program.finaleRouteName">{{ t(`${program.i18nKey}.finaleDescription`) }}</small>
-          </span>
-          <span class="path-view__closed-actions">
+            <span class="path-view__closed-actions">
             <button v-if="program.finaleRouteName" type="button" class="pp-chip pp-chip--primary" @click="router.push({ name: program.finaleRouteName })">
               {{ t(`${program.i18nKey}.finaleCta`) }}
             </button>
@@ -73,25 +73,22 @@
               {{ maintenanceTitle }}
             </button>
             <button type="button" class="pp-chip" :disabled="busy" @click="handleEnroll">{{ t('programs.ui.reenroll') }}</button>
+            </span>
           </span>
         </div>
       </PathJourney>
 
-      <aside class="path-view__side" :aria-label="t('programs.ui.nowTitle')">
-        <PathNowCard
-          v-if="nowMode"
+      <aside class="path-view__side" :aria-label="t('programs.ui.practicesCard')">
+        <PathPracticesCard
+          v-if="enrollment && practicesMode"
           :program="program"
           :enrollment="enrollment"
-          :mode="nowMode"
-          :step="nowStep"
-          :step-title="nowTitle"
-          :intro="nowIntro"
-          :note="currentNote"
+          :mode="practicesMode"
           :busy="busy"
           :response-entry="responseEntry"
           :letter="letter"
-          @start="nowStepIndex !== undefined && startStep(nowStepIndex)"
-          @enroll="handleEnroll"
+          :letter-open="route.query.letter === '1'"
+          @letter-opened="markLetterRead"
         />
 
         <PathDoseCard v-if="dose" :proposal="dose" :busy="busy" @apply="applyDose" @keep="keepDose" />
@@ -103,11 +100,16 @@
           data-testid="path-progress"
         >
           <header class="pp-card__head"><span>{{ t('programs.ui.progressTitle') }}</span></header>
-          <PathMomentsGlance v-if="showGlance" :stats="momentStats" :slots="glanceSlots" />
-          <PathMeasureTracks v-if="hasOutcomes" :program="program" :enrollment="enrollment" />
+          <div v-if="showGlance" class="pp-block">
+            <header class="pp-block__head"><span class="pp-block__label">{{ glanceTitle }}</span></header>
+            <PathMomentsGlance :stats="momentStats" :slots="glanceSlots" />
+          </div>
+          <div v-if="hasOutcomes" class="pp-block">
+            <PathMeasureTracks :program="program" :enrollment="enrollment" />
+          </div>
         </section>
 
-        <PathSentencesCard v-if="program.momentKind === 'shame' && enrollment" :entries="pathEntries" />
+        <PathSentencesCard v-if="sentencesKind && enrollment" :entries="pathEntries" :kind="sentencesKind" />
 
         <PathKnowledgeCard
           :program-slug="program.slug"
@@ -126,13 +128,6 @@
       :confirm-text="t('programs.ui.abandon')"
       @confirm="handleAbandon"
     />
-    <AppDialog
-      v-model="restartDialogOpen"
-      :title="t('programs.ui.restartConfirmTitle')"
-      :message="t('programs.ui.restartConfirmMessage')"
-      :confirm-text="t('programs.ui.restart')"
-      @confirm="handleRestart"
-    />
   </ExercisePage>
 </template>
 
@@ -147,23 +142,24 @@ import { useT } from '@/composables/useT'
 import { getCatalogEntry } from '@/data/exerciseCatalog'
 import { getProgramDefinition } from '@/data/programCatalog'
 import type { MicroExerciseEntry } from '@/domain/microExercises'
+import { isMomentFamilyKind, type MomentFamilyKind } from '@/domain/momentFamilies'
 import { momentsProgress, weekRefsEndingAt } from '@/domain/momentsProgress'
 import { doseProposal, futureLetterDue, keepRhythmOverrides } from '@/domain/programFollowUp'
 import type { DayRef, WeekRef } from '@/domain/period'
-import type { ProgramStep } from '@/domain/program'
+import type { ProgramStep, ProgramEnrollment } from '@/domain/program'
 import type { WeeklyReflection } from '@/domain/reflection'
 import PathJourney from '@/features/program-path/PathJourney.vue'
 import PathKnowledgeCard from '@/features/program-path/PathKnowledgeCard.vue'
 import PathMeasureTracks from '@/features/program-path/PathMeasureTracks.vue'
 import PathMomentsGlance from '@/features/program-path/PathMomentsGlance.vue'
-import PathNowCard, { type PathNowMode } from '@/features/program-path/PathNowCard.vue'
+import PathPracticesCard, { type PathPracticesMode } from '@/features/program-path/PathPracticesCard.vue'
 import PathSentencesCard from '@/features/program-path/PathSentencesCard.vue'
 import PathDoseCard from '@/features/program-path/PathDoseCard.vue'
 import MomentPickerDialog from '@/features/program-path/MomentPickerDialog.vue'
 import { useStepLauncher } from '@/features/program-path/useStepLauncher'
 import { currentGroupIndex, pathGroups, weekCount } from '@/features/program-path/pathModel'
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
-import { deriveStepStates, isPracticeItem } from '@/services/programSchedulerService'
+import { canUndoLastStep, deriveStepStates, isPracticeItem } from '@/services/programSchedulerService'
 import { currentPhase as phaseOf, unloggedSeries } from '@/services/programWeekService'
 import { useExercisePlanStore } from '@/stores/exercisePlan.store'
 import { useMicroExerciseEntryStore } from '@/stores/microExerciseEntry.store'
@@ -174,11 +170,14 @@ import { programStepTitle } from '@/utils/programStepTitle'
 
 /**
  * The path view ("Ścieżki" · widok ścieżki): header with the goal and the
- * user's own sign, "Twoja droga" on the left, and on the right Teraz,
- * Postęp (who takes the wheel · the measurements), Moje zdania and Warto
- * wiedzieć. Only names, wells, bars and actions on the surface — numbers
- * and explanations sit behind "Szczegóły". Lab: /concepts/shame-path
- * round 5 (ideas/html-plans/2026-10-04-shame-path-v3.html §P2).
+ * user's own sign, "Twoja droga" on the left (week rows, step tiles, the
+ * current tile as the guide with the only filled button, "Od nowa" with
+ * an inline confirm), and on the right Praktyki (practices, Momenty and
+ * the week's task as tiles), Postęp (the parts chart · the measurements
+ * as two blocks), Moje zdania and Warto wiedzieć (small tiles). Only
+ * names, wells, bars and actions on the surface — numbers and
+ * explanations sit behind "Szczegóły". Lab: /concepts/shame-path round 5
+ * and /concepts/path-view-v2 round 6 (2026-10-11).
  */
 const route = useRoute()
 const router = useRouter()
@@ -196,7 +195,6 @@ const busy = ref(false)
 const error = ref<string | null>(null)
 const menuOpen = ref(false)
 const abandonDialogOpen = ref(false)
-const restartDialogOpen = ref(false)
 const reflections = ref<WeeklyReflection[]>([])
 
 /** Active/paused first, else the latest completed (abandoned = not enrolled). */
@@ -232,7 +230,14 @@ const eyebrow = computed(() => {
 const sign = computed(() => {
   const signSlug = program.value?.signSlug
   if (!signSlug || !enrollment.value) return ''
-  const entry = entryStore.sortedEntries.find((item) => item.exerciseSlug === signSlug && item.createdAt >= enrollment.value!.startedAt)
+  // Several paths share "Mój znak": an entry written with a `kind` belongs to that path (older shame entries carry none).
+  const kind = program.value?.momentKind
+  const entry = entryStore.sortedEntries.find(
+    (item) =>
+      item.exerciseSlug === signSlug &&
+      item.createdAt >= enrollment.value!.startedAt &&
+      (item.responses.kind === undefined || item.responses.kind === kind),
+  )
   const value = entry?.responses.sign
   return typeof value === 'string' ? value.trim() : ''
 })
@@ -245,19 +250,13 @@ const nowStepIndex = computed(() => {
   return index >= 0 ? index : undefined
 })
 const nowStep = computed<ProgramStep | undefined>(() => (nowStepIndex.value === undefined ? undefined : program.value?.steps[nowStepIndex.value]))
-const nowMode = computed<PathNowMode | null>(() => {
-  if (!program.value) return null
-  if (!enrollment.value) return 'start'
+/** Praktyki: the open phase's tiles; "Gdy wrócisz" when paused; on the return the letter and the plan as links. */
+const practicesMode = computed<PathPracticesMode | null>(() => {
+  if (!program.value || !enrollment.value) return null
   if (enrollment.value.status === 'paused') return 'paused'
   if (enrollment.value.status === 'completed') return nowStep.value?.afterCompletion ? 'return' : null
-  return 'active'
+  return enrollment.value.status === 'active' ? 'active' : null
 })
-const nowTitle = computed(() => {
-  if (!program.value || nowStepIndex.value === undefined || !nowStep.value) return ''
-  const entry = getCatalogEntry(nowStep.value.exerciseSlug)
-  return programStepTitle(t, program.value.i18nKey, nowStepIndex.value, entry ? t(`exercises.cards.${entry.i18nKey}.title`) : nowStep.value.exerciseSlug)
-})
-const nowIntro = computed(() => (nowStep.value?.introKey ? tg(nowStep.value.introKey) : ''))
 
 /** The materialized current step's planned day (may differ from eligibleDay after a move). */
 const pendingStepDay = computed(
@@ -280,7 +279,12 @@ const currentNote = computed(() => {
 
 // ── Progress ──
 const hasOutcomes = computed(() => Boolean(program.value?.outcomeSlugs?.length || program.value?.outcomeSlug))
-const showGlance = computed(() => program.value?.momentKind === 'shame' && Boolean(enrollment.value))
+/** Paths that log Momenty with a reaction family (shame parts, anger / anxiety reactions) get the chart. */
+const glanceKind = computed<MomentFamilyKind | null>(() => (isMomentFamilyKind(program.value?.momentKind) ? program.value!.momentKind : null))
+const showGlance = computed(() => glanceKind.value !== null && Boolean(enrollment.value))
+const glanceTitle = computed(() => (glanceKind.value === 'shame' ? t('programs.ui.partsTitle') : t('programs.ui.reactionsTitle')))
+/** "Moje zdania" (shame) or "Moje słowa" (anger); the anxiety path has no sentence sources. */
+const sentencesKind = computed<MomentFamilyKind | null>(() => (glanceKind.value === 'shame' || glanceKind.value === 'anger' ? glanceKind.value : null))
 const pathEntries = computed<MicroExerciseEntry[]>(() =>
   enrollment.value ? entryStore.entries.filter((entry) => entry.createdAt >= enrollment.value!.startedAt) : [],
 )
@@ -294,22 +298,53 @@ const glanceWeeks = computed<WeekRef[]>(() => {
 })
 const glanceSlots = computed(() => Math.max(program.value?.estimatedWeeks ?? 0, glanceWeeks.value.length))
 const momentStats = computed(() =>
-  enrollment.value ? momentsProgress(pathEntries.value, glanceWeeks.value, unloggedSeries(enrollment.value.id, reflections.value)) : [],
+  enrollment.value && glanceKind.value
+    ? momentsProgress(pathEntries.value, glanceWeeks.value, unloggedSeries(enrollment.value.id, reflections.value), glanceKind.value)
+    : [],
 )
-const responseEntry = computed(() =>
-  program.value?.momentKind === 'shame' ? pathEntries.value.find((entry) => entry.exerciseSlug === 'shame-response') : undefined,
-)
+const responseEntry = computed(() => {
+  const responseSlug = program.value?.momentKind === 'anxiety' ? 'anxiety-map' : program.value?.momentKind === 'anger' ? 'pause-plan' : program.value?.momentKind === 'shame' ? 'shame-response' : undefined
+  return [...pathEntries.value]
+    .filter((entry) => entry.exerciseSlug === responseSlug)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0]
+})
+/**
+ * The enrollment whose letter this view shows: the one "Najbliżej" pointed at
+ * (`?enrollment=`), else the shown enrollment, else the latest due letter of
+ * this path — a letter outlives its run (the user may have started the path
+ * again, so the open enrollment has no letter of its own yet).
+ */
+const letterEnrollment = computed<ProgramEnrollment | undefined>(() => {
+  const candidates = enrollmentStore.enrollments.filter(
+    (candidate) =>
+      candidate.programSlug === slug.value &&
+      candidate.status !== 'abandoned' &&
+      candidate.futureLetter &&
+      futureLetterDue(candidate, todayRef.value),
+  )
+  const asked = typeof route.query.enrollment === 'string' ? candidates.find((candidate) => candidate.id === route.query.enrollment) : undefined
+  if (asked) return asked
+  if (enrollment.value && candidates.some((candidate) => candidate.id === enrollment.value!.id)) return enrollment.value
+  return [...candidates].sort((a, b) => b.futureLetter!.showAt.localeCompare(a.futureLetter!.showAt))[0]
+})
 /** The letter to a future self: on the return, or from its own day (`futureLetter.showAt`) on. */
 const letter = computed(() => {
-  if (!enrollment.value) return ''
-  if (enrollment.value.status !== 'completed' && !futureLetterDue(enrollment.value, todayRef.value)) return ''
-  const byId = enrollment.value.futureLetter
-    ? pathEntries.value.find((item) => item.id === enrollment.value!.futureLetter!.entryId)
-    : undefined
-  const entry = byId ?? pathEntries.value.find((item) => item.exerciseSlug === 'letter-to-future-self')
-  const value = entry?.responses.letter
+  const owner = letterEnrollment.value
+  const byId = owner?.futureLetter ? entryStore.entries.find((item) => item.id === owner.futureLetter!.entryId) : undefined
+  // Older closed runs without a recorded letter: the run's own letter entry, as before.
+  const fallback =
+    !byId && enrollment.value?.status === 'completed'
+      ? pathEntries.value.find((item) => item.exerciseSlug === 'letter-to-future-self')
+      : undefined
+  const value = (byId ?? fallback)?.responses.letter
   return typeof value === 'string' ? value.trim() : ''
 })
+
+/** Opening the letter's quote marks it read, so "Najbliżej" stops asking. */
+function markLetterRead(): void {
+  const id = letterEnrollment.value?.id
+  if (id) void enrollmentStore.markFutureLetterRead(id).catch((err) => console.error('Failed to mark the letter as read:', err))
+}
 
 // ── Czy nie za dużo? → a calmer rhythm proposed once, decided with one click ──
 const dose = computed(() =>
@@ -405,7 +440,7 @@ async function handleAbandon(): Promise<void> {
   const id = openEnrollment.value?.id
   if (id) await run(() => enrollmentStore.abandon(id))
 }
-/** "Zacznij od nowa": close the open enrollment and start a fresh one at step 0. */
+/** "Od nowa" (the journey head, confirmed inline): close the open enrollment and start a fresh one at step 0. */
 async function handleRestart(): Promise<void> {
   const id = openEnrollment.value?.id
   if (!id) return
@@ -417,6 +452,11 @@ async function handleRestart(): Promise<void> {
 async function handleSkip(): Promise<void> {
   const id = openEnrollment.value?.id
   if (id) await run(() => enrollmentStore.skipStep(id))
+}
+/** "Cofnij" on the last completed tile: that step becomes current again. */
+async function handleUndo(): Promise<void> {
+  const id = openEnrollment.value?.id
+  if (id) await run(() => enrollmentStore.undoStep(id))
 }
 function markRead(key: string): void {
   const id = enrollment.value?.id
@@ -499,22 +539,30 @@ function markRead(key: string): void {
 }
 .path-view__closed {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr);
   gap: var(--mg-space-3);
-  align-items: center;
+  align-items: start;
   margin-top: var(--mg-space-3);
   padding: var(--mg-space-3);
-  border: 1px solid var(--mg-color-border);
   border-radius: var(--mg-radius-md);
   background: var(--mg-color-mist);
 }
-.path-view__closed > .material-symbols-outlined {
+.path-view__closed-icon {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: var(--mg-radius-icon-field-b);
+  background: var(--mg-color-sky-well);
   color: var(--mg-color-primary-strong);
+}
+.path-view__closed-icon .material-symbols-outlined {
   font-size: 24px;
 }
 .path-view__closed-copy {
   display: grid;
-  gap: 2px;
+  gap: var(--mg-space-1);
+  align-self: center;
   min-width: 0;
 }
 .path-view__closed-copy strong {
@@ -528,6 +576,7 @@ function markRead(key: string): void {
   display: inline-flex;
   flex-wrap: wrap;
   gap: 6px;
+  margin-top: var(--mg-space-1);
 }
 @media (max-width: 1180px) {
   .path-view__grid {

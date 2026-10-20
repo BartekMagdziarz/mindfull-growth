@@ -42,7 +42,7 @@ export function momentSeedFrom(entry: MicroExerciseEntry): MomentSeed {
     entryId: entry.id,
     createdAt: entry.createdAt,
     situation: text(entry.responses.situation),
-    criticThought: text(entry.responses.criticSaid),
+    criticThought: text(['anger', 'anxiety'].includes(String(entry.responses.kind)) ? entry.responses.thought : entry.responses.criticSaid),
     kindVoice: text(entry.responses.kindVoice),
     ...(reaction ? { reaction } : {}),
     ...(about ? { about } : {}),

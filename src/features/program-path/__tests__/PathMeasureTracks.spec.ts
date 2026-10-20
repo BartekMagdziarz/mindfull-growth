@@ -152,7 +152,7 @@ describe('PathMeasureTracks', () => {
     const fscrs = within(screen.getAllByRole('table')[1]!)
     const rows = fscrs.getAllByRole('rowheader').map((h) => h.textContent?.trim())
     // programs.shame-compassion.scaleLabels overrides the instrument's scale names
-    expect(rows).toEqual(['Czuję, że nie wystarczam', 'Niechęć do siebie', 'Uspokajam siebie'])
+    expect(rows).toEqual(['Poczucie, że nie wystarczam', 'Niechęć do siebie', 'Uspokajanie siebie'])
     const firstRowCells = fscrs.getAllByRole('cell').slice(0, 2).map((c) => c.textContent?.trim().split(/\s/)[0])
     expect(firstRowCells).toEqual(['3,10', '–'])
   })

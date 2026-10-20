@@ -1,35 +1,6 @@
 <template>
   <div class="smg" :class="{ 'smg--compact': compact }" data-testid="path-moments-glance">
-    <div
-      v-if="total"
-      class="smg__grid"
-      :style="{ '--cols': columns }"
-      role="img"
-      :aria-label="t('programs.glance.whoTakesWheel')"
-    >
-      <template v-for="row in rows" :key="row.key">
-        <span class="smg__label" :class="{ 'smg__label--none': row.key === 'none' }">{{ row.label }}</span>
-        <span class="smg__cells">
-          <template v-for="n in columns" :key="n">
-            <i
-              v-if="stats[n - 1]"
-              class="smg__bar"
-              :class="[
-                `is-${tone(stats[n - 1]!, row.key)}`,
-                { 'is-zero': !stats[n - 1]!.byPart[row.key], 'is-quiet': stats[n - 1]!.quiet },
-              ]"
-              :style="{ '--h': stats[n - 1]!.byPart[row.key] / maxCount }"
-              :title="cellTitle(stats[n - 1]!, row.key, row.label)"
-            />
-            <i v-else class="smg__bar smg__bar--slot" aria-hidden="true" />
-          </template>
-        </span>
-      </template>
-      <span class="smg__label" aria-hidden="true" />
-      <span class="smg__cells smg__cells--axis" aria-hidden="true">
-        <small v-for="n in columns" :key="n">{{ n === 1 || n === columns ? `T${colLabel(n)}` : '' }}</small>
-      </span>
-    </div>
+    <PathPartsChart v-if="total" :stats="stats" :slots="columns" :first-week="firstWeek" :compact="compact" />
     <p v-else class="smg__empty">{{ compact ? t('programs.glance.quietWeek') : t('programs.glance.noMoments') }}</p>
 
     <details v-if="total" class="smg__more" :open="open" @toggle="open = ($event.target as HTMLDetailsElement).open">
@@ -72,29 +43,29 @@
             <thead>
               <tr>
                 <th>{{ t('programs.glance.week') }}</th>
-                <th v-for="row in rows" :key="row.key">{{ row.key === 'none' ? t('programs.glance.noneShort') : row.label }}</th>
+                <th v-for="row in rows" :key="row.key">{{ row.self ? t('programs.glance.noneShort') : row.label }}</th>
                 <th>{{ t('programs.glance.unloggedShort') }}</th>
                 <th>{{ t('programs.glance.response') }}</th>
                 <th>{{ t('programs.glance.early') }}</th>
-                <th>{{ t('programs.glance.voices') }}</th>
+                <th v-if="family.kind === 'shame'">{{ t('programs.glance.voices') }}</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(week, i) in stats" :key="week.weekRef">
                 <th>T{{ colLabel(i + 1) }}</th>
-                <td v-for="row in rows" :key="row.key">{{ week.byPart[row.key] }}</td>
+                <td v-for="row in rows" :key="row.key">{{ week.byPart[row.key] ?? 0 }}</td>
                 <td>{{ week.unlogged ?? '—' }}</td>
                 <td>{{ week.responded }} / {{ week.total }}</td>
                 <td>{{ week.noticed.during + week.noticed.soon }} / {{ week.total - week.noticed.unknown }}</td>
-                <td>{{ week.criticLogged }} · {{ week.kindVoiceLogged }}</td>
+                <td v-if="family.kind === 'shame'">{{ week.criticLogged }} · {{ week.kindVoiceLogged }}</td>
               </tr>
               <tr class="smg__sum">
                 <th>{{ t('programs.glance.total') }}</th>
-                <td v-for="row in rows" :key="row.key">{{ stats.reduce((s, w) => s + w.byPart[row.key], 0) }}</td>
+                <td v-for="row in rows" :key="row.key">{{ stats.reduce((s, w) => s + (w.byPart[row.key] ?? 0), 0) }}</td>
                 <td />
                 <td>{{ responded }} / {{ total }}</td>
                 <td />
-                <td />
+                <td v-if="family.kind === 'shame'" />
               </tr>
             </tbody>
           </table>
@@ -107,16 +78,16 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useT } from '@/composables/useT'
-import type { MomentsWeekStats, ShamePartKey } from '@/domain/momentsProgress'
-import { noticedEarlyShare, SHAME_PART_KEYS } from '@/domain/momentsProgress'
+import { momentFamily, summaryKeys } from '@/domain/momentFamilies'
+import type { MomentsWeekStats } from '@/domain/momentsProgress'
+import { noticedEarlyShare } from '@/domain/momentsProgress'
+import PathPartsChart from './PathPartsChart.vue'
 
 /**
- * "Kto przejmuje ster", week by week — small multiples. One row per part
- * (the compass order, "Żadna część" last), one small bar per week: height =
- * how many moments that part took that week, tone = how strongly (the
- * moment's own 1–5). No numbers, legend or reading rules on the surface;
- * hover tells. "Szczegóły": response discs per week, the two "kiedy
- * zauważam" bars and the numbers table. Lab: /concepts/shame-path round 5.
+ * "Kto przejmuje ster", week by week: the parts chart (columns per week,
+ * two colour families, legend on the left — PathPartsChart, Lab round 6)
+ * and, behind "Szczegóły", the response discs per week, the two "kiedy
+ * zauważam" bars and the numbers table (Lab /concepts/shame-path round 5).
  */
 const props = withDefaults(
   defineProps<{
@@ -137,29 +108,22 @@ const tableOpen = ref(false)
 
 const NOTICING_KEYS = ['during', 'soon', 'hours', 'later'] as const
 const columns = computed(() => Math.max(props.slots ?? props.stats.length, props.stats.length))
+const family = computed(() => momentFamily(props.stats[0]?.kind))
+/** Table columns: the family's keys, the self key last. */
 const rows = computed(() =>
-  SHAME_PART_KEYS.map((key) => ({
+  summaryKeys(family.value).map((key) => ({
     key,
-    label: key === 'none' ? t('programs.glance.nonePart') : tg(`exerciseWizards.micro.moments.compass.options.${key}`),
+    self: key === family.value.selfKey,
+    label:
+      key === family.value.selfKey
+        ? t('programs.glance.nonePart')
+        : tg(`exerciseWizards.micro.moments.${family.value.reactionStep}.options.${key}`),
   })),
 )
-const maxCount = computed(() => Math.max(1, ...props.stats.flatMap((week) => Object.values(week.byPart))))
 const total = computed(() => props.stats.reduce((sum, week) => sum + week.total, 0))
 const responded = computed(() => props.stats.reduce((sum, week) => sum + week.responded, 0))
 const colLabel = (n: number) => props.firstWeek + n - 1
 
-function tone(week: MomentsWeekStats, part: ShamePartKey): 'soft' | 'mid' | 'strong' {
-  const s = week.strength[part]
-  if (!s.rated) return 'mid'
-  const mean = s.sum / s.rated
-  return mean >= 3.5 ? 'strong' : mean >= 2.5 ? 'mid' : 'soft'
-}
-function cellTitle(week: MomentsWeekStats, part: ShamePartKey, label: string): string {
-  const s = week.strength[part]
-  const count = week.byPart[part]
-  const strength = s.rated ? ` · ${t('programs.glance.strength')} ${(s.sum / s.rated).toFixed(1).replace('.', ',')}` : ''
-  return `${label} · T${colLabel(props.stats.indexOf(week) + 1)}: ${count}×${count ? strength : ''}`
-}
 function discTitle(n: number): string {
   const week = props.stats[n - 1]!
   return `T${colLabel(n)}: ${week.total ? t('programs.glance.outOf', { a: week.responded, b: week.total }) : t('programs.glance.quietWeekShort')}`
@@ -192,79 +156,9 @@ const noticedBars = computed(() => {
   --ink-mid: color-mix(in srgb, var(--mg-color-primary) 62%, var(--mg-color-paper));
   --ink-soft: color-mix(in srgb, var(--mg-color-primary) 34%, var(--mg-color-paper));
   --ink-faint: color-mix(in srgb, var(--mg-color-primary) 16%, var(--mg-color-paper));
-  --bar-h: 1.7rem;
   display: grid;
   gap: var(--mg-space-2);
   color: var(--mg-color-ink);
-}
-.smg--compact {
-  --bar-h: 1.3rem;
-}
-.smg__grid {
-  display: grid;
-  grid-template-columns: 7rem minmax(0, 1fr);
-  gap: 6px var(--mg-space-2);
-  align-items: end;
-}
-.smg__label {
-  padding-bottom: 2px;
-  color: var(--mg-color-muted);
-  font-size: var(--mg-font-size-xs);
-  font-weight: 700;
-  line-height: 1.2;
-}
-.smg__label--none {
-  color: var(--mg-color-primary-strong);
-}
-.smg__cells {
-  display: grid;
-  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
-  gap: 4px;
-  align-items: end;
-  justify-items: center;
-  height: var(--bar-h);
-}
-.smg__bar {
-  display: block;
-  width: min(100%, 0.6rem);
-  height: max(2px, calc(var(--h, 0) * var(--bar-h)));
-  border-radius: 3px 3px 2px 2px;
-  background: var(--ink);
-}
-.smg__bar.is-soft {
-  background: var(--ink-soft);
-}
-.smg__bar.is-strong {
-  background: var(--ink-strong);
-}
-.smg__label--none + .smg__cells .smg__bar:not(.is-zero) {
-  background: var(--ink-strong);
-}
-.smg__bar.is-zero {
-  background: var(--ink-faint);
-}
-.smg__bar.is-quiet {
-  height: 2px;
-  border-bottom: 1px dotted var(--mg-color-muted);
-  background: transparent;
-}
-.smg__bar--slot {
-  height: 2px;
-  border-bottom: 1px dashed color-mix(in srgb, var(--mg-color-border) 80%, transparent);
-  background: transparent;
-}
-.smg__cells--axis {
-  height: auto;
-  margin-top: -2px;
-}
-.smg__cells--axis small {
-  justify-self: center;
-  min-height: 0.7rem;
-  color: var(--mg-color-muted);
-  font-size: 0.66rem;
-  font-weight: 700;
-  line-height: 1;
-  text-align: center;
 }
 .smg__empty {
   margin: 0;
@@ -392,7 +286,6 @@ const noticedBars = computed(() => {
   font-weight: 800;
 }
 @media (forced-colors: active) {
-  .smg__bar,
   .smg__disc,
   .smg__stack i {
     border: 1px solid CanvasText;

@@ -1,7 +1,7 @@
 <template>
-  <section v-if="sentences.length" class="mg-v2-surface mg-v2-surface--raised-sm pp-card" :aria-label="t('programs.ui.sentencesTitle')">
+  <section v-if="sentences.length" class="mg-v2-surface mg-v2-surface--raised-sm pp-card" :aria-label="title">
     <header class="pp-card__head">
-      <span>{{ t('programs.ui.sentencesTitle') }}</span>
+      <span>{{ title }}</span>
       <button v-if="sentences.length > 2" type="button" class="pp-link" @click="showAll = !showAll">
         {{ showAll ? t('programs.ui.less') : t('programs.ui.all') }}
       </button>
@@ -18,17 +18,20 @@
 import { computed, ref } from 'vue'
 import { useT } from '@/composables/useT'
 import type { MicroExerciseEntry } from '@/domain/microExercises'
+import type { MomentFamilyKind } from '@/domain/momentFamilies'
 import { collectOwnSentences } from '@/domain/momentsProgress'
 
 /**
  * "Moje zdania": the user's own compassionate sentences (image, compassionate
  * self, response plan, defending voice, kind voices from moments) — two on
- * the surface, the rest behind "Wszystkie". No sources, no dates.
+ * the surface, the rest behind "Wszystkie". No sources, no dates. The anger
+ * path shows its requests and return promises as "Moje słowa".
  */
-const props = defineProps<{ entries: readonly MicroExerciseEntry[] }>()
+const props = withDefaults(defineProps<{ entries: readonly MicroExerciseEntry[]; kind?: MomentFamilyKind }>(), { kind: 'shame' })
 const { t } = useT()
 const showAll = ref(false)
-const sentences = computed(() => collectOwnSentences(props.entries))
+const title = computed(() => (props.kind === 'anger' ? t('programs.ui.wordsTitle') : t('programs.ui.sentencesTitle')))
+const sentences = computed(() => collectOwnSentences(props.entries, Infinity, props.kind))
 </script>
 
 <style scoped>

@@ -69,11 +69,18 @@ function attemptForStep(
   )
 }
 
-/** A path may name a scale in plain words (`<i18nKey>.scaleLabels.<scaleId>`); else the instrument's label. */
-function scaleLabel(input: OutcomeSeriesInput, scaleId: string, labelKey: string): string {
-  const key = `${input.program.i18nKey}.scaleLabels.${scaleId}`
-  const value = input.t(key)
-  return value === key ? input.t(labelKey) : value
+/**
+ * A path may name a scale in plain words: `<i18nKey>.scaleLabels.<instrumentId>.<scaleId>`
+ * when the path measures several instruments sharing a scale id (GAD-7 and
+ * IUS-12 both have `total`), else `<i18nKey>.scaleLabels.<scaleId>`; else the
+ * instrument's own label.
+ */
+function scaleLabel(input: OutcomeSeriesInput, instrumentId: string, scaleId: string, labelKey: string): string {
+  for (const key of [`${input.program.i18nKey}.scaleLabels.${instrumentId}.${scaleId}`, `${input.program.i18nKey}.scaleLabels.${scaleId}`]) {
+    const value = input.t(key)
+    if (value !== key && typeof value === 'string') return value
+  }
+  return input.t(labelKey)
 }
 
 /** Phase title of a step, or the legacy before/after labels for paths without phases. */
@@ -141,7 +148,7 @@ export function buildOutcomeSeries(input: OutcomeSeriesInput): OutcomeSeries[] {
         .find((value): value is number => typeof value === 'number')
       return {
         scaleId: scale.id,
-        label: scaleLabel(input, scale.id, scale.labelKey),
+        label: scaleLabel(input, definition.id, scale.id, scale.labelKey),
         min: definition.sumScoring ? 0 : definition.responseScale.min,
         max: definition.sumScoring ? (maxTotal ?? definition.responseScale.max * scale.itemIds.length) : definition.responseScale.max,
         values: cells.map((cell) => cell.value),
