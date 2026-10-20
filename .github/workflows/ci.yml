@@ -1,5 +1,5 @@
-# The same gates CLAUDE.md requires before a commit, run on every push to main.
-# E2E (Playwright) stays local: it needs the seeded dev servers and browsers.
+# The same gates CLAUDE.md requires before a commit, run on every push to main,
+# then the Playwright verification smoke against the seeded dev:verify instance.
 name: ci
 
 on:
@@ -35,3 +35,30 @@ jobs:
         run: npx vitest run
       - name: build
         run: npx vite build
+
+  e2e:
+    needs: gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # The seed and the specs derive every date from the clock; keep the zone of the
+      # machine the suite is maintained on, so the runner sees the same weekdays.
+      TZ: Europe/Warsaw
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: verification e2e
+        run: npx playwright test --project=verification
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-verification
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
