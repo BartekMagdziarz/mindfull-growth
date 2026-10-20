@@ -126,7 +126,8 @@ export function companionConversationRepository(periodRef: string, place: Conver
         delete row.analyzedDraft
         row.messages = []
         row.topics = []
-        row.topicsInitialized = false
+        // Topics stay "initialized": clearing deletes messages and proposals but must
+        // not make the panel ask the model for new topics on its next mount.
         row.topicNotice = ''
       }),
     resetContext: () =>
