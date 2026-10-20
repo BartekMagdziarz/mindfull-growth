@@ -66,6 +66,8 @@ export default [
       'dist/**',
       'playwright-report/**',
       'test-results/**',
+      // Session worktrees the desktop app parks inside the repo (with their own dist/).
+      '.claude/**',
       'ux-lab/**',
       'ideas/**',
       'work/**',
