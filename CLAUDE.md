@@ -28,7 +28,7 @@ vitest 5 engines; the Homebrew default `node` 23.7 only warns). npm 10.9's
 
 `npx vue-tsc --noEmit` → 0 errors · `npx vitest run` → green · `npx eslint .` → 0
 problems · `npm run format:check` → clean · `npm run check-locales` → green ·
-`git status` clean.
+`npm run check:design-system` → OK (ratchet) · `git status` clean.
 
 ## Conventions
 
@@ -57,6 +57,28 @@ problems · `npm run format:check` → clean · `npm run check-locales` → gree
   cross-store integration and performance specs.
 - The `?ui=legacy` interface and the month v2 experiment were removed on
   2026-10-20; Planning Next is the only UI.
+
+## Design system
+
+One visual language (sky lightness, tonal ladder, four weights, shape = role).
+Any change to how something looks — new view, component, chip, chart, colour,
+shadow, radius, font size — goes through the `design-system` skill:
+
+- Read `src/design-system/README.md` first; use anatomies (`mg-v2-*`) and
+  tokens (`--mg-*`), never literals (`#hex`, `rgb()`, px/rem `font-size`,
+  `border-radius`, local `box-shadow`, `neo-*`, `rounded-*` other than
+  `rounded-full`, `shadow-neu-*`, `text-[Npx]`).
+- If the system lacks what you need, extend the SHARED layer (token role in
+  `src/design-system/tokens.css`, anatomy in `base.css`, `Ds*`/`App*`
+  component) and log the decision in `docs/design-decisions.md` — do not
+  special-case a view.
+- `npm run check:design-system` is a ratchet against
+  `scripts/design-system-baseline.json`: a file may not gain violations. The
+  PostToolUse hook in `.claude/settings.json` runs it on every edited file;
+  fix the finding, don't add it to the baseline. Run `--update-baseline` only
+  when debt went down.
+- Judge every visual change on 5199 screenshots at 1512 × 982 @2x next to a
+  sibling view. Rules and processes: `docs/design-system-governance.md`.
 
 ## Verifying features ("zweryfikuj X")
 
