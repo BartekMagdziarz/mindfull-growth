@@ -94,24 +94,31 @@ export function useT() {
    * Gender-aware translation. Looks up `key.m` or `key.f` based on the user's
    * grammatical gender preference, falling back to the base `key` if the
    * gendered variant doesn't exist.
+   *
+   * Resolution order: gendered variant in the current locale → flat string in
+   * the current locale → gendered variant in the default locale → `t(key)`.
+   * A locale that keeps an item flat (English rarely needs m/f) must never be
+   * shadowed by another locale's gendered text.
    */
   function tg(key: string, params?: Record<string, string | number>): string {
     const suffix = gender.value === 'feminine' ? 'f' : 'm'
     const genderedKey = `${key}.${suffix}`
 
-    // Try gendered variant first in current locale, then fallback
     const currentLocale = locale.value
     const currentMessages = messages[currentLocale] as Record<string, unknown> | undefined
-    let genderedValue = currentMessages ? resolve(currentMessages, genderedKey) : undefined
-    if (genderedValue === undefined) {
-      const fallbackMessages = messages[DEFAULT_LOCALE_ID] as Record<string, unknown>
-      genderedValue = resolve(fallbackMessages, genderedKey)
+    const fallbackMessages = messages[DEFAULT_LOCALE_ID] as Record<string, unknown>
+
+    let value = currentMessages ? resolve(currentMessages, genderedKey) : undefined
+    if (value === undefined && currentMessages) {
+      value = resolve(currentMessages, key)
     }
-    if (genderedValue !== undefined) {
-      return params ? interpolate(genderedValue, params) : genderedValue
+    if (value === undefined) {
+      value = resolve(fallbackMessages, genderedKey)
+    }
+    if (value !== undefined) {
+      return params ? interpolate(value, params) : value
     }
 
-    // Fall back to base key
     return t(key, params)
   }
 
