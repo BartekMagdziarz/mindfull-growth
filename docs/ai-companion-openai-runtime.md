@@ -1,6 +1,6 @@
 # E2 — pierwsza integracja OpenAI
 
-Status: 2026-09-28 — pierwszy benchmark chmurowy i przegląd jakości zakończone. Wyniki i ograniczenia: `docs/ai-companion-e2-review-2026-09-28.md`. Nie zmieniono dotychczasowego `sendMessage`, ustawień istniejących asyst ani interfejsów refleksji. Integracja produktowa pozostaje w E3/E6.
+Status: 2026-09-28 — pierwszy benchmark chmurowy i przegląd jakości zakończone. Wyniki i ograniczenia: `docs/archive/ai-companion-e2-review-2026-09-28.md`. Nie zmieniono dotychczasowego `sendMessage`, ustawień istniejących asyst ani interfejsów refleksji. Integracja produktowa pozostaje w E3/E6.
 
 ## Pierwsza próba
 

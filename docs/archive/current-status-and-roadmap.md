@@ -8,7 +8,7 @@ Aktualizacja: 2026-08-15. Ten dokument jest krótkim, bieżącym punktem wejści
 - `?ui=legacy` otwiera poprzedni interfejs. Pozostaje potrzebny do regresji i porównania do czasu jawnej decyzji o jego usunięciu.
 - `src/dev/verificationSeed.ts` i profil `rich-v1` są źródłem realistycznego, powtarzalnego stanu do QA.
 - `ux-lab/app` jest odizolowanym workbenchem projektowym. Wybrane rozwiązania należy portować do produktu, a nie importować z niego runtime'u laboratorium.
-- `docs/planning-reflection-roadmap.md` opisuje historię i szczegóły pętli planowanie–refleksja; poniższa lista ma pierwszeństwo jako kolejność najbliższej pracy.
+- `docs/archive/planning-reflection-roadmap.md` opisuje historię i szczegóły pętli planowanie–refleksja; poniższa lista ma pierwszeństwo jako kolejność najbliższej pracy.
 
 ## Design V2 na całej aplikacji (2026-09-10)
 

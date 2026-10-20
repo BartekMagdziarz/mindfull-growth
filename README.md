@@ -11,7 +11,7 @@ Lokalna aplikacja Vue 3 do planowania, codziennego działania i refleksji. Dane 
 - Dziennik, emocje, ćwiczenia, obszary życia, profil oraz opcjonalne funkcje AI działają na tej samej lokalnej bazie użytkownika.
 - `ux-lab/` jest odizolowanym laboratorium prototypów i nie jest częścią produkcyjnego runtime'u.
 
-Szczegółowy punkt powrotu i kolejność dalszych prac: [docs/current-status-and-roadmap.md](docs/current-status-and-roadmap.md).
+Indeks dokumentacji (co jest źródłem prawdy, co archiwum): [docs/README.md](docs/README.md).
 
 ## Start
 
@@ -31,6 +31,7 @@ Do testów wizualnych używaj izolowanego konta z deterministycznymi danymi:
 ```bash
 npm run dev:verify   # aplikacja z fixture rich-v1, port 5199
 npm run dev:lab      # verify :5199 oraz UX Lab :5201
+npm run dev:demo     # konto demo „Julia” z pół rokiem historii, port 5205
 ```
 
 Nie uruchamiaj seedów ani destrukcyjnych testów E2E na porcie 5173. Szczegóły środowiska znajdują się w [docs/agent-verification.md](docs/agent-verification.md), a instrukcja laboratorium w [ux-lab/README.md](ux-lab/README.md).
@@ -42,6 +43,7 @@ npm run typecheck
 npm run test:run
 npm run build
 npm run check-locales
+npm run lint
 npm run check:design-system
 npm run test:e2e:verify
 ```

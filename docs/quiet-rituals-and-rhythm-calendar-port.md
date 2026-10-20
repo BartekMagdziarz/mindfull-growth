@@ -3,7 +3,7 @@
 > **Status (2026-09-08):** wdrożone i działające na danych użytkownika (weryfikacja na
 > `dev:verify`). Ten dokument jest listą **decyzji podjętych samodzielnie w trakcie portu**
 > oraz rzeczy, które celowo zostawiłem do Twojej decyzji. Nie zastępuje
-> `docs/monthly-quiet-ritual-ux-lab-plan.md` (plan eksperymentu) ani
+> `docs/archive/monthly-quiet-ritual-ux-lab-plan.md` (plan eksperymentu) ani
 > `docs/planning-reflection-redesign.md` (kierunek redesignu).
 
 ## 0. Co dokładnie wdrożone

@@ -45,5 +45,5 @@ ux-lab/assets/
 ideas/
 
 # One-off HTML/CSS/JS design prototypes for the calendar stream view (kept local; the durable
-# description lives in docs/calendar-3row-design-brief.md)
+# description lives in docs/archive/calendar-3row-design-brief.md)
 docs/calendar-prototypes/
