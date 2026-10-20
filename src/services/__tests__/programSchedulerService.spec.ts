@@ -17,6 +17,8 @@ import {
   resumeEnrollment,
   runProgramScheduler,
   skipOptionalStep,
+  canUndoLastStep,
+  undoLastStep,
 } from '@/services/programSchedulerService'
 
 vi.mock('@/repositories/exercisePlanDexieRepository', () => ({
@@ -525,5 +527,50 @@ describe('deriveStepStates', () => {
       })),
     })
     expect(deriveStepStates(IFS, completed).every(s => s.state === 'done')).toBe(true)
+  })
+})
+
+describe('undoLastStep', () => {
+  it('takes the last completed step back: index down, completion entry gone, pending items replaced', async () => {
+    const e = enrollment({
+      programSlug: 'cbt-thoughts',
+      currentStepIndex: 2,
+      completedSteps: [
+        { stepIndex: 0, completedAt: '2026-07-01T10:00:00.000Z' },
+        { stepIndex: 1, completedAt: '2026-07-03T10:00:00.000Z', recordId: 'rec-1' },
+      ],
+    })
+    vi.mocked(programEnrollmentDexieRepository.getById).mockResolvedValueOnce(e)
+    vi.mocked(exercisePlanDexieRepository.listPendingByProgramSourceRef)
+      .mockResolvedValueOnce([planItem({ id: 'plan-step-2', exerciseSlug: 'thought-record', programStepIndex: 2 })])
+      .mockResolvedValueOnce([])
+    mockUpdateMerging(e)
+
+    const result = await undoLastStep('enr-1')
+
+    expect(exercisePlanDexieRepository.delete).toHaveBeenCalledWith('plan-step-2')
+    expect(result.removedPlanIds).toEqual(['plan-step-2'])
+    const patch = vi.mocked(programEnrollmentDexieRepository.update).mock.calls[0]?.[1]
+    expect(patch).toMatchObject({ currentStepIndex: 1 })
+    expect(patch?.completedSteps).toEqual([{ stepIndex: 0, completedAt: '2026-07-01T10:00:00.000Z' }])
+    expect(result.planItem).toMatchObject({ exerciseSlug: CBT.steps[1]!.exerciseSlug, programStepIndex: 1 })
+  })
+
+  it('refuses when the previous step was skipped or the enrollment is not active', async () => {
+    vi.mocked(programEnrollmentDexieRepository.getById).mockResolvedValueOnce(
+      enrollment({ programSlug: 'cbt-thoughts', currentStepIndex: 2, completedSteps: [{ stepIndex: 0, completedAt: '2026-07-01T10:00:00.000Z' }] })
+    )
+    await expect(undoLastStep('enr-1')).rejects.toThrow(/cannot be taken back/)
+    vi.mocked(programEnrollmentDexieRepository.getById).mockResolvedValueOnce(
+      enrollment({ status: 'paused', currentStepIndex: 1, completedSteps: [{ stepIndex: 0, completedAt: '2026-07-01T10:00:00.000Z' }] })
+    )
+    await expect(undoLastStep('enr-1')).rejects.toThrow(/paused/)
+  })
+
+  it('canUndoLastStep mirrors the rule', () => {
+    expect(canUndoLastStep(enrollment({ currentStepIndex: 1, completedSteps: [{ stepIndex: 0, completedAt: 'x' }] }))).toBe(true)
+    expect(canUndoLastStep(enrollment({ currentStepIndex: 1, completedSteps: [] }))).toBe(false)
+    expect(canUndoLastStep(enrollment({ currentStepIndex: 0 }))).toBe(false)
+    expect(canUndoLastStep(enrollment({ status: 'completed', currentStepIndex: 1, completedSteps: [{ stepIndex: 0, completedAt: 'x' }] }))).toBe(false)
   })
 })

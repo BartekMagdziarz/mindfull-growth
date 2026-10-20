@@ -26,6 +26,7 @@ import {
   resumeEnrollment as resumeEnrollmentService,
   runProgramScheduler,
   skipOptionalStep as skipOptionalStepService,
+  undoLastStep as undoLastStepService,
 } from '@/services/programSchedulerService'
 import { setPracticeOverrides as setPracticeOverridesService } from '@/services/programFollowUpService'
 import { useExercisePlanStore } from '@/stores/exercisePlan.store'
@@ -195,6 +196,18 @@ export const useProgramEnrollmentStore = defineStore('programEnrollment', () => 
     return enrollment
   }
 
+  /** "Cofnij": the last completed step becomes current again; its old pending items leave the cache. */
+  async function undoStep(id: string): Promise<ProgramEnrollment> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    const { enrollment, removedPlanIds, planItem, practices } = await operation.wait(undoLastStepService(id))
+    applyUpdate(enrollment)
+    mirrorRemovals(removedPlanIds)
+    mirrorPlanItem(planItem)
+    mirrorPractices(practices)
+    return enrollment
+  }
+
   /** Dose check decided: rhythm overrides written, practice items reconciled and mirrored. */
   async function applyPracticeOverrides(id: string, overrides: Record<string, { everyDays: number }>): Promise<void> {
     const operation = sessionScope.capture()
@@ -212,6 +225,18 @@ export const useProgramEnrollmentStore = defineStore('programEnrollment', () => 
     if (!current || current.readCards?.includes(cardKey)) return
     const updated = await operation.wait(
       programEnrollmentDexieRepository.update(id, { readCards: [...(current.readCards ?? []), cardKey] })
+    )
+    applyUpdate(updated)
+  }
+
+  /** The letter to a future self was opened — "Najbliżej" shows it as read from now on. */
+  async function markFutureLetterRead(id: string): Promise<void> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    const current = enrollments.value.find(enrollment => enrollment.id === id)
+    if (!current?.futureLetter || current.futureLetter.readAt) return
+    const updated = await operation.wait(
+      programEnrollmentDexieRepository.update(id, { futureLetter: { ...current.futureLetter, readAt: new Date().toISOString() } })
     )
     applyUpdate(updated)
   }
@@ -266,7 +291,9 @@ export const useProgramEnrollmentStore = defineStore('programEnrollment', () => 
     resume,
     abandon,
     skipStep,
+    undoStep,
     markCardRead,
+    markFutureLetterRead,
     applyPracticeOverrides,
     runScheduler,
     reset,

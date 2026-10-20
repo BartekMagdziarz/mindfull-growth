@@ -100,11 +100,11 @@ describe('ensureShameParts', () => {
       tags: ['shame-compass:attackSelf', 'program:shame-compassion'],
     })
     expect(payloads[1]).toMatchObject({
-      name: 'Oskarżyciel',
+      name: 'Agresor',
       role: 'firefighter',
       tags: ['shame-compass:attackOthers', 'program:shame-compassion'],
     })
-    expect(created.map(p => p.name)).toEqual(['Krytyk', 'Oskarżyciel'])
+    expect(created.map(p => p.name)).toEqual(['Krytyk', 'Agresor'])
   })
 
   it('is idempotent: an existing tagged part (even renamed) is reused, never duplicated', async () => {

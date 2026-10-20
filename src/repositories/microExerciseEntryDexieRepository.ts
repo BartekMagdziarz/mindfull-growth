@@ -40,6 +40,17 @@ class MicroExerciseEntryDexieRepository implements MicroExerciseEntryRepository 
     })
   }
 
+  async getById(id: string): Promise<MicroExerciseEntry | undefined> {
+    return userDatabaseOperation('r', ['microExerciseEntries'], async db => {
+      try {
+        return await db.microExerciseEntries.get(id)
+      } catch (error) {
+        console.error(`Failed to get micro exercise entry ${id}:`, error)
+        throw new Error(`Failed to retrieve micro exercise entry ${id}`)
+      }
+    })
+  }
+
   async getBySlug(exerciseSlug: string): Promise<MicroExerciseEntry[]> {
     return userDatabaseOperation('r', ['microExerciseEntries'], async db => {
       try {

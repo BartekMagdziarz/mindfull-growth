@@ -30,7 +30,7 @@ import { UNLOGGED_BUCKETS } from '@/domain/momentsProgress'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { programEnrollmentDexieRepository } from '@/repositories/programEnrollmentDexieRepository'
 import { createWeeklyIntention, listWeeklyIntentions } from '@/services/weeklyIntentionService'
-import { getPeriodBounds } from '@/utils/periods'
+import { getPeriodBounds, getPeriodRefsForDate } from '@/utils/periods'
 
 export interface ProgramTaskProposal extends WeeklyTaskOptions {
   enrollment: ProgramEnrollment
@@ -282,6 +282,8 @@ export interface WeekTaskState {
   intention: WeeklyIntention | null
   /** Days with an entry for the intention this week. */
   doneCount: number
+  /** Those days, sorted — the reflection names what counted each of them. */
+  doneDays: DayRef[]
 }
 
 /**
@@ -297,23 +299,27 @@ export async function weekTaskState(
 ): Promise<WeekTaskState> {
   const weekTask = await weekTaskForEnrollment(enrollment, weekRef)
   const intention = weekTask?.intention ?? null
-  let doneCount = 0
+  let doneDays: DayRef[] = []
   if (intention) {
     const { start, end } = getPeriodBounds(weekRef)
     const list =
       entries ?? (await planningStateDexieRepository.listDailyMeasurementEntriesForDayRange(start as DayRef, end as DayRef))
-    doneCount = new Set(
-      list
-        .filter((entry) => entry.subjectType === 'weeklyIntention' && entry.subjectId === intention.id)
-        .map((entry) => entry.dayRef),
-    ).size
+    doneDays = [
+      ...new Set(
+        list
+          .filter((entry) => entry.subjectType === 'weeklyIntention' && entry.subjectId === intention.id)
+          .map((entry) => entry.dayRef),
+      ),
+    ].sort()
   }
+  const doneCount = doneDays.length
   const task = weekTask ? program.weeklyTasks?.find((candidate) => candidate.key === weekTask.entry.taskKey) : undefined
   return {
     ...(weekTask ? { entry: weekTask.entry } : {}),
     ...(task ? { task } : {}),
     intention,
     doneCount,
+    doneDays,
   }
 }
 
@@ -329,16 +335,30 @@ export interface ReflectionPathBlock {
   intention: WeeklyIntention | null
   /** Days with an entry for the intention this week. */
   doneCount: number
+  doneDays: DayRef[]
 }
 
 /**
- * Programs that get a "Ścieżka" block in `weekRef`'s reflection: those with
- * `weeklyReflection` that are active, or that recorded a task decision this
- * week (e.g. a path completed mid-week).
+ * One "Ścieżka" block per program: use the latest approach started by the
+ * end of the reflected week. A restart supersedes the old approach from
+ * that week on, even when the old approach recorded a task decision.
+ * Earlier weeks still read the earlier approach. The selected approach
+ * gets a block when active or when it recorded a task decision that week
+ * (e.g. a path completed mid-week).
  */
 export async function loadReflectionPathBlocks(weekRef: WeekRef): Promise<ReflectionPathBlock[]> {
   const enrollments = await programEnrollmentDexieRepository.listAll()
-  const relevant = enrollments
+  const { start, end } = getPeriodBounds(weekRef)
+  const latestByProgram = new Map<string, ProgramEnrollment>()
+  for (const enrollment of [...enrollments].sort((a, b) =>
+    a.startedAt.localeCompare(b.startedAt) || a.createdAt.localeCompare(b.createdAt),
+  )) {
+    if (getPeriodRefsForDate(enrollment.startedAt).day > end) continue
+    latestByProgram.set(enrollment.programSlug, enrollment)
+  }
+  // Select before filtering by status: pausing the new approach must not
+  // make the abandoned approach reappear because of its old task log.
+  const relevant = [...latestByProgram.values()]
     .filter((enrollment) => {
       const program = getProgramDefinition(enrollment.programSlug)
       if (!program?.weeklyReflection) return false
@@ -347,7 +367,6 @@ export async function loadReflectionPathBlocks(weekRef: WeekRef): Promise<Reflec
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
   if (relevant.length === 0) return []
 
-  const { start, end } = getPeriodBounds(weekRef)
   const entries = await planningStateDexieRepository.listDailyMeasurementEntriesForDayRange(
     start as DayRef,
     end as DayRef,

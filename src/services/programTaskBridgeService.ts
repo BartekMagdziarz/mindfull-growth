@@ -8,12 +8,15 @@ import { captureUserSession } from '@/services/userSessionScope'
  * — from the path panel, the exercise view, a practice row, anywhere —
  * the day gets an intention entry, exactly as the check in Plan Dnia
  * would create it. One day = one entry (upsert), so a second save on the
- * same day never double-counts. Deleting the exercise entry does not undo
+ * same day never double-counts. A task with a `countRule` counts only the
+ * Moments whose answers say the task happened (`taskCountsEntry`). Deleting the exercise entry does not undo
  * the day; the user unticks it in Plan Dnia.
  *
  * Hooked into `recordCompletion`; never throws into the caller.
  */
 
+import type { MicroExerciseEntry } from '@/domain/microExercises'
+import { momentFamily, reactionOf, responsesOf } from '@/domain/momentFamilies'
 import type { DayRef, WeekRef } from '@/domain/period'
 import type { WeeklyIntention } from '@/domain/planning'
 import type { ProgramDefinition, ProgramEnrollment, ProgramWeeklyTask } from '@/domain/program'
@@ -61,6 +64,25 @@ export function matchProgramTasks(
   return matches
 }
 
+/**
+ * Does this entry count a day of `task`? Tasks without a `countRule` count
+ * every completion (the original bridge). With a rule, the Moment's
+ * "co zrobiłeś zamiast" answers (and the part at the wheel) decide — a
+ * Moment logged with "nic, tym razem" is not a day of "zrób coś dla siebie".
+ */
+export function taskCountsEntry(task: ProgramWeeklyTask, entry: MicroExerciseEntry | undefined): boolean {
+  const rule = task.countRule
+  if (!rule) return true
+  if (!entry) return false
+  if (entry.responses.hadMoment !== 'yes') return false
+  // The Moment's own family decides which steps hold the reaction and the moves (shame: compass/response).
+  const family = momentFamily(entry.responses.kind)
+  if (rule.part && reactionOf(entry.responses, family) !== rule.part) return false
+  const response = responsesOf(entry.responses, family)
+  if (rule.any) return response.some(item => item !== 'nothing')
+  return (rule.options ?? []).some(option => response.includes(option))
+}
+
 export interface TaskProgressResult {
   /** Intentions that got (or already had) an entry for `dayRef`. */
   intentionIds: string[]
@@ -81,7 +103,12 @@ export async function recordTaskProgress(
   const enrollments = await session.wait(programEnrollmentDexieRepository.listAll())
   if (!enrollments.some(enrollment => enrollment.status === 'active')) return { intentionIds: [] }
   const intentions = await session.wait(listWeeklyIntentions(weekRef))
-  const matches = matchProgramTasks(slug, weekRef, enrollments, intentions)
+  let matches = matchProgramTasks(slug, weekRef, enrollments, intentions)
+  if (matches.some(match => match.task.countRule)) {
+    // Only tasks with a rule need the entry; a missing entry fails those rules.
+    const entry = recordId ? await session.wait(microExerciseEntryDexieRepository.getById(recordId)) : undefined
+    matches = matches.filter(match => taskCountsEntry(match.task, entry))
+  }
   const intentionIds: string[] = []
   for (const match of matches) {
     await session.wait(

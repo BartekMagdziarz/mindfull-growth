@@ -11,6 +11,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { CreateMicroExerciseEntryPayload, MicroExerciseEntry } from '@/domain/microExercises'
 import { microExerciseEntryDexieRepository } from '@/repositories/microExerciseEntryDexieRepository'
+import { backfillMoment, type BackfillMomentInput } from '@/services/momentBackfillService'
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useMicroExerciseEntryStore = defineStore('microExerciseEntry', () => {
@@ -77,6 +78,23 @@ export const useMicroExerciseEntryStore = defineStore('microExerciseEntry', () =
     }
   }
 
+  /** A Moment written down later from the weekly reflection (no exercise completion). */
+  async function createBackfilledMoment(input: BackfillMomentInput): Promise<MicroExerciseEntry> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    error.value = null
+    try {
+      const entry = await operation.wait(backfillMoment(input))
+      entries.value.push(entry)
+      return entry
+    } catch (err) {
+      operation.assertCurrent()
+      error.value = err instanceof Error ? err.message : 'Failed to backfill moment'
+      console.error('Error backfilling moment:', err)
+      throw err
+    }
+  }
+
   async function deleteEntry(id: string): Promise<void> {
     const operation = sessionScope.capture()
     operation.assertCurrent()
@@ -116,6 +134,7 @@ export const useMicroExerciseEntryStore = defineStore('microExerciseEntry', () =
     entriesBySlug,
     loadEntries,
     createEntry,
+    createBackfilledMoment,
     deleteEntry,
     reset,
   }

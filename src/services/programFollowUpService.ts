@@ -21,9 +21,10 @@ import { getPeriodRefsForDate } from '@/utils/periods'
  * enrollment of a program that has the letter as a step, else the newest
  * completed one (the letter may be the last thing written before the close).
  */
-function letterEnrollment(enrollments: readonly ProgramEnrollment[]): ProgramEnrollment | undefined {
+function letterEnrollment(enrollments: readonly ProgramEnrollment[], programSlug?: string): ProgramEnrollment | undefined {
   const candidates = enrollments
     .filter((enrollment) => {
+      if (programSlug && enrollment.programSlug !== programSlug) return false
       const program = getProgramDefinition(enrollment.programSlug)
       return program?.steps.some((step) => step.exerciseSlug === FUTURE_LETTER_SLUG) && enrollment.status !== 'abandoned'
     })
@@ -36,9 +37,11 @@ export async function recordFutureLetter(
   entryId: string,
   responses: Record<string, MicroStepValue>,
   writtenOn: DayRef = getPeriodRefsForDate(new Date()).day,
+  /** The path the letter was written on (several paths carry the step); the newest open one otherwise. */
+  programSlug?: string,
 ): Promise<ProgramEnrollment | null> {
   const session = captureUserSession()
-  const enrollment = letterEnrollment(await session.wait(programEnrollmentDexieRepository.listAll()))
+  const enrollment = letterEnrollment(await session.wait(programEnrollmentDexieRepository.listAll()), programSlug)
   if (!enrollment) return null
   return session.wait(
     programEnrollmentDexieRepository.update(enrollment.id, {

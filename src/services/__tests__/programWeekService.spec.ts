@@ -38,9 +38,9 @@ const entry = (overrides: Partial<ProgramWeekEntry>): ProgramWeekEntry => ({
 
 describe('currentPhase', () => {
   it('maps the current step to its phase, the last step once walked', () => {
-    expect(currentPhase(ANGER, enrollment({ currentStepIndex: 0 }))?.key).toBe('understanding')
-    expect(currentPhase(ANGER, enrollment({ currentStepIndex: 4 }))?.key).toBe('thoughts')
-    expect(currentPhase(ANGER, enrollment({ currentStepIndex: ANGER.steps.length }))?.key).toBe('consolidation')
+    expect(currentPhase(ANGER, enrollment({ currentStepIndex: 0 }))?.key).toBe('w1')
+    expect(currentPhase(ANGER, enrollment({ currentStepIndex: 4 }))?.key).toBe('w2')
+    expect(currentPhase(ANGER, enrollment({ currentStepIndex: ANGER.steps.length }))?.key).toBe('return')
   })
 })
 
@@ -58,14 +58,14 @@ describe('proposeWeeklyTask', () => {
   })
 
   it('moves to the next task of a phase with several tasks', () => {
-    const e = enrollment({ currentStepIndex: 8, weekLog: [entry({ weekRef: week('2026-W40'), taskKey: 'applySolution' })] })
+    const e = enrollment({ currentStepIndex: 11, weekLog: [entry({ weekRef: week('2026-W40'), taskKey: 'applySolution' })] })
     expect(proposeWeeklyTask(ANGER, e, week('2026-W41'))?.task.key).toBe('calmRequest')
   })
 
   it('repeats the phase task when every task of the phase was accepted', () => {
-    const e = enrollment({ weekLog: [entry({ weekRef: week('2026-W36') })] })
+    const e = enrollment({ weekLog: [entry({ weekRef: week('2026-W35') }), entry({ weekRef: week('2026-W36'), taskKey: 'noticeCost' })] })
     expect(proposeWeeklyTask(ANGER, e, week('2026-W37'))).toEqual({
-      task: expect.objectContaining({ key: 'noticeSigns' }),
+      task: expect.objectContaining({ key: 'noticeCost' }),
       repeat: true,
     })
   })

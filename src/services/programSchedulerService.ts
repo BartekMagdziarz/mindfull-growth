@@ -543,6 +543,48 @@ export async function skipOptionalStep(id: string): Promise<{
 }
 
 /**
+ * "Cofnij" on the last completed step (path view, Lab round 6): the step
+ * right before the current one goes back to current. Only an ACTIVE
+ * enrollment, only when that step has a completion entry (a skipped
+ * optional step cannot be taken back — skip it again or not). The exercise
+ * record stays in history; the pending step item is replaced by one for
+ * the undone step, practices are reconciled to the index.
+ */
+export async function undoLastStep(id: string): Promise<{
+  enrollment: ProgramEnrollment
+  removedPlanIds: string[]
+  planItem: ExercisePlanItem | null
+  practices: PracticeReconciliation
+}> {
+  return userDatabaseOperation('rw', ['exercisePlanItems', 'programEnrollments'], async () => {
+    const enrollment = await requireEnrollment(id, ['active'])
+    const program = getProgramDefinition(enrollment.programSlug)
+    if (!program) {
+      throw new Error(`Unknown program ${enrollment.programSlug}`)
+    }
+    const previousIndex = enrollment.currentStepIndex - 1
+    const completed = enrollment.completedSteps.find(step => step.stepIndex === previousIndex)
+    if (previousIndex < 0 || !completed) {
+      throw new Error(`Step ${previousIndex} of enrollment ${id} cannot be taken back`)
+    }
+    const removedPlanIds = await deletePendingProgramItems(id)
+    const updated = await programEnrollmentDexieRepository.update(id, {
+      currentStepIndex: previousIndex,
+      completedSteps: enrollment.completedSteps.filter(step => step.stepIndex !== previousIndex),
+    })
+    const planItem = await ensureCurrentStepMaterialized(updated)
+    return { enrollment: updated, removedPlanIds, planItem, practices: await reconcilePractices(updated) }
+  })
+}
+
+/** Whether "Cofnij" applies: the step before the current one was completed (not skipped) on an active enrollment. */
+export function canUndoLastStep(enrollment: Pick<ProgramEnrollment, 'status' | 'currentStepIndex' | 'completedSteps'> | null | undefined): boolean {
+  if (!enrollment || enrollment.status !== 'active') return false
+  const previousIndex = enrollment.currentStepIndex - 1
+  return previousIndex >= 0 && enrollment.completedSteps.some(step => step.stepIndex === previousIndex)
+}
+
+/**
  * Timeline model for the program detail view. Null enrollment (not
  * enrolled / abandoned history hidden) → every step 'locked'. Steps
  * below the index are 'done' (with their completion) or 'skipped';

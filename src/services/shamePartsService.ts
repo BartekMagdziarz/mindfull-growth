@@ -61,7 +61,7 @@ export const SHAME_COMPASS_PARTS: Readonly<Record<ShameReaction, ShameCompassPar
   },
   attackOthers: {
     reaction: 'attackOthers',
-    name: 'Oskarżyciel',
+    name: 'Agresor',
     role: 'firefighter',
     positiveIntention: 'Obwinia i odpycha innych, zanim poczucie małości zdąży zaboleć.',
     tag: 'shame-compass:attackOthers',
