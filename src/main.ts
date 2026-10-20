@@ -22,7 +22,12 @@ const app = createApp(App)
 const pinia = createPinia()
 app.use(pinia)
 
-if (import.meta.env.DEV && import.meta.env.VITE_VERIFICATION_MODE !== '1' && import.meta.env.MODE !== 'ai-demo') {
+if (
+  import.meta.env.DEV &&
+  import.meta.env.VITE_VERIFICATION_MODE !== '1' &&
+  import.meta.env.VITE_DEMO_MODE !== '1' &&
+  import.meta.env.MODE !== 'ai-demo'
+) {
   Promise.all([
     import('./services/todayVisualizationAudit'),
     import('./repositories/habitDexieRepository'),
@@ -54,6 +59,13 @@ async function start(): Promise<void> {
   if (import.meta.env.DEV && import.meta.env.VITE_VERIFICATION_MODE === '1') {
     const { bootstrapVerificationEnvironment } = await import('./dev/verificationSeed')
     await bootstrapVerificationEnvironment()
+  }
+
+  // Demo mode (npm run dev:demo): the fixed demo account „Julia” with half a
+  // year of seeded history, re-seeded on the first load of each day.
+  if (import.meta.env.DEV && import.meta.env.VITE_DEMO_MODE === '1') {
+    const { bootstrapDemoEnvironment } = await import('./dev/demo/demoSeed')
+    await bootstrapDemoEnvironment()
   }
 
   if (import.meta.env.DEV && import.meta.env.MODE === 'ai-demo') {
