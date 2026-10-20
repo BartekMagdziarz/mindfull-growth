@@ -21,7 +21,6 @@ const KEYS = {
   // are serialised as `'true'` / `'false'` and parsed on load.
   PROFILE_CONTEXT_DEFAULT: 'preferences.profileContext.default',
   PROFILE_CONTEXT_DEFAULT_JOURNAL: 'preferences.profileContext.defaultJournal',
-  DOCK_PINNED: 'preferences.dockPinned',
   TODAY_COLLAPSE_COMPLETED: 'preferences.today.collapseCompleted',
   // Legacy key — read once during loadPreferences() to migrate the value
   // into PROFILE_CONTEXT_DEFAULT, then deleted. Do not introduce new
@@ -37,9 +36,6 @@ const DEFAULTS = {
   GENDER: DEFAULT_GENDER as GrammaticalGender,
   PROFILE_CONTEXT_DEFAULT: true,
   PROFILE_CONTEXT_DEFAULT_JOURNAL: true,
-  // Nav dock starts unpinned ("peek" mode): hidden behind the left edge,
-  // revealed on edge hover. Pinning keeps it visible and offsets <main>.
-  DOCK_PINNED: false,
   // Day list shows completed rows by default; collapsing them is a user choice.
   TODAY_COLLAPSE_COMPLETED: false,
 }
@@ -52,7 +48,6 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
   const grammaticalGender = ref<GrammaticalGender>(DEFAULTS.GENDER)
   const profileContextDefault = ref<boolean>(DEFAULTS.PROFILE_CONTEXT_DEFAULT)
   const profileContextDefaultJournal = ref<boolean>(DEFAULTS.PROFILE_CONTEXT_DEFAULT_JOURNAL)
-  const dockPinned = ref<boolean>(DEFAULTS.DOCK_PINNED)
   const todayCollapseCompleted = ref<boolean>(DEFAULTS.TODAY_COLLAPSE_COMPLETED)
   const foundationRefreshDismissedAt = ref<string | undefined>(undefined)
   const isLoaded = ref(false)
@@ -122,16 +117,6 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
             : storedProfileDefaultJournal === 'false'
               ? false
               : DEFAULTS.PROFILE_CONTEXT_DEFAULT_JOURNAL
-
-        const storedDockPinned = await operation.wait(
-          userSettingsDexieRepository.get(KEYS.DOCK_PINNED)
-        )
-        dockPinned.value =
-          storedDockPinned === 'true'
-            ? true
-            : storedDockPinned === 'false'
-              ? false
-              : DEFAULTS.DOCK_PINNED
 
         const storedCollapseCompleted = await operation.wait(
           userSettingsDexieRepository.get(KEYS.TODAY_COLLAPSE_COMPLETED)
@@ -227,20 +212,6 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
     }
   }
 
-  async function setDockPinned(value: boolean): Promise<void> {
-    const operation = sessionScope.capture()
-    operation.assertCurrent()
-    try {
-      const normalized = !!value
-      dockPinned.value = normalized
-      await operation.wait(
-        userSettingsDexieRepository.set(KEYS.DOCK_PINNED, normalized ? 'true' : 'false')
-      )
-    } catch (error) {
-      if (operation.isCurrent()) throw error
-    }
-  }
-
   async function setTodayCollapseCompleted(value: boolean): Promise<void> {
     const operation = sessionScope.capture()
     operation.assertCurrent()
@@ -305,7 +276,6 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
     grammaticalGender.value = DEFAULTS.GENDER
     profileContextDefault.value = DEFAULTS.PROFILE_CONTEXT_DEFAULT
     profileContextDefaultJournal.value = DEFAULTS.PROFILE_CONTEXT_DEFAULT_JOURNAL
-    dockPinned.value = DEFAULTS.DOCK_PINNED
     todayCollapseCompleted.value = DEFAULTS.TODAY_COLLAPSE_COMPLETED
     foundationRefreshDismissedAt.value = undefined
     isLoaded.value = false
@@ -318,7 +288,6 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
     grammaticalGender,
     profileContextDefault,
     profileContextDefaultJournal,
-    dockPinned,
     todayCollapseCompleted,
     foundationRefreshDismissedAt,
     isLoaded,
@@ -329,7 +298,6 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
     setGrammaticalGender,
     setProfileContextDefault,
     setProfileContextDefaultJournal,
-    setDockPinned,
     setTodayCollapseCompleted,
     setFoundationRefreshDismissedAt,
     clearFoundationRefreshDismissedAt,

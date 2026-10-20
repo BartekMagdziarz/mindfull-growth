@@ -19,8 +19,8 @@
   aktywny segment = powrót do kroku 1. (Wybrana przez użytkownika 2026-07-04
   spośród dwóch wariantów; odrzucone pełnowymiarowe zakładki usunięte.)
 
-  Dawny poziom 3 (scatter całej ćwiartki) został wyjęty do nieużywanego
-  komponentu src/components/emotion/EmotionScatter.vue.
+  Dawny poziom 3 (scatter całej ćwiartki) został usunięty 2026-10-20 — nic
+  go nie renderowało od przebudowy pickera.
 
   Publiczne API zachowane (drop-in we wszystkich ~20 miejscach):
     - v-model            → tablica ID emocji (string[])

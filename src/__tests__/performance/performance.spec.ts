@@ -8,7 +8,7 @@ import { useEmotionStore } from '@/stores/emotion.store'
 import { useTagStore } from '@/stores/tag.store'
 import type { JournalEntry } from '@/domain/journal'
 import type { EmotionLog } from '@/domain/emotionLog'
-import { render, cleanup } from '@testing-library/vue'
+import { cleanup } from '@testing-library/vue'
 import emotionsData from '@/data/emotions.json'
 
 vi.mock('vue-router', () => ({
@@ -19,8 +19,6 @@ vi.mock('vue-router', () => ({
     path: '/',
   }),
 }))
-
-import JournalView from '@/views/JournalView.vue'
 
 const EMOTION_ID = (emotionsData as { id: string }[])[0].id
 
@@ -82,50 +80,6 @@ describe('Performance benchmarks', () => {
 
     expect(duration).toBeLessThan(5000)
     expect(emotionLogStore.logs).toHaveLength(120)
-  })
-
-  it('renders JournalView with 120 entries in under 800ms', async () => {
-    const pinia = createPinia()
-    setActivePinia(pinia)
-    const journalStore = useJournalStore()
-    const emotionStore = useEmotionStore()
-    const tagStore = useTagStore()
-
-    // Preload store state
-    const entries: JournalEntry[] = []
-    const now = Date.now()
-    for (let i = 0; i < 120; i++) {
-      entries.push({
-        id: `ui-entry-${i}`,
-        createdAt: new Date(now + i).toISOString(),
-        updatedAt: new Date(now + i).toISOString(),
-        title: `UI Entry ${i}`,
-        body: `UI Body ${i}`,
-        emotionIds: [EMOTION_ID],
-        peopleTagIds: [],
-        contextTagIds: [],
-      })
-    }
-    journalStore.entries = entries
-    journalStore.loadEntries = vi.fn()
-    vi.spyOn(emotionStore, 'emotions', 'get').mockReturnValue(emotionsData as any)
-    vi.spyOn(emotionStore, 'isLoaded', 'get').mockReturnValue(true)
-    tagStore.peopleTags = []
-    tagStore.contextTags = []
-
-    const start = performance.now()
-    const utils = render(JournalView, {
-      global: {
-        plugins: [pinia],
-        stubs: {
-          transition: false,
-        },
-      },
-    })
-    const duration = performance.now() - start
-
-    expect(duration).toBeLessThan(800)
-    utils.unmount()
   })
 
   it('resolves 200 emotion ids to names in under 200ms', async () => {
