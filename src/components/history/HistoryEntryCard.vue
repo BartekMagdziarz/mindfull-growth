@@ -13,7 +13,7 @@
             <AppIcon :name="typeIcon" class="text-sm history-card__type-icon" />
             {{ typeLabel }}
           </span>
-          <span>{{ formatEntryDate(entry.createdAt) }}</span>
+          <span>{{ formatEntryDate(entry.createdAt, locale) }}</span>
         </p>
         <!-- Actions tray: visible on hover / focus -->
         <div class="mg-v2-card-tray group-hover/card:opacity-100">
@@ -147,7 +147,7 @@ defineEmits<{
 
 const emotionStore = useEmotionStore()
 const tagStore = useTagStore()
-const { t } = useT()
+const { t, locale } = useT()
 
 const typeIcon = computed<string>(() => {
   return props.entry.type === 'journal' ? 'edit' : 'favorite'
@@ -173,7 +173,9 @@ const deleteAriaLabel = computed(() => {
     const title = getDisplayTitle(props.entry)
     return title ? t('history.card.deleteJournal', { title }) : t('history.card.deleteUntitled')
   }
-  return t('history.card.deleteEmotion', { date: formatEntryDate(props.entry.createdAt) })
+  return t('history.card.deleteEmotion', {
+    date: formatEntryDate(props.entry.createdAt, locale.value),
+  })
 })
 
 function getEmotionName(id: string): string | undefined {

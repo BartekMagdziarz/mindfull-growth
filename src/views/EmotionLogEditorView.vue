@@ -202,7 +202,7 @@ const route = useRoute()
 const emotionLogStore = useEmotionLogStore()
 const emotionStore = useEmotionStore()
 const tagStore = useTagStore()
-const { t } = useT()
+const { t, locale } = useT()
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 
 const showSnackbarThenNavigate = async (message: string, path: string) => {
@@ -330,14 +330,14 @@ const isValid = computed(() => wheelSelections.value.length > 0)
 const formattedTimestamp = computed(() => {
   // Use custom date if set and valid
   if (customCreatedAt.value && !isNaN(customCreatedAt.value.getTime())) {
-    return formatEntryDate(customCreatedAt.value.toISOString())
+    return formatEntryDate(customCreatedAt.value.toISOString(), locale.value)
   }
 
   // Use log date if in edit mode and date is valid
   if (isEditMode.value && currentLog.value) {
     const logDate = new Date(currentLog.value.createdAt)
     if (!isNaN(logDate.getTime())) {
-      return formatEntryDate(logDate.toISOString())
+      return formatEntryDate(logDate.toISOString(), locale.value)
     }
     // Invalid date - show "Unknown date" to allow user to fix it
     return t('emotionViews.editor.unknownDate')
@@ -355,10 +355,10 @@ const formattedTimestamp = computed(() => {
   if (isToday) {
     const hours = now.getHours().toString().padStart(2, '0')
     const minutes = now.getMinutes().toString().padStart(2, '0')
-    return `Today, ${hours}:${minutes}`
+    return t('journal.editor.todayTime', { time: `${hours}:${minutes}` })
   }
 
-  return now.toLocaleDateString('en-US', {
+  return now.toLocaleDateString(locale.value, {
     weekday: 'long',
     year: 'numeric',
     month: 'long',

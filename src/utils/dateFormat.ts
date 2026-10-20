@@ -50,7 +50,10 @@ export function formatEntryDate(dateString: string, locale?: string): string {
   const ampm = hours >= 12 ? 'PM' : 'AM'
   const displayHours = hours % 12 || 12
   const displayMinutes = minutes.toString().padStart(2, '0')
-  const timeString = `${displayHours}:${displayMinutes} ${ampm}`
+  const timeString =
+    locale === 'pl'
+      ? entryDate.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })
+      : `${displayHours}:${displayMinutes} ${ampm}`
 
   // Check if entry is from today
   if (entryDay.getTime() === today.getTime()) {
@@ -60,6 +63,16 @@ export function formatEntryDate(dateString: string, locale?: string): string {
   // Check if entry is from yesterday
   if (entryDay.getTime() === yesterday.getTime()) {
     return `${m.time.yesterday}, ${timeString}`
+  }
+
+  // Polish: day-first with the short month and a 24-hour clock ("18 paź 2026, 15:00").
+  if (locale === 'pl') {
+    const datePart = entryDate.toLocaleDateString('pl-PL', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    })
+    return `${datePart}, ${timeString}`
   }
 
   // Format older dates as "MMM DD, YYYY, HH:MM AM/PM"
@@ -173,5 +186,5 @@ export function formatChatSessionDate(timestamp: string, locale?: string): strin
     return template.replace('{n}', String(diffDays))
   }
 
-  return sessionDate.toLocaleDateString()
+  return sessionDate.toLocaleDateString(locale === 'pl' ? 'pl-PL' : 'en-US')
 }

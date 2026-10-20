@@ -454,7 +454,7 @@ const journalStore = useJournalStore()
 const emotionStore = useEmotionStore()
 const tagStore = useTagStore()
 const chatStore = useChatStore()
-const { t } = useT()
+const { t, locale } = useT()
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 
 const title = ref('')
@@ -570,14 +570,14 @@ const canStartChat = computed(() => {
 const formattedTimestamp = computed(() => {
   // Use custom date if set and valid
   if (customCreatedAt.value && !isNaN(customCreatedAt.value.getTime())) {
-    return formatEntryDate(customCreatedAt.value.toISOString())
+    return formatEntryDate(customCreatedAt.value.toISOString(), locale.value)
   }
 
   // Use entry date if in edit mode and date is valid
   if (isEditMode.value && currentEntry.value) {
     const entryDate = new Date(currentEntry.value.createdAt)
     if (!isNaN(entryDate.getTime())) {
-      return formatEntryDate(entryDate.toISOString())
+      return formatEntryDate(entryDate.toISOString(), locale.value)
     }
     // Invalid date - show "Unknown date" to allow user to fix it
     return t('journal.editor.unknownDate')
@@ -597,7 +597,7 @@ const formattedTimestamp = computed(() => {
     const minutes = now.getMinutes().toString().padStart(2, '0')
     return t('journal.editor.todayTime', { time: `${hours}:${minutes}` })
   } else {
-    return now.toLocaleDateString('en-US', {
+    return now.toLocaleDateString(locale.value, {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
