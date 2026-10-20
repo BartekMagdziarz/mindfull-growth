@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest'
 import { createPinia, defineStore, setActivePinia } from 'pinia'
 import type { DexieCrudRepository, TimestampedRecord } from '@/repositories/_crud'
 import { reportError } from '@/utils/reportError'
@@ -19,18 +19,15 @@ function makeNote(id: string, createdAt: string, title = id): Note {
   return { id, createdAt, updatedAt: createdAt, title }
 }
 
-function makeRepository(): DexieCrudRepository<Note, CreateNote, UpdateNote> & {
-  getAll: ReturnType<typeof vi.fn>
-  create: ReturnType<typeof vi.fn>
-  update: ReturnType<typeof vi.fn>
-  delete: ReturnType<typeof vi.fn>
-} {
+type NoteRepository = DexieCrudRepository<Note, CreateNote, UpdateNote>
+
+function makeRepository(): { [K in keyof NoteRepository]: Mock<NoteRepository[K]> } {
   return {
-    getAll: vi.fn(),
-    getById: vi.fn(),
-    create: vi.fn(),
-    update: vi.fn(),
-    delete: vi.fn(),
+    getAll: vi.fn<NoteRepository['getAll']>(),
+    getById: vi.fn<NoteRepository['getById']>(),
+    create: vi.fn<NoteRepository['create']>(),
+    update: vi.fn<NoteRepository['update']>(),
+    delete: vi.fn<NoteRepository['delete']>(),
   }
 }
 
