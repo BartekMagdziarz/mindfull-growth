@@ -7,7 +7,7 @@ import {
   connectUserDatabase,
   disconnectUserDatabase,
   getUserDatabase,
-} from '@/services/userDatabase.service'
+} from '@/services/userDatabaseService'
 
 describe('useWheelOfLifeWizard', () => {
   beforeEach(async () => {

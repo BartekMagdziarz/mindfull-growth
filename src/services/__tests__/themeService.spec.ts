@@ -7,9 +7,9 @@ import {
   DEFAULT_THEME_ID,
   getCachedThemePreference,
   normalizeThemeId,
-} from '../theme.service'
+} from '../themeService'
 
-describe('theme.service', () => {
+describe('themeService', () => {
   beforeEach(() => {
     document.documentElement.removeAttribute('data-theme')
     window.localStorage.clear()

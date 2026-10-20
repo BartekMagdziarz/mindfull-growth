@@ -1,5 +1,5 @@
 import type { Table } from 'dexie'
-import { getUserDatabase } from './userDatabase.service'
+import { getUserDatabase } from './userDatabaseService'
 import { captureUserSession, invalidateUserSession } from './userSessionScope'
 import { pendingProgramPlanKey, type ExercisePlanItem } from '@/domain/exercisePlan'
 

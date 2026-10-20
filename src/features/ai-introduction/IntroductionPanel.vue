@@ -174,7 +174,7 @@ import {
   type CompanionIntroduction,
   type IntroArea,
 } from '@/domain/companionIntroduction'
-import { getUserDatabase } from '@/services/userDatabase.service'
+import { getUserDatabase } from '@/services/userDatabaseService'
 import { introductionService } from '@/services/ai/introduction/service'
 import { createHistoryTools } from '@/services/ai/history/tools'
 import { sourceKey } from '@/services/ai/history/contracts'

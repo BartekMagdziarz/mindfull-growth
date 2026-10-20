@@ -3,7 +3,7 @@
  * Eager-imports all locale files (only 2 locales, small size).
  */
 
-import type { LocaleId } from '@/services/locale.service'
+import type { LocaleId } from '@/services/localeService'
 import type {
   CbtPromptModule,
   LogotherapyPromptModule,

@@ -1,4 +1,4 @@
-import type { LocaleId } from '@/services/locale.service'
+import type { LocaleId } from '@/services/localeService'
 
 export type AssessmentId =
   | 'ipip-bfm-50'

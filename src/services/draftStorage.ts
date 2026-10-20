@@ -6,7 +6,7 @@
  * so that in-progress drafts survive browser refresh and tab close.
  */
 
-import { isUserDatabaseConnected } from './userDatabase.service'
+import { isUserDatabaseConnected } from './userDatabaseService'
 import { userDatabaseOperation } from '@/repositories/userDatabaseOperation'
 import { captureUserSession } from './userSessionScope'
 

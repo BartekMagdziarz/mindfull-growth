@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import type { EmotionLog } from '@/domain/emotionLog'
 import { emotionLogDexieRepository } from '@/repositories/emotionLogDexieRepository'
 import { connectTestDatabase } from '@/test/testDatabase'
-import type { UserDatabase } from '@/services/userDatabase.service'
+import type { UserDatabase } from '@/services/userDatabaseService'
 
 describe('emotionLogDexieRepository', () => {
   let db: UserDatabase

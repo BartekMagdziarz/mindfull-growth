@@ -254,7 +254,7 @@ Turn `assembleProfilePayload` from "dump everything then throw" into "fill to a 
 quadrant distribution + top emotions, journal `{entryCount, topPeople, topContexts, wordCount,
 1-line leads}`, exercise counts. Cached in `profilePeriodSummaries` (v21), `cyrb53` content-hash
 invalidation, rendered as `[SUMMARIZED HISTORY]`, slotted into the budget selector after
-reflections. Service: `src/services/profilePeriodSummary.service.ts`. **Two fixes pending** (from
+reflections. Service: `src/services/profilePeriodSummaryService.ts`. **Two fixes pending** (from
 the first real build, see Status): tier **only under budget pressure**, and fix the **UTC/local
 boundary overlap**.
 
@@ -365,7 +365,7 @@ model. 3b adds the missing half: an LLM-written narrative per period. **Locked d
   per-type×age breakdown (`estimateTokens:91`, `queryScopePreview:106`).
 - `src/services/profileLLMAssistsHelpers.ts` — deterministic period rollups reusing snapshot /
   exec-metrics patterns + `getQuadrant` + `extract*Ratings`.
-- `src/services/userDatabase.service.ts` — `version(21)` `profilePeriodSummaries` table (Pillar 3).
+- `src/services/userDatabaseService.ts` — `version(21)` `profilePeriodSummaries` table (Pillar 3).
 - Reference-only: `src/services/llmService.ts` (`LLMUsage`, `computeOllamaNumCtx`, headroom
   constants), `src/components/profile/ProfileBuildLogPanel.vue` (already renders `tokenUsage`),
   `src/composables/useWeeklyReflectionWizard.ts` (`aiSummary` is live — don't reuse).

@@ -5,7 +5,7 @@ import type { EmotionLog } from '@/domain/emotionLog'
 import type { PeopleTag } from '@/domain/tag'
 import type { ContextTag } from '@/domain/tag'
 import type { ChatSession } from '@/domain/chatSession'
-import { UserDatabase } from '@/services/userDatabase.service'
+import { UserDatabase } from '@/services/userDatabaseService'
 
 // Test database class that mimics the version 2 schema
 class TestDatabaseV2 extends Dexie {

@@ -297,7 +297,7 @@ entries).
 ## 5. Data model / Dexie
 
 New tables only (no reshaping of existing rows). Schema lives in
-`src/services/userDatabase.service.ts` (`class UserDatabase extends Dexie`); current
+`src/services/userDatabaseService.ts` (`class UserDatabase extends Dexie`); current
 version is **22** as of 2026-07-04 — verify the latest `this.version(N)` before bumping.
 One version bump per phase, matching trunk-based delivery:
 
@@ -469,7 +469,7 @@ numbers may drift.
 
 ### Dexie schema
 
-- `src/services/userDatabase.service.ts` — `class UserDatabase extends Dexie`; table
+- `src/services/userDatabaseService.ts` — `class UserDatabase extends Dexie`; table
   fields typed `Table<T, string>` near the top; versions declared sequentially
   (`this.version(N).stores({...})`); **new tables need no `.upgrade`** (see v21/v22
   comments); reshape example with `.upgrade`: v19/v20. The 33 exercise tables are

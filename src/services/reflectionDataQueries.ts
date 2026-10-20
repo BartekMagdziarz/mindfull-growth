@@ -20,7 +20,7 @@ import {
   tallyWeekStates,
   type WeekState,
 } from '@/domain/weeklyCadence'
-import { getUserDatabase } from '@/services/userDatabase.service'
+import { getUserDatabase } from '@/services/userDatabaseService'
 import { getWeekRelevantObjects, getMonthPlanningBundle } from '@/services/planningStateQueries'
 import type {
   MeasurementPlanningSummary,

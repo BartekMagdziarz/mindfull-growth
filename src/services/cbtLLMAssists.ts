@@ -7,7 +7,7 @@
  */
 
 import { sendMessage, type ChatMessage } from '@/services/llmService'
-import type { LocaleId } from '@/services/locale.service'
+import type { LocaleId } from '@/services/localeService'
 import { getCbtPrompts } from '@/services/prompts'
 import type { CbtPromptModule } from '@/services/prompts/types'
 import { withProfileContextSystemPrompt } from '@/services/userContext'

@@ -36,7 +36,7 @@ import {
   normalizeTodayHiddenStatePayload,
 } from '@/domain/planningState'
 import { invalidatePlanningQueryCache } from '@/services/planningQueryCache'
-import { getUserDatabase } from '@/services/userDatabase.service'
+import { getUserDatabase } from '@/services/userDatabaseService'
 import { getPeriodRefsForDate, getWeekOverlappingMonths } from '@/utils/periods'
 import type { PlanningStateRepository } from './planningStateRepository'
 import {

@@ -1,5 +1,5 @@
 import { captureUserSession } from '@/services/userSessionScope'
-import { getUserDatabase, getCurrentUserId } from '@/services/userDatabase.service'
+import { getUserDatabase, getCurrentUserId } from '@/services/userDatabaseService'
 import type { CompanionConversation } from '@/domain/companionConversation'
 import { CompanionError } from '@/services/ai/companion/openai'
 import { assertPeriodRef, getPeriodType } from '@/utils/periods'

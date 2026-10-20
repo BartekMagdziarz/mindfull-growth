@@ -2,7 +2,7 @@ import {
   getCurrentUserId,
   getUserDatabase,
   type UserDatabase,
-} from '@/services/userDatabase.service'
+} from '@/services/userDatabaseService'
 import {
   HistoryToolError,
   SOURCE_COLLECTIONS,

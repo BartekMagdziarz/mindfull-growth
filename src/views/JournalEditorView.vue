@@ -420,7 +420,7 @@
 import ReflectionCompanionPanel from '@/features/ai-companion/ReflectionCompanionPanel.vue'
 import { journalDraftRepository } from '@/repositories/journalDraftRepository'
 import type { JournalDraft } from '@/domain/journalDraft'
-import { getUserDatabase } from '@/services/userDatabase.service'
+import { getUserDatabase } from '@/services/userDatabaseService'
 import { getPeriodRefsForDate } from '@/utils/periods'
 import { entryDateFromDay } from '@/utils/relativeDay'
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'

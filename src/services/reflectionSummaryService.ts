@@ -16,7 +16,7 @@
  * any provider's context window.
  */
 
-import type { GrammaticalGender, LocaleId } from '@/services/locale.service'
+import type { GrammaticalGender, LocaleId } from '@/services/localeService'
 import type { MeasurementEvaluationStatus } from '@/services/measurementProgress'
 import type { PriorityVerdict } from '@/domain/planningState'
 import type {

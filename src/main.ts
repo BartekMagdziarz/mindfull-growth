@@ -5,7 +5,7 @@ import router from './router'
 import './styles/main.css'
 import './design-system/index.css'
 import './styles/text-field-focus.css'
-import { applyCachedTheme } from './services/theme.service'
+import { applyCachedTheme } from './services/themeService'
 import { setupTextareaAutoresize } from './utils/textareaAutoresize'
 
 // Apply theme before Vue mounts to avoid a flash of the default palette.

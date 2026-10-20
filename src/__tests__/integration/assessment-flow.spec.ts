@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { useAssessmentSession } from '@/composables/useAssessmentSession'
 import { connectTestDatabase } from '@/test/testDatabase'
-import { getUserDatabase } from '@/services/userDatabase.service'
+import { getUserDatabase } from '@/services/userDatabaseService'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 
 describe('assessment flow integration', () => {

@@ -11,7 +11,7 @@ import type {
 } from '@/domain/planning'
 import { MAX_ACTIVE_PRIORITIES, normalizePriorityPayload } from '@/domain/planning'
 import { invalidatePlanningQueryCache } from '@/services/planningQueryCache'
-import { getUserDatabase } from '@/services/userDatabase.service'
+import { getUserDatabase } from '@/services/userDatabaseService'
 import type { PriorityRepository } from './priorityRepository'
 import {
   createPlanningRecord,

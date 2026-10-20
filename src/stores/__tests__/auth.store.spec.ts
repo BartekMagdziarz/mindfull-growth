@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useAuthStore } from '@/stores/auth.store'
 import { authDexieRepository } from '@/repositories/authDexieRepository'
-import * as database from '@/services/userDatabase.service'
-import { setSession, getSession, clearSession } from '@/services/session.service'
+import * as database from '@/services/userDatabaseService'
+import { setSession, getSession, clearSession } from '@/services/sessionService'
 import type { User } from '@/domain/user'
 
 const user: User = {

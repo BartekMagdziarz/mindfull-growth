@@ -125,7 +125,7 @@ import {
   restoreUserBackup,
   MAX_BACKUP_BYTES,
   type UserBackup,
-} from '@/services/userBackup.service'
+} from '@/services/userBackupService'
 import { captureUserSession } from '@/services/userSessionScope'
 
 import { computed, onMounted, ref } from 'vue'

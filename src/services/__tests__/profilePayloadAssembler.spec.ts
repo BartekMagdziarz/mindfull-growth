@@ -4,14 +4,14 @@ import {
   connectUserDatabase,
   disconnectUserDatabase,
   getUserDatabase,
-} from '@/services/userDatabase.service'
+} from '@/services/userDatabaseService'
 import { useJournalStore } from '@/stores/journal.store'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useStructuredReflectionStore } from '@/stores/structuredReflection.store'
 import { queryScopePreview } from '@/services/profileScopeQueries'
 import { assembleProfilePayload } from '@/services/profilePayloadAssembler'
 import { estimateTokens } from '@/services/profileLLMAssists'
-import { rawTierCutoffIso } from '@/services/profilePeriodSummary.service'
+import { rawTierCutoffIso } from '@/services/profilePeriodSummaryService'
 import { getPeriodRefsForDate } from '@/utils/periods'
 import { loadFoundationSourceData } from '@/services/foundationCompleteness'
 import { profilePeriodSummaryDexieRepository } from '@/repositories/profilePeriodSummaryDexieRepository'

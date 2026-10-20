@@ -13,7 +13,7 @@
  * to avoid an import cycle through `useProfileBuildWizard.resolveDateRange`.
  */
 
-import type { LocaleId } from '@/services/locale.service'
+import type { LocaleId } from '@/services/localeService'
 import {
   assembleFromInput,
   selectPayloadWithinBudget,
@@ -39,7 +39,7 @@ import {
 } from '@/services/reflectionDataQueries'
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
 import { getAIProviderSettings, computeMaxPromptTokens } from '@/services/llmService'
-import { buildSummarizedHistory, rawTierCutoffIso } from '@/services/profilePeriodSummary.service'
+import { buildSummarizedHistory, rawTierCutoffIso } from '@/services/profilePeriodSummaryService'
 import { loadFoundationSourceData } from '@/services/foundationCompleteness'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'

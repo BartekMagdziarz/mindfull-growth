@@ -12,7 +12,7 @@ import { weeklyIntentionDexieRepository } from '@/repositories/weeklyIntentionDe
 import { loadDraftFromDB, saveDraftToDB } from '@/services/draftStorage'
 import { connectTestDatabase } from '@/test/testDatabase'
 import { getPeriodRefsForDate } from '@/utils/periods'
-import type { UserDatabase } from '@/services/userDatabase.service'
+import type { UserDatabase } from '@/services/userDatabaseService'
 import type { WeekRef, YearRef } from '@/domain/period'
 
 async function seedActivePriorities(count: number): Promise<void> {

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { assessmentsDexieRepository } from '@/repositories/assessmentsDexieRepository'
 import { connectTestDatabase, getTestUserId } from '@/test/testDatabase'
-import { connectUserDatabase, getUserDatabase } from '@/services/userDatabase.service'
+import { connectUserDatabase, getUserDatabase } from '@/services/userDatabaseService'
 
 describe('assessmentsDexieRepository', () => {
   beforeEach(async () => {

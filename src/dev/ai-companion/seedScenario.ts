@@ -1,5 +1,5 @@
 /** Shared repository-based fixture writer. Callers must guard the isolated target. */
-import { getUserDatabase } from '@/services/userDatabase.service'
+import { getUserDatabase } from '@/services/userDatabaseService'
 import { journalDexieRepository as journal } from '@/repositories/journalDexieRepository'
 import { emotionLogDexieRepository as emotions } from '@/repositories/emotionLogDexieRepository'
 import {

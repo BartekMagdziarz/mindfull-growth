@@ -38,5 +38,5 @@ AI provider settings and authentication credentials. The file can be restored
 into another local account; it does not create or authenticate an account.
 
 Regression coverage is in `persistenceSafety.spec.ts`,
-`persistenceMigration.spec.ts`, `session.service.spec.ts`, `auth.store.spec.ts`,
+`persistenceMigration.spec.ts`, `sessionService.spec.ts`, `auth.store.spec.ts`,
 the profile store tests, the LLM service tests and the development proxy tests.

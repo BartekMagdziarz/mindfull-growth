@@ -1,4 +1,4 @@
-import { connectUserDatabase, getUserDatabase } from '@/services/userDatabase.service'
+import { connectUserDatabase, getUserDatabase } from '@/services/userDatabaseService'
 
 type GlobalWithTestUser = typeof globalThis & { __TEST_USER_ID__?: string }
 

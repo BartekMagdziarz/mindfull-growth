@@ -14,7 +14,7 @@ import {
   connectUserDatabase,
   disconnectUserDatabase,
   getUserDatabase,
-} from '@/services/userDatabase.service'
+} from '@/services/userDatabaseService'
 
 function buildLifeArea(id: string, name: string, sortOrder: number, isActive = true) {
   return {

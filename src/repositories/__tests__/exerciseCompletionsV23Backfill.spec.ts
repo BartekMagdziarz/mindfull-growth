@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import Dexie, { type Table } from 'dexie'
-import { UserDatabase, V23_BACKFILL_SOURCES } from '@/services/userDatabase.service'
+import { UserDatabase, V23_BACKFILL_SOURCES } from '@/services/userDatabaseService'
 import { EXERCISE_CATALOG } from '@/data/exerciseCatalog'
 import type { ExerciseCompletion } from '@/domain/exerciseCompletion'
 

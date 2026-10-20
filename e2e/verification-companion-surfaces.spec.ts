@@ -5,7 +5,7 @@ async function data(
   table: 'journalEntries' | 'companionConversations' | 'journalDrafts' | 'monthlyReflections'
 ) {
   return page.evaluate(async name => {
-    const modulePath = '/src/services/userDatabase.service.ts'
+    const modulePath = '/src/services/userDatabaseService.ts'
     const { UserDatabase } = await import(/* @vite-ignore */ modulePath)
     const databases = (await indexedDB.databases()).filter(db =>
       db.name?.startsWith('MindfullGrowthDB_simplify_')
@@ -146,7 +146,7 @@ test.describe('journal and monthly companion', () => {
       )
       .toBe(false)
     await page.evaluate(async id => {
-      const modulePath = '/src/services/userDatabase.service.ts'
+      const modulePath = '/src/services/userDatabaseService.ts'
       const { UserDatabase } = await import(/* @vite-ignore */ modulePath)
       const databases = (await indexedDB.databases()).filter(db =>
         db.name?.startsWith('MindfullGrowthDB_simplify_')

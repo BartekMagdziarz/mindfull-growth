@@ -1,4 +1,4 @@
-import type { UserDatabase } from '@/services/userDatabase.service'
+import type { UserDatabase } from '@/services/userDatabaseService'
 import type { HistoryDigest } from '@/domain/historyDigest'
 import { assertPeriodRef, getPeriodBounds, getPeriodType } from '@/utils/periods'
 import { sourceKey, type HistorySource, type SourceRef } from './contracts'

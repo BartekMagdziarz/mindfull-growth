@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import Dexie, { type Table } from 'dexie'
-import { UserDatabase } from '@/services/userDatabase.service'
+import { UserDatabase } from '@/services/userDatabaseService'
 import type { YearRef } from '@/domain/period'
 
 class PlanningDatabaseV6 extends Dexie {

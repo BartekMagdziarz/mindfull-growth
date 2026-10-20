@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { getSession, clearSession, setSession } from '@/services/session.service'
+import { getSession, clearSession, setSession } from '@/services/sessionService'
 
 afterEach(clearSession)
 describe('session validation', () => {

@@ -3,7 +3,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { useAssessmentStore } from '@/stores/assessment.store'
 import { connectTestDatabase } from '@/test/testDatabase'
 import { getAssessmentDefinition } from '@/services/assessments/registry'
-import { getUserDatabase } from '@/services/userDatabase.service'
+import { getUserDatabase } from '@/services/userDatabaseService'
 
 describe('assessment.store', () => {
   beforeEach(async () => {

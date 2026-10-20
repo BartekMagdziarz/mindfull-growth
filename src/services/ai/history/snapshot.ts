@@ -1,5 +1,5 @@
-import type { UserDatabase } from '@/services/userDatabase.service'
-import { getCurrentUserId, getUserDatabase } from '@/services/userDatabase.service'
+import type { UserDatabase } from '@/services/userDatabaseService'
+import { getCurrentUserId, getUserDatabase } from '@/services/userDatabaseService'
 import plEmotions from '@/locales/pl/emotions.json'
 import enEmotions from '@/locales/en/emotions.json'
 import plGroups from '@/locales/pl/emotionGroups.json'

@@ -1,6 +1,6 @@
 /** Vitest-only adapter; browser demo has its own strict origin/account guard. */
 import { vi } from 'vitest'
-import { getCurrentUserId } from '@/services/userDatabase.service'
+import { getCurrentUserId } from '@/services/userDatabaseService'
 import { getTestUserId } from '@/test/testDatabase'
 import type { CompanionScenario } from '../scenarios'
 import { seedCompanionScenario } from '../seedScenario'

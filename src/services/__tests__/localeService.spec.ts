@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { normalizeLocaleId, DEFAULT_LOCALE_ID, LOCALE_IDS } from '@/services/locale.service'
+import { normalizeLocaleId, DEFAULT_LOCALE_ID, LOCALE_IDS } from '@/services/localeService'
 
-describe('locale.service', () => {
+describe('localeService', () => {
   describe('LOCALE_IDS', () => {
     it('contains en and pl', () => {
       expect(LOCALE_IDS).toContain('en')

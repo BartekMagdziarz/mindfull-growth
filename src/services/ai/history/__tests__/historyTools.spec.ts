@@ -11,7 +11,7 @@ import {
   connectUserDatabase,
   disconnectUserDatabase,
   getUserDatabase,
-} from '@/services/userDatabase.service'
+} from '@/services/userDatabaseService'
 import { journalDexieRepository } from '@/repositories/journalDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { createHistoryTools } from '../tools'

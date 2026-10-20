@@ -12,7 +12,7 @@
 import { momentFamily } from '@/domain/momentFamilies'
 import type { MomentsWeekStats, NoticedKey, ReactionKey } from '@/domain/momentsProgress'
 import { sendMessage, type ChatMessage } from '@/services/llmService'
-import type { LocaleId } from '@/services/locale.service'
+import type { LocaleId } from '@/services/localeService'
 import { getPathPrompts } from '@/services/prompts'
 import type { PathPromptModule } from '@/services/prompts/types'
 

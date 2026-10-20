@@ -4,7 +4,7 @@ import {
   connectUserDatabase,
   disconnectUserDatabase,
   getUserDatabase,
-} from '@/services/userDatabase.service'
+} from '@/services/userDatabaseService'
 import { useJournalStore } from '@/stores/journal.store'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useStructuredReflectionStore } from '@/stores/structuredReflection.store'

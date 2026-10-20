@@ -59,7 +59,7 @@ import { structuredReflectionDexieRepository } from '@/repositories/structuredRe
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
 import { weeklyIntentionDexieRepository } from '@/repositories/weeklyIntentionDexieRepository'
 import { getAssessmentRegistryEntry } from '@/services/assessments/registry'
-import { hashPassword } from '@/services/crypto.service'
+import { hashPassword } from '@/services/cryptoService'
 import { saveDraftToDB } from '@/services/draftStorage'
 import {
   setMonthTopPriorities,
@@ -75,7 +75,7 @@ import {
   updateMeasurementWeekTargetOverride,
 } from '@/services/planningMutations'
 import { invalidatePlanningQueryCache } from '@/services/planningQueryCache'
-import { connectUserDatabase, disconnectUserDatabase } from '@/services/userDatabase.service'
+import { connectUserDatabase, disconnectUserDatabase } from '@/services/userDatabaseService'
 import { createWeeklyIntention, setWeekTopPriorities } from '@/services/weeklyIntentionService'
 import {
   VERIFY_DB_NAME,

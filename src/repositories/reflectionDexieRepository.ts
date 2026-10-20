@@ -14,7 +14,7 @@ import {
   normalizePeriodObjectReflectionPayload,
   normalizePeriodReflectionPayload,
 } from '@/domain/planningState'
-import { getUserDatabase } from '@/services/userDatabase.service'
+import { getUserDatabase } from '@/services/userDatabaseService'
 import type { ReflectionRepository } from './reflectionRepository'
 import {
   createPlanningRecord,

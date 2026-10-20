@@ -15,7 +15,7 @@ import {
 } from '@/services/priorityLinkService'
 import { saveDraftToDB, loadDraftFromDB } from '@/services/draftStorage'
 import { connectTestDatabase } from '@/test/testDatabase'
-import type { UserDatabase } from '@/services/userDatabase.service'
+import type { UserDatabase } from '@/services/userDatabaseService'
 import type { YearRef } from '@/domain/period'
 
 const RITUAL_PRIORITY = {

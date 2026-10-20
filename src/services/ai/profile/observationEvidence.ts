@@ -1,4 +1,4 @@
-import { getUserDatabase } from '@/services/userDatabase.service'
+import { getUserDatabase } from '@/services/userDatabaseService'
 import type { ProfileOrigin } from '@/domain/approvedProfile'
 import { createHistoryTools } from '../history/tools'
 import { loadHistoryAccessPolicy } from '../history/access'

@@ -1,5 +1,5 @@
 import Dexie, { type Table } from 'dexie'
-import { getUserDatabase, type UserDatabase } from '@/services/userDatabase.service'
+import { getUserDatabase, type UserDatabase } from '@/services/userDatabaseService'
 import { captureUserSession } from '@/services/userSessionScope'
 
 /** Bind a repository call to one account and keep read/modify/write atomic. */

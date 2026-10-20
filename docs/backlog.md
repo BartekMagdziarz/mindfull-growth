@@ -397,7 +397,7 @@ Wzorzec zrobić ręcznie na dwóch repozytoriach, resztę mechanicznie. Store'y 
 
 ### P-4 · Migracje Dexie w osobnych plikach
 
-`otwarte` · Znaleziono 2026-10-20 przy audycie repo · `src/services/userDatabase.service.ts`
+`otwarte` · Znaleziono 2026-10-20 przy audycie repo · `src/services/userDatabaseService.ts`
 
 **Kontekst.** 34 bloki `version(n).stores().upgrade()` w jednym pliku o 1 778 liniach.
 

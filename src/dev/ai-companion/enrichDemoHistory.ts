@@ -1,5 +1,5 @@
 /** Rich E7b stories, deliberately separate from small deterministic benchmark fixtures. */
-import { getUserDatabase } from '@/services/userDatabase.service'
+import { getUserDatabase } from '@/services/userDatabaseService'
 import { structuredReflectionDexieRepository as reflections } from '@/repositories/structuredReflectionDexieRepository'
 import { WEEKLY_RATING_KEYS, MONTHLY_RATING_KEYS } from '@/domain/reflection'
 import type { DayRef, MonthRef } from '@/domain/period'

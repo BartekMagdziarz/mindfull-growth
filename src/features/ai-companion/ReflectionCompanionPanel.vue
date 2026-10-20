@@ -375,7 +375,7 @@ import { CompanionError } from '@/services/ai/companion/openai'
 import type { Citation } from '@/services/ai/companion/runtime'
 import type { CompanionConversation, CompanionMessage } from '@/domain/companionConversation'
 import { proposeConversationProfile } from '@/services/ai/profile/assistant'
-import { getUserDatabase } from '@/services/userDatabase.service'
+import { getUserDatabase } from '@/services/userDatabaseService'
 import { loadHistoryAccessPolicy, saveHistoryAccessPolicy } from '@/services/ai/history/access'
 import {
   SOURCE_KINDS,

@@ -9,7 +9,7 @@ import {
 import { companionEvaluationCases } from '../evaluation'
 import { seedScenarioInTestDatabase } from './seedScenario'
 import { getTestDatabase, connectTestDatabase } from '@/test/testDatabase'
-import { connectUserDatabase, disconnectUserDatabase } from '@/services/userDatabase.service'
+import { connectUserDatabase, disconnectUserDatabase } from '@/services/userDatabaseService'
 import { journalDexieRepository } from '@/repositories/journalDexieRepository'
 import { thoughtRecordDexieRepository } from '@/repositories/exercisesDexieRepository'
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'

@@ -3,7 +3,7 @@ import {
   validateObservation,
   observationEvidenceAvailable,
 } from '@/services/ai/profile/observationEvidence'
-import { getCurrentUserId, getUserDatabase } from '@/services/userDatabase.service'
+import { getCurrentUserId, getUserDatabase } from '@/services/userDatabaseService'
 import { CompanionError } from '@/services/ai/companion/openai'
 import { validateRef } from '@/services/ai/history/access'
 import { SOURCE_COLLECTIONS } from '@/services/ai/history/contracts'

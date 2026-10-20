@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import Dexie from 'dexie'
-import { UserDatabase } from '@/services/userDatabase.service'
+import { UserDatabase } from '@/services/userDatabaseService'
 import { getTestDatabase } from '@/test/testDatabase'
 import { weeklyConversation, reconcileTopics } from '../weeklyConversation'
 import { companionConversationRepository } from '@/repositories/companionConversationRepository'

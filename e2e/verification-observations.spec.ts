@@ -60,9 +60,7 @@ test('observation → evidence and exception → discussion → edited hypothesi
   await expect(page.getByRole('heading', { name: 'Twój profil dla AI' })).toBeVisible()
   await page.evaluate(async () => {
     if (location.origin !== 'http://127.0.0.1:5199') throw new Error('Wrong test origin')
-    const { UserDatabase } = await import(
-      /* @vite-ignore */ '/src/services/userDatabase.service.ts'
-    )
+    const { UserDatabase } = await import(/* @vite-ignore */ '/src/services/userDatabaseService.ts')
     const names = (await indexedDB.databases())
       .map(d => d.name!)
       .filter(n => n.startsWith('MindfullGrowthDB_simplify_'))

@@ -8,7 +8,7 @@ import type {
   AssessmentId,
   AssessmentResponse,
 } from '@/domain/assessments'
-import type { LocaleId } from '@/services/locale.service'
+import type { LocaleId } from '@/services/localeService'
 import { assessmentsDexieRepository } from '@/repositories/assessmentsDexieRepository'
 import { getAssessmentDefinition } from '@/services/assessments/registry'
 import { scoreAssessment } from '@/services/assessments/scoringEngine'

@@ -6,7 +6,7 @@ import {
   getUserDatabase,
   connectUserDatabase,
   disconnectUserDatabase,
-} from '@/services/userDatabase.service'
+} from '@/services/userDatabaseService'
 import {
   UserSessionChangedError,
   captureUserSession,
@@ -25,7 +25,7 @@ import { autoCompleteFor } from '@/services/exercisePlanService'
 import { recordCompletion } from '@/services/exerciseCompletionService'
 import { ensureCurrentStepMaterialized } from '@/services/programSchedulerService'
 import { userDatabaseOperation } from '@/repositories/userDatabaseOperation'
-import { createUserBackup, parseUserBackup, restoreUserBackup } from '@/services/userBackup.service'
+import { createUserBackup, parseUserBackup, restoreUserBackup } from '@/services/userBackupService'
 import { createScopedDraftStorage } from '@/services/scopedDraftStorage'
 import type { DayRef, YearRef } from '@/domain/period'
 

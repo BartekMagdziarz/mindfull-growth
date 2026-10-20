@@ -4,7 +4,7 @@ async function inspect(page: import('@playwright/test').Page, persona: string, m
     async ({ persona, mutate }) => {
       if (location.origin !== 'http://127.0.0.1:5203') throw new Error('Wrong origin')
       const { UserDatabase } = await import(
-        /* @vite-ignore */ '/src/services/userDatabase.service.ts'
+        /* @vite-ignore */ '/src/services/userDatabaseService.ts'
       )
       const db = new UserDatabase(`MindfullGrowthDB_simplify_ai-companion-demo-${persona}`)
       await db.open()
@@ -104,9 +104,7 @@ test('current week restores filled ratings and anchor answers over an older empt
   await page.goto('/ai-demo')
   await expect(page.getByRole('heading', { name: 'Poznaj asystenta refleksji' })).toBeVisible()
   await page.evaluate(async () => {
-    const { UserDatabase } = await import(
-      /* @vite-ignore */ '/src/services/userDatabase.service.ts'
-    )
+    const { UserDatabase } = await import(/* @vite-ignore */ '/src/services/userDatabaseService.ts')
     const db = new UserDatabase('MindfullGrowthDB_simplify_ai-companion-demo-marta')
     await db.open()
     await db.userSettings.delete('ai-demo-reflection-answers-v2')
@@ -126,9 +124,7 @@ test('current week restores filled ratings and anchor answers over an older empt
   await page.reload()
   await expect(page.getByRole('heading', { name: 'Poznaj asystenta refleksji' })).toBeVisible()
   const restored = await page.evaluate(async () => {
-    const { UserDatabase } = await import(
-      /* @vite-ignore */ '/src/services/userDatabase.service.ts'
-    )
+    const { UserDatabase } = await import(/* @vite-ignore */ '/src/services/userDatabaseService.ts')
     const db = new UserDatabase('MindfullGrowthDB_simplify_ai-companion-demo-marta')
     await db.open()
     const draft = JSON.parse((await db.drafts.get('weekly-reflection-2026-W38')).data)

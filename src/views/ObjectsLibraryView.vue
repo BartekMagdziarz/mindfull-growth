@@ -424,7 +424,7 @@ import {
   deleteWeeklyIntention,
   updateWeeklyIntention,
 } from '@/services/weeklyIntentionService'
-import { getUserDatabase } from '@/services/userDatabase.service'
+import { getUserDatabase } from '@/services/userDatabaseService'
 import {
   formatMonthShort as formatMonthShortLocalized,
   formatPeriodLabel,

@@ -61,7 +61,7 @@ import { structuredReflectionDexieRepository } from '@/repositories/structuredRe
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
 import { userSettingsDexieRepository } from '@/repositories/userSettingsDexieRepository'
 import { getAssessmentRegistryEntry } from '@/services/assessments/registry'
-import { hashPassword } from '@/services/crypto.service'
+import { hashPassword } from '@/services/cryptoService'
 import { closeGoal } from '@/services/goalClosingService'
 import {
   setMonthTopPriorities,
@@ -79,7 +79,7 @@ import {
   connectUserDatabase,
   disconnectUserDatabase,
   getUserDatabase,
-} from '@/services/userDatabase.service'
+} from '@/services/userDatabaseService'
 import { createWeeklyIntention, setWeekTopPriorities } from '@/services/weeklyIntentionService'
 import {
   DEMO_DB_NAME,

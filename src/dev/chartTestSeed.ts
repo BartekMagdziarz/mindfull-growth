@@ -40,7 +40,7 @@ import { habitDexieRepository } from '@/repositories/habitDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
-import { getUserDatabase } from '@/services/userDatabase.service'
+import { getUserDatabase } from '@/services/userDatabaseService'
 import { invalidatePlanningQueryCache } from '@/services/planningQueryCache'
 
 const SEED_PREFIX = '[DEV SEED]'

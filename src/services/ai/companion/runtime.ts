@@ -1,4 +1,4 @@
-import { getCurrentUserId, getUserDatabase } from '@/services/userDatabase.service'
+import { getCurrentUserId, getUserDatabase } from '@/services/userDatabaseService'
 import { assertPeriodRef, getPeriodBounds } from '@/utils/periods'
 import { createHistoryTools, type HistoryTools, type HistoryToolsOptions } from '../history/tools'
 import { captureHistorySnapshot } from '../history/snapshot'

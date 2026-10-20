@@ -2,7 +2,7 @@ import { userDatabaseOperation } from './userDatabaseOperation'
 import type { CreateKeyResultPayload, KeyResult, UpdateKeyResultPayload } from '@/domain/planning'
 import { normalizeKeyResultPayload } from '@/domain/planning'
 import { invalidatePlanningQueryCache } from '@/services/planningQueryCache'
-import { getUserDatabase } from '@/services/userDatabase.service'
+import { getUserDatabase } from '@/services/userDatabaseService'
 import type { KeyResultRepository } from './keyResultRepository'
 import {
   createPlanningRecord,

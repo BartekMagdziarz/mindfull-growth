@@ -27,7 +27,7 @@ import { toPlain } from '@/repositories/planningDexieRepository.shared'
 import { createWeeklyIntention } from '@/services/weeklyIntentionService'
 import { invalidatePlanningQueryCache } from '@/services/planningQueryCache'
 import { getPeriodRefsForDate } from '@/utils/periods'
-import { getUserDatabase, type UserDatabase } from '@/services/userDatabase.service'
+import { getUserDatabase, type UserDatabase } from '@/services/userDatabaseService'
 
 export interface RitualLinkInput {
   contribution: string

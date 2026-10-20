@@ -2,9 +2,9 @@ import { defineStore } from 'pinia'
 import { ref, computed, onScopeDispose } from 'vue'
 import type { User, AuthenticatedUser } from '@/domain/user'
 import { authDexieRepository } from '@/repositories/authDexieRepository'
-import { hashPassword, verifyPassword } from '@/services/crypto.service'
-import { getSession, setSession, clearSession } from '@/services/session.service'
-import { connectUserDatabase, disconnectUserDatabase } from '@/services/userDatabase.service'
+import { hashPassword, verifyPassword } from '@/services/cryptoService'
+import { getSession, setSession, clearSession } from '@/services/sessionService'
+import { connectUserDatabase, disconnectUserDatabase } from '@/services/userDatabaseService'
 
 const MAX_LOGIN_ATTEMPTS = 5
 const LOCKOUT_DURATION_MS = 30 * 1000 // 30 seconds

@@ -13,7 +13,7 @@
  *      `ProfileSectionId` (falling back to `extras` for unknown text).
  */
 
-import type { GrammaticalGender, LocaleId } from '@/services/locale.service'
+import type { GrammaticalGender, LocaleId } from '@/services/localeService'
 import { NUM_CTX_CHARS_PER_TOKEN } from '@/services/llmService'
 import {
   PROFILE_SECTION_IDS,

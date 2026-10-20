@@ -19,7 +19,7 @@ import {
   type ProfileDateRange,
   type ProfileScopeFilters,
 } from '@/domain/userProfile'
-import type { LocaleId } from '@/services/locale.service'
+import type { LocaleId } from '@/services/localeService'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useJournalStore } from '@/stores/journal.store'

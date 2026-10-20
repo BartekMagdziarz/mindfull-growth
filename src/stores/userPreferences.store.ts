@@ -2,7 +2,7 @@ import { createStoreSessionScope } from '@/services/userSessionScope'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { userSettingsDexieRepository } from '@/repositories/userSettingsDexieRepository'
-import { DEFAULT_THEME_ID, normalizeThemeId, type ThemeId } from '@/services/theme.service'
+import { DEFAULT_THEME_ID, normalizeThemeId, type ThemeId } from '@/services/themeService'
 import {
   DEFAULT_LOCALE_ID,
   normalizeLocaleId,
@@ -10,7 +10,7 @@ import {
   DEFAULT_GENDER,
   normalizeGender,
   type GrammaticalGender,
-} from '@/services/locale.service'
+} from '@/services/localeService'
 
 // Storage keys
 const KEYS = {

@@ -13,7 +13,7 @@ import type {
   SocraticFocus,
   TragicTriadFocus,
 } from '@/domain/exercises'
-import type { LocaleId } from '@/services/locale.service'
+import type { LocaleId } from '@/services/localeService'
 import { getLogotherapyPrompts } from '@/services/prompts'
 import type { LogotherapyPromptModule } from '@/services/prompts/types'
 import { withProfileContextSystemPrompt } from '@/services/userContext'

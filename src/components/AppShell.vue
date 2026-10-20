@@ -27,7 +27,7 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import { useAuthStore } from '@/stores/auth.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
-import { applyTheme, DEFAULT_THEME_ID } from '@/services/theme.service'
+import { applyTheme, DEFAULT_THEME_ID } from '@/services/themeService'
 import { resetAppState } from '@/services/appStateReset'
 
 const route = useRoute()

@@ -1,7 +1,7 @@
 import { beforeEach, afterEach, describe, expect, it } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
-import { connectUserDatabase, disconnectUserDatabase } from '@/services/userDatabase.service'
+import { connectUserDatabase, disconnectUserDatabase } from '@/services/userDatabaseService'
 
 const TEST_USER_ID = 'theme-flow-test-user'
 const TEST_DB_NAME = `MindfullGrowthDB_${TEST_USER_ID}`

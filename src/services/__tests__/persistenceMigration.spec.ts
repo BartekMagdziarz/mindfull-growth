@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import Dexie from 'dexie'
-import { UserDatabase } from '@/services/userDatabase.service'
+import { UserDatabase } from '@/services/userDatabaseService'
 
 describe('persistence repair v33/v34', () => {
   it('archives duplicate answers and program plans before adding unique indexes', async () => {

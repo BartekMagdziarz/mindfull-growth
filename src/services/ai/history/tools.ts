@@ -1,4 +1,4 @@
-import { getCurrentUserId, getUserDatabase } from '@/services/userDatabase.service'
+import { getCurrentUserId, getUserDatabase } from '@/services/userDatabaseService'
 import {
   HistoryToolError,
   LIMITS,

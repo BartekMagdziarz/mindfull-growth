@@ -5,7 +5,7 @@ import {
   UserDatabase,
   connectUserDatabase,
   disconnectUserDatabase,
-} from '@/services/userDatabase.service'
+} from '@/services/userDatabaseService'
 import { approvedProfileRepository } from '@/repositories/approvedProfileRepository'
 import { blankProfileContent } from '@/domain/approvedProfile'
 import { createEmptySections, type UserProfile } from '@/domain/userProfile'

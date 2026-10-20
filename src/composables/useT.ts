@@ -6,7 +6,7 @@ import {
   type LocaleId,
   DEFAULT_GENDER,
   type GrammaticalGender,
-} from '@/services/locale.service'
+} from '@/services/localeService'
 import { pluralizePl, pluralizeEn } from '@/utils/pluralize'
 
 /**

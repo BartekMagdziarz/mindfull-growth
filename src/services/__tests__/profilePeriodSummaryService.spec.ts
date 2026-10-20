@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { resetDatabase } from '@/__tests__/utils/dbTestUtils'
 import { profilePeriodSummaryDexieRepository } from '@/repositories/profilePeriodSummaryDexieRepository'
-import { buildPeriodDigestContent, getPeriodDigest } from '../profilePeriodSummary.service'
+import { buildPeriodDigestContent, getPeriodDigest } from '../profilePeriodSummaryService'
 import { getPeriodBounds } from '@/utils/periods'
 import type { WeekRef } from '@/domain/period'
 import type { JournalEntry } from '@/domain/journal'

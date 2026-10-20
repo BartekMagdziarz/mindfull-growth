@@ -12,7 +12,7 @@
 import { liveQuery } from 'dexie'
 import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
-import { getUserDatabase } from '@/services/userDatabase.service'
+import { getUserDatabase } from '@/services/userDatabaseService'
 const props = defineProps<{ conversationId?: string }>()
 const count = ref(0)
 /** Polish plural: 1 propozycja · 2–4 propozycje · 5+ propozycji (12–14 → propozycji). */

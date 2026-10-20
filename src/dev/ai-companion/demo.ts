@@ -4,8 +4,8 @@ import {
   connectUserDatabase,
   getCurrentUserId,
   getUserDatabase,
-} from '@/services/userDatabase.service'
-import { setSession } from '@/services/session.service'
+} from '@/services/userDatabaseService'
+import { setSession } from '@/services/sessionService'
 import { blankProfileContent, type ProfileCategory } from '@/domain/approvedProfile'
 import { approvedProfileRepository } from '@/repositories/approvedProfileRepository'
 import { buildCompanionScenario, type PersonaId } from './scenarios'

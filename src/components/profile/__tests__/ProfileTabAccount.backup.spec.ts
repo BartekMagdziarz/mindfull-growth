@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/vue'
 import ProfileTabAccount from '../ProfileTabAccount.vue'
-import { createUserBackup, parseUserBackup, restoreUserBackup } from '@/services/userBackup.service'
+import { createUserBackup, parseUserBackup, restoreUserBackup } from '@/services/userBackupService'
 
-vi.mock('@/services/userBackup.service', () => ({
+vi.mock('@/services/userBackupService', () => ({
   MAX_BACKUP_BYTES: 50 * 1024 * 1024,
   createUserBackup: vi.fn(),
   parseUserBackup: vi.fn(),

@@ -7,7 +7,7 @@
  */
 
 import { sendMessage, type ChatMessage } from '@/services/llmService'
-import type { GrammaticalGender, LocaleId } from '@/services/locale.service'
+import type { GrammaticalGender, LocaleId } from '@/services/localeService'
 import { getIfsPrompts } from '@/services/prompts'
 import type { IfsPromptModule } from '@/services/prompts/types'
 import { withProfileContextSystemPrompt } from '@/services/userContext'

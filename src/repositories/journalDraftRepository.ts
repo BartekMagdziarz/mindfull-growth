@@ -1,5 +1,5 @@
 import { captureUserSession } from '@/services/userSessionScope'
-import { getCurrentUserId, getUserDatabase } from '@/services/userDatabase.service'
+import { getCurrentUserId, getUserDatabase } from '@/services/userDatabaseService'
 import type { JournalDraft } from '@/domain/journalDraft'
 import { CompanionError } from '@/services/ai/companion/openai'
 export function journalDraftRepository() {

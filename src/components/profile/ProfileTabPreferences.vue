@@ -96,8 +96,8 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 
 import { computed, onMounted, ref } from 'vue'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
-import { applyTheme, type ThemeId } from '@/services/theme.service'
-import type { LocaleId, GrammaticalGender } from '@/services/locale.service'
+import { applyTheme, type ThemeId } from '@/services/themeService'
+import type { LocaleId, GrammaticalGender } from '@/services/localeService'
 import { useT } from '@/composables/useT'
 
 const props = defineProps<{
