@@ -167,6 +167,26 @@ formatting by hand (see `e2e/verification-smoke.spec.ts`).
 - Console noise matters: check DevTools for errors/warnings while walking the
   flows — a clean walk with dirty console is still a finding.
 
+## Canonical viewport — look at the user's screen, not yours
+
+Every layout judgement, screenshot and visual check runs at the user's real
+window: **1512 × 982 CSS px, device scale factor 2** (MacBook Pro 14", default
+scaling). Playwright's default (1280 × 720) and ad-hoc widths such as 1680 or
+2200 have repeatedly made agents sign off on layouts the user then saw broken:
+the Today right column is ~33 rem (≈ 530 px) at the canonical width and
+everything in it reflows at other widths.
+
+- `playwright.config.ts` exports `CANONICAL_VIEWPORT` and applies it to both
+  projects — e2e screenshots are already right.
+- Ad-hoc scripts (Playwright/Chromium outside the test runner) must pass the
+  same size: `browser.newPage({ viewport: { width: 1512, height: 982 }, deviceScaleFactor: 2 })`.
+- Browser/Computer-use sessions: resize the window to 1512 × 982 before judging.
+- When a component is width-sensitive, check the canonical width FIRST, then
+  one narrower and one wider only to confirm it does not break — never the
+  other way round.
+- A screenshot from the user is the ground truth: measure it (Retina → divide
+  pixels by 2) and reproduce that CSS width before proposing changes.
+
 ## Playwright
 
 `playwright.config.ts` defines two projects:

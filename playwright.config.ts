@@ -10,6 +10,14 @@ import { defineConfig, devices } from '@playwright/test'
  *  - `verification` (port 5199): read-mostly smoke specs against the seeded,
  *    auto-logged-in verification instance (npm run dev:verify).
  */
+/**
+ * The user's real window (MacBook Pro 14", default scaling, Retina): every
+ * screenshot and layout judgement must happen at THIS size, not at
+ * Playwright's 1280×720 default — the Today right column is ~33 rem here and
+ * looks different at other widths. See docs/agent-verification.md.
+ */
+export const CANONICAL_VIEWPORT = { viewport: { width: 1512, height: 982 }, deviceScaleFactor: 2 }
+
 export default defineConfig({
   testDir: './e2e',
   /* Run tests in files in parallel */
@@ -32,12 +40,12 @@ export default defineConfig({
     {
       name: 'chromium',
       testIgnore: [/verification-.*\.spec\.ts/, /ai-demo\.spec\.ts/],
-      use: { ...devices['Desktop Chrome'], baseURL: 'http://127.0.0.1:5183' },
+      use: { ...devices['Desktop Chrome'], ...CANONICAL_VIEWPORT, baseURL: 'http://127.0.0.1:5183' },
     },
     {
       name: 'verification',
       testMatch: /verification-.*\.spec\.ts/,
-      use: { ...devices['Desktop Chrome'], baseURL: 'http://127.0.0.1:5199' },
+      use: { ...devices['Desktop Chrome'], ...CANONICAL_VIEWPORT, baseURL: 'http://127.0.0.1:5199' },
     },
   ],
 

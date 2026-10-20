@@ -10,6 +10,7 @@ No backend — auth and all data live in the browser, per-user database
 ```bash
 npm run dev              # real dev server, port 5173 — REAL USER DATA lives on this origin
 npm run dev:verify       # isolated, seeded, auto-logged-in verification instance (port 5199)
+npm run dev:demo         # demo account „Julia” with half a year of history (port 5205), docs/demo-account.md
 npm run typecheck        # vue-tsc --noEmit
 npm run test:run         # vitest
 npm run test:e2e         # Playwright: flow specs (5183) + verification smoke (5199)
@@ -41,6 +42,10 @@ auto-logged-in instance on `127.0.0.1:5199`, fully isolated from real data.
 Full guide: `docs/agent-verification.md`. Report bugs — don't fix them in the
 shared tree. Never run seeds or destructive e2e against port 5173.
 
+Judge layout ONLY at the canonical viewport 1512 × 982 CSS px, DPR 2 (the
+user's real window; `CANONICAL_VIEWPORT` in `playwright.config.ts`). Never at
+Playwright's 1280 × 720 default or at a width you picked yourself.
+
 Do not spend Claude/Fable context on direct Browser or Computer use for app
 verification. Delegate exploratory UI/runtime checks, browser automation,
 screenshots, and console inspection through the `codex-computer-use` skill.
@@ -62,6 +67,14 @@ an independent implementation/review/runtime perspective:
 
 Codex must not commit, push, deploy, edit global config, or overwrite unrelated
 user changes unless the user explicitly asks for that exact action.
+
+## Incidental findings
+
+Bugs or ideas noticed while working on something else go to `docs/backlog.md`
+(template and rules at the top of that file), not into an unrelated fix. Write
+each entry as a full hand-off: repro, root cause with files and lines, why it is
+a bug, proposed fix, acceptance criteria. Before fixing a backlog item, re-check
+its line numbers and mark it `w toku`.
 
 ## Planning
 
