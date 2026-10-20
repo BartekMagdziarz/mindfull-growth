@@ -362,6 +362,49 @@ przenieść do locale, ale to osobny zakres. Oceń z użytkownikiem.
 
 ## Pomysły
 
+### P-6 · Usunięcie uśpionej encji Initiative (ścieżki kodu; tabela Dexie zostaje)
+
+`otwarte` · Znaleziono 2026-10-20 przy audycie repo (decyzja usera: usunąć kod, zostawić dane) · planowanie, Dzisiaj, repozytoria
+
+**Kontekst.** Inicjatywy zastąpiły intencje tygodniowe w lipcu 2026; trasa `/objects/initiatives`
+przekierowuje na `/objects/intentions`, żaden kreator ich nie tworzy, seedy dev ich nie zakładają.
+Mimo to encja żyje w 20 plikach (178 wystąpień identyfikatora `Initiative`, 58 literałów
+`'initiative'`) i 19 specach:
+
+- repozytoria: `initiativeRepository.ts`, `initiativeDexieRepository.ts`, `planningStateRepository.ts`
+  (9), `planningStateDexieRepository.ts` (22), `priorityDexieRepository.ts`, `reflectionDexieRepository.ts`;
+- serwisy: `planningStateQueries.ts` (31 — `MonthInitiativePlanningItem`, `WeekInitiativePlanningItem`,
+  `WeekInitiativeReflectionItem`, `initiativeItems`), `todayViewQueries.ts` (25 — `TodayInitiativeItem`
+  w unii `TodayItem`), `todayViewActions.ts` (`moveTodayInitiative`, `clearTodayInitiative`),
+  `calendarViewQueries.ts`, `planningVisibility.ts` (`isInitiativeActive`), `planningObjectCollections.ts`;
+- store i UI: `today.store.ts` (gałęzie `kind === 'initiative'`, `initiativeItems`),
+  `NextDayItemRow.vue` (ikona, tytuł, tacka), `useWeeklyPlannerState.ts`, `viewModels.ts:50`
+  i `NextPeriodOverview.vue:219` — **licznik „intencje” w przeglądzie okresu jest karmiony
+  `summary.totals.activeInitiativeCount`**, więc po usunięciu trzeba go zasilić intencjami
+  tygodniowymi albo usunąć kafel;
+- domena: `planning.ts` (typ `Initiative`, `'initiative'` w `PriorityLinkSubjectType` — **enum
+  utrwalony w linkach priorytetów**), `planningState.ts` (`TodayHiddenSubjectType`, dwie tablice
+  utrwalonych typów podmiotu w liniach 214/222), `userDatabase.service.ts` → `userDatabaseService.ts`
+  (tabela `initiatives`, migracje v?–v34).
+
+**Propozycja.** Trzy kroki, każdy z zielonymi bramkami:
+1. UI i store: wyciąć gałęzie `'initiative'` z `today.store`, `NextDayItemRow`, `useWeeklyPlannerState`,
+   zasilić licznik intencji w `viewModels`/`NextPeriodOverview` z intencji tygodniowych.
+2. Serwisy i repozytoria: usunąć typy `*InitiativePlanningItem`, `TodayInitiativeItem`, akcje
+   move/clear, `isInitiativeActive`, oba repozytoria inicjatyw; `TodayItem` staje się aliasem
+   `TodayMeasurementItem`.
+3. Domena i dane: typ `Initiative` zostaje tylko jako kształt tabeli Dexie (`src/domain/legacy/`?),
+   `'initiative'` zostaje w utrwalonych enumach jako wartość tolerowana przy odczycie (normalizer
+   pomija takie linki/ukrycia zamiast rzucać); tabela i migracje bez zmian.
+
+**Kryteria.** `grep -rn Initiative src` zwraca tylko typ tabeli i normalizatory; typecheck, vitest,
+`test:e2e:verify` bez nowych czerwonych; baza z linkiem priorytetu typu `initiative` otwiera się
+i planuje bez błędów (spec normalizera z takim rekordem).
+
+**Uwagi.** Ścieżki kodu poprzedniego interfejsu (`TodayView`, `InitiativeCheckmark`) już usunięte
+2026-10-20. Nie robione w sesji audytu świadomie: 178 miejsc w rdzeniu planowania plus pytanie
+o źródło licznika intencji to osobna, ostrożna sesja, nie „mechaniczne porządki”.
+
 ### P-2 · `reportError` z przyczyną zamiast 700× `console.error` + `throw new Error('Failed …')`
 
 `otwarte` · Znaleziono 2026-10-20 przy audycie repo · repozytoria, store'y, testy
