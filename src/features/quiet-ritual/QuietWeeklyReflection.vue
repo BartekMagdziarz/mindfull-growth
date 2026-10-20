@@ -1214,7 +1214,9 @@ async function reloadPathBlocks(): Promise<void> {
 
 // ── The block's header and the task tile ──
 function pathWeekNo(block: ReflectionPathBlock): number {
-  return glanceFirstWeek(block) + glanceWeeks(block).length - 1
+  // The path's own week — the phase the week's task belongs to — as the path view
+  // and the Today tile count it; the calendar ordinal only for a phase without one.
+  return block.phase?.week ?? glanceFirstWeek(block) + glanceWeeks(block).length - 1
 }
 function pathWeeksTotal(block: ReflectionPathBlock): number {
   const phaseWeeks = (block.program.phases ?? []).map(phase => phase.week ?? 0)
