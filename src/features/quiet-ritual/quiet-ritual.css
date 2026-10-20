@@ -2546,14 +2546,21 @@
 
 /* Weekly reflection "Ścieżka" step: one field-tone block per program; the
    task line and the text fields sit one step whiter (inner). */
+/* ── Ścieżka step: one reading column, three sections (Lab /concepts/path-week-reflection, 2026-10-11) ──
+   Tones go one way: card → block (field) → section (62 % white) → tile / field (inner). Nothing in the
+   block stretches across the card; the chart has fixed columns, chips and the scale sit next to their
+   question, the only edge element is the task's state disc. */
 .qr-path-step {
   display: grid;
   gap: 16px;
 }
 .qr-path-block {
+  --qr-section: color-mix(in srgb, white 62%, rgb(var(--sky-100)));
   display: grid;
-  gap: 14px;
-  padding: 18px 20px;
+  gap: 12px;
+  width: min(100%, 46rem);
+  margin: 0 auto;
+  padding: 16px 18px 18px;
   border-radius: 19px 22px 16px 21px;
   background: var(--qr-field);
 }
@@ -2571,22 +2578,24 @@
 .qr-path-block__head span {
   color: var(--qr-muted);
 }
-.qr-path-block__task {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
+.qr-path-sec {
+  display: grid;
   gap: 8px;
-  padding: 11px 14px;
-  border-radius: 12px 15px 11px 14px;
-  background: var(--qr-inner);
+  padding: 12px 14px 14px;
+  border-radius: 14px 17px 13px 16px;
+  background: var(--qr-section);
 }
-.qr-path-block__task-title {
-  font-weight: 700;
-  color: var(--qr-ink);
+.qr-path-sec__eyebrow {
+  display: block;
+  width: fit-content;
+  color: var(--qr-accent-strong);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
-.qr-path-block__task-count,
 .qr-path-block__task-muted {
+  margin: 0;
   font-size: 13px;
   color: var(--qr-muted);
 }
@@ -2596,41 +2605,187 @@
   font-size: 13px;
   color: var(--qr-muted);
 }
-.qr-path-block__stay {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 13px;
-  color: var(--qr-ink);
+.qr-path-block__field textarea {
+  min-height: 3.9rem;
 }
 
-/* A single path rating needs a compact choice, not a tall dashboard axis. */
-.qr-axis--row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 16px; padding: 16px 0; background: transparent; }
-.qr-axis--row header { margin: 0; }
-.qr-axis--row h2 { font-size: 17px; }
-.qr-row-body { display: grid; gap: 8px; width: min(100%, 272px); }
+/* the task tile: title, the state disc at the edge, the counted days on hover / focus */
+.qr-path-task {
+  display: grid;
+  gap: 3px;
+  padding: 10px 12px 11px;
+  border-radius: 12px 15px 11px 14px;
+  background: var(--qr-inner);
+  outline: none;
+}
+.qr-path-task:focus-visible {
+  box-shadow: var(--mg-focus-ring);
+}
+.qr-path-task__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+}
+.qr-path-task__title {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--qr-ink);
+}
+.qr-path-task__disc {
+  --mg-well-size: 2.1rem;
+  background: linear-gradient(to right, color-mix(in srgb, var(--mg-color-primary) 34%, var(--mg-color-paper)) var(--fill, 0%), var(--mg-color-canvas) var(--fill, 0%));
+  color: var(--mg-color-primary-strong);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+}
+.qr-path-task__disc i {
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 700;
+  opacity: 0.75;
+}
+.qr-path-task__disc.mg-well--done {
+  background: var(--mg-color-sky-field);
+}
+.qr-path-task__note {
+  display: none;
+  gap: 1px;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--qr-muted);
+}
+.qr-path-task:hover .qr-path-task__note,
+.qr-path-task:focus-within .qr-path-task__note,
+.qr-path-task:focus .qr-path-task__note {
+  display: grid;
+}
+.qr-path-task__note--empty {
+  font-style: italic;
+}
+.qr-path-block .qr-path-stay {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  width: fit-content;
+  min-height: 1.7rem;
+  padding: 2px 10px;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--qr-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+.qr-path-block .qr-path-stay:hover {
+  background: var(--qr-inner);
+  color: var(--qr-ink);
+}
+.qr-path-block .qr-path-stay[aria-pressed='true'] {
+  background: var(--qr-inner);
+  color: var(--qr-accent-strong);
+}
+.qr-path-block .qr-path-stay .material-symbols-outlined {
+  font-size: 16px;
+}
+
+/* a quiet rating in a row: the question in the first column, the scale right after it (never at the far edge), no field tint */
+.qr-path-sec .qr-axis--row {
+  display: grid;
+  grid-template-columns: auto auto;
+  justify-content: start;
+  align-items: center;
+  gap: 4px 18px;
+  padding: 2px 0 0;
+  border-radius: 0;
+  background: transparent;
+}
+.qr-path-sec .qr-axis--row header {
+  justify-content: start;
+  gap: 8px;
+  margin: 0;
+}
+.qr-path-sec .qr-axis--row h2 {
+  font-size: 14px;
+}
+.qr-path-sec .qr-row-body {
+  display: grid;
+  gap: 4px;
+  width: fit-content;
+}
+.qr-path-sec .qr-row-ends {
+  width: calc(5 * 40px + 4 * 8px);
+}
 .qr-scale--row { display: flex; gap: 8px; }
-.qr-scale--row button { flex: 1; min-width: 40px; height: 44px; padding: 0 10px; border-radius: 14px; background: var(--qr-inner); color: var(--qr-ink); font-weight: 600; }
+.qr-scale--row button { width: 40px; height: 36px; padding: 0; border-radius: 12px; background: var(--qr-inner); color: var(--qr-ink); font-weight: 600; }
 .qr-scale--row button:hover { background: var(--qr-card); }
 .qr-scale--row button.ghost { border: 1px dashed var(--qr-muted); }
 .qr-scale--row button.filled { background: var(--qr-accent-strong); color: var(--qr-on-accent); }
 .qr-row-ends { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; color: var(--qr-muted); }
-.qr-path-moments .qr-path-block__toggle { display: inline-flex; align-items: center; gap: 6px; width: fit-content; max-width: 100%; min-height: 40px; padding: 6px 10px; border-radius: 12px; background: transparent; color: var(--qr-muted); font-size: 13px; }
-.qr-path-block__toggle:hover { background: var(--qr-inner); color: var(--qr-ink); }
-@media (max-width: 640px) { .qr-axis--row { grid-template-columns: minmax(0, 1fr); } }
 
-/* Shame path block: the question about unlogged moments as a row of small
-   chips (the week scale's look, natural width), under the compact glance. */
-.qr-path-block__unlogged { display: grid; gap: 8px; font-size: 13px; color: var(--qr-muted); }
-.qr-path-chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.qr-path-chips button { min-height: 36px; padding: 0 14px; border-radius: 12px; background: var(--qr-inner); color: var(--qr-ink); font-size: 13px; font-weight: 600; }
-.qr-path-chips button:hover { background: var(--qr-card); }
-.qr-path-chips button[aria-pressed='true'] { background: var(--qr-accent-strong); color: var(--qr-on-accent); }
+/* links under the chart; toggles */
+.qr-path-links { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 18px; }
+.qr-path-block .qr-path-block__toggle { display: inline-flex; align-items: center; gap: 6px; width: fit-content; max-width: 100%; min-height: 32px; padding: 4px 0; border-radius: 8px; background: transparent; color: var(--qr-accent-strong); font-size: 12px; font-weight: 800; }
+.qr-path-block .qr-path-block__toggle:hover { text-decoration: underline; }
+.qr-path-block .qr-path-block__toggle:disabled { opacity: 0.6; }
+.qr-path-block .qr-path-block__toggle .material-symbols-outlined { font-size: 16px; }
 
-/* Shame path block: the week pattern (AI) — a quiet toggle-like button, the sentence under it marked as a proposal. */
-.qr-path-pattern { display: grid; gap: 6px; }
-.qr-path-pattern .qr-path-block__toggle { gap: 8px; }
-.qr-path-pattern .material-symbols-outlined { font-size: 18px; }
-.qr-path-pattern__text { display: grid; gap: 2px; margin: 0; padding: 10px 14px; border-radius: 12px 15px 11px 14px; background: var(--qr-inner); color: var(--qr-ink); font-size: 14px; line-height: 1.5; }
-.qr-path-pattern__text small { color: var(--qr-muted); font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+/* "Były momenty, których nie zapisałeś?": the question and the chips in one row; added rows and the form take the full row */
+.qr-path-unlogged { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; font-size: 13px; color: var(--qr-muted); }
+.qr-path-unlogged > .qr-path-added, .qr-path-unlogged > .qr-path-bf { flex: 1 1 100%; }
+.qr-path-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.qr-path-chips__sep { font-size: 12px; font-weight: 800; color: var(--qr-muted); }
+.qr-path-chips button { display: inline-flex; align-items: center; gap: 5px; min-height: 1.95rem; padding: 3px 12px; border-radius: 12px; background: var(--qr-inner); color: var(--qr-ink); font-size: 12px; font-weight: 700; white-space: nowrap; }
+.qr-path-chips button .material-symbols-outlined { font-size: 15px; }
+.qr-path-chips button:hover:not(:disabled), .qr-path-chips button.is-active { background: var(--qr-card); }
+.qr-path-chips button[aria-pressed='true'], .qr-path-chips button[aria-checked='true'], .qr-path-chips button[aria-pressed='true']:hover, .qr-path-chips button[aria-checked='true']:hover { background: var(--qr-accent-strong); color: var(--qr-on-accent); }
+.qr-path-chips button:disabled { opacity: 0.5; cursor: default; }
+.qr-path-block .qr-path-chips__ghost { display: inline-flex; align-items: center; min-height: 1.95rem; padding: 3px 12px; border-radius: 12px; background: transparent; color: var(--qr-muted); font-size: 12px; font-weight: 700; white-space: nowrap; }
+.qr-path-block .qr-path-chips__ghost:hover { background: var(--qr-inner); color: var(--qr-ink); }
+.qr-path-chips__part i { display: inline-block; width: 0.6rem; height: 0.6rem; border-radius: var(--mg-radius-organic-a); background: var(--part); box-shadow: inset 0 0 0 1px color-mix(in srgb, rgb(var(--sky-800)) 38%, transparent); }
+.qr-path-chips__part[aria-checked='true'] i { box-shadow: inset 0 0 0 1px var(--qr-on-accent); }
+.qr-path-added { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.qr-path-added li { display: inline-flex; align-items: center; gap: 8px; width: fit-content; max-width: 100%; min-height: 1.6rem; padding: 0 4px 0 8px; font-size: 12px; color: var(--qr-ink); }
+.qr-path-added li i { display: block; width: 0.6rem; height: 0.6rem; border-radius: var(--mg-radius-organic-b); background: var(--part); box-shadow: inset 0 0 0 1px color-mix(in srgb, rgb(var(--sky-800)) 38%, transparent); }
+.qr-path-added li small { font-size: 10px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--qr-muted); }
+.qr-path-block .qr-path-added__remove { display: grid; place-items: center; width: 1.5rem; height: 1.5rem; border-radius: 8px; background: transparent; color: var(--qr-muted); }
+.qr-path-block .qr-path-added__remove:hover { background: var(--qr-inner); color: var(--qr-ink); }
+.qr-path-block .qr-path-added__remove .material-symbols-outlined { font-size: 15px; }
+.qr-path-bf { display: grid; gap: 10px; padding: 12px 14px; border-radius: 12px 15px 11px 14px; background: var(--qr-inner); }
+.qr-path-bf__row { display: grid; gap: 6px; }
+.qr-path-bf__row > small { font-size: 11px; font-weight: 800; color: var(--qr-muted); }
+.qr-path-bf__row > small em { font-style: normal; font-weight: 600; }
+.qr-path-bf .qr-path-chips button { background: var(--qr-field); }
+.qr-path-bf .qr-path-chips button:hover:not(:disabled) { background: var(--qr-card); }
+.qr-path-bf .qr-path-chips button[aria-pressed='true'], .qr-path-bf .qr-path-chips button[aria-checked='true'], .qr-path-bf .qr-path-chips button[aria-pressed='true']:hover, .qr-path-bf .qr-path-chips button[aria-checked='true']:hover { background: var(--qr-accent-strong); color: var(--qr-on-accent); }
+.qr-path-bf__days { display: inline-flex; gap: 4px; }
+.qr-path-bf__day { --mg-well-size: 1.5rem; font-size: 10px; font-weight: 800; color: var(--mg-color-muted); cursor: pointer; }
+.qr-path-bf__day.is-picked { border-color: var(--mg-color-primary); color: var(--mg-color-primary-strong); box-shadow: var(--mg-shadow-inset-sm), 0 0 0 3px var(--mg-color-primary-soft); }
+.qr-path-bf__foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.qr-path-bf__foot small { font-size: 11px; color: var(--qr-muted); }
+.qr-path-block .qr-path-bf__save { min-height: 1.95rem; padding: 3px 12px; border-radius: 12px; background: var(--qr-accent-strong); color: var(--qr-on-accent); font-size: 12px; font-weight: 700; }
+.qr-path-block .qr-path-bf__save:hover:not(:disabled) { background: var(--qr-accent); }
+.qr-path-block .qr-path-bf__save:disabled { opacity: 0.5; cursor: default; }
+
+/* Szczegóły: the week's Moments and the numbers, one tone deeper */
+.qr-path-details { display: grid; gap: 10px; padding: 10px 12px; border-radius: 12px 15px 11px 14px; background: var(--qr-inner); }
+.qr-path-moments__list { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.qr-path-moments__list li { display: grid; grid-template-columns: 2rem auto minmax(0, 1fr); gap: 8px; align-items: start; font-size: 12px; line-height: 1.4; color: var(--qr-ink); }
+.qr-path-moments__day { font-size: 11px; font-weight: 700; color: var(--qr-muted); }
+.qr-path-moments__dot { display: block; width: 0.6rem; height: 0.6rem; margin-top: 0.3rem; border-radius: var(--mg-radius-organic-a); background: var(--part); box-shadow: inset 0 0 0 1px color-mix(in srgb, rgb(var(--sky-800)) 38%, transparent); }
+.qr-path-moments__copy { display: grid; gap: 1px; }
+.qr-path-moments__text { overflow-wrap: anywhere; }
+.qr-path-moments__tags { font-size: 11px; color: var(--qr-muted); }
+.qr-path-moments__tags em { font-size: 10px; font-style: normal; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; }
+.qr-path-numbers { justify-self: start; border-collapse: collapse; font-size: 11px; }
+.qr-path-numbers th, .qr-path-numbers td { padding: 3px 8px; text-align: right; color: var(--qr-muted); font-variant-numeric: tabular-nums; }
+.qr-path-numbers thead th { font-size: 9px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; }
+.qr-path-numbers tbody th { text-align: left; color: var(--qr-ink); }
+.qr-path-numbers td { color: var(--qr-ink); }
+
+/* the week pattern (AI): the sentence as a proposal field */
+.qr-path-pattern__text { display: grid; gap: 2px; margin: 0; padding: 10px 14px; border-radius: 12px 15px 11px 14px; background: var(--qr-inner); color: var(--qr-ink); font-size: 13px; line-height: 1.5; }
+.qr-path-pattern__text small { color: var(--qr-muted); font-size: 10px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
 .qr-path-pattern__text--error { color: var(--qr-muted); }

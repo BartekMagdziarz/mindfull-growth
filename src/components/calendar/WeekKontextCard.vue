@@ -388,7 +388,7 @@ function handleHostClick(_event: MouseEvent) {
   justify-content: center;
   width: 18px;
   height: 18px;
-  border-radius: 6px;
+  border-radius: var(--mg-radius-icon-field-a);
   background: rgb(var(--color-primary) / 0.15);
   color: rgb(var(--color-primary-strong));
   flex-shrink: 0;
@@ -530,7 +530,7 @@ function handleHostClick(_event: MouseEvent) {
   justify-content: center;
   width: 18px;
   height: 18px;
-  border-radius: 6px;
+  border-radius: var(--mg-radius-icon-field-a);
   background: rgb(var(--color-primary) / 0.12);
   color: rgb(var(--color-primary-strong));
   flex-shrink: 0;

@@ -191,128 +191,259 @@
       </p>
     </section>
 
-    <!-- Ścieżka — one block per program with a weekly reflection (plan §5) -->
+    <!-- Ścieżka — one block per program with a weekly reflection (plan §5).
+         Layout: one reading column with three sections — the task, the Moments,
+         this week on the path (Lab /concepts/path-week-reflection, 2026-10-11). -->
     <section v-else-if="currentStepId === 'path'" class="qr-path-step">
       <article v-for="block in pathBlocks" :key="block.enrollment.id" class="qr-path-block">
         <header class="qr-path-block__head">
           <AppIcon :name="block.program.icon" />
           <strong>{{ t(`${block.program.i18nKey}.title`) }}</strong>
-          <span v-if="block.phase">· {{ t(`${block.program.i18nKey}.phases.${block.phase.key}.title`) }}</span>
+          <span>· {{ t('programs.week.weekOfPath', { n: pathWeekNo(block), total: pathWeeksTotal(block) }) }}</span>
         </header>
 
-        <div class="qr-path-block__task">
+        <!-- 1 · the week's task -->
+        <section class="qr-path-sec" :aria-label="t('programs.week.sectionTask')">
+          <small class="qr-path-sec__eyebrow" :title="t('programs.week.sectionTaskHint')">{{ t('programs.week.sectionTask') }}</small>
           <template v-if="block.intention">
-            <span class="qr-path-block__task-title">{{ block.intention.title }}</span>
-            <span class="qr-path-block__task-count">
-              {{
-                t('programs.week.doneOf', {
-                  done: block.doneCount,
-                  target: block.intention.target.value ?? 1,
-                })
-              }}
-            </span>
-          </template>
-          <span v-else-if="block.entry" class="qr-path-block__task-muted">{{ t('programs.week.declinedThisWeek') }}</span>
-          <span v-else class="qr-path-block__task-muted">{{ t('programs.week.noTaskThisWeek') }}</span>
-        </div>
-
-        <!-- Shame path: this week next to the previous one (who took the wheel), then the
-             moments you did not log — the estimate the glance draws as an outline (plan v3 §P2). -->
-        <template v-if="block.program.momentKind === 'shame'">
-          <PathMomentsGlance :stats="glanceStats(block)" :first-week="glanceFirstWeek(block)" compact />
-          <div class="qr-path-pattern">
-            <button
-              type="button"
-              class="qr-path-block__toggle"
-              :disabled="patternLoading[block.enrollment.id]"
-              data-testid="path-week-pattern"
-              @click="requestPattern(block)"
+            <div
+              class="qr-path-task"
+              tabindex="0"
+              :aria-label="`${block.intention.title}: ${t('programs.week.doneOf', { done: block.doneCount, target: taskTarget(block) })}`"
             >
-              <AppIcon name="auto_awesome" />
-              {{ patternLoading[block.enrollment.id] ? t('programs.pattern.loading') : t('programs.pattern.cta') }}
+              <div class="qr-path-task__row">
+                <strong class="qr-path-task__title">{{ block.intention.title }}</strong>
+                <span
+                  class="mg-well qr-path-task__disc"
+                  :class="{ 'mg-well--done': block.doneCount >= taskTarget(block) }"
+                  :style="{ '--fill': `${Math.round((Math.min(block.doneCount, taskTarget(block)) / taskTarget(block)) * 100)}%` }"
+                  aria-hidden="true"
+                >
+                  <b v-if="block.doneCount < taskTarget(block)">{{ block.doneCount }}<i>/{{ taskTarget(block) }}</i></b>
+                </span>
+              </div>
+              <p class="qr-path-task__note" :class="{ 'qr-path-task__note--empty': !taskNotes(block).length }">
+                <template v-if="taskNotes(block).length"><span v-for="line in taskNotes(block)" :key="line">{{ line }}</span></template>
+                <template v-else>{{ t('programs.week.noDayYet') }}</template>
+              </p>
+            </div>
+            <label class="qr-path-block__field">
+              <span>{{ tg('programs.week.outcomeQuestion') }}</span>
+              <textarea
+                :value="promptResponses[pathKeys(block).outcome] ?? ''"
+                rows="2"
+                @input="setPathAnswer(pathKeys(block).outcome, $event)"
+              />
+            </label>
+            <button
+              v-if="block.entry && block.task"
+              type="button"
+              class="qr-path-stay"
+              :aria-pressed="Boolean(block.entry.stayNextWeek)"
+              :title="t('programs.week.stayHint')"
+              @click="toggleStay(block, !block.entry.stayNextWeek)"
+            >
+              <AppIcon :name="block.entry.stayNextWeek ? 'check' : 'replay'" />{{ t('programs.week.stayShort') }}
             </button>
+          </template>
+          <template v-else>
+            <p class="qr-path-block__task-muted">{{ block.entry ? t('programs.week.declinedThisWeek') : t('programs.week.noTaskThisWeek') }}</p>
+            <p v-if="block.entry" class="qr-path-block__task-muted">{{ t('programs.week.declinedNext') }}</p>
+          </template>
+        </section>
+
+        <!-- 2 · the week's Moments (paths that log them) -->
+        <section v-if="familyOf(block)" class="qr-path-sec" :aria-label="t('programs.week.sectionMoments')">
+          <small class="qr-path-sec__eyebrow" :title="t('programs.week.sectionMomentsHint')">{{ t('programs.week.sectionMoments') }}</small>
+
+          <!-- who took the wheel (parts for shame, reactions for anger / anxiety), last week beside this one; what was not written down -->
+          <template v-if="familyOf(block)">
+            <PathPartsChart :stats="glanceStats(block)" :first-week="glanceFirstWeek(block)" :backfilled="backfilledByWeek(block)" compact />
+            <div class="qr-path-links">
+              <button type="button" class="qr-path-block__toggle" :aria-expanded="detailsOpen[block.enrollment.id] ?? false" @click="toggleDetails(block)">
+                {{ detailsOpen[block.enrollment.id] ? t('programs.ui.less') : t('programs.ui.details') }}
+              </button>
+              <button
+                type="button"
+                class="qr-path-block__toggle"
+                :disabled="patternLoading[block.enrollment.id]"
+                data-testid="path-week-pattern"
+                @click="requestPattern(block)"
+              >
+                <AppIcon name="auto_awesome" />
+                {{ patternLoading[block.enrollment.id] ? t('programs.pattern.loading') : t('programs.pattern.cta') }}
+              </button>
+            </div>
+
+            <div class="qr-path-unlogged">
+              <span>{{ tg('programs.week.unloggedQuestion') }}</span>
+              <div class="qr-path-chips" role="group" :aria-label="tg('programs.week.unloggedQuestion')">
+                <button
+                  type="button"
+                  :aria-pressed="unloggedValue(block) === 'none'"
+                  :disabled="backfilledMoments(block).length > 0"
+                  @click="setUnlogged(block, 'none')"
+                >
+                  {{ t('programs.week.unloggedOptions.none') }}
+                </button>
+                <button
+                  type="button"
+                  :class="{ 'is-active': backfillOpen[block.enrollment.id] }"
+                  :disabled="!canBackfill(block)"
+                  :title="canBackfill(block) ? '' : t('programs.week.backfill.limit', { n: BACKFILL_LIMIT })"
+                  data-testid="path-backfill-open"
+                  @click="openBackfill(block)"
+                >
+                  <AppIcon name="add" />{{ t('programs.week.backfill.add') }}
+                </button>
+                <template v-if="bucketOpen[block.enrollment.id] || (unloggedValue(block) && unloggedValue(block) !== 'none')">
+                  <span class="qr-path-chips__sep" aria-hidden="true">≈</span>
+                  <button
+                    v-for="option in BUCKET_OPTIONS"
+                    :key="option"
+                    type="button"
+                    :aria-pressed="unloggedValue(block) === option"
+                    @click="chooseBucket(block, option)"
+                  >
+                    {{ t(`programs.week.unloggedOptions.${option}`) }}
+                  </button>
+                </template>
+                <button v-else type="button" class="qr-path-chips__ghost" @click="bucketOpen[block.enrollment.id] = true">
+                  {{ t('programs.week.backfill.more') }}
+                </button>
+              </div>
+
+              <ul v-if="backfilledMoments(block).length" class="qr-path-added">
+                <li v-for="moment in backfilledMoments(block)" :key="moment.id">
+                  <i :style="partStyle(momentPart(moment))" aria-hidden="true" />
+                  <span><b>{{ momentDayLabel(moment) }}</b> · {{ partLabel(block, momentPart(moment)) }} · {{ responseLabels(moment) }}</span>
+                  <small>{{ t('programs.week.backfill.tag') }}</small>
+                  <button type="button" class="qr-path-added__remove" :aria-label="t('programs.week.backfill.remove')" :disabled="backfillSaving" @click="removeBackfill(moment)">
+                    <AppIcon name="close" />
+                  </button>
+                </li>
+              </ul>
+
+              <form v-if="backfillOpen[block.enrollment.id]" class="qr-path-bf" data-testid="path-backfill-form" @submit.prevent="saveBackfill(block)">
+                <div class="qr-path-bf__row">
+                  <small>{{ t('programs.week.backfill.day') }}</small>
+                  <div class="qr-path-bf__days" role="radiogroup" :aria-label="t('programs.week.backfill.day')">
+                    <button
+                      v-for="day in weekDays"
+                      :key="day"
+                      type="button"
+                      class="mg-well qr-path-bf__day"
+                      :class="{ 'is-picked': backfillForm.day === day }"
+                      role="radio"
+                      :aria-checked="backfillForm.day === day"
+                      @click="backfillForm.day = day"
+                    >
+                      <b>{{ dayShort(day) }}</b>
+                    </button>
+                  </div>
+                </div>
+                <div class="qr-path-bf__row">
+                  <small>{{ backfillPartLabel(block) }}</small>
+                  <div class="qr-path-chips" role="radiogroup" :aria-label="backfillPartLabel(block)">
+                    <button
+                      v-for="part in familyOf(block)!.keys"
+                      :key="part"
+                      type="button"
+                      class="qr-path-chips__part"
+                      :style="partStyle(part)"
+                      role="radio"
+                      :aria-checked="backfillForm.part === part"
+                      @click="backfillForm.part = part"
+                    >
+                      <i aria-hidden="true" />{{ partLabel(block, part) }}
+                    </button>
+                  </div>
+                </div>
+                <div class="qr-path-bf__row">
+                  <small>{{ tg('programs.week.backfill.response') }} <em>{{ t('programs.week.backfill.optional') }}</em></small>
+                  <div class="qr-path-chips" role="group" :aria-label="tg('programs.week.backfill.response')">
+                    <button
+                      v-for="key in familyOf(block)!.backfillResponses"
+                      :key="key"
+                      type="button"
+                      :aria-pressed="backfillForm.response.includes(key)"
+                      @click="toggleBackfillResponse(key)"
+                    >
+                      {{ responseLabel(block, key) }}
+                    </button>
+                  </div>
+                </div>
+                <div class="qr-path-bf__foot">
+                  <button type="submit" class="qr-path-bf__save" :disabled="!backfillForm.day || !backfillForm.part || backfillSaving">{{ t('programs.week.backfill.save') }}</button>
+                  <button type="button" class="qr-path-chips__ghost" @click="backfillOpen[block.enrollment.id] = false">{{ t('programs.week.backfill.cancel') }}</button>
+                  <small>{{ t('programs.week.backfill.note') }}</small>
+                </div>
+              </form>
+            </div>
+
+            <div v-if="detailsOpen[block.enrollment.id]" class="qr-path-details">
+              <ul v-if="weekMoments(block).length" class="qr-path-moments__list">
+                <li v-for="moment in weekMoments(block)" :key="moment.id">
+                  <span class="qr-path-moments__day">{{ momentDayLabel(moment) }}</span>
+                  <i class="qr-path-moments__dot" :style="partStyle(momentPart(moment))" aria-hidden="true" />
+                  <span class="qr-path-moments__copy">
+                    <span class="qr-path-moments__text">{{ partLabel(block, momentPart(moment)) }}<template v-if="momentLine(moment)"> · {{ momentLine(moment) }}</template></span>
+                    <small class="qr-path-moments__tags">{{ momentTags(moment) || responseLabels(moment) }}<template v-if="isBackfilledMoment(moment)"> · <em>{{ t('programs.week.backfill.tag') }}</em></template></small>
+                  </span>
+                </li>
+              </ul>
+              <p v-else class="qr-path-block__task-muted">{{ t('programs.week.backfill.quietWeek') }}</p>
+              <table class="qr-path-numbers">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th v-for="part in familyOf(block)!.keys" :key="part">{{ part === familyOf(block)!.selfKey ? t('programs.glance.selfShort') : partLabel(block, part) }}</th>
+                    <th>{{ t('programs.glance.unloggedShort') }}</th>
+                    <th>{{ t('programs.glance.response') }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(week, i) in glanceStats(block)" :key="week.weekRef">
+                    <th>T{{ glanceFirstWeek(block) + i }}</th>
+                    <td v-for="part in familyOf(block)!.keys" :key="part">{{ week.byPart[part] || '·' }}</td>
+                    <td>{{ week.unlogged ?? '—' }}</td>
+                    <td>{{ week.responded }} / {{ week.total }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
             <p v-if="patterns[block.enrollment.id]" class="qr-path-pattern__text">
               <small>{{ t('programs.pattern.label') }}</small>
               {{ patterns[block.enrollment.id] }}
             </p>
             <p v-else-if="patternErrors[block.enrollment.id]" class="qr-path-pattern__text qr-path-pattern__text--error">{{ patternErrors[block.enrollment.id] }}</p>
-          </div>
-          <div class="qr-path-block__unlogged">
-            <span>{{ tg('programs.week.unloggedQuestion') }}</span>
-            <div class="qr-path-chips" role="group" :aria-label="tg('programs.week.unloggedQuestion')">
-              <button
-                v-for="option in UNLOGGED_OPTIONS"
-                :key="option"
-                type="button"
-                :aria-pressed="unloggedValue(block) === option"
-                @click="setUnlogged(block, option)"
-              >
-                {{ t(`programs.week.unloggedOptions.${option}`) }}
-              </button>
-            </div>
-          </div>
-        </template>
+          </template>
+        </section>
 
-        <!-- The week's moments of this path's kind: context for the phase question (plan v2 §6). -->
-        <div v-if="weekMoments(block).length" class="qr-path-moments">
-          <button type="button" class="qr-path-block__toggle" :aria-controls="`path-moments-${block.enrollment.id}`" :aria-expanded="momentsOpen[block.enrollment.id] ?? false" @click="toggleMoments(block)">
-            {{
-              momentsOpen[block.enrollment.id]
-                ? t('programs.week.hideMoments')
-                : t('programs.week.momentsThisWeek', { n: weekMoments(block).length })
-            }}
-            <AppIcon :name="momentsOpen[block.enrollment.id] ? 'expand_less' : 'expand_more'" />
-          </button>
-          <ul v-if="momentsOpen[block.enrollment.id]" :id="`path-moments-${block.enrollment.id}`" class="qr-path-moments__list">
-            <li v-for="moment in weekMoments(block).slice(0, 5)" :key="moment.id">
-              <span class="qr-path-moments__day">{{ momentDayLabel(moment) }}</span>
-              <span class="qr-path-moments__text">{{ momentLine(moment) }}</span>
-              <small v-if="momentTags(moment)" class="qr-path-moments__tags">{{ momentTags(moment) }}</small>
-            </li>
-          </ul>
-        </div>
-
-        <label v-if="block.entry" class="qr-path-block__field">
-          <span>{{ tg('programs.week.outcomeQuestion') }}</span>
-          <textarea
-            :value="promptResponses[pathKeys(block).outcome] ?? ''"
-            rows="3"
-            @input="setPathAnswer(pathKeys(block).outcome, $event)"
+        <!-- 3 · this week on the path: the phase, how much shame weighed, the phase question -->
+        <section class="qr-path-sec" :aria-label="weekSectionLabel(block)">
+          <small class="qr-path-sec__eyebrow" :title="block.phase ? t(`${block.program.i18nKey}.phases.${block.phase.key}.why`) : ''">{{ weekSectionLabel(block) }}</small>
+          <QuietRatingBar
+            layout="row"
+            :model-value="severityValue(block)"
+            :label="t(`${block.program.i18nKey}.reflection.severity`)"
+            :hint="severityHint(block)"
+            :high-label="t('programs.week.severityHigh')"
+            :low-label="t('programs.week.severityLow')"
+            :previous="previousSeverity(block)"
+            :previous-label="t('programs.week.previousWeek')"
+            @update:model-value="setSeverity(block, $event)"
           />
-        </label>
-
-        <QuietRatingBar
-          layout="row"
-          :model-value="severityValue(block)"
-          :label="t(`${block.program.i18nKey}.reflection.severity`)"
-          :hint="severityHint(block)"
-          :high-label="t('programs.week.severityHigh')"
-          :low-label="t('programs.week.severityLow')"
-          :previous="previousSeverity(block)"
-          :previous-label="t('programs.week.previousWeek')"
-          @update:model-value="setSeverity(block, $event)"
-        />
-
-        <label v-if="block.phase" class="qr-path-block__field">
-          <span>{{ tg(`${block.program.i18nKey}.phases.${block.phase.key}.question`) }}</span>
-          <textarea
-            :value="promptResponses[pathKeys(block).phase] ?? ''"
-            rows="3"
-            @input="setPathAnswer(pathKeys(block).phase, $event)"
-          />
-        </label>
-
-        <div v-if="block.entry && block.task" class="qr-path-block__stay">
-          <button
-            type="button"
-            role="switch"
-            class="mg-v2-switch"
-            :aria-checked="Boolean(block.entry.stayNextWeek)"
-            :aria-labelledby="`stay-${block.enrollment.id}`"
-            @click="toggleStay(block, !block.entry.stayNextWeek)"
-          />
-          <span :id="`stay-${block.enrollment.id}`">{{ t('programs.week.stayNextWeek') }}</span>
-        </div>
+          <label v-if="block.phase" class="qr-path-block__field">
+            <span>{{ tg(`${block.program.i18nKey}.phases.${block.phase.key}.question`) }}</span>
+            <textarea
+              :value="promptResponses[pathKeys(block).phase] ?? ''"
+              rows="2"
+              @input="setPathAnswer(pathKeys(block).phase, $event)"
+            />
+          </label>
+        </section>
       </article>
     </section>
 
@@ -506,8 +637,12 @@ import type { WeeklyReflection } from '@/domain/reflection'
 import { getPeriodBounds, getPeriodRefsForDate } from '@/utils/periods'
 import type { MicroExerciseEntry } from '@/domain/microExercises'
 import { hadMoment, momentDayRef, momentsInWeek } from '@/domain/moments'
-import { momentsProgress, UNLOGGED_BUCKETS, weekRefsEndingAt } from '@/domain/momentsProgress'
-import PathMomentsGlance from '@/features/program-path/PathMomentsGlance.vue'
+import { momentFamily, isMomentFamilyKind, reactionOf, responsesOf, type MomentFamilyConfig } from '@/domain/momentFamilies'
+import { momentsProgress, UNLOGGED_BUCKETS, weekRefsEndingAt, type ReactionKey } from '@/domain/momentsProgress'
+import PathPartsChart from '@/features/program-path/PathPartsChart.vue'
+import { partColor } from '@/features/program-path/partColors'
+import { BACKFILL_LIMIT, isBackfilledMoment } from '@/services/momentBackfillService'
+import { taskCountsEntry } from '@/services/programTaskBridgeService'
 import { getPreviousPeriod } from '@/utils/periods'
 import { useMicroExerciseEntryStore } from '@/stores/microExerciseEntry.store'
 import QuietEmotionStack from './QuietEmotionStack.vue'
@@ -806,7 +941,7 @@ function severityHint(block: ReflectionPathBlock): string {
 }
 // ── Momenty of the week (per path kind) ──
 const microEntryStore = useMicroExerciseEntryStore()
-const momentsOpen = reactive<Record<string, boolean>>({})
+const detailsOpen = reactive<Record<string, boolean>>({})
 
 function weekMoments(block: ReflectionPathBlock): MicroExerciseEntry[] {
   const kind = block.program.momentKind
@@ -814,8 +949,160 @@ function weekMoments(block: ReflectionPathBlock): MicroExerciseEntry[] {
   return momentsInWeek(microEntryStore.entries, kind, props.weekRef).filter(hadMoment)
 }
 
-function toggleMoments(block: ReflectionPathBlock): void {
-  momentsOpen[block.enrollment.id] = !momentsOpen[block.enrollment.id]
+function toggleDetails(block: ReflectionPathBlock): void {
+  detailsOpen[block.enrollment.id] = !detailsOpen[block.enrollment.id]
+}
+
+async function reloadPathBlocks(): Promise<void> {
+  try {
+    pathBlocks.value = await loadReflectionPathBlocks(props.weekRef)
+  } catch (err) {
+    console.error('Failed to reload program blocks for the weekly reflection:', err)
+  }
+}
+
+// ── The block's header and the task tile ──
+function pathWeekNo(block: ReflectionPathBlock): number {
+  return glanceFirstWeek(block) + glanceWeeks(block).length - 1
+}
+function pathWeeksTotal(block: ReflectionPathBlock): number {
+  const phaseWeeks = (block.program.phases ?? []).map(phase => phase.week ?? 0)
+  return Math.max(block.program.estimatedWeeks, ...phaseWeeks)
+}
+function taskTarget(block: ReflectionPathBlock): number {
+  return Math.max(1, block.intention?.target.value ?? block.task?.times ?? 1)
+}
+function weekSectionLabel(block: ReflectionPathBlock): string {
+  return block.phase
+    ? t('programs.week.sectionWeek', { n: pathWeekNo(block), phase: t(`${block.program.i18nKey}.phases.${block.phase.key}.title`) })
+    : t('programs.ui.weekOf', { n: pathWeekNo(block), total: pathWeeksTotal(block) })
+}
+/** The reaction family of the block's path (shame parts, anger / anxiety reactions); null for a path without Momenty. */
+function familyOf(block: ReflectionPathBlock): MomentFamilyConfig | null {
+  const kind = block.program.momentKind
+  return isMomentFamilyKind(kind) ? momentFamily(kind) : null
+}
+const partStyle = (part: ReactionKey) => ({ '--part': partColor(part) })
+function partLabel(block: ReflectionPathBlock, part: ReactionKey): string {
+  const family = familyOf(block) ?? momentFamily('shame')
+  return tg(`exerciseWizards.micro.moments.${family.reactionStep}.options.${part}`)
+}
+function backfillPartLabel(block: ReflectionPathBlock): string {
+  return familyOf(block)?.kind === 'shame' ? t('programs.week.backfill.part') : t('programs.week.backfill.reaction')
+}
+/** The part / reaction a Moment names; the self key when it names none. */
+function momentPart(moment: MicroExerciseEntry): ReactionKey {
+  const family = momentFamily(moment.responses.kind)
+  return reactionOf(moment.responses, family) ?? family.selfKey
+}
+function momentResponses(moment: MicroExerciseEntry): string[] {
+  return responsesOf(moment.responses, momentFamily(moment.responses.kind))
+}
+function responseLabel(block: ReflectionPathBlock | MicroExerciseEntry, key: string): string {
+  const family = 'responses' in block ? momentFamily(block.responses.kind) : (familyOf(block) ?? momentFamily('shame'))
+  return t(`exerciseWizards.micro.moments.${family.responseStep}.options.${key}`)
+}
+function responseLabels(moment: MicroExerciseEntry): string {
+  return momentResponses(moment)
+    .map(key => responseLabel(moment, key))
+    .join(', ')
+    .toLowerCase()
+}
+function dayLetter(day: DayRef): string {
+  return new Date(`${day}T12:00:00`).toLocaleDateString(locale.value, { weekday: 'short' })
+}
+const DAY_SHORT: Record<string, string[]> = { pl: ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'], en: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'] }
+/** Two letters for the day wells (Monday first); the locale's short form does not fit a 1.5 rem well. */
+function dayShort(day: DayRef): string {
+  const letters = DAY_SHORT[locale.value] ?? DAY_SHORT.en!
+  return letters[(new Date(`${day}T12:00:00`).getDay() + 6) % 7]!
+}
+/** One line per counted day: the Moment that counted it (part · moves), or "ticked in the day plan". */
+function taskNotes(block: ReflectionPathBlock): string[] {
+  const task = block.task
+  return block.doneDays.map(day => {
+    const moment = task ? weekMoments(block).find(entry => momentDayRef(entry) === day && taskCountsEntry(task, entry)) : undefined
+    if (!moment) return `${dayLetter(day)} · ${t('programs.week.countedDayPlain')}`
+    const moves = momentResponses(moment)
+      .filter(key => key !== 'nothing')
+      .map(key => responseLabel(moment, key))
+      .join(', ')
+      .toLowerCase()
+    const later = isBackfilledMoment(moment) ? ` · ${t('programs.week.backfill.tag')}` : ''
+    return `${dayLetter(day)} · ${partLabel(block, momentPart(moment))}${moves ? ` · ${moves}` : ''}${later}`
+  })
+}
+
+// ── Moments written down later (any path with a reaction family) ──
+const BUCKET_OPTIONS = ['few', 'several', 'many'] as const
+const backfillOpen = reactive<Record<string, boolean>>({})
+const bucketOpen = reactive<Record<string, boolean>>({})
+const backfillForm = reactive<{ day: DayRef | null; part: ReactionKey | null; response: string[] }>({ day: null, part: null, response: [] })
+const backfillSaving = ref(false)
+const weekDays = computed<DayRef[]>(() => {
+  const { start } = getPeriodBounds(props.weekRef)
+  return Array.from({ length: 7 }, (_, i) => {
+    const date = new Date(`${start}T12:00:00`)
+    date.setDate(date.getDate() + i)
+    return getPeriodRefsForDate(date).day
+  })
+})
+function backfilledMoments(block: ReflectionPathBlock): MicroExerciseEntry[] {
+  return weekMoments(block).filter(isBackfilledMoment)
+}
+function backfilledByWeek(block: ReflectionPathBlock): Partial<Record<string, Partial<Record<ReactionKey, number>>>> {
+  const counts: Partial<Record<ReactionKey, number>> = {}
+  for (const moment of backfilledMoments(block)) {
+    const part = momentPart(moment)
+    counts[part] = (counts[part] ?? 0) + 1
+  }
+  return { [props.weekRef]: counts }
+}
+function canBackfill(block: ReflectionPathBlock): boolean {
+  return backfilledMoments(block).length < BACKFILL_LIMIT
+}
+function openBackfill(block: ReflectionPathBlock): void {
+  backfillForm.day = null
+  backfillForm.part = null
+  backfillForm.response = []
+  backfillOpen[block.enrollment.id] = true
+  bucketOpen[block.enrollment.id] = false
+}
+function toggleBackfillResponse(key: string): void {
+  const current = backfillForm.response
+  if (key === 'nothing') backfillForm.response = current.includes('nothing') ? [] : ['nothing']
+  else backfillForm.response = current.includes(key) ? current.filter(item => item !== key) : [...current.filter(item => item !== 'nothing'), key]
+}
+async function saveBackfill(block: ReflectionPathBlock): Promise<void> {
+  const kind = familyOf(block)?.kind
+  if (!kind || !backfillForm.day || !backfillForm.part || backfillSaving.value) return
+  backfillSaving.value = true
+  try {
+    await microEntryStore.createBackfilledMoment({ kind, day: backfillForm.day, reaction: backfillForm.part, response: backfillForm.response })
+    if (unloggedValue(block) === 'none') setUnlogged(block, 'none')
+    backfillOpen[block.enrollment.id] = false
+    await reloadPathBlocks()
+  } catch (err) {
+    console.error('Failed to backfill the moment:', err)
+  } finally {
+    backfillSaving.value = false
+  }
+}
+async function removeBackfill(moment: MicroExerciseEntry): Promise<void> {
+  if (backfillSaving.value) return
+  backfillSaving.value = true
+  try {
+    await microEntryStore.deleteEntry(moment.id)
+    await reloadPathBlocks()
+  } catch (err) {
+    console.error('Failed to remove the backfilled moment:', err)
+  } finally {
+    backfillSaving.value = false
+  }
+}
+function chooseBucket(block: ReflectionPathBlock, option: string): void {
+  setUnlogged(block, option)
+  bucketOpen[block.enrollment.id] = false
 }
 
 // ── Week pattern (AI): one descriptive sentence, on demand, marked as a proposal ──
@@ -832,19 +1119,18 @@ async function requestPattern(block: ReflectionPathBlock): Promise<void> {
     const stats = glanceStats(block)
     const week = stats[stats.length - 1]!
     const previous = stats.length > 1 ? stats[0] : undefined
-    const kindVoices = weekMoments(block)
-      .map(moment => moment.responses.kindVoice)
-      .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
-      .slice(0, 3)
+    const family = familyOf(block) ?? momentFamily('shame')
+    const kindVoices =
+      family.kind === 'shame'
+        ? weekMoments(block)
+            .map(moment => moment.responses.kindVoice)
+            .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
+            .slice(0, 3)
+        : []
     patterns[id] = await describeWeekPattern({
       week,
       previous,
-      partLabels: {
-        withdraw: tg('exerciseWizards.micro.moments.compass.options.withdraw'),
-        attackSelf: tg('exerciseWizards.micro.moments.compass.options.attackSelf'),
-        attackOthers: tg('exerciseWizards.micro.moments.compass.options.attackOthers'),
-        avoid: tg('exerciseWizards.micro.moments.compass.options.avoid'),
-      },
+      partLabels: Object.fromEntries(family.keys.filter(key => key !== family.selfKey).map(key => [key, partLabel(block, key)])),
       kindVoices,
       locale: locale.value,
     })
@@ -855,8 +1141,7 @@ async function requestPattern(block: ReflectionPathBlock): Promise<void> {
   }
 }
 
-// ── Shame path glance + "moments you did not log" ──
-const UNLOGGED_OPTIONS = Object.keys(UNLOGGED_BUCKETS)
+// ── The path's glance + "moments you did not log" ──
 
 function unloggedValue(block: ReflectionPathBlock): string | null {
   const raw = promptResponses.value[pathKeys(block).unlogged]
@@ -888,7 +1173,8 @@ function glanceStats(block: ReflectionPathBlock) {
   return momentsProgress(
     microEntryStore.entries,
     glanceWeeks(block),
-    bucket ? { [props.weekRef]: UNLOGGED_BUCKETS[bucket] } : {}
+    bucket ? { [props.weekRef]: UNLOGGED_BUCKETS[bucket] } : {},
+    familyOf(block)?.kind ?? 'shame'
   )
 }
 
@@ -903,16 +1189,14 @@ function momentLine(moment: MicroExerciseEntry): string {
   return typeof situation === 'string' ? situation : ''
 }
 
-/** "o czym" + responses used, as their labels (shame moments); empty otherwise. */
+/** "o czym" (shame) + the moves used, as their labels; empty when the Moment names neither. */
 function momentTags(moment: MicroExerciseEntry): string {
-  const label = (step: string, option: string) => tg(`exerciseWizards.micro.moments.${step}.options.${option}`)
   const tags: string[] = []
   const about = moment.responses.about
-  if (typeof about === 'string' && about !== 'unsure') tags.push(label('about', about))
-  const response = moment.responses.response
-  if (Array.isArray(response)) {
-    for (const option of response) if (typeof option === 'string' && option !== 'nothing') tags.push(label('response', option))
+  if (moment.responses.kind === 'shame' && typeof about === 'string' && about !== 'unsure') {
+    tags.push(tg(`exerciseWizards.micro.moments.about.options.${about}`))
   }
+  for (const option of momentResponses(moment)) if (option !== 'nothing') tags.push(responseLabel(moment, option))
   return tags.join(' · ')
 }
 
@@ -1017,45 +1301,5 @@ async function finishAndPlanNext() {
   .qr-heading h1 {
     overflow-wrap: anywhere;
   }
-}
-/* Momenty under the path's task: a quiet disclosure, rows one tone deeper. */
-.qr-path-moments {
-  display: grid;
-  gap: var(--mg-space-1);
-}
-
-.qr-path-moments__list {
-  display: grid;
-  gap: var(--mg-space-1);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.qr-path-moments__list li {
-  display: grid;
-  grid-template-columns: 2.5rem 1fr;
-  gap: 0 var(--mg-space-2);
-  padding: var(--mg-space-1) var(--mg-space-2);
-  border-radius: var(--mg-radius-md);
-  background: var(--mg-color-paper);
-  font-size: var(--mg-font-size-sm);
-}
-
-.qr-path-moments__day {
-  color: var(--mg-color-muted);
-  font-size: var(--mg-font-size-xs);
-  text-transform: lowercase;
-  padding-top: 0.15em;
-}
-
-.qr-path-moments__text {
-  color: var(--mg-color-ink);
-}
-
-.qr-path-moments__tags {
-  grid-column: 2;
-  color: var(--mg-color-muted);
-  font-size: var(--mg-font-size-xs);
 }
 </style>
