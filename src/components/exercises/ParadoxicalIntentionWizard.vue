@@ -157,12 +157,12 @@
           </div>
 
           <!-- Current fear display -->
-          <div class="neo-embedded p-4 space-y-2">
-            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('exerciseWizards.paradoxicalIntention.craft.fearHeader') }}</p>
-            <p class="text-sm text-on-surface">{{ currentFear.description }}</p>
-            <p class="text-xs text-on-surface-variant italic">
+          <div class="exercise-quote">
+            <span class="exercise-quote__label">{{ t('exerciseWizards.paradoxicalIntention.craft.fearHeader') }}</span>
+            <span class="exercise-quote__text">{{ currentFear.description }}</span>
+            <span class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.paradoxicalIntention.craft.youFear', { fear: currentFear.anticipatedCatastrophe }) }}
-            </p>
+            </span>
           </div>
 
           <!-- Instructions -->

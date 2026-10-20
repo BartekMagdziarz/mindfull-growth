@@ -57,7 +57,7 @@
       <!-- Add area card -->
       <button
         type="button"
-        class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed border-neu-border/20 text-primary hover:border-primary/40 hover:bg-primary/5 transition-all"
+        class="exercise-add-tile flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-primary transition-all"
         @click="$emit('add', '')"
       >
         <AppIcon name="add" class="text-base" />

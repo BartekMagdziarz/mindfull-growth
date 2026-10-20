@@ -1543,6 +1543,8 @@
       "emotionLabel": "Jak się teraz czujesz?"
     },
     "peaks": {
+      "addEmotions": "Dodaj emocje",
+      "hideEmotions": "Ukryj emocje",
       "title": "Kiedy życie miało najwięcej sensu?",
       "description": "Opisz od 3 do 7 chwil, w których życie było najpełniejsze i najbardziej sensowne. Przy każdej wpisz wiek i to, co nadawało jej sens.",
       "why": "Szczyty pokazują, co w twoim życiu już raz niosło sens. Te same źródła — ludzie, praca, wartości — często da się odnaleźć ponownie.",
@@ -3509,7 +3511,7 @@
       },
       "triggers": {
         "title": "Co najczęściej cię złości?",
-        "description": "Sytuacje, zachowania innych, pory dnia, zmęczenie. Pięć to dużo, trzy wystarczą.",
+        "description": "Wystarczy jedna niedawna sytuacja. Jeśli chcesz, dopisz kolejne.",
         "placeholder": "Kiedy ktoś się spóźnia…"
       },
       "bodySigns": {
@@ -3518,14 +3520,31 @@
         "why": "Ciało zwykle reaguje, zanim zdasz sobie sprawę ze złości. Znając swoje sygnały, możesz zatrzymać się wcześniej.",
         "placeholder": "Napinają mi się ramiona…"
       },
+      "reactionKinds": {
+        "title": "Jak zwykle reaguje złość?",
+        "description": "Zaznacz to, co zdarza się najczęściej. Te same nazwy wrócą w Momentach.",
+        "why": "Dwie pary: na zewnątrz (ostrzej, wybuch) i do wewnątrz (milczenie, na siebie). Ścieżka pokaże tydzień po tygodniu, która słabnie.",
+        "options": {
+          "sharp": "Ostrzej",
+          "outburst": "Wybuch",
+          "silence": "Milczenie",
+          "selfBlame": "Na siebie"
+        },
+        "optionHints": {
+          "sharp": "ton, sarkazm, przytyk",
+          "outburst": "krzyk, trzaśnięcie, groźba",
+          "silence": "wycofanie, „nic się nie stało”",
+          "selfBlame": "obwinianie siebie, przeżuwanie"
+        }
+      },
       "reaction": {
         "title": "Jak zwykle reagujesz?",
         "description": "Krzyk, sarkazm, milczenie, trzaskanie drzwiami, obwinianie siebie. Bez oceniania.",
         "placeholder": "Zwykle…"
       },
       "cost": {
-        "title": "Ile cię kosztuje ta reakcja?",
-        "description": "Co tracisz przez nią w relacjach, w pracy i w samopoczuciu po fakcie?",
+        "title": "Co dzieje się po tej reakcji?",
+        "description": "Zauważ wpływ na siebie i innych. Opisz konkretny skutek, bez oceniania całej swojej osoby.",
         "why": "Nazwane koszty pokazują, po co zmieniać reakcję — z twoich własnych powodów, a nie dlatego, że złość jest „zła”.",
         "placeholder": "Potem…"
       },
@@ -3539,14 +3558,11 @@
     "pausePlan": {
       "intro": {
         "title": "Plan na moment, gdy złość rośnie",
-        "description": {
-          "m": "Pauzę łatwiej zrobić, gdy wcześniej ustalisz, kiedy i jak. Plan „jeśli…, to…” działa lepiej niż samo postanowienie, że będziesz spokojniejszy.",
-          "f": "Pauzę łatwiej zrobić, gdy wcześniej ustalisz, kiedy i jak. Plan „jeśli…, to…” działa lepiej niż samo postanowienie, że będziesz spokojniejsza."
-        }
+        "description": "Przygotuj jeden mały ruch na chwilę, gdy napięcie rośnie. Nie musisz czekać, aż złość będzie silna."
       },
       "earlySigns": {
-        "title": "Jakie są twoje trzy najwcześniejsze sygnały złości?",
-        "description": "Sygnały w ciele, myślach albo zachowaniu. Możesz wziąć je z dziennika lub mapy złości.",
+        "title": "Po czym poznasz, że potrzebujesz pauzy?",
+        "description": "Wybierz od jednego do trzech sygnałów. Poniżej możesz zobaczyć zapis z mapy złości.",
         "why": "Im wcześniejszy sygnał, tym łatwiej się zatrzymać: złość jest jeszcze słaba i masz wybór, jak zareagować.",
         "placeholder": "Mówię szybciej…"
       },
@@ -3558,15 +3574,20 @@
       },
       "returnPromise": {
         "title": "Jak wrócisz do rozmowy?",
-        "description": "Pauza to nie ucieczka. Ustal, co powiesz, wychodząc, i kiedy wrócisz.",
+        "description": "Jeśli rozmowa jest bezpieczna, powiedz, że potrzebujesz przerwy, i zaproponuj porę powrotu. Nie musisz wracać do sytuacji, w której ktoś grozi lub krzywdzi.",
         "why": "Druga osoba łatwiej przyjmie pauzę, gdy wie, że wrócisz. A tobie łatwiej wrócić, gdy masz gotowe słowa i porę.",
         "placeholder": "Powiem: „Wrócę do tego za kwadrans”…"
       },
       "confidence": {
-        "title": "Na ile wierzysz, że to zadziała?",
-        "description": "Jeśli mniej niż 50, uprość plan albo wybierz wcześniejszy sygnał.",
+        "title": "Na ile ten plan wydaje się wykonalny?",
+        "description": "Jeśli trudno go sobie wyobrazić, możesz wrócić i zmniejszyć pierwszy krok.",
         "minLabel": "Wcale",
         "maxLabel": "W pełni"
+      },
+      "afterSave": {
+        "title": "Zapisz moment, w którym pauza była potrzebna",
+        "description": "Jeśli plan powstał po konkretnej sytuacji, zapisz ją w Momentach — „Pauza” będzie już zaznaczona.",
+        "cta": "Zapisz moment"
       }
     },
     "needBehindAnger": {
@@ -3577,9 +3598,9 @@
         "placeholder": "Kiedy…"
       },
       "feeling": {
-        "title": "Co czujesz oprócz złości?",
-        "description": "Pod złością często jest coś jeszcze: przykrość, lęk, zmęczenie, rozczarowanie. Wybierz to, co pasuje.",
-        "why": "Złość często przykrywa uczucia, które trudniej okazać. Gdy je nazwiesz, łatwiej zobaczyć, czego potrzebujesz."
+        "title": "Jakie uczucia są teraz obecne?",
+        "description": "Może być sama złość albo też przykrość, lęk czy rozczarowanie. Wybierz to, co rozpoznajesz.",
+        "why": "Nie trzeba szukać ukrytego uczucia. Nazwij to, co rzeczywiście zauważasz."
       },
       "needs": {
         "title": "Czego ci zabrakło w tej sytuacji?",
@@ -3675,7 +3696,7 @@
           "withdraw": "Ukrywający",
           "avoid": "Odwracający uwagę",
           "attackSelf": "Krytyk",
-          "attackOthers": "Oskarżyciel",
+          "attackOthers": "Agresor",
           "none": {
             "m": "Żadna, zostałem przy sobie",
             "f": "Żadna, zostałam przy sobie"
@@ -3704,16 +3725,14 @@
           "contact": "Ruch w stronę kontaktu",
           "repair": "Naprawa",
           "test": "Pytanie „a gdyby to był ktoś bliski?”",
+          "kindAct": "Gest dla siebie, jak dla przyjaciela",
+          "gesture": "Dłoń na sercu",
+          "stayed": "Zostanie minutę dłużej",
+          "thanked": "Podziękowanie Krytykowi",
           "nothing": "Nic, tym razem",
           "unblend": "„To część, nie ja”",
           "defend": "Zdanie w swojej obronie"
         }
-      },
-      "intensity": {
-        "title": "Jak silna była złość w najgorszym momencie?",
-        "description": "0 to spokój, 10 to złość, nad którą trudno było zapanować.",
-        "minLabel": "Spokój",
-        "maxLabel": "Poza kontrolą"
       },
       "body": {
         "title": "Co działo się w ciele?",
@@ -3771,8 +3790,8 @@
           "m": "Kiedy to zauważyłeś?",
           "f": "Kiedy to zauważyłaś?"
         },
-        "description": "Chodzi o chwilę, w której wstyd dostał nazwę, nie o to, co było potem.",
-        "why": "„Szybciej” to pierwsza część celu ścieżki. Odpowiedź ma szansę zadziałać tylko wtedy, gdy wstyd zostanie zauważony w porę.",
+        "description": "Chodzi o chwilę, w której emocja dostała nazwę, nie o to, co było potem.",
+        "why": "„Szybciej” to pierwsza część celu każdej z tych ścieżek. Odpowiedź ma szansę zadziałać tylko wtedy, gdy emocja zostanie zauważona w porę.",
         "options": {
           "during": "W trakcie",
           "soon": "Po chwili",
@@ -3785,6 +3804,146 @@
         "description": "W najmocniejszej chwili. Potem możesz zapisać albo dodać szczegóły.",
         "minLabel": "Ledwie",
         "maxLabel": "Bardzo"
+      },
+      "angerReaction": {
+        "title": "Co przejęło ster?",
+        "description": "Jedna odpowiedź. W razie wątpliwości ta najbliższa.",
+        "why": "Gdy reakcja ma nazwę, łatwiej ją przyłapać następnym razem i zobaczyć w rozkładzie tygodni, która słabnie.",
+        "hintLabel": "Z twojej mapy złości",
+        "options": {
+          "sharp": "Ostrzej",
+          "outburst": "Wybuch",
+          "silence": "Milczenie",
+          "selfBlame": "Na siebie",
+          "pause": {
+            "m": "Pauza, zostałem przy sobie",
+            "f": "Pauza, zostałam przy sobie"
+          }
+        },
+        "optionHints": {
+          "sharp": "ton, sarkazm, przytyk",
+          "outburst": "krzyk, trzaśnięcie, groźba",
+          "silence": "wycofanie, „nic się nie stało”",
+          "selfBlame": "obwinianie siebie, przeżuwanie"
+        }
+      },
+      "anxietyReaction": {
+        "title": "Co pociągnęło?",
+        "description": "Jedna odpowiedź. W razie wątpliwości ta najbliższa.",
+        "why": "Unikanie i upewnianie się przynoszą ulgę na chwilę, a lęk podtrzymują na długo. Nazwany ruch łatwiej zauważyć następnym razem.",
+        "hintLabel": "Z twojej mapy lęku",
+        "options": {
+          "postpone": "Odkładanie",
+          "withdraw": "Wycofanie",
+          "check": "Sprawdzanie",
+          "worry": "Zamartwianie",
+          "approach": {
+            "m": "Podejście, wszedłem w to",
+            "f": "Podejście, weszłam w to"
+          }
+        },
+        "optionHints": {
+          "postpone": "przełożone, ominięte",
+          "withdraw": "wyjście z sytuacji, rezygnacja",
+          "check": "upewnianie, pytanie o to samo",
+          "worry": "łańcuch „a co jeśli”"
+        }
+      },
+      "angerResponse": {
+        "title": {
+          "m": "Co zrobiłeś zamiast?",
+          "f": "Co zrobiłaś zamiast?"
+        },
+        "description": "Zaznacz wszystkie ruchy, także spóźnione. Jeśli żaden — „Nic, tym razem”.",
+        "why": "Liczy się każda próba, także spóźniona. Z czasem widać, które ruchy naprawdę działają.",
+        "hintLabel": "Z twojego planu pauzy",
+        "options": {
+          "breath": "Oddech",
+          "named": "Nazwanie sygnału",
+          "pause": "Pauza",
+          "announce": "Zapowiedź przerwy",
+          "returned": "Powrót do rozmowy",
+          "altThought": "Inna myśl",
+          "need": "Nazwanie potrzeby",
+          "request": "Prośba albo granica",
+          "step": "Krok w sprawie",
+          "repair": "Naprawa",
+          "nothing": "Nic, tym razem"
+        }
+      },
+      "anxietyResponse": {
+        "title": {
+          "m": "Co zrobiłeś zamiast?",
+          "f": "Co zrobiłaś zamiast?"
+        },
+        "description": "Zaznacz wszystkie ruchy, także spóźnione. Jeśli żaden — „Nic, tym razem”.",
+        "why": "Liczy się każda próba, także spóźniona. Z czasem widać, które ruchy naprawdę działają.",
+        "hintLabel": "Do czego chcesz wracać",
+        "options": {
+          "breath": "Oddech",
+          "named": "Nazwanie lęku",
+          "stayed": "Zostanie chwilę dłużej",
+          "anyway": "Zrobienie mimo lęku",
+          "noCheck": "Bez sprawdzania",
+          "postponed": "Odłożenie zmartwienia",
+          "prediction": "Zapisanie przewidywania",
+          "step": "Krok w sprawie",
+          "meaningful": "Ważna rzecz mimo lęku",
+          "nothing": "Nic, tym razem"
+        }
+      },
+      "angerStrength": {
+        "title": "Jak silna była złość?",
+        "description": "W najmocniejszej chwili. Potem możesz zapisać albo dodać szczegóły.",
+        "minLabel": "Ledwie",
+        "maxLabel": "Bardzo"
+      },
+      "anxietyStrength": {
+        "title": "Jak silny był lęk?",
+        "description": "W najmocniejszej chwili. Potem możesz zapisać albo dodać szczegóły.",
+        "minLabel": "Ledwie",
+        "maxLabel": "Bardzo"
+      },
+      "angerBody": {
+        "title": "Co działo się w ciele?",
+        "description": "Pierwszy sygnał: ciepło, zaciśnięta szczęka, szybszy oddech, napięte ramiona.",
+        "why": "Ciało zdradza złość szybciej niż myśli. Znając swoje sygnały, wcześniej zauważysz, że rośnie.",
+        "hintLabel": "Z twojej mapy złości",
+        "placeholder": "Napięły mi się ramiona…"
+      },
+      "anxietyBody": {
+        "title": "Co działo się w ciele?",
+        "description": "Pierwszy sygnał: serce, oddech, żołądek, napięcie, drżenie.",
+        "why": "Ciało zdradza lęk szybciej niż myśli. Znając swoje sygnały, wcześniej zauważysz, że się zaczyna.",
+        "hintLabel": "Z twojej mapy lęku",
+        "placeholder": "Kołatanie serca…"
+      },
+      "need": {
+        "title": "Czego zabrakło?",
+        "description": "Potrzeba, której broniła ta złość. Może być jedna albo kilka.",
+        "why": "Złość zwykle broni jakiejś potrzeby. Gdy ją nazwiesz, możesz zadbać o nią wprost, zamiast walczyć z drugą osobą.",
+        "options": {
+          "respect": "Szacunek",
+          "understanding": "Zrozumienie",
+          "fairness": "Sprawiedliwość",
+          "autonomy": "Autonomia",
+          "safety": "Bezpieczeństwo",
+          "rest": "Odpoczynek",
+          "support": "Wsparcie",
+          "closeness": "Bliskość",
+          "appreciation": "Docenienie",
+          "honesty": "Szczerość",
+          "order": "Porządek",
+          "space": "Przestrzeń",
+          "cooperation": "Współpraca",
+          "predictability": "Przewidywalność"
+        }
+      },
+      "outcome": {
+        "title": "Co się naprawdę stało?",
+        "description": "Jeśli już wiadomo. Obok przewidywania to najcenniejszy zapis.",
+        "why": "Lęk przewiduje. Zapisana para „przewidywanie → wynik” uczy więcej niż dziesięć uspokojeń.",
+        "placeholder": "Okazało się, że…"
       }
     },
     "shameResponse": {
@@ -3851,7 +4010,7 @@
         "options": {
           "withdraw": "Ukrywający",
           "attackSelf": "Krytyk",
-          "attackOthers": "Oskarżyciel",
+          "attackOthers": "Agresor",
           "avoid": "Odwracający uwagę"
         },
         "optionHints": {
@@ -3919,7 +4078,7 @@
           "withdraw": "Ukrywający",
           "avoid": "Odwracający uwagę",
           "attackSelf": "Krytyk",
-          "attackOthers": "Oskarżyciel"
+          "attackOthers": "Agresor"
         },
         "optionHints": {
           "withdraw": "wycofanie, znikanie",
@@ -3973,7 +4132,7 @@
       },
       "partsIntro": {
         "title": "Każda z tych reakcji to część, która chroni",
-        "description": "Ukrywający nie chce, żeby cię zobaczono. Krytyk uprzedza cudzą krytykę. Oskarżyciel odpycha innych, zanim zaboli. Odwracający uwagę odsuwa samo poczucie. Założymy je w twoim rejestrze części, żeby dalej można je było poznać, nazwać po swojemu i z nimi rozmawiać.",
+        "description": "Ukrywający nie chce, żeby cię zobaczono. Krytyk uprzedza cudzą krytykę. Agresor odpycha innych, zanim zaboli. Odwracający uwagę odsuwa samo poczucie. Założymy je w twoim rejestrze części, żeby dalej można je było poznać, nazwać po swojemu i z nimi rozmawiać.",
         "why": "Praca z częścią jest łagodniejsza niż walka z „wadą”. Część ma intencję, którą da się zrozumieć, i metodę, którą da się zmienić."
       }
     },
@@ -4117,7 +4276,7 @@
     "worryPostponement": {
       "intro": {
         "title": "Pora na zmartwienia",
-        "description": "Gdy w ciągu dnia pojawi się zmartwienie, zanotuj je jednym zdaniem i odłóż do tej chwili. Teraz jest czas, żeby do nich wrócić. Wybierz stałą porę, najlepiej wczesnym wieczorem, nie tuż przed snem."
+        "description": "Wybierz krótką, stałą porę na przyjrzenie się zmartwieniom, nie tuż przed snem. W ciągu dnia możesz je krótko zanotować i wrócić do obecnej czynności. Pilnymi sprawami zajmij się wtedy, gdy tego wymagają."
       },
       "worries": {
         "title": "Co cię dziś martwiło?",
@@ -4128,7 +4287,7 @@
       "stillMatters": {
         "title": "Ile z nich nadal wydaje się ważnych?",
         "description": "Zaznacz na suwaku, ile procent zapisanych zmartwień wciąż wydaje się ważnych teraz, gdy do nich wracasz.",
-        "why": "Wiele zmartwień traci znaczenie po kilku godzinach. Zauważanie tego co wieczór osłabia przekonanie, że każdym trzeba zająć się od razu.",
+        "why": "Obawy mogą stracić na znaczeniu albo nadal być ważne. Nie ma wyniku, który trzeba tu osiągnąć.",
         "minLabel": "Żadne",
         "maxLabel": "Wszystkie"
       },
@@ -4146,11 +4305,11 @@
     "anxietyMap": {
       "intro": {
         "title": "Mapa twojego lęku",
-        "description": "Lęk podtrzymują unikanie i zabezpieczenia. Dają ulgę teraz, ale uczą, że sytuacja była groźna. Ta mapa pokaże, od czego zacząć."
+        "description": "Zacznij od jednej codziennej sytuacji: co budzi lęk, jak odpowiadasz i do czego chcesz wracać. Nie musisz od razu nic zmieniać."
       },
       "situations": {
         "title": "Jakie sytuacje albo tematy budzą lęk?",
-        "description": "Konkretne sytuacje, myśli lub obrazy. Nie muszą być wielkie.",
+        "description": "Wystarczy jeden przykład. Kolejne możesz dopisać, jeśli chcesz.",
         "placeholder": "Telefon do urzędu…"
       },
       "bodySigns": {
@@ -4158,29 +4317,43 @@
         "description": "Na przykład serce, oddech, żołądek, napięcie, drżenie.",
         "placeholder": "Kołatanie serca…"
       },
+      "reactionKinds": {
+        "title": "Co lęk zwykle każe robić?",
+        "description": "Zaznacz to, co zdarza się najczęściej. Te same nazwy wrócą w Momentach.",
+        "why": "Dwie pary: unikanie (odkładanie, wycofanie) i upewnianie się (sprawdzanie, zamartwianie). Ścieżka pokaże tydzień po tygodniu, która słabnie.",
+        "options": {
+          "postpone": "Odkładanie",
+          "withdraw": "Wycofanie",
+          "check": "Sprawdzanie",
+          "worry": "Zamartwianie"
+        },
+        "optionHints": {
+          "postpone": "przełożone, ominięte",
+          "withdraw": "wyjście z sytuacji, rezygnacja",
+          "check": "upewnianie, pytanie o to samo",
+          "worry": "łańcuch „a co jeśli”"
+        }
+      },
       "avoidance": {
         "title": "Czego unikasz?",
         "description": "Sytuacje, które odkładasz, omijasz albo z których rezygnujesz.",
-        "why": "Unikanie daje ulgę od razu, ale sprawia, że następnym razem lęk jest silniejszy. Ta lista to materiał do stopniowego mierzenia się z lękiem.",
+        "why": "Odkładanie bezpiecznych sytuacji może przynosić chwilową ulgę i utrudniać powrót. Najpierw po prostu zauważ swój wzór.",
         "placeholder": "Odkładam…"
       },
       "safetyBehaviors": {
-        "title": "Czym się zabezpieczasz?",
-        "description": "Rzeczy, które robisz, żeby było bezpieczniej: sprawdzanie, dopytywanie innych, przygotowywanie się na zapas, telefon w ręce.",
-        "why": "Zabezpieczenia to ciche unikanie: gdy nic złego się nie dzieje, przypisujesz to im, a nie sobie. Przez to lęk nie słabnie.",
+        "title": "Co robisz, żeby mieć więcej pewności?",
+        "description": "Np. wielokrotnie sprawdzasz wiadomość albo pytasz o to samo. Nie chodzi o leki, zalecenia medyczne ani realne środki bezpieczeństwa.",
+        "why": "Przyjrzyj się temu, co robisz głównie dla chwilowej ulgi. Nie musisz z niczego rezygnować na tym etapie.",
         "placeholder": "Sprawdzam kilka razy…"
       },
       "cost": {
-        "title": "Co cię kosztują unikanie i zabezpieczenia?",
-        "description": "Co przez nie tracisz: czas, szanse, relacje, energię?",
+        "title": "Na co zostaje mniej miejsca?",
+        "description": "Zauważ wpływ na czas, relacje lub codzienne sprawy. To opis sytuacji, nie ocena Ciebie.",
         "placeholder": "Tracę…"
       },
       "withoutFear": {
-        "title": {
-          "m": "Co robiłbyś, gdyby lęk był mniejszy?",
-          "f": "Co robiłabyś, gdyby lęk był mniejszy?"
-        },
-        "description": "Jedna, dwie rzeczy, do których chcesz wrócić albo które chcesz zacząć.",
+        "title": "Do czego chcesz wracać, także z lękiem?",
+        "description": "Jedna mała, ważna dla Ciebie rzecz. Nie musi czekać na całkowity spokój.",
         "why": "To, czego lęk nie pozwala ci dziś robić, wskazuje kierunek dalszej pracy. Łatwiej zmierzyć się z lękiem, gdy wiesz, po co to robisz.",
         "placeholder": {
           "m": "Zacząłbym…",
@@ -4221,9 +4394,26 @@
       }
     },
     "mySign": {
+      "kind": {
+        "title": "Która ścieżka?",
+        "description": "Ścieżki ustawiają to same.",
+        "options": {
+          "shame": "Wstyd",
+          "anger": "Złość",
+          "anxiety": "Lęk"
+        }
+      },
       "intro": {
         "title": "Dokąd prowadzi ta ścieżka",
         "description": "Zauważać wstyd szybciej, odpowiadać ciepłem zamiast atakiem albo ukryciem, wracać do kontaktu. Ta ścieżka nie usuwa wstydu. Uczy, co robić, gdy przychodzi."
+      },
+      "introAnger": {
+        "title": "Dokąd prowadzi ta ścieżka",
+        "description": "Zauważać złość wcześniej, robić pauzę i mówić o tym, co ważne, bez ranienia siebie i innych. Ta ścieżka nie usuwa złości. Uczy, co robić, gdy rośnie."
+      },
+      "introAnxiety": {
+        "title": "Dokąd prowadzi ta ścieżka",
+        "description": "Robić miejsce na niepewność i małymi krokami wracać do tego, co ważne, także z lękiem. Ta ścieżka nie usuwa lęku. Uczy, jak podchodzić zamiast unikać."
       },
       "mainTarget": {
         "title": "Co najbardziej chcesz zmienić?",
@@ -4233,7 +4423,7 @@
         "options": {
           "withdraw": "Ukrywający",
           "attackSelf": "Krytyk",
-          "attackOthers": "Oskarżyciel",
+          "attackOthers": "Agresor",
           "avoid": "Odwracający uwagę"
         },
         "optionHints": {
@@ -4241,6 +4431,42 @@
           "attackSelf": "atak na siebie",
           "attackOthers": "atak na innych, obwinianie",
           "avoid": "unikanie, zagłuszanie"
+        }
+      },
+      "angerTarget": {
+        "title": "Co najbardziej chcesz zmienić?",
+        "description": "Która reakcja najczęściej przejmuje ster i najbardziej ci przeszkadza?",
+        "why": "To twój główny kierunek. Ścieżka pokaże go w postępie, żebyś widział, czy słabnie.",
+        "hintLabel": "Z twojej mapy złości",
+        "options": {
+          "sharp": "Ostrzej",
+          "outburst": "Wybuch",
+          "silence": "Milczenie",
+          "selfBlame": "Na siebie"
+        },
+        "optionHints": {
+          "sharp": "ton, sarkazm, przytyk",
+          "outburst": "krzyk, trzaśnięcie, groźba",
+          "silence": "wycofanie, „nic się nie stało”",
+          "selfBlame": "obwinianie siebie, przeżuwanie"
+        }
+      },
+      "anxietyTarget": {
+        "title": "Co najbardziej chcesz zmienić?",
+        "description": "Który ruch lęku najczęściej przejmuje ster i najbardziej ci przeszkadza?",
+        "why": "To twój główny kierunek. Ścieżka pokaże go w postępie, żebyś widział, czy słabnie.",
+        "hintLabel": "Z twojej mapy lęku",
+        "options": {
+          "postpone": "Odkładanie",
+          "withdraw": "Wycofanie",
+          "check": "Sprawdzanie",
+          "worry": "Zamartwianie"
+        },
+        "optionHints": {
+          "postpone": "przełożone, ominięte",
+          "withdraw": "wyjście z sytuacji, rezygnacja",
+          "check": "upewnianie, pytanie o to samo",
+          "worry": "łańcuch „a co jeśli”"
         }
       },
       "sign": {
@@ -4255,7 +4481,7 @@
           "f": "Komu mogłabyś kiedyś o tym powiedzieć?"
         },
         "description": "Jedna osoba, przy której bywasz sobą. Nie musisz jej nic mówić teraz.",
-        "why": "Wstyd izoluje. Samo nazwanie osoby to pierwszy ruch w stronę kontaktu; wróci jako podpowiedź w siódmym tygodniu.",
+        "why": "Trudna emocja izoluje. Samo nazwanie osoby to pierwszy ruch w stronę kontaktu; wróci jako podpowiedź pod koniec ścieżki.",
         "placeholder": "Może…"
       }
     },
@@ -4471,14 +4697,14 @@
       },
       "inTheWay": {
         "title": "Co staje na drodze?",
-        "description": "Czas, miejsce, wstyd przed samym ćwiczeniem.",
+        "description": "Czas, miejsce, opór przed samym ćwiczeniem.",
         "placeholder": "Najtrudniej jest, gdy…"
       }
     },
     "letterToFutureSelf": {
       "intro": {
         "title": "List na gorszy dzień",
-        "description": "Wstyd wróci. Ten list jest na ten dzień. Pisze go twoje współczujące ja do ciebie z przyszłości."
+        "description": "Gorszy dzień wróci. Ten list jest na ten dzień. Piszesz go do siebie z przyszłości głosem kogoś, kto jest po twojej stronie."
       },
       "letter": {
         "title": "Napisz list",
@@ -4501,6 +4727,15 @@
       }
     },
     "pathReturn": {
+      "kind": {
+        "title": "Która ścieżka?",
+        "description": "Ścieżki ustawiają to same.",
+        "options": {
+          "shame": "Wstyd",
+          "anger": "Złość",
+          "anxiety": "Lęk"
+        }
+      },
       "letter": {
         "title": "List od ciebie",
         "description": {
@@ -4526,7 +4761,7 @@
         "options": {
           "withdraw": "Ukrywający",
           "attackSelf": "Krytyk",
-          "attackOthers": "Oskarżyciel",
+          "attackOthers": "Agresor",
           "avoid": "Odwracający uwagę",
           "none": "Nic szczególnego"
         },
@@ -4537,9 +4772,45 @@
           "avoid": "unikanie, zagłuszanie"
         }
       },
+      "returnedAnger": {
+        "title": "Co wróciło?",
+        "description": "Które reakcje znowu częściej przejmują ster?",
+        "why": "Nawroty są normalne. Nazwana reakcja to zaproszenie do krótkiej pauzy, nie dowód porażki.",
+        "options": {
+          "sharp": "Ostrzej",
+          "outburst": "Wybuch",
+          "silence": "Milczenie",
+          "selfBlame": "Na siebie",
+          "none": "Nic szczególnego"
+        },
+        "optionHints": {
+          "sharp": "ton, sarkazm, przytyk",
+          "outburst": "krzyk, trzaśnięcie, groźba",
+          "silence": "wycofanie, „nic się nie stało”",
+          "selfBlame": "obwinianie siebie, przeżuwanie"
+        }
+      },
+      "returnedAnxiety": {
+        "title": "Co wróciło?",
+        "description": "Które ruchy lęku znowu częściej przejmują ster?",
+        "why": "Nawroty są normalne. Nazwany ruch to zaproszenie do małej próby, nie dowód porażki.",
+        "options": {
+          "postpone": "Odkładanie",
+          "withdraw": "Wycofanie",
+          "check": "Sprawdzanie",
+          "worry": "Zamartwianie",
+          "none": "Nic szczególnego"
+        },
+        "optionHints": {
+          "postpone": "przełożone, ominięte",
+          "withdraw": "wyjście z sytuacji, rezygnacja",
+          "check": "upewnianie, pytanie o to samo",
+          "worry": "łańcuch „a co jeśli”"
+        }
+      },
       "next": {
         "title": "Jeden mały ruch na najbliższy tydzień",
-        "description": "Wznowić praktykę, wrócić do zdania obronnego, powiedzieć komuś.",
+        "description": "Wznowić praktykę, wrócić do własnego zdania, powiedzieć komuś.",
         "placeholder": "W tym tygodniu…"
       }
     }

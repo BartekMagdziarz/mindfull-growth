@@ -1543,6 +1543,8 @@
       "emotionLabel": "How are you feeling right now?"
     },
     "peaks": {
+      "addEmotions": "Add emotions",
+      "hideEmotions": "Hide emotions",
       "title": "When did life feel most meaningful?",
       "description": "Describe 3–7 moments when life felt fullest and most meaningful. For each, add your age and what gave it meaning.",
       "why": "Peaks show what has already carried meaning in your life. The same sources — people, work, values — can often be found again.",
@@ -3509,7 +3511,7 @@
       },
       "triggers": {
         "title": "What angers you most often?",
-        "description": "Situations, other people's behaviour, times of day, tiredness. Five is a lot, three is enough.",
+        "description": "One recent situation is enough. Add others if you wish.",
         "placeholder": "When someone is late…"
       },
       "bodySigns": {
@@ -3518,14 +3520,31 @@
         "why": "Your body usually reacts before you're aware of the anger. Knowing your signals lets you stop earlier.",
         "placeholder": "My shoulders tense…"
       },
+      "reactionKinds": {
+        "title": "How does anger usually react?",
+        "description": "Tick what happens most often. The same names return in Moments.",
+        "why": "Two pairs: outward (sharper, outburst) and inward (silence, at myself). The path shows week by week which one is weakening.",
+        "options": {
+          "sharp": "Sharper",
+          "outburst": "Outburst",
+          "silence": "Silence",
+          "selfBlame": "At myself"
+        },
+        "optionHints": {
+          "sharp": "tone, sarcasm, a dig",
+          "outburst": "shouting, slamming, a threat",
+          "silence": "withdrawing, “nothing happened”",
+          "selfBlame": "blaming myself, chewing it over"
+        }
+      },
       "reaction": {
         "title": "How do you usually react?",
         "description": "Shouting, sarcasm, silence, slamming doors, blaming yourself. No judging.",
         "placeholder": "Usually I…"
       },
       "cost": {
-        "title": "What does this reaction cost you?",
-        "description": "What do you lose because of it in relationships, at work and in how you feel afterwards?",
+        "title": "What happens after this reaction?",
+        "description": "Notice the effect on yourself and others. Describe a specific consequence without judging your whole self.",
         "why": "Naming the costs shows why the reaction is worth changing — for your own reasons, not because anger is “bad”.",
         "placeholder": "Afterwards…"
       },
@@ -3539,14 +3558,11 @@
     "pausePlan": {
       "intro": {
         "title": "A plan for when anger rises",
-        "description": {
-          "m": "A pause is easier when you decide in advance when and how. An “if…, then…” plan works better than simply resolving to be calmer.",
-          "f": "A pause is easier when you decide in advance when and how. An “if…, then…” plan works better than simply resolving to be calmer."
-        }
+        "description": "Prepare one small action for when tension rises. You do not need to wait until anger is strong."
       },
       "earlySigns": {
-        "title": "What are your three earliest signs of anger?",
-        "description": "Signals in your body, thoughts or behaviour. You can take them from your anger log or map.",
+        "title": "How will you know you need a pause?",
+        "description": "Choose one to three signals. Your anger map notes may appear below.",
         "why": "The earlier the signal, the easier it is to stop: the anger is still weak and you still have a choice in how to react.",
         "placeholder": "I start talking faster…"
       },
@@ -3558,15 +3574,20 @@
       },
       "returnPromise": {
         "title": "How will you return to the conversation?",
-        "description": "A pause isn't running away. Decide what you'll say as you step out and when you'll come back.",
+        "description": "If the conversation is safe, explain that you need a break and suggest a time to return. You do not have to return to a situation involving threats or harm.",
         "why": "The other person accepts a pause more easily when they know you'll come back. And coming back is easier when the words and the time are ready.",
         "placeholder": "I'll say: “Let's come back to this in fifteen minutes”…"
       },
       "confidence": {
-        "title": "How confident are you that this will work?",
-        "description": "If it's under 50, simplify the plan or pick an earlier signal.",
+        "title": "How doable does this plan feel?",
+        "description": "If it is hard to picture, you can go back and make the first step smaller.",
         "minLabel": "Not at all",
         "maxLabel": "Fully"
+      },
+      "afterSave": {
+        "title": "Log the moment the pause was needed",
+        "description": "If the plan came out of a specific situation, log it in Moments — “A pause” is already ticked.",
+        "cta": "Log the moment"
       }
     },
     "needBehindAnger": {
@@ -3577,9 +3598,9 @@
         "placeholder": "When…"
       },
       "feeling": {
-        "title": "What do you feel besides anger?",
-        "description": "Underneath anger there's often something else: hurt, fear, tiredness, disappointment. Pick what fits.",
-        "why": "Anger often covers feelings that are harder to show. Naming them makes it easier to see what you need."
+        "title": "What feelings are here now?",
+        "description": "It may be anger alone, or also hurt, fear or disappointment. Choose what you recognise.",
+        "why": "You do not need to find a hidden feeling. Name what you actually notice."
       },
       "needs": {
         "title": "What was missing for you in this situation?",
@@ -3675,7 +3696,7 @@
           "withdraw": "The Hider",
           "avoid": "The Avoider",
           "attackSelf": "The Critic",
-          "attackOthers": "The Accuser",
+          "attackOthers": "The Aggressor",
           "none": {
             "m": "None, I stayed with myself",
             "f": "None, I stayed with myself"
@@ -3704,16 +3725,14 @@
           "contact": "A move towards contact",
           "repair": "Repair",
           "test": "The “what if it were someone close?” question",
+          "kindAct": "A kind gesture for myself, as for a friend",
+          "gesture": "Hand on my heart",
+          "stayed": "Staying a minute longer",
+          "thanked": "Thanking the Critic",
           "nothing": "Nothing, this time",
           "unblend": "\"That's a part, not me\"",
           "defend": "A sentence in my own defence"
         }
-      },
-      "intensity": {
-        "title": "How strong was the anger at its worst?",
-        "description": "0 is calm, 10 is anger that was hard to control.",
-        "minLabel": "Calm",
-        "maxLabel": "Out of control"
       },
       "body": {
         "title": "What was happening in your body?",
@@ -3771,8 +3790,8 @@
           "m": "When did you notice?",
           "f": "When did you notice?"
         },
-        "description": "The moment the shame got its name, regardless of whether you managed to do anything.",
-        "why": "\"Sooner\" is the first part of the path's goal. A response only stands a chance when the shame is noticed in time.",
+        "description": "The moment the emotion got its name, regardless of whether you managed to do anything.",
+        "why": "“Sooner” is the first part of every one of these paths. A response only stands a chance when the emotion is noticed in time.",
         "options": {
           "during": "As it happened",
           "soon": "A moment later",
@@ -3785,6 +3804,146 @@
         "description": "At its strongest. Then you can save, or add details.",
         "minLabel": "Barely",
         "maxLabel": "Very"
+      },
+      "angerReaction": {
+        "title": "What took the wheel?",
+        "description": "One answer. When in doubt, the closest one.",
+        "why": "Once the reaction has a name it's easier to catch next time and to see, week by week, which one is weakening.",
+        "hintLabel": "From your anger map",
+        "options": {
+          "sharp": "Sharper",
+          "outburst": "Outburst",
+          "silence": "Silence",
+          "selfBlame": "At myself",
+          "pause": {
+            "m": "A pause, I stayed with myself",
+            "f": "A pause, I stayed with myself"
+          }
+        },
+        "optionHints": {
+          "sharp": "tone, sarcasm, a dig",
+          "outburst": "shouting, slamming, a threat",
+          "silence": "withdrawing, “nothing happened”",
+          "selfBlame": "blaming myself, chewing it over"
+        }
+      },
+      "anxietyReaction": {
+        "title": "What pulled?",
+        "description": "One answer. When in doubt, the closest one.",
+        "why": "Avoiding and seeking reassurance bring relief for a moment and keep anxiety going for a long time. A named move is easier to notice next time.",
+        "hintLabel": "From your anxiety map",
+        "options": {
+          "postpone": "Putting off",
+          "withdraw": "Withdrawing",
+          "check": "Checking",
+          "worry": "Worrying",
+          "approach": {
+            "m": "Approach, I went into it",
+            "f": "Approach, I went into it"
+          }
+        },
+        "optionHints": {
+          "postpone": "put off, skipped",
+          "withdraw": "leaving the situation, giving up",
+          "check": "reassurance, asking the same again",
+          "worry": "a chain of “what if”"
+        }
+      },
+      "angerResponse": {
+        "title": {
+          "m": "What did you do instead?",
+          "f": "What did you do instead?"
+        },
+        "description": "Tick every move, even a late one. If none — “Nothing, this time”.",
+        "why": "Every attempt counts, even a late one. Over time you see which moves really work.",
+        "hintLabel": "From your pause plan",
+        "options": {
+          "breath": "Breath",
+          "named": "Naming the signal",
+          "pause": "A pause",
+          "announce": "Announcing a break",
+          "returned": "Returning to the conversation",
+          "altThought": "Another thought",
+          "need": "Naming the need",
+          "request": "A request or a boundary",
+          "step": "A step on the matter",
+          "repair": "Repair",
+          "nothing": "Nothing, this time"
+        }
+      },
+      "anxietyResponse": {
+        "title": {
+          "m": "What did you do instead?",
+          "f": "What did you do instead?"
+        },
+        "description": "Tick every move, even a late one. If none — “Nothing, this time”.",
+        "why": "Every attempt counts, even a late one. Over time you see which moves really work.",
+        "hintLabel": "What you want to return to",
+        "options": {
+          "breath": "Breath",
+          "named": "Naming the anxiety",
+          "stayed": "Staying a moment longer",
+          "anyway": "Doing it anyway",
+          "noCheck": "No checking",
+          "postponed": "Postponing the worry",
+          "prediction": "Writing the prediction down",
+          "step": "A step on the matter",
+          "meaningful": "Something that matters, anxiety and all",
+          "nothing": "Nothing, this time"
+        }
+      },
+      "angerStrength": {
+        "title": "How strong was the anger?",
+        "description": "At its strongest. Then you can save, or add details.",
+        "minLabel": "Barely",
+        "maxLabel": "Very"
+      },
+      "anxietyStrength": {
+        "title": "How strong was the anxiety?",
+        "description": "At its strongest. Then you can save, or add details.",
+        "minLabel": "Barely",
+        "maxLabel": "Very"
+      },
+      "angerBody": {
+        "title": "What was happening in your body?",
+        "description": "The first signal: heat, a clenched jaw, faster breathing, tight shoulders.",
+        "why": "The body gives anger away sooner than thoughts do. Knowing your signals, you notice earlier that it is rising.",
+        "hintLabel": "From your anger map",
+        "placeholder": "My shoulders tightened…"
+      },
+      "anxietyBody": {
+        "title": "What was happening in your body?",
+        "description": "The first signal: heart, breath, stomach, tension, trembling.",
+        "why": "The body gives anxiety away sooner than thoughts do. Knowing your signals, you notice earlier that it is starting.",
+        "hintLabel": "From your anxiety map",
+        "placeholder": "My heart was pounding…"
+      },
+      "need": {
+        "title": "What was missing?",
+        "description": "The need this anger was defending. One or several.",
+        "why": "Anger usually defends a need. Once you name it, you can look after it directly instead of fighting the other person.",
+        "options": {
+          "respect": "Respect",
+          "understanding": "Understanding",
+          "fairness": "Fairness",
+          "autonomy": "Autonomy",
+          "safety": "Safety",
+          "rest": "Rest",
+          "support": "Support",
+          "closeness": "Closeness",
+          "appreciation": "Appreciation",
+          "honesty": "Honesty",
+          "order": "Order",
+          "space": "Space",
+          "cooperation": "Cooperation",
+          "predictability": "Predictability"
+        }
+      },
+      "outcome": {
+        "title": "What really happened?",
+        "description": "If it is already known. Next to the prediction, this is the most valuable note.",
+        "why": "Anxiety predicts. One written “prediction → outcome” pair teaches more than ten reassurances.",
+        "placeholder": "It turned out that…"
       }
     },
     "shameResponse": {
@@ -3851,7 +4010,7 @@
         "options": {
           "withdraw": "The Hider",
           "attackSelf": "The Critic",
-          "attackOthers": "The Accuser",
+          "attackOthers": "The Aggressor",
           "avoid": "The Avoider"
         },
         "optionHints": {
@@ -3919,7 +4078,7 @@
           "withdraw": "The Hider",
           "avoid": "The Avoider",
           "attackSelf": "The Critic",
-          "attackOthers": "The Accuser"
+          "attackOthers": "The Aggressor"
         },
         "optionHints": {
           "withdraw": "withdrawing, disappearing",
@@ -3973,7 +4132,7 @@
       },
       "partsIntro": {
         "title": "Each of these reactions is a part that protects",
-        "description": "The Hider doesn't want you seen. The Critic gets ahead of other people's criticism. The Accuser pushes others away before it hurts. The Avoider moves the feeling itself out of the way. We'll create them in your parts registry so you can get to know them, rename them and talk with them later.",
+        "description": "The Hider doesn't want you seen. The Critic gets ahead of other people's criticism. The Aggressor pushes others away before it hurts. The Avoider moves the feeling itself out of the way. We'll create them in your parts registry so you can get to know them, rename them and talk with them later.",
         "why": "Working with a part is gentler than fighting a \"flaw\". A part has an intention you can understand and a method you can change."
       }
     },
@@ -4117,7 +4276,7 @@
     "worryPostponement": {
       "intro": {
         "title": "Worry time",
-        "description": "When a worry shows up during the day, note it in one sentence and set it aside until now. This is the time to come back to them. Pick a fixed time, ideally early evening, not right before bed."
+        "description": "Choose a brief, regular time to look at worries, away from bedtime. During the day, you can note them and return to what you are doing. Deal with urgent matters when they need attention."
       },
       "worries": {
         "title": "What worried you today?",
@@ -4128,7 +4287,7 @@
       "stillMatters": {
         "title": "How many still feel important?",
         "description": "Use the slider to mark what percentage of the noted worries still feels important now that you come back to them.",
-        "why": "Many worries lose their weight within a few hours. Noticing this each evening weakens the belief that every one of them needs attention right away.",
+        "why": "Concerns may feel less important or still matter. There is no score you need to reach here.",
         "minLabel": "None",
         "maxLabel": "All"
       },
@@ -4146,11 +4305,11 @@
     "anxietyMap": {
       "intro": {
         "title": "Your anxiety map",
-        "description": "Anxiety is kept alive by avoidance and safety behaviours. They bring relief now but teach you the situation was dangerous. This map shows where to start."
+        "description": "Start with one everyday situation: what brings anxiety, how you respond and what you want to return to. You do not need to change anything yet."
       },
       "situations": {
         "title": "Which situations or topics make you anxious?",
-        "description": "Concrete situations, thoughts or images. They don't have to be big.",
+        "description": "One example is enough. Add others if you wish.",
         "placeholder": "Calling a government office…"
       },
       "bodySigns": {
@@ -4158,29 +4317,43 @@
         "description": "For example heart, breathing, stomach, tension, trembling.",
         "placeholder": "My heart races…"
       },
+      "reactionKinds": {
+        "title": "What does anxiety usually make you do?",
+        "description": "Tick what happens most often. The same names return in Moments.",
+        "why": "Two pairs: avoidance (putting off, withdrawing) and reassurance (checking, worrying). The path shows week by week which one is weakening.",
+        "options": {
+          "postpone": "Putting off",
+          "withdraw": "Withdrawing",
+          "check": "Checking",
+          "worry": "Worrying"
+        },
+        "optionHints": {
+          "postpone": "put off, skipped",
+          "withdraw": "leaving the situation, giving up",
+          "check": "reassurance, asking the same again",
+          "worry": "a chain of “what if”"
+        }
+      },
       "avoidance": {
         "title": "What do you avoid?",
         "description": "Situations you put off, steer around or give up on.",
-        "why": "Avoidance brings relief right away but makes the anxiety stronger next time. This list is the material for facing it step by step.",
+        "why": "Putting off safe situations can bring brief relief and make returning harder. First, simply notice your pattern.",
         "placeholder": "I put off…"
       },
       "safetyBehaviors": {
-        "title": "How do you keep yourself safe?",
-        "description": "Things you do to feel safer: checking, asking others for reassurance, over-preparing, holding your phone.",
-        "why": "Safety behaviours are quiet avoidance: when nothing bad happens, you credit them rather than yourself. So the anxiety doesn't fade.",
+        "title": "What do you do to feel more certain?",
+        "description": "For example, checking a message repeatedly or asking the same question. This does not mean medication, medical advice or genuine safety precautions.",
+        "why": "Notice what you mainly do for brief relief. You do not need to give anything up at this stage.",
         "placeholder": "I check several times…"
       },
       "cost": {
-        "title": "What do avoidance and safety behaviours cost you?",
-        "description": "What do you lose because of them: time, opportunities, relationships, energy?",
+        "title": "What has less room in your life?",
+        "description": "Notice the effect on time, relationships or everyday tasks. This describes a situation, not your worth.",
         "placeholder": "I lose…"
       },
       "withoutFear": {
-        "title": {
-          "m": "What would you do if the anxiety were smaller?",
-          "f": "What would you do if the anxiety were smaller?"
-        },
-        "description": "One or two things you want to return to or start. (Optional.)",
+        "title": "What do you want to return to, even with anxiety?",
+        "description": "One small thing that matters to you. It does not need to wait for complete calm.",
         "why": "What anxiety keeps you from doing today shows where to head next. Facing anxiety is easier when you know what it is for.",
         "placeholder": {
           "m": "I would start…",
@@ -4221,9 +4394,26 @@
       }
     },
     "mySign": {
+      "kind": {
+        "title": "Which path?",
+        "description": "Paths set this for you.",
+        "options": {
+          "shame": "Shame",
+          "anger": "Anger",
+          "anxiety": "Anxiety"
+        }
+      },
       "intro": {
         "title": "Where this path leads",
         "description": "To notice shame sooner, to answer it with warmth instead of attacking yourself, attacking others or hiding, and to come back into contact. This path doesn't remove shame. It teaches what to do when it comes."
+      },
+      "introAnger": {
+        "title": "Where this path leads",
+        "description": "To notice anger earlier, to pause and to say what matters without hurting yourself or others. This path doesn't remove anger. It teaches what to do when it rises."
+      },
+      "introAnxiety": {
+        "title": "Where this path leads",
+        "description": "To make room for uncertainty and return, in small steps, to what matters, anxiety and all. This path doesn't remove anxiety. It teaches how to approach instead of avoid."
       },
       "mainTarget": {
         "title": "What do you most want to change?",
@@ -4233,7 +4423,7 @@
         "options": {
           "withdraw": "The Hider",
           "attackSelf": "The Critic",
-          "attackOthers": "The Accuser",
+          "attackOthers": "The Aggressor",
           "avoid": "The Avoider"
         },
         "optionHints": {
@@ -4241,6 +4431,42 @@
           "attackSelf": "attacking myself",
           "attackOthers": "attacking others, blaming",
           "avoid": "avoiding, numbing"
+        }
+      },
+      "angerTarget": {
+        "title": "What do you most want to change?",
+        "description": "Which reaction takes the wheel most often and weighs on you most?",
+        "why": "This is your main direction. The path shows it in your progress so you can see whether it's weakening.",
+        "hintLabel": "From your anger map",
+        "options": {
+          "sharp": "Sharper",
+          "outburst": "Outburst",
+          "silence": "Silence",
+          "selfBlame": "At myself"
+        },
+        "optionHints": {
+          "sharp": "tone, sarcasm, a dig",
+          "outburst": "shouting, slamming, a threat",
+          "silence": "withdrawing, “nothing happened”",
+          "selfBlame": "blaming myself, chewing it over"
+        }
+      },
+      "anxietyTarget": {
+        "title": "What do you most want to change?",
+        "description": "Which move of anxiety takes the wheel most often and weighs on you most?",
+        "why": "This is your main direction. The path shows it in your progress so you can see whether it's weakening.",
+        "hintLabel": "From your anxiety map",
+        "options": {
+          "postpone": "Putting off",
+          "withdraw": "Withdrawing",
+          "check": "Checking",
+          "worry": "Worrying"
+        },
+        "optionHints": {
+          "postpone": "put off, skipped",
+          "withdraw": "leaving the situation, giving up",
+          "check": "reassurance, asking the same again",
+          "worry": "a chain of “what if”"
         }
       },
       "sign": {
@@ -4255,7 +4481,7 @@
           "f": "Who could you tell about this one day?"
         },
         "description": "One person you can be yourself with. You don't have to tell them anything now. (Optional.)",
-        "why": "Shame isolates. Naming a person is the first move towards contact; it returns as a hint in week seven.",
+        "why": "A hard emotion isolates. Naming a person is the first move towards contact; it returns as a hint towards the end of the path.",
         "placeholder": "Maybe…"
       }
     },
@@ -4471,14 +4697,14 @@
       },
       "inTheWay": {
         "title": "What gets in the way?",
-        "description": "Time, place, shame about the exercise itself. (Optional.)",
+        "description": "Time, place, resistance to the exercise itself. (Optional.)",
         "placeholder": "It's hardest when…"
       }
     },
     "letterToFutureSelf": {
       "intro": {
         "title": "A letter for a worse day",
-        "description": "Shame will come back. This letter is for that day. Your compassionate self writes it to the you of the future."
+        "description": "A worse day will come back. This letter is for that day. You write it to the you of the future, in the voice of someone on your side."
       },
       "letter": {
         "title": "Write the letter",
@@ -4501,6 +4727,15 @@
       }
     },
     "pathReturn": {
+      "kind": {
+        "title": "Which path?",
+        "description": "Paths set this for you.",
+        "options": {
+          "shame": "Shame",
+          "anger": "Anger",
+          "anxiety": "Anxiety"
+        }
+      },
       "letter": {
         "title": "A letter from you",
         "description": {
@@ -4526,7 +4761,7 @@
         "options": {
           "withdraw": "The Hider",
           "attackSelf": "The Critic",
-          "attackOthers": "The Accuser",
+          "attackOthers": "The Aggressor",
           "avoid": "The Avoider",
           "none": "Nothing in particular"
         },
@@ -4537,9 +4772,45 @@
           "avoid": "avoiding, numbing"
         }
       },
+      "returnedAnger": {
+        "title": "What came back?",
+        "description": "Which reactions take the wheel more often again?",
+        "why": "Relapses are normal. A named reaction is an invitation to a short pause, not proof of failure.",
+        "options": {
+          "sharp": "Sharper",
+          "outburst": "Outburst",
+          "silence": "Silence",
+          "selfBlame": "At myself",
+          "none": "Nothing in particular"
+        },
+        "optionHints": {
+          "sharp": "tone, sarcasm, a dig",
+          "outburst": "shouting, slamming, a threat",
+          "silence": "withdrawing, “nothing happened”",
+          "selfBlame": "blaming myself, chewing it over"
+        }
+      },
+      "returnedAnxiety": {
+        "title": "What came back?",
+        "description": "Which moves of anxiety take the wheel more often again?",
+        "why": "Relapses are normal. A named move is an invitation to a small attempt, not proof of failure.",
+        "options": {
+          "postpone": "Putting off",
+          "withdraw": "Withdrawing",
+          "check": "Checking",
+          "worry": "Worrying",
+          "none": "Nothing in particular"
+        },
+        "optionHints": {
+          "postpone": "put off, skipped",
+          "withdraw": "leaving the situation, giving up",
+          "check": "reassurance, asking the same again",
+          "worry": "a chain of “what if”"
+        }
+      },
       "next": {
         "title": "One small move for the coming week",
-        "description": "Resume a practice, return to the defending sentence, tell someone. (Optional.)",
+        "description": "Resume a practice, return to your own sentence, tell someone. (Optional.)",
         "placeholder": "This week…"
       }
     }

@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { ref } from 'vue'
 import type { GoalClosingReflection } from '@/domain/planning'
 
 const push = vi.fn()
@@ -13,7 +12,6 @@ vi.mock('@/composables/useT', () => ({
     t: (key: string, params?: Record<string, string | number>) =>
       `${key.split('.').at(-1)}${params ? `:${JSON.stringify(params)}` : ''}`,
     tg: (key: string) => `${key.split('.').at(-1)}/f`,
-    locale: ref('pl-PL'),
   }),
 }))
 
@@ -35,9 +33,11 @@ const reflection: GoalClosingReflection = {
 }
 
 describe('GoalClosingSummary', () => {
-  it('shows outcome, key results and the lesson as the lead line, then everything on demand', async () => {
+  it('shows key results and the lesson without repeating closing metadata, then everything on demand', async () => {
     const wrapper = mount(GoalClosingSummary, { props: { goalId: 'g-1', reflection, confidenceThen: 8 } })
-    expect(wrapper.find('.gc-summary__head span').text()).toContain('partial')
+    expect(wrapper.find('.gc-summary__head').text()).toBe('title')
+    expect(wrapper.text()).not.toContain('partial')
+    expect(wrapper.text()).not.toContain('closedOn')
     expect(wrapper.findAll('.gc-summary__krs span').map(s => s.classes().join(' '))).toEqual(['is-met', 'is-missed'])
     expect(wrapper.find('.gc-summary__lead').text()).toBe('learned/f: Rezultat „co wieczór” był nierealny.')
     expect(wrapper.find('.gc-summary__full').exists()).toBe(false)

@@ -39,9 +39,10 @@ import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import LegacyLetterWizard from '@/components/exercises/LegacyLetterWizard.vue'
 import { useLegacyLetterStore } from '@/stores/legacyLetter.store'
 import { useT } from '@/composables/useT'
+import { formatExerciseDate } from '@/utils/exerciseDate'
 import type { CreateLegacyLetterPayload } from '@/domain/exercises'
 
-const { t } = useT()
+const { t, locale } = useT()
 const legacyLetterStore = useLegacyLetterStore()
 const saved = ref(false)
 
@@ -56,22 +57,6 @@ async function handleSaved(data: CreateLegacyLetterPayload) {
 }
 
 function formatDate(iso: string): string {
-  const date = new Date(iso)
-  const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
-  const diffMins = Math.floor(diffMs / 60_000)
-  const diffHours = Math.floor(diffMs / 3_600_000)
-  const diffDays = Math.floor(diffMs / 86_400_000)
-
-  if (diffMins < 1) return 'Just now'
-  if (diffMins < 60) return `${diffMins}m ago`
-  if (diffHours < 24) return `${diffHours}h ago`
-  if (diffDays < 7) return `${diffDays}d ago`
-
-  return date.toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined,
-  })
+  return formatExerciseDate(iso, locale.value)
 }
 </script>

@@ -159,3 +159,305 @@ button.exercise-pill:hover:not(:disabled) {
 .micro-footer .mg-v2-button:not(.mg-v2-button--primary) {
   box-shadow: none;
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   Step card grammar for the bespoke wizards (2026-10-17 sweep).
+   The micro runner draws every step the same way: a quiet progress row,
+   the question in xl with the "?" disc at the row's end, the note in md,
+   the answer on the full width, chips with the picked one filled. These
+   rules give the 33 bespoke wizards the same grammar without touching
+   their templates. Everything is scoped to .exercise-page.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── Title + note ── */
+.exercise-page .mg-v2-surface > h2.text-lg:first-child,
+.exercise-page .mg-v2-surface > :first-child > h2.text-lg {
+  color: var(--mg-color-ink);
+  font-size: var(--mg-font-size-xl);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+.exercise-page .mg-v2-surface > h2.text-lg:first-child + p.text-sm,
+.exercise-page .mg-v2-surface > :first-child + p.text-sm {
+  margin-top: var(--mg-space-2);
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-md);
+  line-height: 1.5;
+}
+
+/* ── Head grid: the "?" disc in the title row, nothing below it moves ── */
+.exercise-page .mg-v2-surface:has(> .exercise-step-why--disc) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--mg-space-3);
+  row-gap: var(--mg-space-5);
+  align-items: start;
+}
+
+.exercise-page .mg-v2-surface:has(> .exercise-step-why--disc) > * {
+  grid-column: 1 / -1;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.exercise-page .mg-v2-surface:has(> .exercise-step-why--disc) > :first-child {
+  grid-column: 1;
+}
+
+.exercise-page .mg-v2-surface:has(> .exercise-step-why--disc) > .exercise-step-why--disc {
+  grid-column: 2;
+  grid-row: 1;
+  margin-top: 2px;
+}
+
+/* The note sits close under the question; the answer keeps the full row gap. */
+.exercise-page .mg-v2-surface:has(> .exercise-step-why--disc) > :first-child + p.text-sm {
+  margin-top: calc(-1 * var(--mg-space-3));
+}
+
+/* The quiet "Wstecz" starts on the content edge, like in the runner. */
+.exercise-page .mg-v2-surface + .flex.justify-between > .mg-v2-button--quiet:first-child {
+  margin-left: calc(-1 * var(--mg-space-4));
+}
+
+/* ── Fields: md type, a real minimum height, focus that does not whiten ── */
+.exercise-page .neo-input {
+  font-size: var(--mg-font-size-md);
+  line-height: 1.6;
+}
+
+.exercise-page textarea.neo-input {
+  min-height: calc(3 * 1.6em + 1.5rem + 2px);
+}
+
+/* Global `field-sizing: content` ignores `rows`; the minimum is set here in lines. */
+.exercise-page textarea.neo-input[rows='2'] { min-height: calc(2 * 1.6em + 1.5rem + 2px); }
+.exercise-page textarea.neo-input[rows='3'] { min-height: calc(3 * 1.6em + 1.5rem + 2px); }
+.exercise-page textarea.neo-input[rows='4'] { min-height: calc(4 * 1.6em + 1.5rem + 2px); }
+.exercise-page textarea.neo-input[rows='5'] { min-height: calc(5 * 1.6em + 1.5rem + 2px); }
+.exercise-page textarea.neo-input[rows='6'] { min-height: calc(6 * 1.6em + 1.5rem + 2px); }
+.exercise-page textarea.neo-input[rows='7'] { min-height: calc(7 * 1.6em + 1.5rem + 2px); }
+.exercise-page textarea.neo-input[rows='8'] { min-height: calc(8 * 1.6em + 1.5rem + 2px); }
+.exercise-page textarea.neo-input[rows='10'] { min-height: calc(10 * 1.6em + 1.5rem + 2px); }
+.exercise-page textarea.neo-input[rows='12'] { min-height: calc(12 * 1.6em + 1.5rem + 2px); }
+
+.exercise-page .neo-input:focus,
+.exercise-page .neo-input:focus-visible {
+  outline: none;
+  border-color: rgb(var(--sky-400) / 0.5);
+  box-shadow: var(--mg-focus-ring);
+}
+
+/* ── Chips: the Today chip; the picked one filled in the accent ── */
+.exercise-page button.exercise-pill {
+  border-color: var(--mg-color-border);
+  border-radius: var(--mg-radius-sm);
+  background: var(--mg-color-mist);
+  color: var(--mg-color-ink);
+  font-weight: 700;
+  box-shadow: none;
+  transition:
+    background var(--mg-duration-fast) ease,
+    color var(--mg-duration-fast) ease;
+}
+
+.exercise-page button.exercise-pill:hover:not(:disabled) {
+  border-color: var(--mg-color-border);
+  background: var(--mg-color-sky-well);
+  color: var(--mg-color-primary-strong);
+}
+
+.exercise-page button.exercise-pill.exercise-pill--primary,
+.exercise-page button.exercise-pill.shadow-neu-pressed,
+.exercise-page button.exercise-pill[aria-pressed='true'],
+.exercise-page button.exercise-pill[aria-checked='true'],
+.exercise-page button.exercise-pill.exercise-pill--primary:hover:not(:disabled),
+.exercise-page button.exercise-pill.shadow-neu-pressed:hover:not(:disabled) {
+  border-color: transparent;
+  background: var(--mg-color-primary-fill);
+  color: var(--mg-color-on-primary);
+}
+
+.exercise-page button.exercise-pill:focus-visible {
+  outline: 2px solid var(--mg-color-focus);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+/* Cards with a description (radio cards, part tiles) stay outlined; the picked one gets the well tint. */
+.exercise-page .neo-selector--active {
+  background: var(--mg-color-sky-well);
+}
+
+/* ── Native controls in the V2 control language ── */
+.exercise-page input[type='range']:not(.exercise-range) {
+  width: 100%;
+  height: 1.5rem;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  accent-color: var(--mg-color-primary);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.exercise-page input[type='range']:not(.exercise-range)::-webkit-slider-runnable-track {
+  height: 0.375rem;
+  border-radius: var(--mg-radius-pill);
+  background: var(--mg-color-sky-well);
+  box-shadow: var(--mg-shadow-inset-sm);
+}
+
+.exercise-page input[type='range']:not(.exercise-range)::-moz-range-track {
+  height: 0.375rem;
+  border-radius: var(--mg-radius-pill);
+  background: var(--mg-color-sky-well);
+  box-shadow: var(--mg-shadow-inset-sm);
+}
+
+.exercise-page input[type='range']:not(.exercise-range)::-moz-range-progress {
+  height: 0.375rem;
+  border-radius: var(--mg-radius-pill);
+  background: var(--mg-color-primary);
+}
+
+.exercise-page input[type='range']:not(.exercise-range)::-webkit-slider-thumb {
+  width: 1.125rem;
+  height: 1.125rem;
+  margin-top: -0.375rem;
+  border: 1px solid var(--mg-color-primary);
+  border-radius: var(--mg-radius-pill);
+  background: var(--mg-color-paper);
+  box-shadow: var(--mg-shadow-raised-sm);
+  -webkit-appearance: none;
+}
+
+.exercise-page input[type='range']:not(.exercise-range)::-moz-range-thumb {
+  width: 1.125rem;
+  height: 1.125rem;
+  border: 1px solid var(--mg-color-primary);
+  border-radius: var(--mg-radius-pill);
+  background: var(--mg-color-paper);
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+
+.exercise-page input[type='range']:not(.exercise-range):focus-visible {
+  outline: none;
+}
+
+.exercise-page input[type='range']:not(.exercise-range):focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--mg-color-primary);
+  outline-offset: 2px;
+}
+
+.exercise-page input[type='checkbox']:not(.neo-checkbox) {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--mg-color-primary);
+}
+
+/* ── History under a wizard: an eyebrow and quiet rows, as in the micro view ── */
+.exercise-page .mg-v2-section-head {
+  margin: 0 0 var(--mg-space-2);
+  padding: 0;
+  border-bottom: 0;
+}
+
+.exercise-page .mg-v2-section-head h2,
+.exercise-page .mg-v2-section-head h3 {
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-xs);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.exercise-page .mg-v2-section-head ~ .mg-v2-surface,
+.exercise-page .mg-v2-section-head ~ div > .mg-v2-surface {
+  margin-top: var(--mg-space-2);
+  padding: var(--mg-space-2) var(--mg-space-3);
+  border: 1px solid var(--mg-color-border);
+  border-radius: var(--mg-radius-md);
+  background: var(--mg-color-mist);
+  box-shadow: none;
+}
+
+/* ── A quiet note (safety guidance, hints): the field tone, no alarm colour ── */
+.exercise-note {
+  display: block;
+  padding: var(--mg-space-3) var(--mg-space-4);
+  border: 1px solid var(--mg-color-border);
+  border-radius: var(--mg-radius-md);
+  background: var(--mg-color-mist);
+}
+
+.exercise-note__icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+  font-size: 1.25rem;
+  color: var(--mg-color-muted);
+}
+
+.exercise-note__title {
+  margin: 0;
+  color: var(--mg-color-ink);
+  font-size: var(--mg-font-size-sm);
+  font-weight: 700;
+}
+
+.exercise-note__text {
+  margin: 0;
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-sm);
+  line-height: 1.5;
+}
+
+/* ── "Add" tiles: a plain line in the border tone, never dashed ── */
+.exercise-add-tile {
+  border: 1px solid var(--mg-color-border);
+  background: var(--mg-color-mist);
+  color: var(--mg-color-muted);
+  transition:
+    background var(--mg-duration-fast) ease,
+    color var(--mg-duration-fast) ease;
+}
+
+.exercise-add-tile:hover {
+  border-color: var(--mg-color-border);
+  background: var(--mg-color-sky-well);
+  color: var(--mg-color-primary-strong);
+}
+
+/* ── A quote from an earlier step: context of the question, so plain text —
+   an eyebrow and the sentence, no box (a box sits whiter than the field
+   below and inverts the tonal ladder). ── */
+.exercise-quote {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+}
+
+.exercise-quote__label {
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-xs);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.exercise-quote__text {
+  color: var(--mg-color-ink);
+  font-size: var(--mg-font-size-md);
+  line-height: 1.5;
+}
+
+/* Native ranges get their fill from ExercisePage (the `--exercise-range-fill` custom property). */
+.exercise-page input[type='range']:not(.exercise-range)::-webkit-slider-runnable-track {
+  background: linear-gradient(
+    to right,
+    var(--mg-color-primary) 0 var(--exercise-range-fill, 0%),
+    var(--mg-color-sky-well) var(--exercise-range-fill, 0%) 100%
+  );
+}

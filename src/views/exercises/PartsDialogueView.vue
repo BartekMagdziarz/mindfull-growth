@@ -68,8 +68,9 @@ import PartsDialogueWizard from '@/components/exercises/PartsDialogueWizard.vue'
 import { useIFSPartsDialogueStore } from '@/stores/ifsPartsDialogue.store'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
 import { useT } from '@/composables/useT'
+import { formatExerciseDate } from '@/utils/exerciseDate'
 
-const { t, tp } = useT()
+const { t, tp, locale } = useT()
 const dialogueStore = useIFSPartsDialogueStore()
 const partStore = useIFSPartStore()
 const saved = ref(false)
@@ -95,7 +96,6 @@ function getPartRole(id: string) {
 }
 
 function formatDate(isoString: string): string {
-  const d = new Date(isoString)
-  return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+  return formatExerciseDate(isoString, locale.value)
 }
 </script>

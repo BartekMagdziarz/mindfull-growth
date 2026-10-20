@@ -4,7 +4,6 @@
   <section class="gc-summary" :aria-label="t('planning.goalClosing.summary.title')">
     <header class="gc-summary__head">
       <b>{{ t('planning.goalClosing.summary.title') }}</b>
-      <span>{{ t('planning.goalClosing.outcome.' + reflection.outcome) }} · {{ t('planning.goalClosing.summary.closedOn', { date: closedOn }) }}</span>
     </header>
 
     <p v-if="reflection.keyResults.length" class="gc-summary__krs">
@@ -65,8 +64,6 @@ import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useT } from '@/composables/useT'
 import type { GoalClosingReflection } from '@/domain/planning'
-import type { DayRef } from '@/domain/period'
-import { formatDayShort } from '@/utils/periodLabels'
 
 const props = defineProps<{
   goalId: string
@@ -75,12 +72,10 @@ const props = defineProps<{
   confidenceThen?: number
 }>()
 
-const { t, tg, locale } = useT()
+const { t, tg } = useT()
 const router = useRouter()
 const route = useRoute()
 const expanded = ref(false)
-
-const closedOn = computed(() => formatDayShort(props.reflection.closedAt as DayRef, locale.value))
 
 /** One line that stands for the whole reflection: the lesson first, then what worked. */
 const lead = computed(() => {

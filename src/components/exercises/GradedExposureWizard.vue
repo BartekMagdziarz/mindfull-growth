@@ -67,20 +67,22 @@
             :placeholder="t('exerciseWizards.gradedExposure.fearTarget.fearPlaceholder')"
             class="neo-input neo-focus w-full p-3 text-sm resize-none"
           />
-        </AppCard>
 
-        <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.gradedExposure.fearTarget.goalTitle') }}</h2>
+          <div class="space-y-2 pt-2">
+          <div class="flex items-start justify-between gap-3">
+            <h3 class="text-sm font-semibold text-on-surface">{{ t('exerciseWizards.gradedExposure.fearTarget.goalTitle') }}</h3>
+            <ExerciseStepWhy :text="tg('exerciseWizards.gradedExposure.fearTarget.goalWhy')" />
+          </div>
           <p class="text-sm text-on-surface-variant">
             {{ tg('exerciseWizards.gradedExposure.fearTarget.goalDescription') }}
           </p>
-          <ExerciseStepWhy :text="tg('exerciseWizards.gradedExposure.fearTarget.goalWhy')" />
           <textarea
             v-model="ultimateGoal"
             rows="3"
             :placeholder="t('exerciseWizards.gradedExposure.fearTarget.goalPlaceholder')"
             class="neo-input neo-focus w-full p-3 text-sm resize-none"
           />
+          </div>
         </AppCard>
 
         <div class="flex justify-between">
@@ -220,9 +222,9 @@
         </AppCard>
 
         <!-- Tip panel -->
-        <div class="neo-panel p-4 space-y-1">
-          <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('exerciseWizards.gradedExposure.buildHierarchy.tipTitle') }}</p>
-          <p class="text-sm text-on-surface-variant leading-relaxed">
+        <div class="exercise-note space-y-1">
+          <h3 class="exercise-note__title">{{ t('exerciseWizards.gradedExposure.buildHierarchy.tipTitle') }}</h3>
+          <p class="exercise-note__text">
             {{ t('exerciseWizards.gradedExposure.buildHierarchy.tipDescription') }}
           </p>
         </div>

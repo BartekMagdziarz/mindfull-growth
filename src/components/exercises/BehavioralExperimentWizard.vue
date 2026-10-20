@@ -478,7 +478,7 @@
 
 <script setup lang="ts">
 import ExerciseStepper from './ExerciseStepper.vue'
-import { ref, computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
@@ -492,6 +492,8 @@ const emit = defineEmits<{
   saved: [data: CreateBehavioralExperimentPayload]
 }>()
 
+/** Launched from a path moment (`?momentId=`): the moment's thought is the prediction to test, its situation the belief's context. */
+const props = defineProps<{ seed?: { prediction?: string; situation?: string } }>()
 const { t, tg, locale } = useT()
 const userPreferencesStore = useUserPreferencesStore()
 const useProfileDesign = ref(userPreferencesStore.profileContextDefault)
@@ -546,6 +548,17 @@ const safetyBehaviors = ref<string[]>([''])
 const outcome = ref('')
 const whatLearned = ref('')
 const believabilityAfter = ref(50)
+
+// A moment's prediction prefills the step once; the user can still change it.
+watch(
+  () => props.seed,
+  (seed) => {
+    if (!seed) return
+    if (seed.prediction && !prediction.value.trim()) prediction.value = seed.prediction
+    if (seed.situation && !targetBelief.value.trim()) targetBelief.value = seed.situation
+  },
+  { immediate: true },
+)
 
 // ─── LLM Assist ──────────────────────────────────────────────────────────────
 const isDesignLoading = ref(false)

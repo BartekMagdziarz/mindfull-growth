@@ -83,8 +83,9 @@ import DirectAccessWizard from '@/components/exercises/DirectAccessWizard.vue'
 import { useIFSDirectAccessStore } from '@/stores/ifsDirectAccess.store'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
 import { useT } from '@/composables/useT'
+import { formatExerciseDate } from '@/utils/exerciseDate'
 
-const { t, tp } = useT()
+const { t, tp, locale } = useT()
 const route = useRoute()
 /** A path step names the part to talk with (`?partTag=shame-compass:attackSelf`). */
 const partTag = computed(() => (typeof route.query.partTag === 'string' ? route.query.partTag : undefined))
@@ -113,7 +114,6 @@ function getPartRole(id: string) {
 }
 
 function formatDate(isoString: string): string {
-  const d = new Date(isoString)
-  return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+  return formatExerciseDate(isoString, locale.value)
 }
 </script>

@@ -60,12 +60,9 @@
             :placeholder="t('exerciseWizards.structuredProblemSolving.problem.placeholder')"
             class="neo-input neo-focus w-full p-3 text-sm resize-none"
           />
-        </AppCard>
 
-        <AppCard padding="lg" class="space-y-4">
-          <div class="flex items-center gap-1.5">
-            <h3 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.structuredProblemSolving.problem.emotionsTitle') }}</h3>
-          </div>
+          <div class="space-y-2 pt-2">
+            <h3 class="text-sm font-semibold text-on-surface">{{ t('exerciseWizards.structuredProblemSolving.problem.emotionsTitle') }}</h3>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.structuredProblemSolving.problem.emotionsDescription') }}
           </p>
@@ -76,6 +73,7 @@
             :show-selected-section="true"
             :allow-family-only="true"
           />
+          </div>
         </AppCard>
 
         <div class="flex justify-between">
@@ -116,7 +114,7 @@
               @keyup.enter="addSolution"
             />
             <AppButton
-              variant="filled"
+              variant="tonal"
               :disabled="!newSolutionText.trim()"
               @click="addSolution"
             >

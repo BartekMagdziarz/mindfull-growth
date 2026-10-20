@@ -70,10 +70,9 @@
               :placeholder="frameCopy.placeholder"
               class="neo-input neo-focus w-full p-3 text-sm resize-none"
             />
-          </AppCard>
 
-          <AppCard padding="lg" class="space-y-3">
-            <h3 class="text-base font-semibold text-on-surface">
+          <div class="space-y-3 pt-2">
+            <h3 class="text-sm font-semibold text-on-surface">
               {{ t('exerciseWizards.positiveDataLog.targetBelief.believabilityTitle') }}
             </h3>
             <div class="space-y-2">
@@ -94,6 +93,7 @@
                 <span>{{ t('exerciseWizards.positiveDataLog.targetBelief.completely') }}</span>
               </div>
             </div>
+          </div>
           </AppCard>
 
           <div class="flex justify-between">
@@ -120,20 +120,16 @@
           <AppCard variant="raised" padding="lg" class="space-y-5">
             <h2 class="text-lg font-semibold text-on-surface">{{ tg('exerciseWizards.positiveDataLog.confirmation.title') }}</h2>
 
-            <div class="space-y-1">
-              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-                {{ frameCopy.label }}
-              </p>
-              <div class="neo-panel p-3">
-                <p class="text-sm text-on-surface italic">"{{ targetBelief }}"</p>
-              </div>
+            <div class="exercise-quote">
+              <span class="exercise-quote__label">{{ frameCopy.label }}</span>
+              <span class="exercise-quote__text">„{{ targetBelief }}”</span>
             </div>
 
             <div class="space-y-1">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                 {{ t('exerciseWizards.positiveDataLog.confirmation.initialBelievability') }}
               </p>
-              <p class="text-2xl font-bold text-on-surface">{{ believabilityInitial }}%</p>
+              <p class="text-sm text-on-surface">{{ believabilityInitial }}%</p>
             </div>
 
             <p class="text-sm text-on-surface-variant leading-relaxed">
@@ -534,11 +530,6 @@ function todayISO(): string {
 
 function formatEntryDate(dateStr: string): string {
   const date = new Date(dateStr + 'T00:00:00')
-  return date.toLocaleDateString(undefined, {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
+  return date.toLocaleDateString(locale.value, { weekday: 'short', day: 'numeric', month: 'short' })
 }
 </script>

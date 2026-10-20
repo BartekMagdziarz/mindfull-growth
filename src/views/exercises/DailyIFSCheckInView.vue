@@ -88,10 +88,11 @@ import { useIFSDailyCheckInStore } from '@/stores/ifsDailyCheckIn.store'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
 import type { IFSDailyCheckInType, IFSSelfLeadershipRating } from '@/domain/exercises'
 import { useT } from '@/composables/useT'
+import { formatExerciseDate } from '@/utils/exerciseDate'
 import { useIfsLabels } from '@/composables/useIfsLabels'
 import { getChildPeriods, getPeriodRefsForDate } from '@/utils/periods'
 
-const { t, tp } = useT()
+const { t, tp, locale } = useT()
 
 const { formatQuality, weekdayInitials } = useIfsLabels()
 const checkInStore = useIFSDailyCheckInStore()
@@ -115,8 +116,7 @@ function getPartName(id: string): string {
 }
 
 function formatDate(isoString: string): string {
-  const d = new Date(isoString)
-  return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+  return formatExerciseDate(isoString, locale.value)
 }
 
 function practiceTypeLabel(type: IFSDailyCheckInType): string {

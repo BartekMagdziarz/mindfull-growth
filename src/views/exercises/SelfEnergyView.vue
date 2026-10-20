@@ -87,9 +87,10 @@ import { useIFSSelfEnergyStore } from '@/stores/ifsSelfEnergy.store'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
 import { useIFSTrailheadStore } from '@/stores/ifsTrailhead.store'
 import { useT } from '@/composables/useT'
+import { formatExerciseDate } from '@/utils/exerciseDate'
 import { useIfsLabels } from '@/composables/useIfsLabels'
 
-const { t } = useT()
+const { t, locale } = useT()
 
 const { formatQuality } = useIfsLabels()
 const selfEnergyStore = useIFSSelfEnergyStore()
@@ -147,7 +148,6 @@ function getPartName(id: string): string {
 }
 
 function formatDate(isoString: string): string {
-  const d = new Date(isoString)
-  return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+  return formatExerciseDate(isoString, locale.value)
 }
 </script>

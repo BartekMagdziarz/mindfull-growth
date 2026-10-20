@@ -45,8 +45,9 @@ import CognitiveDistortionsWizard from '@/components/exercises/CognitiveDistorti
 import { useDistortionAssessmentStore } from '@/stores/distortionAssessment.store'
 import type { CreateDistortionAssessmentPayload } from '@/domain/exercises'
 import { useT } from '@/composables/useT'
+import { formatExerciseDate } from '@/utils/exerciseDate'
 
-const { t } = useT()
+const { t, locale } = useT()
 const distortionStore = useDistortionAssessmentStore()
 const saved = ref(false)
 
@@ -55,11 +56,7 @@ onMounted(() => {
 })
 
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
+  return formatExerciseDate(iso, locale.value)
 }
 
 async function handleSaved(data: CreateDistortionAssessmentPayload) {

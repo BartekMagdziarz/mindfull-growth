@@ -102,7 +102,24 @@
                   rows="2"
                 />
                 <div class="space-y-2">
+                  <!-- The picker is heavy; it opens per event, so three events do not stack three pickers. -->
+                  <button
+                    type="button"
+                    class="flex items-center gap-2 text-sm text-primary hover:text-primary-strong transition-colors"
+                    :aria-expanded="openEmotions.has(event.id)"
+                    @click="toggleEmotions(event.id)"
+                  >
+                    <AppIcon :name="openEmotions.has(event.id) ? 'expand_less' : 'add'" class="text-base" />
+                    {{ openEmotions.has(event.id) ? t('exerciseWizards.mountainRange.peaks.hideEmotions') : t('exerciseWizards.mountainRange.peaks.addEmotions') }}
+                    <span
+                      v-if="!openEmotions.has(event.id) && event.emotionIds.length + event.emotionFamilyIds.length > 0"
+                      class="text-xs text-on-surface-variant"
+                    >
+                      ({{ event.emotionIds.length + event.emotionFamilyIds.length }})
+                    </span>
+                  </button>
                   <EmotionSelector
+                    v-if="openEmotions.has(event.id)"
                     :label="t('exerciseWizards.mountainRange.peaks.emotionLabel')"
                     v-model="event.emotionIds"
                     v-model:families="event.emotionFamilyIds"
@@ -191,7 +208,24 @@
                   rows="4"
                 />
                 <div class="space-y-2">
+                  <!-- The picker is heavy; it opens per event, so three events do not stack three pickers. -->
+                  <button
+                    type="button"
+                    class="flex items-center gap-2 text-sm text-primary hover:text-primary-strong transition-colors"
+                    :aria-expanded="openEmotions.has(event.id)"
+                    @click="toggleEmotions(event.id)"
+                  >
+                    <AppIcon :name="openEmotions.has(event.id) ? 'expand_less' : 'add'" class="text-base" />
+                    {{ openEmotions.has(event.id) ? t('exerciseWizards.mountainRange.peaks.hideEmotions') : t('exerciseWizards.mountainRange.peaks.addEmotions') }}
+                    <span
+                      v-if="!openEmotions.has(event.id) && event.emotionIds.length + event.emotionFamilyIds.length > 0"
+                      class="text-xs text-on-surface-variant"
+                    >
+                      ({{ event.emotionIds.length + event.emotionFamilyIds.length }})
+                    </span>
+                  </button>
                   <EmotionSelector
+                    v-if="openEmotions.has(event.id)"
                     :label="t('exerciseWizards.mountainRange.peaks.emotionLabel')"
                     v-model="event.emotionIds"
                     v-model:families="event.emotionFamilyIds"
@@ -517,6 +551,15 @@ const peakEvents = reactive<EditableEvent[]>([
   createEvent('peak'),
   createEvent('peak'),
 ])
+
+/** Events whose emotion picker is open; every event starts collapsed. */
+const openEmotions = ref(new Set<string>())
+function toggleEmotions(id: string): void {
+  const next = new Set(openEmotions.value)
+  if (next.has(id)) next.delete(id)
+  else next.add(id)
+  openEmotions.value = next
+}
 
 const valleyEvents = reactive<EditableEvent[]>([
   createEvent('valley'),

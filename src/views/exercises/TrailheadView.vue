@@ -3,7 +3,7 @@
     :title="t('exercises.cards.trailhead.title')"
     :subtitle="t('exercises.cards.trailhead.subtitle')"
   >
-    <TrailheadWizard v-if="!saved" :seed="wizardSeed" @saved="handleSaved" />
+    <TrailheadWizard v-if="!saved" :seed="wizardSeed" :tag-on-save="tagPart" @saved="handleSaved" />
     <ExerciseSavedPanel v-else exercise-slug="trailhead" @again="saved = false" />
 
     <!-- Past Entries -->
@@ -85,6 +85,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import ExercisePage from '@/components/exercises/ExercisePage.vue'
 import AppCard from '@/components/AppCard.vue'
 import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
@@ -94,12 +95,16 @@ import { useIFSTrailheadStore } from '@/stores/ifsTrailhead.store'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useT } from '@/composables/useT'
+import { formatExerciseDate } from '@/utils/exerciseDate'
 import { useMomentSeed } from '@/features/program-path/useMomentSeed'
 
-const { t, tp } = useT()
+const { t, tp, locale } = useT()
 // Launched from a path moment (`?momentId=`): trigger, thoughts and the part that took the wheel prefill the entry.
 const { seed } = useMomentSeed()
 const wizardSeed = computed(() => (seed.value ? { trigger: seed.value.situation, thoughts: seed.value.criticThought, reaction: seed.value.reaction } : undefined))
+// A path step may ask to tag the linked part (`?tagPart=program:anger-signal`), so a later step can preselect it.
+const route = useRoute()
+const tagPart = computed(() => (typeof route.query.tagPart === 'string' ? route.query.tagPart : undefined))
 const trailheadStore = useIFSTrailheadStore()
 const partStore = useIFSPartStore()
 const emotionStore = useEmotionStore()
@@ -131,7 +136,6 @@ function getPartRole(id: string) {
 }
 
 function formatDate(isoString: string): string {
-  const d = new Date(isoString)
-  return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+  return formatExerciseDate(isoString, locale.value)
 }
 </script>

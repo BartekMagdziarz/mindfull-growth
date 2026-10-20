@@ -85,34 +85,58 @@ describe('MicroExerciseRunner choice branching (Momenty, anger variant)', () => 
     expect(emitted().saved?.[0]).toEqual([{ responses: { kind: 'anger', hadMoment: 'none' } }])
   })
 
-  it('an anger moment opens the anger branch only and drops the calm-day step', async () => {
+  it('an anger moment opens the anger branch only: the quick five, "Save now" after the strength, the prose optional', async () => {
     const { emitted, container } = renderMicro('moments', { kind: 'anger' })
     await fireEvent.click(screen.getByRole('radio', { name: 'Yes' }))
-    // hadMoment + situation, intensity, body, thought, behavior, helped
-    expect(container.querySelectorAll('[title]')).toHaveLength(7)
+    // hadMoment, angerReaction, noticed, angerResponse, angerStrength, situation, angerBody, thought, need, helped
+    expect(container.querySelectorAll('[title]')).toHaveLength(10)
+    expect(screen.queryByRole('button', { name: 'Save now' })).toBeNull()
 
-    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → situation
-    await fireEvent.update(container.querySelector('textarea')!, 'Cut off in a meeting')
-    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → intensity
-    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → body (optional)
-    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → thought (optional)
-    await fireEvent.update(container.querySelector('textarea')!, 'He does it on purpose')
-    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → behavior
-    await fireEvent.update(container.querySelector('textarea')!, 'Raised my voice')
-    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → helped (optional, last)
-    await fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → what took the wheel
+    const sharp = screen.getByRole('radio', { name: /Sharper/ })
+    expect(sharp.textContent).toContain('sarcasm')
+    await fireEvent.click(sharp)
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → noticed
+    await fireEvent.click(screen.getByRole('radio', { name: 'As it happened' }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → what I did instead
+    await fireEvent.click(screen.getByRole('button', { name: 'A pause' }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → strength: empty until tapped
+    const scale = screen.getByRole('radiogroup', { name: 'How strong was the anger?' })
+    expect(scale.querySelectorAll('[aria-checked="true"]')).toHaveLength(0)
+    expect(screen.queryByRole('button', { name: 'Save now' })).toBeNull()
+    await fireEvent.click(screen.getByRole('radio', { name: '3' }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Save now' }))
 
     expect(emitted().saved?.[0]).toEqual([
       {
         responses: {
           kind: 'anger',
           hadMoment: 'yes',
-          situation: 'Cut off in a meeting',
-          intensity: 5,
-          thought: 'He does it on purpose',
-          behavior: 'Raised my voice',
+          angerReaction: 'sharp',
+          noticed: 'during',
+          angerResponse: ['pause'],
+          angerStrength: 3,
         },
       },
+    ])
+  })
+
+  it('an anxious moment runs its own quick five with the anxiety reactions and moves', async () => {
+    const { emitted, container } = renderMicro('moments', { kind: 'anxiety' })
+    await fireEvent.click(screen.getByRole('radio', { name: 'Yes' }))
+    // hadMoment, anxietyReaction, noticed, anxietyResponse, anxietyStrength, situation, anxietyBody, thought, outcome, helped
+    expect(container.querySelectorAll('[title]')).toHaveLength(10)
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' }))
+    await fireEvent.click(screen.getByRole('radio', { name: /Checking/ }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' }))
+    await fireEvent.click(screen.getByRole('radio', { name: 'A moment later' }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' }))
+    await fireEvent.click(screen.getByRole('button', { name: 'No checking' }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' }))
+    await fireEvent.click(screen.getByRole('radio', { name: '2' }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Save now' }))
+    expect(emitted().saved?.[0]).toEqual([
+      { responses: { kind: 'anxiety', hadMoment: 'yes', anxietyReaction: 'check', noticed: 'soon', anxietyResponse: ['noCheck'], anxietyStrength: 2 } },
     ])
   })
 })
@@ -172,13 +196,13 @@ describe('MicroExerciseRunner: shame branch, hints and entry picks', () => {
     expect(container.querySelectorAll('[title]')).toHaveLength(11)
   })
 
-  it('the anger branch keeps its required situation and never offers "Save now"', async () => {
-    const { container } = renderMicro('moments', { kind: 'anger' })
+  it('the "other" branch keeps its required situation and behaviour and never offers "Save now"', async () => {
+    const { container } = renderMicro('moments', { kind: 'other' })
     await fireEvent.click(screen.getByRole('radio', { name: 'Yes' }))
     await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → situation (required)
     expect(screen.getByRole('button', { name: 'Next' })).toHaveProperty('disabled', true)
     await fireEvent.update(container.querySelector('textarea')!, 'x')
-    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → intensity
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → body (optional)
     expect(screen.queryByRole('button', { name: 'Save now' })).toBeNull()
   })
 
@@ -207,15 +231,28 @@ describe('MicroExerciseRunner: shame branch, hints and entry picks', () => {
     expect(hint.textContent).not.toContain('old')
   })
 
-  it('an anger moment never quotes the shame map on the shared body step', async () => {
-    seedEntries([{ exerciseSlug: 'shame-map', responses: { bodySigns: ['hot face'] } }])
+  it('an anger moment quotes the anger map, never the shame map, on its body step', async () => {
+    seedEntries([
+      { exerciseSlug: 'shame-map', responses: { bodySigns: ['hot face'] } },
+      { exerciseSlug: 'anger-map', responses: { bodySigns: ['tight shoulders'] } },
+    ])
     const { container } = renderMicro('moments', { kind: 'anger' })
     await fireEvent.click(screen.getByRole('radio', { name: 'Yes' }))
-    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → situation
-    await fireEvent.update(container.querySelector('textarea')!, 'x')
-    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → intensity
-    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → body
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → reaction
+    await fireEvent.click(screen.getByRole('radio', { name: /Outburst/ }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → noticed
+    await fireEvent.click(screen.getByRole('radio', { name: 'Hours later' }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → moves (no pause plan → no hint)
     expect(container.querySelector('[data-testid="micro-hint"]')).toBeNull()
+    await fireEvent.click(screen.getByRole('button', { name: 'Breath' }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → strength
+    await fireEvent.click(screen.getByRole('radio', { name: '4' }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → situation (optional)
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → body: the anger map
+    const hint = container.querySelector('[data-testid="micro-hint"]')!
+    expect(hint.textContent).toContain('From your anger map')
+    expect(hint.textContent).toContain('tight shoulders')
+    expect(hint.textContent).not.toContain('hot face')
   })
 
   it('entryPick lists matching moments newest first, saves the picked id and feeds picked hints', async () => {
@@ -368,10 +405,10 @@ describe('MicroExerciseRunner v3 features', () => {
     ]
     renderMicro('maintenance-plan')
     const options = screen.getAllByRole('button').filter((b) => b.classList.contains('micro-choice__option'))
-    // anger path practices (moment-anger, paced-breathing) then the static plan-for-a-hard-moment
+    // anger path practices (paced-breathing, moment-anger) then the static plan-for-a-hard-moment
     expect(options.map((b) => b.textContent?.trim())).toEqual([
-      expect.stringMatching(/moment of anger/i),
       expect.stringMatching(/breathing/i),
+      expect.stringMatching(/moment of anger/i),
       'My plan for a hard moment',
     ])
     await fireEvent.click(options[1]!)
@@ -381,7 +418,8 @@ describe('MicroExerciseRunner v3 features', () => {
   it('a full hint quotes the whole letter in "Powrót"', async () => {
     const long = 'A'.repeat(400)
     seedEntries([{ exerciseSlug: 'letter-to-future-self', responses: { letter: long, returnIn: 'w8' } }])
-    const { container } = renderMicro('path-return')
+    // The path presets the kind (`?kind=`), so the letter is the first visible step.
+    const { container } = renderMicro('path-return', { kind: 'shame' })
     const hint = container.querySelector('[data-testid="micro-hint"]')!
     expect(hint.textContent).toContain(long)
   })

@@ -67,9 +67,10 @@ import { useIFSPartStore } from '@/stores/ifsPart.store'
 import { useIFSPartsMapStore } from '@/stores/ifsPartsMap.store'
 import { useLifeAreaStore } from '@/stores/lifeArea.store'
 import { useT } from '@/composables/useT'
+import { formatExerciseDate } from '@/utils/exerciseDate'
 import { IFS_ROLE_CLASSES } from '@/constants/exerciseColorRoles'
 
-const { t, tp } = useT()
+const { t, tp, locale } = useT()
 const partStore = useIFSPartStore()
 const mapStore = useIFSPartsMapStore()
 const lifeAreaStore = useLifeAreaStore()
@@ -102,7 +103,6 @@ function partRoleClass(partId: string): string {
 }
 
 function formatDate(isoString: string): string {
-  const d = new Date(isoString)
-  return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+  return formatExerciseDate(isoString, locale.value)
 }
 </script>

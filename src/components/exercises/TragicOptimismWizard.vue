@@ -24,12 +24,12 @@
           </div>
 
           <!-- Professional guidance banner -->
-          <div class="neo-warning p-4 rounded-xl border-l-4 border-status-warn">
-            <div class="flex items-start gap-3">
-              <AppIcon name="warning" class="text-xl text-status-warn flex-shrink-0 mt-0.5" />
-              <div class="text-sm text-on-surface">
-                <p class="font-semibold mb-1">{{ t('exerciseWizards.tragicOptimism.intro.warningTitle') }}</p>
-                <p>
+          <div class="exercise-note">
+            <div class="flex gap-3">
+              <AppIcon name="security" class="exercise-note__icon" />
+              <div class="space-y-2">
+                <h3 class="exercise-note__title">{{ t('exerciseWizards.tragicOptimism.intro.warningTitle') }}</h3>
+                <p class="exercise-note__text">
                   {{ t('exerciseWizards.tragicOptimism.intro.warningText') }}
                 </p>
               </div>

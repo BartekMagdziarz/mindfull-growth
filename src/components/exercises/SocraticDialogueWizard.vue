@@ -338,6 +338,7 @@ import { getDisplayTitle } from '@/domain/journal'
 import { useLifeAreaStore } from '@/stores/lifeArea.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
+import { formatExerciseDate } from '@/utils/exerciseDate'
 import type { Quadrant } from '@/domain/emotion'
 import type {
   CreateSocraticDialoguePayload,
@@ -569,17 +570,6 @@ function handleSave() {
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
 function formatDate(iso: string): string {
-  const date = new Date(iso)
-  const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
-  const diffDays = Math.floor(diffMs / 86_400_000)
-
-  if (diffDays < 1) return t('exerciseWizards.socraticDialogue.time.today')
-  if (diffDays < 7) return t('exerciseWizards.socraticDialogue.time.daysAgo', { count: diffDays })
-
-  return date.toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-  })
+  return formatExerciseDate(iso, locale.value)
 }
 </script>

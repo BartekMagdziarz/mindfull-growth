@@ -3,7 +3,7 @@
     :title="t('exercises.cards.behavioralExperiment.title')"
     :subtitle="t('exercises.cards.behavioralExperiment.subtitle')"
   >
-    <BehavioralExperimentWizard v-if="!saved" @saved="handleSaved" />
+    <BehavioralExperimentWizard v-if="!saved" :seed="wizardSeed" @saved="handleSaved" />
     <ExerciseSavedPanel v-else exercise-slug="behavioral-experiment" @again="saved = false" />
 
     <!-- Past experiments section -->
@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import ExercisePage from '@/components/exercises/ExercisePage.vue'
 import AppCard from '@/components/AppCard.vue'
 import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
@@ -39,8 +39,13 @@ import BehavioralExperimentWizard from '@/components/exercises/BehavioralExperim
 import { useBehavioralExperimentStore } from '@/stores/behavioralExperiment.store'
 import type { CreateBehavioralExperimentPayload } from '@/domain/exercises'
 import { useT } from '@/composables/useT'
+import { formatExerciseDate } from '@/utils/exerciseDate'
+import { useMomentSeed } from '@/features/program-path/useMomentSeed'
 
-const { t } = useT()
+const { t, locale } = useT()
+// Launched from a path moment (`?momentId=`): the moment's thought is the prediction, its situation the context.
+const { seed } = useMomentSeed()
+const wizardSeed = computed(() => (seed.value ? { prediction: seed.value.criticThought, situation: seed.value.situation } : undefined))
 const experimentStore = useBehavioralExperimentStore()
 const saved = ref(false)
 
@@ -55,22 +60,6 @@ async function handleSaved(data: CreateBehavioralExperimentPayload) {
 }
 
 function formatDate(iso: string): string {
-  const date = new Date(iso)
-  const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
-  const diffMins = Math.floor(diffMs / 60_000)
-  const diffHours = Math.floor(diffMs / 3_600_000)
-  const diffDays = Math.floor(diffMs / 86_400_000)
-
-  if (diffMins < 1) return 'Just now'
-  if (diffMins < 60) return `${diffMins}m ago`
-  if (diffHours < 24) return `${diffHours}h ago`
-  if (diffDays < 7) return `${diffDays}d ago`
-
-  return date.toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined,
-  })
+  return formatExerciseDate(iso, locale.value)
 }
 </script>

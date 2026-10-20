@@ -90,8 +90,9 @@ import { useIFSUnblendingStore } from '@/stores/ifsUnblending.store'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useT } from '@/composables/useT'
+import { formatExerciseDate } from '@/utils/exerciseDate'
 
-const { t } = useT()
+const { t, locale } = useT()
 const unblendingStore = useIFSUnblendingStore()
 const partStore = useIFSPartStore()
 const emotionStore = useEmotionStore()
@@ -129,7 +130,6 @@ function getEmotionName(id: string): string {
 }
 
 function formatDate(isoString: string): string {
-  const d = new Date(isoString)
-  return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+  return formatExerciseDate(isoString, locale.value)
 }
 </script>

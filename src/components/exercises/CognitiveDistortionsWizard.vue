@@ -96,7 +96,7 @@
           </AppButton>
           <AppButton
             v-if="carouselIndex < distortions.length - 1"
-            variant="text"
+            variant="filled"
             @click="carouselIndex++"
           >
             {{ t('common.buttons.next') }}

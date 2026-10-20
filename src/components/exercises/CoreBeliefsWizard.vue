@@ -109,11 +109,9 @@
           <!-- Chain display -->
           <div class="space-y-3">
             <!-- Starting thought -->
-            <div class="neo-panel p-3">
-              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-1">
-                {{ t('exerciseWizards.coreBeliefs.downwardArrow.startingThoughtLabel') }}
-              </p>
-              <p class="text-sm text-on-surface italic">"{{ startingThought }}"</p>
+            <div class="exercise-quote">
+              <span class="exercise-quote__label">{{ t('exerciseWizards.coreBeliefs.downwardArrow.startingThoughtLabel') }}</span>
+              <span class="exercise-quote__text">„{{ startingThought }}”</span>
             </div>
 
             <!-- Previous downward arrow steps -->
@@ -294,11 +292,9 @@
       <div v-if="currentStep === 'evidence-for'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
           <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.coreBeliefs.evidenceFor.title') }}</h2>
-          <div class="neo-panel p-3">
-            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-1">
-              {{ t('exerciseWizards.coreBeliefs.evidenceFor.coreBeliefLabel') }}
-            </p>
-            <p class="text-sm text-on-surface italic">"{{ coreBelief }}"</p>
+          <div class="exercise-quote">
+            <span class="exercise-quote__label">{{ t('exerciseWizards.coreBeliefs.evidenceFor.coreBeliefLabel') }}</span>
+            <span class="exercise-quote__text">„{{ coreBelief }}”</span>
           </div>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.coreBeliefs.evidenceFor.description') }}
@@ -351,11 +347,9 @@
       <div v-if="currentStep === 'evidence-against'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
           <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.coreBeliefs.evidenceAgainst.title') }}</h2>
-          <div class="neo-panel p-3">
-            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-1">
-              {{ t('exerciseWizards.coreBeliefs.evidenceAgainst.coreBeliefLabel') }}
-            </p>
-            <p class="text-sm text-on-surface italic">"{{ coreBelief }}"</p>
+          <div class="exercise-quote">
+            <span class="exercise-quote__label">{{ t('exerciseWizards.coreBeliefs.evidenceAgainst.coreBeliefLabel') }}</span>
+            <span class="exercise-quote__text">„{{ coreBelief }}”</span>
           </div>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.coreBeliefs.evidenceAgainst.description') }}

@@ -157,12 +157,14 @@ export function canFinishEarly(
   currentKey: string,
   answers: MicroChoiceAnswers,
   preset: MicroPreset = {},
-  earlyFinishAfter: string | undefined = undefined,
+  earlyFinishAfter: string | readonly string[] | undefined = undefined,
 ): boolean {
   if (!earlyFinishAfter) return false
   const visible = visibleMicroSteps(steps, answers, preset)
   const current = visible.findIndex((step) => step.key === currentKey)
-  const anchor = visible.findIndex((step) => step.key === earlyFinishAfter)
+  // One anchor per branch (Momenty: a strength step per kind); the visible one counts.
+  const anchors = typeof earlyFinishAfter === 'string' ? [earlyFinishAfter] : earlyFinishAfter
+  const anchor = visible.findIndex((step) => anchors.includes(step.key))
   if (current === -1 || anchor === -1 || current < anchor) return false
   const index = steps.findIndex((step) => step.key === currentKey)
   return steps.slice(index + 1).every((step) => {
@@ -216,6 +218,10 @@ export function buildAfterSavePrefill(
 ): Record<string, MicroStepValue> {
   const prefill: Record<string, MicroStepValue> = {}
   for (const [target, rule] of Object.entries(rules ?? {})) {
+    if (typeof rule === 'object' && 'set' in rule) {
+      prefill[target] = Array.isArray(rule.set) ? [...rule.set] : rule.set
+      continue
+    }
     const from = typeof rule === 'string' ? rule : rule.from
     const map = typeof rule === 'string' ? undefined : rule.map
     const value = responses[from]

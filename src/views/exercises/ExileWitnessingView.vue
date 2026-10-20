@@ -3,8 +3,6 @@
     :title="t('exercises.cards.exileWitnessing.title')"
     :subtitle="t('exercises.cards.exileWitnessing.subtitle')"
   >
-    <IFSSafetyBanner class="mb-6" />
-
     <ExileWitnessingWizard v-if="!saved" @saved="handleSaved" />
     <ExerciseSavedPanel v-else exercise-slug="exile-witnessing" @again="saved = false" />
 
@@ -65,15 +63,15 @@ import { computed, onMounted, ref } from 'vue'
 import ExercisePage from '@/components/exercises/ExercisePage.vue'
 import AppCard from '@/components/AppCard.vue'
 import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
-import IFSSafetyBanner from '@/components/exercises/ifs/IFSSafetyBanner.vue'
 import PartRoleBadge from '@/components/exercises/ifs/PartRoleBadge.vue'
 import ExileWitnessingWizard from '@/components/exercises/ExileWitnessingWizard.vue'
 import { useIFSExileWitnessingStore } from '@/stores/ifsExileWitnessing.store'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
 import type { IFSExilePostState } from '@/domain/exercises'
 import { useT } from '@/composables/useT'
+import { formatExerciseDate } from '@/utils/exerciseDate'
 
-const { t, tg } = useT()
+const { t, tg, locale } = useT()
 const witnessingStore = useIFSExileWitnessingStore()
 const partStore = useIFSPartStore()
 const saved = ref(false)
@@ -95,8 +93,7 @@ function getPartName(id: string): string {
 }
 
 function formatDate(isoString: string): string {
-  const d = new Date(isoString)
-  return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+  return formatExerciseDate(isoString, locale.value)
 }
 
 function postStateLabel(state: IFSExilePostState): string {

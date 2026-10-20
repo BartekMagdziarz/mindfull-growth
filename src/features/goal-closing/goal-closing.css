@@ -363,10 +363,6 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-.gc-summary__head span {
-  color: var(--mg-color-muted);
-  font-size: var(--mg-font-size-xs);
-}
 .gc-summary__krs {
   display: flex;
   flex-wrap: wrap;

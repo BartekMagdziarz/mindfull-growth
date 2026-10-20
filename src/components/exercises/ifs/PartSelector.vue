@@ -26,7 +26,7 @@
       <!-- Add new part card -->
       <button
         v-if="allowCreate"
-        class="neo-focus rounded-xl p-3 border-2 border-dashed border-neu-border/30 hover:border-primary/50 transition-colors flex flex-col items-center justify-center gap-1 min-h-[80px]"
+        class="neo-focus exercise-add-tile rounded-xl p-3 flex flex-col items-center justify-center gap-1 min-h-[80px]"
         @click="showCreateForm = !showCreateForm"
       >
         <AppIcon name="add" class="text-2xl text-on-surface-variant" />

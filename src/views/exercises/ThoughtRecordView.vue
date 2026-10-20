@@ -63,9 +63,10 @@ import { useThoughtRecordStore } from '@/stores/thoughtRecord.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import type { CreateThoughtRecordPayload, ThoughtRecord } from '@/domain/exercises'
 import { useT } from '@/composables/useT'
+import { formatExerciseDate } from '@/utils/exerciseDate'
 import { useMomentSeed } from '@/features/program-path/useMomentSeed'
 
-const { t } = useT()
+const { t, locale } = useT()
 // Launched from a path moment (`?momentId=`): the situation and the critic's line prefill the record.
 const { seed } = useMomentSeed()
 const wizardSeed = computed(() => (seed.value ? { situation: seed.value.situation, thought: seed.value.criticThought } : undefined))
@@ -91,8 +92,7 @@ function getEmotionName(emotionId: string): string {
 }
 
 function formatDate(iso: string): string {
-  const d = new Date(iso)
-  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+  return formatExerciseDate(iso, locale.value)
 }
 
 function getRecordBeforeIntensity(record: ThoughtRecord, emotionId: string): number {

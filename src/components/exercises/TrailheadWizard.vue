@@ -378,7 +378,11 @@ import type { IFSPartRole } from '@/domain/exercises'
 import { shamePartByReaction, type ShameReaction } from '@/services/shamePartsService'
 
 /** Prefill from a path moment (`?momentId=`): the trigger, the thoughts and the part that took the wheel. */
-const props = defineProps<{ seed?: { trigger?: string; thoughts?: string; reaction?: ShameReaction } }>()
+const props = defineProps<{
+  seed?: { trigger?: string; thoughts?: string; reaction?: ShameReaction }
+  /** Machine tag added to the linked part on save (a path step preselects it later by this tag). */
+  tagOnSave?: string
+}>()
 
 const emit = defineEmits<{
   saved: []
@@ -473,6 +477,16 @@ function getPartRole(id: string) {
 
 async function handleSave() {
   await save()
+  const tag = props.tagOnSave
+  const part = linkedPartId.value ? partStore.getPartById(linkedPartId.value) : undefined
+  if (tag && part && !part.tags?.includes(tag)) {
+    try {
+      await partStore.updatePart(part.id, { tags: [...(part.tags ?? []), tag] })
+    } catch (err) {
+      // The entry is saved; the tag only helps a later step find the part.
+      console.error('Failed to tag the linked part for the path:', err)
+    }
+  }
   emit('saved')
 }
 </script>

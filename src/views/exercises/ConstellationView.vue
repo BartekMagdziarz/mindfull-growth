@@ -3,8 +3,6 @@
     :title="t('exercises.cards.constellation.title')"
     :subtitle="t('exercises.cards.constellation.subtitle')"
   >
-    <IFSSafetyBanner class="mb-6" />
-
     <ConstellationWizard v-if="!saved" @saved="handleSaved" />
     <ExerciseSavedPanel v-else exercise-slug="constellation" @again="saved = false" />
 
@@ -95,7 +93,6 @@ import { computed, onMounted, ref } from 'vue'
 import ExercisePage from '@/components/exercises/ExercisePage.vue'
 import AppCard from '@/components/AppCard.vue'
 import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
-import IFSSafetyBanner from '@/components/exercises/ifs/IFSSafetyBanner.vue'
 import ConstellationWizard from '@/components/exercises/ConstellationWizard.vue'
 import { useIFSConstellationStore } from '@/stores/ifsConstellation.store'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
@@ -105,8 +102,9 @@ import {
   RELATIONSHIP_STROKE_VAR,
 } from '@/constants/exerciseColorRoles'
 import { useT } from '@/composables/useT'
+import { formatExerciseDate } from '@/utils/exerciseDate'
 
-const { t, tp } = useT()
+const { t, tp, locale } = useT()
 const constellationStore = useIFSConstellationStore()
 const partStore = useIFSPartStore()
 const saved = ref(false)
@@ -128,8 +126,7 @@ function getPartName(id: string): string {
 }
 
 function formatDate(isoString: string): string {
-  const d = new Date(isoString)
-  return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+  return formatExerciseDate(isoString, locale.value)
 }
 
 function countByType(entry: IFSConstellation, type: IFSConstellationRelationType): number {

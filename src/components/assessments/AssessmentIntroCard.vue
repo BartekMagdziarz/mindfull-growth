@@ -59,6 +59,7 @@ import AppButton from '@/components/AppButton.vue'
 import AppCard from '@/components/AppCard.vue'
 import type { AssessmentDefinition } from '@/domain/assessments'
 import { useT } from '@/composables/useT'
+import { formatExerciseDate } from '@/utils/exerciseDate'
 
 defineProps<{
   definition: AssessmentDefinition
@@ -75,14 +76,9 @@ defineEmits<{
   retake: []
 }>()
 
-const { t } = useT()
+const { t, locale } = useT()
 
 function formatDate(iso: string): string {
-  const date = new Date(iso)
-  return date.toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
+  return formatExerciseDate(iso, locale.value)
 }
 </script>

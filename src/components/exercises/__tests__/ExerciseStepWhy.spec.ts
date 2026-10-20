@@ -10,10 +10,13 @@ describe('ExerciseStepWhy', () => {
     expect(container.querySelector('.exercise-step-why')).toBeNull()
   })
 
-  it('folds the why into a details block by default', () => {
-    const { container } = render(ExerciseStepWhy, { props: { text: 'Because.' }, global: { stubs } })
-    expect(container.querySelector('details.exercise-step-why')).not.toBeNull()
-    expect(container.querySelector('.exercise-step-why__disc')).toBeNull()
+  it('renders the "?" disc by default and a details block on request', () => {
+    const disc = render(ExerciseStepWhy, { props: { text: 'Because.' }, global: { stubs } })
+    expect(disc.container.querySelector('.exercise-step-why__disc')).not.toBeNull()
+    expect(disc.container.querySelector('details.exercise-step-why')).toBeNull()
+    const details = render(ExerciseStepWhy, { props: { text: 'Because.', variant: 'details' }, global: { stubs } })
+    expect(details.container.querySelector('details.exercise-step-why')).not.toBeNull()
+    expect(details.container.querySelector('.exercise-step-why__disc')).toBeNull()
   })
 
   it('disc: a "?" button toggles a floating note, Escape closes it, a new text folds it again', async () => {

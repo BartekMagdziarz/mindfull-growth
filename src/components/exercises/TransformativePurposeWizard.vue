@@ -101,16 +101,16 @@
           :placeholder="t('exerciseWizards.transformativePurpose.purpose.placeholder')"
           class="neo-input w-full p-3 text-sm resize-none"
         />
-      </AppCard>
 
-      <AppCard padding="lg" class="space-y-3">
-        <h3 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.transformativePurpose.purpose.reflectionTitle') }}</h3>
+        <div class="space-y-2 pt-2">
+        <label class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.transformativePurpose.purpose.reflectionTitle') }}</label>
         <textarea
           v-model="draft.notes"
           rows="3"
           :placeholder="t('exerciseWizards.transformativePurpose.purpose.reflectionPlaceholder')"
           class="neo-input w-full p-3 text-sm resize-none"
         />
+        </div>
       </AppCard>
 
       <div class="flex justify-between">

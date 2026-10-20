@@ -164,6 +164,7 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import RepeatPlanPrompt from '@/components/exercises/RepeatPlanPrompt.vue'
 import type { AssessmentComputation, AssessmentDefinition, ScaleBand, ScaleScore } from '@/domain/assessments'
 import { useT } from '@/composables/useT'
+import { formatExerciseDate } from '@/utils/exerciseDate'
 import { retakeSuggestedDays } from '@/services/exercisePlanService'
 
 const props = defineProps<{
@@ -182,7 +183,7 @@ defineEmits<{
   'toggle-centering': [enabled: boolean]
 }>()
 
-const { t } = useT()
+const { t, locale } = useT()
 
 /** Assessment ids double as catalog slugs; retake window drives the prefill (design §4.4). */
 const suggestedRetakeDays = computed(() => retakeSuggestedDays(props.retakeEligibleAt))
@@ -242,12 +243,7 @@ function scaleLabel(scaleId: string): string {
 }
 
 function formatDate(iso: string): string {
-  const date = new Date(iso)
-  return date.toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
+  return formatExerciseDate(iso, locale.value)
 }
 
 function formatScore(value: number | null): string {

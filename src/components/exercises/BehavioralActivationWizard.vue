@@ -59,28 +59,19 @@
           </p>
           <ExerciseStepWhy :text="tg('exerciseWizards.behavioralActivation.moodBaseline.why')" />
           <div class="space-y-2">
-            <div class="flex items-center justify-between">
-              <label class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.behavioralActivation.moodBaseline.overallMoodLabel') }}</label>
-              <span class="text-sm font-semibold text-primary">{{ overallMoodStart }}/10</span>
-            </div>
-            <input
-              v-model.number="overallMoodStart"
-              type="range"
-              min="0"
-              max="10"
-              step="1"
-              class="neo-focus w-full accent-primary"
+            <label class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.behavioralActivation.moodBaseline.overallMoodLabel') }}</label>
+            <ExerciseScaleRow
+              v-model="overallMoodStart"
+              :min="0"
+              :max="10"
+              :min-label="t('exerciseWizards.behavioralActivation.moodBaseline.moodMin')"
+              :max-label="t('exerciseWizards.behavioralActivation.moodBaseline.moodMax')"
+              :aria-label="t('exerciseWizards.behavioralActivation.moodBaseline.overallMoodLabel')"
             />
-            <div class="flex justify-between text-xs text-on-surface-variant">
-              <span>{{ t('exerciseWizards.behavioralActivation.moodBaseline.moodMin') }}</span>
-              <span>{{ t('exerciseWizards.behavioralActivation.moodBaseline.moodMid') }}</span>
-              <span>{{ t('exerciseWizards.behavioralActivation.moodBaseline.moodMax') }}</span>
-            </div>
           </div>
-        </AppCard>
 
-        <AppCard padding="lg" class="space-y-3">
-          <h3 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.behavioralActivation.moodBaseline.weekStartTitle') }}</h3>
+          <div class="space-y-2 pt-2">
+          <h3 class="text-sm font-semibold text-on-surface">{{ t('exerciseWizards.behavioralActivation.moodBaseline.weekStartTitle') }}</h3>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.behavioralActivation.moodBaseline.weekStartDescription') }}
           </p>
@@ -89,6 +80,7 @@
             type="date"
             class="neo-input neo-focus w-full p-2.5 text-sm"
           />
+          </div>
         </AppCard>
 
         <div class="flex justify-between">
@@ -454,6 +446,7 @@
 
 <script setup lang="ts">
 import ExerciseStepper from './ExerciseStepper.vue'
+import ExerciseScaleRow from './ExerciseScaleRow.vue'
 import { ref, reactive, computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
@@ -649,10 +642,6 @@ function getCurrentWeekStart(): string {
 function formatActivityDate(dateStr: string): string {
   const [year, month, day] = dateStr.split('-').map(Number)
   const date = new Date(year, month - 1, day)
-  return date.toLocaleDateString(undefined, {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-  })
+  return date.toLocaleDateString(locale.value, { weekday: 'short', day: 'numeric', month: 'short' })
 }
 </script>

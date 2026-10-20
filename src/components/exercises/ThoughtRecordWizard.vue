@@ -194,9 +194,9 @@
     <template v-if="step === 4">
       <AppCard padding="lg" class="space-y-4">
         <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.thoughtRecord.evidenceFor.title') }}</h2>
-        <div class="neo-panel p-3">
-          <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-1">{{ t('exerciseWizards.thoughtRecord.evidenceFor.hotThoughtLabel') }}</p>
-          <p class="text-sm text-on-surface italic">"{{ hotThought }}"</p>
+        <div class="exercise-quote">
+          <span class="exercise-quote__label">{{ t('exerciseWizards.thoughtRecord.evidenceFor.hotThoughtLabel') }}</span>
+          <span class="exercise-quote__text">„{{ hotThought }}”</span>
         </div>
         <p class="text-sm text-on-surface-variant">
           {{ t('exerciseWizards.thoughtRecord.evidenceFor.description') }}
@@ -243,9 +243,9 @@
     <template v-if="step === 5">
       <AppCard padding="lg" class="space-y-4">
         <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.thoughtRecord.evidenceAgainst.title') }}</h2>
-        <div class="neo-panel p-3">
-          <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-1">{{ t('exerciseWizards.thoughtRecord.evidenceAgainst.hotThoughtLabel') }}</p>
-          <p class="text-sm text-on-surface italic">"{{ hotThought }}"</p>
+        <div class="exercise-quote">
+          <span class="exercise-quote__label">{{ t('exerciseWizards.thoughtRecord.evidenceAgainst.hotThoughtLabel') }}</span>
+          <span class="exercise-quote__text">„{{ hotThought }}”</span>
         </div>
         <p class="text-sm text-on-surface-variant">
           {{ t('exerciseWizards.thoughtRecord.evidenceAgainst.description') }}
@@ -343,8 +343,8 @@
 
         <!-- Evidence summary -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div class="neo-surface p-3 space-y-2">
-            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+          <div class="space-y-2">
+            <p class="exercise-quote__label">
               {{ t('exerciseWizards.thoughtRecord.balancedThought.evidenceForLabel') }}
             </p>
             <ul class="space-y-1">
@@ -360,8 +360,8 @@
               {{ t('exerciseWizards.thoughtRecord.balancedThought.noEvidenceListed') }}
             </p>
           </div>
-          <div class="neo-surface p-3 space-y-2">
-            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+          <div class="space-y-2">
+            <p class="exercise-quote__label">
               {{ t('exerciseWizards.thoughtRecord.balancedThought.evidenceAgainstLabel') }}
             </p>
             <ul class="space-y-1">

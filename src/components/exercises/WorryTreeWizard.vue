@@ -82,7 +82,6 @@
             {{ t('exerciseWizards.worryTree.classify.description') }}
           </p>
           <ExerciseStepWhy :text="tg('exerciseWizards.worryTree.classify.why')" />
-        </AppCard>
 
         <button
           type="button"
@@ -145,6 +144,7 @@
             </div>
           </div>
         </button>
+        </AppCard>
 
         <div class="flex justify-start">
           <AppButton variant="text" @click="currentStep = 'capture'">{{ t('common.buttons.back') }}</AppButton>
@@ -165,7 +165,6 @@
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.worryTree.canAct.description') }}
           </p>
-        </AppCard>
 
         <button
           type="button"
@@ -228,6 +227,7 @@
             </div>
           </div>
         </button>
+        </AppCard>
 
         <div class="flex justify-start">
           <AppButton variant="text" @click="currentStep = 'classify'">{{ t('common.buttons.back') }}</AppButton>
@@ -348,7 +348,6 @@
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.worryTree.lettingGo.choosePrompt') }}
           </p>
-        </AppCard>
 
         <button
           v-for="technique in lettingGoTechniques"
@@ -363,6 +362,7 @@
           <p class="text-base font-semibold text-on-surface">{{ technique.name }}</p>
           <p class="text-sm text-on-surface-variant">{{ technique.description }}</p>
         </button>
+        </AppCard>
 
         <div class="flex justify-start">
           <AppButton variant="text" @click="currentStep = 'classify'">{{ t('common.buttons.back') }}</AppButton>
@@ -385,12 +385,9 @@
           </p>
 
           <!-- Before emotion display -->
-          <div v-if="emotionBeforeName" class="neo-embedded p-3 space-y-1">
-            <p class="text-xs font-medium text-on-surface-variant uppercase tracking-wide">{{ t('exerciseWizards.worryTree.recheck.before') }}</p>
-            <div class="flex items-center justify-between">
-              <span class="text-sm font-medium text-on-surface">{{ emotionBeforeName }}</span>
-              <span class="text-sm font-semibold text-primary">{{ emotionBeforeIntensity }}%</span>
-            </div>
+          <div v-if="emotionBeforeName" class="exercise-quote">
+            <span class="exercise-quote__label">{{ t('exerciseWizards.worryTree.recheck.before') }}</span>
+            <span class="exercise-quote__text">{{ emotionBeforeName }} · {{ emotionBeforeIntensity }}%</span>
           </div>
 
           <!-- After intensity slider -->
@@ -412,29 +409,9 @@
             </div>
           </div>
 
-          <!-- Before/After comparison -->
-          <div class="flex items-center gap-4 pt-2">
-            <div class="flex-1 text-center">
-              <p class="text-xs text-on-surface-variant mb-1">{{ t('exerciseWizards.worryTree.recheck.before') }}</p>
-              <p class="text-2xl font-bold text-on-surface">{{ emotionBeforeIntensity }}%</p>
-            </div>
-            <AppIcon name="arrow_forward" class="text-xl text-on-surface-variant flex-shrink-0" />
-            <div class="flex-1 text-center">
-              <p class="text-xs text-on-surface-variant mb-1">{{ t('exerciseWizards.worryTree.recheck.after') }}</p>
-              <p
-                class="text-2xl font-bold"
-                :class="intensityDelta < 0 ? 'text-success' : intensityDelta > 0 ? 'text-error' : 'text-on-surface'"
-              >
-                {{ emotionAfterIntensity }}%
-              </p>
-            </div>
-          </div>
-          <p
-            v-if="intensityDelta !== 0"
-            class="text-center text-sm"
-            :class="intensityDelta < 0 ? 'text-success' : 'text-on-surface-variant'"
-          >
-            {{ intensityDelta < 0 ? t('exerciseWizards.worryTree.recheck.decrease', { value: Math.abs(intensityDelta) }) : t('exerciseWizards.worryTree.recheck.increase', { value: intensityDelta }) }}
+          <!-- Before/After: one quiet line, no large numbers -->
+          <p class="text-sm text-on-surface-variant">
+            {{ t('exerciseWizards.worryTree.recheck.before') }}: {{ emotionBeforeIntensity }}% · {{ t('exerciseWizards.worryTree.recheck.after') }}: {{ emotionAfterIntensity }}%<template v-if="intensityDelta !== 0"> · {{ intensityDelta < 0 ? t('exerciseWizards.worryTree.recheck.decrease', { value: Math.abs(intensityDelta) }) : t('exerciseWizards.worryTree.recheck.increase', { value: intensityDelta }) }}</template>
           </p>
         </AppCard>
 
@@ -452,7 +429,6 @@
 <script setup lang="ts">
 import ExerciseStepper from './ExerciseStepper.vue'
 import { ref, computed } from 'vue'
-import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'

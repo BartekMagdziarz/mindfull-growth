@@ -141,14 +141,38 @@ const entryStore = useMicroExerciseEntryStore()
 const slug = computed(() => String(route.params.slug ?? ''))
 const catalogEntry = computed(() => getCatalogEntry(slug.value))
 const definition = computed(() => getMicroExercise(definitionSlugFor(slug.value)))
-const preset = computed<MicroPreset>(() => catalogEntry.value?.variantOf?.preset ?? {})
+/**
+ * Fixed answers: the catalog variant's preset, plus `?kind=` when a path step
+ * launches a shared micro ("Mój znak", "Powrót") whose definition branches on
+ * a `kind` step — the step is saved as given and skipped, like a variant.
+ */
+const preset = computed<MicroPreset>(() => {
+  const base = catalogEntry.value?.variantOf?.preset ?? {}
+  const kind = route.query.kind
+  const branches = definition.value?.steps.some((step) => step.key === 'kind')
+  return typeof kind === 'string' && kind && branches ? { ...base, kind } : base
+})
+/** The path this run belongs to: the variant's preset kind, else `?kind=` from the launching step (also for micros without a kind step, e.g. the dose check). */
+const presetKind = computed(() =>
+  typeof preset.value.kind === 'string' ? preset.value.kind : typeof route.query.kind === 'string' && route.query.kind ? route.query.kind : undefined,
+)
 /** Answers carried over from another micro (`?prefill=`), shown and editable. */
 const prefill = computed<MicroPrefill>(() => decodeMicroPrefill(route.query.prefill))
 const saved = ref(false)
 const leftTooMuch = ref(false)
-/** The path that owns a follow-up micro (Powrót, dose check): the first program with that step. */
+/**
+ * The path that owns a follow-up micro (Powrót, dose check): the program of
+ * the run's kind when known, else the only open enrollment with that step,
+ * else the first program with it.
+ */
 function programWithStep(stepSlug: string): string | undefined {
-  return PROGRAM_CATALOG.find((program) => program.steps.some((step) => step.exerciseSlug === stepSlug))?.slug
+  const withStep = PROGRAM_CATALOG.filter((program) => program.steps.some((step) => step.exerciseSlug === stepSlug))
+  const byKind = presetKind.value ? withStep.find((program) => program.momentKind === presetKind.value) : undefined
+  if (byKind) return byKind.slug
+  const open = useProgramEnrollmentStore().enrollments.filter(
+    (enrollment) => (enrollment.status === 'active' || enrollment.status === 'paused') && withStep.some((program) => program.slug === enrollment.programSlug),
+  )
+  return open.length === 1 ? open[0]!.programSlug : withStep[0]?.slug
 }
 const returnProgramSlug = computed(() => programWithStep('path-return'))
 const doseProgramSlug = computed(() => programWithStep('dose-check'))
@@ -199,7 +223,7 @@ async function handleSaved(payload: { responses: Record<string, MicroStepValue> 
   lastResponses.value = payload.responses
   // The letter to a future self is pinned to its path with the day it comes back.
   if (slug.value === FUTURE_LETTER_SLUG) {
-    void recordFutureLetter(entry.id, payload.responses)
+    void recordFutureLetter(entry.id, payload.responses, undefined, programWithStep(FUTURE_LETTER_SLUG))
       .then((updated) => updated && useProgramEnrollmentStore().applyUpdate(updated))
       .catch((err) => console.error('Failed to record the future letter:', err))
   }

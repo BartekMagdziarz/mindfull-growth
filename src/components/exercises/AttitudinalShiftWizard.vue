@@ -156,16 +156,10 @@
             </span>
           </div>
 
-          <!-- Acknowledge -->
-          <p class="text-xs text-on-surface-variant">
-            {{ tg('exerciseWizards.attitudinalShift.shift.acknowledgment') }}
-          </p>
-
-          <!-- Current "because" statement -->
-          <div class="neo-embedded p-4">
-            <p class="text-sm text-on-surface italic">
-              "{{ currentStatement.belief }}"
-            </p>
+          <!-- The statement being worked on: context of the question, so plain text -->
+          <div class="exercise-quote">
+            <span class="exercise-quote__label">{{ tg('exerciseWizards.attitudinalShift.shift.acknowledgment') }}</span>
+            <span class="exercise-quote__text">„{{ currentStatement.belief }}”</span>
           </div>
 
           <!-- LLM assist -->
@@ -189,13 +183,15 @@
 
           <!-- Reframe -->
           <div>
-            <label class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-              {{ t('exerciseWizards.attitudinalShift.shift.reframeLabel') }}
-            </label>
+            <div class="flex items-start justify-between gap-3">
+              <label class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+                {{ t('exerciseWizards.attitudinalShift.shift.reframeLabel') }}
+              </label>
+              <ExerciseStepWhy :text="tg('exerciseWizards.attitudinalShift.shift.why')" />
+            </div>
             <p class="text-xs text-on-surface-variant mb-1">
               {{ t('exerciseWizards.attitudinalShift.shift.formatHint') }}
             </p>
-            <ExerciseStepWhy :text="tg('exerciseWizards.attitudinalShift.shift.why')" />
             <textarea
               v-model="currentStatement.reframe"
               :placeholder="t('exerciseWizards.attitudinalShift.shift.reframePlaceholder')"

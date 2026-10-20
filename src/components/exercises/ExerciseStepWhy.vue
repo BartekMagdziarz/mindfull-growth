@@ -33,13 +33,14 @@ import { useT } from '@/composables/useT'
  * description says what to do; this says why it helps — for those who
  * want it, without lengthening every step.
  *
- * `details` (default): a folded line in the content flow (bespoke wizards).
- * `disc`: a round "?" in the question row with a floating note, so the
- * answer never shifts (micro runner).
+ * `disc` (default): a round "?" with a floating note, so the answer never
+ * shifts. Inside a step card (`.exercise-page`) the card's grid lifts it
+ * into the title row — see exercise-design.css.
+ * `details`: a folded line in the content flow, for places without a title row.
  */
 const props = withDefaults(defineProps<{ text?: string; variant?: 'details' | 'disc' }>(), {
   text: '',
-  variant: 'details',
+  variant: 'disc',
 })
 
 const { t } = useT()
