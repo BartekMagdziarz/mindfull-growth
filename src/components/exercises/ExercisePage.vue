@@ -36,7 +36,7 @@ withDefaults(
     backTo?: RouteLocationRaw | (() => void)
     width?: PageContainerWidth
   }>(),
-  { subtitle: '', eyebrow: '', icon: '', backTo: '/exercises', width: 'reading' },
+  { subtitle: '', eyebrow: '', icon: '', backTo: () => '/exercises', width: 'reading' },
 )
 
 const { t } = useT()

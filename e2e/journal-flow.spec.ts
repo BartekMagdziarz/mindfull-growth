@@ -9,7 +9,6 @@ const CALM_EMOTION = 'emotion-option-e7m7-calm-067'
 const happyText = /^(Happy|Szczęśliwy)$/
 const calmText = /^(Calm|Opanowany)$/
 const saveButtonName = /^(Save|Zapisz)$/
-const freeFormText = /^(Free form|Swobodny wpis)$/
 
 async function resetDatabase(page: Page) {
   await page.goto('/')

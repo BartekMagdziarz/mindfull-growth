@@ -10,7 +10,6 @@ const happyText = /^(Happy|Szczęśliwy)$/
 const calmText = /^(Calm|Opanowany)$/
 const emotionSavedText = /^(Emotion log saved successfully\.|Emotion logged successfully\.|Wpis emocji zapisany pomyślnie\.|Emocja zapisana pomyślnie\.)$/
 const saveButtonName = /^(Save|Zapisz)$/
-const freeFormText = /^(Free form|Swobodny wpis)$/
 
 async function resetDatabase(page: Page) {
   await page.goto('/')

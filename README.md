@@ -46,7 +46,7 @@ npm run check:design-system
 npm run test:e2e:verify
 ```
 
-Pełne `npm run test:e2e` uruchamia także destrukcyjne scenariusze na osobnym porcie 5183. `npm run lint` stosuje automatyczne poprawki, dlatego przed użyciem warto sprawdzić stan worktree.
+Pełne `npm run test:e2e` uruchamia także destrukcyjne scenariusze na osobnym porcie 5183. `npm run lint` tylko raportuje; `npm run lint:fix` stosuje automatyczne poprawki, dlatego przed jego użyciem warto sprawdzić stan worktree.
 
 Kontrole UX Lab:
 

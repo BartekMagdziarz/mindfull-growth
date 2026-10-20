@@ -103,48 +103,50 @@
       />
 
       <!-- Area labels -->
-      <text
-        v-if="!compact"
-        v-for="(_area, i) in areas"
-        :key="`label-${i}`"
-        :x="getLabelPosition(i).x"
-        :y="getLabelPosition(i).y"
-        :text-anchor="getLabelAnchor(i)"
-        :dominant-baseline="getLabelBaselineForIndex(i)"
-        :style="{ fontSize: labelFontSize }"
-        :class="[
-          'select-none',
-          isHighlighted(i) ? 'fill-primary-strong font-semibold' : 'fill-on-surface font-medium',
-        ]"
-      >
-        <tspan
-          v-for="(line, lineIndex) in labelLines[i]"
-          :key="`label-${i}-${lineIndex}`"
+      <template v-if="!compact">
+        <text
+          v-for="(_area, i) in areas"
+          :key="`label-${i}`"
           :x="getLabelPosition(i).x"
-          :dy="getLabelLineDy(lineIndex, labelLines[i].length)"
+          :y="getLabelPosition(i).y"
+          :text-anchor="getLabelAnchor(i)"
+          :dominant-baseline="getLabelBaselineForIndex(i)"
+          :style="{ fontSize: labelFontSize }"
+          :class="[
+            'select-none',
+            isHighlighted(i) ? 'fill-primary-strong font-semibold' : 'fill-on-surface font-medium',
+          ]"
         >
-          {{ line }}
-        </tspan>
-      </text>
+          <tspan
+            v-for="(line, lineIndex) in labelLines[i]"
+            :key="`label-${i}-${lineIndex}`"
+            :x="getLabelPosition(i).x"
+            :dy="getLabelLineDy(lineIndex, labelLines[i].length)"
+          >
+            {{ line }}
+          </tspan>
+        </text>
+      </template>
 
       <!-- Rating labels -->
-      <text
-        v-if="!compact"
-        v-for="(area, i) in areas"
-        :key="`rating-${i}`"
-        :x="getRatingLabelPosition(i).x"
-        :y="getRatingLabelPosition(i).y"
-        :text-anchor="getLabelAnchor(i)"
-        :dominant-baseline="getLabelBaseline(i)"
-        :style="{ fontSize: ratingFontSize }"
-        :class="[
-          getRatingTextColor(area.rating),
-          isHighlighted(i) ? 'font-bold' : 'font-semibold',
-          'select-none',
-        ]"
-      >
-        {{ area.rating }}
-      </text>
+      <template v-if="!compact">
+        <text
+          v-for="(area, i) in areas"
+          :key="`rating-${i}`"
+          :x="getRatingLabelPosition(i).x"
+          :y="getRatingLabelPosition(i).y"
+          :text-anchor="getLabelAnchor(i)"
+          :dominant-baseline="getLabelBaseline(i)"
+          :style="{ fontSize: ratingFontSize }"
+          :class="[
+            getRatingTextColor(area.rating),
+            isHighlighted(i) ? 'font-bold' : 'font-semibold',
+            'select-none',
+          ]"
+        >
+          {{ area.rating }}
+        </text>
+      </template>
     </svg>
 
     <!-- Tooltip -->

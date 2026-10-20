@@ -954,10 +954,10 @@ function normalizeMeasurementTarget(
   const entryDays = normalizeEntryDaysCondition(entryMode, source.entryDays)
 
   switch (entryMode) {
-    case 'completion':
-    case 'counter':
     // Multi-completion targets count MET days (daily threshold reached), so the
     // period-level shape is the same count target as completion.
+    case 'completion':
+    case 'counter':
     case 'multi-completion':
       return {
         kind: normalizeEnum(source.kind, 'target.kind', ['count'] as const, 'count'),

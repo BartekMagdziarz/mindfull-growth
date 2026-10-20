@@ -601,6 +601,8 @@ const canAdvance = computed(() => {
       // did not run out.
       return state !== undefined && (state.done || state.elapsed >= 10)
     }
+    default:
+      return true
   }
 })
 

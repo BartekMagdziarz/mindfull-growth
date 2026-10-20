@@ -21,7 +21,7 @@ for (const family of ['habits', 'trackers', 'goals', 'priorities', 'intentions']
     if (family === 'habits' || family === 'trackers') {
       const btn = card.getByRole('button', { name: 'Pokaż szczegóły' }).first()
       if (await btn.count()) { await btn.click({ force: true }); await page.waitForTimeout(450) }
-      await card.screenshot({ path: `${OUT}/${family}--${name}.png` }).catch(e => console.log('skip', name))
+      await card.screenshot({ path: `${OUT}/${family}--${name}.png` }).catch(() => console.log('skip', name))
       const hide = card.getByRole('button', { name: 'Ukryj szczegóły' }).first()
       if (await hide.count()) await hide.click({ force: true })
     } else if (family === 'goals') {

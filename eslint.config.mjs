@@ -51,13 +51,27 @@ const sharedGlobals = {
   setTimeout: 'readonly',
   TextDecoder: 'readonly',
   TextEncoder: 'readonly',
+  URL: 'readonly',
+  URLSearchParams: 'readonly',
   Window: 'readonly',
   window: 'readonly',
 }
 
 export default [
   {
-    ignores: ['coverage/**', 'dist/**', 'playwright-report/**'],
+    // ux-lab is its own Vite project with its own gates (vue-tsc, vitest,
+    // build); ideas/ and work/ are local scratch; docs/ holds prose.
+    ignores: [
+      'coverage/**',
+      'dist/**',
+      'playwright-report/**',
+      'test-results/**',
+      'ux-lab/**',
+      'ideas/**',
+      'work/**',
+      'docs/**',
+      '.*.tmp.mjs',
+    ],
   },
   js.configs.recommended,
   {

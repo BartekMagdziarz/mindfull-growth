@@ -22,7 +22,8 @@ explicitly asks for a package-manager migration.
 
 ## Gates (before any commit)
 
-`npx vue-tsc --noEmit` → 0 errors · `npx vitest run` → green · `git status` clean.
+`npx vue-tsc --noEmit` → 0 errors · `npx vitest run` → green · `npx eslint .` → 0
+problems · `npm run check-locales` → green · `git status` clean.
 
 ## Conventions
 
