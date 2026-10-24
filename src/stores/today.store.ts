@@ -27,7 +27,9 @@ import {
   type TodaySectionId,
   type TodayViewBundle,
 } from '@/services/todayViewQueries'
+import { ensureRhythmPlacements } from '@/services/rhythmSchedulerService'
 import { getPeriodRefsForDate } from '@/utils/periods'
+import { reportError } from '@/utils/reportError'
 
 function createOptimisticEntry(
   item: TodayMeasurementItem,
@@ -210,6 +212,15 @@ export const useTodayStore = defineStore('today', () => {
       }
 
       try {
+        // Standing rhythms are materialized before the day is read (like the
+        // program scheduler on the wellness column). A scheduler failure must
+        // never keep Today from loading.
+        try {
+          await operation.wait(ensureRhythmPlacements())
+        } catch (schedulerError) {
+          if (!operation.isCurrent()) return
+          reportError('todayStore.ensureRhythmPlacements', schedulerError)
+        }
         bundle.value = targetDayRef
           ? await operation.wait(getTodayViewBundleForDay(targetDayRef))
           : await operation.wait(getTodayViewBundle())

@@ -30,6 +30,7 @@ import {
   updateMeasurementTargetOverride,
   updateMeasurementWeekTargetOverride,
 } from '@/services/planningMutations'
+import { ensureRhythmPlacements } from '@/services/rhythmSchedulerService'
 import { distributeTargetEvenly } from '@/domain/weekTargetDistribution'
 import {
   getChildPeriods,
@@ -334,6 +335,10 @@ export function usePlannerState(
     loadError.value = null
 
     try {
+      // Month placements decide which weeks a rhythm fills; after each matrix
+      // edit (withSave → reload) the current and next week catch up at once.
+      await ensureRhythmPlacements()
+
       const [
         goals,
         keyResults,

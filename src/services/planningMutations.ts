@@ -4,6 +4,8 @@ import type {
   MeasurementDayAssignment,
   MeasurementMonthState,
   MeasurementSubjectType,
+  MeasurementWeekState,
+  WeekDaysMode,
 } from '@/domain/planningState'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
@@ -34,6 +36,19 @@ interface MeasurementWeekRef extends MeasurementRef {
   weekRef: WeekRef
   cadence: PlanningCadence
   monthRef?: MonthRef
+  /**
+   * Who decided the week's days (R5). The weekly ritual's „Bez terminu”
+   * passes 'custom' so the rhythm scheduler leaves the week alone; the month
+   * matrix passes nothing — its whole-week placement is exactly what a
+   * rhythm fills.
+   */
+  daysMode?: WeekDaysMode
+}
+
+/** Only states that still place the object count as placements (a paused
+ * „Pomiń w tym tygodniu” tombstone must not keep a month alive). */
+function isPlacingWeekState(state: MeasurementWeekState): boolean {
+  return state.activityState === 'active'
 }
 
 interface MeasurementDayRef extends MeasurementRef {
@@ -205,7 +220,9 @@ async function cleanupMonthlyMonthState(
     listSubjectDayAssignments(subjectType, subjectId),
   ])
 
-  const hasWeekState = weekStates.some(state => state.sourceMonthRef === monthRef)
+  const hasWeekState = weekStates.some(
+    state => state.sourceMonthRef === monthRef && isPlacingWeekState(state)
+  )
   const hasDayAssignment = dayAssignments.some(assignment =>
     isAssignmentInMonth(assignment, monthRef)
   )
@@ -231,6 +248,7 @@ async function cleanupWeeklyMonthStates(
         if (state.subjectType !== subjectType || state.subjectId !== subjectId) {
           return false
         }
+        if (!isPlacingWeekState(state)) return false
         return getWeekOverlappingMonths(state.weekRef).includes(monthRef)
       })
       const hasDayAssignment = dayAssignments.some(
@@ -572,6 +590,7 @@ export async function toggleMeasurementWeekAssignment({
   cadence,
   weekRef,
   monthRef,
+  daysMode,
 }: MeasurementWeekRef): Promise<void> {
   const existing = await planningStateDexieRepository.getMeasurementWeekState(
     weekRef,
@@ -630,6 +649,7 @@ export async function toggleMeasurementWeekAssignment({
       subjectId,
       activityState: 'active',
       scheduleScope: 'whole-week',
+      daysMode,
     })
     return
   }
@@ -641,6 +661,7 @@ export async function toggleMeasurementWeekAssignment({
     subjectId,
     activityState: 'active',
     scheduleScope: 'whole-week',
+    daysMode,
   })
 }
 
@@ -684,6 +705,28 @@ export async function toggleMeasurementDayAssignment({
       } else if (sourceMonthRef) {
         await cleanupMonthlyMonthState(sourceMonthRef, subjectType, subjectId)
       }
+      return
+    }
+
+    // Removing one of several days is the user's decision about this week's
+    // days (R5): a rhythm-filled week becomes custom so the scheduler keeps
+    // off it. Preserves scope, override and note.
+    const weekState = await planningStateDexieRepository.getMeasurementWeekState(
+      refs.week,
+      subjectType,
+      subjectId,
+      sourceMonthRef
+    )
+    if (weekState && weekState.daysMode !== 'custom') {
+      await planningStateDexieRepository.upsertMeasurementWeekState({
+        weekRef: refs.week,
+        sourceMonthRef,
+        subjectType,
+        subjectId,
+        activityState: weekState.activityState,
+        scheduleScope: weekState.scheduleScope,
+        daysMode: 'custom',
+      })
     }
     return
   }
@@ -712,12 +755,172 @@ export async function toggleMeasurementDayAssignment({
     subjectId,
     activityState: 'active',
     scheduleScope: 'specific-days',
+    daysMode: 'custom',
   })
   await planningStateDexieRepository.upsertMeasurementDayAssignment({
     dayRef,
     subjectType,
     subjectId,
   })
+}
+
+/**
+ * „Pomiń w tym tygodniu” (R6): the user takes a rhythm-bearing object out of
+ * one week. Deleting the placement would only invite the scheduler to fill
+ * the week again, so a tombstone stays behind — a paused, unassigned week
+ * state with `daysMode: 'custom'`. Every reader requires 'active', so the
+ * object disappears from the week; the scheduler skips weeks with any
+ * user-decided state. Day assignments in the week go, and so do the week's
+ * target override (overrides die with the row, §14.1) and — through the
+ * usual cleanup — a month activation this week alone was holding up.
+ */
+export async function skipMeasurementWeek({
+  subjectType,
+  subjectId,
+  cadence,
+  weekRef,
+  monthRef,
+}: MeasurementWeekRef): Promise<void> {
+  const sourceMonthRef = cadence === 'monthly' ? monthRef : undefined
+  if (cadence === 'monthly' && !sourceMonthRef) {
+    throw new Error('Monthly cadence week skips require monthRef')
+  }
+
+  const assignments = (await listSubjectDayAssignments(subjectType, subjectId)).filter(
+    assignment =>
+      isAssignmentInWeek(assignment, weekRef) &&
+      (!sourceMonthRef || isAssignmentInMonth(assignment, sourceMonthRef))
+  )
+  await Promise.all(
+    assignments.map(assignment =>
+      planningStateDexieRepository.deleteMeasurementDayAssignment(
+        assignment.dayRef,
+        assignment.subjectType,
+        assignment.subjectId
+      )
+    )
+  )
+
+  await planningStateDexieRepository.upsertMeasurementWeekState({
+    weekRef,
+    sourceMonthRef,
+    subjectType,
+    subjectId,
+    activityState: 'paused',
+    scheduleScope: 'unassigned',
+    targetOverride: undefined,
+    daysMode: 'custom',
+  })
+
+  if (cadence === 'weekly') {
+    // Skipping one week of a weekly-cadence object placed on the whole month
+    // must not deactivate the month — "whole month" means every other week
+    // still. Only months the object reached through week placements are
+    // subject to the usual active ⇔ placed cleanup.
+    const monthStates = await planningStateDexieRepository.listMeasurementMonthStatesForSubject(
+      subjectType,
+      subjectId
+    )
+    const cleanupMonths = getWeekOverlappingMonths(weekRef).filter(
+      monthRef =>
+        monthStates.find(state => state.monthRef === monthRef)?.scheduleScope !== 'whole-month'
+    )
+    if (cleanupMonths.length > 0) {
+      await cleanupWeeklyMonthStates(subjectType, subjectId, cleanupMonths)
+    }
+  } else if (sourceMonthRef) {
+    await cleanupMonthlyMonthState(sourceMonthRef, subjectType, subjectId)
+  }
+}
+
+/**
+ * Add-only placement for the rhythm scheduler. Writes an active
+ * 'specific-days' week state with `daysMode: 'rhythm'` for every month the
+ * days fall in (monthly cadence: one state per `sourceMonthRef`, like day
+ * toggles) and the day assignments themselves. Never deletes: unlike
+ * `materializeMeasurementDayAssignments` it leaves other months' states and
+ * assignments of a boundary week alone, so a user-decided placement in the
+ * neighbouring month survives. Existing overrides and notes are preserved by
+ * the week-state normalizer. Weekly cadence activates the overlapping months
+ * the way a week link does (`every-week` relies on this).
+ */
+export async function placeRhythmDayAssignments({
+  weekRef,
+  cadence,
+  subjectType,
+  subjectId,
+  dayRefs,
+}: Omit<MeasurementDayAssignmentSetRef, 'daysMode'>): Promise<void> {
+  if (dayRefs.length === 0) return
+  const weekDaySet = new Set(getChildPeriods(weekRef) as DayRef[])
+  for (const dayRef of dayRefs) {
+    if (!weekDaySet.has(dayRef)) {
+      throw new Error('dayRefs must be days of weekRef')
+    }
+  }
+
+  if (cadence === 'monthly') {
+    const monthsWithDays = new Set(dayRefs.map(dayRef => getPeriodRefsForDate(dayRef).month))
+    for (const monthRef of monthsWithDays) {
+      await ensureActiveMeasurementMonthState(monthRef, subjectType, subjectId)
+      await planningStateDexieRepository.upsertMeasurementWeekState({
+        weekRef,
+        sourceMonthRef: monthRef,
+        subjectType,
+        subjectId,
+        activityState: 'active',
+        scheduleScope: 'specific-days',
+        daysMode: 'rhythm',
+      })
+    }
+  } else {
+    await ensureActiveMeasurementMonthStatesForWeek(weekRef, subjectType, subjectId)
+    await planningStateDexieRepository.upsertMeasurementWeekState({
+      weekRef,
+      subjectType,
+      subjectId,
+      activityState: 'active',
+      scheduleScope: 'specific-days',
+      daysMode: 'rhythm',
+    })
+  }
+
+  for (const dayRef of dayRefs) {
+    await planningStateDexieRepository.upsertMeasurementDayAssignment({
+      dayRef,
+      subjectType,
+      subjectId,
+    })
+  }
+}
+
+/**
+ * Lift a „Pomiń w tym tygodniu” tombstone. Only the paused state goes; the
+ * caller (rhythm scheduler) refills the week from the rhythm. A non-tombstone
+ * state is left untouched — this never deletes the user's placements.
+ */
+export async function clearMeasurementWeekSkip({
+  subjectType,
+  subjectId,
+  cadence,
+  weekRef,
+  monthRef,
+}: MeasurementWeekRef): Promise<boolean> {
+  const sourceMonthRef = cadence === 'monthly' ? monthRef : undefined
+  const existing = await planningStateDexieRepository.getMeasurementWeekState(
+    weekRef,
+    subjectType,
+    subjectId,
+    sourceMonthRef
+  )
+  if (!existing || existing.activityState !== 'paused') return false
+  await planningStateDexieRepository.deleteMeasurementWeekState(
+    weekRef,
+    subjectType,
+    subjectId,
+    sourceMonthRef
+  )
+  return true
 }
 
 interface MeasurementWeekPlacementSetRef extends MeasurementRef {
@@ -730,6 +933,8 @@ interface MeasurementDayAssignmentSetRef extends MeasurementRef {
   weekRef: WeekRef
   cadence: PlanningCadence
   dayRefs: DayRef[]
+  /** 'custom' (default) for user edits; the rhythm scheduler passes 'rhythm'. */
+  daysMode?: WeekDaysMode
 }
 
 /**
@@ -861,6 +1066,7 @@ export async function materializeMeasurementDayAssignments({
   subjectType,
   subjectId,
   dayRefs,
+  daysMode = 'custom',
 }: MeasurementDayAssignmentSetRef): Promise<void> {
   const weekDayRefs = getChildPeriods(weekRef) as DayRef[]
   const weekDaySet = new Set(weekDayRefs)
@@ -892,6 +1098,7 @@ export async function materializeMeasurementDayAssignments({
             subjectId,
             activityState: 'active',
             scheduleScope: 'specific-days',
+            daysMode,
           })
         })
     )
@@ -903,6 +1110,7 @@ export async function materializeMeasurementDayAssignments({
       subjectId,
       activityState: 'active',
       scheduleScope: 'specific-days',
+      daysMode,
     })
   }
 

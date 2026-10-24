@@ -29,6 +29,7 @@ import {
   toggleMeasurementWeekAssignment,
   updateMeasurementWeekTargetOverride,
 } from '@/services/planningMutations'
+import { ensureRhythmPlacements } from '@/services/rhythmSchedulerService'
 import {
   getChildPeriods,
   getParentPeriod,
@@ -360,6 +361,9 @@ export function useWeeklyPlannerState(
 
     try {
       const monthRefs = overlappingMonthRefs.value
+      // Standing rhythms fill this week before the rows are read, so the ritual
+      // opens on the proposed days (idempotent; no-op past the horizon).
+      await ensureRhythmPlacements({ weekRef: weekRef.value })
 
       const [
         goals,
@@ -641,6 +645,9 @@ export function useWeeklyPlannerState(
         monthRef: row.cadence === 'monthly' ? parentMonthRef.value : undefined,
         subjectType: row.subjectType,
         subjectId: row.id,
+        // „Bez terminu” is the user's call about this week's days — the
+        // rhythm scheduler must not fill the week afterwards (R5).
+        daysMode: 'custom',
       })
     )
   }
