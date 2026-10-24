@@ -1,4 +1,5 @@
 import type { WeekRef, YearRef } from '@/domain/period'
+import { getPeriodType, isPeriodRef } from '@/utils/periods'
 import {
   isLegacyInitiativeSubjectType,
   type LegacyInitiativeSubjectType,
@@ -92,6 +93,43 @@ export interface RatingTarget {
 }
 
 export type MeasurementTarget = CountTarget | ValueTarget | RatingTarget
+
+/** Weekday of a rhythm, Monday-first like the app's weeks. */
+export type RhythmWeekday = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun'
+export const RHYTHM_WEEKDAYS: readonly RhythmWeekday[] = [
+  'mon',
+  'tue',
+  'wed',
+  'thu',
+  'fri',
+  'sat',
+  'sun',
+] as const
+/**
+ * Which weeks a rhythm fills: only the weeks the object is placed in by the
+ * month plan (default), or every week from `since` on — the latter activates
+ * the object in the week by itself and is allowed only for weekly-cadence
+ * habits and trackers (a permanent habit "always on Tuesdays and Thursdays").
+ */
+export type RhythmScope = 'placed-weeks' | 'every-week'
+export const RHYTHM_SCOPES: readonly RhythmScope[] = ['placed-weeks', 'every-week'] as const
+
+/**
+ * Standing rhythm of a measurable object: a weekday template the rhythm
+ * scheduler turns into ordinary day assignments for every eligible week from
+ * `since` through the materialization horizon. A template, never history —
+ * weeks already materialized keep their days when the rhythm changes.
+ * Decisions R1–R10 in ideas/html-plans/2026-10-24-default-rhythm-placements.html.
+ */
+export interface MeasurementRhythm {
+  /** Only weekday templates exist today; discriminator kept for week patterns later. */
+  kind: 'weekdays'
+  /** Non-empty, unique, in Monday-first order. */
+  weekdays: RhythmWeekday[]
+  scope: RhythmScope
+  /** First week the rhythm applies to; earlier weeks are never touched. */
+  since: WeekRef
+}
 
 export interface PriorityClosingReflection {
   closedAt: string
@@ -221,6 +259,8 @@ export interface KeyResult extends PlanningObjectBase {
   multiItems?: MultiCompletionItem[]
   /** Daily points required for a met day; undefined = sum of active item weights. */
   multiDailyThreshold?: number
+  /** Standing weekday rhythm; always `scope: 'placed-weeks'` (the goal window governs activity). */
+  rhythm?: MeasurementRhythm
   status: KeyResultStatus
 }
 
@@ -238,6 +278,8 @@ export interface Habit extends PlanningObjectBase {
   multiItems?: MultiCompletionItem[]
   /** Daily points required for a met day; undefined = sum of active item weights. */
   multiDailyThreshold?: number
+  /** Standing weekday rhythm (R1); `every-week` only for weekly cadence. */
+  rhythm?: MeasurementRhythm
   status: HabitStatus
 }
 
@@ -252,6 +294,8 @@ export interface Tracker extends PlanningObjectBase {
   multiItems?: MultiCompletionItem[]
   /** Daily points required for a met day; undefined = sum of active item weights. */
   multiDailyThreshold?: number
+  /** Standing weekday rhythm (R1); `every-week` only for weekly cadence. */
+  rhythm?: MeasurementRhythm
   status: TrackerStatus
 }
 
@@ -369,14 +413,26 @@ export type UpdatePriorityPayload = Partial<Omit<Priority, 'id' | 'createdAt' | 
 export type CreateGoalPayload = Omit<Goal, 'id' | 'createdAt' | 'updatedAt'>
 export type UpdateGoalPayload = Partial<Omit<Goal, 'id' | 'createdAt' | 'updatedAt'>>
 
+/** Update payloads: `rhythm: null` removes the rhythm, `undefined` keeps the stored one. */
+interface RhythmUpdateField {
+  rhythm?: MeasurementRhythm | null
+}
+
 export type CreateKeyResultPayload = Omit<KeyResult, 'id' | 'createdAt' | 'updatedAt'>
-export type UpdateKeyResultPayload = Partial<Omit<KeyResult, 'id' | 'createdAt' | 'updatedAt'>>
+export type UpdateKeyResultPayload = Partial<
+  Omit<KeyResult, 'id' | 'createdAt' | 'updatedAt' | 'rhythm'>
+> &
+  RhythmUpdateField
 
 export type CreateHabitPayload = Omit<Habit, 'id' | 'createdAt' | 'updatedAt'>
-export type UpdateHabitPayload = Partial<Omit<Habit, 'id' | 'createdAt' | 'updatedAt'>>
+export type UpdateHabitPayload = Partial<Omit<Habit, 'id' | 'createdAt' | 'updatedAt' | 'rhythm'>> &
+  RhythmUpdateField
 
 export type CreateTrackerPayload = Omit<Tracker, 'id' | 'createdAt' | 'updatedAt'>
-export type UpdateTrackerPayload = Partial<Omit<Tracker, 'id' | 'createdAt' | 'updatedAt'>>
+export type UpdateTrackerPayload = Partial<
+  Omit<Tracker, 'id' | 'createdAt' | 'updatedAt' | 'rhythm'>
+> &
+  RhythmUpdateField
 
 export type CreateWeeklyIntentionPayload = Omit<WeeklyIntention, 'id' | 'createdAt' | 'updatedAt'>
 export type UpdateWeeklyIntentionPayload = Partial<
@@ -946,6 +1002,64 @@ function normalizeEntryDaysCondition(
 }
 
 /**
+ * Standing rhythm of a habit / key result / tracker. `undefined` keeps the
+ * stored rhythm (partial updates), `null` removes it. Weekdays are deduped
+ * and sorted Monday-first; an empty set is a validation error, not "no
+ * rhythm" — removal is explicit. `every-week` is reserved for weekly-cadence
+ * habits and trackers (R4): a key result follows its goal window and a
+ * monthly-cadence object follows its month placement.
+ */
+function normalizeMeasurementRhythm(
+  value: unknown,
+  context: { cadence: PlanningCadence; subjectType: 'habit' | 'keyResult' | 'tracker' },
+  existing?: MeasurementRhythm
+): MeasurementRhythm | undefined {
+  if (value === null) return undefined
+  const source = value ?? existing
+  if (source === undefined) return undefined
+
+  if (!isPlainObject(source)) {
+    throw new Error('rhythm must be an object')
+  }
+  if (source.kind !== undefined && source.kind !== 'weekdays') {
+    throw new Error('rhythm.kind must be "weekdays"')
+  }
+  if (!Array.isArray(source.weekdays)) {
+    throw new Error('rhythm.weekdays must be an array')
+  }
+  const weekdays = RHYTHM_WEEKDAYS.filter(weekday => {
+    for (const item of source.weekdays as unknown[]) {
+      if (typeof item !== 'string' || !RHYTHM_WEEKDAYS.includes(item as RhythmWeekday)) {
+        throw new Error(`rhythm.weekdays must contain only: ${RHYTHM_WEEKDAYS.join(', ')}`)
+      }
+    }
+    return (source.weekdays as unknown[]).includes(weekday)
+  })
+  if (weekdays.length === 0) {
+    throw new Error('rhythm.weekdays must not be empty')
+  }
+
+  const scope = normalizeEnum(source.scope, 'rhythm.scope', RHYTHM_SCOPES, 'placed-weeks')
+  if (
+    scope === 'every-week' &&
+    (context.cadence !== 'weekly' || context.subjectType === 'keyResult')
+  ) {
+    throw new Error(
+      'rhythm.scope "every-week" is only allowed for weekly-cadence habits and trackers'
+    )
+  }
+
+  if (typeof source.since !== 'string' || !isPeriodRef(source.since)) {
+    throw new Error('rhythm.since must be a WeekRef')
+  }
+  if (getPeriodType(source.since) !== 'week') {
+    throw new Error('rhythm.since must be a WeekRef')
+  }
+
+  return { kind: 'weekdays', weekdays: [...weekdays], scope, since: source.since as WeekRef }
+}
+
+/**
  * Multi-completion item list. Present (and required non-empty) only for the
  * multi-completion entry mode; stripped for every other mode. Falls back to
  * `existing` like the other object fields so partial update payloads keep the
@@ -1294,6 +1408,7 @@ export function normalizeKeyResultPayload(
     ENTRY_MODES,
     existing?.entryMode ?? 'completion'
   )
+  const cadence = normalizeEnum(data.cadence, 'cadence', CADENCES, existing?.cadence ?? 'weekly')
 
   return {
     ...base,
@@ -1305,7 +1420,7 @@ export function normalizeKeyResultPayload(
     ),
     goalId,
     entryMode,
-    cadence: normalizeEnum(data.cadence, 'cadence', CADENCES, existing?.cadence ?? 'weekly'),
+    cadence,
     target: normalizeMeasurementTarget(entryMode, data.target, existing?.target),
     ratingScaleMin: normalizeOptionalPositiveInt(
       data.ratingScaleMin,
@@ -1322,6 +1437,11 @@ export function normalizeKeyResultPayload(
       entryMode,
       data.multiDailyThreshold,
       data.multiItems === undefined ? existing?.multiDailyThreshold : undefined
+    ),
+    rhythm: normalizeMeasurementRhythm(
+      data.rhythm,
+      { cadence, subjectType: 'keyResult' },
+      existing?.rhythm
     ),
     status: normalizeEnum(data.status, 'status', GOAL_STATUSES, existing?.status ?? 'open'),
   }
@@ -1341,6 +1461,8 @@ export function normalizeHabitPayload(
     existing?.entryMode ?? 'completion'
   )
 
+  const cadence = normalizeEnum(data.cadence, 'cadence', CADENCES, existing?.cadence ?? 'weekly')
+
   return {
     ...base,
     isPermanent: normalizeBoolean(data.isPermanent, 'isPermanent', existing?.isPermanent ?? false),
@@ -1348,7 +1470,7 @@ export function normalizeHabitPayload(
     priorityIds: normalizeIdArray(data.priorityIds, 'priorityIds', existing?.priorityIds),
     lifeAreaIds: normalizeIdArray(data.lifeAreaIds, 'lifeAreaIds', existing?.lifeAreaIds),
     entryMode,
-    cadence: normalizeEnum(data.cadence, 'cadence', CADENCES, existing?.cadence ?? 'weekly'),
+    cadence,
     target: normalizeMeasurementTarget(entryMode, data.target, existing?.target),
     ratingScaleMin: normalizeOptionalPositiveInt(
       data.ratingScaleMin,
@@ -1365,6 +1487,11 @@ export function normalizeHabitPayload(
       entryMode,
       data.multiDailyThreshold,
       data.multiItems === undefined ? existing?.multiDailyThreshold : undefined
+    ),
+    rhythm: normalizeMeasurementRhythm(
+      data.rhythm,
+      { cadence, subjectType: 'habit' },
+      existing?.rhythm
     ),
     status: normalizeEnum(data.status, 'status', HABIT_STATUSES, existing?.status ?? 'open'),
   }
@@ -1473,13 +1600,15 @@ export function normalizeTrackerPayload(
     existing?.entryMode ?? 'completion'
   )
 
+  const cadence = normalizeEnum(data.cadence, 'cadence', CADENCES, existing?.cadence ?? 'weekly')
+
   return {
     ...base,
     icon: normalizeOptionalText(data.icon, 'icon', existing?.icon),
     priorityIds: normalizeIdArray(data.priorityIds, 'priorityIds', existing?.priorityIds),
     lifeAreaIds: normalizeIdArray(data.lifeAreaIds, 'lifeAreaIds', existing?.lifeAreaIds),
     entryMode,
-    cadence: normalizeEnum(data.cadence, 'cadence', CADENCES, existing?.cadence ?? 'weekly'),
+    cadence,
     ratingScaleMin: normalizeOptionalPositiveInt(
       data.ratingScaleMin,
       'ratingScaleMin',
@@ -1495,6 +1624,11 @@ export function normalizeTrackerPayload(
       entryMode,
       data.multiDailyThreshold,
       data.multiItems === undefined ? existing?.multiDailyThreshold : undefined
+    ),
+    rhythm: normalizeMeasurementRhythm(
+      data.rhythm,
+      { cadence, subjectType: 'tracker' },
+      existing?.rhythm
     ),
     status: normalizeEnum(data.status, 'status', TRACKER_STATUSES, existing?.status ?? 'open'),
   }

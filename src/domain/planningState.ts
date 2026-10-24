@@ -26,6 +26,13 @@ export type StoredReflectionSubjectType = ReflectionSubjectType | LegacyInitiati
 export type PriorityVerdict = 'continue' | 'adjust' | 'pause' | 'drop'
 export type MonthScheduleScope = 'unassigned' | 'specific-days' | 'whole-month'
 export type WeekScheduleScope = 'unassigned' | 'specific-days' | 'whole-week'
+/**
+ * Who decided the week's days: the rhythm scheduler ('rhythm') or the user
+ * ('custom' — a cell click, „Bez terminu”, or „Pomiń w tym tygodniu”). Absent
+ * on states written before rhythms existed; the scheduler then treats a
+ * 'whole-week' state as free to fill and anything else as the user's.
+ */
+export type WeekDaysMode = 'rhythm' | 'custom'
 export type DailyMeasurementEntryValue = number | null
 
 export interface MonthPlan extends PlanningStateRecordBase {
@@ -71,6 +78,12 @@ export interface MeasurementWeekState extends PlanningStateRecordBase {
   /** Per-week target override (weekly cadence) or per-week sub-target (monthly cadence). */
   targetOverride?: MeasurementTarget
   successNote?: string
+  /**
+   * Rhythm bookkeeping (R5/R6). A paused state with scope 'unassigned' and
+   * daysMode 'custom' is the „Pomiń w tym tygodniu” tombstone: invisible to
+   * every reader (they require 'active'), it only stops the scheduler.
+   */
+  daysMode?: WeekDaysMode
 }
 
 export interface MeasurementDayAssignment extends PlanningStateRecordBase {
@@ -203,6 +216,7 @@ const REFLECTION_SUBJECT_TYPES = [
 const PRIORITY_VERDICTS = ['continue', 'adjust', 'pause', 'drop'] as const
 const MONTH_SCHEDULE_SCOPES = ['unassigned', 'specific-days', 'whole-month'] as const
 const WEEK_SCHEDULE_SCOPES = ['unassigned', 'specific-days', 'whole-week'] as const
+const WEEK_DAYS_MODES = ['rhythm', 'custom'] as const
 const COUNT_TARGET_OPERATORS = ['min', 'max'] as const
 const COMPARISON_OPERATORS = ['gte', 'lte'] as const
 const VALUE_TARGET_AGGREGATIONS = ['sum', 'average', 'last'] as const
@@ -698,7 +712,16 @@ export function normalizeMeasurementWeekStatePayload(
     ),
     targetOverride,
     successNote: normalizeOptionalText(data.successNote, 'successNote', existing?.successNote),
+    daysMode: normalizeWeekDaysMode(data.daysMode, existing?.daysMode),
   }
+}
+
+/** `undefined` keeps the stored mode (partial upserts); `null` clears it. */
+function normalizeWeekDaysMode(value: unknown, existing?: WeekDaysMode): WeekDaysMode | undefined {
+  if (value === null) return undefined
+  const source = value ?? existing
+  if (source === undefined) return undefined
+  return normalizeEnum(source, 'daysMode', WEEK_DAYS_MODES, 'custom')
 }
 
 export function normalizeMeasurementDayAssignmentPayload(
