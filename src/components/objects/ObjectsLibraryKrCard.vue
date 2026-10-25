@@ -166,7 +166,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 import PeriodSelectionSummary from '@/components/objects/PeriodSelectionSummary.vue'
 import PeriodCalendarPicker from '@/components/objects/PeriodCalendarPicker.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
@@ -218,21 +218,15 @@ function emitFieldChange(field: string, value: unknown): void {
   emit('field-change', field, value)
 }
 
-const {
-  value: title,
-  inputRef: titleRef,
-  flush: flushTitle,
-} = useEditableField({
+const { value: title, flush: flushTitle } = useEditableField({
+  inputRef: useTemplateRef('titleRef'),
   source: () => props.child.title,
   commit: value => emitFieldChange('title', value),
   delay: 400,
 })
 
-const {
-  value: description,
-  inputRef: descriptionRef,
-  flush: flushDescription,
-} = useEditableField({
+const { value: description, flush: flushDescription } = useEditableField({
+  inputRef: useTemplateRef('descriptionRef'),
   source: () => props.child.description,
   commit: value => emitFieldChange('description', value),
   delay: 400,

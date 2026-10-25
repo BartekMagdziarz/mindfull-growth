@@ -310,7 +310,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import IconPicker from '@/components/shared/IconPicker.vue'
 import ObjectsCardStatusMenu from '@/components/objects/ObjectsCardStatusMenu.vue'
@@ -369,100 +369,70 @@ const {
   delay: TITLE_DELAY_MS,
 })
 
-const {
-  value: whyNow,
-  inputRef: whyNowRef,
-  flush: flushWhyNow,
-} = useEditableField({
+const { value: whyNow, flush: flushWhyNow } = useEditableField({
+  inputRef: useTemplateRef('whyNowRef'),
   source: () => props.item.whyNow,
   commit: value => emitFieldChange('whyNow', value),
   delay: TEXT_DELAY_MS,
 })
 
-const {
-  value: desiredDirection,
-  inputRef: desiredDirectionRef,
-  flush: flushDesiredDirection,
-} = useEditableField({
+const { value: desiredDirection, flush: flushDesiredDirection } = useEditableField({
+  inputRef: useTemplateRef('desiredDirectionRef'),
   source: () => props.item.desiredDirection,
   commit: value => emitFieldChange('desiredDirection', value),
   delay: TEXT_DELAY_MS,
 })
 
-const {
-  value: tradeoffs,
-  inputRef: tradeoffsRef,
-  flush: flushTradeoffs,
-} = useEditableField({
+const { value: tradeoffs, flush: flushTradeoffs } = useEditableField({
+  inputRef: useTemplateRef('tradeoffsRef'),
   source: () => props.item.tradeoffs,
   commit: value => emitFieldChange('tradeoffs', value),
   delay: TEXT_DELAY_MS,
 })
 
-const {
-  value: progressSignals,
-  inputRef: progressSignalsRef,
-  flush: flushProgressSignals,
-} = useEditableField<string[], string>({
+const { value: progressSignals, flush: flushProgressSignals } = useEditableField<string[], string>({
+  inputRef: useTemplateRef('progressSignalsRef'),
   source: () => props.item.progressSignals,
   format: signalsToText,
   commit: value => emitFieldChange('progressSignals', value),
 })
 
-const {
-  value: riskSignals,
-  inputRef: riskSignalsRef,
-  flush: flushRiskSignals,
-} = useEditableField<string[], string>({
+const { value: riskSignals, flush: flushRiskSignals } = useEditableField<string[], string>({
+  inputRef: useTemplateRef('riskSignalsRef'),
   source: () => props.item.riskSignals,
   format: signalsToText,
   commit: value => emitFieldChange('riskSignals', value),
 })
 
-const {
-  value: closedAt,
-  inputRef: closedAtRef,
-  flush: flushClosedAt,
-} = useEditableField({
+const { value: closedAt, flush: flushClosedAt } = useEditableField({
+  inputRef: useTemplateRef('closedAtRef'),
   source: () => props.item.closingReflection?.closedAt,
   commit: value => emitFieldChange('closingReflection.closedAt', value),
 })
 
-const {
-  value: closingSummary,
-  inputRef: closingSummaryRef,
-  flush: flushClosingSummary,
-} = useEditableField({
+const { value: closingSummary, flush: flushClosingSummary } = useEditableField({
+  inputRef: useTemplateRef('closingSummaryRef'),
   source: () => props.item.closingReflection?.summary,
   commit: value => emitFieldChange('closingReflection.summary', value),
   delay: TEXT_DELAY_MS,
 })
 
-const {
-  value: workedWell,
-  inputRef: workedWellRef,
-  flush: flushWorkedWell,
-} = useEditableField({
+const { value: workedWell, flush: flushWorkedWell } = useEditableField({
+  inputRef: useTemplateRef('workedWellRef'),
   source: () => props.item.closingReflection?.workedWell,
   commit: value => emitFieldChange('closingReflection.workedWell', value),
   delay: TEXT_DELAY_MS,
 })
 
-const {
-  value: wasDifficult,
-  inputRef: wasDifficultRef,
-  flush: flushWasDifficult,
-} = useEditableField({
+const { value: wasDifficult, flush: flushWasDifficult } = useEditableField({
+  inputRef: useTemplateRef('wasDifficultRef'),
   source: () => props.item.closingReflection?.wasDifficult,
   commit: value => emitFieldChange('closingReflection.wasDifficult', value),
   delay: TEXT_DELAY_MS,
 })
 
-const {
-  value: learned,
-  inputRef: learnedRef,
-  flush: flushLearned,
-} = useEditableField({
+const { value: learned, flush: flushLearned } = useEditableField({
+  inputRef: useTemplateRef('learnedRef'),
   source: () => props.item.closingReflection?.learned,
   commit: value => emitFieldChange('closingReflection.learned', value),
   delay: TEXT_DELAY_MS,

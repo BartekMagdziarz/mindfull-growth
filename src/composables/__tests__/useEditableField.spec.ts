@@ -78,6 +78,28 @@ describe('useEditableField', () => {
     expect(result.value.value).toBe('initial')
   })
 
+  it('uses an external template ref for the focus guard and hands it back', async () => {
+    const source = ref('initial')
+    const inputRef = ref<HTMLInputElement | null>(null)
+    const { result } = withScope(() =>
+      useEditableField({
+        source: () => source.value,
+        inputRef,
+      })
+    )
+    expect(result.inputRef).toBe(inputRef)
+
+    inputRef.value = mountInputAndFocus()
+    source.value = 'external change'
+    await nextTick()
+    expect(result.value.value).toBe('initial')
+
+    inputRef.value.blur()
+    source.value = 'after blur'
+    await nextTick()
+    expect(result.value.value).toBe('after blur')
+  })
+
   it('does NOT sync draft from source while a pending commit is in flight', async () => {
     const source = ref('initial')
     const commit = vi.fn()
