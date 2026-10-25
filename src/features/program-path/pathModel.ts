@@ -96,3 +96,34 @@ export function firstSentence(text: string): string {
   const match = /^.*?[.!?…](?=\s)/.exec(trimmed)
   return match ? match[0] : trimmed
 }
+
+/** Up to this many steps a group is one row of tiles; a longer group (a path without phases) wraps. */
+export const PATH_ROW_MAX_STEPS = 4
+
+export function groupWraps(group: Pick<PathGroup, 'stepIndices'>): boolean {
+  return group.stepIndices.length > PATH_ROW_MAX_STEPS
+}
+
+/**
+ * Columns of a one-row group: one per step, plus one for the wide focused
+ * tile. A wrapping group has no fixed count — its columns come from the
+ * tile's minimum width in CSS — so this returns null for it.
+ */
+export function groupColumns(
+  group: Pick<PathGroup, 'stepIndices'>,
+  focused: boolean
+): number | null {
+  if (groupWraps(group)) return null
+  return group.stepIndices.length + (focused ? 1 : 0)
+}
+
+/**
+ * Whether "Praktyki" has anything to tile for this path: practices on a
+ * rhythm, Momenty, or a week's real-world task. The view adds the personal
+ * response and the letter, which come from the enrollment, not the program.
+ */
+export function pathHasPracticesContent(
+  program: Pick<ProgramDefinition, 'practices' | 'weeklyTasks' | 'momentKind'>
+): boolean {
+  return Boolean(program.practices?.length || program.weeklyTasks?.length || program.momentKind)
+}

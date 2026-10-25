@@ -69,7 +69,7 @@
       </div>
     </template>
 
-    <div class="path-view__grid">
+    <div class="path-view__grid" :class="{ 'path-view__grid--solo': !sideHasCards }">
       <PathJourney
         :program="program"
         :enrollment="enrollment"
@@ -125,9 +125,13 @@
         </div>
       </PathJourney>
 
-      <aside class="path-view__side" :aria-label="t('programs.ui.practicesCard')">
+      <aside
+        v-if="sideHasCards"
+        class="path-view__side"
+        :aria-label="t('programs.ui.practicesCard')"
+      >
         <PathPracticesCard
-          v-if="enrollment && practicesMode"
+          v-if="enrollment && practicesMode && practicesShown"
           :program="program"
           :enrollment="enrollment"
           :mode="practicesMode"
@@ -224,7 +228,13 @@ import PathSentencesCard from '@/features/program-path/PathSentencesCard.vue'
 import PathDoseCard from '@/features/program-path/PathDoseCard.vue'
 import MomentPickerDialog from '@/features/program-path/MomentPickerDialog.vue'
 import { useStepLauncher } from '@/features/program-path/useStepLauncher'
-import { currentGroupIndex, pathGroups, weekCount } from '@/features/program-path/pathModel'
+import {
+  currentGroupIndex,
+  pathGroups,
+  pathHasPracticesContent,
+  weekCount,
+} from '@/features/program-path/pathModel'
+import { orderedKnowledgeCards } from '@/data/programKnowledge'
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
 import {
   canUndoLastStep,
@@ -478,6 +488,32 @@ const dose = computed(() =>
     ? doseProposal(program.value, openEnrollment.value, pathEntries.value)
     : null
 )
+
+/**
+ * "Praktyki" only when it has something to show (B-2): tiles from the
+ * program, or the personal response / the letter from the enrollment. A
+ * path without phases, practices and tasks (ifs-parts, foundation,
+ * cbt-thoughts) would otherwise render the head alone.
+ */
+const practicesShown = computed(
+  () =>
+    practicesMode.value !== null &&
+    Boolean(
+      (program.value && pathHasPracticesContent(program.value)) ||
+      responseEntry.value ||
+      letter.value
+    )
+)
+/** The right column exists only with at least one card; otherwise the journey stands alone, capped in width. */
+const sideHasCards = computed(
+  () =>
+    (Boolean(enrollment.value) && practicesShown.value) ||
+    Boolean(dose.value) ||
+    (Boolean(enrollment.value) && (showGlance.value || hasOutcomes.value)) ||
+    (sentencesKind.value !== null && Boolean(enrollment.value)) ||
+    (program.value !== undefined &&
+      orderedKnowledgeCards(program.value.slug, currentPhase.value?.key).length > 0)
+)
 async function applyDose(): Promise<void> {
   const target = openEnrollment.value
   const proposal = dose.value
@@ -725,6 +761,13 @@ function markRead(key: string): void {
   flex-wrap: wrap;
   gap: 6px;
   margin-top: var(--mg-space-1);
+}
+/* No right column (a path without practices, progress or knowledge cards):
+   one column, held at the default container width so the tiles stay readable. */
+.path-view__grid--solo {
+  grid-template-columns: minmax(0, 1fr);
+  /* = PageContainer "default" (1152 px). */
+  max-width: 72rem;
 }
 @media (max-width: 1180px) {
   .path-view__grid {

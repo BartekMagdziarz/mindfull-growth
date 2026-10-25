@@ -49,6 +49,7 @@
           'wk--open': isOpen(group),
           'wk--return': group.isReturn,
           'wk--single': groups.length === 1,
+          'wk--wrap': groupWraps(group),
         },
       ]"
       :data-test-path-week="group.key"
@@ -103,7 +104,7 @@
            the tiles sit one tone whiter than the field (ladder: card → row → field → tile). -->
       <div v-if="isOpen(group)" :id="`path-group-${group.key}`" class="wk__field">
         <p v-if="groupWhy(group)" class="wk__why">{{ groupWhy(group) }}</p>
-        <div class="wk__body" :style="{ '--cols': columnsOf(group) }">
+        <div class="wk__body" :style="bodyStyle(group)">
           <article
             v-for="i in group.stepIndices"
             :key="i"
@@ -209,7 +210,9 @@ import { programStepTitle } from '@/utils/programStepTitle'
 import {
   currentGroupIndex,
   firstSentence,
+  groupColumns,
   groupState,
+  groupWraps,
   pathGroups,
   stepItemState,
   type PathGroup,
@@ -315,9 +318,13 @@ function onTileClick(group: PathGroup, index: number, event: MouseEvent): void {
   if ((event.target as HTMLElement | null)?.closest('button')) return
   toggleFocus(group, index)
 }
-/** Columns of the week's row: one per step, plus one for the wide focused tile. */
-function columnsOf(group: PathGroup): number {
-  return group.stepIndices.length + (focusedIndex(group) === null ? 0 : 1)
+/** Columns of a one-row group (null for a wrapping one, which sizes its columns in CSS). */
+function columnsOf(group: PathGroup): number | null {
+  return groupColumns(group, focusedIndex(group) !== null)
+}
+function bodyStyle(group: PathGroup): Record<string, number> | undefined {
+  const cols = columnsOf(group)
+  return cols === null ? undefined : { '--cols': cols }
 }
 /** The bottom-right slot: "pominięto", the completion date, or "opcjonalny · 4 min". */
 function metaOf(index: number): string {
@@ -497,6 +504,16 @@ function confirmRestart(): void {
 /* The focused tile takes two columns; its neighbours show one sentence. */
 .wk__body .pp-tile--focus {
   grid-column: span 2;
+}
+/* A group of more than four steps (a path without phases) wraps: as many
+   tiles per row as fit at a readable width, the focused tile the same width
+   as its neighbours — it only grows taller with the whole intro and "po co". */
+.wk--wrap .wk__body {
+  --pp-tile-min: 15rem;
+  grid-template-columns: repeat(auto-fill, minmax(var(--pp-tile-min), 1fr));
+}
+.wk--wrap .wk__body .pp-tile--focus {
+  grid-column: auto;
 }
 .wk__body .pp-tile:not(.pp-tile--focus) {
   cursor: pointer;
