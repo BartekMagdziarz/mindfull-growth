@@ -1,0 +1,378 @@
+/* Return ritual — only what quiet-ritual.css does not already give: the keep
+   matrix frame, the week editor grid, the decision rows and the Today
+   invitation. Everything sits on the quiet ritual's --qr-* roles (which
+   resolve to Design V2 tokens) and on --mg-* tokens directly. */
+
+.rr-step {
+  display: grid;
+  gap: var(--mg-space-5);
+  align-content: start;
+}
+
+.rr-lead {
+  color: var(--qr-muted);
+  font-size: var(--mg-font-size-sm);
+}
+.rr-lead strong {
+  color: var(--qr-ink);
+  font-weight: var(--mg-weight-strong);
+}
+
+.rr-section {
+  display: grid;
+  gap: var(--mg-space-3);
+}
+.rr-section > h2 {
+  font-size: var(--mg-font-size-md);
+  font-weight: var(--mg-weight-title);
+}
+.rr-section > h2 small {
+  display: block;
+  color: var(--qr-muted);
+  font-size: var(--mg-font-size-xs);
+  font-weight: var(--mg-weight-label);
+}
+
+/* ── Phase A: keep matrix (the shared AssignmentMatrix inside a field) ───── */
+.rr-matrix {
+  padding: var(--mg-space-3) var(--mg-space-4);
+  background: var(--qr-field);
+  border-radius: var(--mg-radius-lg);
+  overflow-x: auto;
+}
+
+/* ── Phase B: week editor ───────────────────────────────────────────────── */
+.rr-editor {
+  display: grid;
+  gap: var(--mg-space-4);
+}
+.rr-week {
+  display: grid;
+  gap: var(--mg-space-2);
+  padding: var(--mg-space-3) var(--mg-space-4);
+  background: var(--qr-field);
+  border-radius: var(--mg-radius-lg);
+}
+.rr-week__head {
+  display: flex;
+  gap: var(--mg-space-2);
+  align-items: baseline;
+}
+.rr-week__head strong {
+  font-weight: var(--mg-weight-strong);
+}
+.rr-week__head small {
+  color: var(--qr-muted);
+  font-size: var(--mg-font-size-xs);
+}
+.rr-grid {
+  display: grid;
+  gap: var(--mg-space-1);
+  min-width: 46rem;
+  overflow-x: auto;
+}
+.rr-grid__head,
+.rr-grid__row {
+  display: grid;
+  grid-template-columns: minmax(15rem, 1.6fr) repeat(7, minmax(3.25rem, 1fr)) 4.5rem;
+  gap: var(--mg-space-1);
+  align-items: center;
+}
+.rr-grid__head {
+  padding: 0 var(--mg-space-2);
+  color: var(--qr-muted);
+  font-size: var(--mg-font-size-xs);
+  font-weight: var(--mg-weight-label);
+  text-align: center;
+}
+.rr-grid__head > span:first-child {
+  text-align: left;
+}
+.rr-grid__head small {
+  display: block;
+  font-weight: var(--mg-weight-body);
+}
+.rr-grid__row {
+  padding: var(--mg-space-1) var(--mg-space-2);
+  background: var(--qr-inner);
+  border-radius: var(--mg-radius-md);
+}
+.rr-name {
+  display: flex;
+  gap: var(--mg-space-2);
+  align-items: center;
+  min-width: 0;
+}
+.rr-name .material-symbols-outlined {
+  color: var(--qr-accent);
+}
+.rr-name strong {
+  display: block;
+  overflow: hidden;
+  font-size: var(--mg-font-size-sm);
+  font-weight: var(--mg-weight-strong);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rr-name small {
+  display: block;
+  color: var(--qr-muted);
+  font-size: var(--mg-font-size-xs);
+}
+.rr-link {
+  display: block;
+  padding: 0;
+  background: transparent;
+  color: var(--mg-color-primary-strong);
+  font-size: var(--mg-font-size-xs);
+  font-weight: var(--mg-weight-label);
+  text-align: left;
+}
+
+/* Day cell: the planned disc above, the entry control below. */
+.rr-cell {
+  display: grid;
+  gap: var(--mg-space-1);
+  justify-items: center;
+  padding: var(--mg-space-1) 0;
+  border-radius: var(--mg-radius-sm);
+}
+.rr-cell.is-planned {
+  background: var(--qr-field);
+}
+/* `.quiet-ritual button` zeroes borders; these controls need theirs. */
+.quiet-ritual .rr-plan {
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  padding: 0;
+  border: 1.5px solid var(--qr-line-strong);
+  border-radius: var(--mg-radius-icon-field-a);
+  background: var(--qr-inner);
+}
+.quiet-ritual .rr-plan:hover {
+  border-color: var(--qr-accent);
+}
+.quiet-ritual .rr-plan[aria-pressed='true'] i {
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: var(--mg-radius-icon-field-b);
+  background: var(--qr-accent);
+}
+.quiet-ritual .rr-done {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 1px solid var(--qr-line-mid);
+  border-radius: var(--mg-radius-sm);
+  background: transparent;
+  color: var(--qr-on-accent);
+}
+.quiet-ritual .rr-done:hover {
+  background: var(--qr-inner);
+}
+.quiet-ritual .rr-done[aria-pressed='true'] {
+  border-color: var(--qr-accent);
+  background: var(--qr-accent);
+  color: var(--qr-on-accent);
+}
+.rr-done .material-symbols-outlined {
+  font-size: var(--mg-font-size-md);
+  color: inherit;
+}
+.quiet-ritual .rr-num {
+  width: 3rem;
+  padding: var(--mg-space-1);
+  border-radius: var(--mg-radius-sm);
+  font-size: var(--mg-font-size-sm);
+  text-align: center;
+}
+.quiet-ritual .rr-num--target {
+  width: 3.5rem;
+  font-weight: var(--mg-weight-strong);
+}
+.rr-multi {
+  position: relative;
+}
+.rr-multi summary {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1px solid var(--qr-line-soft);
+  border-radius: var(--mg-radius-sm);
+  color: var(--qr-muted);
+  font-size: var(--mg-font-size-xs);
+  font-weight: var(--mg-weight-strong);
+  cursor: pointer;
+  list-style: none;
+}
+.rr-multi[open] summary {
+  color: var(--qr-ink);
+  background: var(--qr-inner);
+}
+.rr-multi__list {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  z-index: 3;
+  display: grid;
+  gap: var(--mg-space-1);
+  min-width: 11rem;
+  padding: var(--mg-space-2) var(--mg-space-3);
+  background: var(--qr-inner);
+  border: 1px solid var(--qr-line);
+  border-radius: var(--mg-radius-md);
+  box-shadow: var(--mg-shadow-raised);
+  font-size: var(--mg-font-size-xs);
+  transform: translateX(-50%);
+}
+.rr-multi__list label {
+  display: flex;
+  gap: var(--mg-space-2);
+  align-items: center;
+}
+.rr-target {
+  display: grid;
+  place-items: center;
+}
+.rr-muted {
+  color: var(--qr-muted);
+}
+
+/* ── Decision rows (intentions, practices, paths, goals; step 3 subjects) ── */
+.rr-rows {
+  display: grid;
+  gap: var(--mg-space-2);
+}
+.rr-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--mg-space-3);
+  align-items: center;
+  padding: var(--mg-space-2) var(--mg-space-3);
+  background: var(--qr-field);
+  border-radius: var(--mg-radius-md);
+}
+.rr-row .material-symbols-outlined {
+  color: var(--qr-accent);
+}
+.rr-row__text strong {
+  display: block;
+  font-size: var(--mg-font-size-sm);
+  font-weight: var(--mg-weight-strong);
+}
+.rr-row__text small {
+  display: block;
+  color: var(--qr-muted);
+  font-size: var(--mg-font-size-xs);
+}
+.rr-row--pick {
+  grid-template-columns: auto auto minmax(0, 1fr);
+  width: 100%;
+  cursor: pointer;
+  text-align: left;
+}
+.rr-row--pick:hover {
+  background: var(--qr-inner);
+}
+.rr-row--pick.is-on {
+  background: var(--qr-inner);
+}
+.rr-row--pick .qr-check {
+  background: transparent;
+}
+.rr-row--pick.is-on .qr-check {
+  border-color: var(--qr-accent);
+  background: var(--qr-accent);
+  color: var(--qr-on-accent);
+}
+.rr-row--pick.is-on .qr-check .material-symbols-outlined {
+  color: var(--qr-on-accent);
+}
+
+.rr-seg {
+  display: inline-flex;
+  gap: var(--mg-space-1);
+  padding: var(--mg-space-1);
+  background: var(--mg-color-sky-well);
+  border-radius: var(--mg-radius-pill);
+  box-shadow: var(--mg-shadow-inset-sm);
+}
+.quiet-ritual .rr-seg button {
+  padding: var(--mg-space-1) var(--mg-space-3);
+  border-radius: var(--mg-radius-pill);
+  background: transparent;
+  color: var(--qr-muted);
+  font-size: var(--mg-font-size-xs);
+  font-weight: var(--mg-weight-strong);
+  white-space: nowrap;
+}
+.quiet-ritual .rr-seg button[aria-checked='true'] {
+  background: var(--qr-inner);
+  color: var(--qr-ink);
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+
+.rr-switch-row {
+  display: flex;
+  gap: var(--mg-space-3);
+  align-items: center;
+  padding: var(--mg-space-2) var(--mg-space-3);
+}
+.rr-switch-row strong {
+  display: block;
+  font-size: var(--mg-font-size-sm);
+  font-weight: var(--mg-weight-strong);
+}
+.rr-switch-row small {
+  color: var(--qr-muted);
+  font-size: var(--mg-font-size-xs);
+}
+
+/* ── Step 4 ─────────────────────────────────────────────────────────────── */
+.rr-summary {
+  display: grid;
+  gap: var(--mg-space-2);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.rr-summary li {
+  display: flex;
+  gap: var(--mg-space-2);
+  align-items: center;
+  font-size: var(--mg-font-size-sm);
+}
+.rr-summary .material-symbols-outlined {
+  color: var(--qr-accent);
+}
+.rr-after {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mg-space-2);
+  align-items: center;
+}
+.rr-after .qr-primary {
+  text-decoration: none;
+}
+
+/* ── Today invitation ───────────────────────────────────────────────────── */
+.return-invite__lead {
+  margin: 0;
+  color: var(--mg-color-ink);
+  font-size: var(--mg-font-size-md);
+  font-weight: var(--mg-weight-strong);
+}
+.return-invite__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mg-space-2);
+  align-items: center;
+}
+.return-invite__actions .mg-v2-button {
+  text-decoration: none;
+}

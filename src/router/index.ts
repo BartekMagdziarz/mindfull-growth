@@ -129,6 +129,14 @@ const router = createRouter({
       component: () => import('@/views/GoalClosingView.vue'),
       props: route => ({ goalId: route.params.goalId }),
     },
+    // Coming back after a break: a short ritual that tidies what piled up and
+    // plans the week anew (docs/return-ritual.md).
+    {
+      path: '/return',
+      name: 'return-ritual',
+      component: () => import('@/views/ReturnRitualView.vue'),
+      meta: { requiresAuth: true },
+    },
     {
       path: '/planning-assistant',
       name: 'planning-assistant',

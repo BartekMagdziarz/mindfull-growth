@@ -14,6 +14,7 @@
 import type { DayRef } from '@/domain/period'
 import {
   buildReturnBreak,
+  describeWeekPlacement,
   isReturnBreakHandled,
   parseReturnRitualSettings,
   RETURN_RITUAL_SETTINGS_KEY,
@@ -253,14 +254,36 @@ export async function buildReturnInventory(brk: ReturnBreak): Promise<ReturnInve
     cadence: entry.subject.cadence,
   }))
 
+  const todayRefs = getPeriodRefsForDate(brk.today)
+  const columns = brk.currentWeekMostlyBehind ? [...brk.weeks, todayRefs.week] : [...brk.weeks]
+  const goalById = new Map(goals.map(goal => [goal.id, goal]))
+  const weekPlacements = columns.flatMap(weekRef =>
+    subjects.map(subject =>
+      describeWeekPlacement(subject, weekRef, {
+        weekStates,
+        monthStates,
+        dayAssignments,
+        entries,
+        goal:
+          subject.subjectType === 'keyResult'
+            ? goalById.get((subject.subject as { goalId: string }).goalId)
+            : undefined,
+      })
+    )
+  )
+
   return {
     break: brk,
+    columns,
+    currentWeekRef: todayRefs.week,
+    currentMonthRef: todayRefs.month,
     weeksWithoutEntries: selectWeeksWithoutEntries(brk.weeks, subjectRefs, {
       weekStates,
       monthStates,
       dayAssignments,
       entries,
     }),
+    weekPlacements,
     staleIntentions: selectStaleIntentions(intentions, brk.today),
     overduePlanItems: selectOverduePlanItems(planItems, brk.today),
     activeEnrollments: selectActiveEnrollments(enrollments),

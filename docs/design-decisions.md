@@ -67,3 +67,24 @@ requires 1180 px; routes whose content supports narrow screens can opt in throug
 only for those routes. Below 760 px, the same route flag moves the existing dock
 into a horizontal bottom capsule. Other routes retain their desktop geometry.
 The assistant switches between conversation and draft on narrow screens.
+
+## 2026-10-25 — Rytuał powrotu po przerwie: karta w Dzisiaj i macierz „co zachować”
+
+Kontekst: po kilku tygodniach bez zapisów aplikacja nie miała pojęcia przerwy —
+każdy dzień bez wpisu był porażką, a scheduler rytmu dopełniał minione tygodnie
+w chwili powrotu. Użytkownik chciał rytuału „wyczyść i zaplanuj na nowo”, bez
+encji przerwy, bez AI, z możliwością uzupełnienia dowolnego pomiaru wstecz.
+Decyzja: (1) karta „Wracasz po przerwie” w prawej kolumnie Dzisiaj nad
+Kompasem, w gramatyce kart `ndt-card` (DsSurface raised-sm, eyebrow, jedno
+zdanie, dwa przyciski `mg-v2-button`), bez liczb zaległości; (2) rytuał na
+`QuietRitualShell` (cztery kroki, zapis tylko przy „Start”); (3) faza „Co
+zachować” to wspólna `AssignmentMatrix` z tygodniami w kolumnach (komórka =
+zachowaj, kropka w rogu = był w planie); (4) edytor tygodnia `rr-grid`: dysk
+= zaplanowany (koło organiczne `--mg-radius-icon-field-a`), obok wykonanie w
+gramatyce trybu, pusty zaplanowany dzień jest legalny; (5) decyzje w wierszach
+`rr-row` z segmentem `rr-seg` (jak `gc-seg` w zamykaniu celu). Wszystko na
+rolach `--qr-*` i tokenach `--mg-*`; bez nowych tokenów ani anatomii wspólnych.
+Konsekwencje: `rr-seg` jest trzecim konsumentem wzorca segmentu w rytuałach
+(`gc-seg`, `qr-*`) — kandydat na anatomię `mg-v2-segmented` w cichym tonie;
+selektory kontrolek z obrysem muszą być zawężone do `.quiet-ritual`, bo
+globalne `.quiet-ritual button { border: 0 }` je zeruje.

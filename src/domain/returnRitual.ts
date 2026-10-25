@@ -31,7 +31,7 @@ import type {
 } from '@/domain/planningState'
 import type { ExercisePlanItem } from '@/domain/exercisePlan'
 import type { ProgramEnrollment } from '@/domain/program'
-import { weekdayOfDay } from '@/domain/measurementRhythm'
+import { resolveRhythmDays, weekdayOfDay } from '@/domain/measurementRhythm'
 import {
   addDaysToDayRef,
   comparePeriodRefs,
@@ -100,14 +100,93 @@ export interface ReturnSubjectSummary {
   lastEntryDay?: DayRef
 }
 
+/** One daily entry as the ritual edits it; `undefined` in a map means no entry. */
+export interface ReturnEntryValue {
+  value: number | null
+  checkedItemIds?: string[]
+}
+
+/** Where one open subject stands in one column week, from the planning state. */
+export interface ReturnWeekPlacement {
+  subjectType: ReturnSubjectType
+  subjectId: string
+  cadence: PlanningCadence
+  weekRef: WeekRef
+  monthRef?: MonthRef
+  placed: boolean
+  /** The „Pomiń w tym tygodniu” tombstone is already there. */
+  skipped: boolean
+  assignedDayRefs: DayRef[]
+  /** Days the subject's rhythm names in this week (empty without a rhythm). */
+  proposedDayRefs: DayRef[]
+  entries: Record<string, ReturnEntryValue>
+  targetOverride?: MeasurementTarget
+}
+
 export interface ReturnInventory {
   break: ReturnBreak
+  /** Matrix columns: the break weeks, plus the current week when it is mostly behind. */
+  columns: WeekRef[]
+  currentWeekRef: WeekRef
+  currentMonthRef: MonthRef
   weeksWithoutEntries: ReturnWeekWithoutEntries[]
+  weekPlacements: ReturnWeekPlacement[]
   staleIntentions: WeeklyIntention[]
   overduePlanItems: ExercisePlanItem[]
   activeEnrollments: ProgramEnrollment[]
   overdueGoals: Goal[]
   subjects: ReturnSubjectSummary[]
+}
+
+// ---------------------------------------------------------------------------
+// The plan the ritual collects and applies at „Start”
+// ---------------------------------------------------------------------------
+
+export interface ReturnWeekDraft {
+  subjectType: ReturnSubjectType
+  subjectId: string
+  cadence: PlanningCadence
+  weekRef: WeekRef
+  monthRef?: MonthRef
+  /** Phase A: the week stays in the plan (false = it disappears). */
+  keep: boolean
+  /** Phase B: planned days. */
+  dayRefs: DayRef[]
+  /** Phase B: entries by day; a missing day means no entry. */
+  entries: Record<string, ReturnEntryValue>
+  /** Phase B: week target override; undefined keeps whatever is stored. */
+  targetOverride?: MeasurementTarget
+}
+
+export type ReturnEnrollmentChoice = 'continue' | 'pause' | 'abandon'
+export type ReturnGoalChoice = 'keep' | 'shift' | 'later'
+
+export interface ReturnPlan {
+  breakStart: DayRef
+  /** Step 1: what happened — becomes a journal entry when not empty. */
+  note: string
+  weeks: ReturnWeekDraft[]
+  retireIntentionIds: string[]
+  skipPlanItemIds: string[]
+  enrollments: Record<string, ReturnEnrollmentChoice>
+  goals: Record<string, ReturnGoalChoice>
+  /** Step 3: subject key → comes back from this week (true) or sits this month out (false). */
+  resume: Record<string, boolean>
+  gentleWeek: boolean
+}
+
+export interface ReturnPlanSummary {
+  weeksKept: number
+  weeksSkipped: number
+  entriesFilled: number
+  intentionsRetired: number
+  planItemsSkipped: number
+  enrollmentsPaused: number
+  enrollmentsClosed: number
+  goalsShifted: number
+  subjectsResumed: number
+  subjectsParked: number
+  gentleWeek: boolean
 }
 
 // ---------------------------------------------------------------------------
@@ -379,4 +458,165 @@ export function gentleTarget(
     return { ...target, value: Math.ceil(target.value / 2) }
   }
   return undefined
+}
+
+// ---------------------------------------------------------------------------
+// Plan helpers
+// ---------------------------------------------------------------------------
+
+export function subjectKey(ref: {
+  subjectType: MeasurementSubjectType
+  subjectId: string
+}): string {
+  return `${ref.subjectType}:${ref.subjectId}`
+}
+
+export function weekDraftKey(ref: {
+  subjectType: MeasurementSubjectType
+  subjectId: string
+  weekRef: WeekRef
+}): string {
+  return `${subjectKey(ref)}:${ref.weekRef}`
+}
+
+export function entryValueOf(entry: DailyMeasurementEntry): ReturnEntryValue {
+  return entry.checkedItemIds
+    ? { value: null, checkedItemIds: [...entry.checkedItemIds] }
+    : { value: entry.value }
+}
+
+/**
+ * Where a subject stands in a column week, for the matrix and the editor.
+ * The proposed days come from the rhythm (clipped to the goal window for a
+ * key result); they are only a proposal when nothing is assigned yet.
+ */
+export function describeWeekPlacement(
+  subject: ReturnSubjectSummary,
+  weekRef: WeekRef,
+  state: {
+    weekStates: readonly MeasurementWeekState[]
+    monthStates: readonly MeasurementMonthState[]
+    dayAssignments: readonly MeasurementDayAssignment[]
+    entries: readonly DailyMeasurementEntry[]
+    goal?: Goal
+  }
+): ReturnWeekPlacement {
+  const ref = { subjectType: subject.subjectType, subjectId: subject.subject.id }
+  const placement = placementInWeek({ ...ref, cadence: subject.subject.cadence }, weekRef, state)
+  const weekState = state.weekStates.find(
+    candidate => candidate.weekRef === weekRef && isSameSubject(candidate, ref)
+  )
+  const assignedDayRefs = state.dayAssignments
+    .filter(a => isSameSubject(a, ref) && isInWeek(a.dayRef, weekRef))
+    .map(a => a.dayRef)
+    .sort()
+  const rhythm = subject.subject.rhythm
+  const proposedDayRefs = rhythm
+    ? resolveRhythmDays(weekRef, rhythm, {
+        goalWindow:
+          subject.subjectType === 'keyResult'
+            ? {
+                start: state.goal?.startDate as DayRef | undefined,
+                end: state.goal?.targetDate as DayRef | undefined,
+              }
+            : undefined,
+      })
+    : []
+  const entries: Record<string, ReturnEntryValue> = {}
+  for (const entry of state.entries) {
+    if (isSameSubject(entry, ref) && isInWeek(entry.dayRef, weekRef)) {
+      entries[entry.dayRef] = entryValueOf(entry)
+    }
+  }
+  return {
+    ...ref,
+    cadence: subject.subject.cadence,
+    weekRef,
+    monthRef: placement.monthRef,
+    placed: placement.placed,
+    skipped: weekState?.activityState === 'paused',
+    assignedDayRefs,
+    proposedDayRefs,
+    entries,
+    targetOverride: weekState?.targetOverride,
+  }
+}
+
+/** A week draft that keeps nothing yet: days from assignments, else the rhythm. */
+export function weekDraftFromPlacement(placement: ReturnWeekPlacement): ReturnWeekDraft {
+  return {
+    subjectType: placement.subjectType,
+    subjectId: placement.subjectId,
+    cadence: placement.cadence,
+    weekRef: placement.weekRef,
+    monthRef: placement.monthRef,
+    keep: false,
+    dayRefs:
+      placement.assignedDayRefs.length > 0
+        ? [...placement.assignedDayRefs]
+        : [...placement.proposedDayRefs],
+    entries: { ...placement.entries },
+    targetOverride: placement.targetOverride,
+  }
+}
+
+/** Defaults: skip every week, close stale intentions, sweep overdue items, keep paths, leave goals, resume what was alive. */
+export function defaultReturnPlan(inventory: ReturnInventory): ReturnPlan {
+  const resume: Record<string, boolean> = {}
+  for (const subject of inventory.subjects) {
+    resume[subjectKey({ subjectType: subject.subjectType, subjectId: subject.subject.id })] =
+      subject.aliveBeforeBreak
+  }
+  return {
+    breakStart: inventory.break.breakStart,
+    note: '',
+    weeks: inventory.weekPlacements.map(weekDraftFromPlacement),
+    retireIntentionIds: inventory.staleIntentions.map(intention => intention.id),
+    skipPlanItemIds: inventory.overduePlanItems.map(item => item.id),
+    enrollments: Object.fromEntries(
+      inventory.activeEnrollments.map(enrollment => [enrollment.id, 'continue' as const])
+    ),
+    goals: Object.fromEntries(inventory.overdueGoals.map(goal => [goal.id, 'keep' as const])),
+    resume,
+    gentleWeek: false,
+  }
+}
+
+/** A goal deadline moved past the break by its full weeks (at least one). */
+export function shiftedTargetDate(targetDate: string, brk: ReturnBreak): DayRef {
+  const weeks = Math.max(1, brk.weeks.length)
+  return addDaysToDayRef(targetDate as DayRef, weeks * 7)
+}
+
+export function summarizeReturnPlan(
+  plan: ReturnPlan,
+  inventory: ReturnInventory
+): ReturnPlanSummary {
+  const placedByKey = new Map(inventory.weekPlacements.map(p => [weekDraftKey(p), p]))
+  let weeksKept = 0
+  let weeksSkipped = 0
+  let entriesFilled = 0
+  for (const week of plan.weeks) {
+    if (week.keep) {
+      weeksKept += 1
+      entriesFilled += Object.keys(week.entries).length
+    } else if (placedByKey.get(weekDraftKey(week))?.placed) {
+      weeksSkipped += 1
+    }
+  }
+  const enrollmentChoices = Object.values(plan.enrollments)
+  const resumeValues = Object.values(plan.resume)
+  return {
+    weeksKept,
+    weeksSkipped,
+    entriesFilled,
+    intentionsRetired: plan.retireIntentionIds.length,
+    planItemsSkipped: plan.skipPlanItemIds.length,
+    enrollmentsPaused: enrollmentChoices.filter(choice => choice === 'pause').length,
+    enrollmentsClosed: enrollmentChoices.filter(choice => choice === 'abandon').length,
+    goalsShifted: Object.values(plan.goals).filter(choice => choice === 'shift').length,
+    subjectsResumed: resumeValues.filter(Boolean).length,
+    subjectsParked: resumeValues.filter(value => !value).length,
+    gentleWeek: plan.gentleWeek,
+  }
 }
