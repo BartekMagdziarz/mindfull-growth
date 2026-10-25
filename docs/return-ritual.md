@@ -25,11 +25,15 @@ i karta w Dzisiaj (E2), seed i e2e (E3) czekają. Plan:
   później” jednym kliknięciem obok.
 - Odznaczone w „Na nowo”: nie planuj w tym miesiącu (deaktywacja w miesiącu);
   obiekt zostaje otwarty, zamykanie tylko w bibliotece.
-- Uzupełnianie wpisów wstecz: TAK, prosto per obiekt — wiersz tygodnia
-  rozwija siatkę dni przerwy, zaznaczone dni stają się zwykłymi wpisami
-  (completion: `null`, counter: 1 na dzień), bez znacznika przybliżenia.
-  W E2 tylko dla `completion` i `counter`; wartości, oceny i checklisty mają
-  Pomiń / Zostaw.
+- Uzupełnianie wpisów wstecz: TAK, dla każdego trybu pomiaru, bez znacznika
+  przybliżenia. Krok „Porządki” ma dwie fazy. Faza A „Co zachować”: macierz
+  obiekt × tydzień przerwy (plus „ten tydzień do dziś” od czwartku), domyślnie
+  wszystko wyłączone; wyłączona komórka = tydzień znika z planu (tombstone,
+  jeśli był umieszczony), włączona = zostaje w planie jak zaplanowany. Faza B
+  „Uzupełnij”: w zachowanych tygodniach dni zaplanowane (propozycja z rytmu
+  lub wcześniejszych przypisań), wykonania per dzień kontrolką właściwą dla
+  trybu (odhaczenie / liczba / stopień skali / checklista) i target tygodnia.
+  Puste zaplanowane dni są legalne i znaczą „nie zrobiłem”.
 - Łagodny pierwszy tydzień: przełącznik domyślnie wyłączony.
 
 ## D1 · Definicja przerwy (`src/domain/returnRitual.ts`, `src/services/returnQueries.ts`)
