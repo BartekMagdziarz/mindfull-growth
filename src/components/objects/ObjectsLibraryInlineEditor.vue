@@ -55,14 +55,15 @@
         >
           <div class="text-xs font-semibold text-on-surface">{{ labels.target }}</div>
           <MeasurementTargetSentence
-            bare
             :entry-mode="sentenceEntryMode"
             :target="sentenceTarget"
             :cadence="draft.cadence === 'monthly' ? 'monthly' : 'weekly'"
+            :multi="draftMultiFacts"
             show-cadence
             class="mt-3"
             @update:measurement="onTargetMeasurement"
             @update:cadence="onCadence"
+            @update:threshold="draft.multiDailyThreshold = $event"
           />
           <MultiItemsEditor
             v-if="draft.entryMode === 'multi-completion'"
@@ -151,6 +152,7 @@ import type {
   ObjectsLibraryPanelType,
 } from '@/services/objectsLibraryQueries'
 import MultiItemsEditor from '@/components/objects/MultiItemsEditor.vue'
+import { checklistSentenceFacts } from '@/utils/measurementTargetFormat'
 import type {
   MeasurementEntryDaysCondition,
   MeasurementEntryMode,
@@ -262,6 +264,12 @@ defineEmits<{
 // MeasurementTarget. Derive the mode from target.kind (authoritative for operator/
 // aggregation options), falling back to draft.entryMode for the count-kind modes
 // (completion / counter / multi-completion all share the count target).
+const draftMultiFacts = computed(() =>
+  draft.value.entryMode === 'multi-completion'
+    ? checklistSentenceFacts(draft.value.multiItems ?? [], draft.value.multiDailyThreshold)
+    : undefined
+)
+
 const sentenceEntryMode = computed<MeasurementEntryMode>(() => {
   const kind = draft.value.target.kind
   if (kind === 'value') return 'value'

@@ -6,17 +6,18 @@
         ref="titleInputRef"
         v-model="draftTitle"
         type="text"
-        class="intention-title-input w-full border-b bg-transparent pb-1.5 text-sm font-semibold text-on-surface outline-none placeholder:text-on-surface-variant/40"
+        class="mg-v2-inline-field w-full text-sm font-bold"
         :placeholder="t('planning.weekPlanning.intentions.titlePlaceholder')"
         :aria-label="t('planning.weekPlanning.intentions.titleLabel')"
         @keydown.enter.prevent="saveEdit"
       />
       <MeasurementTargetSentence
-        bare
         :entry-mode="draftEntryMode"
         :target="draftTarget"
+        :multi="draftMultiFacts"
         cadence="weekly"
         @update:measurement="onMeasurement"
+        @update:threshold="draftMultiDailyThreshold = $event"
       />
       <MultiItemsEditor
         v-if="draftEntryMode === 'multi-completion'"
@@ -104,7 +105,7 @@ import type {
   ObjectsLibraryFilterOption,
   ObjectsLibraryListItem,
 } from '@/services/objectsLibraryQueries'
-import { formatMeasurementTargetSummary } from '@/utils/measurementTargetFormat'
+import { checklistSentenceFacts, formatMeasurementSentence } from '@/utils/measurementTargetFormat'
 import { formatDayRange } from '@/utils/periodLabels'
 import { getPeriodBounds } from '@/utils/periods'
 
@@ -144,7 +145,21 @@ const modeLabel = computed(() =>
   t(`planning.objects.targetSentence.mode.${props.item.entryMode ?? 'completion'}`)
 )
 const targetSummary = computed(() =>
-  props.item.target ? formatMeasurementTargetSummary(props.item.target, t) : ''
+  props.item.target
+    ? formatMeasurementSentence(
+        {
+          entryMode: props.item.entryMode ?? 'completion',
+          target: props.item.target,
+          cadence: 'weekly',
+          ratingScale: props.item.ratingScale ?? 10,
+          multi:
+            props.item.entryMode === 'multi-completion'
+              ? checklistSentenceFacts(props.item.multiItems ?? [], props.item.multiDailyThreshold)
+              : undefined,
+        },
+        t
+      )
+    : ''
 )
 
 const pickerOptions = computed(() =>
@@ -166,6 +181,11 @@ const draftMultiItems = ref<MultiCompletionItem[]>([])
 const draftMultiDailyThreshold = ref<number | undefined>(undefined)
 const draftPriorityIds = ref<string[]>([])
 const canSave = computed(() => draftTitle.value.trim().length > 0)
+const draftMultiFacts = computed(() =>
+  draftEntryMode.value === 'multi-completion'
+    ? checklistSentenceFacts(draftMultiItems.value, draftMultiDailyThreshold.value)
+    : undefined
+)
 
 function startEdit(): void {
   draftTitle.value = props.item.title
@@ -228,10 +248,6 @@ watch(
 </script>
 
 <style scoped>
-.intention-title-input {
-  border-color: var(--mg-color-border);
-}
-
 .card-icon-sm {
   width: 1.75rem;
   min-height: 1.75rem;

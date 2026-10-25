@@ -330,8 +330,8 @@ describe('ObjectsLibraryView', () => {
 
     expect(await screen.findByDisplayValue(goal.title)).toBeInTheDocument()
     expect(screen.getByDisplayValue('Publish v1')).toBeInTheDocument()
-    expect(screen.getAllByText('Weekly').length).toBeGreaterThanOrEqual(1)
-    expect(screen.getAllByText('Counter').length).toBeGreaterThanOrEqual(1)
+    // The collapsed key result reads its measurement as one quiet sentence.
+    expect(screen.getAllByText(/at (least|most) \d+ per week/).length).toBeGreaterThanOrEqual(1)
   })
 
   it('deletes an object from the card menu and removes it from the list', async () => {

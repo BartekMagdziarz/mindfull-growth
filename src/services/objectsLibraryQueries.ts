@@ -78,6 +78,8 @@ export interface ObjectsLibraryChildPreview {
   cadence: 'weekly' | 'monthly'
   entryMode: MeasurementEntryMode
   target: MeasurementTarget
+  ratingScaleMin?: number
+  ratingScale?: number
   multiItems?: MultiCompletionItem[]
   multiDailyThreshold?: number
   status: string
@@ -910,6 +912,8 @@ function buildGoalListItem(
         cadence: item.cadence,
         entryMode: item.entryMode,
         target: item.target,
+        ratingScaleMin: item.ratingScaleMin,
+        ratingScale: item.ratingScale,
         multiItems: item.multiItems,
         multiDailyThreshold: item.multiDailyThreshold,
         status: item.status,

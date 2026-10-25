@@ -51,6 +51,7 @@ Od portu „reszty aplikacji” korzeń `.mg-design-v2` siedzi na `<main>` w `Ap
 - `AppCard` i `AppButton` renderują anatomie `mg-v2-*` (raised → `--raised-sm`, raised-strong → `--raised`, flat → bez cienia, inset → `--flat`; filled → `--primary`, text → `--quiet`, outlined/tonal → domyślny chip). ~170 konsumentów (kreatory ćwiczeń, profil, historia) przeszło bez edycji.
 - `adapters.css` mostkuje pozostałe klasy legacy (`neo-segmented`, `neo-step-*`, `neo-back-btn`, `neo-selector`, `neo-checkbox-row`, `neo-panel`, `neo-embedded`, `neo-warning`, `neo-icon-circle`, `neo-progress-*`, `neo-toggle-*`, `neo-footer`, `neo-control`, `neo-pill`). Stany hover/pressed używają realnej specyficzności, bo muszą pobić pseudoklasy z `main.css`.
 - Nowe anatomie strony: `.mg-v2-page-head` (back · eyebrow/tytuł/opis/meta · akcje; `PageHeader.vue`), `.mg-v2-section-head` + `.mg-v2-hairline` (kreskowana linia ołówka), `.mg-v2-surface--sheet` (podwójna włoskowa krawędź kartki), `.mg-v2-icon-board` (tablica ikony; `--tinted` przyjmuje `--mg-icon-board-tint` / `--mg-icon-board-tint-mix` z danych domenowych), `.mg-v2-tile` + `.mg-v2-tile-grid` (płytki katalogu z alternującymi kształtami i mikro-przekręceniem), `.mg-v2-stepper` (kropki: zrobione = akcent, bieżące = atrament z papierową obwódką, przyszłe = kreskowany obrys).
+- Nić `.mg-v2-thread` (2026-10-25): pionowy stepper dla stosu kart wypełnianych po kolei (kwestionariusze, `LikertItemList`). `ol.mg-v2-thread > li.mg-v2-thread__item(--done|--current) > span.mg-v2-thread__dot + karta`; kropki w gramatyce steppera, szew ołówkiem → akcentem po zrobieniu. `--mg-thread-dot-top` wyrównuje kropkę z pierwszą linią karty. Nie dla list bez kolejności i nie jako dekoracja.
 - Ćwiczenia: każdy widok trasy używa `ExercisePage.vue` (PageContainer reading + PageHeader z powrotem do katalogu); katalog trzyma zakładkę w `?tab=`.
 
 ## Wspólne tło strony (2026-09-11)
@@ -121,3 +122,31 @@ Wdrożenie propozycji A z audytu 2026-10-18 (plan i porównanie:
   naruszenia, `--update-baseline` zapisuje bazę (tylko gdy dług zmalał).
 - **Skill `design-system`** (`.claude/skills/design-system/SKILL.md`): procedura
   użyj → rozszerz → dodaj rolę; obowiązkowa przy każdej zmianie wyglądu.
+
+## Fokus = papier, nie ramka (2026-10-25)
+
+Pole tekstowe w fokusie nie dostaje pierścienia: idzie o jeden stopień bielej
+(mgła → papier) i bierze krawędź `--mg-color-focus-edge`. Goły input bez własnej
+krawędzi dostaje włoskową linię pod tekstem (`--mg-shadow-focus-underline`).
+Pierścień `--mg-focus-ring` (2 px / 0,32) jest tylko dla kontrolek
+(przyciski, linki, chipy) i dziedziczy ich promień. Jedyny właściciel fokusu pól
+to `src/styles/text-field-focus.css` (selektory `#app`); `base.css` powtarza
+gramatykę dla korzeni poza `#app`.
+
+- `.mg-v2-inline-field` — goły tytuł/etykieta w nagłówku karty lub wierszu
+  listy: przezroczysty do dotknięcia, hover = papier, fokus = papier +
+  krawędź; geometria stała (promień `sm`, padding 4/8 px). Nie dla pól
+  formularzy — te są `.mg-v2-field`.
+
+## Zdanie pomiaru i duchy (2026-10-25)
+
+- `.mg-v2-sentence` — jedna linia cichych słów, w której zmienne słowa są
+  płaskimi pigułkami (`.mg-v2-sentence__pill`, `KrPillDropdown`), liczby
+  kompaktowymi polami (`.mg-v2-field.mg-v2-sentence__num`), a klauzule dzieli
+  `.mg-v2-sentence__sep`. Płynie i łamie się jak proza; nigdy nie jest kolumną
+  w boksie. Tryb czytania to zwykły tekst `.mg-v2-meta` z
+  `formatMeasurementSentence` — te same słowa, małe litery.
+- `.mg-v2-ghost` (`--pill` w zdaniu, `--row` pusty wiersz listy, `--line`
+  nieustawiona linia okresów) — „jeszcze nie” narysowane jako kreskowany obrys
+  tej rzeczy w atramencie akcentu, hover = papier. Dodawanie czegoś w treści
+  karty jest zawsze duchem, nigdy wypukłym `.mg-v2-button`.

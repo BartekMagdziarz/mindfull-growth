@@ -37,6 +37,26 @@
   box-shadow: var(--mg-focus-ring);
 }
 
+/* Focus = paper, not a frame (2026-10-25). Text fields never get the ring:
+   a styled field (.mg-v2-field, .mg-v2-inline-field, editor canvas) goes one
+   step whiter and takes an accent edge; a bare input that has no edge of its
+   own falls back to a single accent hairline under the text, so keyboard
+   focus stays visible without ever drawing a rectangle. */
+.mg-design-v2
+  :where(
+    input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='button']):not(
+        [type='submit']
+      ):not([type='file']),
+    textarea,
+    select
+  ):focus-visible {
+  box-shadow: var(--mg-shadow-focus-underline);
+}
+
+.mg-design-v2 :where(.mg-v2-field, .mg-v2-inline-field):focus-visible {
+  box-shadow: none;
+}
+
 .mg-design-v2 :where(button, a) {
   transition:
     box-shadow var(--mg-duration-normal) var(--mg-ease-standard),
@@ -252,12 +272,46 @@
   box-shadow: none;
 }
 
-.mg-v2-field:focus-visible {
-  border-color: var(--mg-color-primary);
+.mg-v2-field:focus-visible,
+.mg-v2-field:focus-within {
+  border-color: var(--mg-color-focus-edge);
+  background: var(--mg-color-paper);
 }
 
 .mg-v2-field::placeholder {
   color: var(--mg-color-muted);
+}
+
+/* Inline field: a bare title/label input that sits in a card header or a
+   list row and reads as text until it is touched. Hover lays it on paper
+   (like .mg-v2-inline-trigger); focus adds the accent edge. Geometry is
+   fixed so nothing shifts between the two states. */
+.mg-v2-inline-field {
+  width: 100%;
+  min-width: 0;
+  padding: var(--mg-space-1) var(--mg-space-2);
+  border: 1px solid transparent;
+  border-radius: var(--mg-radius-sm);
+  color: var(--mg-color-ink);
+  background: transparent;
+  box-shadow: none;
+  transition:
+    background var(--mg-duration-fast) ease,
+    border-color var(--mg-duration-fast) ease;
+}
+
+.mg-v2-inline-field::placeholder {
+  color: var(--mg-color-muted);
+  opacity: 0.7;
+}
+
+.mg-v2-inline-field:hover {
+  background: var(--mg-color-paper);
+}
+
+.mg-v2-inline-field:focus-visible {
+  border-color: var(--mg-color-focus-edge);
+  background: var(--mg-color-paper);
 }
 
 .mg-v2-field-wrap {
@@ -1039,7 +1093,8 @@
 }
 
 .mg-v2-editor-canvas:focus-within {
-  border-color: var(--mg-color-primary);
+  border-color: var(--mg-color-focus-edge);
+  background: var(--mg-color-paper);
   box-shadow: none;
 }
 
@@ -1475,6 +1530,124 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ------------------------------------------------------------------ */
+/* Measurement sentence + ghost affordances (object cards, 2026-10-25)  */
+/* ------------------------------------------------------------------ */
+
+/* The sentence: one line of quiet words in which the variable words are
+   flat pills (selects) and the numbers are compact fields. It wraps like
+   prose; it is never a column in a box. Read mode is plain .mg-v2-meta text
+   produced by formatMeasurementSentence — the same words. */
+.mg-v2-sentence {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mg-space-2) var(--mg-space-2);
+  min-width: 0;
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-sm);
+  font-weight: var(--mg-weight-label);
+  line-height: 1.4;
+}
+
+.mg-v2-sentence > .mg-v2-pill,
+.mg-v2-sentence .mg-v2-sentence__pill {
+  color: var(--mg-color-ink);
+  box-shadow: none;
+  cursor: pointer;
+  font-size: var(--mg-font-size-xs);
+}
+
+.mg-v2-sentence .mg-v2-sentence__pill:not(:disabled):hover,
+.mg-v2-sentence .mg-v2-sentence__pill[aria-expanded='true'] {
+  background: var(--mg-color-paper);
+}
+
+.mg-v2-sentence .mg-v2-sentence__pill[aria-expanded='true'] {
+  border-color: var(--mg-color-primary);
+}
+
+.mg-v2-sentence .mg-v2-sentence__pill:disabled {
+  cursor: default;
+}
+
+.mg-v2-sentence .mg-v2-sentence__pill .mg-v2-sentence__chevron {
+  color: var(--mg-color-primary-strong);
+  transition: transform var(--mg-duration-fast) ease;
+}
+
+.mg-v2-sentence .mg-v2-sentence__pill[aria-expanded='true'] .mg-v2-sentence__chevron {
+  transform: rotate(180deg);
+}
+
+/* A number in the sentence: a compact field as wide as a short number. */
+.mg-v2-sentence__num {
+  width: 3.5rem;
+  min-height: 1.75rem;
+  padding: 0 var(--mg-space-2);
+  color: var(--mg-color-ink);
+  font-size: var(--mg-font-size-sm);
+  font-weight: var(--mg-weight-strong);
+  text-align: center;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.mg-v2-sentence__num::-webkit-outer-spin-button,
+.mg-v2-sentence__num::-webkit-inner-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Separator between clauses of the sentence. */
+.mg-v2-sentence__sep {
+  opacity: 0.55;
+}
+
+/* Ghost: "not yet" drawn as the thing itself in pencil. Adding a clause,
+   a row or a period is a dashed outline of what will appear there, in the
+   accent ink — never a raised button inside card content. Shares the dashed
+   grammar of future stepper dots and the priority glyph. */
+.mg-v2-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mg-space-2);
+  border: 1px dashed color-mix(in srgb, var(--mg-color-primary-strong) 50%, transparent);
+  color: var(--mg-color-primary-strong);
+  background: transparent;
+  box-shadow: none;
+  font-size: var(--mg-font-size-xs);
+  font-weight: var(--mg-weight-strong);
+  cursor: pointer;
+  transition: background var(--mg-duration-fast) ease;
+}
+
+.mg-v2-ghost:not(:disabled):hover {
+  background: var(--mg-color-paper);
+}
+
+.mg-v2-ghost:disabled {
+  opacity: 0.46;
+  cursor: not-allowed;
+}
+
+/* Clause-shaped ghost (sits among the pills of a sentence). */
+.mg-v2-ghost--pill {
+  min-height: 1.75rem;
+  padding: 0 var(--mg-space-3);
+  border-radius: var(--mg-radius-pill);
+}
+
+/* Row- or line-shaped ghost (an empty list row, an unset periods line). */
+.mg-v2-ghost--row,
+.mg-v2-ghost--line {
+  width: 100%;
+  padding: var(--mg-space-2) var(--mg-space-2);
+  border-radius: var(--mg-radius-sm);
+  text-align: left;
 }
 
 /* Opt-in for screens with their own narrow layout; desktop-only views keep

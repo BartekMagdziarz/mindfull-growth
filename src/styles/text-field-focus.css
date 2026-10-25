@@ -1,5 +1,8 @@
 /* One focus owner across legacy fields, Design V2 and quiet rituals.
-   Inset emphasis stays visible inside scrolling/rounded containers. */
+   Focus = paper, not a frame (decision 2026-10-25): a styled field goes one
+   step whiter and takes the accent edge; there is no ring and no inset
+   frame. A bare input with no edge of its own gets a single accent hairline
+   under the text, so keyboard focus stays visible without a rectangle. */
 #app
   :is(
     textarea,
@@ -15,17 +18,24 @@
   ):focus {
   outline: 2px solid transparent;
   outline-offset: 0;
-  border-color: var(--mg-color-primary, rgb(var(--color-focus-ring)));
-  box-shadow: inset 0 0 0 2px var(--mg-color-primary, rgb(var(--color-focus-ring)));
+  box-shadow: var(--mg-shadow-focus-underline);
+}
+/* Same specificity as the bare-input rule above, declared later so it wins. */
+#app :is(.mg-v2-field, .mg-v2-inline-field, .neo-input):is(textarea, input, select):focus {
+  border-color: var(--mg-color-focus-edge);
+  background-color: var(--mg-color-paper);
+  box-shadow: none;
 }
 /* An editor canvas owns the focus indicator for its transparent inner field. */
 #app .mg-v2-editor-canvas:focus-within {
-  border-color: var(--mg-color-primary);
-  box-shadow: inset 0 0 0 2px var(--mg-color-primary);
+  border-color: var(--mg-color-focus-edge);
+  background-color: var(--mg-color-paper);
+  box-shadow: none;
 }
 #app .mg-v2-editor-canvas :is(textarea, input):focus {
   outline: none;
   border-color: transparent;
+  background-color: transparent;
   box-shadow: none;
 }
 @media (forced-colors: active) {

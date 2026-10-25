@@ -68,6 +68,24 @@ only for those routes. Below 760 px, the same route flag moves the existing dock
 into a horizontal bottom capsule. Other routes retain their desktop geometry.
 The assistant switches between conversation and draft on narrow screens.
 
+## 2026-10-25 — Nić: pionowy stepper dla stosu kart (`.mg-v2-thread`)
+
+Kontekst: kwestionariusze (SCS-SF, GAD-7, IPIP…) pokazywały postęp paskiem nad
+kartami, który znika po przewinięciu, a zaznaczona odpowiedź była niewidoczna
+(mostek `neo-pill`, backlog B-10).
+Decyzja: nowa anatomia `.mg-v2-thread` w `base.css` — stepper obrócony w pion.
+Każda karta wisi na niebie obok kropki w gramatyce `.mg-v2-stepper` (zrobione =
+akcent, bieżąca = atrament z halo, przyszła = kreskowany obrys); szew do
+następnej kropki jest ołówkiem (kreskowana linia jak `.mg-v2-hairline`), a po
+odpowiedzi tuszem akcentu. Postęp czyta się obok każdej karty na ekranie, więc
+bez przyklejonego paska i bez liczb. Odpowiedzi to `.exercise-chip` (wybrana =
+wypełnienie akcentem, jak w kreatorach ćwiczeń); pierwsza odpowiedź łagodnie
+przewija do następnej otwartej karty, ostatnia — do przycisków strony
+(reduced-motion: bez animacji).
+Konsekwencje: jednostronicowe kwestionariusze nie mają już paska nad kartami;
+wielostronicowe zachowują go jako licznik całości. Nić nadaje się do każdego
+stosu kart wypełnianych po kolei (np. przyszłe ankiety, listy kontrolne).
+
 ## 2026-10-25 — Rytuał powrotu po przerwie: karta w Dzisiaj i macierz „co zachować”
 
 Kontekst: po kilku tygodniach bez zapisów aplikacja nie miała pojęcia przerwy —
@@ -88,3 +106,54 @@ Konsekwencje: `rr-seg` jest trzecim konsumentem wzorca segmentu w rytuałach
 (`gc-seg`, `qr-*`) — kandydat na anatomię `mg-v2-segmented` w cichym tonie;
 selektory kontrolek z obrysem muszą być zawężone do `.quiet-ritual`, bo
 globalne `.quiet-ritual button { border: 0 }` je zeruje.
+
+## 2026-10-25 — Fokus = papier, nie ramka (cała aplikacja)
+
+Kontekst: jeden właściciel fokusu pól (`src/styles/text-field-focus.css`,
+selektor `#app`) rysował wklęsłą ramkę 2 px w kolorze akcentu, a korzeń V2
+dokładał pierścień 3 px (`--mg-focus-ring`); na gołych tytułach kart bez
+promienia dawało to ostry niebieski prostokąt. Użytkownik: „w całej aplikacji
+do poprawy, potrzebujemy czegoś dużo bardziej subtelnego”.
+Decyzja: pole tekstowe w fokusie nie dostaje pierścienia — idzie o jeden
+stopień bielej (mgła → papier) i bierze krawędź akcentu
+`--mg-color-focus-edge` (primary-strong / 0,6). Goły input bez własnej
+krawędzi dostaje jedną włoskową linię pod tekstem
+(`--mg-shadow-focus-underline`), żeby fokus z klawiatury był widoczny bez
+prostokąta. Pierścień klawiatury zostaje tylko dla kontrolek (przyciski,
+linki, chipy): `--mg-focus-ring` = 2 px / 0,32 i dziedziczy promień
+kontrolki. Nowa anatomia `.mg-v2-inline-field` dla gołych tytułów w
+nagłówkach kart i wierszach list (hover = papier, fokus = papier + krawędź).
+Konsekwencje: `text-field-focus.css` pozostaje jedynym właścicielem fokusu
+pól (selektory `#app`), reguły w `base.css` powtarzają tę samą gramatykę dla
+korzeni poza `#app` (teleporty). `.mg-v2-editor-canvas` w fokusie też bieleje.
+Kontrast krawędzi do sprawdzenia na zrzutach rytuałów i czatu (R1 w planie
+`ideas/html-plans/2026-10-25-object-cards-calm.html`).
+
+## 2026-10-25 — Zdanie pomiaru: jedno zdanie, dwa tryby; duchy zamiast przycisków
+
+Kontekst: rozwinięta karta pomiaru (rezultat, nawyk, tracker) pokazywała cel
+jako wieżę pigułek w boksie „Cel”, skalę ocen jako osobny blok „Skala od/do”,
+próg checklisty jako osobną linię „Zalicz dzień przy…”, a warunek dni jako link
+z kropkowanym podkreśleniem; zwinięta karta czytała inny, kapitalizowany
+skrót („Tygodniowy · Wartość · Ostatnia wartość Co najwyżej 80”).
+Decyzja: (1) `formatMeasurementSentence` (`utils/measurementTargetFormat.ts`)
+jest jedynym czytanym zdaniem pomiaru — małe litery, klauzule rozdzielone „·”:
+próg checklisty („komplet elementów” / „3 z 4 pkt”), agregacja, operator,
+wartość, jednostka („razy”, „dni”, „na 5”), warunek dni, kadencja.
+(2) `MeasurementTargetSentence` edytuje to samo zdanie: klauzula skali
+(„od 1 do 5”, prop `editableScale`, emit `update:scale`) i klauzula progu
+checklisty (prop `multi`, emit `update:threshold`) wchodzą do zdania; bloki
+„Skala” i wiersz progu w `MultiItemsEditor` zniknęły. (3) Anatomia
+`.mg-v2-sentence`: pigułki płaskie (`.mg-v2-sentence__pill`, otwarta =
+obrys akcentu), liczby = `.mg-v2-field.mg-v2-sentence__num`, separator
+`__sep`. (4) Anatomia `.mg-v2-ghost` (`--pill/--row/--line`): „dodaj X” to
+kreskowany duch X w atramencie akcentu, nigdy wypukły przycisk w treści
+karty — „+ dni” zamiast linku „+ warunek dni”, usunięcie warunku = cichy
+„×” w zdaniu. (5) `KrPillDropdown` przeszedł na `.mg-v2-pill` +
+`.mg-v2-popover` (bez `neo-*`). Stary `formatMeasurementTargetSummary`
+zostaje dla chipów rytuałów.
+Konsekwencje: podgląd KR niesie `ratingScale/Min`
+(`objectsLibraryQueries`); hosty przekazują fakty checklisty przez
+`checklistSentenceFacts`. Układ kart (siatka Okresy|Cel, nagłówki
+wersalikami, linia okresów, tacka checklisty) to faza P2 planu
+`ideas/html-plans/2026-10-25-object-cards-calm.html`.

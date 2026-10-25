@@ -4,7 +4,7 @@
       <input
         :value="modelValue.title"
         type="text"
-        class="mg-v2-field min-w-0 flex-1 text-sm font-medium"
+        class="mg-v2-field min-w-0 flex-1 text-sm font-semibold"
         :placeholder="t('planning.goalWizard.steps.measurable.krTitlePlaceholder')"
         :aria-label="t('planning.goalWizard.steps.measurable.krTitleLabel')"
         @input="onTitleInput"
@@ -24,9 +24,13 @@
       :entry-mode="modelValue.entryMode"
       :target="modelValue.target"
       :cadence="modelValue.cadence"
+      :rating-scale="modelValue.ratingScale ?? 10"
+      :rating-scale-min="modelValue.ratingScaleMin ?? 1"
+      editable-scale
       show-cadence
       @update:measurement="onUpdateMeasurement"
       @update:cadence="onCadence"
+      @update:scale="onScale"
     />
   </div>
 </template>
@@ -60,6 +64,10 @@ function onTitleInput(event: Event): void {
 
 function onCadence(cadence: PlanningCadence): void {
   patch({ cadence })
+}
+
+function onScale(scale: { min: number; max: number }): void {
+  patch({ ratingScaleMin: scale.min, ratingScale: scale.max })
 }
 
 function onUpdateMeasurement(measurement: {

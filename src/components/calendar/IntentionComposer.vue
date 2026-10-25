@@ -11,6 +11,7 @@ import type {
   MultiCompletionItem,
 } from '@/domain/planning'
 import { createWeeklyIntention } from '@/services/weeklyIntentionService'
+import { checklistSentenceFacts } from '@/utils/measurementTargetFormat'
 import PriorityLinkPicker from './PriorityLinkPicker.vue'
 import type { WeekPlanPriorityOption } from './weekPlanCandidate'
 
@@ -52,6 +53,16 @@ function onUpdateMeasurement(measurement: {
   target: MeasurementTarget
 }): void {
   draft.value = { ...draft.value, entryMode: measurement.entryMode, target: measurement.target }
+}
+
+const draftMultiFacts = computed(() =>
+  draft.value.entryMode === 'multi-completion'
+    ? checklistSentenceFacts(draft.value.multiItems ?? [], draft.value.multiDailyThreshold)
+    : undefined
+)
+
+function onThreshold(threshold: number | undefined): void {
+  draft.value = { ...draft.value, multiDailyThreshold: threshold }
 }
 
 function onMultiConfig(config: {
@@ -102,11 +113,12 @@ async function addIntention(): Promise<void> {
       </label>
 
       <MeasurementTargetSentence
-        bare
         :entry-mode="draft.entryMode"
         :target="draft.target"
+        :multi="draftMultiFacts"
         cadence="weekly"
         @update:measurement="onUpdateMeasurement"
+        @update:threshold="onThreshold"
       />
 
       <MultiItemsEditor

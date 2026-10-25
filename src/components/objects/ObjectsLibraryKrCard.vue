@@ -7,7 +7,7 @@
           ref="titleRef"
           v-model="title"
           type="text"
-          class="min-w-0 flex-1 bg-transparent px-1 py-1.5 text-xs font-medium text-on-surface outline-none placeholder:text-on-surface-variant/40"
+          class="mg-v2-inline-field min-w-0 flex-1 text-xs font-bold"
           :placeholder="t('planning.objects.form.title')"
           @blur="flushTitle"
         />
@@ -73,9 +73,7 @@
       <p v-if="!isExpanded" class="mg-v2-meta px-1">
         <span v-if="statusLabel" class="mg-v2-meta__status">{{ statusLabel }}</span>
         <span v-if="!child.isActive">{{ t('planning.objects.badges.archived') }}</span>
-        <span>{{ cadenceLabel }}</span>
-        <span>{{ entryModeLabel }}</span>
-        <span>{{ formatMeasurementTargetSummary(child.target, t) }}</span>
+        <span>{{ sentence }}</span>
       </p>
 
       <!-- Expanded section -->
@@ -122,9 +120,15 @@
                 :entry-mode="child.entryMode ?? 'completion'"
                 :target="child.target"
                 :cadence="child.cadence === 'monthly' ? 'monthly' : 'weekly'"
+                :rating-scale="child.ratingScale ?? 10"
+                :rating-scale-min="child.ratingScaleMin ?? 1"
+                :multi="multiFacts"
+                editable-scale
                 show-cadence
                 @update:measurement="onTargetMeasurement"
                 @update:cadence="onCadence"
+                @update:scale="onScale"
+                @update:threshold="onThreshold"
               />
             </div>
           </div>
@@ -176,7 +180,7 @@ import MultiItemsEditor from '@/components/objects/MultiItemsEditor.vue'
 import ObjectsCardStatusMenu from '@/components/objects/ObjectsCardStatusMenu.vue'
 import MeasurementSparkline from '@/components/objects/MeasurementSparkline.vue'
 import { useEditableField } from '@/composables/useEditableField'
-import { formatMeasurementTargetSummary } from '@/utils/measurementTargetFormat'
+import { checklistSentenceFacts, formatMeasurementSentence } from '@/utils/measurementTargetFormat'
 import type { ObjectsLibraryChildPreview } from '@/services/objectsLibraryQueries'
 import type { MeasurementEntryMode, MeasurementTarget, PlanningCadence } from '@/domain/planning'
 
@@ -269,15 +273,35 @@ function onTargetMeasurement(measurement: {
   }
 }
 
-const cadenceLabel = computed(() => {
-  const opt = props.cadenceOptions.find(o => o.value === props.child.cadence)
-  return opt?.label ?? props.child.cadence
-})
+// Checklist facts for the threshold clause; undefined outside multi-completion.
+const multiFacts = computed(() =>
+  props.child.entryMode === 'multi-completion'
+    ? checklistSentenceFacts(props.child.multiItems ?? [], props.child.multiDailyThreshold)
+    : undefined
+)
 
-const entryModeLabel = computed(() => {
-  const opt = props.entryModeOptions.find(o => o.value === props.child.entryMode)
-  return opt?.label ?? props.child.entryMode
-})
+// Reading form of the same sentence the expanded card edits.
+const sentence = computed(() =>
+  formatMeasurementSentence(
+    {
+      entryMode: props.child.entryMode ?? 'completion',
+      target: props.child.target,
+      cadence: props.child.cadence === 'monthly' ? 'monthly' : 'weekly',
+      ratingScale: props.child.ratingScale ?? 10,
+      multi: multiFacts.value,
+    },
+    t
+  )
+)
+
+function onScale(scale: { min: number; max: number }): void {
+  if (scale.min !== (props.child.ratingScaleMin ?? 1)) emitFieldChange('ratingScaleMin', scale.min)
+  if (scale.max !== (props.child.ratingScale ?? 10)) emitFieldChange('ratingScale', scale.max)
+}
+
+function onThreshold(threshold: number | undefined): void {
+  emitFieldChange('multiConfig', { items: props.child.multiItems ?? [], threshold })
+}
 
 // Status is quiet: shown as text only when it is not the default "open".
 const statusLabel = computed(() => {

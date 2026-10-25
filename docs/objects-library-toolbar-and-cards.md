@@ -73,3 +73,25 @@ między opcjami, Esc zamyka tylko listę (dialog filtrów zostaje).
   wspólny komponent dodałby warianty bez zysku wizualnego.
 - Glify rysują tylko aktywne priorytety/obszary (ta sama lista, co pickery).
 - Ikony zastępcze: priorytet `flag`, obszar `category`, gdy encja nie ma ikony.
+
+## Karty: zdanie pomiaru i fokus (2026-10-25, fazy P0–P1 planu „spokojne karty”)
+
+Plan i mockupy: `ideas/html-plans/2026-10-25-object-cards-calm.html`; zrzuty
+przed/po: `ideas/ux-audit-2026-10-25-object-cards/`.
+
+- **D1 Zdanie pomiaru.** Zwinięta karta (KR, nawyk, intencja) czyta jedno
+  ciche zdanie z `formatMeasurementSentence` („co najmniej 3 razy w tygodniu”,
+  „3 z 4 pkt · co najmniej 4 dni w tygodniu”, „średnia co najmniej 3 na 5 ·
+  co najmniej 5 dni w tygodniu”). Rozwinięta edytuje to samo zdanie w
+  `MeasurementTargetSentence` (`.mg-v2-sentence`): tryb · próg checklisty ·
+  skala („od 1 do 5”) · agregacja · operator · wartość · jednostka · warunek
+  dni · kadencja · duch „+ dni”. Tracker bez celu ma zdanie z trybem, skalą i
+  kadencją. Bloki „Skala” i „Zalicz dzień przy” zniknęły z kart i z
+  `MultiItemsEditor`.
+- **D4 Fokus.** Tytuły kart i etykiety elementów checklisty to
+  `.mg-v2-inline-field`; pola — `.mg-v2-field`. Fokus = papier + krawędź
+  akcentu, bez pierścienia (szczegóły: `docs/design-decisions.md`).
+- **Odłożone do P2–P4:** siatka Okresy|Cel i nagłówki wersalikami, linia
+  okresów zamiast „Wybierz okresy (17)”, checklista bez licznika z tacką i
+  duchem-wierszem, ramka wykresu, priorytet jako proza, intencja w tej samej
+  gramatyce, edytor nowego obiektu.

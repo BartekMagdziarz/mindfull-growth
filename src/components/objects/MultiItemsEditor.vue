@@ -2,7 +2,6 @@
 import { computed, ref } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import IconPicker from '@/components/shared/IconPicker.vue'
-import KrPillDropdown from '@/components/objects/KrPillDropdown.vue'
 import { useT } from '@/composables/useT'
 import type { MultiCompletionItem } from '@/domain/planning'
 import { MULTI_COMPLETION_MAX_ACTIVE_ITEMS, createMultiCompletionItem } from '@/domain/planning'
@@ -32,10 +31,6 @@ const archivedOpen = ref(false)
 
 const activeItems = computed(() => props.items.filter(item => !item.archived))
 const archivedItems = computed(() => props.items.filter(item => item.archived))
-const activeWeightSum = computed(() =>
-  activeItems.value.reduce((sum, item) => sum + item.weight, 0)
-)
-const allWeightsAreOne = computed(() => activeItems.value.every(item => item.weight === 1))
 const canAdd = computed(() => activeItems.value.length < MULTI_COMPLETION_MAX_ACTIVE_ITEMS)
 
 function commit(items: MultiCompletionItem[], threshold: number | undefined): void {
@@ -124,34 +119,6 @@ function removeItem(id: string): void {
     props.threshold
   )
 }
-
-// --- threshold ("Zalicz dzień przy: komplecie elementów / progu punktowym") --
-const thresholdMode = computed(() => (props.threshold === undefined ? 'all' : 'custom'))
-const thresholdOptions = computed(() => [
-  { value: 'all', label: t('planning.objects.form.multiItems.thresholdAll') },
-  { value: 'custom', label: t('planning.objects.form.multiItems.thresholdCustom') },
-])
-
-function onThresholdMode(value: string): void {
-  if (value === thresholdMode.value) return
-  commit([...props.items], value === 'all' ? undefined : Math.max(activeWeightSum.value - 1, 1))
-}
-
-function commitThresholdValue(event: Event): void {
-  const input = event.target as HTMLInputElement
-  const parsed = Math.round(Number(input.value))
-  if (!Number.isFinite(parsed) || parsed < 1) {
-    input.value = String(props.threshold ?? activeWeightSum.value)
-    return
-  }
-  commit([...props.items], parsed)
-}
-
-const thresholdSuffix = computed(() =>
-  allWeightsAreOne.value
-    ? t('planning.objects.form.multiItems.thresholdOfItems', { max: activeWeightSum.value })
-    : t('planning.objects.form.multiItems.thresholdOfPoints', { max: activeWeightSum.value })
-)
 </script>
 
 <template>
@@ -198,7 +165,7 @@ const thresholdSuffix = computed(() =>
         <input
           :value="item.label"
           type="text"
-          class="min-w-0 flex-1 bg-transparent px-1 py-0.5 text-xs font-medium text-on-surface outline-none placeholder:text-on-surface-variant/40"
+          class="mg-v2-inline-field min-w-0 flex-1 text-xs font-semibold"
           :placeholder="t('planning.objects.form.multiItems.labelPlaceholder')"
           @change="commitLabel(item, $event)"
           @keydown.enter.prevent="($event.target as HTMLInputElement).blur()"
@@ -288,34 +255,6 @@ const thresholdSuffix = computed(() =>
           </button>
         </li>
       </ul>
-    </div>
-
-    <div class="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-on-surface">
-      <span class="text-on-surface-variant">{{
-        t('planning.objects.form.multiItems.thresholdLabel')
-      }}</span>
-      <KrPillDropdown
-        flat
-        :model-value="thresholdMode"
-        :options="thresholdOptions"
-        :disabled="disabled"
-        @update:model-value="onThresholdMode"
-      />
-      <template v-if="thresholdMode === 'custom'">
-        <input
-          :value="threshold"
-          type="number"
-          min="1"
-          :max="activeWeightSum"
-          step="1"
-          inputmode="numeric"
-          class="neo-badge w-14 px-2 py-1 text-center text-sm font-semibold text-on-surface transition-colors focus:border-primary/50 focus:bg-white/70 focus:outline-none"
-          :aria-label="t('planning.objects.form.multiItems.thresholdLabel')"
-          @change="commitThresholdValue"
-          @keydown.enter.prevent="commitThresholdValue"
-        />
-        <span class="text-on-surface-variant">{{ thresholdSuffix }}</span>
-      </template>
     </div>
   </div>
 </template>

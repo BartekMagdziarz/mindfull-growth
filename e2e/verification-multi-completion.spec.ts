@@ -112,9 +112,9 @@ test.describe('multi-completion', () => {
 
     await page.goto('/objects/habits')
     // Measurement-card titles live in <input> fields (no text content), so
-    // anchor on the entry-mode badge and then resolve the exact card by the
-    // title input's value — the seed has several multi-completion habits.
-    const multiCards = page.locator('article').filter({ hasText: 'Checklista' })
+    // resolve the exact card by the title input's value — the seed has
+    // several multi-completion habits.
+    const multiCards = page.locator('article').filter({ has: page.getByRole('textbox') })
     await expect(multiCards.first()).toBeVisible()
     let card = multiCards.first()
     for (let i = 0; i < (await multiCards.count()); i++) {
@@ -130,9 +130,11 @@ test.describe('multi-completion', () => {
 
     await expect(card.getByText('Elementy')).toBeVisible()
     await expect(card.locator('input[placeholder="Nazwa elementu"]')).toHaveCount(3)
-    // Explicit threshold 3 of 4 pts (weights are not all 1 → points suffix).
-    await expect(card.getByText('z 4 pkt')).toBeVisible()
-    await expect(card.getByText('Zalicz dzień przy')).toBeVisible()
+    // Explicit threshold 3 of 4 pts (weights are not all 1 → points suffix)
+    // lives in the measurement sentence, not in the items editor.
+    await expect(card.getByText('z 4 pkt', { exact: true })).toBeVisible()
+    await expect(card.getByText('dzień liczy się przy')).toBeVisible()
+    await expect(card.getByRole('spinbutton', { name: 'Próg punktowy' })).toHaveValue('3')
 
     await card.screenshot({ path: 'test-results/multi-completion-items-editor.png' })
     expectNoAppErrors(consoleErrors)

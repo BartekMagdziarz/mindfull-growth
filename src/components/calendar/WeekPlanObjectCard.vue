@@ -100,7 +100,6 @@ function onMeasurement(m: { entryMode: MeasurementEntryMode; target: Measurement
         @keydown.enter.prevent="saveEdit"
       />
       <MeasurementTargetSentence
-        bare
         :entry-mode="draftEntryMode"
         :target="draftTarget"
         cadence="weekly"

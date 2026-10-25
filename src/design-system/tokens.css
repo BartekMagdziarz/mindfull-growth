@@ -141,7 +141,15 @@
   --mg-duration-normal: 240ms;
   --mg-duration-base: var(--mg-duration-normal);
   --mg-ease-standard: cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  --mg-focus-ring: 0 0 0 3px rgb(var(--sky-400) / 0.42);
+  /* Keyboard focus ring for controls only (buttons, links, chips): thin, and
+     it inherits the control's own radius so it is never a rectangle. Text
+     fields do not ring at all — they go one step whiter and take the accent
+     edge below (decision 2026-10-25 "focus = paper, not a frame"). */
+  --mg-focus-ring: 0 0 0 2px rgb(var(--sky-400) / 0.32);
+  --mg-color-focus-edge: rgb(var(--color-primary-strong) / 0.6);
+  /* Bare text input (no edge of its own) in focus: one accent hairline under
+     the text instead of a ring. */
+  --mg-shadow-focus-underline: inset 0 -1px 0 var(--mg-color-focus-edge);
 
   --mg-layer-base: 0;
   --mg-layer-sticky: 20;

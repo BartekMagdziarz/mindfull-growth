@@ -948,7 +948,7 @@
         "restore": "Restore",
         "remove": "Remove",
         "archivedHeading": "Archived ({count})",
-        "thresholdLabel": "Day counts when",
+        "thresholdLabel": "day counts when",
         "thresholdAll": "everything is checked",
         "thresholdCustom": "a points threshold is reached",
         "thresholdOfPoints": "of {max} pts",
@@ -992,7 +992,26 @@
         "rating": "Rate",
         "multi-completion": "Check off"
       },
-      "metDaysUnit": "days met"
+      "metDaysUnit": "days met",
+      "op": {
+        "min": "at least",
+        "max": "at most",
+        "gte": "at least",
+        "lte": "at most"
+      },
+      "agg": {
+        "sum": "sum",
+        "average": "average",
+        "last": "last value"
+      },
+      "addEntryDaysShort": "+ days",
+      "thresholdAllRead": "everything checked",
+      "thresholdLead": "day counts when",
+      "scaleFrom": "from",
+      "scaleTo": "to",
+      "scaleMinLabel": "Scale minimum",
+      "scaleMaxLabel": "Scale maximum",
+      "thresholdValueLabel": "Points threshold"
     },
     "chart": {
       "noActivePeriods": "No active periods",

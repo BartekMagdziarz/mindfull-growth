@@ -16,7 +16,7 @@
           ref="titleRef"
           v-model="title"
           type="text"
-          class="min-w-0 flex-1 bg-transparent px-1 py-1.5 text-sm font-semibold text-on-surface outline-none placeholder:text-on-surface-variant/40"
+          class="mg-v2-inline-field min-w-0 flex-1 text-sm font-bold"
           :placeholder="t('planning.objects.form.title')"
           @blur="flushTitle"
         />
@@ -120,39 +120,6 @@
         }"
       >
         <div class="space-y-3 pt-1">
-          <!-- Rating scale (only when rating; cadence + mode live in the sentence below) -->
-          <div v-if="item.entryMode === 'rating'" class="space-y-1">
-            <div
-              class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant"
-            >
-              {{ t('planning.objects.form.ratingScale') }}
-            </div>
-            <div class="flex items-center gap-1.5">
-              <label class="text-[9px] text-on-surface-variant/70">{{
-                t('planning.objects.form.ratingScaleMin')
-              }}</label>
-              <input
-                :value="item.ratingScaleMin ?? 1"
-                type="number"
-                step="1"
-                min="0"
-                class="mg-v2-field !w-12 !px-1.5 text-center text-xs"
-                @change="handleScaleMinChange"
-              />
-              <label class="text-[9px] text-on-surface-variant/70">{{
-                t('planning.objects.form.ratingScaleMax')
-              }}</label>
-              <input
-                :value="item.ratingScale ?? 10"
-                type="number"
-                step="1"
-                min="1"
-                class="mg-v2-field !w-12 !px-1.5 text-center text-xs"
-                @change="handleScaleMaxChange"
-              />
-            </div>
-          </div>
-
           <!-- Multi-completion items + daily threshold -->
           <MultiItemsEditor
             v-if="item.entryMode === 'multi-completion'"
@@ -162,7 +129,7 @@
           />
 
           <!-- Periods + Target -->
-          <div class="grid gap-3" :class="panelType === 'habit' ? 'grid-cols-2' : 'grid-cols-1'">
+          <div class="grid grid-cols-2 gap-3">
             <!-- Periods -->
             <div class="space-y-1">
               <div
@@ -193,8 +160,8 @@
               </div>
             </div>
 
-            <!-- Target (habits only) -->
-            <div v-if="panelType === 'habit' && item.target" class="space-y-1">
+            <!-- Target: the sentence (a tracker has no target — mode, scale and cadence only) -->
+            <div class="space-y-1">
               <div
                 class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant"
               >
@@ -204,11 +171,15 @@
                 :entry-mode="item.entryMode ?? 'completion'"
                 :target="item.target"
                 :cadence="item.cadence === 'monthly' ? 'monthly' : 'weekly'"
-                :rating-scale="item.ratingScale"
-                :rating-scale-min="item.ratingScaleMin"
+                :rating-scale="item.ratingScale ?? 10"
+                :rating-scale-min="item.ratingScaleMin ?? 1"
+                :multi="multiFacts"
+                editable-scale
                 show-cadence
                 @update:measurement="onTargetMeasurement"
                 @update:cadence="onCadence"
+                @update:scale="onScale"
+                @update:threshold="onThreshold"
               />
             </div>
           </div>
@@ -251,11 +222,11 @@
           <p class="mg-v2-meta px-1">
             <span v-if="statusLabel" class="mg-v2-meta__status">{{ statusLabel }}</span>
             <span v-if="!item.isActive">{{ t('planning.objects.badges.archived') }}</span>
-            <span>{{ cadenceLabel }}</span>
-            <span>{{ entryModeLabel }}</span>
-            <span v-if="panelType === 'habit' && item.target">
-              {{ formatMeasurementTargetSummary(item.target, t) }}
-            </span>
+            <span v-if="sentence">{{ sentence }}</span>
+            <template v-else>
+              <span>{{ cadenceLabel }}</span>
+              <span>{{ entryModeLabel }}</span>
+            </template>
           </p>
         </div>
 
@@ -285,7 +256,7 @@ import type { AffiliationKind } from '@/components/objects/ObjectCardAffiliation
 import ObjectsCardStatusMenu from '@/components/objects/ObjectsCardStatusMenu.vue'
 import MeasurementSparkline from '@/components/objects/MeasurementSparkline.vue'
 import { useEditableField } from '@/composables/useEditableField'
-import { formatMeasurementTargetSummary } from '@/utils/measurementTargetFormat'
+import { checklistSentenceFacts, formatMeasurementSentence } from '@/utils/measurementTargetFormat'
 import type {
   ObjectsLibraryFilterOption,
   ObjectsLibraryListItem,
@@ -364,34 +335,35 @@ function handleStatusChange(value: string): void {
   emitFieldChange('status', value)
 }
 
-const MAX_SCALE_SPAN = 10
+// Checklist facts for the threshold clause; undefined outside multi-completion.
+const multiFacts = computed(() =>
+  props.item.entryMode === 'multi-completion'
+    ? checklistSentenceFacts(props.item.multiItems ?? [], props.item.multiDailyThreshold)
+    : undefined
+)
 
-function handleScaleMinChange(event: Event): void {
-  const raw = (event.target as HTMLInputElement).value
-  const parsed = Math.round(Number(raw))
-  if (!Number.isFinite(parsed) || parsed < 0) return
-  const currentMax = props.item.ratingScale ?? 10
-  const clampedMax = Math.max(currentMax, parsed + 1)
-  const finalMax =
-    parsed + MAX_SCALE_SPAN - 1 < clampedMax ? parsed + MAX_SCALE_SPAN - 1 : clampedMax
-  emitFieldChange('ratingScaleMin', parsed)
-  if (finalMax !== currentMax) {
-    emitFieldChange('ratingScale', finalMax)
-  }
+// Reading form of the sentence the expanded card edits; a tracker has no target.
+const sentence = computed(() => {
+  if (!props.item.target) return ''
+  return formatMeasurementSentence(
+    {
+      entryMode: props.item.entryMode ?? 'completion',
+      target: props.item.target,
+      cadence: props.item.cadence === 'monthly' ? 'monthly' : 'weekly',
+      ratingScale: props.item.ratingScale ?? 10,
+      multi: multiFacts.value,
+    },
+    t
+  )
+})
+
+function onScale(scale: { min: number; max: number }): void {
+  if (scale.min !== (props.item.ratingScaleMin ?? 1)) emitFieldChange('ratingScaleMin', scale.min)
+  if (scale.max !== (props.item.ratingScale ?? 10)) emitFieldChange('ratingScale', scale.max)
 }
 
-function handleScaleMaxChange(event: Event): void {
-  const raw = (event.target as HTMLInputElement).value
-  const parsed = Math.round(Number(raw))
-  if (!Number.isFinite(parsed) || parsed < 1) return
-  const currentMin = props.item.ratingScaleMin ?? 1
-  const clampedMin = Math.min(currentMin, parsed - 1)
-  const finalMin =
-    parsed - MAX_SCALE_SPAN + 1 > clampedMin ? parsed - MAX_SCALE_SPAN + 1 : clampedMin
-  emitFieldChange('ratingScale', parsed)
-  if (finalMin !== currentMin) {
-    emitFieldChange('ratingScaleMin', finalMin)
-  }
+function onThreshold(threshold: number | undefined): void {
+  emitFieldChange('multiConfig', { items: props.item.multiItems ?? [], threshold })
 }
 
 // Map the sentence's full {entryMode, target} update back to the card's granular

@@ -948,7 +948,7 @@
         "restore": "Przywróć",
         "remove": "Usuń",
         "archivedHeading": "Zarchiwizowane ({count})",
-        "thresholdLabel": "Zalicz dzień przy",
+        "thresholdLabel": "dzień liczy się przy",
         "thresholdAll": "komplecie elementów",
         "thresholdCustom": "progu punktowym",
         "thresholdOfPoints": "z {max} pkt",
@@ -992,7 +992,26 @@
         "rating": "Oceniaj",
         "multi-completion": "Odhaczaj"
       },
-      "metDaysUnit": "dni z zaliczeniem"
+      "metDaysUnit": "dni z zaliczeniem",
+      "op": {
+        "min": "co najmniej",
+        "max": "co najwyżej",
+        "gte": "co najmniej",
+        "lte": "co najwyżej"
+      },
+      "agg": {
+        "sum": "suma",
+        "average": "średnia",
+        "last": "ostatnia wartość"
+      },
+      "addEntryDaysShort": "+ dni",
+      "thresholdAllRead": "komplet elementów",
+      "thresholdLead": "dzień liczy się przy",
+      "scaleFrom": "od",
+      "scaleTo": "do",
+      "scaleMinLabel": "Dolny koniec skali",
+      "scaleMaxLabel": "Górny koniec skali",
+      "thresholdValueLabel": "Próg punktowy"
     },
     "chart": {
       "noActivePeriods": "Brak aktywnych okresów",

@@ -19,7 +19,7 @@
           ref="titleRef"
           v-model="title"
           type="text"
-          class="min-w-0 flex-1 bg-transparent px-1 py-1.5 text-sm font-semibold text-on-surface outline-none placeholder:text-on-surface-variant/40"
+          class="mg-v2-inline-field min-w-0 flex-1 text-sm font-bold"
           :placeholder="t('planning.objects.form.priorityTitlePlaceholder')"
           @blur="flushTitle"
         />

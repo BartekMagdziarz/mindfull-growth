@@ -1,36 +1,33 @@
 <template>
-  <div ref="rootRef" class="relative">
+  <div ref="rootRef" class="relative inline-flex">
     <button
       type="button"
-      class="neo-focus flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px]"
-      :class="[
-        flat
-          ? 'neo-badge transition-colors hover:bg-white/70'
-          : ['neo-pill font-semibold', toneClass],
-        { 'cursor-default opacity-70': disabled },
-      ]"
+      class="mg-v2-pill mg-v2-sentence__pill"
+      aria-haspopup="listbox"
+      :aria-expanded="open"
       :disabled="disabled"
       @click.stop="toggle"
+      @keydown.escape.stop="close"
     >
       {{ selectedLabel }}
-      <AppIcon
-        v-if="!disabled"
-        name="expand_more"
-        class="text-xs transition-transform duration-200"
-        :class="open ? 'rotate-180' : ''"
-      />
+      <AppIcon v-if="!disabled" name="expand_more" class="mg-v2-sentence__chevron text-xs" />
     </button>
     <div
       v-if="open"
-      class="absolute left-0 z-20 mt-1 min-w-[120px] overflow-hidden rounded-xl border border-outline/30 bg-surface shadow-lg"
+      class="mg-v2-popover absolute left-0 top-full z-20 mt-1 min-w-[8rem] overflow-hidden py-1"
+      role="listbox"
       @click.stop
     >
       <button
         v-for="opt in options"
         :key="opt.value"
         type="button"
-        class="block w-full px-4 py-2 text-left text-xs font-medium hover:bg-primary-soft/30"
-        :class="opt.value === modelValue ? 'font-semibold text-primary' : 'text-on-surface'"
+        role="option"
+        :aria-selected="opt.value === modelValue"
+        class="block w-full px-3 py-2 text-left text-xs hover:bg-primary-soft/30"
+        :class="
+          opt.value === modelValue ? 'font-bold text-primary' : 'font-semibold text-on-surface'
+        "
         @click="select(opt.value)"
       >
         {{ opt.label }}
@@ -43,20 +40,15 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 
+// A word of the measurement sentence that can be changed: a flat pill that
+// opens a small list. Lives inside `.mg-v2-sentence`, which styles the pill.
 const props = withDefaults(
   defineProps<{
     modelValue: string
     options: Array<{ value: string; label: string }>
-    tone?: 'primary' | 'success' | 'danger' | 'warning'
-    /** Flat "badge" look (like the period chips) instead of the raised neo-pill. */
-    flat?: boolean
     disabled?: boolean
   }>(),
-  {
-    tone: undefined,
-    flat: false,
-    disabled: false,
-  }
+  { disabled: false }
 )
 
 const emit = defineEmits<{
@@ -71,25 +63,14 @@ const selectedLabel = computed(() => {
   return opt?.label ?? props.modelValue
 })
 
-const toneClass = computed(() => {
-  switch (props.tone) {
-    case 'primary':
-      return 'neo-pill--primary'
-    case 'success':
-      return 'neo-pill--success'
-    case 'danger':
-      return 'neo-pill--danger'
-    case 'warning':
-      return 'neo-pill--warning'
-    default:
-      return ''
-  }
-})
-
 function toggle(): void {
   if (!props.disabled) {
     open.value = !open.value
   }
+}
+
+function close(): void {
+  open.value = false
 }
 
 function select(value: string): void {
