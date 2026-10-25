@@ -13,7 +13,10 @@
     <!-- Design V2 root for every routed view: tokens, Nunito, focus ring and
          reduced-motion come from here, so legacy screens are bridged by
          adapters.css and ported ones never lose their variables. -->
-    <main class="mg-design-v2 flex-1 overflow-y-auto pl-[106px]">
+    <main
+      class="mg-design-v2 flex-1 overflow-y-auto pl-[106px]"
+      :class="{ 'mg-v2-responsive-page': route.meta.responsive }"
+    >
       <router-view />
     </main>
   </div>

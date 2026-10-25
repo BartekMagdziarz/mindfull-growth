@@ -1,5 +1,9 @@
 <template>
-  <nav :aria-label="t('common.nav.mainNavigation')" class="dock">
+  <nav
+    :aria-label="t('common.nav.mainNavigation')"
+    class="dock"
+    :class="{ 'dock--responsive': route.meta.responsive }"
+  >
     <div class="dock-capsule neo-scroll">
       <div class="dock-title">
         <span class="dock-glyph" aria-hidden="true">
@@ -227,6 +231,35 @@ const isActive = (path: string): boolean => {
   .dock-item,
   .dock-label {
     transition: none !important;
+  }
+}
+@media (max-width: 760px) {
+  .dock--responsive {
+    inset: auto 0 0;
+    display: flex;
+    justify-content: center;
+  }
+  .dock--responsive .dock-capsule {
+    position: static;
+    transform: none;
+    flex-direction: row;
+    gap: var(--mg-space-1);
+    width: fit-content;
+    max-width: calc(100vw - var(--mg-space-4));
+    max-height: none;
+    overflow-x: auto;
+    margin-bottom: var(--mg-space-2);
+    padding: var(--mg-space-2);
+    border-radius: var(--mg-radius-pill);
+  }
+  .dock--responsive .dock-title,
+  .dock--responsive .dock-sep,
+  .dock--responsive .dock-label {
+    display: none;
+  }
+  .dock--responsive .dock-item {
+    flex: none;
+    padding: var(--mg-space-2);
   }
 }
 </style>

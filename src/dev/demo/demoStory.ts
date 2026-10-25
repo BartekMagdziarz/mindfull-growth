@@ -120,7 +120,7 @@ export const DEMO_WEEK_STORIES: DemoWeekStory[] = [
     challenges: 'Przed rozmową przez dwa dni pisałam w głowie przeprosiny.',
     lessons: 'Proszenie o pomoc to nie porażka.',
     freeform:
-      'Decyzja: zaczynam ścieżkę o wstydzie i współczuciu dla siebie. Chcę zrozumieć tego krytyka, zamiast tylko go znosić.',
+      'Decyzja: zaczynam ścieżkę o wstydzie i samowspółczuciu. Chcę zrozumieć tego krytyka, zamiast tylko go znosić.',
     intentions: ['Zacząć ścieżkę „Wstyd i współczucie”', 'Spacer z Kubą nad Wisłą'],
   },
   {
@@ -209,7 +209,7 @@ export const DEMO_WEEK_STORIES: DemoWeekStory[] = [
     challenges: 'Sen się rozjechał przez upały.',
     lessons: 'Pytanie to nie dowód niewiedzy, tylko zaangażowania.',
     freeform:
-      'Napisałam list współczucia do siebie z czasów studiów. Płakałam, ale to był dobry płacz.',
+      'Napisałam list samowspółczucia z czasów studiów. Płakałam, ale to był dobry płacz.',
     intentions: ['Kupić wentylator do sypialni', 'Odmówić dodatkowego projektu'],
   },
   {
@@ -276,7 +276,7 @@ export const DEMO_WEEK_STORIES: DemoWeekStory[] = [
     challenges: 'Mniej czasu na bieganie przez wyjazd służbowy.',
     lessons: 'Moje pytania pomagają też innym.',
     freeform:
-      'Drugi pomiar współczucia dla siebie wyraźnie wyżej niż na początku. Widzę to też bez wykresu.',
+      'Drugi pomiar samowspółczucia wyraźnie wyżej niż na początku. Widzę to też bez wykresu.',
     intentions: ['Wyjazd służbowy do Gdańska', 'Długi bieg w niedzielę'],
   },
   {
@@ -489,7 +489,7 @@ export const DEMO_MONTH_STORIES: DemoMonthStory[] = [
       kindness: {
         effort: 3,
         verdict: 'continue',
-        note: 'List współczucia do siebie był przełomowy.',
+        note: 'List samowspółczucia był przełomowy.',
       },
     },
   },
@@ -640,7 +640,7 @@ export const DEMO_JOURNAL: DemoJournalEntry[] = [
   {
     daysAgo: 150,
     title: 'Początek ścieżki',
-    body: 'Zaczęłam ścieżkę o wstydzie. Pierwszy pomiar współczucia dla siebie wyszedł nisko, ale to w sumie nie jest zaskoczenie. Ciekawe, gdzie będę za trzy miesiące.',
+    body: 'Zaczęłam ścieżkę o wstydzie. Pierwszy pomiar samowspółczucia wyszedł nisko, ale to w sumie nie jest zaskoczenie. Ciekawe, gdzie będę za trzy miesiące.',
     emotions: [
       ['ciekawosc-i-naped', 3],
       ['niepokoj-i-zmartwienie', 2],
@@ -712,7 +712,7 @@ export const DEMO_JOURNAL: DemoJournalEntry[] = [
   {
     daysAgo: 101,
     title: 'List do młodszej siebie',
-    body: 'Napisałam list współczucia do siebie z czasów studiów, gdy myślałam, że muszę mieć same piątki, żeby ktoś mnie lubił. Płakałam. Dobry płacz.',
+    body: 'Napisałam list samowspółczucia z czasów studiów, gdy myślałam, że muszę mieć same piątki, żeby ktoś mnie lubił. Płakałam. Dobry płacz.',
     emotions: [
       ['wzruszenie', 4],
       ['czulosc', 4],
@@ -775,7 +775,7 @@ export const DEMO_JOURNAL: DemoJournalEntry[] = [
   {
     daysAgo: 64,
     title: 'Drugi pomiar',
-    body: 'Pomiar współczucia dla siebie wyraźnie wyżej niż na początku ścieżki. Krytyk wciąż jest, ale częściej łapię go w trakcie, nie po fakcie.',
+    body: 'Pomiar samowspółczucia wyraźnie wyżej niż na początku ścieżki. Krytyk wciąż jest, ale częściej łapię go w trakcie, nie po fakcie.',
     emotions: [
       ['nadzieja-i-spelnienie', 4],
       ['duma', 3],

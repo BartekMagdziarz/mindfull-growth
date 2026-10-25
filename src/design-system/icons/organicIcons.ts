@@ -1741,9 +1741,9 @@ const expansion: Draft[] = [
   ],
   [
     'exercise-scs-sf',
-    'Współczucie dla siebie (SCS-SF)',
+    'Samowspółczucie (SCS-SF)',
     'exercises',
-    'ćwiczenie praktyka kwestionariusz współczucie scs-sf',
+    'ćwiczenie praktyka kwestionariusz samowspółczucie współczucie scs-sf',
     path('M4 4h16v16H4Z M12 17q-5-3-3-6q1.5-2 3 0q1.5-2 3 0q2 3-3 6Z M8 7h8'),
   ],
   [

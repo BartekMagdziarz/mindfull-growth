@@ -57,3 +57,13 @@ Kontekst: Dziennik, Emocje i Historia pokazywały „Today, 11:00 AM” / „Oct
 2026” w polskim UI (`formatEntryDate` bez locale, `toLocaleDateString('en-US')`).
 Decyzja: `useT().locale` przekazywane do `formatEntryDate`, `toLocaleDateString`
 z locale aplikacji, „Dziś, HH:MM” z klucza `journal.editor.todayTime`.
+
+## 2026-10-25 — Responsive page as an explicit shell opt-in
+
+AI planning assistant reuses Cirrus surfaces, fields, buttons and segmented controls
+from the approved UX Lab concept, without new tokens. The application shell normally
+requires 1180 px; routes whose content supports narrow screens can opt in through
+`meta.responsive`. The shared `mg-v2-responsive-page` anatomy removes that minimum
+only for those routes. Below 760 px, the same route flag moves the existing dock
+into a horizontal bottom capsule. Other routes retain their desktop geometry.
+The assistant switches between conversation and draft on narrow screens.

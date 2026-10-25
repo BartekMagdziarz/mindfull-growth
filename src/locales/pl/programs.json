@@ -695,7 +695,7 @@
     "steps": {
       "step1": {
         "intro": "Zacznij od pomiaru: jak traktujesz siebie w trudnych chwilach. Wrócisz do niego w połowie drogi, na końcu i przy Powrocie.",
-        "title": "Współczucie dla siebie",
+        "title": "Samowspółczucie",
         "why": "Bez punktu startu nie zobaczysz zmiany. Ten pomiar jest twoim punktem odniesienia na całą drogę."
       },
       "step2": {
@@ -740,8 +740,8 @@
         "why": "Gorąca myśl „jestem…” brzmi jak fakt. Rozłożona na dowody traci siłę."
       },
       "step11": {
-        "intro": "Połowa drogi. Powtórz pomiar współczucia dla siebie — to obraz zmiany, nie ocena.",
-        "title": "Współczucie dla siebie — w połowie drogi",
+        "intro": "Połowa drogi. Powtórz pomiar samowspółczucia — to obraz zmiany, nie ocena.",
+        "title": "Samowspółczucie — w połowie drogi",
         "why": "Drugi punkt pokazuje kierunek, zanim dojdziesz do końca. To obraz, nie ocena."
       },
       "step12": {
@@ -790,8 +790,8 @@
         "why": "Wstyd ma często stare źródło. Bycie przy nim bez naprawiania zmienia więcej niż argumenty — tylko w zgodzie z częściami, które chronią."
       },
       "step21": {
-        "intro": "Powtórz pomiar współczucia dla siebie. Zobaczysz trzy punkty: start, połowa, koniec.",
-        "title": "Współczucie dla siebie — na koniec",
+        "intro": "Powtórz pomiar samowspółczucia. Zobaczysz trzy punkty: start, połowa, koniec.",
+        "title": "Samowspółczucie — na koniec",
         "why": "Trzeci punkt domyka obraz: start, połowa, koniec. To twój dowód zmiany."
       },
       "step22": {
@@ -810,8 +810,8 @@
         "why": "Bez decyzji praktyki wygasają. Wybierasz kilka, które zostają, i rytm, który się utrzyma."
       },
       "step25": {
-        "intro": "Powrót po ośmiu tygodniach: pomiar współczucia dla siebie po raz czwarty.",
-        "title": "Współczucie dla siebie — po ośmiu tygodniach",
+        "intro": "Powrót po ośmiu tygodniach: pomiar samowspółczucia po raz czwarty.",
+        "title": "Samowspółczucie — po ośmiu tygodniach",
         "why": "Czwarty pomiar mówi, co utrzymało się bez ścieżki."
       },
       "step26": {
@@ -942,7 +942,7 @@
       "inadequateSelf": "Poczucie, że nie wystarczam",
       "hatedSelf": "Niechęć do siebie",
       "reassuredSelf": "Uspokajanie siebie",
-      "total": "Współczucie dla siebie"
+      "total": "Samowspółczucie"
     },
     "goal": "Zauważać wstyd szybciej. Odpowiadać ciepłem, sobie i innym, zamiast atakiem albo ukryciem. Wracać do kontaktu."
   },

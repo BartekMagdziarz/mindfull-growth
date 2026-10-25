@@ -130,6 +130,12 @@ const router = createRouter({
       props: route => ({ goalId: route.params.goalId }),
     },
     {
+      path: '/planning-assistant',
+      name: 'planning-assistant',
+      component: () => import('@/features/planning-assistant/PlanningAssistantView.vue'),
+      meta: { requiresAuth: true, responsive: true },
+    },
+    {
       path: '/objects/:family',
       name: 'objects-family',
       component: () => import('@/views/ObjectsLibraryView.vue'),

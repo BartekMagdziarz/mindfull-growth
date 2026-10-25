@@ -46,9 +46,10 @@
           :responses="session.responsesMap"
           :page-start-index="session.currentPage * session.definition.pageSize"
           @update-response="handleUpdateResponse"
+          @page-complete="revealPageActions"
         />
 
-        <div class="mt-4 flex items-center justify-between gap-2">
+        <div ref="pageActions" class="mt-4 flex items-center justify-between gap-2">
           <AppButton
             variant="text"
             @click="session.currentPage === 0 ? session.goToIntro() : session.previousPage()"
@@ -100,7 +101,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive } from 'vue'
+import { computed, onMounted, reactive, useTemplateRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import ExercisePage from '@/components/exercises/ExercisePage.vue'
 import AppButton from '@/components/AppButton.vue'
@@ -144,6 +145,7 @@ if (!validAssessmentIds.includes(assessmentId.value as AssessmentId)) {
 }
 
 const session = reactive(useAssessmentSession(currentAssessmentId))
+const pageActions = useTemplateRef<HTMLDivElement>('pageActions')
 
 const assessmentPrefix = computed(() => {
   const marker = '.meta.title'
@@ -172,6 +174,12 @@ async function handleConsentContinue(): Promise<void> {
 
 function handleUpdateResponse(itemId: string, value: number): void {
   void session.saveResponse(itemId, value)
+}
+
+// Every card on the page answered: bring "Dalej" / "Przegląd" into view.
+function revealPageActions(): void {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  pageActions.value?.scrollIntoView({ block: 'center', behavior: reduce ? 'auto' : 'smooth' })
 }
 
 function handleEditItem(itemId: string): void {

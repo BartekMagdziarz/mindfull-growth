@@ -2,7 +2,9 @@
   <div class="space-y-3">
     <ExerciseStepper :labels="stepLabels" :current="activeStepIndex" :interactive="false" />
 
-    <div v-if="step === 'questions'" class="space-y-1">
+    <!-- One page: the thread beside the cards is the progress. Several pages
+         keep the overall bar, which counts across pages. -->
+    <div v-if="step === 'questions' && totalPages > 1" class="space-y-1">
       <div class="flex items-center justify-between text-xs text-on-surface-variant">
         <span
           >{{ t('assessments.common.flow.questions') }} {{ currentPage + 1 }}/{{ totalPages }}</span

@@ -7,6 +7,11 @@
             <AppIcon name="add" class="text-base" />
           </DsButton>
 
+          <DsButton @click="router.push('/planning-assistant')">
+            <AppIcon name="mg-growth" class="text-base" />
+            Ułóżmy plan
+          </DsButton>
+
           <DsSegmentedControl
             :label="t('planning.objects.title')"
             :model-value="store.query.family"

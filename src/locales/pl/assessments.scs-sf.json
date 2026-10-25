@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "Współczucie dla siebie (SCS-SF)",
+    "title": "Samowspółczucie (SCS-SF)",
     "subtitle": "Jak traktujesz siebie w trudnych chwilach.",
     "description": "Dwanaście stwierdzeń o tym, jak zwykle odnosisz się do siebie, gdy jest ci trudno. Wynik to średnia od 1 do 5. Im wyższa, tym więcej życzliwości wobec siebie. Tłumaczenie robocze skali Self-Compassion Scale – Short Form (Raes, Pommier, Neff i Van Gucht, 2011), używanej za zgodą autorki.",
     "category": "Emocje",
@@ -11,7 +11,7 @@
     "body": "Rozumiem, że jest to narzędzie do autorefleksji, a nie test kliniczny, i wyrażam zgodę na lokalne przechowywanie wyników na tym urządzeniu."
   },
   "scales": {
-    "total": "Współczucie dla siebie"
+    "total": "Samowspółczucie"
   },
   "anchors": {
     "1": "Prawie nigdy",

@@ -1,99 +1,87 @@
 <template>
-  <div class="space-y-4">
+  <ol ref="root" class="mg-v2-thread likert-thread">
     <template v-if="isVlq">
-      <AppCard
+      <li
         v-for="(group, index) in vlqGroups"
         :key="group.scale.id"
-        padding="lg"
-        class="space-y-4"
+        class="mg-v2-thread__item"
+        :class="threadClass(group.items, index === currentGroupIndex)"
       >
-        <div class="space-y-1">
-          <p class="text-xs text-on-surface-variant">#{{ pageStartIndex + index + 1 }}</p>
-          <h3 class="text-base font-semibold text-on-surface">{{ t(group.scale.labelKey) }}</h3>
-        </div>
+        <span class="mg-v2-thread__dot" aria-hidden="true" />
+        <AppCard padding="lg" class="space-y-4">
+          <h3 class="likert-question likert-question--title">{{ t(group.scale.labelKey) }}</h3>
 
-        <div v-for="item in group.items" :key="item.id" class="space-y-2">
-          <label class="text-sm text-on-surface">{{ tg(item.textKey) }}</label>
-          <div class="flex items-center gap-3">
-            <input
-              type="range"
-              :min="item.responseMin"
-              :max="item.responseMax"
-              :value="responseValue(item.id, item.responseMin)"
-              class="w-full"
-              @input="onSliderInput(item, $event)"
-            />
-            <input
-              type="number"
-              :min="item.responseMin"
-              :max="item.responseMax"
-              :value="responseValue(item.id, item.responseMin)"
-              class="neo-input w-20 p-2 text-center"
-              @input="onNumberInput(item, $event)"
-            />
+          <div v-for="item in group.items" :key="item.id" class="space-y-2">
+            <label class="text-sm text-on-surface">{{ tg(item.textKey) }}</label>
+            <div class="flex items-center gap-3">
+              <input
+                type="range"
+                :min="item.responseMin"
+                :max="item.responseMax"
+                :value="responseValue(item.id, item.responseMin)"
+                class="w-full"
+                @input="onSliderInput(item, $event)"
+              />
+              <input
+                type="number"
+                :min="item.responseMin"
+                :max="item.responseMax"
+                :value="responseValue(item.id, item.responseMin)"
+                class="neo-input w-20 p-2 text-center"
+                @input="onNumberInput(item, $event)"
+              />
+            </div>
+            <div class="flex items-center justify-between text-xs text-on-surface-variant">
+              <span>{{ t(anchorKey(item.responseMin)) }}</span>
+              <span>{{ t(anchorKey(item.responseMax)) }}</span>
+            </div>
           </div>
-          <div class="flex items-center justify-between text-xs text-on-surface-variant">
-            <span>{{ t(anchorKey(item.responseMin)) }}</span>
-            <span>{{ t(anchorKey(item.responseMax)) }}</span>
-          </div>
-        </div>
-      </AppCard>
+        </AppCard>
+      </li>
     </template>
 
     <template v-else>
-      <AppCard v-for="(item, index) in items" :key="item.id" padding="lg" class="space-y-3">
-        <p class="text-xs text-on-surface-variant">#{{ pageStartIndex + index + 1 }}</p>
-        <p class="text-sm font-medium text-on-surface">
-          {{ tg(item.textKey) }}
-        </p>
+      <li
+        v-for="item in items"
+        :key="item.id"
+        class="mg-v2-thread__item"
+        :class="threadClass([item], item.id === currentItemId)"
+        :data-item-id="item.id"
+      >
+        <span class="mg-v2-thread__dot" aria-hidden="true" />
+        <AppCard padding="lg" class="space-y-4">
+          <p class="likert-question">{{ tg(item.textKey) }}</p>
 
-        <div
-          v-if="definition.labelledResponses"
-          class="flex flex-wrap gap-2"
-          role="radiogroup"
-          :aria-label="tg(item.textKey)"
-        >
-          <button
-            v-for="value in responseValues(item.responseMin, item.responseMax)"
-            :key="value"
-            type="button"
-            role="radio"
-            :aria-checked="responses[item.id] === value"
-            class="neo-pill px-3 py-1.5 text-xs font-semibold"
-            :class="{ 'neo-pill--primary': responses[item.id] === value }"
-            @click="$emit('update-response', item.id, value)"
+          <div class="flex flex-wrap gap-2" role="radiogroup" :aria-label="tg(item.textKey)">
+            <button
+              v-for="value in responseValues(item.responseMin, item.responseMax)"
+              :key="value"
+              type="button"
+              role="radio"
+              class="exercise-chip"
+              :class="{ 'is-on': responses[item.id] === value }"
+              :aria-checked="responses[item.id] === value"
+              @click="pick(item.id, value)"
+            >
+              {{ definition.labelledResponses ? t(anchorKey(value)) : value }}
+            </button>
+          </div>
+
+          <div
+            v-if="!definition.labelledResponses"
+            class="flex items-center justify-between text-xs text-on-surface-variant"
           >
-            {{ t(anchorKey(value)) }}
-          </button>
-        </div>
-
-        <div v-else class="grid grid-cols-5 gap-2 sm:flex sm:flex-wrap sm:gap-2">
-          <button
-            v-for="value in responseValues(item.responseMin, item.responseMax)"
-            :key="value"
-            type="button"
-            class="neo-pill px-3 py-1.5 text-xs font-semibold"
-            :class="{ 'neo-pill--primary': responses[item.id] === value }"
-            @click="$emit('update-response', item.id, value)"
-          >
-            {{ value }}
-          </button>
-        </div>
-
-        <div
-          v-if="!definition.labelledResponses"
-          class="flex items-center justify-between text-xs text-on-surface-variant"
-        >
-          <span>{{ t(anchorKey(item.responseMin)) }}</span>
-          <span>{{ t(anchorKey(item.responseMax)) }}</span>
-        </div>
-      </AppCard>
+            <span>{{ t(anchorKey(item.responseMin)) }}</span>
+            <span>{{ t(anchorKey(item.responseMax)) }}</span>
+          </div>
+        </AppCard>
+      </li>
     </template>
-  </div>
+  </ol>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, nextTick, useTemplateRef } from 'vue'
 import AppCard from '@/components/AppCard.vue'
 import { useT } from '@/composables/useT'
 import type { AssessmentDefinition, AssessmentItemDefinition } from '@/domain/assessments'
@@ -112,11 +100,30 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update-response': [itemId: string, value: number]
+  'page-complete': []
 }>()
 
 const { t, tg } = useT()
 
+const root = useTemplateRef<HTMLOListElement>('root')
+
 const isVlq = computed(() => props.definition.id === 'vlq')
+
+const isAnswered = (item: AssessmentItemDefinition) => props.responses[item.id] !== undefined
+
+// The first unanswered card carries the current dot of the thread.
+const currentItemId = computed(() => props.items.find(item => !isAnswered(item))?.id)
+
+const currentGroupIndex = computed(() =>
+  vlqGroups.value.findIndex(group => !group.items.every(isAnswered))
+)
+
+function threadClass(items: AssessmentItemDefinition[], current: boolean) {
+  return {
+    'mg-v2-thread__item--done': items.every(isAnswered),
+    'mg-v2-thread__item--current': current,
+  }
+}
 
 const vlqGroups = computed<VlqGroup[]>(() => {
   if (!isVlq.value) return []
@@ -139,6 +146,40 @@ const vlqGroups = computed<VlqGroup[]>(() => {
       }),
     }))
 })
+
+// Picks the answer; a first answer walks the page down to the next open
+// card (or the page actions), so the questionnaire reads card by card.
+function pick(itemId: string, value: number): void {
+  const firstAnswer = props.responses[itemId] === undefined
+  emit('update-response', itemId, value)
+  if (!firstAnswer) return
+
+  const index = props.items.findIndex(item => item.id === itemId)
+  const next = props.items.slice(index + 1).find(item => !isAnswered(item))
+  const nextId = next?.id
+  const remaining = props.items.some(item => item.id !== itemId && !isAnswered(item))
+  void nextTick(() => {
+    window.setTimeout(() => {
+      if (nextId) {
+        scrollToCard(nextId)
+      } else if (!remaining) {
+        emit('page-complete')
+      }
+    }, ADVANCE_DELAY_MS)
+  })
+}
+
+// Long enough to see the picked chip fill before the page moves.
+const ADVANCE_DELAY_MS = 220
+
+function scrollToCard(itemId: string): void {
+  const card = root.value?.querySelector<HTMLElement>(`[data-item-id="${itemId}"]`)
+  card?.scrollIntoView({ block: 'center', behavior: scrollBehavior() })
+}
+
+function scrollBehavior(): ScrollBehavior {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+}
 
 function responseValues(min: number, max: number): number[] {
   return Array.from({ length: max - min + 1 }, (_, index) => min + index)
@@ -183,3 +224,21 @@ function emitResponse(itemId: string, value: number): void {
   emit('update-response', itemId, value)
 }
 </script>
+
+<style scoped>
+/* The question reads first; the dot of the thread sits on its first line. */
+.likert-thread {
+  --mg-thread-dot-top: calc(var(--mg-space-6) + 0.7rem);
+}
+
+.likert-question {
+  color: var(--mg-color-ink);
+  font-size: var(--mg-font-size-md);
+  font-weight: var(--mg-weight-label);
+  line-height: 1.5;
+}
+
+.likert-question--title {
+  font-weight: var(--mg-weight-strong);
+}
+</style>
