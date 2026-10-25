@@ -1,11 +1,17 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import IconPicker from '@/components/shared/IconPicker.vue'
 import { useT } from '@/composables/useT'
 import type { MultiCompletionItem } from '@/domain/planning'
 import { MULTI_COMPLETION_MAX_ACTIVE_ITEMS, createMultiCompletionItem } from '@/domain/planning'
 
+/**
+ * Checklist items of a multi-completion subject: one quiet row per item
+ * (icon · label · weight · hover tray), a dashed ghost row to add the next
+ * one, and a folded line for archived items. The day threshold is not here —
+ * it is a clause of the measurement sentence.
+ */
 const props = withDefaults(
   defineProps<{
     items: MultiCompletionItem[]
@@ -22,16 +28,21 @@ const emit = defineEmits<{
   'update:config': [value: { items: MultiCompletionItem[]; threshold: number | undefined }]
 }>()
 
-const { t } = useT()
+const { t, tp } = useT()
 
 // Items added in this editor instance were never referenced by an entry, so
 // they may be hard-deleted; everything else can only be archived.
 const locallyAddedIds = ref(new Set<string>())
 const archivedOpen = ref(false)
+const listRef = ref<HTMLElement | null>(null)
+// Weight chips read "×2" and open a small field only when touched.
+const editingWeightId = ref<string | null>(null)
 
 const activeItems = computed(() => props.items.filter(item => !item.archived))
 const archivedItems = computed(() => props.items.filter(item => item.archived))
 const canAdd = computed(() => activeItems.value.length < MULTI_COMPLETION_MAX_ACTIVE_ITEMS)
+// Once any weight differs from 1, every chip shows so the rows read evenly.
+const weightsMatter = computed(() => activeItems.value.some(item => item.weight !== 1))
 
 function commit(items: MultiCompletionItem[], threshold: number | undefined): void {
   const sum = Math.max(
@@ -62,11 +73,22 @@ function commitLabel(item: MultiCompletionItem, event: Event): void {
 function commitWeight(item: MultiCompletionItem, event: Event): void {
   const input = event.target as HTMLInputElement
   const parsed = Math.round(Number(input.value))
+  editingWeightId.value = null
   if (!Number.isFinite(parsed) || parsed < 1) {
     input.value = String(item.weight)
     return
   }
   if (parsed !== item.weight) patchItem(item.id, { weight: parsed })
+}
+
+function editWeight(item: MultiCompletionItem): void {
+  if (props.disabled) return
+  editingWeightId.value = item.id
+  void nextTick(() => {
+    const field = listRef.value?.querySelector<HTMLInputElement>(`[data-weight-for="${item.id}"]`)
+    field?.focus()
+    field?.select()
+  })
 }
 
 function commitIcon(item: MultiCompletionItem, icon: string | undefined): void {
@@ -80,6 +102,12 @@ function addItem(): void {
   )
   locallyAddedIds.value.add(item.id)
   commit([...props.items, item], props.threshold)
+  // The new row's label is selected so typing replaces the placeholder name.
+  void nextTick(() => {
+    const field = listRef.value?.querySelector<HTMLInputElement>(`[data-label-for="${item.id}"]`)
+    field?.focus()
+    field?.select()
+  })
 }
 
 function moveItem(id: string, direction: -1 | 1): void {
@@ -119,41 +147,21 @@ function removeItem(id: string): void {
     props.threshold
   )
 }
+
+const archivedLabel = computed(() =>
+  tp(
+    archivedItems.value.length,
+    'planning.objects.form.multiItems.archivedCount.one',
+    'planning.objects.form.multiItems.archivedCount.few',
+    'planning.objects.form.multiItems.archivedCount.many'
+  )
+)
 </script>
 
 <template>
-  <div class="space-y-2" :class="disabled ? 'pointer-events-none opacity-60' : ''">
-    <div class="flex items-center justify-between">
-      <div class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
-        {{ t('planning.objects.form.multiItems.heading') }}
-        <span class="ml-1 normal-case tracking-normal text-on-surface-variant/60">
-          {{ activeItems.length }}/{{ MULTI_COMPLETION_MAX_ACTIVE_ITEMS }}
-        </span>
-      </div>
-      <button
-        type="button"
-        class="neo-badge flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium text-on-surface transition-colors hover:text-primary disabled:opacity-40"
-        :disabled="!canAdd"
-        :title="
-          canAdd
-            ? undefined
-            : t('planning.objects.form.multiItems.maxItemsHint', {
-                max: MULTI_COMPLETION_MAX_ACTIVE_ITEMS,
-              })
-        "
-        @click="addItem"
-      >
-        <AppIcon name="add" class="text-xs" />
-        {{ t('planning.objects.form.multiItems.addItem') }}
-      </button>
-    </div>
-
-    <ul class="space-y-1">
-      <li
-        v-for="(item, index) in activeItems"
-        :key="item.id"
-        class="flex items-center gap-1.5 rounded-lg border border-white/40 bg-white/30 px-1.5 py-1"
-      >
+  <div ref="listRef" class="mi" :class="disabled ? 'pointer-events-none opacity-60' : ''">
+    <ul class="mi__list">
+      <li v-for="(item, index) in activeItems" :key="item.id" class="group/row mi__row">
         <IconPicker
           compact
           minimal
@@ -165,27 +173,45 @@ function removeItem(id: string): void {
         <input
           :value="item.label"
           type="text"
-          class="mg-v2-inline-field min-w-0 flex-1 text-xs font-semibold"
+          class="mg-v2-inline-field min-w-0 flex-1 text-sm font-semibold"
+          :data-label-for="item.id"
           :placeholder="t('planning.objects.form.multiItems.labelPlaceholder')"
           @change="commitLabel(item, $event)"
           @keydown.enter.prevent="($event.target as HTMLInputElement).blur()"
         />
-        <label class="flex shrink-0 items-center gap-1 text-[9px] text-on-surface-variant/70">
-          {{ t('planning.objects.form.multiItems.weightLabel') }}
-          <input
-            :value="item.weight"
-            type="number"
-            min="1"
-            step="1"
-            inputmode="numeric"
-            class="neo-input w-10 px-1 py-0.5 text-center text-xs"
-            @change="commitWeight(item, $event)"
-          />
-        </label>
-        <div class="flex shrink-0 items-center">
+
+        <!-- weight: a quiet chip, a ghost until it matters, a field when touched -->
+        <input
+          v-if="editingWeightId === item.id"
+          :value="item.weight"
+          type="number"
+          min="1"
+          step="1"
+          inputmode="numeric"
+          class="mg-v2-field mg-v2-sentence__num mi__weight-field"
+          :data-weight-for="item.id"
+          :aria-label="t('planning.objects.form.multiItems.weightAria', { label: item.label })"
+          @change="commitWeight(item, $event)"
+          @blur="editingWeightId = null"
+          @keydown.enter.prevent="commitWeight(item, $event)"
+          @keydown.escape.prevent="editingWeightId = null"
+        />
+        <button
+          v-else
+          type="button"
+          class="mi__weight"
+          :class="{ 'mi__weight--ghost': !weightsMatter && item.weight === 1 }"
+          :aria-label="t('planning.objects.form.multiItems.weightAria', { label: item.label })"
+          :title="t('planning.objects.form.multiItems.weightLabel')"
+          @click="editWeight(item)"
+        >
+          ×{{ item.weight }}
+        </button>
+
+        <div class="mg-v2-card-tray group-hover/row:opacity-100">
           <button
             type="button"
-            class="neo-icon-button neo-icon-button--flat neo-focus !h-6 !w-6 disabled:opacity-30"
+            class="mg-v2-button mg-v2-button--icon mg-v2-button--icon-sm mg-v2-button--quiet"
             :disabled="index === 0"
             :aria-label="`${item.label} ↑`"
             @click="moveItem(item.id, -1)"
@@ -194,7 +220,7 @@ function removeItem(id: string): void {
           </button>
           <button
             type="button"
-            class="neo-icon-button neo-icon-button--flat neo-focus !h-6 !w-6 disabled:opacity-30"
+            class="mg-v2-button mg-v2-button--icon mg-v2-button--icon-sm mg-v2-button--quiet"
             :disabled="index === activeItems.length - 1"
             :aria-label="`${item.label} ↓`"
             @click="moveItem(item.id, 1)"
@@ -204,7 +230,7 @@ function removeItem(id: string): void {
           <button
             v-if="locallyAddedIds.has(item.id)"
             type="button"
-            class="neo-icon-button neo-icon-button--flat neo-focus !h-6 !w-6 text-danger disabled:opacity-30"
+            class="mg-v2-button mg-v2-button--icon mg-v2-button--icon-sm mg-v2-button--quiet"
             :disabled="activeItems.length <= 1"
             :aria-label="t('planning.objects.form.multiItems.remove')"
             :title="t('planning.objects.form.multiItems.remove')"
@@ -215,7 +241,7 @@ function removeItem(id: string): void {
           <button
             v-else
             type="button"
-            class="neo-icon-button neo-icon-button--flat neo-focus !h-6 !w-6 disabled:opacity-30"
+            class="mg-v2-button mg-v2-button--icon mg-v2-button--icon-sm mg-v2-button--quiet"
             :disabled="activeItems.length <= 1"
             :aria-label="t('planning.objects.form.multiItems.archive')"
             :title="t('planning.objects.form.multiItems.archive')"
@@ -227,27 +253,48 @@ function removeItem(id: string): void {
       </li>
     </ul>
 
-    <div v-if="archivedItems.length > 0" class="space-y-1">
+    <!-- The next item, drawn in pencil: the same row, not yet there. -->
+    <button
+      v-if="canAdd"
+      type="button"
+      class="mg-v2-ghost mg-v2-ghost--row mi__ghost"
+      @click="addItem"
+    >
+      <span class="mi__ghost-disc" aria-hidden="true"><AppIcon name="add" class="text-sm" /></span>
+      {{ t('planning.objects.form.multiItems.addItem') }}
+    </button>
+    <p v-else class="mg-v2-meta mi__hint">
+      <span>{{
+        t('planning.objects.form.multiItems.maxItemsHint', {
+          max: MULTI_COMPLETION_MAX_ACTIVE_ITEMS,
+        })
+      }}</span>
+    </p>
+
+    <div v-if="archivedItems.length > 0" class="mi__archived">
       <button
         type="button"
-        class="flex items-center gap-1 text-[10px] font-medium text-on-surface-variant underline decoration-dotted underline-offset-2 hover:text-on-surface"
+        class="mg-v2-inline-trigger mg-v2-meta mi__archived-toggle"
+        :aria-expanded="archivedOpen"
         @click="archivedOpen = !archivedOpen"
       >
-        <AppIcon :name="archivedOpen ? 'expand_less' : 'expand_more'" class="text-xs" />
-        {{ t('planning.objects.form.multiItems.archivedHeading', { count: archivedItems.length }) }}
+        <span>
+          <AppIcon :name="archivedOpen ? 'expand_less' : 'expand_more'" class="text-xs" />
+          {{ archivedLabel }}
+        </span>
       </button>
-      <ul v-if="archivedOpen" class="space-y-1">
+      <ul v-if="archivedOpen" class="mi__list">
         <li
           v-for="item in archivedItems"
           :key="item.id"
-          class="flex items-center gap-1.5 rounded-lg border border-white/25 bg-white/15 px-1.5 py-1 opacity-70"
+          class="group/row mi__row mi__row--archived"
         >
-          <span class="min-w-0 flex-1 truncate px-1 text-xs text-on-surface-variant">{{
+          <span class="min-w-0 flex-1 truncate px-2 text-sm text-on-surface-variant">{{
             item.label
           }}</span>
           <button
             type="button"
-            class="neo-badge px-2 py-0.5 text-[10px] font-medium text-on-surface transition-colors hover:text-primary disabled:opacity-40"
+            class="mg-v2-button mg-v2-button--quiet mi__restore"
             :disabled="!canAdd"
             @click="restoreItem(item.id)"
           >
@@ -258,3 +305,111 @@ function removeItem(id: string): void {
     </div>
   </div>
 </template>
+
+<style scoped>
+.mi {
+  display: grid;
+  gap: var(--mg-space-1);
+}
+
+.mi__list {
+  display: grid;
+  gap: var(--mg-space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A row reads as text until hovered: then it lays on paper and shows its tray. */
+.mi__row {
+  display: flex;
+  align-items: center;
+  gap: var(--mg-space-2);
+  min-height: 2.25rem;
+  padding: var(--mg-space-1) var(--mg-space-1) var(--mg-space-1) var(--mg-space-2);
+  border-radius: var(--mg-radius-sm);
+  transition: background var(--mg-duration-fast) ease;
+}
+
+.mi__row:hover,
+.mi__row:focus-within {
+  background: var(--mg-color-paper);
+}
+
+.mi__row--archived {
+  opacity: 0.7;
+}
+
+.mi__weight {
+  flex: 0 0 auto;
+  min-width: 2rem;
+  padding: 0 var(--mg-space-2);
+  border: 1px solid var(--mg-color-border);
+  border-radius: var(--mg-radius-pill);
+  color: var(--mg-color-muted);
+  background: transparent;
+  font-size: var(--mg-font-size-xs);
+  font-weight: var(--mg-weight-strong);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.5rem;
+  cursor: pointer;
+}
+
+.mi__weight:hover {
+  color: var(--mg-color-ink);
+  background: var(--mg-color-mist);
+}
+
+/* Weight 1 is the default: a ghost that only shows when the row is touched. */
+.mi__weight--ghost {
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--mg-color-primary-strong) 40%, transparent);
+  color: var(--mg-color-primary-strong);
+  opacity: 0;
+}
+
+.mi__row:hover .mi__weight--ghost,
+.mi__row:focus-within .mi__weight--ghost {
+  opacity: 0.8;
+}
+
+.mi__weight-field {
+  flex: 0 0 auto;
+  width: 3rem;
+}
+
+.mi__ghost {
+  gap: var(--mg-space-2);
+  min-height: 2.25rem;
+  padding-left: var(--mg-space-2);
+}
+
+/* The ghost's disc mirrors the row's icon disc (IconPicker minimal, 2rem). */
+.mi__ghost-disc {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px dashed color-mix(in srgb, var(--mg-color-primary-strong) 50%, transparent);
+  border-radius: var(--mg-radius-icon-field-a);
+}
+
+.mi__hint {
+  padding: var(--mg-space-1) var(--mg-space-2);
+}
+
+.mi__archived {
+  display: grid;
+  gap: var(--mg-space-1);
+}
+
+.mi__archived-toggle {
+  width: auto;
+}
+
+.mi__restore {
+  min-height: 1.75rem;
+  padding: 0 var(--mg-space-3);
+  font-size: var(--mg-font-size-xs);
+}
+</style>

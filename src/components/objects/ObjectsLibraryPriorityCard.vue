@@ -1,5 +1,5 @@
 <template>
-  <article class="group/card mg-v2-surface mg-v2-surface--raised-sm p-3.5">
+  <article class="group/card mg-v2-surface mg-v2-surface--raised-sm p-4">
     <div class="space-y-3">
       <div class="flex items-center gap-2">
         <span class="relative inline-flex shrink-0">

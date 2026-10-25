@@ -956,7 +956,13 @@
         "defaultItemLabel": "Item 1",
         "maxItemsHint": "Up to {max} active items",
         "progressItems": "{n} of {max} items",
-        "progressPoints": "{n} / {max} pts"
+        "progressPoints": "{n} / {max} pts",
+        "weightAria": "Weight: {label}",
+        "archivedCount": {
+          "one": "{n} archived",
+          "few": "{n} archived",
+          "many": "{n} archived"
+        }
       }
     },
     "linksDropdown": {
@@ -1017,6 +1023,23 @@
       "noActivePeriods": "No active periods",
       "zoomOut": "Show trend",
       "zoomIn": "Show details"
+    },
+    "periodsLine": {
+      "chooseWeeks": "Choose weeks",
+      "chooseMonths": "Choose months",
+      "permanent": "ongoing",
+      "withGaps": "with gaps",
+      "weeks": {
+        "one": "{n} week",
+        "few": "{n} weeks",
+        "many": "{n} weeks"
+      },
+      "months": {
+        "one": "{n} month",
+        "few": "{n} months",
+        "many": "{n} months"
+      },
+      "label": "Periods"
     }
   },
   "goalWizard": {

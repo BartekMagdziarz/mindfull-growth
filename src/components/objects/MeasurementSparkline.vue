@@ -1,15 +1,8 @@
 <template>
-  <div class="w-full">
-    <div
-      v-if="visiblePoints.length === 0"
-      :class="compact ? 'h-[52px]' : 'h-[96px]'"
-      class="flex items-center justify-center text-[10px] text-on-surface-variant/40"
-    >
-      {{ t('planning.objects.chart.noActivePeriods') }}
-    </div>
-
+  <!-- Nothing to draw = nothing drawn: the host says "choose weeks" once. -->
+  <div v-if="visiblePoints.length > 0" class="w-full">
     <SparklineValueLine
-      v-else-if="entryMode === 'value'"
+      v-if="entryMode === 'value'"
       :points="visiblePoints"
       :cadence="cadence"
       :compact="compact"
@@ -28,7 +21,6 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useT } from '@/composables/useT'
 import type { ObjectsLibraryChartPoint } from '@/services/objectsLibraryQueries'
 import type { MeasurementEntryMode } from '@/domain/planning'
 import { getVisiblePoints } from './sparklines/sparklineUtils'
@@ -45,8 +37,6 @@ const props = withDefaults(
   }>(),
   { entryMode: 'completion', compact: false }
 )
-
-const { t } = useT()
 
 const visiblePoints = computed(() => getVisiblePoints(props.points, props.cadence))
 </script>

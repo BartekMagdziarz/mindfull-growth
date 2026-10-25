@@ -95,3 +95,30 @@ przed/po: `ideas/ux-audit-2026-10-25-object-cards/`.
   okresów zamiast „Wybierz okresy (17)”, checklista bez licznika z tacką i
   duchem-wierszem, ramka wykresu, priorytet jako proza, intencja w tej samej
   gramatyce, edytor nowego obiektu.
+
+### P2 (2026-10-25): układ kart pomiarowych i checklista
+
+- **Kolejność rozwiniętej karty** (KR, nawyk, tracker): zdanie pomiaru na
+  całą szerokość → elementy checklisty → linia okresów → pole „Zasady
+  zaliczenia” (bez etykiety; placeholder jest etykietą, `aria-label` niesie
+  nazwę) → wykres bez własnej ramki. Siatka „Okresy | Cel” i nagłówki
+  wersalikami zniknęły; padding kart 1. poziomu = `--mg-space-4`, KR =
+  `--mg-space-3`.
+- **D2 Okresy = `ObjectCardPeriods`**: jedna cicha linia „29 cze – 25 paź ·
+  17 tygodni [· z przerwami]” (`.mg-v2-inline-trigger` + `.mg-v2-meta`, rok
+  tylko gdy okno wychodzi poza bieżący rok), nawyk stały = „na stałe”, puste =
+  duch `.mg-v2-ghost--line` „Wybierz tygodnie / miesiące”. Klik otwiera
+  `PeriodCalendarPicker` w trybie `triggerless` (`show()`).
+  `PeriodSelectionSummary` został tylko w kreatorze celu.
+- **D3 Checklista (`MultiItemsEditor`)**: bez nagłówka i licznika; wiersz =
+  dysk ikony · etykieta `.mg-v2-inline-field` · chip wagi „×N” · tacka
+  `.mg-v2-card-tray` (↑ ↓ archiwizuj/usuń) widoczna na hover/fokus wiersza.
+  Waga 1 jest duchem (kreskowany chip) pokazywanym tylko na hover, dopóki
+  żadna waga nie jest ≠ 1; klik w chip otwiera małe pole liczbowe. Dodawanie =
+  duch-wiersz `.mg-v2-ghost--row` z kreskowanym dyskiem (nowy wiersz dostaje
+  fokus z zaznaczoną nazwą); przy limicie 8 duch znika, zostaje cicha linia z
+  limitem. Zarchiwizowane = zwinięta linia „N zarchiwizowanych”.
+- **D9 Pusty wykres** nie rysuje nic (`MeasurementSparkline` bez punktów);
+  duch okresów mówi, co zrobić. Tor wskaźnika ocen
+  (`SparklineRatingGauge`) = `--mg-color-sky-well`, bo bez ramki wykresu
+  dawny ton mgły ginął na karcie.

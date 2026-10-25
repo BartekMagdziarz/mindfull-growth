@@ -128,8 +128,9 @@ test.describe('multi-completion', () => {
     await card.hover()
     await card.getByRole('button', { name: 'Pokaż szczegóły' }).click()
 
-    await expect(card.getByText('Elementy')).toBeVisible()
+    // Items editor: three rows and a ghost row for the next item.
     await expect(card.locator('input[placeholder="Nazwa elementu"]')).toHaveCount(3)
+    await expect(card.getByRole('button', { name: 'Dodaj element' })).toBeVisible()
     // Explicit threshold 3 of 4 pts (weights are not all 1 → points suffix)
     // lives in the measurement sentence, not in the items editor.
     await expect(card.getByText('z 4 pkt', { exact: true })).toBeVisible()

@@ -1,5 +1,5 @@
 <template>
-  <article class="group/card mg-v2-surface mg-v2-surface--raised-sm p-3">
+  <article class="group/card mg-v2-surface mg-v2-surface--raised-sm p-4">
     <div class="space-y-2">
       <!-- Row 1: Icon + Title + hover tray (links, expand, menu w/ status) -->
       <div class="flex items-center gap-2">
@@ -120,7 +120,23 @@
         }"
       >
         <div class="space-y-3 pt-1">
-          <!-- Multi-completion items + daily threshold -->
+          <!-- The sentence: what counts, how often (a tracker: mode, scale, cadence) -->
+          <MeasurementTargetSentence
+            :entry-mode="item.entryMode ?? 'completion'"
+            :target="item.target"
+            :cadence="item.cadence === 'monthly' ? 'monthly' : 'weekly'"
+            :rating-scale="item.ratingScale ?? 10"
+            :rating-scale-min="item.ratingScaleMin ?? 1"
+            :multi="multiFacts"
+            editable-scale
+            show-cadence
+            @update:measurement="onTargetMeasurement"
+            @update:cadence="onCadence"
+            @update:scale="onScale"
+            @update:threshold="onThreshold"
+          />
+
+          <!-- Checklist items (threshold lives in the sentence) -->
           <MultiItemsEditor
             v-if="item.entryMode === 'multi-completion'"
             :items="item.multiItems ?? []"
@@ -128,77 +144,35 @@
             @update:config="emitFieldChange('multiConfig', $event)"
           />
 
-          <!-- Periods + Target -->
-          <div class="grid grid-cols-2 gap-3">
-            <!-- Periods -->
-            <div class="space-y-1">
-              <div
-                class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant"
-              >
-                {{ t('planning.objects.form.periods') }}
-              </div>
-              <div class="mg-v2-surface mg-v2-surface--flat group relative min-h-[60px] p-1.5">
-                <PeriodCalendarPicker
-                  :model-value="linkedPeriods.map(period => period.periodRef)"
-                  :cadence="item.cadence === 'monthly' ? 'monthly' : 'weekly'"
-                  :commit="savePeriods"
-                  :allow-permanent="panelType === 'habit'"
-                  :is-permanent="item.isPermanent"
-                  :commit-schedule="saveSchedule"
-                />
-
-                <p
-                  v-if="panelType === 'habit' && item.isPermanent"
-                  class="text-xs font-semibold text-primary"
-                >
-                  {{ t('planning.periodPicker.permanent') }}
-                </p>
-                <PeriodSelectionSummary
-                  :periods="linkedPeriods.map(period => period.periodRef)"
-                  :cadence="item.cadence === 'monthly' ? 'monthly' : 'weekly'"
-                />
-              </div>
-            </div>
-
-            <!-- Target: the sentence (a tracker has no target — mode, scale and cadence only) -->
-            <div class="space-y-1">
-              <div
-                class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant"
-              >
-                {{ t('planning.objects.form.target') }}
-              </div>
-              <MeasurementTargetSentence
-                :entry-mode="item.entryMode ?? 'completion'"
-                :target="item.target"
-                :cadence="item.cadence === 'monthly' ? 'monthly' : 'weekly'"
-                :rating-scale="item.ratingScale ?? 10"
-                :rating-scale-min="item.ratingScaleMin ?? 1"
-                :multi="multiFacts"
-                editable-scale
-                show-cadence
-                @update:measurement="onTargetMeasurement"
-                @update:cadence="onCadence"
-                @update:scale="onScale"
-                @update:threshold="onThreshold"
-              />
-            </div>
-          </div>
-
-          <!-- Completion rules -->
-          <div class="space-y-1">
-            <div
-              class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant"
-            >
-              {{ t('planning.objects.form.completionRules') }}
-            </div>
-            <textarea
-              ref="descriptionRef"
-              v-model="description"
-              class="mg-v2-field w-full resize-y text-xs"
-              :placeholder="t('planning.objects.form.completionRulesPlaceholder')"
-              @blur="flushDescription"
+          <!-- Periods: one quiet line; click opens the calendar -->
+          <div class="relative">
+            <ObjectCardPeriods
+              :periods="linkedPeriods.map(period => period.periodRef)"
+              :cadence="item.cadence === 'monthly' ? 'monthly' : 'weekly'"
+              :is-permanent="panelType === 'habit' && Boolean(item.isPermanent)"
+              @open="openPeriods"
+            />
+            <PeriodCalendarPicker
+              ref="periodsRef"
+              triggerless
+              :model-value="linkedPeriods.map(period => period.periodRef)"
+              :cadence="item.cadence === 'monthly' ? 'monthly' : 'weekly'"
+              :commit="savePeriods"
+              :allow-permanent="panelType === 'habit'"
+              :is-permanent="item.isPermanent"
+              :commit-schedule="saveSchedule"
             />
           </div>
+
+          <!-- Completion rules: the placeholder is the label -->
+          <textarea
+            ref="descriptionRef"
+            v-model="description"
+            class="mg-v2-field w-full resize-y text-sm"
+            :aria-label="t('planning.objects.form.completionRules')"
+            :placeholder="t('planning.objects.form.completionRulesPlaceholder')"
+            @blur="flushDescription"
+          />
         </div>
       </div>
 
@@ -206,10 +180,7 @@
            anatomy as a KR inside a goal card (a habit reads like a goal with
            a single KR). Facts collapse when expanded — the target sentence
            above then shows cadence + mode + target in editable form. -->
-      <div
-        :class="item.chartData ? 'mg-v2-surface mg-v2-surface--flat p-2.5' : ''"
-        data-testid="measurement-field"
-      >
+      <div data-testid="measurement-field">
         <div
           class="transition-all duration-200 ease-in-out"
           :class="isExpanded || !item.chartData ? '' : 'mb-2'"
@@ -243,7 +214,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import PeriodSelectionSummary from '@/components/objects/PeriodSelectionSummary.vue'
+import ObjectCardPeriods from '@/components/objects/ObjectCardPeriods.vue'
 import PeriodCalendarPicker from '@/components/objects/PeriodCalendarPicker.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
@@ -292,6 +263,11 @@ const { t } = useT()
 
 const menuRef = ref<HTMLElement | null>(null)
 const menuOpen = ref(false)
+const periodsRef = ref<InstanceType<typeof PeriodCalendarPicker> | null>(null)
+
+function openPeriods(): void {
+  void periodsRef.value?.show()
+}
 
 const {
   value: title,

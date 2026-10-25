@@ -956,7 +956,13 @@
         "defaultItemLabel": "Element 1",
         "maxItemsHint": "Maksymalnie {max} aktywnych elementów",
         "progressItems": "{n} z {max} elementów",
-        "progressPoints": "{n} / {max} pkt"
+        "progressPoints": "{n} / {max} pkt",
+        "weightAria": "Waga: {label}",
+        "archivedCount": {
+          "one": "{n} zarchiwizowany",
+          "few": "{n} zarchiwizowane",
+          "many": "{n} zarchiwizowanych"
+        }
       }
     },
     "linksDropdown": {
@@ -1017,6 +1023,23 @@
       "noActivePeriods": "Brak aktywnych okresów",
       "zoomOut": "Pokaż trend",
       "zoomIn": "Pokaż szczegóły"
+    },
+    "periodsLine": {
+      "chooseWeeks": "Wybierz tygodnie",
+      "chooseMonths": "Wybierz miesiące",
+      "permanent": "na stałe",
+      "withGaps": "z przerwami",
+      "weeks": {
+        "one": "{n} tydzień",
+        "few": "{n} tygodnie",
+        "many": "{n} tygodni"
+      },
+      "months": {
+        "one": "{n} miesiąc",
+        "few": "{n} miesiące",
+        "many": "{n} miesięcy"
+      },
+      "label": "Okresy"
     }
   },
   "goalWizard": {

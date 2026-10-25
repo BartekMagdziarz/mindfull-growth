@@ -40,7 +40,7 @@ function renderCard(item = habit()) {
         ObjectCardAffiliation: true,
         GoalLinksDropdown: true,
         PeriodCalendarPicker: true,
-        PeriodSelectionSummary: true,
+        ObjectCardPeriods: true,
         MeasurementTargetSentence: true,
         MultiItemsEditor: true,
         MeasurementSparkline: { template: '<div data-testid="sparkline" />' },
@@ -50,10 +50,10 @@ function renderCard(item = habit()) {
 }
 
 describe('ObjectsLibraryMeasurementCard — measurement field', () => {
-  it('puts the quiet facts and the chart into one flat field, like a KR', () => {
+  it('puts the quiet facts and the chart into one field without its own frame', () => {
     const { getByTestId } = renderCard()
     const field = getByTestId('measurement-field')
-    expect(field.classList).toContain('mg-v2-surface--flat')
+    expect(field.classList).not.toContain('mg-v2-surface--flat')
     expect(field.querySelector('.mg-v2-meta')?.textContent).toContain('Weekly')
     expect(field.querySelector('[data-testid="sparkline"]')).not.toBeNull()
   })

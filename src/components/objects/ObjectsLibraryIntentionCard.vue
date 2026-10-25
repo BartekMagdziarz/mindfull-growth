@@ -1,5 +1,5 @@
 <template>
-  <article class="group/card mg-v2-surface mg-v2-surface--raised-sm p-3">
+  <article class="group/card mg-v2-surface mg-v2-surface--raised-sm p-4">
     <!-- Edit mode -->
     <div v-if="editing" class="space-y-3">
       <input

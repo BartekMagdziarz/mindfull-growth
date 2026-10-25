@@ -1,6 +1,6 @@
 <template>
   <div class="group/kr mg-v2-surface mg-v2-surface--flat">
-    <div class="space-y-2 p-2.5">
+    <div class="space-y-2 p-3">
       <!-- Row 1: Title + hover tray (expand, menu w/ status) -->
       <div class="flex items-center gap-2">
         <input
@@ -86,54 +86,23 @@
         }"
       >
         <div class="space-y-3 pt-1">
-          <!-- Periods + Target (cadence + mode live in the sentence) -->
-          <div class="grid grid-cols-2 gap-3">
-            <!-- Periods -->
-            <div class="space-y-1">
-              <div
-                class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant"
-              >
-                {{ t('planning.objects.form.periods') }}
-              </div>
-              <div class="mg-v2-surface mg-v2-surface--flat group relative min-h-[60px] p-1.5">
-                <PeriodCalendarPicker
-                  :model-value="linkedPeriods.map(period => period.periodRef)"
-                  :cadence="child.cadence === 'monthly' ? 'monthly' : 'weekly'"
-                  :commit="savePeriods"
-                />
+          <!-- The sentence: what counts, how often -->
+          <MeasurementTargetSentence
+            :entry-mode="child.entryMode ?? 'completion'"
+            :target="child.target"
+            :cadence="child.cadence === 'monthly' ? 'monthly' : 'weekly'"
+            :rating-scale="child.ratingScale ?? 10"
+            :rating-scale-min="child.ratingScaleMin ?? 1"
+            :multi="multiFacts"
+            editable-scale
+            show-cadence
+            @update:measurement="onTargetMeasurement"
+            @update:cadence="onCadence"
+            @update:scale="onScale"
+            @update:threshold="onThreshold"
+          />
 
-                <PeriodSelectionSummary
-                  :periods="linkedPeriods.map(period => period.periodRef)"
-                  :cadence="child.cadence === 'monthly' ? 'monthly' : 'weekly'"
-                />
-              </div>
-            </div>
-
-            <!-- Target -->
-            <div class="space-y-1">
-              <div
-                class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant"
-              >
-                {{ t('planning.objects.form.target') }}
-              </div>
-              <MeasurementTargetSentence
-                :entry-mode="child.entryMode ?? 'completion'"
-                :target="child.target"
-                :cadence="child.cadence === 'monthly' ? 'monthly' : 'weekly'"
-                :rating-scale="child.ratingScale ?? 10"
-                :rating-scale-min="child.ratingScaleMin ?? 1"
-                :multi="multiFacts"
-                editable-scale
-                show-cadence
-                @update:measurement="onTargetMeasurement"
-                @update:cadence="onCadence"
-                @update:scale="onScale"
-                @update:threshold="onThreshold"
-              />
-            </div>
-          </div>
-
-          <!-- Multi-completion items + daily threshold -->
+          <!-- Checklist items (threshold lives in the sentence) -->
           <MultiItemsEditor
             v-if="child.entryMode === 'multi-completion'"
             :items="child.multiItems ?? []"
@@ -141,21 +110,31 @@
             @update:config="emitFieldChange('multiConfig', $event)"
           />
 
-          <!-- Completion rules -->
-          <div class="space-y-1">
-            <div
-              class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant"
-            >
-              {{ t('planning.objects.form.completionRules') }}
-            </div>
-            <textarea
-              ref="descriptionRef"
-              v-model="description"
-              class="mg-v2-field w-full resize-y text-xs"
-              :placeholder="t('planning.objects.form.completionRulesPlaceholder')"
-              @blur="flushDescription"
+          <!-- Periods: one quiet line; click opens the calendar -->
+          <div class="relative">
+            <ObjectCardPeriods
+              :periods="linkedPeriods.map(period => period.periodRef)"
+              :cadence="child.cadence === 'monthly' ? 'monthly' : 'weekly'"
+              @open="openPeriods"
+            />
+            <PeriodCalendarPicker
+              ref="periodsRef"
+              triggerless
+              :model-value="linkedPeriods.map(period => period.periodRef)"
+              :cadence="child.cadence === 'monthly' ? 'monthly' : 'weekly'"
+              :commit="savePeriods"
             />
           </div>
+
+          <!-- Completion rules: the placeholder is the label -->
+          <textarea
+            ref="descriptionRef"
+            v-model="description"
+            class="mg-v2-field w-full resize-y text-sm"
+            :aria-label="t('planning.objects.form.completionRules')"
+            :placeholder="t('planning.objects.form.completionRulesPlaceholder')"
+            @blur="flushDescription"
+          />
         </div>
       </div>
 
@@ -171,7 +150,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import PeriodSelectionSummary from '@/components/objects/PeriodSelectionSummary.vue'
+import ObjectCardPeriods from '@/components/objects/ObjectCardPeriods.vue'
 import PeriodCalendarPicker from '@/components/objects/PeriodCalendarPicker.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
@@ -217,6 +196,11 @@ const { t } = useT()
 
 const menuRef = ref<HTMLElement | null>(null)
 const menuOpen = ref(false)
+const periodsRef = ref<InstanceType<typeof PeriodCalendarPicker> | null>(null)
+
+function openPeriods(): void {
+  void periodsRef.value?.show()
+}
 
 function emitFieldChange(field: string, value: unknown): void {
   emit('field-change', field, value)

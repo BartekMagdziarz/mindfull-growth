@@ -8,7 +8,7 @@
         :width="colW"
         :height="cH"
         rx="4"
-        fill="rgb(var(--sky-100) / 0.58)"
+        fill="var(--mg-color-sky-well)"
       />
 
       <!-- Filled portion -->
