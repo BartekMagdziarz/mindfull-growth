@@ -1,25 +1,30 @@
 import { test, expect, type Page } from '@playwright/test'
 import { getPeriodRefsForDate, getPreviousPeriod } from '../src/utils/periods'
+/** Port of the verification instance this run targets (playwright.config.ts VERIFY_PORT). */
+const verifyPort = () => new URL(test.info().project.use.baseURL!).port
 async function data(
   page: Page,
   table: 'journalEntries' | 'companionConversations' | 'journalDrafts' | 'monthlyReflections'
 ) {
-  return page.evaluate(async name => {
-    const modulePath = '/src/services/userDatabaseService.ts'
-    const { UserDatabase } = await import(/* @vite-ignore */ modulePath)
-    const databases = (await indexedDB.databases()).filter(db =>
-      db.name?.startsWith('MindfullGrowthDB_simplify_')
-    )
-    if (databases.length !== 1 || location.port !== '5199')
-      throw new Error('Expected one isolated verification database')
-    const db = new UserDatabase(databases[0].name)
-    try {
-      await db.open()
-      return await db.table(name).toArray()
-    } finally {
-      db.close()
-    }
-  }, table)
+  return page.evaluate(
+    async ({ name, port }) => {
+      const modulePath = '/src/services/userDatabaseService.ts'
+      const { UserDatabase } = await import(/* @vite-ignore */ modulePath)
+      const databases = (await indexedDB.databases()).filter(db =>
+        db.name?.startsWith('MindfullGrowthDB_simplify_')
+      )
+      if (databases.length !== 1 || location.port !== port)
+        throw new Error('Expected one isolated verification database')
+      const db = new UserDatabase(databases[0].name)
+      try {
+        await db.open()
+        return await db.table(name).toArray()
+      } finally {
+        db.close()
+      }
+    },
+    { name: table, port: verifyPort() }
+  )
 }
 async function fakeAI(page: Page) {
   const inputs: Array<{ context: { surface: string; periodRef: string }; draft: string }> = []
@@ -145,35 +150,38 @@ test.describe('journal and monthly companion', () => {
         )
       )
       .toBe(false)
-    await page.evaluate(async id => {
-      const modulePath = '/src/services/userDatabaseService.ts'
-      const { UserDatabase } = await import(/* @vite-ignore */ modulePath)
-      const databases = (await indexedDB.databases()).filter(db =>
-        db.name?.startsWith('MindfullGrowthDB_simplify_')
-      )
-      if (databases.length !== 1 || location.port !== '5199')
-        throw new Error('Expected isolated verification database')
-      const db = new UserDatabase(databases[0].name)
-      await db.open()
-      await db.journalEntries.update(id, {
-        chatSessions: [
-          {
-            id: 'legacy-e6',
-            intention: 'reflect',
-            createdAt: '2026-09-01T12:00:00Z',
-            messages: [
-              {
-                id: 'legacy-message',
-                role: 'user',
-                content: 'Moja dawna rozmowa',
-                timestamp: '2026-09-01T12:00:00Z',
-              },
-            ],
-          },
-        ],
-      })
-      db.close()
-    }, entry.id)
+    await page.evaluate(
+      async ({ id, port }) => {
+        const modulePath = '/src/services/userDatabaseService.ts'
+        const { UserDatabase } = await import(/* @vite-ignore */ modulePath)
+        const databases = (await indexedDB.databases()).filter(db =>
+          db.name?.startsWith('MindfullGrowthDB_simplify_')
+        )
+        if (databases.length !== 1 || location.port !== port)
+          throw new Error('Expected isolated verification database')
+        const db = new UserDatabase(databases[0].name)
+        await db.open()
+        await db.journalEntries.update(id, {
+          chatSessions: [
+            {
+              id: 'legacy-e6',
+              intention: 'reflect',
+              createdAt: '2026-09-01T12:00:00Z',
+              messages: [
+                {
+                  id: 'legacy-message',
+                  role: 'user',
+                  content: 'Moja dawna rozmowa',
+                  timestamp: '2026-09-01T12:00:00Z',
+                },
+              ],
+            },
+          ],
+        })
+        db.close()
+      },
+      { id: entry.id, port: verifyPort() }
+    )
     await page.goto(`/journal/${entry.id}/edit`)
     await expect(page.getByRole('button', { name: 'View chat session' })).toBeVisible()
     expect(

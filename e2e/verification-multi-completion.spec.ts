@@ -61,7 +61,9 @@ test.describe('multi-completion', () => {
     const fraction = row.locator('.ndi__well--fraction')
     await expect(fraction).toBeVisible()
     await expect(fraction).toHaveText(/^\s*\d\s*\/\s*3\s*$/)
-    await row.locator('.ndi__multi').hover()
+    const multi = row.locator('.ndi__multi')
+    await expect(multi).toBeVisible()
+    await multi.hover()
 
     const chips = row.locator('.ndi__well--dot')
     await expect(chips).toHaveCount(3)
@@ -77,6 +79,7 @@ test.describe('multi-completion', () => {
     // Uncheck everything — the last uncheck must DELETE the entry without errors.
     for (const label of initiallyPressed) {
       const chip = row.getByRole('button', { name: label })
+      await expect(chip).toBeVisible()
       await chip.click()
       await expect(chip).toHaveAttribute('aria-pressed', 'false', { timeout: 15_000 })
     }
@@ -89,6 +92,7 @@ test.describe('multi-completion', () => {
 
     // Toggle one item on and off again (entry create → delete round-trip).
     const training = row.getByRole('button', { name: 'Trening' })
+    await expect(training).toBeVisible()
     await training.click()
     await expect(training).toHaveAttribute('aria-pressed', 'true', { timeout: 15_000 })
     await training.click()
@@ -97,6 +101,7 @@ test.describe('multi-completion', () => {
     // Restore the seeded state.
     for (const label of initiallyPressed) {
       const chip = row.getByRole('button', { name: label })
+      await expect(chip).toBeVisible()
       await chip.click()
       await expect(chip).toHaveAttribute('aria-pressed', 'true', { timeout: 15_000 })
     }
