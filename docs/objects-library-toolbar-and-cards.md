@@ -130,3 +130,11 @@ przed/po: `ideas/ux-audit-2026-10-25-object-cards/`.
   „Wybierz tygodnie”) są wyblakłymi chmurami, nie kreskowanymi obrysami.
   Wykres liniowy: linia `--mg-color-data-fill`, ostatnia wartość jako dysk
   `.mg-well--done`.
+- **Druga poprawka (uwagi usera):** pola tekstowe i liczbowe nie mają ramki
+  w spoczynku (`.mg-v2-field` z przezroczystą krawędzią; krawędź akcentu tylko
+  w fokusie; papier-na-papierze dostaje `--mg-color-border-subtle`), podpowiedź
+  pola zasad skrócona do „Zasady zaliczenia”. Linia okresów nie ma własnej
+  grupy: w nawyku i trackerze siedzi po prawej stronie rzędu glifów
+  priorytetów i obszarów (tylko po rozwinięciu, bo okresy ładują się z
+  rozwinięciem), w rezultacie — jako cicha linia pod tytułem, w miejscu
+  zwiniętych faktów.

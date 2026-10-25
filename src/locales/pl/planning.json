@@ -936,7 +936,7 @@
       "goalTitlePlaceholder": "Tytuł celu",
       "goalDescriptionPlaceholder": "Opis",
       "completionRules": "Zasady zaliczenia",
-      "completionRulesPlaceholder": "Opisz, kiedy ten obiekt uznajesz za zaliczony",
+      "completionRulesPlaceholder": "Zasady zaliczenia",
       "targetDateLabel": "Data docelowa",
       "targetDateMissing": "Brak terminu",
       "multiItems": {

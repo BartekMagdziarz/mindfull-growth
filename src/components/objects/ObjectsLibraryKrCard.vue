@@ -86,6 +86,22 @@
         }"
       >
         <div class="space-y-3 pt-1">
+          <!-- Periods: one quiet line in the place of the collapsed facts -->
+          <div class="relative">
+            <ObjectCardPeriods
+              :periods="linkedPeriods.map(period => period.periodRef)"
+              :cadence="child.cadence === 'monthly' ? 'monthly' : 'weekly'"
+              @open="openPeriods"
+            />
+            <PeriodCalendarPicker
+              ref="periodsRef"
+              triggerless
+              :model-value="linkedPeriods.map(period => period.periodRef)"
+              :cadence="child.cadence === 'monthly' ? 'monthly' : 'weekly'"
+              :commit="savePeriods"
+            />
+          </div>
+
           <!-- The sentence: what counts, how often -->
           <section class="mg-v2-group">
             <MeasurementTargetSentence
@@ -112,25 +128,6 @@
               :threshold="child.multiDailyThreshold"
               @update:config="emitFieldChange('multiConfig', $event)"
             />
-          </section>
-
-          <!-- Periods: one quiet line; click opens the calendar -->
-          <section class="mg-v2-group">
-            <p class="mg-v2-group__label">{{ t('planning.objects.periodsLine.label') }}</p>
-            <div class="relative">
-              <ObjectCardPeriods
-                :periods="linkedPeriods.map(period => period.periodRef)"
-                :cadence="child.cadence === 'monthly' ? 'monthly' : 'weekly'"
-                @open="openPeriods"
-              />
-              <PeriodCalendarPicker
-                ref="periodsRef"
-                triggerless
-                :model-value="linkedPeriods.map(period => period.periodRef)"
-                :cadence="child.cadence === 'monthly' ? 'monthly' : 'weekly'"
-                :commit="savePeriods"
-              />
-            </div>
           </section>
 
           <!-- Completion rules: the placeholder is the label -->

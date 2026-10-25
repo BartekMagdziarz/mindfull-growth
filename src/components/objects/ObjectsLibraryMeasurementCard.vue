@@ -87,8 +87,9 @@
         </div>
       </div>
 
-      <!-- Affiliation glyphs (priorities · life areas); click edits -->
-      <div class="relative px-1">
+      <!-- Affiliation glyphs (priorities · life areas) on the left, the
+           periods line on the right of the same row; both click to edit. -->
+      <div class="relative flex items-center justify-between gap-3 px-1">
         <ObjectCardAffiliation
           :priority-ids="item.priorityIds ?? []"
           :life-area-ids="item.lifeAreaIds ?? []"
@@ -108,6 +109,25 @@
           @toggle-priority="emitFieldChange('togglePriority', $event)"
           @toggle-life-area="emitFieldChange('toggleLifeArea', $event)"
         />
+        <!-- Periods load with the expanded card, so the line shows only then. -->
+        <div v-if="isExpanded" class="relative shrink-0">
+          <ObjectCardPeriods
+            :periods="linkedPeriods.map(period => period.periodRef)"
+            :cadence="item.cadence === 'monthly' ? 'monthly' : 'weekly'"
+            :is-permanent="panelType === 'habit' && Boolean(item.isPermanent)"
+            @open="openPeriods"
+          />
+          <PeriodCalendarPicker
+            ref="periodsRef"
+            triggerless
+            :model-value="linkedPeriods.map(period => period.periodRef)"
+            :cadence="item.cadence === 'monthly' ? 'monthly' : 'weekly'"
+            :commit="savePeriods"
+            :allow-permanent="panelType === 'habit'"
+            :is-permanent="item.isPermanent"
+            :commit-schedule="saveSchedule"
+          />
+        </div>
       </div>
 
       <!-- Expanded section -->
@@ -146,29 +166,6 @@
               :threshold="item.multiDailyThreshold"
               @update:config="emitFieldChange('multiConfig', $event)"
             />
-          </section>
-
-          <!-- Periods: one quiet line; click opens the calendar -->
-          <section class="mg-v2-group">
-            <p class="mg-v2-group__label">{{ t('planning.objects.periodsLine.label') }}</p>
-            <div class="relative">
-              <ObjectCardPeriods
-                :periods="linkedPeriods.map(period => period.periodRef)"
-                :cadence="item.cadence === 'monthly' ? 'monthly' : 'weekly'"
-                :is-permanent="panelType === 'habit' && Boolean(item.isPermanent)"
-                @open="openPeriods"
-              />
-              <PeriodCalendarPicker
-                ref="periodsRef"
-                triggerless
-                :model-value="linkedPeriods.map(period => period.periodRef)"
-                :cadence="item.cadence === 'monthly' ? 'monthly' : 'weekly'"
-                :commit="savePeriods"
-                :allow-permanent="panelType === 'habit'"
-                :is-permanent="item.isPermanent"
-                :commit-schedule="saveSchedule"
-              />
-            </div>
           </section>
 
           <!-- Completion rules: the placeholder is the label -->

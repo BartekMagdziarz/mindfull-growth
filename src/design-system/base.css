@@ -265,11 +265,21 @@
   width: 100%;
   min-height: 2.5rem;
   padding: var(--mg-space-2) var(--mg-space-3);
-  border: 1px solid var(--mg-color-field-border);
+  /* No frame at rest (user decision 2026-10-25): the whiter fill is the
+     field; the accent edge appears only in focus. The 1px border stays
+     transparent so nothing shifts when it does. */
+  border: 1px solid transparent;
   border-radius: var(--mg-radius-sm);
   color: var(--mg-color-ink);
   background: var(--mg-color-mist);
   box-shadow: none;
+}
+
+/* Paper on paper (a field inside a paper group inside a mist card) would
+   vanish without any edge, so there it keeps the subtlest hairline. */
+.mg-v2-surface--flat .mg-v2-group :where(.mg-v2-field),
+.mg-v2-group .mg-v2-group :where(.mg-v2-field) {
+  border-color: var(--mg-color-border-subtle);
 }
 
 .mg-v2-field:focus-visible,
@@ -1086,7 +1096,7 @@
 
 /* Large writing field (journal body): the inner step of the card it lives in. */
 .mg-v2-editor-canvas {
-  border: 1px solid var(--mg-color-field-border);
+  border: 1px solid transparent;
   border-radius: var(--mg-radius-lg);
   background: var(--mg-color-mist);
   box-shadow: none;

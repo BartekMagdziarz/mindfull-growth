@@ -160,3 +160,9 @@ gramatykę dla korzeni poza `#app`.
   karcie `--flat` lub w innej grupie), promień `md`, padding `space-3`,
   wszystko w środku bierze kolejny stopień; opcjonalna etykieta zdaniowa
   `.mg-v2-group__label` (xs, muted, nigdy wersaliki).
+- Pola bez ramki (2026-10-25, decyzja usera): `.mg-v2-field` i
+  `.mg-v2-editor-canvas` mają w spoczynku przezroczystą krawędź — polem jest
+  bielsze wypełnienie; krawędź akcentu pojawia się tylko w fokusie. Wyjątek:
+  pole papierowe na papierowej grupie dostaje `--mg-color-border-subtle`, żeby
+  nie zniknąć. `--mg-color-field-border` zostaje dla kontrolek, które same o
+  nią proszą.

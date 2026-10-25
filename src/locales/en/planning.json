@@ -936,7 +936,7 @@
       "goalTitlePlaceholder": "Goal title",
       "goalDescriptionPlaceholder": "Description",
       "completionRules": "Completion rules",
-      "completionRulesPlaceholder": "Describe how this object counts as completed",
+      "completionRulesPlaceholder": "Completion rules",
       "targetDateLabel": "Target date",
       "targetDateMissing": "No target date",
       "multiItems": {
