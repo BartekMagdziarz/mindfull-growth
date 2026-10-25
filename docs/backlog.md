@@ -27,6 +27,35 @@ wracania do rozmowy, w której go znaleziono.
 
 ## Błędy
 
+### B-9 · Testy katalogu ikon UX Labu oczekują 320 zamiast 325 ikon
+
+`otwarte` · Znaleziono 2026-10-25 przy prototypie pomocnika planowania AI · UX Lab, testy katalogu ikon
+
+**Objaw.** Pełny zestaw Labu: 146 testów przechodzi, 2 padają w `organicIcons.spec.ts`.
+Testy samego pomocnika przechodzą (17/17); build i granice importów są poprawne.
+
+**Jak odtworzyć.** `npm --prefix ux-lab/app test` — dwie asercje raportują
+`expected ... length of 320 but got 325`.
+
+**Przyczyna.** `ux-lab/app/src/__tests__/organicIcons.spec.ts:11-16` zawiera stałe 320
+także dla unikalności, a `:49` oczekuje tylu samo wyrenderowanych kart. Aktualny
+`src/design-system/icons/organicIcons.ts` eksportuje 325 ikon, co potwierdza również
+`npm --prefix ux-lab/app run export:icons`. Żaden z tych plików nie został zmieniony
+w zadaniu pomocnika; porównanie z HEAD nie pokazuje lokalnego diffu.
+
+**Dlaczego to błąd.** Nieaktualny kontrakt katalogu utrzymuje bazowy zestaw testów na czerwono
+i utrudnia ocenę regresji innych scenariuszy Labu.
+
+**Propozycja naprawy.** Zweryfikować pięć dodanych konturów i oczekiwane liczebności kolekcji.
+Uaktualnić jawny kontrakt katalogu do zatwierdzonego zestawu, zachowując asercje unikalności ID
+i geometrii; w teście renderowania porównać liczbę kart z zaimportowanym katalogiem.
+
+**Kryteria akceptacji.** `npm --prefix ux-lab/app test` oraz `npm --prefix ux-lab/app run build`
+przechodzą; kontury zatwierdzonych ikon i filtry kolekcji nadal są sprawdzane.
+
+**Uwagi.** Nie zwiększać wyłącznie jednej liczby ani nie usuwać sprawdzania geometrii.
+Przed naprawą ponownie sprawdzić katalog i numery linii.
+
 ### B-8 · Cztery testy e2e verify są flaky na runnerze GitHuba (stabilne lokalnie)
 
 `otwarte` · Znaleziono 2026-10-20 przy pierwszym zielonym przebiegu jobu `e2e` w CI (run 39497...) · e2e weryfikacyjne, CI
@@ -339,6 +368,29 @@ przenieść do locale, ale to osobny zakres. Oceń z użytkownikiem.
 ---
 
 ## Pomysły
+
+### P-8 · Lepsza nazwa typu monitorowania celów i nawyków zamiast „odhaczania”
+
+`otwarte` · Zgłoszono 2026-10-25 przez użytkownika · cele i nawyki, nazewnictwo monitorowania
+
+**Objaw.** Nazwa typu monitorowania określana jako „odhaczanie” wymaga zmiany na
+bardziej zrozumiałą i naturalną. Wstępny kierunek użytkownika: „Lista” albo podobna nazwa;
+ostateczne brzmienie pozostaje do ustalenia.
+
+**Jak odtworzyć.** Otworzyć tworzenie lub edycję celu albo nawyku i wybór typu
+monitorowania z listą elementów do zaznaczenia.
+
+**Kontekst.** W `src/locales/pl/planning.json` typ `multi-completion` ma m.in. etykiety
+„Odhaczaj”, „Checklista” i „Dzisiejsza checklista”. Przed wdrożeniem sprawdzić wszystkie
+miejsca prezentujące ten typ dla celów i nawyków.
+
+**Propozycja.** Dobrać i uzgodnić lepszą nazwę (np. „Lista” lub „Lista elementów”),
+a następnie ujednolicić etykiety i powiązane opisy w interfejsie.
+
+**Kryteria akceptacji.** Uzgodniona nazwa jest spójna w tworzeniu, edycji i prezentacji
+celów oraz nawyków; opisy jasno tłumaczą zaznaczanie poszczególnych elementów.
+Zmiana nazwy zachowuje działanie monitorowania i istniejące dane. Przy wdrożeniu
+sprawdzić odpowiednie tłumaczenia PL/EN i oczekiwania testów dotyczące etykiet.
 
 ### P-7 · vue-tsc 3.1+ zgłasza refy szablonu jako nieużywane (`noUnusedLocals`)
 
