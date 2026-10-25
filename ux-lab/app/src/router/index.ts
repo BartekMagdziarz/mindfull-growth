@@ -20,6 +20,7 @@ import PathWeekReflectionScenario from '~lab/scenarios/PathWeekReflectionScenari
 import WorkbenchScenario from '~lab/scenarios/WorkbenchScenario.vue'
 import ReplicaPreviewScenario from '~lab/scenarios/ReplicaPreviewScenario.vue'
 import ReflectionWaitScenario from '~lab/scenarios/ReflectionWaitScenario.vue'
+import PlanningAssistantScenario from '~lab/scenarios/PlanningAssistantScenario.vue'
 
 export default createRouter({
   history: createWebHistory(),
@@ -27,6 +28,8 @@ export default createRouter({
     { path: '/', redirect: '/research' },
     { path: '/concepts/icons', component: OrganicIconCatalog, meta: { scenarioId: 'icons' } },
     { path: '/concepts/reflection-wait', component: ReflectionWaitScenario, meta: { scenarioId: 'reflection-wait' } },
+    { path: '/concepts/planning-assistant', component: PlanningAssistantScenario, meta: { scenarioId: 'planning-assistant' } },
+    { path: '/preview/planning-assistant', component: PlanningAssistantScenario, meta: { scenarioId: 'planning-assistant', standalone: true } },
     { path: '/concepts/quick-plan', component: QuickPlanScenario, meta: { scenarioId: 'quick-plan' } },
     { path: '/concepts/object-cards', component: ObjectCardsScenario, meta: { scenarioId: 'object-cards' } },
     { path: '/concepts/object-card-fields', component: ObjectCardFieldsScenario, meta: { scenarioId: 'object-card-fields' } },

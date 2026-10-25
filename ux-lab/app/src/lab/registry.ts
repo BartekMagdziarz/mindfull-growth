@@ -103,7 +103,10 @@ export const navGroups: LabNavGroup[] = [
   {
     id: 'ai-reflection-concepts',
     label: 'Rozmowa z AI',
-    items: [{ id: 'reflection-wait', label: 'Chwila na odpowiedź', kicker: 'Propozycja · spokojny kontakt i animowane etapy pracy', icon: 'chat', path: '/concepts/reflection-wait', kind: 'concept' }],
+    items: [
+      { id: 'planning-assistant', label: 'Ułóżmy plan', kicker: 'Rozmowa · edytowalny szkic · zatwierdzenie', icon: 'spa', path: '/concepts/planning-assistant', kind: 'concept' },
+      { id: 'reflection-wait', label: 'Chwila na odpowiedź', kicker: 'Propozycja · spokojny kontakt i animowane etapy pracy', icon: 'chat', path: '/concepts/reflection-wait', kind: 'concept' },
+    ],
   },
   {
     id: 'visual-language',

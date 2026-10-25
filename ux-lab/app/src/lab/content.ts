@@ -8,6 +8,12 @@ export interface UXNote {
 }
 
 export const uxNotesByScenario: Record<string, UXNote[]> = {
+  'planning-assistant': [
+    { id: 1, tone: 'decision', title: 'Rozmowa i jeden aktualny szkic', body: 'Konsultacja Claude Fable 5.1: koncepcja, następnie pełne wizualne review czterech screenów za zgodą użytkownika. Rozmowa obok jednej kartki szkicu; aktualizujemy tę samą propozycję. Po review: checkboxy produktu z ptaszkiem, ikony w polach, spokojna typografia i przyklejona akcja.' },
+    { id: 2, tone: 'decision', title: 'Minimum na powierzchni', body: 'Tytuł, glif i jedna linia targetu. Pomiar, opis i terminy dopiero po rozwinięciu. Bez osobnego pola jednostki — decyzja użytkownika 25.10.2026. Tracker nie ma targetu; intencja tygodniowa go zachowuje.' },
+    { id: 3, tone: 'risk', title: 'Przykładowa rozmowa, bez API i zapisu', body: 'Trzy jawne scenariusze w pamięci Labu, bez produkcyjnych repozytoriów, danych i sieci AI. Dowolny tekst nie jest interpretowany przez model. Korekta liczby 1–7 jest wyłącznie demonstracją; ręcznie poprawione karty pozostają chronione.' },
+    { id: 4, tone: 'decision', title: 'Zestaw z zależnościami', body: 'Cel i rezultaty tworzą jedną grupę. Odznaczenie celu odznacza dzieci, wybór dziecka przywraca rodzica. Po feedbacku 25.10: rozmowa ma własną powierzchnię, bez licznika i powtarzającego karty podglądu. „Dodaj wybrane” od razu sprawdza dane i dodaje wybrane elementy; błąd zachowuje edytowalny szkic. Dodawanie w Labie jest symulacją.' },
+  ],
   'reflection-wait': [
     { id: 1, tone: 'decision', title: 'Kontakt od pierwszej chwili', body: 'Najpierw trzy kropki przez 1,5 s, następnie krótkie potwierdzenie, oddech niebieskiej kropki i aktualny etap. Praca trwa już podczas kropek; gotowa odpowiedź pomija pozostałą część wstępu. Opcje pozwalają porównać natychmiastowe potwierdzenie (intro=instant). Potwierdzenia nie stają się osobnymi wiadomościami rozmowy.' },
     { id: 2, tone: 'decision', title: 'Ruch w jednym rytmie', body: 'Wejście wiadomości: 550–800 ms. Oddech obecności: 3,8 s, jedna cicha fala. Zmiana tekstu: krótkie wygaszenie i łagodne wejście. Odpowiedź odsłania się akapitami w odstępie 110 ms, z płynną zmianą wysokości; tekst jest już w całości gotowy, bez udawania pisania.' },
