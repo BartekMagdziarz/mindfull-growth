@@ -6,9 +6,12 @@
  * assignments for the subject, no week state with `daysMode` set, with
  * 'specific-days' scope or paused (the „Pomiń w tym tygodniu” tombstone).
  * It never deletes, never writes target overrides, never touches weeks before
- * `rhythm.since`, and stops at the horizon (the week after `today`), so the
- * Sunday ritual sees next week filled while later weeks stay a template
- * (planners draw them as soft "rhythm" cells and materialize on edit).
+ * `rhythm.since` or before `today`'s week (the floor), and stops at the
+ * horizon (the week after `today`), so the Sunday ritual sees next week
+ * filled while later weeks stay a template (planners draw them as soft
+ * "rhythm" cells and materialize on edit). The floor matters after a break:
+ * weeks nobody opened the app in stay unplanned instead of being filled in
+ * hindsight and read as failed (docs/return-ritual.md, D2).
  *
  * Eligibility (R3/R4): the subject must be placed in the week — an active
  * whole-week / linked week state, or an active 'whole-month' month state
@@ -91,6 +94,15 @@ function todayDayRef(): DayRef {
 /** The scheduler fills through the week after `today`'s week. */
 export function rhythmHorizonWeek(today: DayRef): WeekRef {
   return getNextPeriod(getPeriodRefsForDate(today).week) as WeekRef
+}
+
+/** The scheduler never fills weeks before `today`'s week. */
+export function rhythmFloorWeek(today: DayRef): WeekRef {
+  return getPeriodRefsForDate(today).week
+}
+
+function laterWeek(a: WeekRef, b: WeekRef): WeekRef {
+  return comparePeriodRefs(a, b) >= 0 ? a : b
 }
 
 /**
@@ -228,6 +240,7 @@ export async function ensureRhythmPlacements(
 ): Promise<RhythmSchedulerResult> {
   const today = options.today ?? todayDayRef()
   const horizonWeekRef = rhythmHorizonWeek(today)
+  const floorWeekRef = rhythmFloorWeek(today)
   const subjects = await loadRhythmSubjects(options.subject)
   const placements: RhythmPlacement[] = []
   if (subjects.length === 0) return { placements, horizonWeekRef }
@@ -253,12 +266,13 @@ export async function ensureRhythmPlacements(
       goal: subjectType === 'keyResult' ? goalById.get((subject as KeyResult).goalId) : undefined,
     }
 
+    const firstWeekRef = laterWeek(rhythm.since, floorWeekRef)
     const weeks = options.weekRef
-      ? comparePeriodRefs(options.weekRef, rhythm.since) >= 0 &&
+      ? comparePeriodRefs(options.weekRef, firstWeekRef) >= 0 &&
         comparePeriodRefs(options.weekRef, horizonWeekRef) <= 0
         ? [options.weekRef]
         : []
-      : [...weeksFrom(rhythm.since, horizonWeekRef)]
+      : [...weeksFrom(firstWeekRef, horizonWeekRef)]
 
     for (const weekRef of weeks) {
       const dayRefs = planRhythmWeek(entry, weekRef, context)

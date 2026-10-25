@@ -14,6 +14,7 @@ import {
 import {
   ensureRhythmPlacements,
   restoreWeekRhythm,
+  rhythmFloorWeek,
   rhythmHorizonWeek,
 } from '@/services/rhythmSchedulerService'
 import { resetPlanningTestData } from '@/test/planningTestUtils'
@@ -82,23 +83,20 @@ describe('rhythmHorizonWeek', () => {
   })
 })
 
+describe('rhythmFloorWeek', () => {
+  it("is today's week", () => {
+    expect(rhythmFloorWeek(TODAY)).toBe(W12)
+  })
+})
+
 describe('ensureRhythmPlacements — weekly cadence', () => {
-  it('fills every placed week from `since` through the horizon, once', async () => {
+  it("fills every placed week from today's week through the horizon, once", async () => {
     const habitId = await createHabit(TUE_THU)
     await placeWholeMonth(habitId, MARCH)
 
     const first = await ensureRhythmPlacements({ today: TODAY })
-    expect(first.placements.map(p => p.weekRef)).toEqual([W10, W11, W12, W13])
-    expect(await daysOf(habitId)).toEqual([
-      '2026-03-10',
-      '2026-03-12',
-      '2026-03-17',
-      '2026-03-19',
-      '2026-03-24',
-      '2026-03-26',
-      '2026-03-31',
-      '2026-04-02',
-    ])
+    expect(first.placements.map(p => p.weekRef)).toEqual([W12, W13])
+    expect(await daysOf(habitId)).toEqual(['2026-03-24', '2026-03-26', '2026-03-31', '2026-04-02'])
     const w12 = await planningStateDexieRepository.getMeasurementWeekState(W12, 'habit', habitId)
     expect(w12).toMatchObject({ scheduleScope: 'specific-days', daysMode: 'rhythm' })
     // The horizon ends at W13; W14 stays a template.
@@ -111,10 +109,10 @@ describe('ensureRhythmPlacements — weekly cadence', () => {
   })
 
   it('does nothing before `since` or without a placement (placed-weeks scope)', async () => {
-    const habitId = await createHabit({ ...TUE_THU, since: W12 })
+    const habitId = await createHabit({ ...TUE_THU, since: W13 })
     await placeWholeMonth(habitId, MARCH)
     const result = await ensureRhythmPlacements({ today: TODAY })
-    expect(result.placements.map(p => p.weekRef)).toEqual([W12, W13])
+    expect(result.placements.map(p => p.weekRef)).toEqual([W13])
 
     const unplaced = await createHabit(TUE_THU)
     await ensureRhythmPlacements({ today: TODAY })
@@ -189,15 +187,33 @@ describe('ensureRhythmPlacements — weekly cadence', () => {
   it('a month-matrix whole-week placement (no daysMode) is exactly what the rhythm fills', async () => {
     const habitId = await createHabit(TUE_THU)
     await toggleMeasurementWeekAssignment({
-      weekRef: W11,
+      weekRef: W13,
       cadence: 'weekly',
       subjectType: 'habit',
       subjectId: habitId,
     })
     await ensureRhythmPlacements({ today: TODAY })
-    expect(await daysOf(habitId)).toEqual(['2026-03-17', '2026-03-19'])
-    const w11 = await planningStateDexieRepository.getMeasurementWeekState(W11, 'habit', habitId)
-    expect(w11).toMatchObject({ scheduleScope: 'specific-days', daysMode: 'rhythm' })
+    expect(await daysOf(habitId)).toEqual(['2026-03-31', '2026-04-02'])
+    const w13 = await planningStateDexieRepository.getMeasurementWeekState(W13, 'habit', habitId)
+    expect(w13).toMatchObject({ scheduleScope: 'specific-days', daysMode: 'rhythm' })
+  })
+
+  it('leaves undecided weeks before today alone: after a break they stay unplanned (D2)', async () => {
+    const habitId = await createHabit(TUE_THU)
+    await placeWholeMonth(habitId, MARCH)
+    // Nobody opened the app in W10–W11; the run on return must not fill them in hindsight.
+    const result = await ensureRhythmPlacements({ today: TODAY })
+    expect(result.placements.map(p => p.weekRef)).toEqual([W12, W13])
+    expect(
+      await planningStateDexieRepository.getMeasurementWeekState(W10, 'habit', habitId)
+    ).toBeUndefined()
+    expect(
+      await planningStateDexieRepository.getMeasurementWeekState(W11, 'habit', habitId)
+    ).toBeUndefined()
+    // A restricted run on a past week is a no-op as well.
+    const past = await ensureRhythmPlacements({ today: TODAY, weekRef: W11 })
+    expect(past.placements).toEqual([])
+    expect(await daysOf(habitId)).toEqual(['2026-03-24', '2026-03-26', '2026-03-31', '2026-04-02'])
   })
 
   it('removing one rhythm day makes the week custom so a rerun does not refill it', async () => {
