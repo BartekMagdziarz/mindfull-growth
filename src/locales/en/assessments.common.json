@@ -23,6 +23,7 @@
     "completedAt": "Completed at {date}",
     "retakeEligibleOn": "Retake available on {date}",
     "retakeAvailable": "Retake is available now.",
+    "retakeForPath": "Your path asks for a new measurement. You can take it now.",
     "noScales": "No scales could be computed with current responses.",
     "raw": "Raw",
     "normalized": "Normalized",

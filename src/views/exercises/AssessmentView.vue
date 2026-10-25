@@ -23,6 +23,7 @@
         :has-in-progress="Boolean(session.inProgressAttempt)"
         :has-history="Boolean(session.latestCompletedAttempt)"
         :can-retake="session.retakeStatus.canRetake"
+        :requested-by-path="session.retakeStatus.requestedByPath"
         :retake-eligible-at="session.retakeStatus.retakeEligibleAt"
         :latest-completed-at="session.latestCompletedAttempt?.completedAt"
         @start="session.goToConsent"

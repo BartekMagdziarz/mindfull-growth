@@ -79,6 +79,16 @@ export async function autoCompleteFor(
 }
 
 /**
+ * Whether a path is waiting on `slug` as its step. Any day counts, like in
+ * `autoCompleteFor`: the step lifts an assessment's retake lock, because
+ * the path paces its own measurements (start · połowa · koniec · powrót).
+ */
+export async function hasPendingProgramStep(slug: string): Promise<boolean> {
+  const pending = await exercisePlanDexieRepository.listPendingBySlug(slug)
+  return pending.some(isProgramStepItem)
+}
+
+/**
  * Due + overdue selector shared by the store, the Today tile and tests:
  * pending items with `dayRef <= todayRef` (D3 — overdue items carry
  * forward, their dayRef is never rewritten), oldest first.

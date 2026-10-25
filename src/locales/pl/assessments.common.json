@@ -23,6 +23,7 @@
     "completedAt": "Ukończono: {date}",
     "retakeEligibleOn": "Powtórka dostępna od: {date}",
     "retakeAvailable": "Powtórka jest już dostępna.",
+    "retakeForPath": "Ścieżka prosi o kolejny pomiar. Możesz wypełnić kwestionariusz teraz.",
     "noScales": "Nie udało się obliczyć żadnych skal dla aktualnych odpowiedzi.",
     "raw": "Surowy",
     "normalized": "Znormalizowany",

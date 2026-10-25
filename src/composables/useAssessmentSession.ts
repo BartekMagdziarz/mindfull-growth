@@ -5,9 +5,11 @@ import type {
   AssessmentItemDefinition,
 } from '@/domain/assessments'
 import { getAssessmentDefinition } from '@/services/assessments/registry'
+import { hasPendingProgramStep } from '@/services/exercisePlanService'
 import { useAssessmentStore } from '@/stores/assessment.store'
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
+import { reportError } from '@/utils/reportError'
 
 export type AssessmentSessionStep = 'intro' | 'consent' | 'questions' | 'review' | 'results'
 
@@ -35,6 +37,8 @@ export function useAssessmentSession(assessmentId: AssessmentId) {
   const resultComputation = ref<AssessmentComputation | null>(null)
   const isInitializing = ref(false)
   const centeredResultsEnabled = ref<boolean>(definition.defaultCenteringEnabled ?? false)
+  // A path step waiting on this assessment (assessment ids double as slugs).
+  const pathStepPending = ref(false)
 
   const attempts = computed(() => assessmentStore.getAttemptsByAssessment(assessmentId))
 
@@ -52,7 +56,13 @@ export function useAssessmentSession(assessmentId: AssessmentId) {
     return assessmentStore.getLatestCompletedAttemptFromState(assessmentId)
   })
 
-  const retakeStatus = computed(() => assessmentStore.getRetakeStatus(assessmentId))
+  // The retake lock paces standalone retests; a path step overrides it,
+  // since the path schedules its own measurements (e.g. połowa at ~3 weeks).
+  const retakeStatus = computed(() => {
+    const status = assessmentStore.getRetakeStatus(assessmentId)
+    if (status.canRetake || !pathStepPending.value) return { ...status, requestedByPath: false }
+    return { ...status, canRetake: true, requestedByPath: true }
+  })
 
   const activeAttemptId = computed(() => inProgressAttempt.value?.id ?? currentAttemptId.value)
 
@@ -102,6 +112,15 @@ export function useAssessmentSession(assessmentId: AssessmentId) {
     return null
   })
 
+  async function refreshPathStep(): Promise<void> {
+    try {
+      pathStepPending.value = await hasPendingProgramStep(assessmentId)
+    } catch (err) {
+      // Path lookup must never block the assessment itself.
+      reportError('useAssessmentSession.refreshPathStep', err)
+    }
+  }
+
   async function initialize(): Promise<void> {
     isInitializing.value = true
 
@@ -110,7 +129,7 @@ export function useAssessmentSession(assessmentId: AssessmentId) {
         await preferencesStore.loadPreferences()
       }
 
-      await assessmentStore.hydrateAssessment(assessmentId)
+      await Promise.all([assessmentStore.hydrateAssessment(assessmentId), refreshPathStep()])
 
       const currentInProgress = inProgressAttempt.value
       if (currentInProgress) {
@@ -210,9 +229,11 @@ export function useAssessmentSession(assessmentId: AssessmentId) {
     )
 
     // Assessment ids double as catalog slugs in the unified completion log.
+    // The completion ticks the path step, so the lock applies again after it.
     void useExerciseCompletionsStore()
       .record(assessmentId, attempt.id)
       .catch(err => console.error('Failed to record exercise completion:', err))
+      .finally(refreshPathStep)
 
     currentAttemptId.value = attempt.id
     resultComputation.value = computation

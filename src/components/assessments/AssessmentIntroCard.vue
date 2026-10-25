@@ -17,7 +17,10 @@
       <p>
         {{ t('assessments.common.results.completedAt', { date: formatDate(latestCompletedAt) }) }}
       </p>
-      <p v-if="retakeEligibleAt && !canRetake">
+      <p v-if="requestedByPath">
+        {{ t('assessments.common.results.retakeForPath') }}
+      </p>
+      <p v-else-if="retakeEligibleAt && !canRetake">
         {{
           t('assessments.common.results.retakeEligibleOn', { date: formatDate(retakeEligibleAt) })
         }}
@@ -60,6 +63,8 @@ defineProps<{
   hasInProgress: boolean
   hasHistory: boolean
   canRetake: boolean
+  /** A path step asks for this measurement — the retake lock is lifted. */
+  requestedByPath?: boolean
   retakeEligibleAt?: string
   latestCompletedAt?: string
 }>()
