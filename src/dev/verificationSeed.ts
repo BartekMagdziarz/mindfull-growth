@@ -171,10 +171,24 @@ export async function bootstrapVerificationEnvironment(): Promise<void> {
   installVerificationBridge()
 }
 
-/** Expose the re-seed hook for DevTools / Playwright (`await window.__verifySeed()`). */
+/**
+ * Expose the re-seed hook for DevTools / Playwright (`await window.__verifySeed()`)
+ * and the "return after a break" scenario (`await window.__verifyReturnScenario(24)`,
+ * which rewrites the seeded data and reloads).
+ */
 export function installVerificationHelpers(): void {
-  Object.assign(window, { __verifySeed: runVerificationSeed })
-  console.log('[verificationSeed] Helper installed: window.__verifySeed()')
+  Object.assign(window, {
+    __verifySeed: runVerificationSeed,
+    __verifyReturnScenario: async (days?: number) => {
+      const { enterReturnScenario } = await import('./returnScenario')
+      const result = await enterReturnScenario(days)
+      window.location.reload()
+      return result
+    },
+  })
+  console.log(
+    '[verificationSeed] Helpers installed: window.__verifySeed(), window.__verifyReturnScenario(days)'
+  )
 }
 
 /**
