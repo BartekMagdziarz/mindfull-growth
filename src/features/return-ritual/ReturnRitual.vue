@@ -1,8 +1,10 @@
 <template>
   <QuietRitualShell
     scale="week"
-    eyebrow="Powrót"
-    :period-title="brk ? `po ${breakLengthLabel(brk.days, brk.weeks.length)}` : '…'"
+    :eyebrow="longBreak ? 'Powrót' : 'Porządki'"
+    :period-title="
+      brk ? (longBreak ? `po ${breakLengthLabel(brk.days, brk.weeks.length)}` : 'na życzenie') : '…'
+    "
     :steps="steps"
     :current="current"
     :wide="currentStepId === 'tidy'"
@@ -27,13 +29,22 @@
     <template v-else>
       <!-- 1 · Co minęło -->
       <section v-if="currentStepId === 'gone'" class="qr-focus rr-step">
-        <p class="rr-lead">
+        <p v-if="longBreak" class="rr-lead">
           Ostatni zapis <strong>{{ formatDayShort(inventory.break.lastSignalDay, 'pl-PL') }}</strong
           >, od tego czasu
           <strong>{{ breakLengthLabel(inventory.break.days, inventory.break.weeks.length) }}</strong
           ><template v-if="inventory.break.crossedYear"> i początek nowego roku</template
           ><template v-else-if="inventory.break.crossedMonth"> i początek miesiąca</template>.
           Tygodnie przerwy zostaną w historii jako nieplanowane, chyba że niżej zdecydujesz inaczej.
+        </p>
+        <p v-else class="rr-lead">
+          <template v-if="inventory.break.days === 0">Ostatni zapis dziś</template>
+          <template v-else
+            >Ostatni zapis
+            <strong>{{ formatDayShort(inventory.break.lastSignalDay, 'pl-PL') }}</strong></template
+          >
+          — bez dłuższej przerwy. Porządki na życzenie: tygodnie bez zaznaczenia znikną z planów, a
+          stare intencje, praktyki po terminie, ścieżki i cele po terminie dostaną decyzję.
         </p>
         <textarea
           v-model="plan.note"
@@ -56,6 +67,10 @@
           </h2>
           <p v-if="!inventory.subjects.length" class="qr-empty">
             Nie masz otwartych nawyków, rezultatów ani trackerów.
+          </p>
+          <p v-else-if="!inventory.columns.length" class="qr-empty">
+            Żaden pełny tydzień nie minął bez zapisów, więc nie ma tu tygodni do pominięcia ani
+            uzupełnienia.
           </p>
           <ReturnKeepMatrix
             v-else
@@ -286,6 +301,7 @@ import { useT } from '@/composables/useT'
 import { getProgramDefinition } from '@/data/programCatalog'
 import type { DayRef } from '@/domain/period'
 import {
+  RETURN_THRESHOLD_DAYS,
   subjectKey,
   type ReturnEnrollmentChoice,
   type ReturnGoalChoice,
@@ -299,9 +315,14 @@ import ReturnKeepMatrix from './ReturnKeepMatrix.vue'
 import ReturnWeekEditor from './ReturnWeekEditor.vue'
 import { breakLengthLabel, subjectIcon, useReturnRitual } from './useReturnRitual'
 
+const props = defineProps<{
+  /** Opened by hand (library „Porządki”): no threshold, no „nothing to do”. */
+  manual?: boolean
+}>()
+
 const emit = defineEmits<{ close: []; finished: [summary: ReturnPlanSummary] }>()
 
-const ritual = useReturnRitual()
+const ritual = useReturnRitual({ manual: computed(() => Boolean(props.manual)) })
 const {
   store,
   plan,
@@ -339,6 +360,8 @@ const {
 } = ritual
 
 const { t, gender: grammaticalGender } = useT()
+/** Below the threshold the ritual reads as housekeeping, not a comeback. */
+const longBreak = computed(() => (brk.value?.days ?? 0) >= RETURN_THRESHOLD_DAYS)
 const gender = computed(() => ({
   endVerb: grammaticalGender.value === 'feminine' ? 'skończyłaś' : 'skończyłeś',
 }))

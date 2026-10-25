@@ -1,4 +1,4 @@
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, reactive, ref, watch, type Ref } from 'vue'
 import type { DayRef, WeekRef } from '@/domain/period'
 import type { MeasurementEntryMode, MeasurementTarget } from '@/domain/planning'
 import {
@@ -62,8 +62,9 @@ export function subjectIcon(subject: ReturnSubjectSummary): string {
   return own || SUBJECT_ICON[subject.subjectType]
 }
 
-export function useReturnRitual() {
+export function useReturnRitual(options: { manual?: Ref<boolean> } = {}) {
   const store = useReturnStore()
+  const manual = computed(() => options.manual?.value ?? false)
   const plan = reactive<ReturnPlan>({
     breakStart: '' as DayRef,
     note: '',
@@ -125,7 +126,7 @@ export function useReturnRitual() {
     saveError.value = null
     summary.value = null
     current.value = 0
-    const loaded = await store.loadInventory()
+    const loaded = await store.loadInventory(manual.value)
     if (loaded) Object.assign(plan, defaultReturnPlan(loaded))
   }
 
@@ -272,6 +273,7 @@ export function useReturnRitual() {
 
   return {
     store,
+    manual,
     plan,
     inventory,
     loading,

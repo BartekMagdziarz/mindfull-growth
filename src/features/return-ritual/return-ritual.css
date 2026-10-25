@@ -40,6 +40,10 @@
   border-radius: var(--mg-radius-lg);
   overflow-x: auto;
 }
+/* One or two columns (a break by hand) must not stretch a cell across the card. */
+.rr-matrix--narrow {
+  max-width: 44rem;
+}
 
 /* ── Phase B: week editor ───────────────────────────────────────────────── */
 .rr-editor {

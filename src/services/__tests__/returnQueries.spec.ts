@@ -11,6 +11,7 @@ import {
   detectReturnBreak,
   getLastSignalAt,
   getPendingReturnBreak,
+  getReturnBreakForRitual,
   getReturnRitualSettings,
 } from '@/services/returnQueries'
 import { dismissReturnBreak, markReturnBreakDone } from '@/services/returnRitualService'
@@ -146,6 +147,28 @@ describe('getPendingReturnBreak', () => {
     await userSettingsDexieRepository.set(RETURN_RITUAL_SETTINGS_KEY, '{broken')
     expect(await getReturnRitualSettings()).toBeUndefined()
     expect(await getPendingReturnBreak(TODAY)).toBeDefined()
+  })
+})
+
+describe('getReturnBreakForRitual', () => {
+  it('by hand there is no threshold: a short gap, or none at all, still opens the ritual', async () => {
+    expect(await getReturnBreakForRitual(false, TODAY)).toBeUndefined()
+    const fresh = await getReturnBreakForRitual(true, TODAY)
+    // No signal yet: the break is empty but defined — the other rows still get a pass.
+    expect(fresh).toMatchObject({ weeks: [], crossedMonth: false })
+    expect(fresh!.days).toBeLessThanOrEqual(0)
+
+    await getTestDatabase().journalEntries.put({
+      id: 'j1',
+      ...stamps('2026-10-15T08:00:00Z'),
+    } as never)
+    expect(await getPendingReturnBreak(TODAY)).toBeUndefined() // 10 days < threshold
+    expect(await getReturnBreakForRitual(true, TODAY)).toMatchObject({
+      lastSignalDay: '2026-10-15',
+      breakStart: '2026-10-16',
+      days: 10,
+      weeks: [W41],
+    })
   })
 })
 

@@ -8,7 +8,11 @@ import type {
 } from '@/domain/returnRitual'
 import { summarizeReturnPlan } from '@/domain/returnRitual'
 import { runProgramScheduler } from '@/services/programSchedulerService'
-import { buildReturnInventory, getPendingReturnBreak } from '@/services/returnQueries'
+import {
+  buildReturnInventory,
+  getPendingReturnBreak,
+  getReturnBreakForRitual,
+} from '@/services/returnQueries'
 import {
   applyReturnPlan,
   dismissReturnBreak,
@@ -73,12 +77,15 @@ export const useReturnStore = defineStore('return', () => {
     if (session.isCurrent()) pending.value = null
   }
 
-  async function loadInventory(): Promise<ReturnInventory | null> {
+  /** `manual`: opened from the library — no threshold, never "nothing to do". */
+  async function loadInventory(manual = false): Promise<ReturnInventory | null> {
     const session = sessionScope.capture()
     loading.value = true
     error.value = null
     try {
-      const brk = await detect(true)
+      const brk = manual
+        ? ((await session.wait(getReturnBreakForRitual(true))) ?? null)
+        : await detect(true)
       if (!brk) {
         inventory.value = null
         return null

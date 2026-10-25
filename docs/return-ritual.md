@@ -120,6 +120,16 @@ ręczne planowanie minionych tygodni dalej działa.
 - Po Starcie: Dzisiaj · Zaplanuj tydzień (`calendar-week?action=plan`) ·
   Ułóżmy plan · Cofnij porządki. `appStateReset` resetuje store.
 
+## Wejście ręczne (decyzja 25.10.2026)
+
+Biblioteka obiektów → „Porządki” (obok „Ułóżmy plan”) → `/return?manual=1`.
+Bez progu: `getReturnBreakForRitual(true)` liczy przerwę od ostatniego zapisu
+do dziś, choćby zerową. Poniżej progu rytuał czyta się jako porządki, nie
+powrót (eyebrow „Porządki · na życzenie”, inne zdanie w kroku 1); gdy żaden
+pełny tydzień nie minął bez zapisów, macierz zastępuje jedno zdanie, a wiersze
+intencji / praktyk / ścieżek / celów i krok „Na nowo” działają jak zwykle.
+Karta w Dzisiaj nadal pojawia się tylko od 14 dni.
+
 ## E3 · Weryfikacja
 
 - Seed scenariusza (`src/dev/returnScenario.ts`): `enterReturnScenario(days)`
@@ -128,7 +138,8 @@ ręczne planowanie minionych tygodni dalej działa.
   przerwy nierozstrzygnięte, umieszczenia miesięczne zostają). DevTools na
   5199: `await window.__verifyReturnScenario(26)` (przeładowuje).
 - `e2e/verification-return-ritual.spec.ts`: karta → 4 kroki → Start → brak
-  karty po przeładowaniu; „Później”; Start → Cofnij → karta wraca. Zrzuty
+  karty po przeładowaniu; „Porządki” z biblioteki bez przerwy; „Później”;
+  Start → Cofnij → karta wraca. Zrzuty
   1512×982 @2x w `ideas/qa/return-ritual/`.
 
 ## Weryfikacja

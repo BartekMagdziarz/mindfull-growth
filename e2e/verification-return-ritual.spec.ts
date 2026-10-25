@@ -117,6 +117,39 @@ test.describe('return ritual', () => {
     await expect(page.getByTestId('return-invite')).toHaveCount(0)
   })
 
+  test('„Porządki” in the library opens the ritual by hand, without a break', async ({ page }) => {
+    await bootSeededApp(page)
+    await page.evaluate(async () => {
+      await window.__verifySeed({ reload: false })
+    })
+    await page.goto('/objects/goals')
+    const entry = page.getByTestId('objects-return-ritual')
+    await expect(entry).toBeVisible({ timeout: 30_000 })
+    await entry.click()
+    await expect(page).toHaveURL(/\/return\?manual=1$/)
+    await expect(page.getByRole('heading', { name: 'Co się działo przez ten czas?' })).toBeVisible()
+    await expect(page.getByText('Porządki · na życzenie')).toBeVisible()
+    await page.getByRole('button', { name: 'Następny krok' }).click()
+    await expect(
+      page.getByRole('heading', { name: 'Co zostaje w planie, a co znika?' })
+    ).toBeVisible()
+    // Fresh seed: no full week without writes. From Thursday on the matrix still
+    // offers the current week to date (one column); earlier in the week it is
+    // replaced by a sentence. The other rows remain either way.
+    const matrix = page.getByTestId('return-keep-matrix')
+    if (await matrix.count()) {
+      await expect(matrix.locator('[data-testid^="matrix-cell-habit:"]').first()).toBeVisible()
+    } else {
+      await expect(page.getByText('Żaden pełny tydzień nie minął bez zapisów')).toBeVisible()
+    }
+    await expect(page.getByText('Intencje z minionych tygodni')).toBeVisible()
+    await page.screenshot({ path: `${SHOTS}/07-manual-tidy.png` })
+    await page.getByRole('button', { name: 'Następny krok' }).click()
+    await page.getByRole('button', { name: 'Następny krok' }).click()
+    await page.getByRole('button', { name: 'Start', exact: true }).click()
+    await expect(page.getByTestId('return-after')).toBeVisible()
+  })
+
   test('„Później” hides the invitation for the day', async ({ page }) => {
     await enterBreak(page)
     await page.getByTestId('return-invite-later').click()

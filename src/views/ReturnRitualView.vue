@@ -1,14 +1,22 @@
 <template>
   <div class="mg-design-v2 return-ritual-view">
-    <ReturnRitual @close="leave" @finished="handleFinished" />
+    <ReturnRitual :manual="manual" @close="leave" @finished="handleFinished" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import ReturnRitual from '@/features/return-ritual/ReturnRitual.vue'
 
+const route = useRoute()
 const router = useRouter()
+/** `/return?manual=1`: opened by hand, without the break threshold. */
+const manual = computed(() => {
+  const raw = route.query.manual
+  const value = Array.isArray(raw) ? raw[0] : raw
+  return value === '1'
+})
 
 function leave(): void {
   void router.push({ name: 'today' })

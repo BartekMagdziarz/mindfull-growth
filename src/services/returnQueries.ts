@@ -193,6 +193,21 @@ export async function detectReturnBreak(
   return buildReturnBreak(await getLastSignalAt(), today)
 }
 
+/**
+ * The break the ritual works on. Opened by hand (the library's „Porządki”)
+ * there is no threshold: whatever lies between the last write and today is
+ * the break, even nothing — the other rows (intentions, practices, paths,
+ * goals) and „Na nowo” are still worth a pass.
+ */
+export async function getReturnBreakForRitual(
+  manual: boolean,
+  today: DayRef = todayDayRef()
+): Promise<ReturnBreak | undefined> {
+  if (!manual) return getPendingReturnBreak(today)
+  const lastSignalAt = (await getLastSignalAt()) ?? new Date().toISOString()
+  return buildReturnBreak(lastSignalAt, today, 0)
+}
+
 /** The break Today should offer the ritual for: detected and not yet handled. */
 export async function getPendingReturnBreak(
   today: DayRef = todayDayRef()

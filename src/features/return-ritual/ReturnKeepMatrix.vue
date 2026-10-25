@@ -3,7 +3,11 @@
        the week in the plan (phase B edits it); an empty one makes the week
        disappear. The corner dot marks a week the subject was placed in, so
        what disappears is visible before it does. -->
-  <div class="rr-matrix" data-testid="return-keep-matrix">
+  <div
+    class="rr-matrix"
+    :class="{ 'rr-matrix--narrow': inventory.columns.length <= 2 }"
+    data-testid="return-keep-matrix"
+  >
     <AssignmentMatrix
       :columns="columns"
       :sections="sections"

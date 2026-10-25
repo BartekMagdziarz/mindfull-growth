@@ -12,6 +12,16 @@
             Ułóżmy plan
           </DsButton>
 
+          <DsButton
+            variant="quiet"
+            title="Porządki na życzenie: tygodnie bez zapisów, stare intencje, praktyki po terminie, ścieżki, cele"
+            data-testid="objects-return-ritual"
+            @click="router.push({ name: 'return-ritual', query: { manual: '1' } })"
+          >
+            <AppIcon name="tune" class="text-base" />
+            Porządki
+          </DsButton>
+
           <DsSegmentedControl
             :label="t('planning.objects.title')"
             :model-value="store.query.family"
