@@ -15,6 +15,23 @@ i karta w Dzisiaj (E2), seed i e2e (E3) czekają. Plan:
   Sprzątanie nie może blokować powrotu; forma = rytuał „wyczyść i zaplanuj
   na nowo”. Bez AI w pierwszym etapie.
 
+## Pytania otwarte rozstrzygnięte (25.10.2026, po E1)
+
+- Próg: 14 dni.
+- Powrót od czwartku: krok „Porządki” dostaje wiersz „Bieżący tydzień do dziś
+  → Pomiń / Zostaw”; wcześniej w tygodniu bieżący tydzień zostaje normalny.
+- Rozmowa z towarzyszem AI liczy się jako sygnał (przerywa przerwę).
+- Cele po terminie: domyślnie „Zostaw”; „Przesuń o przerwę” i „Zamknij
+  później” jednym kliknięciem obok.
+- Odznaczone w „Na nowo”: nie planuj w tym miesiącu (deaktywacja w miesiącu);
+  obiekt zostaje otwarty, zamykanie tylko w bibliotece.
+- Uzupełnianie wpisów wstecz: TAK, prosto per obiekt — wiersz tygodnia
+  rozwija siatkę dni przerwy, zaznaczone dni stają się zwykłymi wpisami
+  (completion: `null`, counter: 1 na dzień), bez znacznika przybliżenia.
+  W E2 tylko dla `completion` i `counter`; wartości, oceny i checklisty mają
+  Pomiń / Zostaw.
+- Łagodny pierwszy tydzień: przełącznik domyślnie wyłączony.
+
 ## D1 · Definicja przerwy (`src/domain/returnRitual.ts`, `src/services/returnQueries.ts`)
 
 - **Sygnał** = zapis, którego autorem jest użytkownik. Źródła w
