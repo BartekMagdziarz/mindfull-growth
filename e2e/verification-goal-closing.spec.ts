@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { getPeriodRefsForDate } from '../src/utils/periods'
 
 /**
  * Goal closing ritual on the seeded verification instance (npm run dev:verify, 5199).
@@ -150,36 +151,38 @@ test.describe('goal closing ritual', () => {
   test('a saved weekly reflection invites to close overdue goals', async ({ page }) => {
     test.setTimeout(120_000)
     await bootSeededApp(page)
-    await page.goto('/today')
-    const upcoming = page.locator('.next-day-upcoming')
-    await expect(upcoming.locator('.next-day-upcoming__tile').first()).toBeVisible()
-    const more = upcoming.getByRole('button', { name: /^Jeszcze/ })
-    if (await more.isVisible()) await more.click()
-    const pastToggle = upcoming.getByRole('button', { name: /^Minione/ })
-    if (await pastToggle.count()) await pastToggle.click()
-    await page
-      .locator('.next-day-upcoming__tile.is-ritual', {
-        hasText: /Podsumuj (ten|poprzedni) tydzień/,
-      })
-      .locator('.ndt__open')
-      .first()
-      .click()
+    // The invite lists goals whose deadline fell on or before the reflected week's
+    // last day. „Blok treningowy” is due four days before the seed date, so from
+    // Friday on that day sits in the current week, not the previous one (B-5):
+    // reflect on the week that holds the deadline, whatever the weekday.
+    const trainingBlock = await readGoal(page, 'Blok treningowy')
+    expect(trainingBlock?.targetDate).toBeDefined()
+    const deadlineWeek = getPeriodRefsForDate(
+      new Date(`${trainingBlock!.targetDate}T12:00:00`)
+    ).week
+    await page.goto(`/calendar/week/${deadlineWeek}?action=reflect`)
 
     await expect(page.locator('.quiet-ritual')).toBeVisible()
     await expect(page.locator('.gc-invite')).toHaveCount(0)
-    const dots = page.locator('.qr-progress button')
-    await dots.nth((await dots.count()) - 1).click()
-    await page.locator('.qr-finish .qr-primary').click()
+    const lastStep = page.locator('.qr-progress button').last()
+    await expect(lastStep).toBeVisible()
+    await lastStep.click()
+    const finish = page.locator('.qr-finish .qr-primary')
+    await expect(finish).toBeVisible()
+    await finish.click()
 
     const invite = page.locator('.gc-invite')
     await expect(invite).toBeVisible()
     await expect(invite.locator('.gc-invite__row')).toHaveCount(2)
-    await invite
+    const later = invite
       .locator('.gc-invite__row', { hasText: 'Porządek w finansach' })
       .getByRole('button', { name: 'Później' })
-      .click()
+    await expect(later).toBeVisible()
+    await later.click()
     await expect(invite.locator('.gc-invite__row')).toHaveCount(1)
-    await invite.getByRole('button', { name: 'Podsumuj cel' }).click()
+    const summarize = invite.getByRole('button', { name: 'Podsumuj cel' })
+    await expect(summarize).toBeVisible()
+    await summarize.click()
     await expect(page).toHaveURL(/\/objects\/goals\/[^/]+\/close\?return=/)
     await expect(page.locator('.quiet-ritual h1')).toHaveText('Jak skończył się ten cel?')
   })
