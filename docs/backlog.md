@@ -27,38 +27,6 @@ wracania do rozmowy, w której go znaleziono.
 
 ## Błędy
 
-### B-8 · Cztery testy e2e verify są flaky na runnerze GitHuba (stabilne lokalnie)
-
-`otwarte` · Znaleziono 2026-10-20 przy pierwszym zielonym przebiegu jobu `e2e` w CI (run 39497...) · e2e weryfikacyjne, CI
-
-**Objaw.** Job `e2e` kończy się zielono tylko dzięki `retries: 2` (CI): Playwright raportuje
-„4 flaky, 35 passed (10.5m)”. Lokalnie ta sama suita na tym samym commicie daje 39/39 w ~1,2 min,
-dwa razy z rzędu.
-
-**Które testy.** `verification-goal-closing.spec.ts:150` (saved weekly reflection invites to close
-overdue goals), `verification-multi-completion.spec.ts:51` (today row chips toggle items),
-`verification-observations.spec.ts:2` (observation → … → next conversation),
-`verification-shame-v3.spec.ts:147` (Momenty, shame variant). Pierwsze podejścia padają na
-`Test timeout of 120000ms exceeded` (×2, w tym `locator.click`) i `Timeout: 5000ms` w `expect`;
-w logu są też `Failed to upsert period object reflection: … missing-id not found` i
-`Failed to link build log to saved profile: log table corrupt` — to oczekiwane błędy z testów
-błędów (reportError w vitest je wycisza, Playwright nie), nie przyczyna.
-
-**Jak odtworzyć.** Push na main → job `e2e` w .github/workflows/ci.yml (ubuntu-latest, 1 worker,
-dev:verify podnoszony przez webServer Playwrighta) → artefakt `playwright-report`.
-
-**Przyczyna (hipoteza).** Runner jest ~8× wolniejszy niż lokalna maszyna (10,5 min vs 1,2 min dla
-całej suity); 5-sekundowy domyślny `expect` timeout i kroki, które czekają na seedowanie bazy
-(`window.__verifySeed()`), nie mieszczą się w czasie przy zimnym starcie Vite w trybie dev.
-
-**Propozycja naprawy.** W `playwright.config.ts` dla CI: `expect.timeout` 15 s i `actionTimeout`
-15 s (tylko gdy `process.env.CI`), rozgrzanie dev-servera przed pierwszym testem (jedno `page.goto`
-w `globalSetup`), a w czterech testach jawne `await expect(...).toBeVisible()` przed klikami zamiast
-polegania na auto-wait. Potem obniżyć `retries` do 1 i patrzeć, czy „flaky” znika.
-
-**Kryteria akceptacji.** Trzy kolejne przebiegi jobu `e2e` na main bez wpisów „flaky” w podsumowaniu;
-lokalnie dalej 39/39.
-
 ### B-6 · Komunikat „AI provider is not configured…” po angielsku w kreatorach z AI
 
 `otwarte` · Znaleziono 2026-10-17 przy przeglądzie designu kreatorów ćwiczeń · usługi LLM, kreatory z AI
@@ -84,37 +52,6 @@ kreatory mapują kod na klucz `exerciseWizards.shared.ai.notConfigured` (PL/EN) 
 
 **Kryteria akceptacji.** Brak angielskich zdań w PL UI przy braku dostawcy; spec llmService dalej
 przechodzi (kod + wiadomość); snapshot/spec kreatora pokazuje klucz i18n.
-
-### B-5 · E2E „refleksja tygodnia zaprasza do zamknięcia celów” pada od piątku do niedzieli
-
-`otwarte` · Znaleziono 2026-10-17 (sobota) przy przebudowie kafli „Najbliżej” · e2e, seed weryfikacyjny
-
-**Objaw.** `e2e/verification-goal-closing.spec.ts:132` („a saved weekly reflection invites to close
-overdue goals”) oczekuje dwóch wierszy w `.gc-invite`, a dostaje jeden: brakuje „Blok treningowy”,
-jest tylko „Porządek w finansach”. Test przechodzi albo pada w zależności od dnia tygodnia.
-
-**Jak odtworzyć.** W piątek, sobotę albo niedzielę uruchom
-`npx playwright test --project=verification e2e/verification-goal-closing.spec.ts -g "invites to close"`.
-
-**Przyczyna.**
-- `src/dev/verificationSeed.ts:960` — termin g4 „Blok treningowy” to `addDaysToDayRef(todayRef, -4)`.
-  Od piątku ten dzień leży w **bieżącym** tygodniu (np. 17.10 sobota → 13.10 wtorek).
-- Test (`e2e/verification-goal-closing.spec.ts:142-146`) otwiera pierwszy kafel
-  „Podsumuj (ten|poprzedni) tydzień”. W seedzie jest to zrobiona refleksja poprzedniego tygodnia
-  z „Minione”, więc zaproszenie liczy cele z terminem do końca poprzedniego tygodnia
-  (`GoalClosingInvite.vue:53`, `getGoalsAwaitingClosing(props.periodEnd, …)`). g4 wypada poza
-  ten okres.
-
-**Dlaczego to błąd.** Seed weryfikacyjny ma być deterministyczny. Test zależny od dnia tygodnia
-daje fałszywe alarmy przy bramkach e2e.
-
-**Propozycja naprawy.** Przypiąć termin g4 do poprzedniego tygodnia: na przykład środa poprzedniego
-tygodnia albo `min(today − 4, ostatni dzień poprzedniego tygodnia)`. Trzeba przy tym sprawdzić
-inne miejsca, które zakładają „4 dni po terminie” (komentarz w seedzie, `rowMeta`, asercje
-w specach). Druga możliwość: test wybiera refleksję tygodnia, w którym leży termin g4.
-
-**Kryteria akceptacji.** Spec przechodzi przy zegarze ustawionym na każdy dzień tygodnia
-(np. `page.clock` albo seed z podanym `todayRef`). Pozostałe testy goal-closing są zielone.
 
 ---
 
@@ -182,9 +119,150 @@ tygodniowe są oceniane per tydzień, miesięczne per miesiąc.
 
 ## Pomysły
 
+### P-4 · Migracje Dexie w osobnych plikach
+
+`otwarte` · Znaleziono 2026-10-20 przy audycie repo · `src/services/userDatabaseService.ts`
+
+**Kontekst.** 34 bloki `version(n).stores().upgrade()` w jednym pliku o 1 778 liniach.
+
+**Propozycja.** `src/services/db/migrations/v01..v34.ts`, każdy eksportuje `{ stores, upgrade }`;
+serwis bazy je rejestruje w pętli. Czysto mechaniczne; stare wersje muszą zostać (bazy użytkowników).
+
+**Kryteria.** `migration.spec`, `migration-edge-cases.spec` i `persistenceMigration.spec` bez zmian
+zielone; otwarcie bazy z `dev:demo` i `dev:verify` bez błędów.
+
+### P-5 · Biblioteka obiektów jako `src/features/objects-library/`
+
+`otwarte` · Znaleziono 2026-10-20 przy audycie repo · `src/views/ObjectsLibraryView.vue`, `src/components/objects`
+
+**Kontekst.** `ObjectsLibraryView.vue` ma 2 480 linii, a biblioteka żyje po staremu w
+`components/objects/`, podczas gdy pozostałe obszary (planning-next, quiet-ritual, program-path,
+goal-closing) mają własne katalogi w `features/` z css i view-modelami (reguła w CLAUDE.md).
+
+**Propozycja.** Przenieść do `src/features/objects-library/` i podzielić widok na belkę, listę,
+kartę i edytor; css do `objects-library.css`. Bez zmiany zachowania.
+
+**Kryteria.** Specy kart i belki bez zmian zielone; `verification-smoke` i
+`verification-multi-completion` (karta biblioteki) zielone; `check:design-system` bez nowych
+wpisów.
+
+### P-1 · Wspólne helpery dla seedów dev (`verificationSeed` i `demoSeed`)
+
+`otwarte` · Znaleziono 2026-10-17 przy budowie konta demo · narzędzia dev
+
+**Kontekst.** `src/dev/verificationSeed.ts` i `src/dev/demo/demoSeed.ts` mają zduplikowane
+helpery: `weekDays`, zapis wpisów pomiarów (`addEntries` / `entry`), tworzenie konta i
+bootstrap z markerem w localStorage, zapis próby instrumentu
+(`seedAssessment` w demo, ręcznie dla GAD-7 w weryfikacji). Demo dodatkowo ma `backdate()`,
+którego brakuje seedowi weryfikacyjnemu. Dlatego w weryfikacji próby SCS-SF/FSCRS nie mają
+sensownych dat.
+
+**Propozycja.** Wyciągnąć je do `src/dev/seedKit.ts` (tylko dev, ładowane dynamicznie jak reszta)
+i przepiąć oba seedy. Przy okazji seed weryfikacyjny może dostać próby SCS-SF/FSCRS z datami
+przez `seedAssessment` + `backdate`.
+
+**Kryteria.** Oba seedy dają identyczne dane jak przed zmianą: test
+`src/dev/demo/__tests__/demoSeed.spec.ts` oraz `npm run test:e2e:verify` zielone.
+
+---
+
+## Zamknięte
+
+### B-8 · Cztery testy e2e verify są flaky na runnerze GitHuba (stabilne lokalnie)
+
+`zrobione (9b50c8bd)` · Znaleziono 2026-10-20 przy pierwszym zielonym przebiegu jobu `e2e` w CI (run 39497...) · e2e weryfikacyjne, CI
+
+**Rozstrzygnięcie (2026-10-25, sesja tests-b8-b5-p7).** `playwright.config.ts` tylko pod
+`process.env.CI`: `expect.timeout` i `use.actionTimeout` 15 s, `globalSetup`
+(`e2e/global-setup.ts`: jedno wejście na baseURL projektu `verification` i czekanie na marker
+seedu — zimne transformacje Vite i pierwszy seed nie zjadają budżetu pierwszego testu),
+reporter `list` obok `html`, `retries` 1. Cztery specy z wpisu czekają jawnie na widoczność
+(`toBeVisible`/`toBeEnabled`) przed klikami (goal-closing:150 w commicie B-5 24763ee0).
+Dodatkowo `VERIFY_PORT` pozwala uruchomić suitę na zapasowym porcie, gdy 5199 trzyma inny
+checkout (`VERIFY_PORT=5209 npx playwright test --project=verification`); strażniki bazy w
+observations i companion-surfaces porównują port z konfiguracji, nie literał. Lokalnie 39/39
+na 5209 (1,2 min) i 39/39 z `CI=1` (3,2 min, bez retry). Kryterium „trzy kolejne przebiegi
+jobu `e2e` bez wpisów flaky” sprawdzane na kolejnych pushach na main.
+
+**Objaw.** Job `e2e` kończy się zielono tylko dzięki `retries: 2` (CI): Playwright raportuje
+„4 flaky, 35 passed (10.5m)”. Lokalnie ta sama suita na tym samym commicie daje 39/39 w ~1,2 min,
+dwa razy z rzędu.
+
+**Które testy.** `verification-goal-closing.spec.ts:150` (saved weekly reflection invites to close
+overdue goals), `verification-multi-completion.spec.ts:51` (today row chips toggle items),
+`verification-observations.spec.ts:2` (observation → … → next conversation),
+`verification-shame-v3.spec.ts:147` (Momenty, shame variant). Pierwsze podejścia padają na
+`Test timeout of 120000ms exceeded` (×2, w tym `locator.click`) i `Timeout: 5000ms` w `expect`;
+w logu są też `Failed to upsert period object reflection: … missing-id not found` i
+`Failed to link build log to saved profile: log table corrupt` — to oczekiwane błędy z testów
+błędów (reportError w vitest je wycisza, Playwright nie), nie przyczyna.
+
+**Jak odtworzyć.** Push na main → job `e2e` w .github/workflows/ci.yml (ubuntu-latest, 1 worker,
+dev:verify podnoszony przez webServer Playwrighta) → artefakt `playwright-report`.
+
+**Przyczyna (hipoteza).** Runner jest ~8× wolniejszy niż lokalna maszyna (10,5 min vs 1,2 min dla
+całej suity); 5-sekundowy domyślny `expect` timeout i kroki, które czekają na seedowanie bazy
+(`window.__verifySeed()`), nie mieszczą się w czasie przy zimnym starcie Vite w trybie dev.
+
+**Propozycja naprawy.** W `playwright.config.ts` dla CI: `expect.timeout` 15 s i `actionTimeout`
+15 s (tylko gdy `process.env.CI`), rozgrzanie dev-servera przed pierwszym testem (jedno `page.goto`
+w `globalSetup`), a w czterech testach jawne `await expect(...).toBeVisible()` przed klikami zamiast
+polegania na auto-wait. Potem obniżyć `retries` do 1 i patrzeć, czy „flaky” znika.
+
+**Kryteria akceptacji.** Trzy kolejne przebiegi jobu `e2e` na main bez wpisów „flaky” w podsumowaniu;
+lokalnie dalej 39/39.
+
+### B-5 · E2E „refleksja tygodnia zaprasza do zamknięcia celów” pada od piątku do niedzieli
+
+`zrobione (24763ee0)` · Znaleziono 2026-10-17 (sobota) przy przebudowie kafli „Najbliżej” · e2e, seed weryfikacyjny
+
+**Rozstrzygnięcie (2026-10-25, sesja tests-b8-b5-p7).** Wariant testowy: spec czyta termin
+„Blok treningowy” z zaseedowanej bazy, liczy jego tydzień (`getPeriodRefsForDate`) i otwiera
+refleksję tego tygodnia wprost (`/calendar/week/<ref>?action=reflect`) zamiast pierwszego kafla
+„Podsumuj … tydzień” w Najbliżej; dalej zapis i zaproszenie z dwoma wierszami. Sprawdzone z
+`page.clock.setFixedTime` na każdy dzień tygodnia 19–25.10.2026 (pon–czw → poprzedni tydzień,
+pt–nd → bieżący): 7/7. **Uwaga:** wariant seedowy (termin g4 przypięty do poprzedniego
+tygodnia w `src/dev/verificationSeed.ts:1060`) zostaje otwarty — seed należy do pracy nad
+pomocnikiem planowania AI; komentarz „4 dni po terminie” i `rowMeta` są nietknięte.
+
+**Objaw.** `e2e/verification-goal-closing.spec.ts:132` („a saved weekly reflection invites to close
+overdue goals”) oczekuje dwóch wierszy w `.gc-invite`, a dostaje jeden: brakuje „Blok treningowy”,
+jest tylko „Porządek w finansach”. Test przechodzi albo pada w zależności od dnia tygodnia.
+
+**Jak odtworzyć.** W piątek, sobotę albo niedzielę uruchom
+`npx playwright test --project=verification e2e/verification-goal-closing.spec.ts -g "invites to close"`.
+
+**Przyczyna.**
+- `src/dev/verificationSeed.ts:960` — termin g4 „Blok treningowy” to `addDaysToDayRef(todayRef, -4)`.
+  Od piątku ten dzień leży w **bieżącym** tygodniu (np. 17.10 sobota → 13.10 wtorek).
+- Test (`e2e/verification-goal-closing.spec.ts:142-146`) otwiera pierwszy kafel
+  „Podsumuj (ten|poprzedni) tydzień”. W seedzie jest to zrobiona refleksja poprzedniego tygodnia
+  z „Minione”, więc zaproszenie liczy cele z terminem do końca poprzedniego tygodnia
+  (`GoalClosingInvite.vue:53`, `getGoalsAwaitingClosing(props.periodEnd, …)`). g4 wypada poza
+  ten okres.
+
+**Dlaczego to błąd.** Seed weryfikacyjny ma być deterministyczny. Test zależny od dnia tygodnia
+daje fałszywe alarmy przy bramkach e2e.
+
+**Propozycja naprawy.** Przypiąć termin g4 do poprzedniego tygodnia: na przykład środa poprzedniego
+tygodnia albo `min(today − 4, ostatni dzień poprzedniego tygodnia)`. Trzeba przy tym sprawdzić
+inne miejsca, które zakładają „4 dni po terminie” (komentarz w seedzie, `rowMeta`, asercje
+w specach). Druga możliwość: test wybiera refleksję tygodnia, w którym leży termin g4.
+
+**Kryteria akceptacji.** Spec przechodzi przy zegarze ustawionym na każdy dzień tygodnia
+(np. `page.clock` albo seed z podanym `todayRef`). Pozostałe testy goal-closing są zielone.
+
 ### P-7 · vue-tsc 3.1+ zgłasza refy szablonu jako nieużywane (`noUnusedLocals`)
 
-Status · otwarte · Znaleziono 2026-10-20 (upgrade toolchainu, etap 2) · Toolchain / komponenty
+Status · zrobione (688d3c92) · Znaleziono 2026-10-20 (upgrade toolchainu, etap 2) · Toolchain / komponenty
+
+**Rozstrzygnięcie (2026-10-25, sesja tests-b8-b5-p7, 688d3c92).** `vue-tsc` ^3.3.13 (TS ~5.9.3).
+`useEditableField` przyjmuje opcjonalny `inputRef` (`Readonly<Ref<…>>`) i używa go w strażniku
+fokusu; 20 refów w czterech kartach przeszło na `inputRef: useTemplateRef('xRef')` w opcjach,
+szablony zostały przy `ref="xRef"` (teraz string ref, który Vue 3.5 kieruje do uchwytu
+`useTemplateRef`); dwa `titleRef`, które karty same czytają (fokus po kliknięciu), zostały
+destrukturyzowane. 7 martwych refów usunięte z atrybutem w szablonie. Spec composable na
+zewnętrzny ref; e2e verification 39/39 po zmianie.
 
 **Objaw** — po podniesieniu `vue-tsc` do 3.1.8, 3.2.9 lub 3.3.x `npx vue-tsc --noEmit` kończy się
 27 błędami `TS6133: '<nazwa>Ref' is declared but its value is never read` w 8 komponentach;
@@ -238,55 +316,6 @@ wiadomości jak dotąd (sprawdzić, czy `messageContainer` nie był używany prz
 
 **Uwagi** — zrobić w jednym PR z bumpem vue-tsc, żeby bramki nie były czerwone pomiędzy.
 Decyzja usera z 2026-10-20: upgrade toolchainu nie rusza kodu produktu, stąd pin `~3.0.11`.
-
-### P-4 · Migracje Dexie w osobnych plikach
-
-`otwarte` · Znaleziono 2026-10-20 przy audycie repo · `src/services/userDatabaseService.ts`
-
-**Kontekst.** 34 bloki `version(n).stores().upgrade()` w jednym pliku o 1 778 liniach.
-
-**Propozycja.** `src/services/db/migrations/v01..v34.ts`, każdy eksportuje `{ stores, upgrade }`;
-serwis bazy je rejestruje w pętli. Czysto mechaniczne; stare wersje muszą zostać (bazy użytkowników).
-
-**Kryteria.** `migration.spec`, `migration-edge-cases.spec` i `persistenceMigration.spec` bez zmian
-zielone; otwarcie bazy z `dev:demo` i `dev:verify` bez błędów.
-
-### P-5 · Biblioteka obiektów jako `src/features/objects-library/`
-
-`otwarte` · Znaleziono 2026-10-20 przy audycie repo · `src/views/ObjectsLibraryView.vue`, `src/components/objects`
-
-**Kontekst.** `ObjectsLibraryView.vue` ma 2 480 linii, a biblioteka żyje po staremu w
-`components/objects/`, podczas gdy pozostałe obszary (planning-next, quiet-ritual, program-path,
-goal-closing) mają własne katalogi w `features/` z css i view-modelami (reguła w CLAUDE.md).
-
-**Propozycja.** Przenieść do `src/features/objects-library/` i podzielić widok na belkę, listę,
-kartę i edytor; css do `objects-library.css`. Bez zmiany zachowania.
-
-**Kryteria.** Specy kart i belki bez zmian zielone; `verification-smoke` i
-`verification-multi-completion` (karta biblioteki) zielone; `check:design-system` bez nowych
-wpisów.
-
-### P-1 · Wspólne helpery dla seedów dev (`verificationSeed` i `demoSeed`)
-
-`otwarte` · Znaleziono 2026-10-17 przy budowie konta demo · narzędzia dev
-
-**Kontekst.** `src/dev/verificationSeed.ts` i `src/dev/demo/demoSeed.ts` mają zduplikowane
-helpery: `weekDays`, zapis wpisów pomiarów (`addEntries` / `entry`), tworzenie konta i
-bootstrap z markerem w localStorage, zapis próby instrumentu
-(`seedAssessment` w demo, ręcznie dla GAD-7 w weryfikacji). Demo dodatkowo ma `backdate()`,
-którego brakuje seedowi weryfikacyjnemu. Dlatego w weryfikacji próby SCS-SF/FSCRS nie mają
-sensownych dat.
-
-**Propozycja.** Wyciągnąć je do `src/dev/seedKit.ts` (tylko dev, ładowane dynamicznie jak reszta)
-i przepiąć oba seedy. Przy okazji seed weryfikacyjny może dostać próby SCS-SF/FSCRS z datami
-przez `seedAssessment` + `backdate`.
-
-**Kryteria.** Oba seedy dają identyczne dane jak przed zmianą: test
-`src/dev/demo/__tests__/demoSeed.spec.ts` oraz `npm run test:e2e:verify` zielone.
-
----
-
-## Zamknięte
 
 ### B-4 · Daty w Historii i edytorach zawsze po angielsku, z AM/PM
 
