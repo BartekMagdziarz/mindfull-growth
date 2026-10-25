@@ -261,6 +261,36 @@ describe('ProfileView › AI assistant tab', () => {
     })
   })
 
+  it('applies the Claude preset with Sonnet for chats and Opus for long-form tasks', async () => {
+    render(ProfileView)
+    const user = await switchToAITab()
+
+    await user.selectOptions(screen.getByLabelText('AI provider'), 'anthropic')
+
+    expect(screen.queryByLabelText('Base URL')).not.toBeInTheDocument()
+    expect((screen.getByLabelText('Model') as HTMLSelectElement).value).toBe('claude-sonnet-5-5')
+    expect((screen.getByLabelText('Model for long-form tasks') as HTMLSelectElement).value).toBe(
+      'claude-opus-5-5'
+    )
+    expect(await screen.findByText('Claude API key is required.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled()
+
+    await user.selectOptions(screen.getByLabelText('Model'), 'claude-haiku-5-5')
+    await user.type(screen.getByLabelText('API key'), 'sk-ant-test')
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+
+    await waitFor(() => {
+      expect(savedAISettings()).toEqual({
+        provider: 'anthropic',
+        baseUrl: 'https://api.anthropic.com',
+        model: 'claude-haiku-5-5',
+        heavyModel: 'claude-opus-5-5',
+        apiKey: 'sk-ant-test',
+        reasoningEffort: 'medium',
+      })
+    })
+  })
+
   it('saves the selected Ollama reasoning effort', async () => {
     render(ProfileView)
     const user = await switchToAITab()

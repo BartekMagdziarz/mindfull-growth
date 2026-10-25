@@ -469,7 +469,7 @@ async function perform(work: () => Promise<unknown>) {
           : code === 'source-unavailable'
             ? 'Źródło zostało zmienione lub wykluczone. Ta propozycja nie może być wysłana do AI ani przyjęta bez ponownego ustalenia treści.'
             : code === 'missing-api-key'
-              ? 'Podłącz OpenAI w ustawieniach AI lub lokalnym pliku .env.'
+              ? 'Podłącz OpenAI lub Claude w ustawieniach AI albo w lokalnym pliku .env.'
               : code === 'cost-limit'
                 ? 'Wykorzystano dzisiejszy limit analiz profilu. Nadal możesz edytować i zatwierdzać ręcznie.'
                 : 'Nie udało się wykonać działania. Sprawdź dane i spróbuj ponownie.'

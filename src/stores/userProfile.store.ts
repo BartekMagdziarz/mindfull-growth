@@ -16,6 +16,7 @@ import { profileBuildLogDexieRepository } from '@/repositories/profileBuildLogDe
 import {
   getAIProviderSettings,
   hasAIProviderConfigured,
+  resolveTaskModel,
   sendMessage,
   type LLMUsage,
 } from '@/services/llmService'
@@ -214,7 +215,8 @@ export const useUserProfileStore = defineStore('userProfile', () => {
         throw new ProfileBuildError('missingApiKey', 'AI provider is not configured.')
       }
       const aiSettings = await operation.wait(getAIProviderSettings())
-      model = aiSettings.model
+      // The build is the heaviest call in the app: it runs on the long-form model.
+      model = resolveTaskModel(aiSettings, 'heavy')
 
       // Gather, name-resolve, format, budget-trim, and estimate the payload in
       // one place — the same assembler the wizard preview uses, so "preview ==
@@ -256,6 +258,7 @@ export const useUserProfileStore = defineStore('userProfile', () => {
         sendMessage([{ role: 'user', content: payload }], finalSystemPrompt, {
           maxTokens: PROFILE_MAX_TOKENS,
           model,
+          task: 'heavy',
           onDiagnostics: d => {
             if (d.usage) lastUsage = d.usage
           },

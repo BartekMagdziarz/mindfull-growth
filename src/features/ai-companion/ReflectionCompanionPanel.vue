@@ -541,7 +541,8 @@ let disposed = false,
 const errorText = computed(
   () =>
     ({
-      'missing-api-key': 'Podłącz OpenAI w ustawieniach AI, a następnie spróbuj ponownie.',
+      'missing-api-key':
+        'Podłącz OpenAI lub Claude w ustawieniach AI, a następnie spróbuj ponownie.',
       'profile-changed': 'Profil zmienił się. W opcjach wybierz „Rozpocznij od aktualnych danych”.',
       'profile-context-limit':
         'Profil przekracza limit kontekstu. Skróć aktywne informacje w profilu.',

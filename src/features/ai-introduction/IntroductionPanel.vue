@@ -218,7 +218,7 @@ async function perform(work: () => Promise<CompanionIntroduction>) {
       const code = reason instanceof CompanionError ? reason.code : ''
       error.value =
         code === 'missing-api-key'
-          ? 'Podłącz OpenAI w ustawieniach AI lub lokalnym pliku .env.'
+          ? 'Podłącz OpenAI lub Claude w ustawieniach AI albo w lokalnym pliku .env.'
           : code === 'cost-limit'
             ? 'Wykorzystano dzisiejszy limit analiz. Rozmowa pozostaje zachowana.'
             : code === 'cancelled'

@@ -29,6 +29,7 @@
     "ai:benchmark": "node scripts/runCompanionBenchmark.mjs"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.3.0",
     "@vue/devtools-api": "^8.2.1",
     "dexie": "^4.4.6",
     "pinia": "^4.1.0",

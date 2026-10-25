@@ -6,6 +6,7 @@ export const CHAT_COPY = {
     invalidApiKey: 'Invalid API key. Please check your API key in Profile settings.',
     network: 'Network error. Please check your connection and try again.',
     rateLimit: 'Rate limit exceeded. Please try again in a moment.',
+    refusal: 'The model declined to answer this request. Try rephrasing it or pick another model.',
     genericApi: (status: number) => `API request failed with status ${status}. Please try again.`,
   },
   chat: {

@@ -24,7 +24,15 @@ export interface ModelResponse {
   model: string
   requestId: string | null
 }
-export type ModelTransport = (request: ModelRequest) => Promise<ModelResponse>
+export type ModelTransport = ((request: ModelRequest) => Promise<ModelResponse>) & {
+  /** Model id recorded with the conversation; defaults to OPENAI_COMPANION_MODEL. */
+  model?: string
+  /** USD per 1M tokens for the spend guards; defaults to DEFAULT_COMPANION_RATES. */
+  rates?: { input: number; output: number }
+  /** Per-conversation and daily profile-task cap; defaults to COMPANION_SPEND_CAP_USD. */
+  spendCapUsd?: number
+}
+export const COMPANION_SPEND_CAP_USD = 0.5
 
 export class CompanionError extends Error {
   constructor(public code: string) {

@@ -1,12 +1,36 @@
-import { userSettingsDexieRepository } from '@/repositories/userSettingsDexieRepository'
 import { CHAT_COPY } from '@/constants/chatCopy'
 import { captureUserSession } from '@/services/userSessionScope'
 import { reportError } from '@/utils/reportError'
+import { ANTHROPIC_THINKING_HEADROOM, anthropicEffort } from '@/services/ai/anthropic/client'
+import { sendAnthropicMessage } from '@/services/ai/anthropic/chat'
+import {
+  getAIProviderSettings,
+  normaliseBaseUrl,
+  resolveTaskModel,
+  type AIProviderId,
+  type AIProviderSettings,
+  type LLMTask,
+  type ReasoningEffort,
+} from '@/services/aiProviderSettingsService'
 
-// Default model configuration. gpt-5.4-nano is OpenAI's smallest/cheapest
-// reasoning model (alias `gpt-5.4-nano`, snapshot gpt-5.4-nano-2026-03-17,
-// 400k context) — fast and inexpensive for journal chats and profile builds.
-export const DEFAULT_MODEL = 'gpt-5.4-nano'
+// Provider settings moved to aiProviderSettingsService; re-exported so existing
+// `@/services/llmService` imports keep working.
+export {
+  AI_PROVIDER_PRESETS,
+  AI_PROVIDER_SETTINGS_KEY,
+  DEFAULT_MODEL,
+  LEGACY_OPENAI_API_KEY,
+  getAIProviderSettings,
+  hasAIProviderConfigured,
+  normaliseBaseUrl,
+  providerRequiresApiKey,
+  resolveTaskModel,
+  type AIProviderId,
+  type AIProviderSettings,
+  type LLMTask,
+  type ReasoningEffort,
+} from '@/services/aiProviderSettingsService'
+
 const DEFAULT_TEMPERATURE = 0.7
 const DEFAULT_MAX_TOKENS = 500
 
@@ -88,39 +112,6 @@ export function computeMaxPromptTokens(
   return OLLAMA_NUM_CTX_CEILING - (answerTokens + headroom) - NUM_CTX_MARGIN - safety
 }
 
-export type AIProviderId = 'openai' | 'ollama' | 'mlx' | 'custom'
-export type ReasoningEffort = 'none' | 'low' | 'medium' | 'high'
-
-export interface AIProviderSettings {
-  provider: AIProviderId
-  baseUrl: string
-  model: string
-  apiKey?: string
-  reasoningEffort?: ReasoningEffort
-}
-
-export const AI_PROVIDER_SETTINGS_KEY = 'aiProviderSettings'
-export const LEGACY_OPENAI_API_KEY = 'openaiApiKey'
-
-export const AI_PROVIDER_PRESETS: Record<Exclude<AIProviderId, 'custom'>, AIProviderSettings> = {
-  openai: {
-    provider: 'openai',
-    baseUrl: 'https://api.openai.com/v1',
-    model: DEFAULT_MODEL,
-  },
-  ollama: {
-    provider: 'ollama',
-    baseUrl: 'http://localhost:11434/v1',
-    model: 'gemma4:e4b',
-    reasoningEffort: 'low',
-  },
-  mlx: {
-    provider: 'mlx',
-    baseUrl: 'http://localhost:8080/v1',
-    model: 'mlx-community/gemma-4-26B-A4B-it-OptiQ-4bit',
-  },
-}
-
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system'
   content: string
@@ -141,85 +132,13 @@ interface OpenAIResponse {
   }
 }
 
-function isAIProviderId(value: unknown): value is AIProviderId {
-  return value === 'openai' || value === 'ollama' || value === 'mlx' || value === 'custom'
-}
-
-function isReasoningEffort(value: unknown): value is ReasoningEffort {
-  return value === 'none' || value === 'low' || value === 'medium' || value === 'high'
-}
-
-function parseProviderSettings(raw: string): AIProviderSettings | null {
-  try {
-    const parsed = JSON.parse(raw) as Partial<AIProviderSettings>
-    if (
-      !isAIProviderId(parsed.provider) ||
-      typeof parsed.baseUrl !== 'string' ||
-      typeof parsed.model !== 'string'
-    ) {
-      return null
-    }
-
-    const baseUrl = parsed.baseUrl.trim()
-    const model = parsed.model.trim()
-    const apiKey = typeof parsed.apiKey === 'string' ? parsed.apiKey.trim() : undefined
-
-    if (!baseUrl || !model) return null
-
-    return {
-      provider: parsed.provider,
-      baseUrl,
-      model,
-      ...(apiKey ? { apiKey } : {}),
-      ...(isReasoningEffort(parsed.reasoningEffort)
-        ? { reasoningEffort: parsed.reasoningEffort }
-        : {}),
-    }
-  } catch {
-    return null
-  }
-}
-
-export function normaliseBaseUrl(baseUrl: string): string {
-  return baseUrl.trim().replace(/\/+$/, '')
-}
-
-export async function getAIProviderSettings(): Promise<AIProviderSettings> {
-  const storedSettings = await userSettingsDexieRepository.get(AI_PROVIDER_SETTINGS_KEY)
-  if (storedSettings) {
-    const settings = parseProviderSettings(storedSettings)
-    if (settings?.provider === 'openai' && !settings.apiKey) {
-      throw new Error(CHAT_COPY.errors.missingAIProviderConfig)
-    }
-    if (settings) return settings
-    throw new Error(CHAT_COPY.errors.missingAIProviderConfig)
-  }
-
-  const legacyApiKey = await userSettingsDexieRepository.get(LEGACY_OPENAI_API_KEY)
-  if (legacyApiKey?.trim()) {
-    return {
-      ...AI_PROVIDER_PRESETS.openai,
-      apiKey: legacyApiKey.trim(),
-    }
-  }
-
-  throw new Error(CHAT_COPY.errors.missingAIProviderConfig)
-}
-
-export async function hasAIProviderConfigured(): Promise<boolean> {
-  try {
-    await getAIProviderSettings()
-    return true
-  } catch {
-    return false
-  }
-}
-
 export interface SendMessageOptions {
   signal?: AbortSignal
   timeoutMs?: number
   /** Override the default model id (e.g. to use a larger model for a long-form task). */
   model?: string
+  /** `heavy` picks the configured long-form model (and deeper effort on Claude). */
+  task?: LLMTask
   /** Override the sampling temperature. */
   temperature?: number
   /** Override the cap on completion tokens. Longer tasks (like profile generation) need more. */
@@ -387,6 +306,7 @@ function assertNonEmpty(content: string): void {
 
 function reasoningControlLabel(provider: AIProviderId, reasoningHeadroom: number): string {
   if (provider === 'ollama') return 'native-think'
+  if (provider === 'anthropic') return 'adaptive-effort'
   return reasoningHeadroom > 0 ? 'completion-headroom-only' : 'none'
 }
 
@@ -783,7 +703,8 @@ async function readStreamingResponse(
 }
 
 /**
- * Sends a message to an OpenAI-compatible API and returns the assistant's response
+ * Sends a message to the configured provider (OpenAI-compatible, Ollama native or
+ * Claude) and returns the assistant's response
  * @param messages Array of conversation messages
  * @param systemPrompt Optional system prompt to set the AI's behavior
  * @param options Optional per-call overrides for model, temperature, and maxTokens
@@ -810,7 +731,6 @@ export async function sendMessage(
   }, timeoutMs)
   try {
     const settings = await session.wait(getAIProviderSettings())
-    const adapter = selectAdapter(settings.provider)
 
     // Construct messages array with system prompt if provided
     const requestMessages: ChatMessage[] = []
@@ -822,17 +742,22 @@ export async function sendMessage(
     // Local "thinking" providers get extra completion budget so hidden reasoning
     // never starves the visible answer (see *_REASONING_HEADROOM).
     const requestedMaxTokens = options?.maxTokens ?? DEFAULT_MAX_TOKENS
-    const reasoningEffort = options?.reasoningEffort ?? settings.reasoningEffort ?? 'low'
+    // Long-form Claude tasks think harder by default; an explicit override still wins.
+    const heavyClaude = options?.task === 'heavy' && settings.provider === 'anthropic'
+    const reasoningEffort =
+      options?.reasoningEffort ?? (heavyClaude ? 'high' : (settings.reasoningEffort ?? 'low'))
     const reasoningHeadroom =
       settings.provider === 'ollama'
         ? OLLAMA_REASONING_HEADROOM[reasoningEffort]
         : settings.provider === 'mlx'
           ? MLX_REASONING_HEADROOM
-          : 0
+          : settings.provider === 'anthropic'
+            ? ANTHROPIC_THINKING_HEADROOM[anthropicEffort(reasoningEffort)]
+            : 0
     const completionTokenCap = requestedMaxTokens + reasoningHeadroom
 
     const plan: RequestPlan = {
-      model: options?.model ?? settings.model,
+      model: options?.model ?? resolveTaskModel(settings, options?.task),
       messages: requestMessages,
       temperature: options?.temperature ?? DEFAULT_TEMPERATURE,
       requestedMaxTokens,
@@ -842,12 +767,12 @@ export async function sendMessage(
       stream: Boolean(options?.onToken),
     }
 
-    const built = adapter.buildRequest(settings, plan)
-
     const diagnostics: LLMDiagnostics = {
       provider: settings.provider,
       model: plan.model,
-      ...(settings.provider === 'ollama' ? { reasoningEffort } : {}),
+      ...(settings.provider === 'ollama' || settings.provider === 'anthropic'
+        ? { reasoningEffort }
+        : {}),
       timing: {},
       observed: {
         reasoningChunks: 0,
@@ -861,9 +786,29 @@ export async function sendMessage(
           reasoningTokenHeadroom: reasoningHeadroom,
           completionTokenCap,
           reasoningControl: reasoningControlLabel(settings.provider, reasoningHeadroom),
-          ...(built.requestMeta ?? {}),
         },
       },
+    }
+
+    // Claude goes through the official SDK (Messages API), not the fetch adapters.
+    if (settings.provider === 'anthropic') {
+      session.assertCurrent()
+      if (controller.signal.aborted) throw new Error('AI request cancelled.')
+      const content = await sendAnthropicMessage(
+        settings,
+        plan,
+        { ...options, signal: controller.signal },
+        diagnostics
+      )
+      session.assertCurrent()
+      return content
+    }
+
+    const adapter = selectAdapter(settings.provider)
+    const built = adapter.buildRequest(settings, plan)
+    diagnostics.rawMetadata.request = {
+      ...(diagnostics.rawMetadata.request as Record<string, unknown>),
+      ...(built.requestMeta ?? {}),
     }
     const requestStartedAt = nowMs()
 

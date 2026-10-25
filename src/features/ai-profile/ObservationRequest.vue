@@ -86,7 +86,7 @@ async function generate() {
         : code === 'invalid-input'
           ? 'Wybierz temat i poprawny okres, najwyżej rok, bez przyszłych dat.'
           : code === 'missing-api-key'
-            ? 'Włącz AI w demo lub skonfiguruj OpenAI, aby rozpocząć analizę.'
+            ? 'Włącz AI w demo lub skonfiguruj OpenAI albo Claude, aby rozpocząć analizę.'
             : code === 'cost-limit'
               ? 'Wykorzystano limit analiz profilu. Zapisane propozycje pozostają dostępne.'
               : 'Nie udało się przygotować zweryfikowanych obserwacji. Dane mogły się zmienić lub odpowiedź nie spełniła wymagań. Profil pozostał bez zmian.'

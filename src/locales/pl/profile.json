@@ -429,10 +429,11 @@
   },
   "aiSettings": {
     "title": "Ustawienia AI",
-    "description": "Wybierz OpenAI albo lokalny endpoint zgodny z OpenAI dla czatów w dzienniku i generowania profilu. Ustawienia pozostają na tym urządzeniu.",
+    "description": "Wybierz OpenAI, Claude albo lokalny endpoint zgodny z OpenAI dla czatów w dzienniku i generowania profilu. Ustawienia pozostają na tym urządzeniu.",
     "providerLabel": "Provider AI",
     "providers": {
       "openai": "OpenAI",
+      "anthropic": "Claude (Anthropic)",
       "ollama": "Ollama lokalnie",
       "mlx": "MLX lokalnie",
       "custom": "Własny zgodny z OpenAI"
@@ -443,9 +444,12 @@
     "modelLabel": "Model",
     "modelPlaceholder": "gpt-5.4-nano",
     "modelError": "Model jest wymagany.",
+    "heavyModelLabel": "Model do dużych zadań",
+    "heavyModelHint": "Budowa profilu i obserwacje do profilu. Rozmowy i ćwiczenia korzystają z modelu powyżej.",
     "reasoningEffortLabel": "Poziom reasoningu",
     "reasoningEffortHint": "To wskazówka dla Ollamy, nie gwarantowany budżet tokenów. Część modeli, w tym Gemma 4, może traktować poziomy niski, średni i wysoki bardzo podobnie.",
     "reasoningEffortHintOpenai": "Określa, jak długo modele rozumujące OpenAI (GPT-5 / o-series) analizują, zanim odpowiedzą. Wyższy poziom jest dokładniejszy, ale wolniejszy, a dodatkowe (płatne) tokeny rozumowania zużywają budżet odpowiedzi. Modele bez rozumowania, np. gpt-4o, ignorują to ustawienie.",
+    "reasoningEffortHintAnthropic": "Określa, jak dokładnie Claude analizuje, zanim odpowie (effort). Wyższy poziom jest dokładniejszy, ale wolniejszy i zużywa więcej tokenów. Duże zadania zawsze idą na poziomie wysokim.",
     "reasoningEfforts": {
       "none": "Brak",
       "low": "Niski — szybciej",
@@ -453,10 +457,13 @@
       "high": "Wysoki — dokładniej"
     },
     "apiKeyLabel": "Klucz API",
-    "apiKeyPlaceholder": "Wymagany dla OpenAI",
+    "apiKeyPlaceholder": "Wymagany dla OpenAI i Claude",
     "apiKeyRequiredError": "Klucz API OpenAI jest wymagany.",
+    "apiKeyRequiredErrorAnthropic": "Klucz API Claude jest wymagany.",
     "apiKeyHint": "Klucze API są przechowywane lokalnie w przeglądarce. Klucze OpenAI utworzysz na",
     "apiKeyHintLink": "stronie OpenAI",
+    "apiKeyHintAnthropic": "Klucze API są przechowywane lokalnie w przeglądarce. Klucz Claude (może korzystać z kredytów API z planu Max) utworzysz w",
+    "apiKeyHintLinkAnthropic": "Claude Console",
     "saved": "Ustawienia providera AI zostały zapisane.",
     "saveFailed": "Nie udało się zapisać ustawień providera AI. Spróbuj ponownie.",
     "testConnection": "Testuj",

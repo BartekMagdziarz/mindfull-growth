@@ -429,10 +429,11 @@
   },
   "aiSettings": {
     "title": "AI Settings",
-    "description": "Choose OpenAI or a local OpenAI-compatible endpoint for journal chats and profile generation. Settings stay on this device.",
+    "description": "Choose OpenAI, Claude or a local OpenAI-compatible endpoint for journal chats and profile generation. Settings stay on this device.",
     "providerLabel": "AI provider",
     "providers": {
       "openai": "OpenAI",
+      "anthropic": "Claude (Anthropic)",
       "ollama": "Ollama local",
       "mlx": "MLX local",
       "custom": "Custom OpenAI-compatible"
@@ -443,9 +444,12 @@
     "modelLabel": "Model",
     "modelPlaceholder": "gpt-5.4-nano",
     "modelError": "Model is required.",
+    "heavyModelLabel": "Model for long-form tasks",
+    "heavyModelHint": "Profile build and profile observations. Chats and exercises use the model above.",
     "reasoningEffortLabel": "Reasoning effort",
     "reasoningEffortHint": "This is an Ollama hint, not a guaranteed token budget. Some models, including Gemma 4, may treat low, medium, and high very similarly.",
     "reasoningEffortHintOpenai": "Controls how much OpenAI reasoning models (GPT-5 / o-series) think before answering. Higher effort is more thorough but slower, and the extra (billed) reasoning tokens come out of the response budget. Non-reasoning models like gpt-4o ignore this.",
+    "reasoningEffortHintAnthropic": "Controls how thoroughly Claude thinks before answering (effort). Higher effort is more thorough but slower and uses more tokens. Long-form tasks always run at high effort.",
     "reasoningEfforts": {
       "none": "None",
       "low": "Low — faster",
@@ -453,10 +457,13 @@
       "high": "High — more thorough"
     },
     "apiKeyLabel": "API key",
-    "apiKeyPlaceholder": "Required for OpenAI",
+    "apiKeyPlaceholder": "Required for OpenAI and Claude",
     "apiKeyRequiredError": "OpenAI API key is required.",
+    "apiKeyRequiredErrorAnthropic": "Claude API key is required.",
     "apiKeyHint": "API keys are stored locally in your browser. OpenAI keys can be created on",
     "apiKeyHintLink": "OpenAI's website",
+    "apiKeyHintAnthropic": "API keys are stored locally in your browser. Create a Claude key (it can use your Max plan's API credits) in the",
+    "apiKeyHintLinkAnthropic": "Claude Console",
     "saved": "AI provider settings saved.",
     "saveFailed": "Failed to save AI provider settings. Please try again.",
     "testConnection": "Test",

@@ -11,6 +11,7 @@ import {
   type ProfileOrigin,
 } from '@/domain/approvedProfile'
 import {
+  COMPANION_SPEND_CAP_USD,
   CompanionError,
   DEFAULT_COMPANION_RATES,
   OPENAI_HISTORY_TOOLS,
@@ -91,9 +92,10 @@ export async function runTask<T>(
   const inputBytes = new TextEncoder().encode(
     payload + instructions + JSON.stringify(outputSchema) + JSON.stringify(OPENAI_HISTORY_TOOLS)
   ).byteLength
-  const reserve =
-    ((inputBytes + 4000) * DEFAULT_COMPANION_RATES.input + 2500 * DEFAULT_COMPANION_RATES.output) /
-    1e6
+  // Profile observations are long-form work: the heavy model where the provider has one.
+  const transport = options.transport ?? (await browserCompanionTransport({ task: 'heavy' }))
+  const rates = transport.rates ?? DEFAULT_COMPANION_RATES
+  const reserve = ((inputBytes + 4000) * rates.input + 2500 * rates.output) / 1e6
   const token = crypto.randomUUID()
   const acquired = await db.transaction('rw', db.profileTasks, async () => {
     repo.guard()
@@ -108,7 +110,10 @@ export async function runTask<T>(
     // All E4 operations share a conservative daily budget, including failed attempts.
     const day = new Date().toISOString().slice(0, 10)
     const today = await db.profileTasks.where('id').startsWith(`${day}:`).toArray()
-    if (today.reduce((sum, t) => sum + t.spentUsd, 0) + reserve > 0.5)
+    if (
+      today.reduce((sum, t) => sum + t.spentUsd, 0) + reserve >
+      (transport.spendCapUsd ?? COMPANION_SPEND_CAP_USD)
+    )
       throw new CompanionError('cost-limit')
     await db.profileTasks.put({
       id,
@@ -134,7 +139,6 @@ export async function runTask<T>(
   }
   try {
     await guard()
-    const transport = options.transport ?? (await browserCompanionTransport())
     const response = await transport({
       instructions,
       input: [{ role: 'user', content: payload }],
@@ -143,10 +147,7 @@ export async function runTask<T>(
       toolsEnabled: false,
       signal: controller.signal,
     })
-    const actual =
-      (response.usage.input * DEFAULT_COMPANION_RATES.input +
-        response.usage.output * DEFAULT_COMPANION_RATES.output) /
-      1e6
+    const actual = (response.usage.input * rates.input + response.usage.output * rates.output) / 1e6
     await db.transaction('rw', db.profileTasks, async () => {
       repo.guard()
       const task = await db.profileTasks.get(id)

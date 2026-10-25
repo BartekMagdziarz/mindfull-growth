@@ -513,11 +513,31 @@ describe('useUserProfileStore', () => {
       expect(sendMessage).toHaveBeenCalledWith(expect.any(Array), expect.any(String), {
         maxTokens: 6000,
         model: 'gemma4:e4b',
+        task: 'heavy',
         onDiagnostics: expect.any(Function),
       })
       const logPayload = vi.mocked(profileBuildLogDexieRepository.add).mock.calls[0][0]
       expect(logPayload.model).toBe('gemma4:e4b')
       expect(logPayload.requestBody).toContain('"model":"gemma4:e4b"')
+    })
+
+    it('builds on the long-form model when one is configured (Claude: Opus)', async () => {
+      mockAISettings({
+        provider: 'anthropic',
+        baseUrl: 'https://api.anthropic.com',
+        model: 'claude-sonnet-5-5',
+        heavyModel: 'claude-opus-5-5',
+        apiKey: 'sk-ant-test',
+      })
+      vi.mocked(sendMessage).mockResolvedValue(aWellFormedResponse())
+
+      const result = await useUserProfileStore().buildProfile(validScope)
+
+      expect(result.model).toBe('claude-opus-5-5')
+      expect(vi.mocked(sendMessage).mock.calls[0][2]).toMatchObject({
+        model: 'claude-opus-5-5',
+        task: 'heavy',
+      })
     })
 
     it('flips isBuilding true mid-call and back to false when done', async () => {

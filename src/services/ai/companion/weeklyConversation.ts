@@ -10,7 +10,12 @@ import {
   type CompanionEvent,
   type CompanionReply,
 } from './runtime'
-import { CompanionError, OPENAI_COMPANION_MODEL, type ModelTransport } from './openai'
+import {
+  COMPANION_SPEND_CAP_USD,
+  CompanionError,
+  OPENAI_COMPANION_MODEL,
+  type ModelTransport,
+} from './openai'
 import { browserCompanionTransport } from './browserTransport'
 import type { CompanionMessage } from '@/domain/companionConversation'
 
@@ -44,7 +49,10 @@ export function companionConversation(
     const { row, token } = await repository.acquire()
     let budget: SpendingBudget | undefined
     try {
-      if (!input.topicId && row.spentUsd >= 0.5) throw new CompanionError('cost-limit')
+      const transport = options.transport ?? (await browserCompanionTransport())
+      const model = transport.model ?? OPENAI_COMPANION_MODEL
+      const spendCapUsd = transport.spendCapUsd ?? COMPANION_SPEND_CAP_USD
+      if (!input.topicId && row.spentUsd >= spendCapUsd) throw new CompanionError('cost-limit')
       const profile = await approvedProfileContext(row.surface)
       const context = {
         surface: row.surface,
@@ -64,7 +72,7 @@ export function companionConversation(
           row.profileRevision !== profile.fingerprint ||
           row.locale !== options.locale ||
           row.timeZone !== options.timeZone ||
-          row.model !== OPENAI_COMPANION_MODEL)
+          row.model !== model)
       )
         throw new CompanionError('history-changed')
       if (input.mode === 'conversation' && input.topicId) {
@@ -91,8 +99,7 @@ export function companionConversation(
         if (input.signal.aborted) throw new CompanionError('cancelled')
         return await repository.commit(token, row)
       }
-      budget = new SpendingBudget(0.5 - row.spentUsd)
-      const transport = options.transport ?? (await browserCompanionTransport())
+      budget = new SpendingBudget(spendCapUsd - row.spentUsd)
       if (!row.state) row.historyStartIndex = row.messages.length
       const session = createCompanionSession({
         context,
@@ -104,6 +111,7 @@ export function companionConversation(
           },
         },
         budget,
+        rates: transport.rates,
         initialState: row.state,
         onEvent: input.onEvent,
         transport: async request => {
@@ -133,7 +141,7 @@ export function companionConversation(
       row.historyRevision = access.revision
       row.locale = options.locale
       row.timeZone = options.timeZone
-      row.model = OPENAI_COMPANION_MODEL
+      row.model = model
       if (input.mode === 'topics') {
         row.topics = reconcileTopics(row.topics, result.reply.topics)
         row.state.topics = row.topics
