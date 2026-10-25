@@ -413,6 +413,18 @@ function confirmRestart(): void {
 .wk:not(.wk--open) > .wk__row:hover {
   background: var(--mg-color-mist);
 }
+/* The open week is ONE mist surface from its head row down: number, title,
+   state disc, "why" and tiles read as one block. The field inside drops its
+   own tone so the ladder stays card → mist → paper tiles. */
+.wk--open:not(.wk--single) {
+  margin-bottom: var(--mg-space-2);
+  background: var(--mg-color-mist);
+}
+.wk--open:not(.wk--single) > .wk__field {
+  margin: 0;
+  padding-top: 0;
+  background: transparent;
+}
 .wk--return {
   margin-top: var(--mg-space-3);
 }
