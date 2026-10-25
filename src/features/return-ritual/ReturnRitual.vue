@@ -46,13 +46,51 @@
           — bez dłuższej przerwy. Porządki na życzenie: tygodnie bez zaznaczenia znikną z planów, a
           stare intencje, praktyki po terminie, ścieżki i cele po terminie dostaną decyzję.
         </p>
-        <textarea
-          v-model="plan.note"
-          rows="3"
-          aria-label="Co się działo"
-          placeholder="Co się działo? Jedno, dwa zdania — zostaną w dzienniku. Można pominąć."
-          data-testid="return-note"
-        />
+        <!-- Three short, optional answers after a long break; one field otherwise.
+             They become one journal entry „Powrót po przerwie · zakres” at Start. -->
+        <div class="rr-reflection">
+          <label class="rr-reflection__field">
+            <span>Co się działo?</span>
+            <textarea
+              v-model="plan.reflection.whatHappened"
+              rows="2"
+              placeholder="Jedno, dwa zdania. Można pominąć."
+              data-testid="return-note"
+            />
+          </label>
+          <template v-if="longBreak">
+            <label class="rr-reflection__field">
+              <span>Co z planu było w tym czasie żywe, a co odpadło?</span>
+              <textarea
+                v-model="plan.reflection.aliveAndDropped"
+                rows="2"
+                placeholder="Można pominąć."
+                data-testid="return-note-alive"
+              />
+              <small
+                v-if="reflectionHints.alive || reflectionHints.quiet"
+                class="rr-reflection__hint"
+              >
+                <template v-if="reflectionHints.alive"
+                  >Żyło przed przerwą: {{ reflectionHints.alive }}.</template
+                >
+                <template v-if="reflectionHints.quiet">
+                  Cicho już wcześniej: {{ reflectionHints.quiet }}.</template
+                >
+              </small>
+            </label>
+            <label class="rr-reflection__field">
+              <span>Czego chcę teraz?</span>
+              <textarea
+                v-model="plan.reflection.wantNow"
+                rows="2"
+                placeholder="Kierunek na pierwszy tydzień. Można pominąć."
+                data-testid="return-note-want"
+              />
+            </label>
+          </template>
+          <small class="rr-reflection__note">Odpowiedzi zostaną w dzienniku jako jeden wpis.</small>
+        </div>
       </section>
 
       <!-- 2 · Porządki -->
@@ -222,6 +260,13 @@
           Nie masz otwartych nawyków, rezultatów ani trackerów. Nowe rzeczy ułożysz w pomocniku
           planowania.
         </p>
+        <p
+          v-if="plan.reflection.wantNow.trim()"
+          class="rr-lead rr-want"
+          data-testid="return-want-now"
+        >
+          <AppIcon name="lightbulb" />{{ plan.reflection.wantNow.trim() }}
+        </p>
         <div v-else class="rr-rows" role="group" aria-label="Co wraca od tego tygodnia">
           <button
             v-for="subject in inventory.subjects"
@@ -335,6 +380,7 @@ const {
   currentStepId,
   subjectsByKey,
   keptWeeks,
+  reflectionHints,
   isSaving,
   saved,
   saveError,
@@ -444,7 +490,7 @@ const summaryLines = computed<string[]>(() => {
       : 'Nic nie wraca od tego tygodnia; wszystko czeka do następnego miesiąca.'
   )
   if (s.gentleWeek) lines.push('Pierwszy tydzień łagodny: targety o połowę niższe.')
-  if (plan.note.trim()) lines.push('Notatka trafi do dziennika.')
+  if (s.hasReflection) lines.push('Refleksja trafi do dziennika jako jeden wpis.')
   return lines
 })
 

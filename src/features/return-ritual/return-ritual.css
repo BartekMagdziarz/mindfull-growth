@@ -33,6 +33,37 @@
   font-weight: var(--mg-weight-label);
 }
 
+/* ── Step 1: reflection over the break ─────────────────────────────────── */
+.rr-reflection {
+  display: grid;
+  gap: var(--mg-space-3);
+}
+.rr-reflection__field {
+  display: grid;
+  gap: var(--mg-space-1);
+}
+.rr-reflection__field > span {
+  font-size: var(--mg-font-size-sm);
+  font-weight: var(--mg-weight-strong);
+}
+.rr-reflection__hint,
+.rr-reflection__note {
+  color: var(--qr-muted);
+  font-size: var(--mg-font-size-xs);
+}
+.rr-want {
+  display: flex;
+  gap: var(--mg-space-2);
+  align-items: flex-start;
+  padding: var(--mg-space-2) var(--mg-space-3);
+  background: var(--qr-field);
+  border-radius: var(--mg-radius-md);
+  color: var(--qr-ink);
+}
+.rr-want .material-symbols-outlined {
+  color: var(--qr-accent);
+}
+
 /* ── Phase A: keep matrix (the shared AssignmentMatrix inside a field) ───── */
 .rr-matrix {
   padding: var(--mg-space-3) var(--mg-space-4);

@@ -17,6 +17,7 @@ import {
   type ReturnWeekDraft,
   type ReturnWeekPlacement,
 } from '@/domain/returnRitual'
+import { emptyReturnReflection } from '@/domain/returnReflection'
 import type { QuietRitualStep } from '@/features/quiet-ritual/QuietRitualShell.vue'
 import { SUBJECT_ICON, plural } from '@/features/quiet-ritual/quietRitualModel'
 import { useReturnStore } from '@/stores/return.store'
@@ -67,7 +68,7 @@ export function useReturnRitual(options: { manual?: Ref<boolean> } = {}) {
   const manual = computed(() => options.manual?.value ?? false)
   const plan = reactive<ReturnPlan>({
     breakStart: '' as DayRef,
-    note: '',
+    reflection: emptyReturnReflection(),
     weeks: [],
     retireIntentionIds: [],
     skipPlanItemIds: [],
@@ -111,6 +112,24 @@ export function useReturnRitual(options: { manual?: Ref<boolean> } = {}) {
     for (const week of plan.weeks) map.set(weekDraftKey(week), week)
     return map
   })
+  /** Chips under the second question: what was alive before the break, what was quiet. */
+  const reflectionHints = computed(() => {
+    const names = (alive: boolean) =>
+      (inventory.value?.subjects ?? [])
+        .filter(subject => subject.aliveBeforeBreak === alive)
+        .map(subject => subject.subject.title)
+    const label = (list: string[], max = 5) =>
+      list.length > max
+        ? `${list.slice(0, max).join(' · ')} i ${list.length - max} więcej`
+        : list.join(' · ')
+    const alive = names(true)
+    const quiet = names(false)
+    return {
+      alive: alive.length ? label(alive) : '',
+      quiet: quiet.length ? label(quiet) : '',
+    }
+  })
+
   const keptWeeks = computed(() => {
     const columns = inventory.value?.columns ?? []
     return columns
@@ -284,6 +303,7 @@ export function useReturnRitual(options: { manual?: Ref<boolean> } = {}) {
     currentStepId,
     subjectsByKey,
     placementsByKey,
+    reflectionHints,
     keptWeeks,
     isSaving,
     saved,

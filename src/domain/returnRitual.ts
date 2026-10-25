@@ -33,6 +33,11 @@ import type { ExercisePlanItem } from '@/domain/exercisePlan'
 import type { ProgramEnrollment } from '@/domain/program'
 import { resolveRhythmDays, weekdayOfDay } from '@/domain/measurementRhythm'
 import {
+  emptyReturnReflection,
+  hasReturnReflection,
+  type ReturnReflection,
+} from '@/domain/returnReflection'
+import {
   addDaysToDayRef,
   comparePeriodRefs,
   getNextPeriod,
@@ -163,8 +168,8 @@ export type ReturnGoalChoice = 'keep' | 'shift' | 'later'
 
 export interface ReturnPlan {
   breakStart: DayRef
-  /** Step 1: what happened — becomes a journal entry when not empty. */
-  note: string
+  /** Step 1: the reflection over the break — one journal entry when any answer is given. */
+  reflection: ReturnReflection
   weeks: ReturnWeekDraft[]
   retireIntentionIds: string[]
   skipPlanItemIds: string[]
@@ -187,6 +192,7 @@ export interface ReturnPlanSummary {
   subjectsResumed: number
   subjectsParked: number
   gentleWeek: boolean
+  hasReflection: boolean
 }
 
 // ---------------------------------------------------------------------------
@@ -569,7 +575,7 @@ export function defaultReturnPlan(inventory: ReturnInventory): ReturnPlan {
   }
   return {
     breakStart: inventory.break.breakStart,
-    note: '',
+    reflection: emptyReturnReflection(),
     weeks: inventory.weekPlacements.map(weekDraftFromPlacement),
     retireIntentionIds: inventory.staleIntentions.map(intention => intention.id),
     skipPlanItemIds: inventory.overduePlanItems.map(item => item.id),
@@ -618,5 +624,6 @@ export function summarizeReturnPlan(
     subjectsResumed: resumeValues.filter(Boolean).length,
     subjectsParked: resumeValues.filter(value => !value).length,
     gentleWeek: plan.gentleWeek,
+    hasReflection: hasReturnReflection(plan.reflection),
   }
 }

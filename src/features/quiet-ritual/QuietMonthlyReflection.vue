@@ -222,6 +222,23 @@
       />
 
       <aside v-if="contextOpen" class="qm-context qr-context-col" aria-label="Kontekst miesiąca">
+        <!-- A return after a break this month: its reflection, to read, never to copy. -->
+        <section
+          v-for="item in returnReflections"
+          :key="item.entryId"
+          class="qr-ctx qm-ctx-return"
+          data-testid="monthly-context-return"
+        >
+          <h3>{{ item.title }}</h3>
+          <ul class="qr-ctx-list">
+            <li v-for="key in RETURN_REFLECTION_KEYS" :key="key">
+              <template v-if="item.reflection[key]">
+                <small>{{ RETURN_REFLECTION_LABELS[key] }}</small>
+                <span>{{ item.reflection[key] }}</span>
+              </template>
+            </li>
+          </ul>
+        </section>
         <section v-if="assessedPriorities.length" class="qr-ctx">
           <h3>Kierunki</h3>
           <ul class="qm-ctx-dirs">
@@ -440,6 +457,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, toRef, watch, type Ref } from 'vue'
 import type { MonthRef, WeekRef } from '@/domain/period'
+import { RETURN_REFLECTION_KEYS, RETURN_REFLECTION_LABELS } from '@/domain/returnReflection'
 import type { MeasurementEvaluationStatus } from '@/services/measurementProgress'
 import type { WeekReadout } from '@/services/reflectionDataQueries'
 import type { Quadrant } from '@/domain/emotion'
@@ -453,6 +471,11 @@ import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepositor
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
 import { type ReflectionPriorityLine } from '@/services/reflectionSummaryService'
+import { reportError } from '@/utils/reportError'
+import {
+  listReturnReflectionsForMonth,
+  type ReturnReflectionEntry,
+} from '@/services/returnReflectionQueries'
 import { getPeriodBounds, getPreviousPeriod } from '@/utils/periods'
 import QuietEmotionStack from './QuietEmotionStack.vue'
 import ProfileProposalNotice from '@/features/ai-profile/ProfileProposalNotice.vue'
@@ -591,6 +614,7 @@ const pastAxisTags = ref<Record<string, string[]>>({})
 const pastWeeklyTags = ref<string[]>([])
 const openAnchor = ref<number | null>(0)
 const contextOpen = ref(false)
+const returnReflections = ref<ReturnReflectionEntry[]>([])
 const aiOpen = ref(false)
 function toggleSidePanel(panel: 'context' | 'ai') {
   if (panel === 'ai') {
@@ -764,6 +788,11 @@ onMounted(async () => {
   }
   await loadPriorityLinks()
   await loadPastTags()
+  try {
+    returnReflections.value = await listReturnReflectionsForMonth(props.monthRef)
+  } catch (error) {
+    reportError('QuietMonthlyReflection.returnReflections', error)
+  }
 })
 
 /**

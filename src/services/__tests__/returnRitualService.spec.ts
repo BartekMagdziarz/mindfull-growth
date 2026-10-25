@@ -107,6 +107,7 @@ beforeEach(async () => {
   const db = await resetPlanningTestData()
   await Promise.all([
     db.journalEntries.clear(),
+    db.contextTags.clear(),
     db.exercisePlanItems.clear(),
     db.programEnrollments.clear(),
     db.userSettings.clear(),
@@ -199,7 +200,11 @@ describe('applyReturnPlan', () => {
     week.targetOverride = { kind: 'count', operator: 'min', value: 2 }
     plan.goals[goal.id] = 'shift'
     plan.enrollments['en-1'] = 'pause'
-    plan.note = 'Choroba, potem wyjazd.'
+    plan.reflection = {
+      whatHappened: 'Choroba, potem wyjazd.',
+      aliveAndDropped: 'Bieganie zostało.',
+      wantNow: '',
+    }
     plan.gentleWeek = true
 
     vi.setSystemTime(new Date(NOW))
@@ -234,9 +239,12 @@ describe('applyReturnPlan', () => {
     const journal = await db.journalEntries.toArray()
     expect(journal).toHaveLength(1)
     expect(journal[0]).toMatchObject({
-      title: 'Powrót po przerwie',
-      body: 'Choroba, potem wyjazd.',
+      title: 'Powrót po przerwie · 1 paź – 25 paź',
+      body: 'Co się działo: Choroba, potem wyjazd.\n\nŻywe i odpadłe: Bieganie zostało.',
     })
+    const tags = await db.contextTags.toArray()
+    expect(tags.map(tag => tag.name)).toEqual(['Powrót'])
+    expect(journal[0]!.contextTagIds).toEqual([tags[0]!.id])
     expect(result.journalEntryId).toBe(journal[0]!.id)
     // Gentle first week: the current week's target is halved for the resumed habit.
     expect(
@@ -250,6 +258,7 @@ describe('applyReturnPlan', () => {
 
     await undoReturnSteps(result.undoSteps)
     expect(await db.journalEntries.count()).toBe(0)
+    expect(await db.contextTags.count()).toBe(0)
     expect((await db.goals.get(goal.id))?.targetDate).toBe('2026-10-15')
     expect((await db.programEnrollments.get('en-1'))?.status).toBe('active')
     expect(

@@ -120,6 +120,24 @@ ręczne planowanie minionych tygodni dalej działa.
 - Po Starcie: Dzisiaj · Zaplanuj tydzień (`calendar-week?action=plan`) ·
   Ułóżmy plan · Cofnij porządki. `appStateReset` resetuje store.
 
+## Refleksja za okres przerwy (plan 2026-10-25-return-reflection-step)
+
+Krok 1 po długiej przerwie (≥ próg) zadaje trzy pomijalne pytania: „Co się
+działo?”, „Co z planu było w tym czasie żywe, a co odpadło?” (z cichą
+podpowiedzią nazw z inwentarza: żyło / cicho wcześniej), „Czego chcę
+teraz?”; przy krótkiej przerwie zostaje pierwsze pole. Odpowiedź „Chcę teraz”
+wraca jako cytat w kroku „Na nowo”. Przy Starcie powstaje JEDEN wpis dziennika
+(`src/domain/returnReflection.ts`): tytuł „Powrót po przerwie · 1 paź – 25 paź”,
+body z akapitami „Co się działo: …” / „Żywe i odpadłe: …” / „Chcę teraz: …”,
+tag kontekstu „Powrót” (tworzony przy pierwszym użyciu; `contextTags` są
+w tabelach cofnięcia). Ponowny Start nie dubluje wpisu; cofnięcie go usuwa.
+Czytelnicy: dziennik już wchodzi do profilu AI, towarzysza, strumienia
+i historii; refleksja miesiąca pokazuje blok „Powrót po przerwie” w kolumnie
+Kontekst (`listReturnReflectionsForMonth`: po tagu, inaczej po tytule;
+`parseReturnReflection` toleruje własne edycje — tekst bez etykiet czyta się
+jako „co się działo”). Bez ocen za okres przerwy, bez zapisu w polach
+refleksji miesiąca.
+
 ## Wejście ręczne (decyzja 25.10.2026)
 
 Biblioteka obiektów → „Porządki” (obok „Ułóżmy plan”) → `/return?manual=1`.
@@ -145,7 +163,7 @@ Karta w Dzisiaj nadal pojawia się tylko od 14 dni.
 ## Weryfikacja
 
 ```sh
-npx vitest run src/domain/__tests__/returnRitual.spec.ts src/services/__tests__/returnQueries.spec.ts src/services/__tests__/returnRitualService.spec.ts src/services/__tests__/rhythmSchedulerService.spec.ts
+npx vitest run src/domain/__tests__/returnRitual.spec.ts src/domain/__tests__/returnReflection.spec.ts src/services/__tests__/returnQueries.spec.ts src/services/__tests__/returnRitualService.spec.ts src/services/__tests__/returnReflectionQueries.spec.ts src/services/__tests__/rhythmSchedulerService.spec.ts
 npx playwright test e2e/verification-return-ritual.spec.ts --project=verification --workers=1
 ```
 

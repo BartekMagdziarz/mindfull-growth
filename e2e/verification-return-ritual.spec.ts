@@ -63,6 +63,8 @@ test.describe('return ritual', () => {
     await expect(page).toHaveURL(/\/return$/)
     await expect(page.getByRole('heading', { name: 'Co się działo przez ten czas?' })).toBeVisible()
     await page.getByTestId('return-note').fill('Choroba, potem wyjazd.')
+    await page.getByTestId('return-note-alive').fill('Bieganie zostało, rutyna odpadła.')
+    await page.getByTestId('return-note-want').fill('Mniej rzeczy naraz.')
     await page.screenshot({ path: `${SHOTS}/02-step-gone.png` })
 
     await page.getByRole('button', { name: 'Następny krok' }).click()
@@ -93,6 +95,7 @@ test.describe('return ritual', () => {
 
     await page.getByRole('button', { name: 'Następny krok' }).click()
     await expect(page.getByRole('heading', { name: 'Co wraca od tego tygodnia?' })).toBeVisible()
+    await expect(page.getByTestId('return-want-now')).toContainText('Mniej rzeczy naraz.')
     await page.getByTestId('return-gentle').click()
     await expect(page.getByTestId('return-gentle')).toHaveAttribute('aria-checked', 'true')
     await page.screenshot({ path: `${SHOTS}/04-step-anew.png` })
@@ -100,7 +103,7 @@ test.describe('return ritual', () => {
     await page.getByRole('button', { name: 'Następny krok' }).click()
     await expect(page.getByRole('heading', { name: 'Zaczynamy?' })).toBeVisible()
     await expect(page.getByTestId('return-summary')).toContainText('zostaje w planie')
-    await expect(page.getByTestId('return-summary')).toContainText('Notatka trafi do dziennika')
+    await expect(page.getByTestId('return-summary')).toContainText('Refleksja trafi do dziennika')
     await page.screenshot({ path: `${SHOTS}/05-step-start.png` })
 
     await page.getByRole('button', { name: 'Start', exact: true }).click()
@@ -108,6 +111,29 @@ test.describe('return ritual', () => {
     await expect(page.getByRole('button', { name: 'Zrobione' })).toBeVisible()
     await page.screenshot({ path: `${SHOTS}/06-after-start.png` })
     expect(await readSettings(page)).toMatchObject({ state: 'done' })
+    // One journal entry with the date range, the tag and the three answers.
+    const journal = await page.evaluate(async () => {
+      const { journalDexieRepository } = await import('/src/repositories/journalDexieRepository.ts')
+      const { contextTagDexieRepository } = await import('/src/repositories/tagDexieRepository.ts')
+      const tags = await contextTagDexieRepository.getAll()
+      const entries = (await journalDexieRepository.getAll()).filter(entry =>
+        (entry.title ?? '').startsWith('Powrót po przerwie')
+      )
+      return {
+        count: entries.length,
+        title: entries[0]?.title,
+        body: entries[0]?.body,
+        tagged: entries[0]?.contextTagIds?.some(
+          id => tags.find(tag => tag.id === id)?.name === 'Powrót'
+        ),
+      }
+    })
+    expect(journal.count).toBe(1)
+    expect(journal.title).toMatch(/^Powrót po przerwie · .+ – .+$/)
+    expect(journal.body).toContain('Co się działo: Choroba, potem wyjazd.')
+    expect(journal.body).toContain('Żywe i odpadłe: Bieganie zostało, rutyna odpadła.')
+    expect(journal.body).toContain('Chcę teraz: Mniej rzeczy naraz.')
+    expect(journal.tagged).toBe(true)
 
     // Today no longer invites, also after a reload.
     await page.goto('/today')

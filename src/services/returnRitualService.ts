@@ -27,7 +27,15 @@ import {
   type ReturnWeekPlacement,
 } from '@/domain/returnRitual'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
+import {
+  formatReturnReflection,
+  hasReturnReflection,
+  isReturnReflectionTitle,
+  RETURN_CONTEXT_TAG_NAME,
+  returnReflectionTitle,
+} from '@/domain/returnReflection'
 import { journalDexieRepository } from '@/repositories/journalDexieRepository'
+import { contextTagDexieRepository } from '@/repositories/tagDexieRepository'
 import { exercisePlanDexieRepository } from '@/repositories/exercisePlanDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { programEnrollmentDexieRepository } from '@/repositories/programEnrollmentDexieRepository'
@@ -95,6 +103,7 @@ export const RETURN_TOUCHED_TABLES = [
   'monthPlans',
   'weekPlans',
   'journalEntries',
+  'contextTags',
   'priorityLinks',
   'userSettings',
 ] as const
@@ -169,8 +178,6 @@ export async function undoReturnSteps(steps: readonly ReturnUndoStep[]): Promise
 // ---------------------------------------------------------------------------
 // Apply
 // ---------------------------------------------------------------------------
-
-export const RETURN_JOURNAL_TITLE = 'Powrót po przerwie'
 
 export interface ReturnApplyResult {
   undoSteps: ReturnUndoStep[]
@@ -383,21 +390,29 @@ export async function applyReturnPlan(
       }
       await applyResume(plan, inventory)
 
-      const note = plan.note.trim()
-      if (note) {
-        // A rerun must not write the note twice.
+      if (hasReturnReflection(plan.reflection)) {
+        const title = returnReflectionTitle(inventory.break.breakStart, inventory.break.today)
+        const body = formatReturnReflection(plan.reflection)
+        // A rerun must not write the reflection twice.
         const existing = (await journalDexieRepository.getAll()).find(
-          entry => entry.title === RETURN_JOURNAL_TITLE && entry.body === note
+          entry => isReturnReflectionTitle(entry.title) && entry.body === body
         )
-        journalEntryId =
-          existing?.id ??
-          (
+        if (existing) {
+          journalEntryId = existing.id
+        } else {
+          const tags = await contextTagDexieRepository.getAll()
+          const tag =
+            tags.find(candidate => candidate.name === RETURN_CONTEXT_TAG_NAME) ??
+            (await contextTagDexieRepository.create({ name: RETURN_CONTEXT_TAG_NAME }))
+          journalEntryId = (
             await journalDexieRepository.create({
-              title: RETURN_JOURNAL_TITLE,
-              body: note,
+              title,
+              body,
+              contextTagIds: [tag.id],
               createdAt: now,
             })
           ).id
+        }
       }
       await markReturnBreakDone(inventory.break, now)
 
