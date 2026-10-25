@@ -382,7 +382,10 @@
   font-size: 14px;
 }
 .qr-table-scroll {
-  overflow-x: auto;
+  max-height: 65dvh;
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--qr-line-mid) transparent;
 }
 .qr-table {
   min-width: 820px;
@@ -395,6 +398,10 @@
   gap: 4px;
 }
 .qr-table-head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--qr-card);
   padding: 0 14px 12px;
   color: var(--qr-muted);
   font-size: 12px;
@@ -1096,6 +1103,23 @@
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: var(--qr-line-mid) transparent;
+  }
+  /* The table owns both scroll axes so its day header sticks above the rows. */
+  .qr-card > .qr-planner,
+  .qr-card > .qr-evidence {
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
+  }
+  .qr-planner > *,
+  .qr-evidence > * {
+    flex-shrink: 0;
+  }
+  .qr-planner > .qr-table-scroll,
+  .qr-evidence > .qr-table-scroll {
+    flex: 0 1 auto;
+    min-height: 0;
+    max-height: none;
   }
   .qr-ratings {
     align-content: start;

@@ -1381,6 +1381,76 @@
   font-weight: 800;
 }
 
+/* Thread: the stepper turned vertical for a stack of cards answered one by
+   one (questionnaires). Each card hangs on the sky beside a stepper dot; the
+   stitch to the next dot is pencil until the card is done, then accent.
+   Progress is read beside whatever card is on screen, so no sticky bar.
+   --mg-thread-dot-top aligns the dot with the card's first line. */
+.mg-v2-thread {
+  --mg-thread-gutter: 2rem;
+  --mg-thread-axis: 0.75rem;
+  --mg-thread-gap: var(--mg-space-4);
+  --mg-thread-dot-top: calc(var(--mg-space-6) + 0.6rem);
+  --mg-thread-clear: 0.75rem;
+
+  display: grid;
+  gap: var(--mg-thread-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mg-v2-thread__item {
+  position: relative;
+  padding-left: var(--mg-thread-gutter);
+}
+
+.mg-v2-thread__item:not(:last-child)::before {
+  position: absolute;
+  top: calc(var(--mg-thread-dot-top) + var(--mg-thread-clear));
+  bottom: calc(var(--mg-thread-clear) - var(--mg-thread-gap) - var(--mg-thread-dot-top));
+  left: calc(var(--mg-thread-axis) - 0.75px);
+  border-left: 1.5px dashed color-mix(in srgb, var(--mg-color-muted) 38%, transparent);
+  content: '';
+  transition: border-color var(--mg-duration-base) ease;
+}
+
+.mg-v2-thread__item--done:not(:last-child)::before {
+  border-left-style: solid;
+  border-left-color: var(--mg-color-primary);
+}
+
+.mg-v2-thread__dot {
+  position: absolute;
+  top: var(--mg-thread-dot-top);
+  left: var(--mg-thread-axis);
+  z-index: 1;
+  width: 0.75rem;
+  height: 0.75rem;
+  border: 1.5px dashed var(--mg-color-primary-strong);
+  border-radius: var(--mg-radius-organic-b);
+  background: transparent;
+  transform: translate(-50%, -50%);
+  transition:
+    background var(--mg-duration-fast) ease,
+    transform var(--mg-duration-fast) ease;
+}
+
+.mg-v2-thread__item--done > .mg-v2-thread__dot {
+  border: 0;
+  background: var(--mg-color-primary);
+}
+
+.mg-v2-thread__item--current > .mg-v2-thread__dot {
+  width: 1rem;
+  height: 1rem;
+  border: 0;
+  border-radius: var(--mg-radius-organic-a);
+  background: var(--mg-color-ink);
+  box-shadow: var(--mg-shadow-stepper-halo);
+  transform: translate(-50%, -50%) rotate(-2deg);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .mg-v2-icon-board,
   .mg-v2-tile,
@@ -1389,6 +1459,10 @@
   .mg-v2-hairline,
   .mg-v2-surface--sheet::after {
     transform: none !important;
+  }
+
+  .mg-v2-thread__item--current > .mg-v2-thread__dot {
+    transform: translate(-50%, -50%);
   }
 }
 
@@ -1400,5 +1474,16 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* Opt-in for screens with their own narrow layout; desktop-only views keep
+   the established minimum width. AppNavDock uses the same route contract. */
+.mg-design-v2.mg-v2-responsive-page {
+  min-width: 0;
+}
+@media (max-width: 760px) {
+  .mg-design-v2.mg-v2-responsive-page {
+    padding-left: 0;
   }
 }
