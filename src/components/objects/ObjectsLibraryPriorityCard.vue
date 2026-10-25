@@ -2,15 +2,19 @@
   <article class="group/card mg-v2-surface mg-v2-surface--raised-sm p-3.5">
     <div class="space-y-3">
       <div class="flex items-center gap-2">
-        <IconPicker
-          icon-size="lg"
-          :model-value="item.icon"
-          compact
-          minimal
-          :allow-clear="true"
-          aria-label="Priority icon"
-          @update:model-value="emitFieldChange('icon', $event)"
-        />
+        <span class="relative inline-flex shrink-0">
+          <IconPicker
+            icon-size="lg"
+            :model-value="item.icon"
+            compact
+            minimal
+            :allow-clear="true"
+            aria-label="Priority icon"
+            @update:model-value="emitFieldChange('icon', $event)"
+          />
+          <!-- Rank rides on the icon disc instead of taking a meta row -->
+          <span v-if="item.order" class="priority-rank">{{ item.order }}</span>
+        </span>
         <input
           ref="titleRef"
           v-model="title"
@@ -80,10 +84,9 @@
         </div>
       </div>
 
-      <!-- Quiet facts: status (only when not active), order -->
-      <p v-if="statusLabel || item.order" class="mg-v2-meta px-1">
-        <span v-if="statusLabel" class="mg-v2-meta__status">{{ statusLabel }}</span>
-        <span v-if="item.order">#{{ item.order }}</span>
+      <!-- Quiet facts: status, only when not active -->
+      <p v-if="statusLabel" class="mg-v2-meta px-1">
+        <span class="mg-v2-meta__status">{{ statusLabel }}</span>
       </p>
 
       <!-- Affiliation glyphs (life areas); click edits -->
@@ -552,3 +555,26 @@ onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', handleOutsideClick)
 })
 </script>
+
+<style scoped>
+.priority-rank {
+  position: absolute;
+  right: calc(-1 * var(--mg-space-1));
+  bottom: calc(-1 * var(--mg-space-1));
+  display: inline-flex;
+  min-width: var(--mg-space-5);
+  height: var(--mg-space-5);
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--mg-space-1);
+  border: 1px solid var(--mg-color-field-border);
+  border-radius: var(--mg-radius-pill);
+  background: var(--mg-color-paper);
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-xs);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--mg-weight-label);
+  line-height: 1;
+  pointer-events: none;
+}
+</style>
