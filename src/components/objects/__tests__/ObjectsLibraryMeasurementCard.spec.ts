@@ -50,10 +50,10 @@ function renderCard(item = habit()) {
 }
 
 describe('ObjectsLibraryMeasurementCard — measurement field', () => {
-  it('puts the quiet facts and the chart into one field without its own frame', () => {
+  it('puts the quiet facts and the chart into one group field', () => {
     const { getByTestId } = renderCard()
     const field = getByTestId('measurement-field')
-    expect(field.classList).not.toContain('mg-v2-surface--flat')
+    expect(field.classList).toContain('mg-v2-group')
     expect(field.querySelector('.mg-v2-meta')?.textContent).toContain('Weekly')
     expect(field.querySelector('[data-testid="sparkline"]')).not.toBeNull()
   })
@@ -61,7 +61,7 @@ describe('ObjectsLibraryMeasurementCard — measurement field', () => {
   it('leaves the facts on the card when there is no chart', () => {
     const { getByTestId } = renderCard(habit({ chartData: undefined }))
     const field = getByTestId('measurement-field')
-    expect(field.classList).not.toContain('mg-v2-surface--flat')
+    expect(field.classList).not.toContain('mg-v2-group')
     expect(field.querySelector('.mg-v2-meta')).not.toBeNull()
   })
 })

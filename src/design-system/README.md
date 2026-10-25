@@ -150,3 +150,13 @@ gramatykę dla korzeni poza `#app`.
   nieustawiona linia okresów) — „jeszcze nie” narysowane jako kreskowany obrys
   tej rzeczy w atramencie akcentu, hover = papier. Dodawanie czegoś w treści
   karty jest zawsze duchem, nigdy wypukłym `.mg-v2-button`.
+- Poprawka 2026-10-25 (decyzja usera): pigułki w zdaniu są chmurami jak
+  przyciski (wypełnienie + `--mg-shadow-raised-sm`, bez widocznej krawędzi;
+  otwarta = papier + `--mg-shadow-inset-sm`). `.mg-v2-ghost` nie ma
+  kreskowania — to wyblakła chmura (papier/55 %, opacity 0,85). Kreskowane
+  obrysy zostają wyłącznie w stepperze, glifie priorytetu i linii celu.
+- `.mg-v2-group` — cichy blok pod jedną częścią karty (zdanie, elementy,
+  okresy, wykres): o stopień bielszy niż rodzic (mgła na karcie, papier w
+  karcie `--flat` lub w innej grupie), promień `md`, padding `space-3`,
+  wszystko w środku bierze kolejny stopień; opcjonalna etykieta zdaniowa
+  `.mg-v2-group__label` (xs, muted, nigdy wersaliki).

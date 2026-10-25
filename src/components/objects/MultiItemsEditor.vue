@@ -253,14 +253,9 @@ const archivedLabel = computed(() =>
       </li>
     </ul>
 
-    <!-- The next item, drawn in pencil: the same row, not yet there. -->
-    <button
-      v-if="canAdd"
-      type="button"
-      class="mg-v2-ghost mg-v2-ghost--row mi__ghost"
-      @click="addItem"
-    >
-      <span class="mi__ghost-disc" aria-hidden="true"><AppIcon name="add" class="text-sm" /></span>
+    <!-- Adding: a small cloud under the rows, not a row-sized button. -->
+    <button v-if="canAdd" type="button" class="mi__add" @click="addItem">
+      <AppIcon name="add" class="text-sm" />
       {{ t('planning.objects.form.multiItems.addItem') }}
     </button>
     <p v-else class="mg-v2-meta mi__hint">
@@ -320,7 +315,8 @@ const archivedLabel = computed(() =>
   list-style: none;
 }
 
-/* A row reads as text until hovered: then it lays on paper and shows its tray. */
+/* Each item has a field of its own under it (one step whiter than the
+   group); hover lifts it slightly and shows the tray. */
 .mi__row {
   display: flex;
   align-items: center;
@@ -328,12 +324,13 @@ const archivedLabel = computed(() =>
   min-height: 2.25rem;
   padding: var(--mg-space-1) var(--mg-space-1) var(--mg-space-1) var(--mg-space-2);
   border-radius: var(--mg-radius-sm);
-  transition: background var(--mg-duration-fast) ease;
+  background: var(--mg-color-paper);
+  transition: box-shadow var(--mg-duration-fast) ease;
 }
 
 .mi__row:hover,
 .mi__row:focus-within {
-  background: var(--mg-color-paper);
+  box-shadow: var(--mg-shadow-raised-sm);
 }
 
 .mi__row--archived {
@@ -344,7 +341,7 @@ const archivedLabel = computed(() =>
   flex: 0 0 auto;
   min-width: 2rem;
   padding: 0 var(--mg-space-2);
-  border: 1px solid var(--mg-color-border);
+  border: 1px solid transparent;
   border-radius: var(--mg-radius-pill);
   color: var(--mg-color-muted);
   background: transparent;
@@ -357,14 +354,11 @@ const archivedLabel = computed(() =>
 
 .mi__weight:hover {
   color: var(--mg-color-ink);
-  background: var(--mg-color-mist);
+  box-shadow: var(--mg-shadow-raised-sm);
 }
 
-/* Weight 1 is the default: a ghost that only shows when the row is touched. */
+/* Weight 1 is the default: a faint chip that only shows when the row is touched. */
 .mi__weight--ghost {
-  border-style: dashed;
-  border-color: color-mix(in srgb, var(--mg-color-primary-strong) 40%, transparent);
-  color: var(--mg-color-primary-strong);
   opacity: 0;
 }
 
@@ -378,20 +372,33 @@ const archivedLabel = computed(() =>
   width: 3rem;
 }
 
-.mi__ghost {
-  gap: var(--mg-space-2);
-  min-height: 2.25rem;
-  padding-left: var(--mg-space-2);
+/* The add control: a small cloud (fill + lift, no edge), shorter than a row,
+   sitting at the left under the list. */
+.mi__add {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mg-space-1);
+  width: max-content;
+  min-height: 1.75rem;
+  margin-left: var(--mg-space-1);
+  padding: 0 var(--mg-space-3) 0 var(--mg-space-2);
+  border: 1px solid transparent;
+  border-radius: var(--mg-radius-pill);
+  color: var(--mg-color-primary-strong);
+  background: var(--mg-color-paper);
+  box-shadow: var(--mg-shadow-raised-sm);
+  font-size: var(--mg-font-size-xs);
+  font-weight: var(--mg-weight-strong);
+  cursor: pointer;
+  transition: box-shadow var(--mg-duration-fast) ease;
 }
 
-/* The ghost's disc mirrors the row's icon disc (IconPicker minimal, 2rem). */
-.mi__ghost-disc {
-  display: inline-grid;
-  place-items: center;
-  width: 2rem;
-  height: 2rem;
-  border: 1px dashed color-mix(in srgb, var(--mg-color-primary-strong) 50%, transparent);
-  border-radius: var(--mg-radius-icon-field-a);
+.mi__add:hover {
+  box-shadow: var(--mg-shadow-raised);
+}
+
+.mi__add:active {
+  box-shadow: var(--mg-shadow-inset-sm);
 }
 
 .mi__hint {

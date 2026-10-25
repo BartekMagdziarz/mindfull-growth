@@ -1552,10 +1552,14 @@
   line-height: 1.4;
 }
 
+/* A pill in the sentence is a control, so it is a cloud like every button:
+   fill + small lift, no visible edge (user decision 2026-10-25: outlined
+   selects read as fields; clouds read as buttons). */
 .mg-v2-sentence > .mg-v2-pill,
 .mg-v2-sentence .mg-v2-sentence__pill {
+  border-color: transparent;
   color: var(--mg-color-ink);
-  box-shadow: none;
+  box-shadow: var(--mg-shadow-raised-sm);
   cursor: pointer;
   font-size: var(--mg-font-size-xs);
 }
@@ -1566,7 +1570,7 @@
 }
 
 .mg-v2-sentence .mg-v2-sentence__pill[aria-expanded='true'] {
-  border-color: var(--mg-color-primary);
+  box-shadow: var(--mg-shadow-inset-sm);
 }
 
 .mg-v2-sentence .mg-v2-sentence__pill:disabled {
@@ -1607,26 +1611,32 @@
   opacity: 0.55;
 }
 
-/* Ghost: "not yet" drawn as the thing itself in pencil. Adding a clause,
-   a row or a period is a dashed outline of what will appear there, in the
-   accent ink — never a raised button inside card content. Shares the dashed
-   grammar of future stepper dots and the priority glyph. */
+/* Ghost: "not yet" drawn as the thing itself, faded. Adding a clause, a row
+   or a period is a faint cloud of what will appear there, in the accent ink
+   — never a raised button inside card content, never a dashed outline (too
+   mathematical for the sketched character; user decision 2026-10-25). */
 .mg-v2-ghost {
   display: inline-flex;
   align-items: center;
   gap: var(--mg-space-2);
-  border: 1px dashed color-mix(in srgb, var(--mg-color-primary-strong) 50%, transparent);
+  border: 1px solid transparent;
   color: var(--mg-color-primary-strong);
-  background: transparent;
+  background: color-mix(in srgb, var(--mg-color-paper) 55%, transparent);
   box-shadow: none;
   font-size: var(--mg-font-size-xs);
   font-weight: var(--mg-weight-strong);
+  opacity: 0.85;
   cursor: pointer;
-  transition: background var(--mg-duration-fast) ease;
+  transition:
+    background var(--mg-duration-fast) ease,
+    opacity var(--mg-duration-fast) ease,
+    box-shadow var(--mg-duration-fast) ease;
 }
 
 .mg-v2-ghost:not(:disabled):hover {
   background: var(--mg-color-paper);
+  box-shadow: var(--mg-shadow-raised-sm);
+  opacity: 1;
 }
 
 .mg-v2-ghost:disabled {
@@ -1648,6 +1658,37 @@
   padding: var(--mg-space-2) var(--mg-space-2);
   border-radius: var(--mg-radius-sm);
   text-align: left;
+}
+
+/* Group: a quiet field under one block of a card (the sentence, the
+   checklist, the periods, the chart) so what belongs together sits
+   together. One step whiter than its parent — mist on a card, paper inside
+   a mist card — and everything inside takes the next step. Optional label
+   in sentence case; never uppercase. */
+.mg-v2-group {
+  display: grid;
+  gap: var(--mg-space-2);
+  min-width: 0;
+  padding: var(--mg-space-3);
+  border-radius: var(--mg-radius-md);
+  background: var(--mg-color-mist);
+}
+
+.mg-v2-surface--flat .mg-v2-group,
+.mg-v2-group .mg-v2-group {
+  background: var(--mg-color-paper);
+}
+
+.mg-v2-group :where(.mg-v2-field, .mg-v2-pill, .mg-v2-badge, .mg-v2-ghost) {
+  background: var(--mg-color-paper);
+}
+
+.mg-v2-group__label {
+  margin: 0;
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-xs);
+  font-weight: var(--mg-weight-label);
+  line-height: 1.4;
 }
 
 /* Opt-in for screens with their own narrow layout; desktop-only views keep

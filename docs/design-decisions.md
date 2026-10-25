@@ -157,3 +157,28 @@ Konsekwencje: podgląd KR niesie `ratingScale/Min`
 `checklistSentenceFacts`. Układ kart (siatka Okresy|Cel, nagłówki
 wersalikami, linia okresów, tacka checklisty) to faza P2 planu
 `ideas/html-plans/2026-10-25-object-cards-calm.html`.
+
+## 2026-10-25 — Chmury zamiast obrysów: pigułki zdania, duchy bez kresek, grupy na karcie
+
+Kontekst: po P2 planu „spokojne karty” użytkownik odrzucił trzy rzeczy:
+obrysowane pigułki-selekty w zdaniu pomiaru („przyciski bez ramki wyglądają
+jak chmury i taki efekt chcemy”), kreskowane obrysy duchów („zbyt
+matematyczne, chcemy rysunkowy charakter”) i brak czytelnego podziału
+rozwiniętej karty („nie wiadomo, co do czego należy”). Do tego granatowa
+linia i kropka wykresów liniowych.
+Decyzja: (1) kontrolki w treści karty są chmurami jak każdy przycisk:
+wypełnienie + `--mg-shadow-raised-sm`, krawędź przezroczysta; otwarta
+pigułka = papier + `--mg-shadow-inset-sm`. Pola (liczby, opis) zostają
+treścią z cienką krawędzią. (2) `.mg-v2-ghost` bez kreskowania: wyblakła
+chmura tej rzeczy (papier/55 %, opacity 0,85), hover = pełna chmura. Kreski
+zostają tylko tam, gdzie już były decyzją: przyszłe kropki steppera, glif
+priorytetu, linia celu na wykresie. (3) Nowa anatomia `.mg-v2-group`: cichy
+blok pod każdą częścią karty (zdanie, elementy, okresy, wykres), o jeden
+stopień bielszy niż rodzic (mgła na karcie, papier w karcie mglistej),
+z opcjonalną etykietą zdaniową `.mg-v2-group__label`; wiersze checklisty mają
+własne pola papieru, „Dodaj element” to mała chmura pod listą. (4) Wykres
+liniowy rysuje się `--mg-color-data-fill` jak słupki, a ostatnia wartość to
+dysk w gramatyce `.mg-well--done` (sky-field + rdzeń `--mg-color-state`).
+Konsekwencje: P2 w `docs/objects-library-toolbar-and-cards.md` czyta się z
+tą poprawką; README opisuje `.mg-v2-group`. Przy P3/P4 nie wprowadzać
+kreskowanych obrysów ani obrysowanych kontrolek.

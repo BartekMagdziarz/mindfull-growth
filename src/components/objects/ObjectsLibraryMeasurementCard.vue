@@ -121,48 +121,55 @@
       >
         <div class="space-y-3 pt-1">
           <!-- The sentence: what counts, how often (a tracker: mode, scale, cadence) -->
-          <MeasurementTargetSentence
-            :entry-mode="item.entryMode ?? 'completion'"
-            :target="item.target"
-            :cadence="item.cadence === 'monthly' ? 'monthly' : 'weekly'"
-            :rating-scale="item.ratingScale ?? 10"
-            :rating-scale-min="item.ratingScaleMin ?? 1"
-            :multi="multiFacts"
-            editable-scale
-            show-cadence
-            @update:measurement="onTargetMeasurement"
-            @update:cadence="onCadence"
-            @update:scale="onScale"
-            @update:threshold="onThreshold"
-          />
+          <section class="mg-v2-group">
+            <MeasurementTargetSentence
+              :entry-mode="item.entryMode ?? 'completion'"
+              :target="item.target"
+              :cadence="item.cadence === 'monthly' ? 'monthly' : 'weekly'"
+              :rating-scale="item.ratingScale ?? 10"
+              :rating-scale-min="item.ratingScaleMin ?? 1"
+              :multi="multiFacts"
+              editable-scale
+              show-cadence
+              @update:measurement="onTargetMeasurement"
+              @update:cadence="onCadence"
+              @update:scale="onScale"
+              @update:threshold="onThreshold"
+            />
+          </section>
 
           <!-- Checklist items (threshold lives in the sentence) -->
-          <MultiItemsEditor
-            v-if="item.entryMode === 'multi-completion'"
-            :items="item.multiItems ?? []"
-            :threshold="item.multiDailyThreshold"
-            @update:config="emitFieldChange('multiConfig', $event)"
-          />
+          <section v-if="item.entryMode === 'multi-completion'" class="mg-v2-group">
+            <p class="mg-v2-group__label">{{ t('planning.objects.form.multiItems.heading') }}</p>
+            <MultiItemsEditor
+              :items="item.multiItems ?? []"
+              :threshold="item.multiDailyThreshold"
+              @update:config="emitFieldChange('multiConfig', $event)"
+            />
+          </section>
 
           <!-- Periods: one quiet line; click opens the calendar -->
-          <div class="relative">
-            <ObjectCardPeriods
-              :periods="linkedPeriods.map(period => period.periodRef)"
-              :cadence="item.cadence === 'monthly' ? 'monthly' : 'weekly'"
-              :is-permanent="panelType === 'habit' && Boolean(item.isPermanent)"
-              @open="openPeriods"
-            />
-            <PeriodCalendarPicker
-              ref="periodsRef"
-              triggerless
-              :model-value="linkedPeriods.map(period => period.periodRef)"
-              :cadence="item.cadence === 'monthly' ? 'monthly' : 'weekly'"
-              :commit="savePeriods"
-              :allow-permanent="panelType === 'habit'"
-              :is-permanent="item.isPermanent"
-              :commit-schedule="saveSchedule"
-            />
-          </div>
+          <section class="mg-v2-group">
+            <p class="mg-v2-group__label">{{ t('planning.objects.periodsLine.label') }}</p>
+            <div class="relative">
+              <ObjectCardPeriods
+                :periods="linkedPeriods.map(period => period.periodRef)"
+                :cadence="item.cadence === 'monthly' ? 'monthly' : 'weekly'"
+                :is-permanent="panelType === 'habit' && Boolean(item.isPermanent)"
+                @open="openPeriods"
+              />
+              <PeriodCalendarPicker
+                ref="periodsRef"
+                triggerless
+                :model-value="linkedPeriods.map(period => period.periodRef)"
+                :cadence="item.cadence === 'monthly' ? 'monthly' : 'weekly'"
+                :commit="savePeriods"
+                :allow-permanent="panelType === 'habit'"
+                :is-permanent="item.isPermanent"
+                :commit-schedule="saveSchedule"
+              />
+            </div>
+          </section>
 
           <!-- Completion rules: the placeholder is the label -->
           <textarea
@@ -180,7 +187,7 @@
            anatomy as a KR inside a goal card (a habit reads like a goal with
            a single KR). Facts collapse when expanded — the target sentence
            above then shows cadence + mode + target in editable form. -->
-      <div data-testid="measurement-field">
+      <div :class="item.chartData ? 'mg-v2-group' : ''" data-testid="measurement-field">
         <div
           class="transition-all duration-200 ease-in-out"
           :class="isExpanded || !item.chartData ? '' : 'mb-2'"

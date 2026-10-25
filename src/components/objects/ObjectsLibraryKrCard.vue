@@ -87,44 +87,51 @@
       >
         <div class="space-y-3 pt-1">
           <!-- The sentence: what counts, how often -->
-          <MeasurementTargetSentence
-            :entry-mode="child.entryMode ?? 'completion'"
-            :target="child.target"
-            :cadence="child.cadence === 'monthly' ? 'monthly' : 'weekly'"
-            :rating-scale="child.ratingScale ?? 10"
-            :rating-scale-min="child.ratingScaleMin ?? 1"
-            :multi="multiFacts"
-            editable-scale
-            show-cadence
-            @update:measurement="onTargetMeasurement"
-            @update:cadence="onCadence"
-            @update:scale="onScale"
-            @update:threshold="onThreshold"
-          />
+          <section class="mg-v2-group">
+            <MeasurementTargetSentence
+              :entry-mode="child.entryMode ?? 'completion'"
+              :target="child.target"
+              :cadence="child.cadence === 'monthly' ? 'monthly' : 'weekly'"
+              :rating-scale="child.ratingScale ?? 10"
+              :rating-scale-min="child.ratingScaleMin ?? 1"
+              :multi="multiFacts"
+              editable-scale
+              show-cadence
+              @update:measurement="onTargetMeasurement"
+              @update:cadence="onCadence"
+              @update:scale="onScale"
+              @update:threshold="onThreshold"
+            />
+          </section>
 
           <!-- Checklist items (threshold lives in the sentence) -->
-          <MultiItemsEditor
-            v-if="child.entryMode === 'multi-completion'"
-            :items="child.multiItems ?? []"
-            :threshold="child.multiDailyThreshold"
-            @update:config="emitFieldChange('multiConfig', $event)"
-          />
+          <section v-if="child.entryMode === 'multi-completion'" class="mg-v2-group">
+            <p class="mg-v2-group__label">{{ t('planning.objects.form.multiItems.heading') }}</p>
+            <MultiItemsEditor
+              :items="child.multiItems ?? []"
+              :threshold="child.multiDailyThreshold"
+              @update:config="emitFieldChange('multiConfig', $event)"
+            />
+          </section>
 
           <!-- Periods: one quiet line; click opens the calendar -->
-          <div class="relative">
-            <ObjectCardPeriods
-              :periods="linkedPeriods.map(period => period.periodRef)"
-              :cadence="child.cadence === 'monthly' ? 'monthly' : 'weekly'"
-              @open="openPeriods"
-            />
-            <PeriodCalendarPicker
-              ref="periodsRef"
-              triggerless
-              :model-value="linkedPeriods.map(period => period.periodRef)"
-              :cadence="child.cadence === 'monthly' ? 'monthly' : 'weekly'"
-              :commit="savePeriods"
-            />
-          </div>
+          <section class="mg-v2-group">
+            <p class="mg-v2-group__label">{{ t('planning.objects.periodsLine.label') }}</p>
+            <div class="relative">
+              <ObjectCardPeriods
+                :periods="linkedPeriods.map(period => period.periodRef)"
+                :cadence="child.cadence === 'monthly' ? 'monthly' : 'weekly'"
+                @open="openPeriods"
+              />
+              <PeriodCalendarPicker
+                ref="periodsRef"
+                triggerless
+                :model-value="linkedPeriods.map(period => period.periodRef)"
+                :cadence="child.cadence === 'monthly' ? 'monthly' : 'weekly'"
+                :commit="savePeriods"
+              />
+            </div>
+          </section>
 
           <!-- Completion rules: the placeholder is the label -->
           <textarea
@@ -139,11 +146,13 @@
       </div>
 
       <!-- Chart -->
-      <MeasurementSparkline
-        :points="child.chartData"
-        :cadence="child.cadence"
-        :entry-mode="child.entryMode"
-      />
+      <div v-if="child.chartData.length" class="mg-v2-group">
+        <MeasurementSparkline
+          :points="child.chartData"
+          :cadence="child.cadence"
+          :entry-mode="child.entryMode"
+        />
+      </div>
     </div>
   </div>
 </template>

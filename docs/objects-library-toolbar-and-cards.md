@@ -122,3 +122,11 @@ przed/po: `ideas/ux-audit-2026-10-25-object-cards/`.
   duch okresów mówi, co zrobić. Tor wskaźnika ocen
   (`SparklineRatingGauge`) = `--mg-color-sky-well`, bo bez ramki wykresu
   dawny ton mgły ginął na karcie.
+- **Poprawka tego samego dnia (uwagi usera):** każda część rozwiniętej karty
+  siedzi w `.mg-v2-group` (zdanie bez etykiety; „Elementy”, „Okresy” z
+  etykietą; wykres bez etykiety — także w zwiniętej karcie nawyku/trackera);
+  pigułki zdania i chip wagi są chmurami bez obrysu; wiersze checklisty mają
+  pola papieru, a „Dodaj element” to mała chmura pod listą; duchy („+ dni”,
+  „Wybierz tygodnie”) są wyblakłymi chmurami, nie kreskowanymi obrysami.
+  Wykres liniowy: linia `--mg-color-data-fill`, ostatnia wartość jako dysk
+  `.mg-well--done`.

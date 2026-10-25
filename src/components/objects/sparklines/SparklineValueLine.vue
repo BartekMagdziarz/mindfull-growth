@@ -35,15 +35,19 @@
       :key="'line-' + si"
       :d="piece.linePath"
       fill="none"
-      stroke="rgb(var(--sky-800))"
+      stroke="var(--mg-color-data-fill)"
       stroke-width="3"
       stroke-linecap="round"
       stroke-linejoin="round"
       :stroke-opacity="piece.isFuture ? 0.4 : 1"
     />
 
-    <!-- Endpoint dot on the last measured value -->
-    <circle v-if="endpoint" :cx="endpoint.x" :cy="endpoint.y" r="4" fill="rgb(var(--sky-800))" />
+    <!-- Endpoint: the last measured value as a done well (sky-field disc,
+         state-blue core), the same mark a finished task gets in Today. -->
+    <g v-if="endpoint">
+      <circle :cx="endpoint.x" :cy="endpoint.y" r="7" fill="var(--mg-color-sky-field)" />
+      <circle :cx="endpoint.x" :cy="endpoint.y" r="4" fill="var(--mg-color-state)" />
+    </g>
 
     <!-- Period labels -->
     <text
