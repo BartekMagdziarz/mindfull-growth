@@ -134,7 +134,7 @@ defineEmits<{
 
 const showActions = computed(() => props.showActions !== false)
 
-const { t } = useT()
+const { t, tg } = useT()
 const reflectionStore = useStructuredReflectionStore()
 
 onMounted(() => {
@@ -188,13 +188,17 @@ const aiSummaryOpen = ref(false)
 
 // Anchor categories — kept in sync with MonthlyReflectionWizard.monthlyAnchorCategories
 const anchorCategories = computed(() => [
-  { key: 'proudOf', label: t('planning.reflection.monthly.anchors.proudOf'), icon: 'emoji_events' },
+  {
+    key: 'proudOf',
+    label: tg('planning.reflection.monthly.anchors.proudOf'),
+    icon: 'emoji_events',
+  },
   {
     key: 'challenges',
     label: t('planning.reflection.monthly.anchors.challenges'),
     icon: 'warning',
   },
-  { key: 'growth', label: t('planning.reflection.monthly.anchors.growth'), icon: 'trending_up' },
+  { key: 'growth', label: tg('planning.reflection.monthly.anchors.growth'), icon: 'trending_up' },
   { key: 'patterns', label: t('planning.reflection.monthly.anchors.patterns'), icon: 'pattern' },
   {
     key: 'carryForward',

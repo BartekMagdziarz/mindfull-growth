@@ -42,7 +42,7 @@
             :model-value="assessmentFor(priority.id).effort"
             label="Wysiłek"
             effort
-            hint="Ile świadomej uwagi i energii poświęciłeś temu kierunkowi? To nie ocena rezultatu."
+            :hint="tg('planning.reflection.monthly.quiet.effortHint')"
             @update:model-value="setEffort(priority.id, $event)"
           />
           <div class="qm-decisions">
@@ -545,11 +545,20 @@ const COMPASS: CompassAxis[] = [
   },
 ]
 
-const ANCHORS = [
-  { key: 'proudOf', label: 'Z czego jestem dumny', icon: 'workspace_premium' },
-  { key: 'challenges', label: 'Największe wyzwania', icon: 'mountain_flag' },
-  { key: 'growth', label: 'Jak się rozwinąłem', icon: 'trending_up' },
-]
+const { t, tg } = useT()
+const ANCHORS = computed(() => [
+  {
+    key: 'proudOf',
+    label: tg('planning.reflection.monthly.anchors.proudOf'),
+    icon: 'workspace_premium',
+  },
+  {
+    key: 'challenges',
+    label: t('planning.reflection.monthly.anchors.challenges'),
+    icon: 'mountain_flag',
+  },
+  { key: 'growth', label: tg('planning.reflection.monthly.anchors.growth'), icon: 'trending_up' },
+])
 const VERDICT_OPTIONS: PriorityVerdict[] = ['continue', 'adjust', 'pause', 'drop']
 const VERDICT_LABEL: Record<string, string> = {
   continue: 'Kontynuuj',
@@ -570,12 +579,13 @@ interface EvidenceEntry {
   tone: EvidenceTone
 }
 
-const steps: QuietRitualStep[] = [
-  { id: 'priorities', label: 'Priorytety', question: 'Jaką uwagę poświęciłeś swoim kierunkom?' },
-  { id: 'compass', label: 'Kompas', question: 'Jakiego miesiąca doświadczyłeś?' },
-  { id: 'anchors', label: 'Kotwice', question: 'Co warto zapamiętać?' },
-  { id: 'journal', label: 'Dziennik', question: 'Zamknij miesiąc własnymi słowami' },
-]
+const steps = computed<QuietRitualStep[]>(() =>
+  ['priorities', 'compass', 'anchors', 'journal'].map(id => ({
+    id,
+    label: t(`planning.reflection.monthly.quiet.steps.${id}.label`),
+    question: tg(`planning.reflection.monthly.quiet.steps.${id}.question`),
+  }))
+)
 
 const current = ref(0)
 const openPriority = ref('')
@@ -608,7 +618,6 @@ const priorityIdsBySubject = ref(new Map<string, string[]>())
 
 const periodTitle = computed(() => monthTitle(props.monthRef))
 const weeks = computed(() => quietMonthWeeks(props.monthRef))
-const { t } = useT()
 const AREAS = REFLECTION_MATRIX_AREAS
 const weekSeries = computed(() =>
   quietMonthAreaSeries(weeks.value, dataBundle.value?.weeklyReflectionDetails ?? [])
@@ -622,10 +631,12 @@ const wordCount = computed(
   () => freeformReflection.value.trim().split(/\s+/).filter(Boolean).length
 )
 const filledAnchors = computed(() =>
-  ANCHORS.map(anchor => ({
-    ...anchor,
-    text: (promptResponses.value[anchor.key] ?? '').trim(),
-  })).filter(anchor => anchor.text)
+  ANCHORS.value
+    .map(anchor => ({
+      ...anchor,
+      text: (promptResponses.value[anchor.key] ?? '').trim(),
+    }))
+    .filter(anchor => anchor.text)
 )
 const assessedPriorities = computed(() =>
   activePriorities.value.filter(priority => {
@@ -814,7 +825,7 @@ async function loadPriorityLinks() {
 }
 
 function go(index: number) {
-  current.value = Math.max(0, Math.min(steps.length - 1, index))
+  current.value = Math.max(0, Math.min(steps.value.length - 1, index))
   saved.value = false
   goToStep(
     current.value === 0
@@ -945,7 +956,7 @@ function setAnchor(key: string, event: Event) {
   saved.value = false
 }
 function editAnchor(key: string) {
-  openAnchor.value = ANCHORS.findIndex(anchor => anchor.key === key)
+  openAnchor.value = ANCHORS.value.findIndex(anchor => anchor.key === key)
   go(2)
 }
 function insertIntoJournal(text: string) {

@@ -1714,9 +1714,15 @@
         }
       },
       "anchors": {
-        "proudOf": "What I'm most proud of",
+        "proudOf": {
+          "m": "What I'm most proud of",
+          "f": "What I'm most proud of"
+        },
         "challenges": "Biggest challenges",
-        "growth": "How I've grown",
+        "growth": {
+          "m": "How I've grown",
+          "f": "How I've grown"
+        },
         "patterns": "Patterns I noticed",
         "carryForward": "What to carry forward",
         "letGo": "What to let go"
@@ -1740,7 +1746,37 @@
         "pause": "Pause",
         "drop": "Drop"
       },
-      "journalPlaceholder": "Reflect on your month..."
+      "journalPlaceholder": "Reflect on your month...",
+      "quiet": {
+        "effortHint": {
+          "m": "How much conscious attention and energy did you give this direction? This is not a verdict on the result.",
+          "f": "How much conscious attention and energy did you give this direction? This is not a verdict on the result."
+        },
+        "steps": {
+          "priorities": {
+            "label": "Priorities",
+            "question": {
+              "m": "What attention did you give your directions?",
+              "f": "What attention did you give your directions?"
+            }
+          },
+          "compass": {
+            "label": "Compass",
+            "question": {
+              "m": "What kind of month did you live through?",
+              "f": "What kind of month did you live through?"
+            }
+          },
+          "anchors": {
+            "label": "Anchors",
+            "question": "What is worth remembering?"
+          },
+          "journal": {
+            "label": "Journal",
+            "question": "Close the month in your own words"
+          }
+        }
+      }
     }
   },
   "goalClosing": {
