@@ -47,7 +47,7 @@ i mockupy: `ideas/html-plans/2026-09-12-objects-library-toolbar-and-cards.html`
   zamknięcia. Wynik i data zamknięcia występują tylko w metadanych na górze
   karty, bez powtórzenia w nagłówku podsumowania. Miesiące celu nadal można
   sprawdzić lub edytować przez menu.
-- **D5 Przynależność = glify** (`ObjectCardAffiliation`): priorytety (kreskowany
+- **D5 Przynależność = glify** (`ObjectCardAffiliation`; ZASTĄPIONE 2026-10-25 linią tekstu `ObjectCardMetaLine`, patrz piąta poprawka): priorytety (kreskowany
   obrys) · obszary życia (wypełniona tablica sky-field), maks. 4 + „+N”.
   Hover/fokus wysuwa nazwę na paper. **Żadnych kolorów obszarów życia na
   kartach** — paleta produktu to błękity, róż/czerwień jako sygnał, lekki
@@ -162,3 +162,12 @@ przed/po: `ideas/ux-audit-2026-10-25-object-cards/`.
   „Elementy” (prop `heading`), widoczny na hover grupy; nowy kafelek otwiera
   nazwę zaznaczoną. Zrzuty:
   `ideas/ux-audit-2026-10-25-object-cards/after-tiles-inplace/`.
+- **Piąta poprawka (linia przynależności, kafelki z powrotem 3/rząd):** rząd
+  glifów usunięty (`ObjectCardAffiliation`, `.mg-v2-glyph*`). Pod tytułem
+  `ObjectCardMetaLine`: „29 cze – 25 paź · 2026 · Regularny ruch · Zdrowie”
+  — zakres okresów z `item.periodRefs` (zwinięta) / `linkedPeriods`
+  (rozwinięta; wtedy klik otwiera picker), „na stałe” albo „od N tygodni”;
+  potem nazwy priorytetów i obszarów, ucięte z pełną listą na hover, klik =
+  edytor powiązań. Kafelki: 3 w rzędzie, jeden rząd, „×2” w tekście tylko gdy
+  waga ≠ 1; hover = plakietka nad prawym górnym rogiem z „×1” (klik edytuje) i
+  archiwum. Zrzuty: `ideas/ux-audit-2026-10-25-object-cards/after-meta-line/`.

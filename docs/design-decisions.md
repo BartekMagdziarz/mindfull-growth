@@ -219,3 +219,29 @@ Konsekwencje: `multi-item-editor` znika; e2e klika nazwę (role=button, exact)
 i przeciąga `dragTo` z pozycją na nazwie; `MultiItemsEditor` dostaje prop
 `heading` (etykieta grupy w rzędzie z „+”), gospodarze nie rysują już
 `.mg-v2-group__label` sami.
+
+## 2026-10-25 — Przynależność jako linia tekstu; kafelki 3 w rzędzie bez tacki
+
+Kontekst: po przeglądzie user ocenił rząd glifów (priorytet · obszar) jako
+„pusty rząd”, a kafelki 2 w rzędzie z drugim rzędem na wagę jako znów za
+długie. Wariant „glify w rzędzie tytułu” (zrzuty
+`ideas/ux-audit-2026-10-25-object-cards/glyph-row-f/`) odrzucony — ucinał
+tytuły.
+Decyzja: (1) `ObjectCardAffiliation` i anatomia `.mg-v2-glyph*` USUNIĘTE;
+pod tytułem jest jedna linia `ObjectCardMetaLine` w gramatyce `.mg-v2-meta`:
+„kiedy” (zakres przypisanych okresów „29 cze – 25 paź”, „na stałe” dla
+nawyku stałego, a bez okresów „od N tygodni” od utworzenia) · „gdzie”
+(nazwy priorytetów, potem obszarów, przycięte z pełną listą w `title` na
+hover). Część „kiedy” otwiera picker okresów tylko w rozwiniętej karcie (tam
+okresy są załadowane), część „gdzie” otwiera edytor powiązań. Zwinięta
+karta zna okresy z `ObjectsLibraryListItem.periodRefs` (nowe pole w
+zapytaniu). Cel i priorytet mają tylko część „gdzie” (daty niesie oś).
+(2) Kafelki elementów: z powrotem 3 w rzędzie, jeden rząd: tablica · nazwa
+(≤ 2 linie) · „×2” tylko gdy waga ≠ 1; na hover kafelka nad prawym górnym
+rogiem wisi jedna plakietka-chmura z „×1” (klik = edycja wagi) i
+archiwum/usuń — wystaje poza krawędź, więc nie zasłania nazwy ani jej kliku
+(nakładka na całą prawą stronę blokowała klik w nazwę).
+Konsekwencje: `formatPeriodRange` + `weeksSince` w
+`src/utils/periodRangeFormat.ts` (dzielone z `ObjectCardPeriods`); klucze
+`periodsLine.since.*`/`sinceThisWeek`; dług strażnika −1 (`font-weight: 700`
+z glifów).

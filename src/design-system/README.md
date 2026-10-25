@@ -37,7 +37,7 @@ Jeden kierunek tonu i jeden kierunek głębi:
 - Zaznaczone chipy (`.mg-v2-pill--primary`, `--selected`) = cienki obrys akcentu, płasko — bez wklęsłości i bez niebieskiej wypełnienia.
 - Karty obiektów (biblioteka): fakty pod tytułem to cicha linia `.mg-v2-meta` (tekst wyciszony, separatory „·”), nie rząd `.mg-v2-badge`; status pokazujemy tekstem TYLKO gdy nie jest domyślny, a zmienia się go w menu „⋯” (`ObjectsCardStatusMenu`). Kontrolki karty (powiązania, miesiące/lata, rozwiń, menu) siedzą w `.mg-v2-card-tray` — niewidoczne do hovera/fokusu/otwartego popovera; licznik na ikonie = `.mg-v2-icon-count` (wyciszona cyfra, bez wypełnionej kropki).
 - Belka Biblioteki obiektów (2026-09-12): prawa grupa kontrolek ma wysokość pigułki — pole szukania to `.mg-v2-field--compact` (2rem, rośnie po fokusie), okres to chip → popover rok/miesiąc (`ObjectsPeriodSelect`), filtry to chip „Filtry · N” → popover z kompaktowymi multi-selectami i przełącznikiem `.mg-v2-switch` (`button[role=switch]`, tor sky-well/akcent, gałka paper). Ustawiony filtr = `.mg-v2-pill--primary.mg-v2-pill--selected`; aktywne filtry z popovera dostają rząd chipów pod belką (`ObjectsLibraryActiveFilters`), okres nie jest tam powtarzany.
-- Karty obiektów (2026-09-12, faza 2): czas = `.mg-v2-timeline` (ołówek `__pencil` = kreskowana hairline, atrament `__ink` do „dziś”, kropki `__dot` ze steppera: `--today` atrament z halo, `--done` akcent, przyszła = kreskowany obrys; `--overdue` przebarwia na rose, `--open` blaknie ołówek maską), geometria w `utils/objectWindow.ts` (`ObjectCardTimeline.vue`). Przynależność = `.mg-v2-glyph-row` z `.mg-v2-glyph` (obszar = wypełniona tablica sky-field, priorytet = `--pencil` kreskowany obrys; hover/fokus wysuwa `__name` na paper) — bez kolorów obszarów życia. Oś i glify są przyciskami (`.mg-v2-inline-trigger` → paper) otwierającymi istniejące pickery; tacka hover ma tylko „⋯”, a menu duplikuje „Powiązania…/Miesiące…/Lata…”.
+- Karty obiektów (2026-09-12, faza 2): czas = `.mg-v2-timeline` (ołówek `__pencil` = kreskowana hairline, atrament `__ink` do „dziś”, kropki `__dot` ze steppera: `--today` atrament z halo, `--done` akcent, przyszła = kreskowany obrys; `--overdue` przebarwia na rose, `--open` blaknie ołówek maską), geometria w `utils/objectWindow.ts` (`ObjectCardTimeline.vue`). Przynależność (od 2026-10-25) = linia tekstu `ObjectCardMetaLine` pod tytułem: „kiedy” (okresy / „na stałe” / „od N tygodni”) · nazwy priorytetów i obszarów, przycięte z pełną listą na hover; glify `.mg-v2-glyph*` usunięte. Oś i obie części linii są przyciskami otwierającymi istniejące pickery; tacka hover ma tylko „⋯”, a menu duplikuje „Powiązania…/Miesiące…/Lata…”.
 - Wykresy: linie i kropki atramentem `sky-800`, wypełnienia akcentem/pastelami; nie kodować `sky-600`/`sky-500`.
 
 ## Warianty organiczne
@@ -166,9 +166,9 @@ gramatykę dla korzeni poza `#app`.
   pole papierowe na papierowej grupie dostaje `--mg-color-border-subtle`, żeby
   nie zniknąć. `--mg-color-field-border` zostaje dla kontrolek, które same o
   nią proszą.
-- `.mg-v2-glyph--cloud` (2026-10-25) zastępuje `--pencil`: glif priorytetu to
-  uniesiona chmura (papier + `raised-sm`) nad płaską tablicą obszaru; `--empty`
-  = wyblakła chmura „+”. `.mg-v2-icon-ghost` — pusty dysk ikony w nagłówku
+- Glify przynależności (`.mg-v2-glyph*`, w tym `--cloud`/`--empty`) usunięte
+  2026-10-25 po ocenie usera („pusty rząd”); przynależność to linia tekstu
+  (`ObjectCardMetaLine`). `.mg-v2-icon-ghost` — pusty dysk ikony w nagłówku
   karty (`IconPicker ghost-when-empty`): wyblakły „+”, pełny na hover karty.
   `.mg-v2-card-indent` — rzędy pod tytułem karty zaczynają się tam, gdzie
   tekst tytułu (dysk 2,75 rem + odstęp).

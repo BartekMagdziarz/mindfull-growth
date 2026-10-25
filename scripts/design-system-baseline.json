@@ -1,9 +1,9 @@
 {
   "generatedAt": "2026-10-25",
-  "total": 2112,
+  "total": 2111,
   "byRule": {
     "legacyClass": 771,
-    "tailwindArbitraryText": 150,
+    "tailwindArbitraryText": 149,
     "localFont": 1,
     "radiusLiteral": 232,
     "localShadow": 25,
@@ -116,7 +116,6 @@
     "src/components/lifeAreas/LifeAreaLinkedEntities.vue": 4,
     "src/components/objects/GoalCreationWizard.vue": 4,
     "src/components/objects/GoalLinksDropdown.vue": 2,
-    "src/components/objects/ObjectCardAffiliation.vue": 1,
     "src/components/objects/ObjectsCompactMultiSelect.vue": 1,
     "src/components/objects/ObjectsFiltersPopover.vue": 1,
     "src/components/objects/ObjectsLibraryPillSelect.vue": 1,

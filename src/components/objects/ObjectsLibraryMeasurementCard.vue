@@ -88,17 +88,25 @@
         </div>
       </div>
 
-      <!-- Affiliation glyphs (priorities · life areas) on the left, the
-           periods line on the right of the same row; both click to edit. -->
-      <div class="mg-v2-card-indent relative flex items-center justify-between gap-3">
-        <ObjectCardAffiliation
+      <!-- Row 2: when (assigned periods, "na stałe", or age) · where (priorities
+           and life areas by name). Both parts open their editors; the periods
+           picker exists only with the expanded card, which loads the periods. -->
+      <div class="mg-v2-card-indent relative">
+        <ObjectCardMetaLine
+          :periods="
+            isExpanded ? linkedPeriods.map(period => period.periodRef) : (item.periodRefs ?? [])
+          "
+          :cadence="item.cadence === 'monthly' ? 'monthly' : 'weekly'"
+          :is-permanent="panelType === 'habit' && Boolean(item.isPermanent)"
+          :created-at="item.createdAt"
+          :when-interactive="isExpanded"
           :priority-ids="item.priorityIds ?? []"
           :life-area-ids="item.lifeAreaIds ?? []"
           :priority-options="priorityOptions"
           :life-area-options="lifeAreaOptions"
-          :group-label="t('planning.objects.timeline.links')"
-          :empty-label="t('planning.objects.timeline.addLink')"
-          @open="openLinks"
+          :empty-links-label="t('planning.objects.timeline.addLink')"
+          @open-periods="openPeriods"
+          @open-links="openLinks(null)"
         />
         <GoalLinksDropdown
           ref="linksRef"
@@ -110,25 +118,17 @@
           @toggle-priority="emitFieldChange('togglePriority', $event)"
           @toggle-life-area="emitFieldChange('toggleLifeArea', $event)"
         />
-        <!-- Periods load with the expanded card, so the line shows only then. -->
-        <div v-if="isExpanded" class="relative shrink-0">
-          <ObjectCardPeriods
-            :periods="linkedPeriods.map(period => period.periodRef)"
-            :cadence="item.cadence === 'monthly' ? 'monthly' : 'weekly'"
-            :is-permanent="panelType === 'habit' && Boolean(item.isPermanent)"
-            @open="openPeriods"
-          />
-          <PeriodCalendarPicker
-            ref="periodsRef"
-            triggerless
-            :model-value="linkedPeriods.map(period => period.periodRef)"
-            :cadence="item.cadence === 'monthly' ? 'monthly' : 'weekly'"
-            :commit="savePeriods"
-            :allow-permanent="panelType === 'habit'"
-            :is-permanent="item.isPermanent"
-            :commit-schedule="saveSchedule"
-          />
-        </div>
+        <PeriodCalendarPicker
+          v-if="isExpanded"
+          ref="periodsRef"
+          triggerless
+          :model-value="linkedPeriods.map(period => period.periodRef)"
+          :cadence="item.cadence === 'monthly' ? 'monthly' : 'weekly'"
+          :commit="savePeriods"
+          :allow-permanent="panelType === 'habit'"
+          :is-permanent="item.isPermanent"
+          :commit-schedule="saveSchedule"
+        />
       </div>
 
       <!-- Expanded section -->
@@ -219,7 +219,6 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import ObjectCardPeriods from '@/components/objects/ObjectCardPeriods.vue'
 import PeriodCalendarPicker from '@/components/objects/PeriodCalendarPicker.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
@@ -227,8 +226,7 @@ import IconPicker from '@/components/shared/IconPicker.vue'
 import MeasurementTargetSentence from '@/components/objects/MeasurementTargetSentence.vue'
 import MultiItemsEditor from '@/components/objects/MultiItemsEditor.vue'
 import GoalLinksDropdown from '@/components/objects/GoalLinksDropdown.vue'
-import ObjectCardAffiliation from '@/components/objects/ObjectCardAffiliation.vue'
-import type { AffiliationKind } from '@/components/objects/ObjectCardAffiliation.vue'
+import ObjectCardMetaLine from '@/components/objects/ObjectCardMetaLine.vue'
 import ObjectsCardStatusMenu from '@/components/objects/ObjectsCardStatusMenu.vue'
 import MeasurementSparkline from '@/components/objects/MeasurementSparkline.vue'
 import { useEditableField } from '@/composables/useEditableField'
@@ -387,7 +385,7 @@ function emitFieldChange(field: string, value: unknown): void {
 
 const linksRef = ref<InstanceType<typeof GoalLinksDropdown> | null>(null)
 
-function openLinks(kind: AffiliationKind | null): void {
+function openLinks(kind: 'priority' | 'lifeArea' | null): void {
   menuOpen.value = false
   linksRef.value?.openAt(kind)
 }

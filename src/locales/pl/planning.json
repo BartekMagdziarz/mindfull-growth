@@ -1041,7 +1041,13 @@
         "few": "{n} miesiące",
         "many": "{n} miesięcy"
       },
-      "label": "Okresy"
+      "label": "Okresy",
+      "sinceThisWeek": "od tego tygodnia",
+      "since": {
+        "one": "od {n} tygodnia",
+        "few": "od {n} tygodni",
+        "many": "od {n} tygodni"
+      }
     }
   },
   "goalWizard": {

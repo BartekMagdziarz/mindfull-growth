@@ -90,16 +90,13 @@
         <span class="mg-v2-meta__status">{{ statusLabel }}</span>
       </p>
 
-      <!-- Affiliation glyphs (life areas); click edits -->
+      <!-- Life areas by name; click edits -->
       <div ref="linksRef" class="mg-v2-card-indent relative">
-        <ObjectCardAffiliation
-          :priority-ids="[]"
+        <ObjectCardMetaLine
           :life-area-ids="item.lifeAreaIds ?? []"
-          :priority-options="[]"
           :life-area-options="lifeAreaOptions"
-          :group-label="t('planning.objects.form.lifeAreas')"
-          :empty-label="t('planning.objects.timeline.addLink')"
-          @open="openLinks"
+          :empty-links-label="t('planning.objects.timeline.addLink')"
+          @open-links="openLinks"
         />
         <div
           v-if="linksOpen"
@@ -317,7 +314,7 @@ import IconPicker from '@/components/shared/IconPicker.vue'
 import ObjectsCardStatusMenu from '@/components/objects/ObjectsCardStatusMenu.vue'
 import PriorityDraftChecklist from '@/components/objects/priority-creator/PriorityDraftChecklist.vue'
 import PriorityYearsDropdown from '@/components/objects/PriorityYearsDropdown.vue'
-import ObjectCardAffiliation from '@/components/objects/ObjectCardAffiliation.vue'
+import ObjectCardMetaLine from '@/components/objects/ObjectCardMetaLine.vue'
 import ObjectCardTimeline from '@/components/objects/ObjectCardTimeline.vue'
 import { computeYearsWindow } from '@/utils/objectWindow'
 import type { YearRef } from '@/domain/period'

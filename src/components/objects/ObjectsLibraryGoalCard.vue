@@ -108,16 +108,15 @@
         <span v-if="!item.isActive">{{ t('planning.objects.badges.archived') }}</span>
       </p>
 
-      <!-- Row 3: affiliation glyphs (priorities · life areas); click edits -->
+      <!-- Row 3: priorities and life areas by name; click edits -->
       <div class="mg-v2-card-indent relative">
-        <ObjectCardAffiliation
+        <ObjectCardMetaLine
           :priority-ids="item.priorityIds ?? []"
           :life-area-ids="item.lifeAreaIds ?? []"
           :priority-options="priorityOptions"
           :life-area-options="lifeAreaOptions"
-          :group-label="t('planning.objects.timeline.links')"
-          :empty-label="t('planning.objects.timeline.addLink')"
-          @open="openLinks"
+          :empty-links-label="t('planning.objects.timeline.addLink')"
+          @open-links="openLinks(null)"
         />
         <GoalLinksDropdown
           ref="linksRef"
@@ -196,8 +195,7 @@ import { useT } from '@/composables/useT'
 import IconPicker from '@/components/shared/IconPicker.vue'
 import GoalMonthsDropdown from '@/components/objects/GoalMonthsDropdown.vue'
 import GoalLinksDropdown from '@/components/objects/GoalLinksDropdown.vue'
-import ObjectCardAffiliation from '@/components/objects/ObjectCardAffiliation.vue'
-import type { AffiliationKind } from '@/components/objects/ObjectCardAffiliation.vue'
+import ObjectCardMetaLine from '@/components/objects/ObjectCardMetaLine.vue'
 import ObjectCardTimeline from '@/components/objects/ObjectCardTimeline.vue'
 import type { TimelineEndLabel } from '@/components/objects/ObjectCardTimeline.vue'
 import ObjectsCardStatusMenu from '@/components/objects/ObjectsCardStatusMenu.vue'
@@ -337,7 +335,7 @@ const endLabel = computed<TimelineEndLabel | null>(() => {
 
 // --- Inline editing entry points -----------------------------------------
 
-function openLinks(kind: AffiliationKind | null): void {
+function openLinks(kind: 'priority' | 'lifeArea' | null): void {
   menuOpen.value = false
   linksRef.value?.openAt(kind)
 }

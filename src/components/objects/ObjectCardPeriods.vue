@@ -49,7 +49,8 @@
 import { computed } from 'vue'
 import { useT } from '@/composables/useT'
 import type { MonthRef, WeekRef } from '@/domain/period'
-import { getNextPeriod, getPeriodBounds } from '@/utils/periods'
+import { getNextPeriod } from '@/utils/periods'
+import { formatPeriodRange } from '@/utils/periodRangeFormat'
 
 const props = withDefaults(
   defineProps<{
@@ -74,23 +75,7 @@ const hasGaps = computed(() =>
   )
 )
 
-// The year shows only when the window leaves the current year.
-const rangeLabel = computed(() => {
-  const refs = sorted.value
-  if (!refs.length) return ''
-  const start = getPeriodBounds(refs[0] as MonthRef | WeekRef).start
-  const end = getPeriodBounds(refs[refs.length - 1] as MonthRef | WeekRef).end
-  const currentYear = String(new Date().getFullYear())
-  const withYear = start.slice(0, 4) !== currentYear || end.slice(0, 4) !== currentYear
-  const options: Intl.DateTimeFormatOptions =
-    props.cadence === 'monthly'
-      ? { month: 'short', ...(withYear ? { year: 'numeric' } : {}) }
-      : { day: 'numeric', month: 'short', ...(withYear ? { year: 'numeric' } : {}) }
-  return new Intl.DateTimeFormat(locale.value, options).formatRange(
-    new Date(`${start}T12:00:00`),
-    new Date(`${end}T12:00:00`)
-  )
-})
+const rangeLabel = computed(() => formatPeriodRange(sorted.value, props.cadence, locale.value))
 
 const countLabel = computed(() => {
   const base =

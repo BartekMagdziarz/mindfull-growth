@@ -1041,7 +1041,13 @@
         "few": "{n} months",
         "many": "{n} months"
       },
-      "label": "Periods"
+      "label": "Periods",
+      "sinceThisWeek": "since this week",
+      "since": {
+        "one": "for {n} week",
+        "few": "for {n} weeks",
+        "many": "for {n} weeks"
+      }
     }
   },
   "goalWizard": {

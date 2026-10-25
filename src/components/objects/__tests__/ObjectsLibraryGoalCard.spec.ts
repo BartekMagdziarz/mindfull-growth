@@ -41,7 +41,7 @@ function renderGoal(item = goal()) {
       stubs: {
         IconPicker: true,
         AppIcon: true,
-        ObjectCardAffiliation: true,
+        ObjectCardMetaLine: true,
         GoalLinksDropdown: true,
         GoalMonthsDropdown: true,
         GoalClosingSummary: true,

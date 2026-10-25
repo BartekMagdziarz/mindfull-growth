@@ -133,7 +133,7 @@ test.describe('multi-completion', () => {
     const tiles = card.getByTestId('multi-item')
     await expect(tiles).toHaveCount(3)
     await expect(card.getByRole('button', { name: 'Dodaj element' })).toBeAttached()
-    await expect(card.getByRole('spinbutton', { name: 'Waga: Trening' })).toHaveValue('2')
+    await expect(tiles.nth(2)).toContainText('×2')
     await card.getByRole('button', { name: 'Medytacja', exact: true }).click()
     await expect(card.getByRole('textbox', { name: 'Nazwa: Medytacja' })).toHaveValue('Medytacja')
     await page.keyboard.press('Escape')

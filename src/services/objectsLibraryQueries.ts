@@ -136,6 +136,8 @@ export interface ObjectsLibraryListItem {
   multiDailyThreshold?: number
   target?: MeasurementTarget
   chartData?: ObjectsLibraryChartPoint[]
+  /** Habits/trackers: every assigned (active) period, past and future. */
+  periodRefs?: string[]
   targetDate?: string
   startDate?: string
   createdAt?: string
@@ -536,6 +538,33 @@ function hasGoalRelevance(
   }
 
   return false
+}
+
+/** Period refs where the subject is active, in the subject's cadence. */
+function collectActivePeriodRefs(
+  subject: MeasureableSubject,
+  subjectType: 'keyResult' | 'habit' | 'tracker',
+  measurementMonthStates: MeasurementMonthState[],
+  measurementWeekStates: MeasurementWeekState[]
+): string[] {
+  if (subject.cadence === 'monthly') {
+    return measurementMonthStates
+      .filter(
+        state =>
+          state.subjectType === subjectType &&
+          state.subjectId === subject.id &&
+          state.activityState === 'active'
+      )
+      .map(state => state.monthRef)
+  }
+  return measurementWeekStates
+    .filter(
+      state =>
+        state.subjectType === subjectType &&
+        state.subjectId === subject.id &&
+        state.activityState === 'active'
+    )
+    .map(state => state.weekRef)
 }
 
 function buildChartData(
@@ -958,6 +987,13 @@ function buildHabitListItem(
   return {
     id: habit.id,
     isPermanent: habit.isPermanent,
+    createdAt: habit.createdAt,
+    periodRefs: collectActivePeriodRefs(
+      habit,
+      'habit',
+      deps.measurementMonthStates,
+      deps.measurementWeekStates
+    ),
     panelType: 'habit',
     title: habit.title,
     description: habit.description,
@@ -992,6 +1028,13 @@ function buildTrackerListItem(
 
   return {
     id: tracker.id,
+    createdAt: tracker.createdAt,
+    periodRefs: collectActivePeriodRefs(
+      tracker,
+      'tracker',
+      deps.measurementMonthStates,
+      deps.measurementWeekStates
+    ),
     panelType: 'tracker',
     title: tracker.title,
     description: tracker.description,

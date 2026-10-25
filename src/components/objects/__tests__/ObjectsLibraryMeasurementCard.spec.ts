@@ -37,7 +37,7 @@ function renderCard(item = habit()) {
       stubs: {
         IconPicker: true,
         AppIcon: true,
-        ObjectCardAffiliation: true,
+        ObjectCardMetaLine: true,
         GoalLinksDropdown: true,
         PeriodCalendarPicker: true,
         ObjectCardPeriods: true,
