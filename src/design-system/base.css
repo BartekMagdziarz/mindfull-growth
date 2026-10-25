@@ -938,16 +938,27 @@
   transform: rotate(-0.5deg);
 }
 
-.mg-v2-glyph--pencil {
-  border-color: color-mix(in srgb, var(--mg-color-primary-strong) 55%, transparent);
-  border-style: dashed;
-  background: transparent;
-  box-shadow: none;
+/* Priority glyph: a lifted cloud (paper + small shadow), sitting a step
+   above the flat life-area board — no dashed pencil (decision 2026-10-25). */
+.mg-v2-glyph--cloud {
+  border-color: transparent;
+  background: var(--mg-color-paper);
+  box-shadow: var(--mg-shadow-raised-sm);
 }
 
+/* Nothing linked yet: a faded cloud with a "+", in the ghost grammar. */
 .mg-v2-glyph--empty {
-  color: var(--mg-color-muted);
-  opacity: 0.6;
+  border-color: transparent;
+  color: var(--mg-color-primary-strong);
+  background: color-mix(in srgb, var(--mg-color-paper) 55%, transparent);
+  box-shadow: none;
+  opacity: 0.75;
+}
+
+.mg-v2-glyph--empty:hover,
+.mg-v2-glyph--empty:focus-visible {
+  box-shadow: var(--mg-shadow-raised-sm);
+  opacity: 1;
 }
 
 .mg-v2-glyph__name {
@@ -1668,6 +1679,32 @@
   padding: var(--mg-space-2) var(--mg-space-2);
   border-radius: var(--mg-radius-sm);
   text-align: left;
+}
+
+/* Empty icon disc in a card header: a faded "+" cloud that wakes on hover
+   of the card or the disc itself, so an unset icon is an invitation, not a
+   mute blank. */
+.mg-v2-icon-ghost {
+  display: inline-grid;
+  place-items: center;
+  border-radius: var(--mg-radius-icon-field-a);
+  color: var(--mg-color-primary-strong);
+  background: color-mix(in srgb, var(--mg-color-paper) 55%, transparent);
+  opacity: 0.35;
+  transition: opacity var(--mg-duration-fast) ease;
+}
+
+.group\/card:hover .mg-v2-icon-ghost,
+button:hover > .mg-v2-icon-ghost,
+button:focus-visible > .mg-v2-icon-ghost {
+  opacity: 1;
+}
+
+/* Rows under a card title start where the title's text starts (the icon
+   disc, 2.75rem, plus its gap), so the disc reads as a margin mark and the
+   facts line up with the words. */
+.mg-v2-card-indent {
+  padding-left: calc(2.75rem + var(--mg-space-2));
 }
 
 /* Group: a quiet field under one block of a card (the sentence, the

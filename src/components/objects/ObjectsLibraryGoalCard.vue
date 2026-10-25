@@ -8,6 +8,7 @@
           :model-value="item.icon"
           compact
           minimal
+          ghost-when-empty
           :allow-clear="true"
           aria-label="Goal icon"
           @update:model-value="emitFieldChange('icon', $event)"
@@ -96,7 +97,7 @@
       </div>
 
       <!-- Row 2: status only when it is not the default -->
-      <p v-if="statusLabel || !item.isActive" class="mg-v2-meta px-1">
+      <p v-if="statusLabel || !item.isActive" class="mg-v2-meta mg-v2-card-indent">
         <span v-if="statusLabel" class="mg-v2-meta__status">{{ statusLabel }}</span>
         <span v-if="item.goalClosingReflection">{{
           t('planning.goalClosing.outcome.' + item.goalClosingReflection.outcome)
@@ -108,7 +109,7 @@
       </p>
 
       <!-- Row 3: affiliation glyphs (priorities · life areas); click edits -->
-      <div class="relative px-1">
+      <div class="mg-v2-card-indent relative">
         <ObjectCardAffiliation
           :priority-ids="item.priorityIds ?? []"
           :life-area-ids="item.lifeAreaIds ?? []"
@@ -133,6 +134,7 @@
       <!-- Row 4: ongoing goals only; historical goals keep their closing metadata -->
       <ObjectCardTimeline
         v-if="item.isActive && item.status === 'open'"
+        class="mg-v2-card-indent"
         variant="linear"
         :window="goalWindow"
         :start="startLabel"

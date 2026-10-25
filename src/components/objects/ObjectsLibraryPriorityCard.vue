@@ -8,6 +8,7 @@
             :model-value="item.icon"
             compact
             minimal
+            ghost-when-empty
             :allow-clear="true"
             aria-label="Priority icon"
             @update:model-value="emitFieldChange('icon', $event)"
@@ -85,12 +86,12 @@
       </div>
 
       <!-- Quiet facts: status, only when not active -->
-      <p v-if="statusLabel" class="mg-v2-meta px-1">
+      <p v-if="statusLabel" class="mg-v2-meta mg-v2-card-indent">
         <span class="mg-v2-meta__status">{{ statusLabel }}</span>
       </p>
 
       <!-- Affiliation glyphs (life areas); click edits -->
-      <div ref="linksRef" class="relative px-1">
+      <div ref="linksRef" class="mg-v2-card-indent relative">
         <ObjectCardAffiliation
           :priority-ids="[]"
           :life-area-ids="item.lifeAreaIds ?? []"
@@ -130,7 +131,7 @@
       </div>
 
       <!-- Years as stepper dots on a pencil line; click edits linked years -->
-      <div class="relative">
+      <div class="mg-v2-card-indent relative">
         <ObjectCardTimeline
           variant="years"
           :years="yearsWindow"

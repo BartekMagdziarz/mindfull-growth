@@ -182,3 +182,20 @@ dysk w gramatyce `.mg-well--done` (sky-field + rdzeń `--mg-color-state`).
 Konsekwencje: P2 w `docs/objects-library-toolbar-and-cards.md` czyta się z
 tą poprawką; README opisuje `.mg-v2-group`. Przy P3/P4 nie wprowadzać
 kreskowanych obrysów ani obrysowanych kontrolek.
+
+## 2026-10-25 — Kafelki elementów, glif-chmura, wcięcie pod tytułem
+
+Kontekst: wiersze elementów checklisty były długie i rezerwowały puste prawo
+na tackę; glif priorytetu miał kreskowany obrys; góra karty była chaotyczna
+(pusty dysk ikony, rzędy zaczynające się pod dyskiem, trzy wagi glifów).
+Opcje z mockupami: `ideas/html-plans/2026-10-25-checklist-items-and-card-head.html`.
+Decyzja (user: C + G1 + H1): (1) elementy jako kafelki 3 w rzędzie bez akcji;
+jeden pasek edycji pod siatką otwierany klikiem w kafelek, więc żaden element
+nie rezerwuje miejsca na tackę; dodawanie = wyblakły kafelek. (2) Priorytet =
+`.mg-v2-glyph--cloud`, obszar = płaska tablica, pusty = wyblakła chmura „+”;
+`--pencil` usunięty. (3) Rzędy pod tytułem wcięte do początku tekstu tytułu
+(`.mg-v2-card-indent`), pusty dysk ikony = `.mg-v2-icon-ghost` (opcja
+`ghost-when-empty` w `IconPicker`).
+Konsekwencje: e2e checklisty liczy kafelki (`data-testid="multi-item"`) i
+sprawdza pasek (`multi-item-editor`); kreskowane obrysy zostają tylko w
+stepperze i linii celu na wykresie. H3 (nazwy zamiast glifów) odłożone.

@@ -138,3 +138,16 @@ przed/po: `ideas/ux-audit-2026-10-25-object-cards/`.
   priorytetów i obszarów (tylko po rozwinięciu, bo okresy ładują się z
   rozwinięciem), w rezultacie — jako cicha linia pod tytułem, w miejscu
   zwiniętych faktów.
+- **Trzecia poprawka (opcje C + G1 + H1, plan
+  `ideas/html-plans/2026-10-25-checklist-items-and-card-head.html`):**
+  elementy checklisty to kafelki 3 w rzędzie (`MultiItemsEditor`: tablica ikony
+  albo inicjał · nazwa w ≤2 liniach · waga gdy ≠ 1; co drugi lekko
+  przekręcony), bez akcji w kafelku — klik otwiera JEDEN pasek edycji pod
+  siatką (ikona, nazwa, waga, ↑ ↓, archiwum/usuń; Esc i klik poza listą
+  zamykają), wyblakły kafelek „Dodaj element” dodaje i otwiera pasek z
+  zaznaczoną nazwą; zarchiwizowane = zwinięta linia i wyblakłe kafelki z
+  „Przywróć” w pasku. Glif priorytetu = `.mg-v2-glyph--cloud` (papier +
+  cień), pusty = wyblakła chmura „+” (`--empty`), bez kreskowania. Góra
+  karty: rzędy pod tytułem wcięte do początku tekstu tytułu
+  (`.mg-v2-card-indent`), pusty dysk ikony = `IconPicker ghost-when-empty`
+  (`.mg-v2-icon-ghost`, wyblakły „+”, pełny na hover karty).

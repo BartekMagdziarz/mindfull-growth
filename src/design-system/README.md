@@ -166,3 +166,9 @@ gramatykę dla korzeni poza `#app`.
   pole papierowe na papierowej grupie dostaje `--mg-color-border-subtle`, żeby
   nie zniknąć. `--mg-color-field-border` zostaje dla kontrolek, które same o
   nią proszą.
+- `.mg-v2-glyph--cloud` (2026-10-25) zastępuje `--pencil`: glif priorytetu to
+  uniesiona chmura (papier + `raised-sm`) nad płaską tablicą obszaru; `--empty`
+  = wyblakła chmura „+”. `.mg-v2-icon-ghost` — pusty dysk ikony w nagłówku
+  karty (`IconPicker ghost-when-empty`): wyblakły „+”, pełny na hover karty.
+  `.mg-v2-card-indent` — rzędy pod tytułem karty zaczynają się tam, gdzie
+  tekst tytułu (dysk 2,75 rem + odstęp).

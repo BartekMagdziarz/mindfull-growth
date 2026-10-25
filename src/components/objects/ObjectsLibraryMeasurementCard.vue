@@ -8,6 +8,7 @@
           :model-value="item.icon"
           compact
           minimal
+          ghost-when-empty
           :allow-clear="true"
           :aria-label="panelType === 'habit' ? 'Habit icon' : 'Tracker icon'"
           @update:model-value="emitFieldChange('icon', $event)"
@@ -89,7 +90,7 @@
 
       <!-- Affiliation glyphs (priorities · life areas) on the left, the
            periods line on the right of the same row; both click to edit. -->
-      <div class="relative flex items-center justify-between gap-3 px-1">
+      <div class="mg-v2-card-indent relative flex items-center justify-between gap-3">
         <ObjectCardAffiliation
           :priority-ids="item.priorityIds ?? []"
           :life-area-ids="item.lifeAreaIds ?? []"

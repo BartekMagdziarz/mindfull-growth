@@ -4,7 +4,7 @@
       v-for="glyph in visiblePriorities"
       :key="glyph.key"
       type="button"
-      class="mg-v2-glyph mg-v2-glyph--pencil"
+      class="mg-v2-glyph mg-v2-glyph--cloud"
       :aria-label="glyph.label"
       @click.stop="$emit('open', 'priority')"
     >
@@ -29,7 +29,7 @@
     <button
       v-if="overflow.length > 0"
       type="button"
-      class="mg-v2-glyph mg-v2-glyph--pencil"
+      class="mg-v2-glyph mg-v2-glyph--cloud"
       :aria-label="overflow.map(glyph => glyph.label).join(', ')"
       @click.stop="$emit('open', null)"
     >
@@ -40,7 +40,7 @@
     <button
       v-if="visibleGlyphs.length === 0 && overflow.length === 0 && emptyLabel"
       type="button"
-      class="mg-v2-glyph mg-v2-glyph--pencil mg-v2-glyph--empty"
+      class="mg-v2-glyph mg-v2-glyph--cloud mg-v2-glyph--empty"
       :aria-label="emptyLabel"
       @click.stop="$emit('open', null)"
     >

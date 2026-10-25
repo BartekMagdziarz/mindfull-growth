@@ -128,9 +128,14 @@ test.describe('multi-completion', () => {
     await card.hover()
     await card.getByRole('button', { name: 'Pokaż szczegóły' }).click()
 
-    // Items editor: three rows and a ghost row for the next item.
-    await expect(card.locator('input[placeholder="Nazwa elementu"]')).toHaveCount(3)
+    // Items editor: three tiles and a ghost tile for the next item; a tile
+    // opens the single edit strip under the grid.
+    await expect(card.getByTestId('multi-item')).toHaveCount(3)
     await expect(card.getByRole('button', { name: 'Dodaj element' })).toBeVisible()
+    await card.getByRole('button', { name: 'Medytacja' }).click()
+    await expect(card.getByTestId('multi-item-editor').getByRole('textbox')).toHaveValue(
+      'Medytacja'
+    )
     // Explicit threshold 3 of 4 pts (weights are not all 1 → points suffix)
     // lives in the measurement sentence, not in the items editor.
     await expect(card.getByText('z 4 pkt', { exact: true })).toBeVisible()

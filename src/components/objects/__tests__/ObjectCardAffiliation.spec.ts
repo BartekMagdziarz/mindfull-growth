@@ -34,8 +34,8 @@ describe('ObjectCardAffiliation', () => {
       '2026 · Fitness',
       'Health',
     ])
-    expect(buttons[0]).toHaveClass('mg-v2-glyph--pencil')
-    expect(buttons[1]).not.toHaveClass('mg-v2-glyph--pencil')
+    expect(buttons[0]).toHaveClass('mg-v2-glyph--cloud')
+    expect(buttons[1]).not.toHaveClass('mg-v2-glyph--cloud')
 
     await fireEvent.click(buttons[1])
     expect(emitted().open).toEqual([['lifeArea']])
@@ -54,7 +54,7 @@ describe('ObjectCardAffiliation', () => {
     expect(buttons[3]).toHaveAttribute('aria-label', 'Work, Family, Growth')
   })
 
-  it('renders a dashed add glyph when empty and an empty label is given, nothing otherwise', () => {
+  it('renders a faded add glyph when empty and an empty label is given, nothing otherwise', () => {
     const { unmount } = renderRow({ emptyLabel: 'Add a link' })
     expect(screen.getByRole('button', { name: 'Add a link' })).toHaveClass('mg-v2-glyph--empty')
     unmount()

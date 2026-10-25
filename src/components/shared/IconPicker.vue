@@ -7,7 +7,16 @@
       :aria-label="ariaLabel ?? t('common.iconPicker.select')"
       @click="toggle"
     >
+      <span
+        v-if="ghostWhenEmpty && compact && minimal && !modelValue"
+        class="mg-v2-icon-ghost"
+        :class="ghostSizeClass"
+        aria-hidden="true"
+      >
+        <AppIcon name="add" class="text-sm" />
+      </span>
       <EntityIcon
+        v-else
         :icon="modelValue"
         :size="iconSize ?? (compact ? 'sm' : 'md')"
         :color="previewColor"
@@ -112,6 +121,8 @@ const props = withDefaults(
     compact?: boolean
     minimal?: boolean
     iconSize?: 'xs' | 'sm' | 'md' | 'lg'
+    /** Empty + compact + minimal: draw a faded "+" disc (card header) instead of the dot. */
+    ghostWhenEmpty?: boolean
     placeholder?: string
     ariaLabel?: string
     allowClear?: boolean
@@ -123,6 +134,7 @@ const props = withDefaults(
     compact: false,
     minimal: false,
     iconSize: undefined,
+    ghostWhenEmpty: false,
     placeholder: undefined,
     ariaLabel: undefined,
     allowClear: true,
@@ -163,6 +175,15 @@ const filteredOptions = computed(() => {
   return organicIcons.filter(icon =>
     normalizeIconSearch(`${icon.label} ${icon.id} ${icon.tags}`).includes(q)
   )
+})
+
+// Same footprint as the EntityIcon the ghost stands in for.
+const ghostSizeClass = computed(() => {
+  const size = props.iconSize ?? (props.compact ? 'sm' : 'md')
+  if (size === 'lg') return 'h-10 w-10'
+  if (size === 'md') return 'h-8 w-8'
+  if (size === 'xs') return 'h-5 w-5'
+  return 'h-6 w-6'
 })
 
 const triggerClass = computed(() => {
