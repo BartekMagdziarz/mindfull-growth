@@ -7,8 +7,9 @@
       :aria-label="ariaLabel ?? t('common.iconPicker.select')"
       @click="toggle"
     >
+      <slot v-if="!modelValue && $slots.empty" name="empty" />
       <span
-        v-if="ghostWhenEmpty && compact && minimal && !modelValue"
+        v-else-if="ghostWhenEmpty && compact && minimal && !modelValue"
         class="mg-v2-icon-ghost"
         :class="ghostSizeClass"
         aria-hidden="true"

@@ -161,8 +161,8 @@
 
           <!-- Checklist items (threshold lives in the sentence) -->
           <section v-if="item.entryMode === 'multi-completion'" class="mg-v2-group">
-            <p class="mg-v2-group__label">{{ t('planning.objects.form.multiItems.heading') }}</p>
             <MultiItemsEditor
+              :heading="t('planning.objects.form.multiItems.heading')"
               :items="item.multiItems ?? []"
               :threshold="item.multiDailyThreshold"
               @update:config="emitFieldChange('multiConfig', $event)"

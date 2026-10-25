@@ -199,3 +199,23 @@ nie rezerwuje miejsca na tackę; dodawanie = wyblakły kafelek. (2) Priorytet =
 Konsekwencje: e2e checklisty liczy kafelki (`data-testid="multi-item"`) i
 sprawdza pasek (`multi-item-editor`); kreskowane obrysy zostają tylko w
 stepperze i linii celu na wykresie. H3 (nazwy zamiast glifów) odłożone.
+
+## 2026-10-25 — Kafelki elementów edytowane w miejscu, przeciąganie
+
+Kontekst: po C user ocenił, że osobny pasek edycji pod siatką to zbędny
+komponent, strzałki ↑ ↓ są ciężkie, a wyblakły kafelek „Dodaj element”
+zabiera miejsce w siatce.
+Decyzja: kafelek sam jest edytorem — rząd 1: tablica ikony (`IconPicker` ze
+slotem `empty` = inicjał) i nazwa jako TEKST, który klik zamienia w
+`.mg-v2-inline-field` (ta sama geometria, nic nie skacze); rząd 2: waga „×n”
+jako małe pole (×1 wyblakłe, pełne na hover kafelka) i tacka hover
+(archiwum/usuń, 1.5 rem). Kolejność = przeciąganie myszką (natywny DnD;
+pole z fokusem blokuje chwyt, tekst nazwy i tacka nie). Dodawanie = cichy
+„+” w prawym górnym rogu grupy, widoczny na hover grupy / fokusie w środku
+(zawsze przy pustej liście); nowy kafelek otwiera się z zaznaczoną nazwą.
+Siatka `auto-fill minmax(8.5rem)` → 2 w rzędzie w karcie, więcej w szerszych
+gospodarzach. Zarchiwizowane: wyblakłe kafelki z „Przywróć” w tacce.
+Konsekwencje: `multi-item-editor` znika; e2e klika nazwę (role=button, exact)
+i przeciąga `dragTo` z pozycją na nazwie; `MultiItemsEditor` dostaje prop
+`heading` (etykieta grupy w rzędzie z „+”), gospodarze nie rysują już
+`.mg-v2-group__label` sami.

@@ -151,3 +151,14 @@ przed/po: `ideas/ux-audit-2026-10-25-object-cards/`.
   karty: rzędy pod tytułem wcięte do początku tekstu tytułu
   (`.mg-v2-card-indent`), pusty dysk ikony = `IconPicker ghost-when-empty`
   (`.mg-v2-icon-ghost`, wyblakły „+”, pełny na hover karty).
+- **Czwarta poprawka (edycja w kafelku):** pasek edycji i strzałki znikają.
+  Kafelek (`MultiItemsEditor`, siatka `auto-fill minmax(8.5rem)` = 2 w rzędzie
+  w karcie) edytuje się w miejscu: ikona = `IconPicker` (slot `empty` rysuje
+  inicjał), nazwa = tekst, klik → `.mg-v2-inline-field` (Enter zatwierdza,
+  Esc cofa), waga = małe pole „×n” w drugim rzędzie (×1 wyblakłe do hover),
+  tacka hover z archiwum/usuń (zarchiwizowane: „Przywróć”). Kolejność —
+  przeciąganie kafelka myszką (chwyt za nazwę, tablicę lub tło; pole z
+  fokusem nie przeciąga). Dodawanie — cichy „+” w prawym górnym rogu grupy
+  „Elementy” (prop `heading`), widoczny na hover grupy; nowy kafelek otwiera
+  nazwę zaznaczoną. Zrzuty:
+  `ideas/ux-audit-2026-10-25-object-cards/after-tiles-inplace/`.

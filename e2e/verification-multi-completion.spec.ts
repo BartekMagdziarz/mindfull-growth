@@ -88,7 +88,7 @@ test.describe('multi-completion', () => {
     }
 
     // Toggle one item on and off again (entry create → delete round-trip).
-    const training = row.getByRole('button', { name: 'Trening' })
+    const training = row.getByRole('button', { name: 'Trening', exact: true })
     await training.click()
     await expect(training).toHaveAttribute('aria-pressed', 'true', { timeout: 15_000 })
     await training.click()
@@ -128,14 +128,24 @@ test.describe('multi-completion', () => {
     await card.hover()
     await card.getByRole('button', { name: 'Pokaż szczegóły' }).click()
 
-    // Items editor: three tiles and a ghost tile for the next item; a tile
-    // opens the single edit strip under the grid.
-    await expect(card.getByTestId('multi-item')).toHaveCount(3)
-    await expect(card.getByRole('button', { name: 'Dodaj element' })).toBeVisible()
-    await card.getByRole('button', { name: 'Medytacja' }).click()
-    await expect(card.getByTestId('multi-item-editor').getByRole('textbox')).toHaveValue(
-      'Medytacja'
-    )
+    // Items editor: three tiles edited in place (name field in the tile), a
+    // quiet "+" in the corner of the field, tiles reordered by dragging.
+    const tiles = card.getByTestId('multi-item')
+    await expect(tiles).toHaveCount(3)
+    await expect(card.getByRole('button', { name: 'Dodaj element' })).toBeAttached()
+    await expect(card.getByRole('spinbutton', { name: 'Waga: Trening' })).toHaveValue('2')
+    await card.getByRole('button', { name: 'Medytacja', exact: true }).click()
+    await expect(card.getByRole('textbox', { name: 'Nazwa: Medytacja' })).toHaveValue('Medytacja')
+    await page.keyboard.press('Escape')
+    // Drag by the name (text at rest), third tile onto the first.
+    await tiles.nth(2).dragTo(tiles.nth(0), {
+      sourcePosition: { x: 80, y: 14 },
+      targetPosition: { x: 80, y: 14 },
+    })
+    await expect(tiles.nth(0).getByRole('button', { name: 'Trening', exact: true })).toBeVisible()
+    await expect(
+      tiles.nth(1).getByRole('button', { name: 'Pobudka 6:00', exact: true })
+    ).toBeVisible()
     // Explicit threshold 3 of 4 pts (weights are not all 1 → points suffix)
     // lives in the measurement sentence, not in the items editor.
     await expect(card.getByText('z 4 pkt', { exact: true })).toBeVisible()

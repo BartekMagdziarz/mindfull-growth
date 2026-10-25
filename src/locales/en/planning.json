@@ -958,6 +958,8 @@
         "progressItems": "{n} of {max} items",
         "progressPoints": "{n} / {max} pts",
         "weightAria": "Weight: {label}",
+        "nameAria": "Name: {label}",
+        "iconAria": "Icon: {label}",
         "archivedCount": {
           "one": "{n} archived",
           "few": "{n} archived",
