@@ -133,7 +133,9 @@ const valueAttrs = computed(() => {
 // threshold clause before it says what a day needs), "na 5" for a rating
 // whose scale is not edited in place.
 const valueUnit = computed(() => {
-  if (props.entryMode === 'completion') return s('timesUnit')
+  if (props.entryMode === 'completion') {
+    return s(props.target?.value === 1 ? 'timesUnitOne' : 'timesUnit')
+  }
   if (props.entryMode === 'multi-completion')
     return props.multi ? s('entryDaysUnit') : s('metDaysUnit')
   if (props.entryMode === 'rating' && !props.editableScale) {

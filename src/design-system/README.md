@@ -166,6 +166,11 @@ gramatykę dla korzeni poza `#app`.
   pole papierowe na papierowej grupie dostaje `--mg-color-border-subtle`, żeby
   nie zniknąć. `--mg-color-field-border` zostaje dla kontrolek, które same o
   nią proszą.
+- `ReflectionProse` (2026-10-26) — odpowiedź refleksji jako proza: cicha
+  etykieta zdaniowa + akapit, hover = papier, klik = ten sam blok jako
+  `.mg-v2-editor-canvas` z textarea tych samych metryk; puste odpowiedzi
+  zwijają się u gospodarza do linii „Dopisz: …”. Używaj zamiast textarea z
+  nagłówkiem wersalikami w kartach.
 - Glify przynależności (`.mg-v2-glyph*`, w tym `--cloud`/`--empty`) usunięte
   2026-10-25 po ocenie usera („pusty rząd”); przynależność to linia tekstu
   (`ObjectCardMetaLine`). `.mg-v2-icon-ghost` — pusty dysk ikony w nagłówku

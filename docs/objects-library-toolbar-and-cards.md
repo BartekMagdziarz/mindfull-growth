@@ -171,3 +171,11 @@ przed/po: `ideas/ux-audit-2026-10-25-object-cards/`.
   edytor powiązań. Kafelki: 3 w rzędzie, jeden rząd, „×2” w tekście tylko gdy
   waga ≠ 1; hover = plakietka nad prawym górnym rogiem z „×1” (klik edytuje) i
   archiwum. Zrzuty: `ideas/ux-audit-2026-10-25-object-cards/after-meta-line/`.
+- **P3 (2026-10-26, priorytet + intencja):** pięć pól refleksji priorytetu =
+  `ReflectionProse` (akapit z cichą etykietą; klik → `.mg-v2-editor-canvas`
+  z textarea tych samych metryk; puste → linia „Dopisz: …”), zamknięcie w
+  grupie „Zamknięcie”, kafle liczb → linia „2 cele · 5 nawyków …”. Intencja
+  czyta się jak nawyk: tytuł inline, `ObjectCardMetaLine` (tydzień ·
+  priorytety, klik = dropdown priorytetów), zdanie w grupie, checklista,
+  cicha para Zapisz/Anuluj. Zrzuty:
+  `ideas/ux-audit-2026-10-25-object-cards/after-p3/`.

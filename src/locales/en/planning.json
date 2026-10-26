@@ -927,6 +927,20 @@
       "tradeoffs": "Tradeoffs",
       "progressSignals": "Progress signals",
       "riskSignals": "Risk signals",
+      "closingHeading": "Closing",
+      "addProse": "Add:",
+      "proseGhost": {
+        "whyNow": "why now",
+        "desiredDirection": "direction",
+        "tradeoffs": "tradeoffs",
+        "progressSignals": "progress signals",
+        "riskSignals": "risk signals",
+        "closedAt": "closing date",
+        "closingSummary": "summary",
+        "workedWell": "what worked",
+        "wasDifficult": "what was hard",
+        "learned": "lessons"
+      },
       "closedAt": "Closed at",
       "closingSummary": "Closing summary",
       "workedWell": "What worked well",
@@ -987,6 +1001,7 @@
       "perWeek": "per week",
       "perMonth": "per month",
       "timesUnit": "times",
+      "timesUnitOne": "time",
       "ratingOutOf": "out of {max}",
       "entryDaysAnd": "and log",
       "entryDaysUnit": "days",
@@ -1025,6 +1040,12 @@
       "noActivePeriods": "No active periods",
       "zoomOut": "Show trend",
       "zoomIn": "Show details"
+    },
+    "linkedCounts": {
+      "goals": { "one": "{n} goal", "few": "{n} goals", "many": "{n} goals" },
+      "habits": { "one": "{n} habit", "few": "{n} habits", "many": "{n} habits" },
+      "trackers": { "one": "{n} tracker", "few": "{n} trackers", "many": "{n} trackers" },
+      "intentions": { "one": "{n} intention", "few": "{n} intentions", "many": "{n} intentions" }
     },
     "periodsLine": {
       "chooseWeeks": "Choose weeks",

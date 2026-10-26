@@ -117,7 +117,7 @@ export function formatMeasurementSentence(input: MeasurementSentenceInput, t: Tr
     case 'count': {
       const unit =
         entryMode === 'completion'
-          ? ` ${s('timesUnit')}`
+          ? ` ${s(target.value === 1 ? 'timesUnitOne' : 'timesUnit')}`
           : entryMode === 'multi-completion'
             ? ` ${s('entryDaysUnit')}`
             : ''

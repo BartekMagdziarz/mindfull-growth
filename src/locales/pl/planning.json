@@ -927,6 +927,20 @@
       "tradeoffs": "Świadome kompromisy",
       "progressSignals": "Sygnały postępu",
       "riskSignals": "Sygnały ryzyka",
+      "closingHeading": "Zamknięcie",
+      "addProse": "Dopisz:",
+      "proseGhost": {
+        "whyNow": "dlaczego teraz",
+        "desiredDirection": "kierunek",
+        "tradeoffs": "kompromisy",
+        "progressSignals": "sygnały postępu",
+        "riskSignals": "sygnały ryzyka",
+        "closedAt": "data zamknięcia",
+        "closingSummary": "podsumowanie",
+        "workedWell": "co działało",
+        "wasDifficult": "co było trudne",
+        "learned": "wnioski"
+      },
       "closedAt": "Data zamknięcia",
       "closingSummary": "Podsumowanie zamknięcia",
       "workedWell": "Co działało dobrze",
@@ -987,6 +1001,7 @@
       "perWeek": "w tygodniu",
       "perMonth": "w miesiącu",
       "timesUnit": "razy",
+      "timesUnitOne": "raz",
       "ratingOutOf": "na {max}",
       "entryDaysAnd": "i loguj",
       "entryDaysUnit": "dni",
@@ -1025,6 +1040,12 @@
       "noActivePeriods": "Brak aktywnych okresów",
       "zoomOut": "Pokaż trend",
       "zoomIn": "Pokaż szczegóły"
+    },
+    "linkedCounts": {
+      "goals": { "one": "{n} cel", "few": "{n} cele", "many": "{n} celów" },
+      "habits": { "one": "{n} nawyk", "few": "{n} nawyki", "many": "{n} nawyków" },
+      "trackers": { "one": "{n} tracker", "few": "{n} trackery", "many": "{n} trackerów" },
+      "intentions": { "one": "{n} intencja", "few": "{n} intencje", "many": "{n} intencji" }
     },
     "periodsLine": {
       "chooseWeeks": "Wybierz tygodnie",

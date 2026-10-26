@@ -47,6 +47,7 @@
         <AppIcon name="chevron_right" class="text-xs text-on-surface-variant" />
       </button>
       <button
+        v-if="lifeAreaOptions.length > 0 || lifeAreaIds.length > 0"
         type="button"
         class="flex w-full items-center justify-between px-3 py-2 text-left text-xs font-medium text-on-surface hover:bg-primary-soft/30"
         @mouseenter="activeCategory = 'lifeArea'"

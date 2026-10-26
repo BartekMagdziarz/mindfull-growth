@@ -1,100 +1,150 @@
 <template>
+  <!--
+    An intention reads like a habit: icon · title, one meta line (the week,
+    the linked priorities), the measurement sentence. Editing happens in the
+    same places — the title becomes an inline field, the sentence its pills,
+    the checklist its tiles — and ends with a quiet Save / Cancel pair, since
+    an intention's draft is confirmed explicitly (the one card that is).
+  -->
   <article class="group/card mg-v2-surface mg-v2-surface--raised-sm p-4">
-    <!-- Edit mode -->
-    <div v-if="editing" class="space-y-3">
-      <input
-        ref="titleInputRef"
-        v-model="draftTitle"
-        type="text"
-        class="mg-v2-inline-field w-full text-sm font-bold"
-        :placeholder="t('planning.weekPlanning.intentions.titlePlaceholder')"
-        :aria-label="t('planning.weekPlanning.intentions.titleLabel')"
-        @keydown.enter.prevent="saveEdit"
-      />
-      <MeasurementTargetSentence
-        :entry-mode="draftEntryMode"
-        :target="draftTarget"
-        :multi="draftMultiFacts"
-        cadence="weekly"
-        @update:measurement="onMeasurement"
-        @update:threshold="draftMultiDailyThreshold = $event"
-      />
-      <MultiItemsEditor
-        v-if="draftEntryMode === 'multi-completion'"
-        :items="draftMultiItems"
-        :threshold="draftMultiDailyThreshold"
-        @update:config="onMultiConfig"
-      />
-      <PriorityLinkPicker
-        v-if="pickerOptions.length > 0"
-        :options="pickerOptions"
-        :model-value="draftPriorityIds"
-        @update:model-value="draftPriorityIds = $event"
-      />
-      <div class="flex justify-end gap-2">
-        <AppButton variant="text" @click="cancelEdit">{{ t('common.buttons.cancel') }}</AppButton>
-        <AppButton variant="filled" :disabled="!canSave" @click="saveEdit">
-          {{ t('common.buttons.save') }}
-        </AppButton>
-      </div>
-    </div>
-
-    <!-- Display mode -->
-    <div v-else class="space-y-2">
+    <div class="space-y-2">
+      <!-- Row 1: icon + title + hover tray (edit, delete) -->
       <div class="flex items-center gap-2">
-        <EntityIcon :icon="item.icon" size="sm" />
-        <span class="min-w-0 flex-1 truncate text-sm font-semibold text-on-surface">
-          {{ item.title }}
+        <!-- The icon is not edited here: an intention without one shows a faded
+             intention glyph in the ghost grammar instead of an empty disc. -->
+        <span class="inline-flex shrink-0 p-0.5">
+          <EntityIcon v-if="item.icon" :icon="item.icon" size="lg" />
+          <span v-else class="mg-v2-icon-ghost h-10 w-10" aria-hidden="true">
+            <AppIcon name="intention" class="text-sm" />
+          </span>
         </span>
+        <input
+          v-if="editing"
+          ref="titleInputRef"
+          v-model="draftTitle"
+          type="text"
+          class="mg-v2-inline-field min-w-0 flex-1 text-sm font-bold"
+          :placeholder="t('planning.weekPlanning.intentions.titlePlaceholder')"
+          :aria-label="t('planning.weekPlanning.intentions.titleLabel')"
+          @keydown.enter.prevent="saveEdit"
+          @keydown.escape.prevent="cancelEdit"
+        />
+        <button
+          v-else
+          type="button"
+          class="mg-v2-inline-field min-w-0 flex-1 truncate text-left text-sm font-bold"
+          :title="t('planning.weekPlanning.intentions.edit')"
+          @click="startEdit"
+        >
+          {{ item.title }}
+        </button>
         <div class="mg-v2-card-tray group-hover/card:opacity-100">
           <button
+            v-if="!editing"
             type="button"
-            class="mg-v2-button mg-v2-button--icon card-icon-sm"
+            class="mg-v2-button mg-v2-button--icon mg-v2-button--icon-sm mg-v2-button--quiet shrink-0"
             :title="t('planning.weekPlanning.intentions.edit')"
             :aria-label="t('planning.weekPlanning.intentions.edit')"
             @click="startEdit"
           >
-            <AppIcon name="edit" class="text-sm" />
+            <AppIcon name="edit" class="text-base" />
           </button>
           <button
             type="button"
-            class="mg-v2-button mg-v2-button--icon mg-v2-button--danger card-icon-sm"
+            class="mg-v2-button mg-v2-button--icon mg-v2-button--icon-sm mg-v2-button--quiet shrink-0"
             :title="t('planning.weekPlanning.intentions.delete')"
             :aria-label="t('planning.weekPlanning.intentions.delete')"
             @click="emit('delete', item.id, item.title)"
           >
-            <AppIcon name="delete" class="text-sm" />
+            <AppIcon name="delete" class="text-base" />
           </button>
         </div>
       </div>
 
-      <!-- Quiet facts: status (only when not open), week, mode, target -->
-      <p class="mg-v2-meta">
-        <span v-if="item.status !== 'open'" class="mg-v2-meta__status">
+      <!-- Row 2: the week · linked priorities by name (click edits the links) -->
+      <div class="mg-v2-card-indent relative">
+        <ObjectCardMetaLine
+          :periods="item.weekRef ? [item.weekRef] : []"
+          cadence="weekly"
+          :priority-ids="editing ? draftPriorityIds : (item.priorityIds ?? [])"
+          :priority-options="priorityOptions"
+          :empty-links-label="
+            priorityOptions.length > 0 ? t('planning.objects.timeline.addLink') : undefined
+          "
+          @open-links="openLinks"
+        />
+        <GoalLinksDropdown
+          v-if="editing"
+          ref="linksRef"
+          triggerless
+          :priority-ids="draftPriorityIds"
+          :life-area-ids="[]"
+          :priority-options="priorityOptions"
+          :life-area-options="[]"
+          @toggle-priority="togglePriority"
+        />
+      </div>
+
+      <!-- Row 3: status only when it is not the default -->
+      <p v-if="item.status !== 'open'" class="mg-v2-meta mg-v2-card-indent">
+        <span class="mg-v2-meta__status">
           {{ t(`planning.objects.badges.status.${item.status}`) }}
         </span>
-        <span v-if="weekChipLabel">{{ weekChipLabel }}</span>
-        <span>{{ modeLabel }}</span>
-        <span v-if="targetSummary" class="min-w-0 truncate">{{ targetSummary }}</span>
       </p>
 
-      <p v-if="linkedPriorityLabels.length > 0" class="mg-v2-meta">
-        <span v-for="label in linkedPriorityLabels" :key="label" class="min-w-0 truncate">
-          {{ label }}
-        </span>
-      </p>
+      <!-- The sentence: read as quiet facts, edited as pills in the same place -->
+      <section v-if="editing" class="mg-v2-group">
+        <MeasurementTargetSentence
+          :entry-mode="draftEntryMode"
+          :target="draftTarget"
+          :multi="draftMultiFacts"
+          cadence="weekly"
+          @update:measurement="onMeasurement"
+          @update:threshold="draftMultiDailyThreshold = $event"
+        />
+      </section>
+      <section v-else-if="targetSummary" class="mg-v2-group">
+        <p class="mg-v2-meta">
+          <span>{{ targetSummary }}</span>
+        </p>
+      </section>
+
+      <!-- Checklist items while editing -->
+      <section v-if="editing && draftEntryMode === 'multi-completion'" class="mg-v2-group">
+        <MultiItemsEditor
+          :heading="t('planning.objects.form.multiItems.heading')"
+          :items="draftMultiItems"
+          :threshold="draftMultiDailyThreshold"
+          @update:config="onMultiConfig"
+        />
+      </section>
+
+      <!-- The draft is confirmed explicitly: a quiet pair right after the content -->
+      <div v-if="editing" class="mg-v2-card-indent flex items-center gap-2">
+        <button
+          type="button"
+          class="mg-v2-button mg-v2-button--primary"
+          :disabled="!canSave"
+          @click="saveEdit"
+        >
+          {{ t('common.buttons.save') }}
+        </button>
+        <button type="button" class="mg-v2-button mg-v2-button--quiet" @click="cancelEdit">
+          {{ t('common.buttons.cancel') }}
+        </button>
+      </div>
     </div>
   </article>
 </template>
 
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
-import AppButton from '@/components/AppButton.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import EntityIcon from '@/components/shared/EntityIcon.vue'
+import GoalLinksDropdown from '@/components/objects/GoalLinksDropdown.vue'
 import MeasurementTargetSentence from '@/components/objects/MeasurementTargetSentence.vue'
 import MultiItemsEditor from '@/components/objects/MultiItemsEditor.vue'
-import PriorityLinkPicker from '@/components/calendar/PriorityLinkPicker.vue'
+import ObjectCardMetaLine from '@/components/objects/ObjectCardMetaLine.vue'
 import { useT } from '@/composables/useT'
 import type {
   MeasurementEntryMode,
@@ -106,8 +156,6 @@ import type {
   ObjectsLibraryListItem,
 } from '@/services/objectsLibraryQueries'
 import { checklistSentenceFacts, formatMeasurementSentence } from '@/utils/measurementTargetFormat'
-import { formatDayRange } from '@/utils/periodLabels'
-import { getPeriodBounds } from '@/utils/periods'
 
 const props = defineProps<{
   item: ObjectsLibraryListItem
@@ -130,20 +178,8 @@ const emit = defineEmits<{
   delete: [id: string, title: string]
 }>()
 
-const { t, locale } = useT()
+const { t } = useT()
 
-const weekChipLabel = computed(() => {
-  const weekRef = props.item.weekRef
-  if (!weekRef) {
-    return ''
-  }
-  const bounds = getPeriodBounds(weekRef)
-  return `${weekRef} · ${formatDayRange(bounds.start, locale.value)} – ${formatDayRange(bounds.end, locale.value)}`
-})
-
-const modeLabel = computed(() =>
-  t(`planning.objects.targetSentence.mode.${props.item.entryMode ?? 'completion'}`)
-)
 const targetSummary = computed(() =>
   props.item.target
     ? formatMeasurementSentence(
@@ -162,18 +198,10 @@ const targetSummary = computed(() =>
     : ''
 )
 
-const pickerOptions = computed(() =>
-  props.priorityOptions.map(option => ({ id: option.id, title: option.label }))
-)
-const linkedPriorityLabels = computed(() =>
-  (props.item.priorityIds ?? [])
-    .map(id => props.priorityOptions.find(option => option.id === id)?.label)
-    .filter((label): label is string => Boolean(label))
-)
-
 // Inline edit — local draft committed on save (mirrors WeekPlanObjectCard).
 const editing = ref(false)
 const titleInputRef = ref<HTMLInputElement | null>(null)
+const linksRef = ref<InstanceType<typeof GoalLinksDropdown> | null>(null)
 const draftTitle = ref('')
 const draftEntryMode = ref<MeasurementEntryMode>('completion')
 const draftTarget = ref<MeasurementTarget>({ kind: 'count', operator: 'min', value: 1 })
@@ -188,6 +216,7 @@ const draftMultiFacts = computed(() =>
 )
 
 function startEdit(): void {
+  if (editing.value) return
   draftTitle.value = props.item.title
   draftEntryMode.value = props.item.entryMode ?? 'completion'
   draftTarget.value = props.item.target ?? { kind: 'count', operator: 'min', value: 1 }
@@ -220,6 +249,19 @@ function saveEdit(): void {
   editing.value = false
 }
 
+// The links picker lives in the draft: opening it from a read card starts
+// the edit first, so the choice is saved with the rest.
+function openLinks(): void {
+  startEdit()
+  void nextTick(() => linksRef.value?.openAt('priority'))
+}
+
+function togglePriority(id: string): void {
+  draftPriorityIds.value = draftPriorityIds.value.includes(id)
+    ? draftPriorityIds.value.filter(current => current !== id)
+    : [...draftPriorityIds.value, id]
+}
+
 function onMeasurement(measurement: {
   entryMode: MeasurementEntryMode
   target: MeasurementTarget
@@ -246,10 +288,3 @@ watch(
   { immediate: true }
 )
 </script>
-
-<style scoped>
-.card-icon-sm {
-  width: 1.75rem;
-  min-height: 1.75rem;
-}
-</style>

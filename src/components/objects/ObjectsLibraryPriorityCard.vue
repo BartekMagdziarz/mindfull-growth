@@ -145,157 +145,62 @@
         />
       </div>
 
-      <label class="mg-v2-field-wrap gap-1">
-        <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{
-          t('planning.objects.form.whyNow')
-        }}</span>
-        <textarea
-          ref="whyNowRef"
-          v-model="whyNow"
-          rows="4"
-          class="mg-v2-field !min-h-[7rem] w-full resize-y text-xs leading-relaxed"
-          @blur="flushWhyNow"
-        />
-      </label>
-
-      <label class="mg-v2-field-wrap gap-1">
-        <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{
-          t('planning.objects.form.desiredDirection')
-        }}</span>
-        <textarea
-          ref="desiredDirectionRef"
-          v-model="desiredDirection"
-          rows="4"
-          class="mg-v2-field !min-h-[7rem] w-full resize-y text-xs leading-relaxed"
-          @blur="flushDesiredDirection"
-        />
-      </label>
-
-      <label class="mg-v2-field-wrap gap-1">
-        <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{
-          t('planning.objects.form.tradeoffs')
-        }}</span>
-        <textarea
-          ref="tradeoffsRef"
-          v-model="tradeoffs"
-          rows="4"
-          class="mg-v2-field !min-h-[7rem] w-full resize-y text-xs leading-relaxed"
-          @blur="flushTradeoffs"
-        />
-      </label>
-
-      <label class="mg-v2-field-wrap gap-1">
-        <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{
-          t('planning.objects.form.progressSignals')
-        }}</span>
-        <textarea
-          ref="progressSignalsRef"
-          v-model="progressSignals"
-          rows="4"
-          class="mg-v2-field !min-h-[7rem] w-full resize-y text-xs leading-relaxed"
-          @change="flushProgressSignals"
-          @blur="flushProgressSignals"
-        />
-      </label>
-
-      <label class="mg-v2-field-wrap gap-1">
-        <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{
-          t('planning.objects.form.riskSignals')
-        }}</span>
-        <textarea
-          ref="riskSignalsRef"
-          v-model="riskSignals"
-          rows="4"
-          class="mg-v2-field !min-h-[7rem] w-full resize-y text-xs leading-relaxed"
-          @change="flushRiskSignals"
-          @blur="flushRiskSignals"
-        />
-      </label>
-
-      <section
-        v-if="item.status === 'closed'"
-        class="mg-v2-surface mg-v2-surface--flat space-y-2 p-2.5"
-      >
-        <label class="mg-v2-field-wrap gap-1">
-          <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{
-            t('planning.objects.form.closedAt')
-          }}</span>
-          <input
-            ref="closedAtRef"
-            v-model="closedAt"
-            type="text"
-            class="mg-v2-field w-full text-xs"
-            @change="flushClosedAt"
-            @blur="flushClosedAt"
+      <!-- Reflection as prose: filled answers are paragraphs (click = edit);
+           empty ones fold into one "Dopisz:" line whose words open a block. -->
+      <section class="prose-list">
+        <template v-for="key in PROSE_KEYS" :key="key">
+          <ReflectionProse
+            v-if="isProseShown(key)"
+            :ref="el => setProseEl(key, el)"
+            v-model="prose[key].value"
+            :label="t(`planning.objects.form.${key}`)"
+            :autofocus="openedProse.has(key)"
+            @blur="onProseBlur(key)"
           />
-        </label>
-        <label class="mg-v2-field-wrap gap-1">
-          <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{
-            t('planning.objects.form.closingSummary')
-          }}</span>
-          <textarea
-            ref="closingSummaryRef"
-            v-model="closingSummary"
-            rows="2"
-            class="mg-v2-field !min-h-[4.25rem] w-full resize-none text-xs leading-relaxed"
-            @blur="flushClosingSummary"
-          />
-        </label>
-        <div class="grid gap-2 sm:grid-cols-3">
-          <label class="mg-v2-field-wrap gap-1">
-            <span
-              class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant"
-              >{{ t('planning.objects.form.workedWell') }}</span
-            >
-            <textarea
-              ref="workedWellRef"
-              v-model="workedWell"
-              rows="3"
-              class="mg-v2-field !min-h-[5.5rem] w-full resize-none text-xs leading-relaxed"
-              @blur="flushWorkedWell"
-            />
-          </label>
-          <label class="mg-v2-field-wrap gap-1">
-            <span
-              class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant"
-              >{{ t('planning.objects.form.wasDifficult') }}</span
-            >
-            <textarea
-              ref="wasDifficultRef"
-              v-model="wasDifficult"
-              rows="3"
-              class="mg-v2-field !min-h-[5.5rem] w-full resize-none text-xs leading-relaxed"
-              @blur="flushWasDifficult"
-            />
-          </label>
-          <label class="mg-v2-field-wrap gap-1">
-            <span
-              class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant"
-              >{{ t('planning.objects.form.learned') }}</span
-            >
-            <textarea
-              ref="learnedRef"
-              v-model="learned"
-              rows="3"
-              class="mg-v2-field !min-h-[5.5rem] w-full resize-none text-xs leading-relaxed"
-              @blur="flushLearned"
-            />
-          </label>
-        </div>
+        </template>
+        <p v-if="emptyProseKeys.length > 0" class="mg-v2-meta prose-add">
+          <span class="prose-add__row">
+            <span>{{ t('planning.objects.form.addProse') }}</span>
+            <template v-for="(key, index) in emptyProseKeys" :key="key">
+              <span v-if="index > 0" class="prose-add__sep" aria-hidden="true">·</span>
+              <button type="button" class="prose-add__word" @click="openProse(key)">
+                {{ t(`planning.objects.form.proseGhost.${key}`) }}
+              </button>
+            </template>
+          </span>
+        </p>
       </section>
 
-      <div v-if="item.linkedCounts" class="grid grid-cols-4 gap-1.5">
-        <div
-          v-for="metric in linkedMetrics"
-          :key="metric.label"
-          class="mg-v2-surface mg-v2-surface--flat px-2 py-1.5 text-center"
-        >
-          <div class="text-sm font-semibold tabular-nums text-on-surface">{{ metric.value }}</div>
-          <div class="truncate text-[9px] font-medium uppercase text-on-surface-variant">
-            {{ metric.label }}
-          </div>
-        </div>
-      </div>
+      <!-- Closed priority: the closing reflection in the same prose grammar -->
+      <section v-if="item.status === 'closed'" class="mg-v2-group">
+        <p class="mg-v2-group__label">{{ t('planning.objects.form.closingHeading') }}</p>
+        <template v-for="key in CLOSING_KEYS" :key="key">
+          <ReflectionProse
+            v-if="isProseShown(key)"
+            :ref="el => setProseEl(key, el)"
+            v-model="prose[key].value"
+            :label="t(`planning.objects.form.${key}`)"
+            :autofocus="openedProse.has(key)"
+            @blur="onProseBlur(key)"
+          />
+        </template>
+        <p v-if="emptyClosingKeys.length > 0" class="mg-v2-meta prose-add">
+          <span class="prose-add__row">
+            <span>{{ t('planning.objects.form.addProse') }}</span>
+            <template v-for="(key, index) in emptyClosingKeys" :key="key">
+              <span v-if="index > 0" class="prose-add__sep" aria-hidden="true">·</span>
+              <button type="button" class="prose-add__word" @click="openProse(key)">
+                {{ t(`planning.objects.form.proseGhost.${key}`) }}
+              </button>
+            </template>
+          </span>
+        </p>
+      </section>
+
+      <!-- What hangs on this priority: one quiet line, no number tiles -->
+      <p v-if="linkedCountsLine.length > 0" class="mg-v2-meta mg-v2-card-indent">
+        <span v-for="part in linkedCountsLine" :key="part">{{ part }}</span>
+      </p>
 
       <PriorityDraftChecklist
         :priority-id="item.id"
@@ -308,7 +213,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import IconPicker from '@/components/shared/IconPicker.vue'
 import ObjectsCardStatusMenu from '@/components/objects/ObjectsCardStatusMenu.vue'
@@ -316,6 +221,7 @@ import PriorityDraftChecklist from '@/components/objects/priority-creator/Priori
 import PriorityYearsDropdown from '@/components/objects/PriorityYearsDropdown.vue'
 import ObjectCardMetaLine from '@/components/objects/ObjectCardMetaLine.vue'
 import ObjectCardTimeline from '@/components/objects/ObjectCardTimeline.vue'
+import ReflectionProse from '@/components/objects/ReflectionProse.vue'
 import { computeYearsWindow } from '@/utils/objectWindow'
 import type { YearRef } from '@/domain/period'
 import type { LinkedYear } from '@/components/objects/PriorityYearsDropdown.vue'
@@ -344,7 +250,7 @@ const emit = defineEmits<{
   'drafts-error': [message: string]
 }>()
 
-const { t } = useT()
+const { t, tp } = useT()
 
 function emitFieldChange(field: string, value: unknown): void {
   emit('field-change', props.item.id, field, value)
@@ -367,104 +273,119 @@ const {
   delay: TITLE_DELAY_MS,
 })
 
-const {
-  value: whyNow,
-  inputRef: whyNowRef,
-  flush: flushWhyNow,
-} = useEditableField({
-  source: () => props.item.whyNow,
-  commit: value => emitFieldChange('whyNow', value),
-  delay: TEXT_DELAY_MS,
+// Each reflection answer is a ReflectionProse with its own debounced
+// autosave; the prose block reports whether it is being edited, so an
+// external update never overwrites text the user is typing.
+type ReflectionProseInstance = InstanceType<typeof ReflectionProse>
+
+function proseField<TStored = string>(options: {
+  source: () => TStored | undefined
+  commit: (value: string) => void
+  format?: (stored: TStored | undefined) => string
+  delay?: number
+}) {
+  const el = ref<ReflectionProseInstance | null>(null)
+  const field = useEditableField<TStored, string>({
+    ...options,
+    isFocused: () => el.value?.isEditing() ?? false,
+  })
+  return { value: field.value, flush: field.flush, el }
+}
+
+const PROSE_KEYS = [
+  'whyNow',
+  'desiredDirection',
+  'tradeoffs',
+  'progressSignals',
+  'riskSignals',
+] as const
+const CLOSING_KEYS = [
+  'closedAt',
+  'closingSummary',
+  'workedWell',
+  'wasDifficult',
+  'learned',
+] as const
+type ProseKey = (typeof PROSE_KEYS)[number] | (typeof CLOSING_KEYS)[number]
+
+const prose = reactive({
+  whyNow: proseField({
+    source: () => props.item.whyNow,
+    commit: value => emitFieldChange('whyNow', value),
+    delay: TEXT_DELAY_MS,
+  }),
+  desiredDirection: proseField({
+    source: () => props.item.desiredDirection,
+    commit: value => emitFieldChange('desiredDirection', value),
+    delay: TEXT_DELAY_MS,
+  }),
+  tradeoffs: proseField({
+    source: () => props.item.tradeoffs,
+    commit: value => emitFieldChange('tradeoffs', value),
+    delay: TEXT_DELAY_MS,
+  }),
+  progressSignals: proseField<string[]>({
+    source: () => props.item.progressSignals,
+    format: signalsToText,
+    commit: value => emitFieldChange('progressSignals', value),
+  }),
+  riskSignals: proseField<string[]>({
+    source: () => props.item.riskSignals,
+    format: signalsToText,
+    commit: value => emitFieldChange('riskSignals', value),
+  }),
+  closedAt: proseField({
+    source: () => props.item.closingReflection?.closedAt,
+    commit: value => emitFieldChange('closingReflection.closedAt', value),
+  }),
+  closingSummary: proseField({
+    source: () => props.item.closingReflection?.summary,
+    commit: value => emitFieldChange('closingReflection.summary', value),
+    delay: TEXT_DELAY_MS,
+  }),
+  workedWell: proseField({
+    source: () => props.item.closingReflection?.workedWell,
+    commit: value => emitFieldChange('closingReflection.workedWell', value),
+    delay: TEXT_DELAY_MS,
+  }),
+  wasDifficult: proseField({
+    source: () => props.item.closingReflection?.wasDifficult,
+    commit: value => emitFieldChange('closingReflection.wasDifficult', value),
+    delay: TEXT_DELAY_MS,
+  }),
+  learned: proseField({
+    source: () => props.item.closingReflection?.learned,
+    commit: value => emitFieldChange('closingReflection.learned', value),
+    delay: TEXT_DELAY_MS,
+  }),
 })
 
-const {
-  value: desiredDirection,
-  inputRef: desiredDirectionRef,
-  flush: flushDesiredDirection,
-} = useEditableField({
-  source: () => props.item.desiredDirection,
-  commit: value => emitFieldChange('desiredDirection', value),
-  delay: TEXT_DELAY_MS,
-})
+// Empty answers are folded into the "Dopisz:" line until a word opens them.
+const openedProse = ref(new Set<ProseKey>())
 
-const {
-  value: tradeoffs,
-  inputRef: tradeoffsRef,
-  flush: flushTradeoffs,
-} = useEditableField({
-  source: () => props.item.tradeoffs,
-  commit: value => emitFieldChange('tradeoffs', value),
-  delay: TEXT_DELAY_MS,
-})
+function isProseShown(key: ProseKey): boolean {
+  return prose[key].value.trim().length > 0 || openedProse.value.has(key)
+}
 
-const {
-  value: progressSignals,
-  inputRef: progressSignalsRef,
-  flush: flushProgressSignals,
-} = useEditableField<string[], string>({
-  source: () => props.item.progressSignals,
-  format: signalsToText,
-  commit: value => emitFieldChange('progressSignals', value),
-})
+const emptyProseKeys = computed(() => PROSE_KEYS.filter(key => !isProseShown(key)))
+const emptyClosingKeys = computed(() => CLOSING_KEYS.filter(key => !isProseShown(key)))
 
-const {
-  value: riskSignals,
-  inputRef: riskSignalsRef,
-  flush: flushRiskSignals,
-} = useEditableField<string[], string>({
-  source: () => props.item.riskSignals,
-  format: signalsToText,
-  commit: value => emitFieldChange('riskSignals', value),
-})
+function openProse(key: ProseKey): void {
+  openedProse.value = new Set([...openedProse.value, key])
+}
 
-const {
-  value: closedAt,
-  inputRef: closedAtRef,
-  flush: flushClosedAt,
-} = useEditableField({
-  source: () => props.item.closingReflection?.closedAt,
-  commit: value => emitFieldChange('closingReflection.closedAt', value),
-})
+function onProseBlur(key: ProseKey): void {
+  prose[key].flush()
+  if (prose[key].value.trim().length === 0) {
+    const next = new Set(openedProse.value)
+    next.delete(key)
+    openedProse.value = next
+  }
+}
 
-const {
-  value: closingSummary,
-  inputRef: closingSummaryRef,
-  flush: flushClosingSummary,
-} = useEditableField({
-  source: () => props.item.closingReflection?.summary,
-  commit: value => emitFieldChange('closingReflection.summary', value),
-  delay: TEXT_DELAY_MS,
-})
-
-const {
-  value: workedWell,
-  inputRef: workedWellRef,
-  flush: flushWorkedWell,
-} = useEditableField({
-  source: () => props.item.closingReflection?.workedWell,
-  commit: value => emitFieldChange('closingReflection.workedWell', value),
-  delay: TEXT_DELAY_MS,
-})
-
-const {
-  value: wasDifficult,
-  inputRef: wasDifficultRef,
-  flush: flushWasDifficult,
-} = useEditableField({
-  source: () => props.item.closingReflection?.wasDifficult,
-  commit: value => emitFieldChange('closingReflection.wasDifficult', value),
-  delay: TEXT_DELAY_MS,
-})
-
-const {
-  value: learned,
-  inputRef: learnedRef,
-  flush: flushLearned,
-} = useEditableField({
-  source: () => props.item.closingReflection?.learned,
-  commit: value => emitFieldChange('closingReflection.learned', value),
-  delay: TEXT_DELAY_MS,
-})
+function setProseEl(key: ProseKey, el: unknown): void {
+  prose[key].el = el as ReflectionProseInstance | null
+}
 
 const menuRef = ref<HTMLElement | null>(null)
 const linksRef = ref<HTMLElement | null>(null)
@@ -503,15 +424,26 @@ function handleStatusChange(value: string): void {
   emitFieldChange('status', value)
 }
 
-const linkedMetrics = computed(() => [
-  { label: t('planning.objects.families.goals'), value: props.item.linkedCounts?.goals ?? 0 },
-  { label: t('planning.objects.families.habits'), value: props.item.linkedCounts?.habits ?? 0 },
-  { label: t('planning.objects.families.trackers'), value: props.item.linkedCounts?.trackers ?? 0 },
-  {
-    label: t('planning.objects.families.intentions'),
-    value: props.item.linkedCounts?.intentions ?? 0,
-  },
-])
+const linkedCountsLine = computed(() => {
+  const counts = props.item.linkedCounts
+  if (!counts) return []
+  const families = [
+    ['goals', counts.goals],
+    ['habits', counts.habits],
+    ['trackers', counts.trackers],
+    ['intentions', counts.intentions],
+  ] as const
+  return families
+    .filter(([, count]) => count > 0)
+    .map(([family, count]) =>
+      tp(
+        count,
+        `planning.objects.linkedCounts.${family}.one`,
+        `planning.objects.linkedCounts.${family}.few`,
+        `planning.objects.linkedCounts.${family}.many`
+      )
+    )
+})
 
 function handleArchive(): void {
   menuOpen.value = false
@@ -555,6 +487,50 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.prose-list {
+  display: grid;
+  gap: var(--mg-space-1);
+}
+
+/* "Dopisz: kompromisy · sygnały ryzyka" — quiet words, each opens its block. */
+.prose-add {
+  padding: 0 var(--mg-space-3);
+}
+
+.prose-add__row {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--mg-space-1) var(--mg-space-2);
+  align-items: center;
+}
+
+.prose-add__sep {
+  opacity: 0.55;
+}
+
+.prose-add__word {
+  margin: 0 calc(-1 * var(--mg-space-1));
+  padding: 0 var(--mg-space-1);
+  border: 0;
+  border-radius: var(--mg-radius-sm);
+  color: var(--mg-color-primary-strong);
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+.prose-add__word:hover,
+.prose-add__word:focus-visible {
+  background: var(--mg-color-paper);
+  opacity: 1;
+}
+
+.prose-add__word:focus-visible {
+  outline: none;
+  box-shadow: var(--mg-focus-ring);
+}
+
 .priority-rank {
   position: absolute;
   right: calc(-1 * var(--mg-space-1));

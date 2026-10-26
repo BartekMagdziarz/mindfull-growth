@@ -245,3 +245,31 @@ Konsekwencje: `formatPeriodRange` + `weeksSince` w
 `src/utils/periodRangeFormat.ts` (dzielone z `ObjectCardPeriods`); klucze
 `periodsLine.since.*`/`sinceThisWeek`; dług strażnika −1 (`font-weight: 700`
 z glifów).
+
+## 2026-10-26 — P3: priorytet jako proza, intencja w gramatyce nawyku
+
+Kontekst: karta priorytetu była formularzem (pięć textarea po 7 rem z
+nagłówkami wersalikami + cztery kafle z liczbami); karta intencji miała
+własny tryb edycji z wypukłymi przyciskami i innym układem niż reszta.
+Decyzja (plan D7/D8, user 2026-10-26): (1) `ReflectionProse` — każda
+odpowiedź refleksji to akapit z cichą etykietą zdaniową; hover = papier,
+klik = ten sam blok jako `.mg-v2-editor-canvas` z textarea o tych samych
+metrykach (`field-sizing: content`), autosave hosta (useEditableField z
+`isFocused` z bloku). Puste odpowiedzi zwijają się do jednej linii
+„Dopisz: kompromisy · sygnały ryzyka”; klik w słowo otwiera blok, pusty
+blok po blur wraca do linii. Zamknięcie priorytetu = ta sama proza w
+`.mg-v2-group` „Zamknięcie”. Kafle z liczbami → jedna linia `.mg-v2-meta`
+„2 cele · 5 nawyków · 2 trackery · 5 intencji” (zera pomijane; klik = filtr
+biblioteki ODŁOŻONY). (2) Intencja: ikona (duch glifu intencji, gdy brak) ·
+tytuł jako `.mg-v2-inline-field` (klik = edycja) · `ObjectCardMetaLine`
+(tydzień „26 paź – 1 lis” · nazwy priorytetów, klik otwiera
+`GoalLinksDropdown` ograniczony do priorytetów — w trybie odczytu najpierw
+startuje edycję) · zdanie pomiaru w `.mg-v2-group` (odczyt = cicha linia,
+edycja = pigułki) · checklista w grupie · cicha para „Zapisz” (`--primary`)
+/ „Anuluj” (`--quiet`) wyrównana do tekstu. `PriorityLinkPicker` i
+`AppButton` znikają z karty. (3) Zdanie pomiaru: „1 raz” zamiast „1 razy”
+(`timesUnitOne`). `GoalLinksDropdown` chowa kategorię obszarów, gdy nie ma
+opcji.
+Konsekwencje: dług strażnika w karcie priorytetu 13 → 2; otwarte R5
+(intencja: autosave vs Zapisz) bez zmian.
+

@@ -146,13 +146,12 @@ describe('ObjectsLibraryView', () => {
 
     expect(await screen.findByDisplayValue(priority.title)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Priority years' })).toHaveTextContent('2026')
-    expect(screen.getByDisplayValue('Strategic constraint for the year')).toBeInTheDocument()
-    expect(
-      screen.getByDisplayValue('Make mornings available for important work')
-    ).toBeInTheDocument()
-    expect(screen.getByDisplayValue('Fewer reactive meetings')).toBeInTheDocument()
-    expect(screen.getByDisplayValue('Three protected mornings per week')).toBeInTheDocument()
-    expect(screen.getByDisplayValue('Reactive calendar')).toBeInTheDocument()
+    // Reflection answers read as prose (buttons that open an editor), not fields.
+    expect(screen.getByText('Strategic constraint for the year')).toBeInTheDocument()
+    expect(screen.getByText('Make mornings available for important work')).toBeInTheDocument()
+    expect(screen.getByText('Fewer reactive meetings')).toBeInTheDocument()
+    expect(screen.getByText('Three protected mornings per week')).toBeInTheDocument()
+    expect(screen.getByText('Reactive calendar')).toBeInTheDocument()
     expect(screen.queryByText('No active periods')).not.toBeInTheDocument()
   })
 

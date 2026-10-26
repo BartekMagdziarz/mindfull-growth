@@ -23,6 +23,7 @@ const MESSAGES: Record<string, string> = {
   'planning.objects.targetSentence.perWeek': 'w tygodniu',
   'planning.objects.targetSentence.perMonth': 'w miesiącu',
   'planning.objects.targetSentence.timesUnit': 'razy',
+  'planning.objects.targetSentence.timesUnitOne': 'raz',
   'planning.objects.targetSentence.ratingOutOf': 'na {max}',
   'planning.objects.targetSentence.thresholdAllRead': 'komplet elementów',
   'planning.objects.form.multiItems.thresholdOfPoints': 'z {max} pkt',
