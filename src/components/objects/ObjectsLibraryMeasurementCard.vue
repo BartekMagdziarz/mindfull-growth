@@ -18,7 +18,13 @@
           v-model="title"
           type="text"
           class="mg-v2-inline-field min-w-0 flex-1 text-sm font-bold"
-          :placeholder="t('planning.objects.form.title')"
+          :placeholder="
+            t(
+              panelType === 'habit'
+                ? 'planning.objects.form.habitTitlePlaceholder'
+                : 'planning.objects.form.trackerTitlePlaceholder'
+            )
+          "
           @blur="flushTitle"
         />
         <div class="mg-v2-card-tray group-hover/card:opacity-100">
@@ -185,10 +191,11 @@
            anatomy as a KR inside a goal card (a habit reads like a goal with
            a single KR). Facts collapse when expanded — the target sentence
            above then shows cadence + mode + target in editable form. -->
-      <div :class="item.chartData ? 'mg-v2-group' : ''" data-testid="measurement-field">
+      <!-- No points yet (a new object): no group frame either — nothing to draw. -->
+      <div :class="item.chartData?.length ? 'mg-v2-group' : ''" data-testid="measurement-field">
         <div
           class="transition-all duration-200 ease-in-out"
-          :class="isExpanded || !item.chartData ? '' : 'mb-2'"
+          :class="isExpanded || !item.chartData?.length ? '' : 'mb-2'"
           :style="{
             maxHeight: isExpanded ? '0' : '2.5rem',
             opacity: isExpanded ? 0 : 1,
@@ -207,7 +214,7 @@
         </div>
 
         <MeasurementSparkline
-          v-if="item.chartData"
+          v-if="item.chartData?.length"
           :points="item.chartData"
           :cadence="item.cadence ?? 'weekly'"
           :entry-mode="item.entryMode ?? 'completion'"

@@ -93,10 +93,11 @@
           />
         </div>
 
-        <DsButton class="w-full" @click="addKrDraft">
+        <!-- The next key result, faded: a ghost of what will appear there. -->
+        <button type="button" class="mg-v2-ghost mg-v2-ghost--row" @click="addKrDraft">
           <AppIcon name="add" class="text-base" />
           {{ t('planning.goalWizard.buttons.addKr') }}
-        </DsButton>
+        </button>
       </div>
 
       <!-- Achievable -->

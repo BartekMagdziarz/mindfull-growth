@@ -179,3 +179,11 @@ przed/po: `ideas/ux-audit-2026-10-25-object-cards/`.
   priorytety, klik = dropdown priorytetów), zdanie w grupie, checklista,
   cicha para Zapisz/Anuluj. Zrzuty:
   `ideas/ux-audit-2026-10-25-object-cards/after-p3/`.
+- **P4 (2026-10-26, kreator + placeholdery):** `ObjectsLibraryInlineEditor`
+  usunięty (martwy — każda rodzina tworzy się w miejscu albo w kreatorze);
+  `KrDraftCard` w anatomii rozwiniętego KR (tytuł inline, „×” w tacce,
+  zdanie w grupie), dodawanie = duch wiersza; placeholdery „Nazwa celu /
+  rezultatu / nawyku / trackera / priorytetu”; nowy element checklisty =
+  lokalny szkic kafelka do czasu nadania nazwy; pusta grupa wykresu nie
+  rysuje się bez punktów. Zrzuty:
+  `ideas/ux-audit-2026-10-25-object-cards/after-p4/`. Plan D1–D9 zamknięty.

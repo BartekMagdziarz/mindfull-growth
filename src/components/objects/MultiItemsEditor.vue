@@ -39,6 +39,9 @@ const { t, tp } = useT()
 // Items added in this editor instance were never referenced by an entry, so
 // they may be hard-deleted; everything else can only be archived.
 const locallyAddedIds = ref(new Set<string>())
+// The tile being named: it exists only here until it has a name, because the
+// domain refuses an item with an empty label (and so would the autosave).
+const pendingItem = ref<MultiCompletionItem | null>(null)
 const archivedOpen = ref(false)
 const rootRef = ref<HTMLElement | null>(null)
 const focusedId = ref<string | null>(null)
@@ -49,7 +52,9 @@ const editingWeightId = ref<string | null>(null)
 
 const activeItems = computed(() => props.items.filter(item => !item.archived))
 const archivedItems = computed(() => props.items.filter(item => item.archived))
-const canAdd = computed(() => activeItems.value.length < MULTI_COMPLETION_MAX_ACTIVE_ITEMS)
+const canAdd = computed(
+  () => !pendingItem.value && activeItems.value.length < MULTI_COMPLETION_MAX_ACTIVE_ITEMS
+)
 
 function initialOf(label: string): string {
   return label.trim().charAt(0).toLocaleUpperCase() || '·'
@@ -87,6 +92,15 @@ function commitLabel(item: MultiCompletionItem, event: Event): void {
   const input = event.target as HTMLInputElement
   const label = input.value.trim()
   if (editingNameId.value === item.id) editingNameId.value = null
+  if (pendingItem.value?.id === item.id) {
+    // Named: it joins the list; left blank: it never existed.
+    pendingItem.value = null
+    if (label) {
+      locallyAddedIds.value.add(item.id)
+      commit([...props.items, { ...item, label }], props.threshold)
+    }
+    return
+  }
   if (label && label !== item.label) patchItem(item.id, { label })
 }
 
@@ -121,25 +135,14 @@ function commitIcon(item: MultiCompletionItem, icon: string | undefined): void {
 
 function addItem(): void {
   if (!canAdd.value || props.disabled) return
-  const item = createMultiCompletionItem(
-    `${t('planning.objects.form.multiItems.defaultItemLabel').replace(/\s*\d+$/, '')} ${activeItems.value.length + 1}`.trim()
-  )
-  locallyAddedIds.value.add(item.id)
-  commit([...props.items, item], props.threshold)
-  requestAnimationFrame(() => focusNewTile(item.id))
-}
-
-// The host saves and feeds the new list back through props (and may even
-// remount this editor on the way), so the new tile shows up a few frames
-// later: wait for it in the document, then select its name so typing
-// replaces the placeholder label.
-function focusNewTile(id: string, framesLeft = 90): void {
-  const name = document.querySelector<HTMLElement>(`[data-item-name-text="${id}"]`)
-  if (name) {
-    name.click()
-    return
-  }
-  if (framesLeft > 0) requestAnimationFrame(() => focusNewTile(id, framesLeft - 1))
+  // No default name: the tile opens with an empty field and its placeholder.
+  const item = createMultiCompletionItem('')
+  pendingItem.value = item
+  editingNameId.value = item.id
+  void nextTick(() => {
+    const field = rootRef.value?.querySelector<HTMLInputElement>(`[data-item-name="${item.id}"]`)
+    field?.focus()
+  })
 }
 
 function archiveItem(id: string): void {
@@ -189,9 +192,13 @@ const liveOrder = ref<string[] | null>(null)
 
 const shownItems = computed(() => {
   const order = liveOrder.value
-  if (!order) return activeItems.value
+  const pending = pendingItem.value ? [pendingItem.value] : []
+  if (!order) return [...activeItems.value, ...pending]
   const byId = new Map(activeItems.value.map(item => [item.id, item]))
-  return order.map(id => byId.get(id)).filter((item): item is MultiCompletionItem => !!item)
+  return [
+    ...order.map(id => byId.get(id)).filter((item): item is MultiCompletionItem => !!item),
+    ...pending,
+  ]
 })
 
 function onDragStart(event: DragEvent, id: string): void {
@@ -270,7 +277,7 @@ const archivedLabel = computed(() =>
           'mi__tile--alt': index % 2 === 1,
           'mi__tile--dragging': draggingId === item.id,
         }"
-        :draggable="!disabled && focusedId !== item.id"
+        :draggable="!disabled && focusedId !== item.id && pendingItem?.id !== item.id"
         data-testid="multi-item"
         @dragstart="onDragStart($event, item.id)"
         @dragenter.prevent="onDragEnter(item.id)"
@@ -315,7 +322,10 @@ const archivedLabel = computed(() =>
             :title="t('planning.objects.form.multiItems.labelPlaceholder')"
             @click="startEditName(item.id)"
             @keydown.enter.prevent="startEditName(item.id)"
-            >{{ item.label }}</span
+            ><template v-if="item.label">{{ item.label }}</template
+            ><span v-else class="mi__name-placeholder">{{
+              t('planning.objects.form.multiItems.labelPlaceholder')
+            }}</span></span
           >
           <!-- Weight: "×2" stays in the text; "×1" lives in the hover badge, so a
                plain checklist shows no numbers. Click edits. -->
@@ -349,7 +359,7 @@ const archivedLabel = computed(() =>
         </span>
         <!-- Hover badge over the top-right corner: "×1" (click edits) and
              archive/delete. It hangs past the edge, so it covers little. -->
-        <span class="mi__corner">
+        <span v-if="pendingItem?.id !== item.id" class="mi__corner">
           <span v-if="item.weight === 1" class="mi__weight-slot">
             <input
               v-if="editingWeightId === item.id"
@@ -402,7 +412,7 @@ const archivedLabel = computed(() =>
         </span>
       </li>
     </ul>
-    <p v-if="!canAdd" class="mg-v2-meta mi__hint">
+    <p v-if="activeItems.length >= MULTI_COMPLETION_MAX_ACTIVE_ITEMS" class="mg-v2-meta mi__hint">
       <span>{{
         t('planning.objects.form.multiItems.maxItemsHint', {
           max: MULTI_COMPLETION_MAX_ACTIVE_ITEMS,
@@ -565,6 +575,11 @@ const archivedLabel = computed(() =>
 .mi__name--text:focus-visible {
   outline: none;
   box-shadow: var(--mg-focus-ring);
+}
+
+.mi__name-placeholder {
+  color: var(--mg-color-muted);
+  font-weight: var(--mg-weight-body);
 }
 
 .mi__name--static {

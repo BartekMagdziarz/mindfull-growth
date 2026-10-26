@@ -8,7 +8,7 @@
           v-model="title"
           type="text"
           class="mg-v2-inline-field min-w-0 flex-1 text-xs font-bold"
-          :placeholder="t('planning.objects.form.title')"
+          :placeholder="t('planning.objects.form.krTitlePlaceholder')"
           @blur="flushTitle"
         />
         <div class="mg-v2-card-tray group-hover/kr:opacity-100">

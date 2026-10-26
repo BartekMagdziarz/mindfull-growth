@@ -120,42 +120,6 @@
       </DsState>
 
       <div v-else class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        <div v-if="showCreateCard" class="space-y-3">
-          <ObjectsLibraryInlineEditor
-            v-model:draft="draft"
-            :panel-type="resolvedComposerType"
-            :is-create-mode="true"
-            :heading="composerHeading"
-            :mode-label="t('planning.objects.panel.modeCreate')"
-            :type-label="resolvePanelTypeLabel(resolvedComposerType)"
-            :parent-label="composerParentGoalLabel"
-            :help-text="t('planning.objects.panel.createHelp')"
-            :save-label="t('common.buttons.create')"
-            :cancel-label="t('common.buttons.cancel')"
-            :delete-label="t('common.buttons.delete')"
-            :none-label="t('common.none')"
-            :clear-label="t('planning.objects.filters.clear')"
-            :add-label="t('common.buttons.add')"
-            :can-save="canSaveDraft"
-            :show-delete="false"
-            :hide-goal-select="
-              resolvedComposerType === 'keyResult' && Boolean(store.query.composerParentId)
-            "
-            :goal-options="store.filterOptions.goals"
-            :life-area-options="store.filterOptions.lifeAreas"
-            :priority-options="store.filterOptions.priorities"
-            :status-options="statusOptions"
-            :cadence-options="cadenceOptions"
-            :entry-mode-options="entryModeOptions"
-            :target-operator-options="targetOperatorOptions"
-            :target-aggregation-options="targetAggregationOptions"
-            :show-target-aggregation="showTargetAggregation"
-            :labels="editorLabels"
-            @cancel="handleCancelComposer"
-            @save="handleSaveComposer"
-          />
-        </div>
-
         <div
           v-for="item in store.items"
           :key="`${item.panelType}:${item.id}`"
@@ -288,64 +252,6 @@
             @save="handleIntentionSave"
             @delete="(id, title) => handleDeleteFromCard('weeklyIntention', id, title)"
           />
-
-          <section
-            v-if="
-              item.panelType !== 'priority' &&
-              item.panelType !== 'goal' &&
-              item.panelType !== 'habit' &&
-              item.panelType !== 'tracker' &&
-              item.panelType !== 'weeklyIntention' &&
-              isExpansionHost(item.panelType, item.id) &&
-              isComposerHostedByItem(item.panelType, item.id) &&
-              isComposerReady &&
-              !(composerMode === 'edit' && resolvedComposerType === 'keyResult')
-            "
-            class="mg-v2-surface mg-v2-surface--flat p-3"
-          >
-            <ObjectsLibraryInlineEditor
-              v-model:draft="draft"
-              :panel-type="resolvedComposerType"
-              :is-create-mode="isCreateMode"
-              :heading="composerHeading"
-              :mode-label="
-                isCreateMode
-                  ? t('planning.objects.panel.modeCreate')
-                  : t('planning.objects.panel.modeEdit')
-              "
-              :type-label="resolvePanelTypeLabel(resolvedComposerType)"
-              :parent-label="composerParentGoalLabel"
-              :help-text="
-                isCreateMode
-                  ? t('planning.objects.panel.createHelp')
-                  : t('planning.objects.panel.editHelp')
-              "
-              :save-label="isCreateMode ? t('common.buttons.create') : t('common.buttons.save')"
-              :cancel-label="t('common.buttons.cancel')"
-              :delete-label="t('common.buttons.delete')"
-              :none-label="t('common.none')"
-              :clear-label="t('planning.objects.filters.clear')"
-              :add-label="t('common.buttons.add')"
-              :can-save="canSaveDraft"
-              :show-delete="!isCreateMode"
-              :hide-goal-select="
-                resolvedComposerType === 'keyResult' && Boolean(store.query.composerParentId)
-              "
-              :goal-options="store.filterOptions.goals"
-              :life-area-options="store.filterOptions.lifeAreas"
-              :priority-options="store.filterOptions.priorities"
-              :status-options="statusOptions"
-              :cadence-options="cadenceOptions"
-              :entry-mode-options="entryModeOptions"
-              :target-operator-options="targetOperatorOptions"
-              :target-aggregation-options="targetAggregationOptions"
-              :show-target-aggregation="showTargetAggregation"
-              :labels="editorLabels"
-              @cancel="handleCancelComposer"
-              @delete="handleRequestDeleteFromExpanded"
-              @save="handleSaveComposer"
-            />
-          </section>
         </div>
       </div>
     </section>
@@ -405,7 +311,6 @@ import AppSnackbar from '@/components/AppSnackbar.vue'
 import { DsButton, DsSegmentedControl, DsState } from '@/design-system/components'
 import ObjectsLibraryFilters from '@/components/objects/ObjectsLibraryFilters.vue'
 import ObjectsLibraryActiveFilters from '@/components/objects/ObjectsLibraryActiveFilters.vue'
-import ObjectsLibraryInlineEditor from '@/components/objects/ObjectsLibraryInlineEditor.vue'
 import ObjectsLibraryPriorityCard from '@/components/objects/ObjectsLibraryPriorityCard.vue'
 import ObjectsLibraryGoalCard from '@/components/objects/ObjectsLibraryGoalCard.vue'
 import GoalCreationWizard from '@/components/objects/GoalCreationWizard.vue'
@@ -592,81 +497,11 @@ const familyEmptyTitle = computed(() =>
     : t('planning.objects.empty.familyTitle')
 )
 
-const editorLabels = computed(() => ({
-  title: t('planning.objects.form.title'),
-  description: t('planning.objects.form.description'),
-  status: t('planning.objects.form.status'),
-  activeHint: t('planning.objects.form.activeHint'),
-  goal: t('planning.objects.form.goal'),
-  cadence: t('planning.objects.form.cadence'),
-  entryMode: t('planning.objects.form.entryMode'),
-  target: t('planning.objects.form.target'),
-  targetOperator: t('planning.objects.form.targetOperator'),
-  targetAggregation: t('planning.objects.form.targetAggregation'),
-  targetValue: t('planning.objects.form.targetValue'),
-  lifeAreas: t('planning.objects.form.lifeAreas'),
-  priorities: t('planning.objects.form.priorities'),
-}))
-
-const composerHeading = computed(() => {
-  const modeLabel = isCreateMode.value
-    ? t('planning.objects.panel.modeCreate')
-    : t('planning.objects.panel.modeEdit')
-  return `${modeLabel} · ${resolvePanelTypeLabel(resolvedComposerType.value)}`
-})
-
-const showCreateCard = computed(
-  () =>
-    isComposerOpen.value &&
-    isCreateMode.value &&
-    resolvedComposerType.value !== 'keyResult' &&
-    resolvedComposerType.value !== 'priority' &&
-    resolvedComposerType.value !== 'goal' &&
-    resolvedComposerType.value !== 'habit' &&
-    resolvedComposerType.value !== 'tracker' &&
-    resolvedComposerType.value !== 'weeklyIntention'
-)
-
-const composerParentGoalLabel = computed(() => {
-  const goalId = store.query.composerParentId ?? draft.value.goalId
-  if (!goalId) {
-    return undefined
-  }
-
-  return (
-    store.filterOptions.goals.find(goal => goal.id === goalId)?.label ??
-    store.composerItem?.owner?.title ??
-    expandedItem.value?.owner?.title
-  )
-})
-
-const expandedItem = computed(() => store.expandedItem)
 const composerMode = computed(() => store.query.composerMode)
 const resolvedComposerType = computed<ObjectsLibraryPanelType>(() => {
   return store.query.composerType ?? getObjectsLibraryFamilyPanelType(store.query.family)
 })
 const isComposerOpen = computed(() => Boolean(store.query.composerMode))
-const isCreateMode = computed(() => composerMode.value === 'create')
-const isComposerReady = computed(() => composerMode.value !== 'edit' || Boolean(store.composerItem))
-const statusOptions = computed(() => {
-  if (resolvedComposerType.value === 'priority') {
-    return priorityStatusOptions()
-  }
-
-  if (resolvedComposerType.value === 'habit' || resolvedComposerType.value === 'tracker') {
-    return [
-      { value: 'open', label: t('planning.objects.badges.status.open') },
-      { value: 'retired', label: t('planning.objects.badges.status.retired') },
-      { value: 'dropped', label: t('planning.objects.badges.status.dropped') },
-    ]
-  }
-
-  return [
-    { value: 'open', label: t('planning.objects.badges.status.open') },
-    { value: 'completed', label: t('planning.objects.badges.status.completed') },
-    { value: 'dropped', label: t('planning.objects.badges.status.dropped') },
-  ]
-})
 const cadenceOptions = computed(() => [
   { value: 'weekly' as const, label: t('planning.objects.badges.cadence.weekly') },
   { value: 'monthly' as const, label: t('planning.objects.badges.cadence.monthly') },
@@ -690,22 +525,6 @@ const deleteDialogMessage = computed(() => {
   return t('planning.objects.deleteDialog.message', {
     title: pendingDelete.value.title,
   })
-})
-
-const canSaveDraft = computed(() => {
-  if (!draft.value.title.trim()) {
-    return false
-  }
-
-  if (resolvedComposerType.value === 'keyResult') {
-    return Boolean(draft.value.goalId) && hasValidTargetDraft()
-  }
-
-  if (resolvedComposerType.value === 'habit') {
-    return hasValidTargetDraft()
-  }
-
-  return true
 })
 
 const isFamilyEmptyState = computed(() =>
@@ -888,49 +707,6 @@ function createDraftFromDefaults(
   }
 }
 
-function syncTargetToEntryMode(entryMode: MeasurementEntryMode): void {
-  const current = draft.value.target
-
-  if (entryMode === 'completion' || entryMode === 'counter' || entryMode === 'multi-completion') {
-    if (current.kind !== 'count') {
-      draft.value.target = createDefaultTarget(entryMode)
-    } else if (current.operator !== 'min' && current.operator !== 'max') {
-      draft.value.target = { kind: 'count', operator: 'min', value: current.value || 1 }
-    }
-    // The entry-days condition is redundant for completion (the metric already
-    // counts entry days) — the normalizer strips it, so drop it from the draft too.
-    if (entryMode === 'completion' && draft.value.target.entryDays) {
-      draft.value.target = { ...draft.value.target, entryDays: undefined }
-    }
-    return
-  }
-
-  if (entryMode === 'value') {
-    if (current.kind !== 'value') {
-      draft.value.target = createDefaultTarget(entryMode)
-    } else if (!current.aggregation) {
-      draft.value.target = {
-        kind: 'value',
-        aggregation: 'sum',
-        operator: 'gte',
-        value: current.value || 1,
-      }
-    }
-    return
-  }
-
-  if (current.kind !== 'rating') {
-    draft.value.target = createDefaultTarget(entryMode)
-  } else {
-    draft.value.target = {
-      kind: 'rating',
-      aggregation: 'average',
-      operator: current.operator === 'gte' || current.operator === 'lte' ? current.operator : 'gte',
-      value: current.value,
-    }
-  }
-}
-
 /** Default single item for objects switched to multi-completion without a configured list. */
 function defaultMultiItemsFor(title: string): MultiCompletionItem[] {
   return [
@@ -939,123 +715,6 @@ function defaultMultiItemsFor(title: string): MultiCompletionItem[] {
     ),
   ]
 }
-
-/**
- * Multi-completion config carried by the composer draft. Only meaningful for
- * the multi-completion mode; the domain normalizer strips the fields otherwise.
- * Always sends items (default single item when the draft has none) so switching
- * an existing object to multi-completion passes the required-items validation.
- */
-function multiPayloadFromDraft(): {
-  multiItems?: MultiCompletionItem[]
-  multiDailyThreshold?: number
-} {
-  if (draft.value.entryMode !== 'multi-completion') return {}
-  return {
-    multiItems: draft.value.multiItems?.length
-      ? draft.value.multiItems
-      : defaultMultiItemsFor(draft.value.title),
-    multiDailyThreshold: draft.value.multiDailyThreshold,
-  }
-}
-
-function normalizeTargetDraft(
-  entryMode: MeasurementEntryMode,
-  target: LibraryTargetDraft
-): MeasurementTarget {
-  // Redundant for completion — the domain normalizer strips it there too.
-  const entryDays =
-    entryMode !== 'completion' && target.entryDays
-      ? {
-          operator: target.entryDays.operator === 'max' ? ('max' as const) : ('min' as const),
-          value: Math.max(1, Math.trunc(target.entryDays.value)),
-        }
-      : undefined
-
-  switch (entryMode) {
-    case 'completion':
-    case 'counter':
-    case 'multi-completion':
-      return {
-        kind: 'count',
-        operator: target.operator === 'max' ? 'max' : 'min',
-        value: Math.max(0, Math.trunc(target.value)),
-        ...(entryDays ? { entryDays } : {}),
-      }
-    case 'value':
-      return {
-        kind: 'value',
-        aggregation:
-          target.aggregation === 'average' || target.aggregation === 'last'
-            ? target.aggregation
-            : 'sum',
-        operator: target.operator === 'lte' ? 'lte' : 'gte',
-        value: Number(target.value),
-        ...(entryDays ? { entryDays } : {}),
-      }
-    case 'rating':
-      return {
-        kind: 'rating',
-        aggregation: 'average',
-        operator: target.operator === 'lte' ? 'lte' : 'gte',
-        value: Number(target.value),
-        ...(entryDays ? { entryDays } : {}),
-      }
-  }
-}
-
-function hasValidTargetDraft(): boolean {
-  return Number.isFinite(draft.value.target.value)
-}
-
-watch(
-  () => draft.value.entryMode,
-  entryMode => {
-    if (!entryMode) {
-      return
-    }
-
-    if (resolvedComposerType.value === 'keyResult' || resolvedComposerType.value === 'habit') {
-      syncTargetToEntryMode(entryMode)
-    }
-  }
-)
-
-const showTargetAggregation = computed(() =>
-  resolvedComposerType.value === 'keyResult' || resolvedComposerType.value === 'habit'
-    ? draft.value.entryMode === 'value' || draft.value.entryMode === 'rating'
-    : false
-)
-
-const targetOperatorOptions = computed<
-  Array<{ value: LibraryTargetDraft['operator']; label: string }>
->(() => {
-  if (draft.value.entryMode === 'completion' || draft.value.entryMode === 'counter') {
-    return [
-      { value: 'min', label: t('planning.objects.targetOperators.min') },
-      { value: 'max', label: t('planning.objects.targetOperators.max') },
-    ]
-  }
-
-  return [
-    { value: 'gte', label: t('planning.objects.targetOperators.gte') },
-    { value: 'lte', label: t('planning.objects.targetOperators.lte') },
-  ]
-})
-
-const targetAggregationOptions = computed<
-  Array<{ value: NonNullable<LibraryTargetDraft['aggregation']>; label: string }>
->(() => {
-  if (draft.value.entryMode === 'rating') {
-    return [{ value: 'average', label: t('planning.objects.targetAggregations.average') }]
-  }
-
-  return [
-    { value: 'sum', label: t('planning.objects.targetAggregations.sum') },
-    { value: 'average', label: t('planning.objects.targetAggregations.average') },
-    { value: 'last', label: t('planning.objects.targetAggregations.last') },
-  ]
-})
 
 async function syncRoute(): Promise<void> {
   await router.replace({
@@ -1270,11 +929,6 @@ async function handleOpenCreate(): Promise<void> {
     }
     return
   }
-
-  store.collapseItem()
-  store.openComposer('create', panelType)
-  draft.value = createEmptyDraft(panelType)
-  void syncRoute()
 }
 
 async function handleCreateChildKeyResult(goalId: string): Promise<void> {
@@ -2273,20 +1927,6 @@ async function handleIntentionSave(
   }
 }
 
-function handleCancelComposer(): void {
-  if (
-    store.query.composerParentType === 'goal' &&
-    store.query.composerParentId &&
-    !store.query.expandedId
-  ) {
-    store.expandItem('goal', store.query.composerParentId)
-  }
-
-  store.closeComposer()
-  initializeDraft()
-  void syncRoute()
-}
-
 function priorityStatusOptions(): Array<{ value: string; label: string }> {
   return [
     { value: 'draft', label: t('planning.objects.badges.status.draft') },
@@ -2373,20 +2013,6 @@ function handleDeleteFromCard(panelType: ObjectsLibraryPanelType, id: string, ti
   deleteDialogOpen.value = true
 }
 
-function handleRequestDeleteFromExpanded(): void {
-  if (!expandedItem.value) {
-    return
-  }
-
-  pendingDelete.value = {
-    panelType: expandedItem.value.panelType,
-    id: expandedItem.value.id,
-    title: expandedItem.value.title,
-    parentGoalId: expandedItem.value.owner?.id,
-  }
-  deleteDialogOpen.value = true
-}
-
 async function handleConfirmDelete(): Promise<void> {
   if (!pendingDelete.value) {
     return
@@ -2412,188 +2038,6 @@ async function handleConfirmDelete(): Promise<void> {
   } finally {
     deleteDialogOpen.value = false
     pendingDelete.value = null
-  }
-}
-
-async function handleSaveComposer(): Promise<void> {
-  try {
-    const saved = await saveDraft()
-    store.closeComposer()
-    store.expandItem(saved.type, saved.id)
-    await syncRoute()
-    snackbarRef.value?.show(t('planning.objects.messages.saved'))
-  } catch (err) {
-    snackbarRef.value?.show(
-      err instanceof Error ? err.message : t('planning.objects.messages.saveError')
-    )
-  }
-}
-
-async function saveDraft(): Promise<{ id: string; type: ObjectsLibraryPanelType }> {
-  const mode = composerMode.value
-  const composerId = store.query.composerId
-  const panelType = resolvedComposerType.value
-
-  if (mode === 'create') {
-    switch (panelType) {
-      case 'priority': {
-        const created = await priorityDexieRepository.create({
-          title: draft.value.title.trim(),
-          description: normalizeOptionalText(draft.value.description),
-          icon: draft.value.icon,
-          years: draft.value.years ?? [String(new Date().getFullYear()) as YearRef],
-          status: draft.value.status as 'draft' | 'active' | 'paused' | 'closed',
-          order: draft.value.order,
-          lifeAreaIds: draft.value.lifeAreaIds,
-          whyNow: normalizeOptionalText(draft.value.whyNow ?? ''),
-          desiredDirection: normalizeOptionalText(draft.value.desiredDirection ?? ''),
-          tradeoffs: normalizeOptionalText(draft.value.tradeoffs ?? ''),
-          progressSignals: draft.value.progressSignals ?? [],
-          riskSignals: draft.value.riskSignals ?? [],
-          closingReflection: draft.value.closingReflection,
-        })
-        return { ...created, type: panelType }
-      }
-      case 'goal': {
-        const created = await goalDexieRepository.create({
-          title: draft.value.title.trim(),
-          description: normalizeOptionalText(draft.value.description),
-          isActive: true,
-          priorityIds: draft.value.priorityIds,
-          lifeAreaIds: draft.value.lifeAreaIds,
-          status: draft.value.status as 'open' | 'completed' | 'dropped',
-        })
-        return { ...created, type: panelType }
-      }
-      case 'keyResult': {
-        const created = await keyResultDexieRepository.create({
-          title: draft.value.title.trim(),
-          description: normalizeOptionalText(draft.value.description),
-          isActive: true,
-          goalId: draft.value.goalId ?? store.query.composerParentId ?? composerId ?? '',
-          entryMode: draft.value.entryMode ?? 'completion',
-          cadence: draft.value.cadence ?? 'weekly',
-          target: normalizeTargetDraft(draft.value.entryMode ?? 'completion', draft.value.target),
-          ...multiPayloadFromDraft(),
-          status: draft.value.status as 'open' | 'completed' | 'dropped',
-        })
-        return { ...created, type: panelType }
-      }
-      case 'habit': {
-        const created = await habitDexieRepository.create({
-          title: draft.value.title.trim(),
-          description: normalizeOptionalText(draft.value.description),
-          isActive: true,
-          priorityIds: draft.value.priorityIds,
-          lifeAreaIds: draft.value.lifeAreaIds,
-          entryMode: draft.value.entryMode ?? 'completion',
-          cadence: draft.value.cadence ?? 'weekly',
-          target: normalizeTargetDraft(draft.value.entryMode ?? 'completion', draft.value.target),
-          ...multiPayloadFromDraft(),
-          status: draft.value.status as 'open' | 'retired' | 'dropped',
-        })
-        return { ...created, type: panelType }
-      }
-      case 'tracker': {
-        const created = await trackerDexieRepository.create({
-          title: draft.value.title.trim(),
-          description: normalizeOptionalText(draft.value.description),
-          isActive: true,
-          priorityIds: draft.value.priorityIds,
-          lifeAreaIds: draft.value.lifeAreaIds,
-          cadence: draft.value.cadence ?? 'weekly',
-          entryMode: draft.value.entryMode ?? 'completion',
-          ...multiPayloadFromDraft(),
-          status: draft.value.status as 'open' | 'retired' | 'dropped',
-        })
-        return { ...created, type: panelType }
-      }
-      case 'weeklyIntention':
-        // Weekly intentions are created inline on their card, never via the composer.
-        break
-    }
-  }
-
-  if (!composerId) {
-    throw new Error(t('planning.objects.messages.missingObject'))
-  }
-
-  switch (panelType) {
-    case 'priority': {
-      const updated = await priorityDexieRepository.update(composerId, {
-        title: draft.value.title.trim(),
-        description: normalizeOptionalText(draft.value.description),
-        icon: draft.value.icon,
-        years: draft.value.years ?? [String(new Date().getFullYear()) as YearRef],
-        status: draft.value.status as 'draft' | 'active' | 'paused' | 'closed',
-        order: draft.value.order,
-        lifeAreaIds: draft.value.lifeAreaIds,
-        whyNow: normalizeOptionalText(draft.value.whyNow ?? ''),
-        desiredDirection: normalizeOptionalText(draft.value.desiredDirection ?? ''),
-        tradeoffs: normalizeOptionalText(draft.value.tradeoffs ?? ''),
-        progressSignals: draft.value.progressSignals ?? [],
-        riskSignals: draft.value.riskSignals ?? [],
-        closingReflection: draft.value.closingReflection,
-      })
-      return { ...updated, type: panelType }
-    }
-    case 'goal': {
-      const updated = await goalDexieRepository.update(composerId, {
-        title: draft.value.title.trim(),
-        description: normalizeOptionalText(draft.value.description),
-        isActive: draft.value.isActive,
-        priorityIds: draft.value.priorityIds,
-        lifeAreaIds: draft.value.lifeAreaIds,
-        status: draft.value.status as 'open' | 'completed' | 'dropped',
-      })
-      return { ...updated, type: panelType }
-    }
-    case 'keyResult': {
-      const updated = await keyResultDexieRepository.update(composerId, {
-        title: draft.value.title.trim(),
-        description: normalizeOptionalText(draft.value.description),
-        isActive: draft.value.isActive,
-        goalId: draft.value.goalId,
-        entryMode: draft.value.entryMode ?? 'completion',
-        cadence: draft.value.cadence ?? 'weekly',
-        target: normalizeTargetDraft(draft.value.entryMode ?? 'completion', draft.value.target),
-        ...multiPayloadFromDraft(),
-        status: draft.value.status as 'open' | 'completed' | 'dropped',
-      })
-      return { ...updated, type: panelType }
-    }
-    case 'habit': {
-      const updated = await habitDexieRepository.update(composerId, {
-        title: draft.value.title.trim(),
-        description: normalizeOptionalText(draft.value.description),
-        isActive: draft.value.isActive,
-        priorityIds: draft.value.priorityIds,
-        lifeAreaIds: draft.value.lifeAreaIds,
-        entryMode: draft.value.entryMode ?? 'completion',
-        cadence: draft.value.cadence ?? 'weekly',
-        target: normalizeTargetDraft(draft.value.entryMode ?? 'completion', draft.value.target),
-        ...multiPayloadFromDraft(),
-        status: draft.value.status as 'open' | 'retired' | 'dropped',
-      })
-      return { ...updated, type: panelType }
-    }
-    case 'tracker': {
-      const updated = await trackerDexieRepository.update(composerId, {
-        title: draft.value.title.trim(),
-        description: normalizeOptionalText(draft.value.description),
-        isActive: draft.value.isActive,
-        priorityIds: draft.value.priorityIds,
-        lifeAreaIds: draft.value.lifeAreaIds,
-        cadence: draft.value.cadence ?? 'weekly',
-        entryMode: draft.value.entryMode ?? 'completion',
-        ...multiPayloadFromDraft(),
-        status: draft.value.status as 'open' | 'retired' | 'dropped',
-      })
-      return { ...updated, type: panelType }
-    }
-    case 'weeklyIntention':
-      // Weekly intentions are edited inline on their card, never via the composer.
-      throw new Error(t('planning.objects.messages.missingObject'))
   }
 }
 
@@ -2652,42 +2096,6 @@ async function deleteObject(panelType: ObjectsLibraryPanelType, id: string): Pro
   }
 }
 
-function isExpanded(panelType: ObjectsLibraryPanelType, id: string): boolean {
-  return store.query.expandedType === panelType && store.query.expandedId === id
-}
-
-function isExpansionHost(panelType: ObjectsLibraryPanelType, id: string): boolean {
-  if (isExpanded(panelType, id)) {
-    return true
-  }
-
-  return (
-    panelType === 'goal' &&
-    store.query.expandedType === 'keyResult' &&
-    expandedItem.value?.owner?.id === id
-  )
-}
-
-function isComposerHostedByItem(panelType: ObjectsLibraryPanelType, id: string): boolean {
-  if (!isComposerOpen.value) {
-    return false
-  }
-
-  if (composerMode.value === 'create') {
-    return (
-      panelType === 'goal' &&
-      store.query.composerType === 'keyResult' &&
-      store.query.composerParentId === id
-    )
-  }
-
-  if (store.query.composerType === 'keyResult') {
-    return panelType === 'goal' && expandedItem.value?.owner?.id === id
-  }
-
-  return store.query.composerType === panelType && store.query.composerId === id
-}
-
 function cardGridClasses(_panelType: ObjectsLibraryPanelType, _id: string): string {
   return ''
 }
@@ -2695,10 +2103,6 @@ function cardGridClasses(_panelType: ObjectsLibraryPanelType, _id: string): stri
 function normalizeOptionalText(value: string): string | undefined {
   const trimmed = value.trim()
   return trimmed ? trimmed : undefined
-}
-
-function resolvePanelTypeLabel(panelType: ObjectsLibraryPanelType): string {
-  return t(`planning.objects.labels.${panelType}`)
 }
 </script>
 

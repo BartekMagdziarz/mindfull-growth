@@ -106,7 +106,7 @@ describe('ObjectsLibraryView', () => {
     await fireEvent.click(await screen.findByRole('button', { name: 'Add habit' }))
 
     // A new habit card appears immediately with an empty focused title input
-    expect(await screen.findByPlaceholderText('Title')).toBeInTheDocument()
+    expect(await screen.findByPlaceholderText('Habit name')).toBeInTheDocument()
     // No composer form — no Create button
     expect(screen.queryByRole('button', { name: 'Create' })).not.toBeInTheDocument()
     // Route stays on habits family, no composer state

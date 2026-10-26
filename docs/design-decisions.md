@@ -273,3 +273,29 @@ opcji.
 Konsekwencje: dług strażnika w karcie priorytetu 13 → 2; otwarte R5
 (intencja: autosave vs Zapisz) bez zmian.
 
+## 2026-10-26 — P4: szkic rezultatu w gramatyce KR, nazwy zamiast domyślnych tytułów, martwy edytor usunięty
+
+Kontekst: ostatnia faza planu „spokojne karty”. Edytor nowego obiektu
+(`ObjectsLibraryInlineEditor`: nagłówek z badge’ami typu, formularz w dwóch
+kolumnach, wypukłe Anuluj/Utwórz) okazał się NIEOSIĄGALNY: cel tworzy
+kreator SMART, priorytet rytuał, nawyk/tracker/intencja powstają w miejscu
+jako karta z pustym tytułem; tryb edycji był dostępny tylko z ręcznie
+wpisanego query. Szkic rezultatu w kreatorze (`KrDraftCard`) miał ramkowane
+pole tytułu i wypukły „×”. Domyślne tytuły „Element N” i placeholder
+„Tytuł” mówiły o typie, nie o treści.
+Decyzja: (1) `ObjectsLibraryInlineEditor` USUNIĘTY razem z wyłącznie jego
+hydrauliką w `ObjectsLibraryView` (nagłówek, etykiety, opcje statusu/
+operatorów, zapis/anulowanie, host edycji w karcie); pola `composer*` w
+query store zostają (dzielą je inne ścieżki), resztki `draft` do sprzątania
+przy okazji. (2) `KrDraftCard` = anatomia rozwiniętego KR: tytuł
+`.mg-v2-inline-field`, „×” jako cichy przycisk w tacce hover, zdanie w
+`.mg-v2-group`; „Dodaj kluczowy rezultat” = duch wiersza
+(`.mg-v2-ghost--row`), nie przycisk. (3) Placeholdery nazywają rzecz:
+„Nazwa celu / rezultatu / nawyku / trackera / priorytetu”. Nowy element
+checklisty to LOKALNY szkic kafelka z placeholderem „Nazwa elementu”, który
+trafia do listy dopiero z nazwą (domena odrzuca pustą etykietę), a porzucony
+pusty znika. (4) Nowy obiekt bez punktów nie rysuje pustej grupy wykresu
+(`chartData.length`, D9).
+Konsekwencje: `defaultItemLabel` zostaje tylko dla asystenta planowania;
+spec widoku szuka „Habit name”; plan D1–D9 ZAMKNIĘTY (P0–P4 wdrożone).
+
