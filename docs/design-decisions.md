@@ -299,3 +299,28 @@ pusty znika. (4) Nowy obiekt bez punktów nie rysuje pustej grupy wykresu
 Konsekwencje: `defaultItemLabel` zostaje tylko dla asystenta planowania;
 spec widoku szuka „Habit name”; plan D1–D9 ZAMKNIĘTY (P0–P4 wdrożone).
 
+
+## 2026-10-27 — Edytor Dziennika: Zapisz w płótnie, sekcje przy dacie, strzałka pyta o szkic
+
+Kontekst: pod siatką edytora (stałe 78 vh, panel przewijany w środku) leżał
+pasek „Czat · Anuluj · Zapisz” z `border-top`, który ucinał karty
+Kontekst/Osoby; przełącznik Emocje/AI zajmował cały rząd panelu jako dwa
+`mg-v2-button`; „Czat” i „Anuluj” były `quiet` obok wypełnionego „Zapisz”,
+a „Czat” (stary widok czatu z intencją) stał jak trzecia akcja edytora,
+choć jest drugim wejściem do AI obok zakładki. Lab:
+`/concepts/journal-editor-actions` (warianty obecnie/A/B/C/D), user wybrał D.
+Decyzja: (1) „Zapisz” = jedyna wypełniona kontrolka widoku, w stopce
+`.mg-v2-editor-canvas` tuż za treścią; stopka strony i kreska usunięte,
+dół scrollportu panelu gaśnie maską (`mask-image`, ostatnie `--mg-space-8`).
+(2) Przełącznik sekcji = `DsSegmentedControl` w rzędzie nagłówka po prawej,
+naprzeciw daty; wybór sekcji otwiera zwinięty panel, chevron dalej zwija.
+(3) „Anuluj” usunięte: wyjściem jest strzałka wstecz powłoki, która dla
+edytora prowadzi do `/history?type=journal` (dotąd `/journal`, czyli do
+samego edytora); `onBeforeRouteLeave` przy niezapisanych zmianach pokazuje
+`AppDialog` z własnymi akcjami: nowy wpis → Zachowaj szkic / Odrzuć szkic /
+Wróć do pisania, edycja → Zapisz zmiany / Odrzuć zmiany / Wróć do pisania.
+(4) „Czat” mieszka w sekcji AI: slot `intro` w `ReflectionCompanionPanel`,
+chmura `DsButton` „Porozmawiaj w osobnym czacie” rozwija intencje jako
+`.mg-v2-pill` (opis w `title`), bez dropdownu i click-outside.
+Konsekwencje: `journal.editor.*` dostaje klucze sekcji/czatu/wyjścia (pl+en);
+e2e klikają dalej przyciski „AI”/„Emocje” (kapsułka); dług strażnika 2100 → 2099.

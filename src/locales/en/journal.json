@@ -58,6 +58,16 @@
       "thinkingTrapsDescription": "Identify cognitive distortions",
       "custom": "Custom",
       "customDescription": "Use your own prompt"
-    }
+    },
+    "sectionsLabel": "Journal panel sections",
+    "chatSeparate": "Talk in a separate chat",
+    "leaveTitle": "Unsaved changes",
+    "leaveDraftMessage": "This entry is not finished. Keep it as a draft you can return to from the Journal?",
+    "leaveEditMessage": "Changes to this entry are not saved. Save them before leaving?",
+    "keepDraft": "Keep draft",
+    "discardDraft": "Discard draft",
+    "saveChanges": "Save changes",
+    "discardChanges": "Discard changes",
+    "stayWriting": "Back to writing"
   }
 }

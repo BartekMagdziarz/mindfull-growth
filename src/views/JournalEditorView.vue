@@ -35,8 +35,9 @@
         </div>
       </details>
       <p v-if="draftError" role="alert">{{ draftError }}</p>
-      <!-- Timestamp Display/Edit -->
-      <div class="flex items-center gap-3">
+      <!-- Rząd nagłówka: data po lewej, przełącznik sekcji panelu po prawej
+           (wariant D z Labu, 2026-10-27: żaden rząd panelu nie idzie na przełącznik). -->
+      <div class="flex items-center justify-between gap-3">
         <button
           type="button"
           class="text-xs uppercase tracking-wide text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2"
@@ -47,6 +48,12 @@
           <span>{{ formattedTimestamp }}</span>
           <AppIcon name="edit_note" class="text-sm opacity-60" />
         </button>
+        <DsSegmentedControl
+          v-model="sideSection"
+          :label="t('journal.editor.sectionsLabel')"
+          :options="sideSectionOptions"
+          class="journal-v2__sections"
+        />
       </div>
 
       <!-- Date/Time Picker Modal -->
@@ -135,6 +142,13 @@
               :placeholder="t('journal.editor.bodyPlaceholder')"
               class="w-full flex-1 bg-transparent text-base leading-relaxed text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-0 resize-none min-h-[240px]"
             />
+            <!-- Jedyna wypełniona kontrolka w widoku, tuż za treścią. Wyjście = strzałka
+                 wstecz powłoki (pyta o niezapisane zmiany). -->
+            <div class="journal-v2__canvas-foot">
+              <DsButton @click="handleSave" :disabled="!canSaveEntry" class="min-w-[140px]">
+                {{ isSaving ? t('common.saving') : t('common.buttons.save') }}
+              </DsButton>
+            </div>
           </div>
         </section>
 
@@ -174,24 +188,6 @@
               : 'md:opacity-0 md:translate-x-4 md:pointer-events-none',
           ]"
         >
-          <div class="flex gap-2" aria-label="Sekcje panelu Dziennika">
-            <button
-              type="button"
-              class="mg-v2-button"
-              :aria-pressed="sideSection === 'emotions'"
-              @click="sideSection = 'emotions'"
-            >
-              Emocje
-            </button>
-            <button
-              type="button"
-              class="mg-v2-button"
-              :aria-pressed="sideSection === 'ai'"
-              @click="sideSection = 'ai'"
-            >
-              AI
-            </button>
-          </div>
           <ReflectionCompanionPanel
             v-if="sideSection === 'ai' && draftReady"
             ref="companionPanel"
@@ -203,7 +199,44 @@
             :draft="body"
             :ritual-context="companionEntryContext"
             @insert="insertCompanionText"
-          />
+          >
+            <!-- Drugie wejście do AI mieszka przy pierwszym: osobny czat z intencją. -->
+            <template #intro>
+              <div class="journal-v2__chat-entry">
+                <!-- Chmura, nie wypełnienie: jedyna wypełniona kontrolka widoku to „Zapisz”. -->
+                <button
+                  type="button"
+                  class="mg-v2-button"
+                  :disabled="!canStartChat"
+                  :aria-label="t('journal.editor.startChatLabel')"
+                  :aria-expanded="showChatIntents"
+                  @click="showChatIntents = !showChatIntents"
+                >
+                  <AppIcon name="forum" />
+                  {{
+                    isStartingChat ? t('journal.editor.starting') : t('journal.editor.chatSeparate')
+                  }}
+                </button>
+                <div
+                  v-if="showChatIntents"
+                  class="journal-v2__chat-intents"
+                  role="group"
+                  :aria-label="t('journal.editor.chatDropdownPrompt')"
+                >
+                  <button
+                    v-for="option in chatIntentionOptions"
+                    :key="option.value"
+                    type="button"
+                    class="mg-v2-pill"
+                    :title="option.description"
+                    @click="handleIntentionSelection(option.value)"
+                  >
+                    {{ option.label }}
+                  </button>
+                </div>
+              </div>
+            </template>
+          </ReflectionCompanionPanel>
           <div v-show="sideSection === 'emotions'" class="flex flex-col gap-4">
             <section
               class="mg-v2-surface mg-v2-surface--raised-sm px-5 py-4 flex flex-col gap-3"
@@ -303,51 +336,6 @@
           />
         </div>
       </section>
-
-      <!-- Bottom Action Bar -->
-      <div class="journal-v2__actions flex justify-end gap-3 px-2 sm:px-4 py-4 mt-auto">
-        <!-- Chat Button with Dropdown -->
-        <div v-if="!isLoading" class="relative" ref="chatDropdownContainerRef">
-          <DsButton
-            variant="quiet"
-            @click="openChatDropdown"
-            :disabled="!canStartChat"
-            :aria-label="t('journal.editor.startChatLabel')"
-          >
-            {{ isStartingChat ? t('journal.editor.starting') : t('journal.editor.chat') }}
-          </DsButton>
-
-          <!-- Dropdown Menu -->
-          <div
-            v-if="showChatDropdown"
-            class="mg-v2-popover absolute bottom-full left-0 mb-2 w-64 p-2 z-50"
-            role="menu"
-            :aria-label="t('journal.editor.chatDropdownPrompt')"
-            @click.stop
-          >
-            <p class="px-4 py-2 text-xs text-on-surface-variant">
-              {{ t('journal.editor.chatDropdownPrompt') }}
-            </p>
-            <button
-              v-for="option in chatIntentionOptions"
-              :key="option.value"
-              @click="handleIntentionSelection(option.value)"
-              class="journal-v2__menu-item w-full text-left px-4 py-3 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2"
-              role="menuitem"
-            >
-              <div class="font-medium text-on-surface">{{ option.label }}</div>
-              <div class="text-sm text-on-surface-variant">{{ option.description }}</div>
-            </button>
-          </div>
-        </div>
-
-        <DsButton variant="quiet" @click="handleCancel" :disabled="isSaving || isStartingChat">
-          {{ t('common.buttons.cancel') }}
-        </DsButton>
-        <DsButton @click="handleSave" :disabled="!canSaveEntry" class="min-w-[140px]">
-          {{ isSaving ? t('common.saving') : t('common.buttons.save') }}
-        </DsButton>
-      </div>
     </template>
 
     <!-- Snackbar for error messages -->
@@ -365,6 +353,32 @@
       @confirm="handleConfirmDeleteChatSession"
       @cancel="handleCancelDeleteChatSession"
     />
+
+    <!-- Wyjście z niezapisanymi zmianami: szkic (nowy wpis) albo zmiany (edycja). -->
+    <AppDialog
+      v-model="showLeaveDialog"
+      :title="t('journal.editor.leaveTitle')"
+      size="lg"
+      panel-class="mg-v2-surface mg-v2-surface--raised"
+      @cancel="stayWriting"
+    >
+      <p class="text-sm text-on-surface-variant mb-6">
+        {{
+          isEditMode ? t('journal.editor.leaveEditMessage') : t('journal.editor.leaveDraftMessage')
+        }}
+      </p>
+      <div class="flex gap-3 justify-end">
+        <DsButton variant="quiet" @click="stayWriting">
+          {{ t('journal.editor.stayWriting') }}
+        </DsButton>
+        <DsButton variant="quiet" @click="discardAndLeave">
+          {{ isEditMode ? t('journal.editor.discardChanges') : t('journal.editor.discardDraft') }}
+        </DsButton>
+        <DsButton @click="keepAndLeave">
+          {{ isEditMode ? t('journal.editor.saveChanges') : t('journal.editor.keepDraft') }}
+        </DsButton>
+      </div>
+    </AppDialog>
 
     <!-- Custom Prompt Dialog -->
     <Teleport to="body">
@@ -424,10 +438,10 @@ import { getUserDatabase } from '@/services/userDatabaseService'
 import { getPeriodRefsForDate } from '@/utils/periods'
 import { entryDateFromDay } from '@/utils/relativeDay'
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter, useRoute, onBeforeRouteLeave } from 'vue-router'
 import AppDialog from '@/components/AppDialog.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
-import { DsButton } from '@/design-system/components'
+import { DsButton, DsSegmentedControl } from '@/design-system/components'
 import EmotionGroupPicker from '@/components/emotion/EmotionGroupPicker.vue'
 import TagInput from '@/components/TagInput.vue'
 import ChatSessionCard from '@/components/ChatSessionCard.vue'
@@ -470,11 +484,10 @@ const selectedContextTagIds = ref<string[]>([])
 const isEmotionDataLoading = ref(false)
 const arePeopleTagsLoading = ref(false)
 const areContextTagsLoading = ref(false)
-const showChatDropdown = ref(false)
+const showChatIntents = ref(false)
 const isStartingChat = ref(false)
 const showCustomPromptDialog = ref(false)
 const customPromptInput = ref('')
-const chatDropdownContainerRef = ref<HTMLElement | null>(null)
 const customPromptDialogRef = ref<HTMLElement | null>(null)
 const showDeleteChatDialog = ref(false)
 const chatSessionToDelete = ref<ChatSession | null>(null)
@@ -657,6 +670,8 @@ const syncEntryToForm = (entry: JournalEntry) => {
   wheelSelections.value = legacyToGroupSelections(entry)
   selectedPeopleTagIds.value = [...(entry.peopleTagIds ?? [])]
   selectedContextTagIds.value = [...(entry.contextTagIds ?? [])]
+  customCreatedAt.value = null
+  entrySnapshot.value = formSnapshot.value
 }
 
 const ensureEmotionData = async () => {
@@ -825,6 +840,7 @@ const saveEntry = async (): Promise<JournalEntry> => {
 }
 
 const resetCreateForm = () => {
+  leaveApproved.value = false
   draftReady.value = false
   clearTimeout(draftTimer)
   companionPanel.value?.cancel()
@@ -856,6 +872,7 @@ const handleSave = async () => {
       resetCreateForm()
     }
     // Navigate back to journal (redirects to /journal/edit)
+    leaveApproved.value = true
     router.push('/journal')
   } catch (error) {
     // Error handling: show error message and stay on page
@@ -869,24 +886,84 @@ const handleSave = async () => {
   }
 }
 
-const handleCancel = () => {
-  clearTimeout(draftTimer)
-  void persistDraft()
-  // In create mode the route doesn't change after navigating to /journal,
-  // so reset the form locally to clear any in-progress draft.
-  if (!isEditMode.value) {
-    resetCreateForm()
+// Wyjście z edytora (strzałka wstecz powłoki, dok, wstecz przeglądarki): przy
+// niezapisanych zmianach pytamy. Nowy wpis = szkic lokalny (zachowaj / odrzuć),
+// edycja = zmiany we wpisie (zapisz / odrzuć). Zapis i start czatu zwalniają guard.
+const showLeaveDialog = ref(false)
+const leaveApproved = ref(false)
+let pendingLeavePath: string | null = null
+const entrySnapshot = ref('')
+const formSnapshot = computed(() =>
+  JSON.stringify({
+    title: title.value,
+    body: body.value,
+    emotions: wheelSelections.value,
+    people: selectedPeopleTagIds.value,
+    contexts: selectedContextTagIds.value,
+    createdAt: customCreatedAt.value?.toISOString() ?? null,
+  })
+)
+const hasUnsavedChanges = computed(() => {
+  if (isEditMode.value) return !!currentEntry.value && formSnapshot.value !== entrySnapshot.value
+  return (
+    title.value.trim().length > 0 ||
+    body.value.trim().length > 0 ||
+    wheelSelections.value.length > 0 ||
+    selectedPeopleTagIds.value.length > 0 ||
+    selectedContextTagIds.value.length > 0
+  )
+})
+onBeforeRouteLeave(to => {
+  if (leaveApproved.value || isLoading.value || !hasUnsavedChanges.value) return true
+  pendingLeavePath = to.fullPath
+  showLeaveDialog.value = true
+  return false
+})
+const stayWriting = () => {
+  showLeaveDialog.value = false
+  pendingLeavePath = null
+}
+const continueLeaving = () => {
+  showLeaveDialog.value = false
+  leaveApproved.value = true
+  const target = pendingLeavePath ?? '/journal'
+  pendingLeavePath = null
+  router.push(target)
+}
+const keepAndLeave = async () => {
+  try {
+    companionPanel.value?.cancel()
+    clearTimeout(draftTimer)
+    if (isEditMode.value) {
+      draftReady.value = false
+      await saveEntry()
+    } else {
+      await persistDraft()
+    }
+    continueLeaving()
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Failed to save journal entry. Please try again.'
+    snackbarRef.value?.show(errorMessage)
+    reportError('JournalEditorView.keepAndLeave', error)
+  } finally {
+    draftReady.value = true
   }
-  router.push('/journal')
+}
+const discardAndLeave = async () => {
+  companionPanel.value?.cancel()
+  clearTimeout(draftTimer)
+  // Blokada autosave: onUnmounted nie może odtworzyć odrzuconego szkicu.
+  draftReady.value = false
+  if (!isEditMode.value) {
+    await draftWrite
+    await removeDraft(draftId.value)
+  }
+  continueLeaving()
 }
 
-// Chat dropdown functions
-const openChatDropdown = () => {
-  showChatDropdown.value = true
-}
-
-const closeChatDropdown = () => {
-  showChatDropdown.value = false
+const closeChatIntents = () => {
+  showChatIntents.value = false
 }
 
 // Custom prompt dialog functions
@@ -897,7 +974,7 @@ const closeCustomPromptDialog = () => {
 
 // Intention selection handler
 const handleIntentionSelection = async (intention: ChatIntention) => {
-  closeChatDropdown()
+  closeChatIntents()
 
   if (intention === CHAT_INTENTIONS.CUSTOM) {
     showCustomPromptDialog.value = true
@@ -940,6 +1017,7 @@ const startChat = async (intention: ChatIntention, customPrompt?: string) => {
     await chatStore.startChatSession(savedEntry.id, intention, customPrompt)
 
     // Navigate to chat view
+    leaveApproved.value = true
     router.push(`/journal/${savedEntry.id}/chat`)
   } catch (error) {
     const errorMessage =
@@ -988,22 +1066,11 @@ const handleCancelDeleteChatSession = () => {
   chatSessionToDelete.value = null
 }
 
-// Click outside handler for dropdown
-const handleClickOutside = (event: MouseEvent) => {
-  if (
-    showChatDropdown.value &&
-    chatDropdownContainerRef.value &&
-    !chatDropdownContainerRef.value.contains(event.target as Node)
-  ) {
-    closeChatDropdown()
-  }
-}
-
 // Escape key handler for dropdown
 const handleEscapeKey = (event: KeyboardEvent) => {
   if (event.key === 'Escape') {
-    if (showChatDropdown.value) {
-      closeChatDropdown()
+    if (showChatIntents.value) {
+      closeChatIntents()
     }
     if (showCustomPromptDialog.value) {
       closeCustomPromptDialog()
@@ -1012,6 +1079,14 @@ const handleEscapeKey = (event: KeyboardEvent) => {
 }
 
 const sideSection = ref<'emotions' | 'ai'>('emotions')
+const sideSectionOptions = computed(() => [
+  { value: 'emotions' as const, label: t('journal.editor.emotions') },
+  { value: 'ai' as const, label: 'AI' },
+])
+// Wybór sekcji w nagłówku otwiera zwinięty panel — kapsułka jest też wejściem.
+watch(sideSection, () => {
+  isSidePanelOpen.value = true
+})
 const companionPanel = ref<InstanceType<typeof ReflectionCompanionPanel> | null>(null)
 const draftRepo = journalDraftRepository()
 const draftId = ref(crypto.randomUUID() as string)
@@ -1159,7 +1234,6 @@ watch(
 
 // Load entry data if in edit mode
 onMounted(async () => {
-  document.addEventListener('click', handleClickOutside)
   document.addEventListener('keydown', handleEscapeKey)
   applyGuidedPromptSeedForCreateMode()
   if (!isEditMode.value) customCreatedAt.value = entryDateFromDay(route.query?.day)
@@ -1187,7 +1261,6 @@ onUnmounted(() => {
   clearTimeout(draftTimer)
   void persistDraft()
   // Clean up event listeners
-  document.removeEventListener('click', handleClickOutside)
   document.removeEventListener('keydown', handleEscapeKey)
 })
 </script>
@@ -1209,12 +1282,38 @@ onUnmounted(() => {
   background: var(--mg-color-mist);
 }
 
-.journal-v2__actions {
-  border-top: 1px solid var(--mg-color-border);
+.journal-v2__canvas-foot {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: auto;
+  padding-top: var(--mg-space-2);
 }
 
-.journal-v2__menu-item:hover {
-  background: var(--mg-color-primary-soft);
+.journal-v2__sections {
+  width: 9.5rem;
+}
+
+.journal-v2__chat-entry {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--mg-space-2);
+  padding-bottom: var(--mg-space-2);
+  border-bottom: 1px solid var(--mg-color-border-subtle);
+}
+
+.journal-v2__chat-intents {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mg-space-2);
+}
+
+.journal-v2__chat-intents .mg-v2-pill {
+  cursor: pointer;
+}
+
+.journal-v2__chat-intents .mg-v2-pill:hover {
+  background: var(--mg-color-paper);
 }
 
 .dialog-enter-active,
@@ -1243,8 +1342,10 @@ onUnmounted(() => {
 /* Scrollbar panelu bocznego: chowanie do czasu interakcji — kciuk jest
    przezroczysty, pojawia się dopiero gdy kursor jest nad panelem
    (desktop-only; scrollowanie kółkiem implikuje hover). */
+/* Dół scrollportu gaśnie we mgle zamiast kończyć się kreską (wariant D, 2026-10-27). */
 .journal-aside {
   scrollbar-color: transparent transparent;
+  mask-image: linear-gradient(to bottom, black calc(100% - var(--mg-space-8)), transparent);
 }
 .journal-aside:hover {
   scrollbar-color: color-mix(in srgb, var(--mg-color-border) 55%, transparent) transparent;

@@ -57,8 +57,10 @@ const showBackButton = computed(() => {
 })
 
 const backRoute = computed(() => {
+  // /journal redirects to the editor itself, so "back" from an entry means the
+  // list of entries (History, journal tab). The editor guards unsaved changes.
   if (isJournalEditorRoute.value) {
-    return '/journal'
+    return '/history?type=journal'
   }
 
   if (isEmotionEditorRoute.value) {

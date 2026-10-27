@@ -23,6 +23,8 @@
         <AppIcon name="settings" />
       </button>
     </header>
+    <!-- Wejście gospodarza nad rozmową (Dziennik: osobny czat z intencją). -->
+    <slot name="intro" />
     <div ref="scrollArea" class="companion-scroll">
       <section
         v-show="showOptions"

@@ -138,9 +138,10 @@ const AppDialogStub = defineComponent({
   },
   emits: ['update:modelValue', 'confirm', 'cancel'],
   template: `
-    <div v-if="modelValue">
+    <div v-if="modelValue" role="dialog">
       <h2>{{ title }}</h2>
       <p>{{ message }}</p>
+      <slot />
       <button type="button" @click="$emit('cancel')">
         {{ cancelText }}
       </button>
@@ -256,6 +257,15 @@ vi.mock('@/stores/chat.store', () => {
 
 import JournalEditorView from '../JournalEditorView.vue'
 
+// The AI section hosts the separate-chat entry in the panel's `intro` slot.
+const CompanionPanelStub = defineComponent({
+  name: 'CompanionPanelStub',
+  setup(_, { expose }) {
+    expose({ cancel: () => {} })
+  },
+  template: `<div data-testid="companion-stub"><slot name="intro" /></div>`,
+})
+
 const renderEditor = () =>
   render(JournalEditorView, {
     global: {
@@ -264,9 +274,16 @@ const renderEditor = () =>
         TagInput: TagInputStub,
         ChatSessionCard: ChatSessionCardStub,
         AppDialog: AppDialogStub,
+        ReflectionCompanionPanel: CompanionPanelStub,
       },
     },
   })
+
+/** Switches the side panel to AI and returns the separate-chat button. */
+const openAiSection = async () => {
+  await fireEvent.click(await screen.findByRole('button', { name: 'AI' }))
+  return await screen.findByRole('button', { name: /start chat about this entry/i })
+}
 
 // Mock journalDexieRepository
 const mockGetById = vi.hoisted(() => vi.fn())
@@ -286,6 +303,9 @@ const mockRoute = {
   query: {} as Record<string, string>,
 }
 
+type LeaveGuard = (to: { fullPath: string }) => boolean
+let leaveGuard: LeaveGuard | null = null
+
 vi.mock('vue-router', () => {
   return {
     useRouter: () => ({
@@ -295,6 +315,9 @@ vi.mock('vue-router', () => {
       }),
     }),
     useRoute: () => mockRoute,
+    onBeforeRouteLeave: (guard: LeaveGuard) => {
+      leaveGuard = guard
+    },
   }
 })
 
@@ -399,18 +422,61 @@ describe('JournalEditorView', () => {
     expect(mockCreateEntry).not.toHaveBeenCalled()
   })
 
-  it('navigates back to /journal when Cancel is clicked without calling createEntry', async () => {
-    renderEditor()
+  describe('leaving with unsaved changes', () => {
+    it('lets the route change when nothing was written', async () => {
+      renderEditor()
+      await screen.findByRole('button', { name: 'AI' })
 
-    // Click Cancel button
-    const cancelButton = screen.getByRole('button', { name: /cancel/i })
-    await fireEvent.click(cancelButton)
+      expect(leaveGuard).not.toBeNull()
+      expect(leaveGuard!({ fullPath: '/history?type=journal' })).toBe(true)
+    })
 
-    // Verify navigation
-    expect(mockPush).toHaveBeenCalledWith('/journal')
+    it('asks before leaving and continues after "Keep draft"', async () => {
+      renderEditor()
+      const bodyTextarea = screen.getByLabelText(/journal entry/i)
+      await fireEvent.update(bodyTextarea, 'Half-written thought')
 
-    // Verify createEntry was not called
-    expect(mockCreateEntry).not.toHaveBeenCalled()
+      expect(leaveGuard!({ fullPath: '/history?type=journal' })).toBe(false)
+      const dialog = await screen.findByRole('dialog')
+      expect(within(dialog).getByText('Unsaved changes')).toBeInTheDocument()
+
+      await fireEvent.click(within(dialog).getByRole('button', { name: 'Keep draft' }))
+
+      await waitFor(() => {
+        expect(mockPush).toHaveBeenCalledWith('/history?type=journal')
+      })
+      expect(mockCreateEntry).not.toHaveBeenCalled()
+    })
+
+    it('stays on the editor after "Back to writing"', async () => {
+      renderEditor()
+      const bodyTextarea = screen.getByLabelText(/journal entry/i)
+      await fireEvent.update(bodyTextarea, 'Half-written thought')
+
+      expect(leaveGuard!({ fullPath: '/history?type=journal' })).toBe(false)
+      const dialog = await screen.findByRole('dialog')
+      await fireEvent.click(within(dialog).getByRole('button', { name: 'Back to writing' }))
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+      })
+      expect(mockPush).not.toHaveBeenCalled()
+    })
+
+    it('discards the draft and leaves after "Discard draft"', async () => {
+      renderEditor()
+      const bodyTextarea = screen.getByLabelText(/journal entry/i)
+      await fireEvent.update(bodyTextarea, 'Half-written thought')
+
+      expect(leaveGuard!({ fullPath: '/history?type=journal' })).toBe(false)
+      const dialog = await screen.findByRole('dialog')
+      await fireEvent.click(within(dialog).getByRole('button', { name: 'Discard draft' }))
+
+      await waitFor(() => {
+        expect(mockPush).toHaveBeenCalledWith('/history?type=journal')
+      })
+      expect(mockCreateEntry).not.toHaveBeenCalled()
+    })
   })
 
   it('calls createEntry with undefined title when title is empty', async () => {
@@ -543,22 +609,22 @@ describe('JournalEditorView', () => {
   })
 
   describe('Chat Button', () => {
-    it('renders Chat button in bottom action bar', async () => {
+    it('renders the separate-chat entry in the AI section only', async () => {
       renderEditor()
+      await screen.findByRole('button', { name: 'AI' })
+      expect(
+        screen.queryByRole('button', { name: /start chat about this entry/i })
+      ).not.toBeInTheDocument()
 
-      const chatButton = await screen.findByRole('button', {
-        name: /start chat about this entry/i,
-      })
+      const chatButton = await openAiSection()
       expect(chatButton).toBeInTheDocument()
-      expect(chatButton).toHaveTextContent('Chat')
+      expect(chatButton).toHaveTextContent('Talk in a separate chat')
     })
 
     it('disables Chat button when body is empty', async () => {
       renderEditor()
 
-      const chatButton = await screen.findByRole('button', {
-        name: /start chat about this entry/i,
-      })
+      const chatButton = await openAiSection()
       expect(chatButton).toBeDisabled()
     })
 
@@ -578,9 +644,7 @@ describe('JournalEditorView', () => {
       const bodyTextarea = screen.getByLabelText(/journal entry/i)
       await fireEvent.update(bodyTextarea, 'Test body')
 
-      const chatButton = screen.getByRole('button', {
-        name: /start chat about this entry/i,
-      })
+      const chatButton = await openAiSection()
       const saveButton = screen.getByRole('button', { name: /save/i })
 
       // Initially enabled
@@ -601,9 +665,7 @@ describe('JournalEditorView', () => {
       const bodyTextarea = screen.getByLabelText(/journal entry/i)
       await fireEvent.update(bodyTextarea, 'Test body content')
 
-      const chatButton = await screen.findByRole('button', {
-        name: /start chat about this entry/i,
-      })
+      const chatButton = await openAiSection()
       expect(chatButton).not.toBeDisabled()
     })
 
@@ -623,9 +685,7 @@ describe('JournalEditorView', () => {
       const bodyTextarea = screen.getByLabelText(/journal entry/i)
       await fireEvent.update(bodyTextarea, 'Test body')
 
-      const chatButton = screen.getByRole('button', {
-        name: /start chat about this entry/i,
-      })
+      const chatButton = await openAiSection()
 
       // Click chat button to open dropdown
       await fireEvent.click(chatButton)
@@ -648,9 +708,7 @@ describe('JournalEditorView', () => {
       const bodyTextarea = screen.getByLabelText(/journal entry/i)
       await fireEvent.update(bodyTextarea, 'Test body')
 
-      const chatButton = screen.getByRole('button', {
-        name: /start chat about this entry/i,
-      })
+      const chatButton = await openAiSection()
       await fireEvent.click(chatButton)
 
       // Dropdown should show all intention options
@@ -663,46 +721,21 @@ describe('JournalEditorView', () => {
       })
     })
 
-    it('shows descriptions for each intention option', async () => {
+    it('keeps each intention description as the chip title', async () => {
       renderEditor()
 
       const bodyTextarea = screen.getByLabelText(/journal entry/i)
       await fireEvent.update(bodyTextarea, 'Test body')
 
-      const chatButton = screen.getByRole('button', {
-        name: /start chat about this entry/i,
-      })
+      const chatButton = await openAiSection()
       await fireEvent.click(chatButton)
 
       await waitFor(() => {
-        expect(screen.getByText('Explore deeper meanings and patterns')).toBeInTheDocument()
-        expect(screen.getByText('Consider alternative perspectives')).toBeInTheDocument()
-        expect(screen.getByText('Identify actionable steps')).toBeInTheDocument()
-        expect(screen.getByText('Identify cognitive distortions')).toBeInTheDocument()
-        expect(screen.getByText('Use your own prompt')).toBeInTheDocument()
-      })
-    })
-
-    it('closes dropdown when clicking outside', async () => {
-      renderEditor()
-
-      const bodyTextarea = screen.getByLabelText(/journal entry/i)
-      await fireEvent.update(bodyTextarea, 'Test body')
-
-      const chatButton = screen.getByRole('button', {
-        name: /start chat about this entry/i,
-      })
-      await fireEvent.click(chatButton)
-
-      await waitFor(() => {
-        expect(screen.getByText('Reflect')).toBeInTheDocument()
-      })
-
-      // Click outside (on body)
-      await fireEvent.click(document.body)
-
-      await waitFor(() => {
-        expect(screen.queryByText('Reflect')).not.toBeInTheDocument()
+        expect(screen.getByText('Reflect')).toHaveAttribute(
+          'title',
+          'Explore deeper meanings and patterns'
+        )
+        expect(screen.getByText('Custom')).toHaveAttribute('title', 'Use your own prompt')
       })
     })
 
@@ -712,9 +745,7 @@ describe('JournalEditorView', () => {
       const bodyTextarea = screen.getByLabelText(/journal entry/i)
       await fireEvent.update(bodyTextarea, 'Test body')
 
-      const chatButton = screen.getByRole('button', {
-        name: /start chat about this entry/i,
-      })
+      const chatButton = await openAiSection()
       await fireEvent.click(chatButton)
 
       await waitFor(() => {
@@ -745,9 +776,7 @@ describe('JournalEditorView', () => {
       const bodyTextarea = screen.getByLabelText(/journal entry/i)
       await fireEvent.update(bodyTextarea, 'Test body')
 
-      const chatButton = screen.getByRole('button', {
-        name: /start chat about this entry/i,
-      })
+      const chatButton = await openAiSection()
       await fireEvent.click(chatButton)
 
       const reflectOption = await screen.findByText('Reflect')
@@ -780,9 +809,7 @@ describe('JournalEditorView', () => {
       const bodyTextarea = screen.getByLabelText(/journal entry/i)
       await fireEvent.update(bodyTextarea, 'Test body')
 
-      const chatButton = screen.getByRole('button', {
-        name: /start chat about this entry/i,
-      })
+      const chatButton = await openAiSection()
       await fireEvent.click(chatButton)
 
       const customOption = await screen.findByText('Custom')
@@ -807,9 +834,7 @@ describe('JournalEditorView', () => {
       const bodyTextarea = screen.getByLabelText(/journal entry/i)
       await fireEvent.update(bodyTextarea, 'Test body')
 
-      const chatButton = screen.getByRole('button', {
-        name: /start chat about this entry/i,
-      })
+      const chatButton = await openAiSection()
       await fireEvent.click(chatButton)
 
       const customOption = await screen.findByText('Custom')
@@ -829,9 +854,7 @@ describe('JournalEditorView', () => {
       const bodyTextarea = screen.getByLabelText(/journal entry/i)
       await fireEvent.update(bodyTextarea, 'Test body')
 
-      const chatButton = screen.getByRole('button', {
-        name: /start chat about this entry/i,
-      })
+      const chatButton = await openAiSection()
       await fireEvent.click(chatButton)
 
       const customOption = await screen.findByText('Custom')
@@ -851,9 +874,7 @@ describe('JournalEditorView', () => {
       const bodyTextarea = screen.getByLabelText(/journal entry/i)
       await fireEvent.update(bodyTextarea, 'Test body')
 
-      const chatButton = screen.getByRole('button', {
-        name: /start chat about this entry/i,
-      })
+      const chatButton = await openAiSection()
       await fireEvent.click(chatButton)
 
       const customOption = await screen.findByText('Custom')
@@ -870,9 +891,7 @@ describe('JournalEditorView', () => {
       const bodyTextarea = screen.getByLabelText(/journal entry/i)
       await fireEvent.update(bodyTextarea, 'Test body')
 
-      const chatButton = screen.getByRole('button', {
-        name: /start chat about this entry/i,
-      })
+      const chatButton = await openAiSection()
       await fireEvent.click(chatButton)
 
       const customOption = await screen.findByText('Custom')
@@ -894,9 +913,7 @@ describe('JournalEditorView', () => {
       const bodyTextarea = screen.getByLabelText(/journal entry/i)
       await fireEvent.update(bodyTextarea, 'Test body')
 
-      const chatButton = screen.getByRole('button', {
-        name: /start chat about this entry/i,
-      })
+      const chatButton = await openAiSection()
       await fireEvent.click(chatButton)
 
       const customOption = await screen.findByText('Custom')
@@ -932,9 +949,7 @@ describe('JournalEditorView', () => {
       const bodyTextarea = screen.getByLabelText(/journal entry/i)
       await fireEvent.update(bodyTextarea, 'Test body')
 
-      const chatButton = screen.getByRole('button', {
-        name: /start chat about this entry/i,
-      })
+      const chatButton = await openAiSection()
       await fireEvent.click(chatButton)
 
       const customOption = await screen.findByText('Custom')
@@ -976,9 +991,7 @@ describe('JournalEditorView', () => {
       const bodyTextarea = screen.getByLabelText(/journal entry/i)
       await fireEvent.update(bodyTextarea, 'Test body')
 
-      const chatButton = screen.getByRole('button', {
-        name: /start chat about this entry/i,
-      })
+      const chatButton = await openAiSection()
       await fireEvent.click(chatButton)
 
       const customOption = await screen.findByText('Custom')
@@ -1012,9 +1025,7 @@ describe('JournalEditorView', () => {
       const bodyTextarea = screen.getByLabelText(/journal entry/i)
       await fireEvent.update(bodyTextarea, 'Test body')
 
-      const chatButton = screen.getByRole('button', {
-        name: /start chat about this entry/i,
-      })
+      const chatButton = await openAiSection()
       await fireEvent.click(chatButton)
 
       const reflectOption = await screen.findByText('Reflect')
@@ -1057,9 +1068,7 @@ describe('JournalEditorView', () => {
       const bodyTextarea = await screen.findByLabelText(/journal entry/i)
       await fireEvent.update(bodyTextarea, 'Updated body')
 
-      const chatButton = screen.getByRole('button', {
-        name: /start chat about this entry/i,
-      })
+      const chatButton = await openAiSection()
       await fireEvent.click(chatButton)
 
       const reflectOption = await screen.findByText('Reflect')
@@ -1089,9 +1098,7 @@ describe('JournalEditorView', () => {
       const bodyTextarea = screen.getByLabelText(/journal entry/i)
       await fireEvent.update(bodyTextarea, 'Test body')
 
-      const chatButton = screen.getByRole('button', {
-        name: /start chat about this entry/i,
-      })
+      const chatButton = await openAiSection()
       await fireEvent.click(chatButton)
 
       const reflectOption = await screen.findByText('Reflect')
@@ -1124,9 +1131,7 @@ describe('JournalEditorView', () => {
       const bodyTextarea = screen.getByLabelText(/journal entry/i)
       await fireEvent.update(bodyTextarea, 'Test body')
 
-      const chatButton = screen.getByRole('button', {
-        name: /start chat about this entry/i,
-      })
+      const chatButton = await openAiSection()
       await fireEvent.click(chatButton)
 
       const reflectOption = await screen.findByText('Reflect')
@@ -1144,9 +1149,7 @@ describe('JournalEditorView', () => {
     it('shows validation error when Chat is clicked with empty body', async () => {
       renderEditor()
 
-      const chatButton = await screen.findByRole('button', {
-        name: /start chat about this entry/i,
-      })
+      const chatButton = await openAiSection()
 
       // Chat button should be disabled when body is empty
       expect(chatButton).toBeDisabled()
@@ -1335,9 +1338,7 @@ describe('JournalEditorView', () => {
       const bodyTextarea = screen.getByLabelText(/journal entry/i)
       await fireEvent.update(bodyTextarea, 'Test body')
 
-      const chatButton = screen.getByRole('button', {
-        name: /start chat about this entry/i,
-      })
+      const chatButton = await openAiSection()
       await fireEvent.click(chatButton)
 
       const proactiveOption = await screen.findByText('Help to be proactive')
@@ -1362,9 +1363,7 @@ describe('JournalEditorView', () => {
       const bodyTextarea = screen.getByLabelText(/journal entry/i)
       await fireEvent.update(bodyTextarea, 'Test body')
 
-      const chatButton = screen.getByRole('button', {
-        name: /start chat about this entry/i,
-      })
+      const chatButton = await openAiSection()
       await fireEvent.click(chatButton)
 
       const customOption = await screen.findByText('Custom')

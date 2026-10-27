@@ -58,6 +58,16 @@
       "thinkingTrapsDescription": "Rozpoznaj zniekształcenia poznawcze",
       "custom": "Własne",
       "customDescription": "Użyj własnego pytania"
-    }
+    },
+    "sectionsLabel": "Sekcje panelu Dziennika",
+    "chatSeparate": "Porozmawiaj w osobnym czacie",
+    "leaveTitle": "Niezapisane zmiany",
+    "leaveDraftMessage": "Masz nieskończony wpis. Zachować go jako szkic, do którego wrócisz z Dziennika?",
+    "leaveEditMessage": "Zmiany w tym wpisie nie są zapisane. Zapisać je przed wyjściem?",
+    "keepDraft": "Zachowaj szkic",
+    "discardDraft": "Odrzuć szkic",
+    "saveChanges": "Zapisz zmiany",
+    "discardChanges": "Odrzuć zmiany",
+    "stayWriting": "Wróć do pisania"
   }
 }

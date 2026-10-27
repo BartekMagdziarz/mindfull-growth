@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-10-26",
-  "total": 2100,
+  "generatedAt": "2026-10-27",
+  "total": 2099,
   "byRule": {
     "legacyClass": 771,
     "tailwindArbitraryText": 138,
@@ -8,7 +8,7 @@
     "radiusLiteral": 232,
     "localShadow": 25,
     "fontSizeLiteral": 473,
-    "tailwindRadius": 309,
+    "tailwindRadius": 308,
     "tailwindShadow": 122,
     "rawColor": 29
   },
@@ -189,7 +189,6 @@
     "src/views/AIPlaygroundView.vue": 16,
     "src/views/CalendarStreamView.vue": 16,
     "src/views/ChatView.vue": 4,
-    "src/views/JournalEditorView.vue": 1,
     "src/views/PsychologicalProfileView.vue": 6,
     "src/views/SignupView.vue": 1,
     "src/views/exercises/ConstellationView.vue": 1,
