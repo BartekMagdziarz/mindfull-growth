@@ -208,8 +208,7 @@ export const DEMO_WEEK_STORIES: DemoWeekStory[] = [
     wentWell: 'Warsztat z klientem wyszedł dobrze. Zadałam pytanie, którego się bałam.',
     challenges: 'Sen się rozjechał przez upały.',
     lessons: 'Pytanie to nie dowód niewiedzy, tylko zaangażowania.',
-    freeform:
-      'Napisałam list samowspółczucia z czasów studiów. Płakałam, ale to był dobry płacz.',
+    freeform: 'Napisałam list samowspółczucia z czasów studiów. Płakałam, ale to był dobry płacz.',
     intentions: ['Kupić wentylator do sypialni', 'Odmówić dodatkowego projektu'],
   },
   {

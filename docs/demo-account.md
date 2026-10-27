@@ -56,7 +56,7 @@ zamieniał w wyrok. Konto pokazuje, jak aplikacja pomaga jej z tego wyjść.
   refleksje, blok „Ścieżka” z oceną nasilenia wstydu.
 - **Refleksja miesiąca** (`?action=reflect`): oceny priorytetów z werdyktami.
 - **Ścieżka wstydu** (`/exercises/programs/shame-compassion`): osiem faz,
-  pomiar współczucia dla siebie przed i po, wykres części, moje zdania.
+  pomiar samowspółczucia przed i po, wykres części, moje zdania.
 - **Cele** (`/objects/goals`, filtr zamkniętych): „Przebiec 10 km” z refleksją
   zamknięcia i migawką rezultatów.
 - **Historia** (`/history`): dziennik i emocje z całego półrocza.

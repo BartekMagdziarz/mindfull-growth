@@ -270,7 +270,7 @@ compact left-aligned cluster. Rule for the whole view: the right edge of a row i
 only, an ACTION sits right after its content, no dashed separators, tones go in one direction
 (card → mist → paper). Renames: the attack-others part is **Agresor** (EN "the Aggressor"; the
 seeded IFS part name too — existing parts keep their stored name); the FSCRS/SCS-SF scale labels
-are nouns (Współczucie dla siebie · Uspokajanie siebie · Poczucie, że nie wystarczam · Niechęć
+are nouns (Samowspółczucie · Uspokajanie siebie · Poczucie, że nie wystarczam · Niechęć
 do siebie). E2E: `e2e/verification-shame-v3.spec.ts` follows the new structure.
 
 ## New building blocks (2026-09-23)

@@ -52,7 +52,12 @@
         <AppCard padding="lg" class="space-y-4">
           <p class="likert-question">{{ tg(item.textKey) }}</p>
 
-          <div class="flex flex-wrap gap-2" role="radiogroup" :aria-label="tg(item.textKey)">
+          <div
+            :class="definition.labelledResponses ? 'flex flex-wrap gap-2' : 'likert-scale'"
+            :style="{ '--scale-n': item.responseMax - item.responseMin + 1 }"
+            role="radiogroup"
+            :aria-label="tg(item.textKey)"
+          >
             <button
               v-for="value in responseValues(item.responseMin, item.responseMax)"
               :key="value"
@@ -236,6 +241,17 @@ function emitResponse(itemId: string, value: number): void {
   font-size: var(--mg-font-size-md);
   font-weight: var(--mg-weight-label);
   line-height: 1.5;
+}
+
+/* Numbered answers share the width, so the end labels sit under 1 and N. */
+.likert-scale {
+  display: grid;
+  grid-template-columns: repeat(var(--scale-n, 5), minmax(0, 1fr));
+  gap: var(--mg-space-2);
+}
+
+.likert-scale > .exercise-chip {
+  align-items: center;
 }
 
 .likert-question--title {
