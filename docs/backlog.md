@@ -27,6 +27,68 @@ wracania do rozmowy, w której go znaleziono.
 
 ## Błędy
 
+### B-11 · Scena Labu „Pola na kartach biblioteki” importuje usunięty `ObjectCardAffiliation`
+
+`otwarte` · Znaleziono 2026-10-27 przy propozycjach dla przycisków edytora Dziennika · UX Lab, `ux-lab/app/src/components/object-fields/FieldCard.vue`
+
+**Objaw.** `/concepts/object-card-fields` nie wstaje (Vite: `Failed to resolve import
+"@product/components/objects/ObjectCardAffiliation.vue"`). Do 2026-10-27 kładło to cały
+Lab, bo router importował wszystkie sceny statycznie; teraz sceny są leniwe
+(`ux-lab/app/src/router/index.ts`), więc pada tylko ta trasa.
+
+**Jak odtworzyć.** `npm run dev:lab:ui` → `http://127.0.0.1:5201/concepts/object-card-fields`
+→ błąd 500 w konsoli serwera, pusta scena.
+
+**Przyczyna.** Commit `866cac10` (przynależność jako linia tekstu) usunął
+`src/components/objects/ObjectCardAffiliation.vue`, a `FieldCard.vue:14-18` i `:72` nadal go
+importują i renderują z propsami `priority-ids`/`life-area-ids`/`*-options`. Zastępca w
+produkcie to `ObjectCardMetaLine.vue` (inne propsy: `periods`, `cadence`, `priorityIds`,
+`lifeAreaIds`, …). `vue-tsc` Labu tego nie łapie — alias `@product` nie jest rozwiązywany
+w typecheckingu, więc nieznany import jest `any`.
+
+**Dlaczego to błąd.** README Labu obiecuje, że każda scena działa niezależnie; scena
+`object-card-fields` jest zapisem wdrożonej decyzji (reguła B) i ma pozostać czytelna.
+
+**Propozycja naprawy.** W `FieldCard.vue` zamienić `ObjectCardAffiliation` na
+`ObjectCardMetaLine` (jedna linia tekstu pod tytułem, zgodnie z 866cac10) albo zreplikować
+dawne glify lokalnie w Labie, skoro scena dokumentuje stan z 11.10.2026. Przy okazji dodać
+do `check-boundaries.mjs` sprawdzenie, czy ścieżki `@product/...` istnieją na dysku.
+
+**Kryteria akceptacji.** Scena otwiera się bez błędów; `npm --prefix ux-lab/app run build`
+przechodzi; nowy check wykrywa nieistniejący import produktu.
+
+### B-10 · Zaznaczony `neo-pill--primary` wygląda jak niezaznaczony (mostek legacy)
+
+`otwarte` · Znaleziono 2026-10-25 przy poprawie postępu w kwestionariuszach · design system, `adapters.css`
+
+**Objaw.** Chip wybrany w kontrolkach na `neo-pill` nie różni się od pozostałych —
+nie widać, która opcja jest zaznaczona (tak wyglądały odpowiedzi w kwestionariuszach,
+zanim przeszły na `.exercise-chip`).
+
+**Jak odtworzyć.** `npm run dev:verify` → Profil → budowanie profilu, krok zakresu
+(`ProfileScopeStep`): kliknij preset dat albo filtr ćwiartki — chip nie dostaje obrysu
+akcentu. To samo w `ProfileContextToggle`, `KrPillDropdown`, `AnnualPlanningWizard`.
+
+**Przyczyna.** `src/design-system/adapters.css:375` (`.neo-pill.neo-pill`, specyficzność
+0-2-0) ustawia tło mist, ramkę `--mg-color-border` i atrament dla KAŻDEGO `neo-pill`.
+Reguła stanu wybranego `:where(.neo-pill--primary)` w `:313` ma specyficzność 0-1-0
+(`.mg-design-v2` + `:where`), więc przegrywa i obrys akcentu nigdy się nie pojawia.
+
+**Dlaczego to błąd.** README design systemu: zaznaczony chip = cienki obrys akcentu na
+paper. Stan wybrany jest niewidoczny, więc kontrolka nie komunikuje wyboru.
+
+**Propozycja naprawy.** Dopisać w sekcji mostka 2026-10-20 regułę o wyższej
+specyficzności: `.neo-pill.neo-pill.neo-pill--primary { border-color: var(--mg-color-primary);
+color: var(--mg-color-primary-strong); background: var(--mg-color-paper); }`. Lepiej:
+przenieść tych 4 konsumentów na `.mg-v2-pill--primary.mg-v2-pill--selected` i usunąć
+mostek dla `neo-pill--primary`.
+
+**Kryteria akceptacji.** W 4 widokach wybrany chip ma obrys akcentu; zrzuty 1512 × 982 @2x
+przed/po; `npm run check:design-system` OK.
+
+**Uwagi.** Kwestionariusze już nie zależą od tej reguły (`LikertItemList` używa
+`.exercise-chip`).
+
 ### B-9 · Testy katalogu ikon UX Labu oczekują 320 zamiast 325 ikon
 
 `otwarte` · Znaleziono 2026-10-25 przy prototypie pomocnika planowania AI · UX Lab, testy katalogu ikon

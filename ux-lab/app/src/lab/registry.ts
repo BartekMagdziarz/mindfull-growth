@@ -173,6 +173,13 @@ export const navGroups: LabNavGroup[] = [
     ],
   },
   {
+    id: 'journal-concepts',
+    label: 'Dziennik',
+    items: [
+      { id: 'journal-editor-actions', label: 'Przyciski edytora i przełącznik Emocje/AI', kicker: 'Wariant D WDROŻONY 2026-10-27 · Zapisz w płótnie, kapsułka przy dacie, bez Anuluj, Czat w AI · A/B/C do porównania', icon: 'edit_note', path: '/concepts/journal-editor-actions', kind: 'concept' },
+    ],
+  },
+  {
     id: 'emotion-concepts',
     label: 'Emocje',
     items: [

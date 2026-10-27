@@ -1,26 +1,27 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import OrganicIconCatalog from '~lab/experiments/OrganicIconCatalog.vue'
-import QuickPlanScenario from '~lab/scenarios/QuickPlanScenario.vue'
-import ResearchScenario from '~lab/scenarios/ResearchScenario.vue'
-import SystemMapScenario from '~lab/scenarios/SystemMapScenario.vue'
-import PriorityCreatorScenario from '~lab/scenarios/PriorityCreatorScenario.vue'
-import PriorityHubScenario from '~lab/scenarios/PriorityHubScenario.vue'
-import EmotionPickerSkinsScenario from '~lab/scenarios/EmotionPickerSkinsScenario.vue'
-import WeekLoadStateScenario from '~lab/scenarios/WeekLoadStateScenario.vue'
-import WeekLoadStatePlacesScenario from '~lab/scenarios/WeekLoadStatePlacesScenario.vue'
-import LabGuideScenario from '~lab/scenarios/LabGuideScenario.vue'
-import ObjectCardsScenario from '~lab/scenarios/ObjectCardsScenario.vue'
-import ObjectCardFieldsScenario from '~lab/scenarios/ObjectCardFieldsScenario.vue'
-import TodayRowExpansionScenario from '~lab/scenarios/TodayRowExpansionScenario.vue'
-import TodayPathPanelScenario from '~lab/scenarios/TodayPathPanelScenario.vue'
-import TodayTilesScenario from '~lab/scenarios/TodayTilesScenario.vue'
-import ShamePathScenario from '~lab/scenarios/ShamePathScenario.vue'
-import PathViewV2Scenario from '~lab/scenarios/PathViewV2Scenario.vue'
-import PathWeekReflectionScenario from '~lab/scenarios/PathWeekReflectionScenario.vue'
-import WorkbenchScenario from '~lab/scenarios/WorkbenchScenario.vue'
-import ReplicaPreviewScenario from '~lab/scenarios/ReplicaPreviewScenario.vue'
-import ReflectionWaitScenario from '~lab/scenarios/ReflectionWaitScenario.vue'
-import PlanningAssistantScenario from '~lab/scenarios/PlanningAssistantScenario.vue'
+const OrganicIconCatalog = () => import('~lab/experiments/OrganicIconCatalog.vue')
+const QuickPlanScenario = () => import('~lab/scenarios/QuickPlanScenario.vue')
+const ResearchScenario = () => import('~lab/scenarios/ResearchScenario.vue')
+const SystemMapScenario = () => import('~lab/scenarios/SystemMapScenario.vue')
+const PriorityCreatorScenario = () => import('~lab/scenarios/PriorityCreatorScenario.vue')
+const PriorityHubScenario = () => import('~lab/scenarios/PriorityHubScenario.vue')
+const EmotionPickerSkinsScenario = () => import('~lab/scenarios/EmotionPickerSkinsScenario.vue')
+const WeekLoadStateScenario = () => import('~lab/scenarios/WeekLoadStateScenario.vue')
+const WeekLoadStatePlacesScenario = () => import('~lab/scenarios/WeekLoadStatePlacesScenario.vue')
+const LabGuideScenario = () => import('~lab/scenarios/LabGuideScenario.vue')
+const ObjectCardsScenario = () => import('~lab/scenarios/ObjectCardsScenario.vue')
+const ObjectCardFieldsScenario = () => import('~lab/scenarios/ObjectCardFieldsScenario.vue')
+const TodayRowExpansionScenario = () => import('~lab/scenarios/TodayRowExpansionScenario.vue')
+const TodayPathPanelScenario = () => import('~lab/scenarios/TodayPathPanelScenario.vue')
+const TodayTilesScenario = () => import('~lab/scenarios/TodayTilesScenario.vue')
+const ShamePathScenario = () => import('~lab/scenarios/ShamePathScenario.vue')
+const PathViewV2Scenario = () => import('~lab/scenarios/PathViewV2Scenario.vue')
+const PathWeekReflectionScenario = () => import('~lab/scenarios/PathWeekReflectionScenario.vue')
+const WorkbenchScenario = () => import('~lab/scenarios/WorkbenchScenario.vue')
+const ReplicaPreviewScenario = () => import('~lab/scenarios/ReplicaPreviewScenario.vue')
+const ReflectionWaitScenario = () => import('~lab/scenarios/ReflectionWaitScenario.vue')
+const PlanningAssistantScenario = () => import('~lab/scenarios/PlanningAssistantScenario.vue')
+const JournalEditorActionsScenario = () => import('~lab/scenarios/JournalEditorActionsScenario.vue')
 
 export default createRouter({
   history: createWebHistory(),
@@ -45,6 +46,8 @@ export default createRouter({
     { path: '/map', component: SystemMapScenario, meta: { scenarioId: 'map' } },
     { path: '/concepts/priority-creator', component: PriorityCreatorScenario, meta: { scenarioId: 'priority-creator' } },
     { path: '/concepts/priority-hub', component: PriorityHubScenario, meta: { scenarioId: 'priority-hub' } },
+    { path: '/concepts/journal-editor-actions', component: JournalEditorActionsScenario, meta: { scenarioId: 'journal-editor-actions' } },
+    { path: '/preview/journal-editor-actions', component: JournalEditorActionsScenario, meta: { scenarioId: 'journal-editor-actions', standalone: true } },
     { path: '/concepts/emotion-picker', component: EmotionPickerSkinsScenario, meta: { scenarioId: 'emotion-picker' } },
     { path: '/concepts/week-load-state', component: WeekLoadStateScenario, meta: { scenarioId: 'week-load-state' } },
     { path: '/concepts/week-load-state-places', component: WeekLoadStatePlacesScenario, meta: { scenarioId: 'week-load-state-places' } },
