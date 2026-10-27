@@ -30,6 +30,7 @@ import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import ChatIntentionBadge from '@/components/ChatIntentionBadge.vue'
 import type { ChatSession } from '@/domain/chatSession'
+import { useT } from '@/composables/useT'
 import { formatChatSessionDate } from '@/utils/dateFormat'
 
 const props = defineProps<{
@@ -42,8 +43,10 @@ defineEmits<{
   delete: []
 }>()
 
+const { locale } = useT()
+
 const formattedCreatedAt = computed(() => {
-  return formatChatSessionDate(props.chatSession.createdAt)
+  return formatChatSessionDate(props.chatSession.createdAt, locale.value)
 })
 
 const messageCountLabel = computed(() => {

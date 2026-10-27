@@ -27,33 +27,6 @@ wracania do rozmowy, w której go znaleziono.
 
 ## Błędy
 
-### B-12 · `returnQueries.spec` pada, gdy realna data mija stałe `TODAY` testu
-
-`otwarte` · Znaleziono 2026-10-27 przy wdrożeniu wariantu D edytora Dziennika · rytuał powrotu, `src/services/__tests__/returnQueries.spec.ts:154`
-
-**Objaw.** `npx vitest run` → „by hand there is no threshold: a short gap, or none at all,
-still opens the ritual”: `expected undefined to match object { weeks: [], crossedMonth: false }`.
-Reszta pliku zielona.
-
-**Jak odtworzyć.** `npx vitest run src/services/__tests__/returnQueries.spec.ts` dowolnego dnia
-po dacie z `const TODAY = '2026-10-25' as DayRef`.
-
-**Przyczyna.** `getReturnBreakForRitual(true, today)` (`src/services/returnQueries.ts:207`)
-bez żadnego sygnału bierze `new Date().toISOString()` jako `lastSignalAt`, a test podaje
-stałe `TODAY` z przeszłości. Gdy zegar systemowy jest późniejszy niż `TODAY`, przerwa
-zaczyna się „po dziś” i `buildReturnBreak` zwraca `undefined`. Pierwsza asercja (bez
-wpisów) nie ma zamrożonego zegara — `vi.useFakeTimers` jest dopiero w `buildReturnInventory`.
-
-**Dlaczego to błąd.** Test zależy od daty uruchomienia; od 2026-10-27 bramka `vitest`
-jest czerwona bez zmiany w kodzie.
-
-**Propozycja naprawy.** W tym `describe` zamrozić zegar na `TODAY` (`vi.useFakeTimers`
-+ `vi.setSystemTime`) jak w `buildReturnInventory`, albo przekazywać „teraz” do
-`getReturnBreakForRitual` jawnie (parametr `now`), tak jak `today`.
-
-**Kryteria akceptacji.** Spec zielony niezależnie od daty systemowej; pozostałe 8 testów
-pliku bez zmian.
-
 ### B-11 · Scena Labu „Pola na kartach biblioteki” importuje usunięty `ObjectCardAffiliation`
 
 `otwarte` · Znaleziono 2026-10-27 przy propozycjach dla przycisków edytora Dziennika · UX Lab, `ux-lab/app/src/components/object-fields/FieldCard.vue`
@@ -145,38 +118,6 @@ przechodzą; kontury zatwierdzonych ikon i filtry kolekcji nadal są sprawdzane.
 **Uwagi.** Nie zwiększać wyłącznie jednej liczby ani nie usuwać sprawdzania geometrii.
 Przed naprawą ponownie sprawdzić katalog i numery linii.
 
-### B-8 · Cztery testy e2e verify są flaky na runnerze GitHuba (stabilne lokalnie)
-
-`otwarte` · Znaleziono 2026-10-20 przy pierwszym zielonym przebiegu jobu `e2e` w CI (run 39497...) · e2e weryfikacyjne, CI
-
-**Objaw.** Job `e2e` kończy się zielono tylko dzięki `retries: 2` (CI): Playwright raportuje
-„4 flaky, 35 passed (10.5m)”. Lokalnie ta sama suita na tym samym commicie daje 39/39 w ~1,2 min,
-dwa razy z rzędu.
-
-**Które testy.** `verification-goal-closing.spec.ts:150` (saved weekly reflection invites to close
-overdue goals), `verification-multi-completion.spec.ts:51` (today row chips toggle items),
-`verification-observations.spec.ts:2` (observation → … → next conversation),
-`verification-shame-v3.spec.ts:147` (Momenty, shame variant). Pierwsze podejścia padają na
-`Test timeout of 120000ms exceeded` (×2, w tym `locator.click`) i `Timeout: 5000ms` w `expect`;
-w logu są też `Failed to upsert period object reflection: … missing-id not found` i
-`Failed to link build log to saved profile: log table corrupt` — to oczekiwane błędy z testów
-błędów (reportError w vitest je wycisza, Playwright nie), nie przyczyna.
-
-**Jak odtworzyć.** Push na main → job `e2e` w .github/workflows/ci.yml (ubuntu-latest, 1 worker,
-dev:verify podnoszony przez webServer Playwrighta) → artefakt `playwright-report`.
-
-**Przyczyna (hipoteza).** Runner jest ~8× wolniejszy niż lokalna maszyna (10,5 min vs 1,2 min dla
-całej suity); 5-sekundowy domyślny `expect` timeout i kroki, które czekają na seedowanie bazy
-(`window.__verifySeed()`), nie mieszczą się w czasie przy zimnym starcie Vite w trybie dev.
-
-**Propozycja naprawy.** W `playwright.config.ts` dla CI: `expect.timeout` 15 s i `actionTimeout`
-15 s (tylko gdy `process.env.CI`), rozgrzanie dev-servera przed pierwszym testem (jedno `page.goto`
-w `globalSetup`), a w czterech testach jawne `await expect(...).toBeVisible()` przed klikami zamiast
-polegania na auto-wait. Potem obniżyć `retries` do 1 i patrzeć, czy „flaky” znika.
-
-**Kryteria akceptacji.** Trzy kolejne przebiegi jobu `e2e` na main bez wpisów „flaky” w podsumowaniu;
-lokalnie dalej 39/39.
-
 ### B-6 · Komunikat „AI provider is not configured…” po angielsku w kreatorach z AI
 
 `otwarte` · Znaleziono 2026-10-17 przy przeglądzie designu kreatorów ćwiczeń · usługi LLM, kreatory z AI
@@ -203,87 +144,14 @@ kreatory mapują kod na klucz `exerciseWizards.shared.ai.notConfigured` (PL/EN) 
 **Kryteria akceptacji.** Brak angielskich zdań w PL UI przy braku dostawcy; spec llmService dalej
 przechodzi (kod + wiadomość); snapshot/spec kreatora pokazuje klucz i18n.
 
-### B-5 · E2E „refleksja tygodnia zaprasza do zamknięcia celów” pada od piątku do niedzieli
-
-`otwarte` · Znaleziono 2026-10-17 (sobota) przy przebudowie kafli „Najbliżej” · e2e, seed weryfikacyjny
-
-**Objaw.** `e2e/verification-goal-closing.spec.ts:132` („a saved weekly reflection invites to close
-overdue goals”) oczekuje dwóch wierszy w `.gc-invite`, a dostaje jeden: brakuje „Blok treningowy”,
-jest tylko „Porządek w finansach”. Test przechodzi albo pada w zależności od dnia tygodnia.
-
-**Jak odtworzyć.** W piątek, sobotę albo niedzielę uruchom
-`npx playwright test --project=verification e2e/verification-goal-closing.spec.ts -g "invites to close"`.
-
-**Przyczyna.**
-- `src/dev/verificationSeed.ts:960` — termin g4 „Blok treningowy” to `addDaysToDayRef(todayRef, -4)`.
-  Od piątku ten dzień leży w **bieżącym** tygodniu (np. 17.10 sobota → 13.10 wtorek).
-- Test (`e2e/verification-goal-closing.spec.ts:142-146`) otwiera pierwszy kafel
-  „Podsumuj (ten|poprzedni) tydzień”. W seedzie jest to zrobiona refleksja poprzedniego tygodnia
-  z „Minione”, więc zaproszenie liczy cele z terminem do końca poprzedniego tygodnia
-  (`GoalClosingInvite.vue:53`, `getGoalsAwaitingClosing(props.periodEnd, …)`). g4 wypada poza
-  ten okres.
-
-**Dlaczego to błąd.** Seed weryfikacyjny ma być deterministyczny. Test zależny od dnia tygodnia
-daje fałszywe alarmy przy bramkach e2e.
-
-**Propozycja naprawy.** Przypiąć termin g4 do poprzedniego tygodnia: na przykład środa poprzedniego
-tygodnia albo `min(today − 4, ostatni dzień poprzedniego tygodnia)`. Trzeba przy tym sprawdzić
-inne miejsca, które zakładają „4 dni po terminie” (komentarz w seedzie, `rowMeta`, asercje
-w specach). Druga możliwość: test wybiera refleksję tygodnia, w którym leży termin g4.
-
-**Kryteria akceptacji.** Spec przechodzi przy zegarze ustawionym na każdy dzień tygodnia
-(np. `page.clock` albo seed z podanym `todayRef`). Pozostałe testy goal-closing są zielone.
-
-### B-4 · Daty w Historii i edytorach zawsze po angielsku, z AM/PM
-
-`otwarte` · Znaleziono 2026-10-17 przy budowie konta demo (headless przejście po `/history`) · i18n, Historia
-
-**Objaw.** W polskim interfejsie karty Historii pokazują „Today, 9:30 AM”, „Yesterday, 1:00 PM”
-i „Oct 15, 2026, 7:30 PM”. To samo w nagłówkach edytora dziennika i edytora emocji oraz w
-czacie. Polski użytkownik powinien widzieć „Dziś, 9:30” i „15 paź 2026, 19:30”.
-
-**Jak odtworzyć.** `npm run dev:demo`, wejdź na `/history`. Język aplikacji to polski
-(ustawienie `preferences.locale = 'pl'`), a daty są po angielsku niezależnie od języka przeglądarki.
-
-**Przyczyna.**
-- `src/utils/dateFormat.ts:6-8` — `getMessages(locale?)` zwraca angielskie komunikaty, gdy
-  `locale` jest `undefined` (`locale ?? 'en'`).
-- Żadne wywołanie nie przekazuje języka:
-  - `src/components/history/HistoryEntryCard.vue:16` i `:188` — `formatEntryDate(entry.createdAt)`;
-  - `src/views/JournalEditorView.vue:529`, `:536` — `formatEntryDate(...)`;
-  - `src/views/EmotionLogEditorView.vue:323`, `:330` — `formatEntryDate(...)`;
-  - `src/views/ChatView.vue:183` — `formatMessageTimestamp(message.timestamp)`;
-  - `src/components/ChatSessionCard.vue:54` — `formatChatSessionDate(...)`.
-- Dodatkowo `formatEntryDate` (`dateFormat.ts:47-52`) zawsze buduje czas w formacie 12-godzinnym
-  z AM/PM, także dla `pl`. `formatChatSessionDate` (`dateFormat.ts:176`) używa
-  `toLocaleDateString()` bez argumentu, czyli języka przeglądarki, a nie aplikacji.
-
-**Dlaczego to błąd.** Aplikacja jest dwujęzyczna, a użytkownik pracuje po polsku. Język interfejsu
-pochodzi z `userPreferences.store` (`locale`), więc formatowanie dat musi go respektować. Format
-AM/PM nie jest używany w Polsce.
-
-**Propozycja naprawy.**
-1. W komponentach pobierać język z `useT()` (`locale`) albo ze store'u preferencji i przekazywać go
-   do wszystkich trzech funkcji.
-2. W `dateFormat.ts` dla `pl` formatować czas jako `HH:mm` (24 h), a datę jako `15 paź 2026`
-   (skróty miesięcy są już w `locales/pl/common.json` pod `months`). Najprościej użyć
-   `Intl.DateTimeFormat` z `pl-PL` / `en-US` zamiast ręcznego składania.
-3. `formatChatSessionDate` przestawić z `toLocaleDateString()` na jawny język aplikacji.
-4. Rozważyć zmianę domyślnego języka w `getMessages` na `pl`, bo to `DEFAULT_LOCALE_ID` aplikacji.
-
-**Kryteria akceptacji.**
-- Polski interfejs: „Dziś, 9:30”, „Wczoraj, 13:00”, „15 paź 2026, 19:30”. Angielski bez zmian.
-- Testy jednostkowe `dateFormat` dla obu języków, w tym przypadek bez AM/PM w `pl`.
-- Grep `formatEntryDate(\|formatMessageTimestamp(\|formatChatSessionDate(` nie zwraca wywołań bez języka.
-
-**Uwagi.** W dniu znalezienia `dateFormat.ts` nie miał żadnych testów, więc trzeba je założyć od
-zera. Sprawdź też testy komponentów Historii, czy nie porównują dat z angielskim tekstem.
-
 ---
 
 ### B-3 · Nawyk miesięczny dwa razy w przeglądzie tygodnia na przełomie miesięcy
 
 `otwarte` · Znaleziono 2026-10-17 przy budowie konta demo · Rytuał tygodnia (quiet), zapytania planowania
+
+**Decyzja użytkownika (2026-10-25).** Wariant 1: jeden wiersz na obiekt w przeglądzie tygodnia,
+pozycje miesięczne scalone w `reflectionDataQueries`, wynik tygodniowy.
 
 **Objaw.** W kroku „Co wydarzyło się naprawdę?” rytuału tygodnia, w tygodniu, który zaczyna się w
 jednym miesiącu i kończy w następnym, nawyk miesięczny „Spotkanie z przyjaciółmi” ma dwa
@@ -343,124 +211,174 @@ tygodniowe są oceniane per tydzień, miesięczne per miesiąc.
 
 ---
 
-### B-2 · Widok ścieżki bez faz ściska kafle kroków i pokazuje pustą kartę „Praktyki”
+## Pomysły
 
-`otwarte` · Znaleziono 2026-10-17 przy budowie konta demo · Ścieżki (`program-path`)
+### P-4 · Migracje Dexie w osobnych plikach
 
-**Objaw.** Na `/exercises/programs/ifs-parts` („Poznaj swoje części”) wszystkie siedem kroków stoi
-w jednym rzędzie w lewej kolumnie. Kafle mają ok. 70 px szerokości, tytuły łamią się w pół słowa
-(„Mapow… części”, „Docenie… protekt…”), opisy są ucięte. Po prawej stoi karta z nagłówkiem
-„PRAKTYKI” i pustą treścią.
+`otwarte` · Znaleziono 2026-10-20 przy audycie repo · `src/services/userDatabaseService.ts`
 
-**Jak odtworzyć.** `npm run dev:demo` (ścieżka części jest w toku, krok 4 na dziś) i wejdź na
-`/exercises/programs/ifs-parts`, szerokość okna 1440 px. Dotyczy też ścieżek `foundation`
-(6 kroków) i `cbt-thoughts` (5 kroków). Ścieżki problemowe (złość, lęk, wstyd) wyglądają
-dobrze, bo mają fazy.
+**Kontekst.** 34 bloki `version(n).stores().upgrade()` w jednym pliku o 1 778 liniach.
+
+**Propozycja.** `src/services/db/migrations/v01..v34.ts`, każdy eksportuje `{ stores, upgrade }`;
+serwis bazy je rejestruje w pętli. Czysto mechaniczne; stare wersje muszą zostać (bazy użytkowników).
+
+**Kryteria.** `migration.spec`, `migration-edge-cases.spec` i `persistenceMigration.spec` bez zmian
+zielone; otwarcie bazy z `dev:demo` i `dev:verify` bez błędów.
+
+### P-5 · Biblioteka obiektów jako `src/features/objects-library/`
+
+`otwarte` · Znaleziono 2026-10-20 przy audycie repo · `src/views/ObjectsLibraryView.vue`, `src/components/objects`
+
+**Kontekst.** `ObjectsLibraryView.vue` ma 2 480 linii, a biblioteka żyje po staremu w
+`components/objects/`, podczas gdy pozostałe obszary (planning-next, quiet-ritual, program-path,
+goal-closing) mają własne katalogi w `features/` z css i view-modelami (reguła w CLAUDE.md).
+
+**Propozycja.** Przenieść do `src/features/objects-library/` i podzielić widok na belkę, listę,
+kartę i edytor; css do `objects-library.css`. Bez zmiany zachowania.
+
+**Kryteria.** Specy kart i belki bez zmian zielone; `verification-smoke` i
+`verification-multi-completion` (karta biblioteki) zielone; `check:design-system` bez nowych
+wpisów.
+
+### P-1 · Wspólne helpery dla seedów dev (`verificationSeed` i `demoSeed`)
+
+`otwarte` · Znaleziono 2026-10-17 przy budowie konta demo · narzędzia dev
+
+**Kontekst.** `src/dev/verificationSeed.ts` i `src/dev/demo/demoSeed.ts` mają zduplikowane
+helpery: `weekDays`, zapis wpisów pomiarów (`addEntries` / `entry`), tworzenie konta i
+bootstrap z markerem w localStorage, zapis próby instrumentu
+(`seedAssessment` w demo, ręcznie dla GAD-7 w weryfikacji). Demo dodatkowo ma `backdate()`,
+którego brakuje seedowi weryfikacyjnemu. Dlatego w weryfikacji próby SCS-SF/FSCRS nie mają
+sensownych dat.
+
+**Propozycja.** Wyciągnąć je do `src/dev/seedKit.ts` (tylko dev, ładowane dynamicznie jak reszta)
+i przepiąć oba seedy. Przy okazji seed weryfikacyjny może dostać próby SCS-SF/FSCRS z datami
+przez `seedAssessment` + `backdate`.
+
+**Kryteria.** Oba seedy dają identyczne dane jak przed zmianą: test
+`src/dev/demo/__tests__/demoSeed.spec.ts` oraz `npm run test:e2e:verify` zielone.
+
+---
+
+## Zamknięte
+
+### B-12 · `returnQueries.spec` pada, gdy realna data mija stałe `TODAY` testu
+
+`zrobione (scalenie 2026-10-27: zegar zamrożony na TODAY w describe getReturnBreakForRitual)` · Znaleziono 2026-10-27 przy wdrożeniu wariantu D edytora Dziennika · rytuał powrotu, `src/services/__tests__/returnQueries.spec.ts:154`
+
+**Objaw.** `npx vitest run` → „by hand there is no threshold: a short gap, or none at all,
+still opens the ritual”: `expected undefined to match object { weeks: [], crossedMonth: false }`.
+Reszta pliku zielona.
+
+**Jak odtworzyć.** `npx vitest run src/services/__tests__/returnQueries.spec.ts` dowolnego dnia
+po dacie z `const TODAY = '2026-10-25' as DayRef`.
+
+**Przyczyna.** `getReturnBreakForRitual(true, today)` (`src/services/returnQueries.ts:207`)
+bez żadnego sygnału bierze `new Date().toISOString()` jako `lastSignalAt`, a test podaje
+stałe `TODAY` z przeszłości. Gdy zegar systemowy jest późniejszy niż `TODAY`, przerwa
+zaczyna się „po dziś” i `buildReturnBreak` zwraca `undefined`. Pierwsza asercja (bez
+wpisów) nie ma zamrożonego zegara — `vi.useFakeTimers` jest dopiero w `buildReturnInventory`.
+
+**Dlaczego to błąd.** Test zależy od daty uruchomienia; od 2026-10-27 bramka `vitest`
+jest czerwona bez zmiany w kodzie.
+
+**Propozycja naprawy.** W tym `describe` zamrozić zegar na `TODAY` (`vi.useFakeTimers`
++ `vi.setSystemTime`) jak w `buildReturnInventory`, albo przekazywać „teraz” do
+`getReturnBreakForRitual` jawnie (parametr `now`), tak jak `today`.
+
+**Kryteria akceptacji.** Spec zielony niezależnie od daty systemowej; pozostałe 8 testów
+pliku bez zmian.
+
+### B-8 · Cztery testy e2e verify są flaky na runnerze GitHuba (stabilne lokalnie)
+
+`zrobione (9b50c8bd)` · Znaleziono 2026-10-20 przy pierwszym zielonym przebiegu jobu `e2e` w CI (run 39497...) · e2e weryfikacyjne, CI
+
+**Rozstrzygnięcie (2026-10-25, sesja tests-b8-b5-p7).** `playwright.config.ts` tylko pod
+`process.env.CI`: `expect.timeout` i `use.actionTimeout` 15 s, `globalSetup`
+(`e2e/global-setup.ts`: jedno wejście na baseURL projektu `verification` i czekanie na marker
+seedu — zimne transformacje Vite i pierwszy seed nie zjadają budżetu pierwszego testu),
+reporter `list` obok `html`, `retries` 1. Cztery specy z wpisu czekają jawnie na widoczność
+(`toBeVisible`/`toBeEnabled`) przed klikami (goal-closing:150 w commicie B-5 24763ee0).
+Dodatkowo `VERIFY_PORT` pozwala uruchomić suitę na zapasowym porcie, gdy 5199 trzyma inny
+checkout (`VERIFY_PORT=5209 npx playwright test --project=verification`); strażniki bazy w
+observations i companion-surfaces porównują port z konfiguracji, nie literał. Lokalnie 39/39
+na 5209 (1,2 min) i 39/39 z `CI=1` (3,2 min, bez retry). Kryterium „trzy kolejne przebiegi
+jobu `e2e` bez wpisów flaky” sprawdzane na kolejnych pushach na main.
+
+**Objaw.** Job `e2e` kończy się zielono tylko dzięki `retries: 2` (CI): Playwright raportuje
+„4 flaky, 35 passed (10.5m)”. Lokalnie ta sama suita na tym samym commicie daje 39/39 w ~1,2 min,
+dwa razy z rzędu.
+
+**Które testy.** `verification-goal-closing.spec.ts:150` (saved weekly reflection invites to close
+overdue goals), `verification-multi-completion.spec.ts:51` (today row chips toggle items),
+`verification-observations.spec.ts:2` (observation → … → next conversation),
+`verification-shame-v3.spec.ts:147` (Momenty, shame variant). Pierwsze podejścia padają na
+`Test timeout of 120000ms exceeded` (×2, w tym `locator.click`) i `Timeout: 5000ms` w `expect`;
+w logu są też `Failed to upsert period object reflection: … missing-id not found` i
+`Failed to link build log to saved profile: log table corrupt` — to oczekiwane błędy z testów
+błędów (reportError w vitest je wycisza, Playwright nie), nie przyczyna.
+
+**Jak odtworzyć.** Push na main → job `e2e` w .github/workflows/ci.yml (ubuntu-latest, 1 worker,
+dev:verify podnoszony przez webServer Playwrighta) → artefakt `playwright-report`.
+
+**Przyczyna (hipoteza).** Runner jest ~8× wolniejszy niż lokalna maszyna (10,5 min vs 1,2 min dla
+całej suity); 5-sekundowy domyślny `expect` timeout i kroki, które czekają na seedowanie bazy
+(`window.__verifySeed()`), nie mieszczą się w czasie przy zimnym starcie Vite w trybie dev.
+
+**Propozycja naprawy.** W `playwright.config.ts` dla CI: `expect.timeout` 15 s i `actionTimeout`
+15 s (tylko gdy `process.env.CI`), rozgrzanie dev-servera przed pierwszym testem (jedno `page.goto`
+w `globalSetup`), a w czterech testach jawne `await expect(...).toBeVisible()` przed klikami zamiast
+polegania na auto-wait. Potem obniżyć `retries` do 1 i patrzeć, czy „flaky” znika.
+
+**Kryteria akceptacji.** Trzy kolejne przebiegi jobu `e2e` na main bez wpisów „flaky” w podsumowaniu;
+lokalnie dalej 39/39.
+
+### B-5 · E2E „refleksja tygodnia zaprasza do zamknięcia celów” pada od piątku do niedzieli
+
+`zrobione (24763ee0)` · Znaleziono 2026-10-17 (sobota) przy przebudowie kafli „Najbliżej” · e2e, seed weryfikacyjny
+
+**Rozstrzygnięcie (2026-10-25, sesja tests-b8-b5-p7).** Wariant testowy: spec czyta termin
+„Blok treningowy” z zaseedowanej bazy, liczy jego tydzień (`getPeriodRefsForDate`) i otwiera
+refleksję tego tygodnia wprost (`/calendar/week/<ref>?action=reflect`) zamiast pierwszego kafla
+„Podsumuj … tydzień” w Najbliżej; dalej zapis i zaproszenie z dwoma wierszami. Sprawdzone z
+`page.clock.setFixedTime` na każdy dzień tygodnia 19–25.10.2026 (pon–czw → poprzedni tydzień,
+pt–nd → bieżący): 7/7. **Uwaga:** wariant seedowy (termin g4 przypięty do poprzedniego
+tygodnia w `src/dev/verificationSeed.ts:1060`) zostaje otwarty — seed należy do pracy nad
+pomocnikiem planowania AI; komentarz „4 dni po terminie” i `rowMeta` są nietknięte.
+
+**Objaw.** `e2e/verification-goal-closing.spec.ts:132` („a saved weekly reflection invites to close
+overdue goals”) oczekuje dwóch wierszy w `.gc-invite`, a dostaje jeden: brakuje „Blok treningowy”,
+jest tylko „Porządek w finansach”. Test przechodzi albo pada w zależności od dnia tygodnia.
+
+**Jak odtworzyć.** W piątek, sobotę albo niedzielę uruchom
+`npx playwright test --project=verification e2e/verification-goal-closing.spec.ts -g "invites to close"`.
 
 **Przyczyna.**
-- `src/features/program-path/pathModel.ts:23-34` (`pathGroups`) dla ścieżki bez `phases` zwraca
-  **jedną grupę ze wszystkimi krokami**.
-- `src/features/program-path/PathJourney.vue:106` ustawia `--cols` na `columnsOf(group)`, a
-  `columnsOf` (`:319-321`) to liczba kroków w grupie plus jeden, gdy kafel jest rozwinięty.
-  Siatka `.wk__body` (`:474-479`) ma `grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr))`,
-  więc 7 kroków i kafel w fokusie dają 8 kolumn w lewej kolumnie widoku
-  (`ProgramDetailView.vue:425-427`, `minmax(0, 1.2fr)`). Model zakłada grupy po 2–4 kroki, jak w
-  ścieżkach z fazami tygodniowymi.
-- Katalog: `src/data/programCatalog.ts`. `foundation`, `ifs-parts` i `cbt-thoughts` nie mają
-  `phases` ani `practices`.
-- Pusta karta: `src/views/exercises/ProgramDetailView.vue:82-90` renderuje `PathPracticesCard`,
-  gdy `practicesMode` jest ustawione, a `practicesMode` (`:244-249`) zwraca `'active'` dla
-  każdej aktywnej ścieżki, także bez praktyk. `PathPracticesCard.vue:2-29` zawsze renderuje
-  nagłówek sekcji, a siatka kafli (`v-if="tiles.length"`) jest pusta.
+- `src/dev/verificationSeed.ts:960` — termin g4 „Blok treningowy” to `addDaysToDayRef(todayRef, -4)`.
+  Od piątku ten dzień leży w **bieżącym** tygodniu (np. 17.10 sobota → 13.10 wtorek).
+- Test (`e2e/verification-goal-closing.spec.ts:142-146`) otwiera pierwszy kafel
+  „Podsumuj (ten|poprzedni) tydzień”. W seedzie jest to zrobiona refleksja poprzedniego tygodnia
+  z „Minione”, więc zaproszenie liczy cele z terminem do końca poprzedniego tygodnia
+  (`GoalClosingInvite.vue:53`, `getGoalsAwaitingClosing(props.periodEnd, …)`). g4 wypada poza
+  ten okres.
 
-**Dlaczego to błąd.** Tekst kroków jest nieczytelny, a kafle mają być głównym sposobem nawigacji
-po ścieżce. Pusta karta z samym nagłówkiem łamie zasadę bez pustych stanów per typ (pamięć
-„Planning Next day rail design”) i zajmuje pół szerokości ekranu bez treści.
+**Dlaczego to błąd.** Seed weryfikacyjny ma być deterministyczny. Test zależny od dnia tygodnia
+daje fałszywe alarmy przy bramkach e2e.
 
-**Propozycja naprawy.**
-1. Dla grupy z więcej niż 4 krokami zawijać siatkę: np. `--cols` = `min(liczba kroków, 4)`, a
-   rozwinięty kafel jako pełny wiersz albo z `grid-column: span 2`. Alternatywa: dzielić grupę
-   „all” w `pathGroups` na porcje po 3–4 kroki, bez nagłówków tygodni.
-2. Nie renderować `PathPracticesCard`, gdy ścieżka nie ma praktyk, zadań tygodnia, wpisu
-   odpowiedzi ani listu, czyli gdy karta nie ma nic do pokazania. Wtedy lewa kolumna może zająć
-   całą szerokość albo prawa kolumna pokazuje tylko inne karty.
+**Propozycja naprawy.** Przypiąć termin g4 do poprzedniego tygodnia: na przykład środa poprzedniego
+tygodnia albo `min(today − 4, ostatni dzień poprzedniego tygodnia)`. Trzeba przy tym sprawdzić
+inne miejsca, które zakładają „4 dni po terminie” (komentarz w seedzie, `rowMeta`, asercje
+w specach). Druga możliwość: test wybiera refleksję tygodnia, w którym leży termin g4.
 
-**Kryteria akceptacji.**
-- `ifs-parts`, `foundation` i `cbt-thoughts` przy 1440 px: tytuły kroków mieszczą się bez
-  łamania w pół słowa, opisy kroku w fokusie są czytelne.
-- Ścieżki z fazami wyglądają bez zmian (zrzut przed i po dla `shame-compassion`).
-- Brak karty „Praktyki” bez treści. Test komponentu dla `ProgramDetailView` lub
-  `PathPracticesCard` z programem bez praktyk.
-
-**Uwagi.** Projekt widoku ścieżki ma ustalone reguły (pamięć „Path view v2 Lab”: bez rozciągniętych
-wierszy z akcją przy krawędzi, bez przerywanych linii, tarcza stanu po prawej). Zmiana układu
-musi je zachować. W razie wątpliwości co do wyglądu zrób szybki wariant w UX Lab i pokaż użytkownikowi.
-
----
-
-### B-1 · Refleksja miesiąca ma zaszyte męskie formy, ignoruje ustawienie formy żeńskiej
-
-`otwarte` · Znaleziono 2026-10-17 przy budowie konta demo (persona Julia, forma żeńska) · Rytuał miesiąca, i18n
-
-**Objaw.** Użytkowniczka z ustawioną formą żeńską widzi w refleksji miesiąca „Jaką uwagę
-poświęciłeś swoim kierunkom?”, „Jakiego miesiąca doświadczyłeś?”, podpowiedź „Ile świadomej
-uwagi i energii poświęciłeś temu kierunkowi?” oraz kotwice „Z czego jestem dumny” i
-„Jak się rozwinąłem”. Rytuał tygodnia w tym samym ustawieniu mówi poprawnie formami żeńskimi.
-
-**Jak odtworzyć.** `npm run dev:demo` (konto ma `preferences.grammaticalGender = 'feminine'`),
-otwórz `/calendar/month/<poprzedni miesiąc>?action=reflect`. Krok 1 pokazuje męski nagłówek.
-
-**Przyczyna.** Teksty są wpisane na sztywno po polsku, w formie męskiej, z pominięciem `tg()`:
-- `src/features/quiet-ritual/QuietMonthlyReflection.vue` (domyślny rytuał miesiąca):
-  - `:41` — `hint="Ile świadomej uwagi i energii poświęciłeś temu kierunkowi? …"`;
-  - `:418`, `:420` — kotwice `'Z czego jestem dumny'`, `'Jak się rozwinąłem'`;
-  - `:443`, `:444` — pytania kroków `'Jaką uwagę poświęciłeś swoim kierunkom?'`,
-    `'Jakiego miesiąca doświadczyłeś?'`.
-- `src/features/planning-next/NextMonthlyReflectionRitual.vue` (wariant `?ritual=classic`):
-  `:121` (pytanie kompasu), `:133`, `:135` (kotwice).
-- `src/features/calendar-rhythm/RhythmBoard.vue:226`, `:228` — te same etykiety kotwic w
-  kalendarzu rytmu.
-- `src/locales/pl/planning.json:1703`, `:1705` — klucze `planning.reflection.monthly.anchors.proudOf`
-  i `.growth` mają tylko formę męską, bez wariantów `.m`/`.f`. Czytają je
-  `src/components/calendar/MonthKontextCard.vue:203`, `:205` i
-  `src/components/calendar/MonthlyReflectionWizard.vue:357`, `:359` przez zwykłe `t()`.
-
-Wzorzec poprawny: `src/features/quiet-ritual/QuietWeeklyReflection.vue:158`, `:174`, `:231`,
-`:279` używa `tg(...)`, a klucze w `locales/pl/planning.json` (np. okolice `:1511-1546`) mają warianty `m`/`f`.
-
-**Dlaczego to błąd.** Aplikacja wspiera polski rodzaj gramatyczny: preferencja
-`grammaticalGender` w `userPreferences.store`, helper `tg()` w `src/composables/useT.ts:98`.
-Zaszyte formy męskie łamią to ustawienie dla kobiet. Zaszyte polskie teksty łamią też
-dwujęzyczność, bo angielski interfejs zobaczy tu polski.
-
-**Propozycja naprawy.**
-1. Przenieść wszystkie powyższe teksty do `locales/{pl,en}/planning.json`, np. pod
-   `planning.reflection.monthly.steps.*` i istniejące `planning.reflection.monthly.anchors.*`.
-2. Formy zależne od rodzaju zapisać jako `{ "m": "…", "f": "…" }`: „poświęciłeś/poświęciłaś”,
-   „doświadczyłeś/doświadczyłaś”, „dumny/dumna”, „rozwinąłem/rozwinęłam”.
-3. **Warianty `.m`/`.f` muszą istnieć w obu plikach, `en` i `pl`.** W `en` ten sam tekst dwa razy.
-   Inaczej `tg()` dla użytkownika EN spadnie na polski (pamięć „gendered translations tg()”).
-4. Wszystkie miejsca renderujące te klucze przestawić na `tg()`. Gdy wartość klucza jest obiektem
-   `{m,f}`, zwykłe `t()` zwraca surowy klucz, więc nie może zostać żadne wywołanie `t()`.
-5. Uruchomić `scripts/check-locale-keys.mjs`, który pilnuje zgodności kluczy en/pl.
-
-**Kryteria akceptacji.**
-- Forma żeńska: „Jaką uwagę poświęciłaś swoim kierunkom?”, „Z czego jestem dumna”, „Jak się
-  rozwinęłam”. Forma męska bez zmian. Angielski interfejs po angielsku.
-- Grep `poświęciłeś\|doświadczyłeś\|jestem dumny\|rozwinąłem` w `src/**/*.vue` nic nie zwraca.
-- Test komponentu `QuietMonthlyReflection` z preferencją `feminine`.
-
-**Uwagi.** Prawdopodobnie więcej tekstów w `QuietMonthlyReflection.vue` jest zaszytych po polsku
-bez rodzaju (np. etykiety osi kompasu `:410-414`, „Priorytety”, „Kotwice”). Przy okazji warto je
-przenieść do locale, ale to osobny zakres. Oceń z użytkownikiem.
-
----
-
-## Pomysły
+**Kryteria akceptacji.** Spec przechodzi przy zegarze ustawionym na każdy dzień tygodnia
+(np. `page.clock` albo seed z podanym `todayRef`). Pozostałe testy goal-closing są zielone.
 
 ### P-8 · Lepsza nazwa typu monitorowania celów i nawyków zamiast „odhaczania”
 
 `otwarte` · Zgłoszono 2026-10-25 przez użytkownika · cele i nawyki, nazewnictwo monitorowania
+
+**Decyzja użytkownika (2026-10-25).** Nazwa „Checklista” wszędzie w PL (w miejsce „Odhaczaj”
+i „Dzisiejsza checklista”), EN zostaje „Checklist”.
 
 **Objaw.** Nazwa typu monitorowania określana jako „odhaczanie” wymaga zmiany na
 bardziej zrozumiałą i naturalną. Wstępny kierunek użytkownika: „Lista” albo podobna nazwa;
@@ -483,7 +401,15 @@ sprawdzić odpowiednie tłumaczenia PL/EN i oczekiwania testów dotyczące etyki
 
 ### P-7 · vue-tsc 3.1+ zgłasza refy szablonu jako nieużywane (`noUnusedLocals`)
 
-Status · otwarte · Znaleziono 2026-10-20 (upgrade toolchainu, etap 2) · Toolchain / komponenty
+Status · zrobione (688d3c92) · Znaleziono 2026-10-20 (upgrade toolchainu, etap 2) · Toolchain / komponenty
+
+**Rozstrzygnięcie (2026-10-25, sesja tests-b8-b5-p7, 688d3c92).** `vue-tsc` ^3.3.13 (TS ~5.9.3).
+`useEditableField` przyjmuje opcjonalny `inputRef` (`Readonly<Ref<…>>`) i używa go w strażniku
+fokusu; 20 refów w czterech kartach przeszło na `inputRef: useTemplateRef('xRef')` w opcjach,
+szablony zostały przy `ref="xRef"` (teraz string ref, który Vue 3.5 kieruje do uchwytu
+`useTemplateRef`); dwa `titleRef`, które karty same czytają (fokus po kliknięciu), zostały
+destrukturyzowane. 7 martwych refów usunięte z atrybutem w szablonie. Spec composable na
+zewnętrzny ref; e2e verification 39/39 po zmianie.
 
 **Objaw** — po podniesieniu `vue-tsc` do 3.1.8, 3.2.9 lub 3.3.x `npx vue-tsc --noEmit` kończy się
 27 błędami `TS6133: '<nazwa>Ref' is declared but its value is never read` w 8 komponentach;
@@ -538,54 +464,52 @@ wiadomości jak dotąd (sprawdzić, czy `messageContainer` nie był używany prz
 **Uwagi** — zrobić w jednym PR z bumpem vue-tsc, żeby bramki nie były czerwone pomiędzy.
 Decyzja usera z 2026-10-20: upgrade toolchainu nie rusza kodu produktu, stąd pin `~3.0.11`.
 
-### P-4 · Migracje Dexie w osobnych plikach
+### B-4 · Daty w Historii i edytorach zawsze po angielsku, z AM/PM
 
-`otwarte` · Znaleziono 2026-10-20 przy audycie repo · `src/services/userDatabaseService.ts`
+`zrobione (2284c6d, 57d349bb)` · Znaleziono 2026-10-17 przy budowie konta demo · i18n, Historia
 
-**Kontekst.** 34 bloki `version(n).stores().upgrade()` w jednym pliku o 1 778 liniach.
+**Rozstrzygnięcie (2026-10-25, sesja bugs-b4-b1-b2).** Commit 2284c6d (Codex, 2026-10-21)
+przekazał język do `formatEntryDate` w kartach Historii i obu edytorach, więc tam zostało tylko
+zero wiodące („Dzisiaj, 08:30”). Z objawu zostały czat (`ChatView` wołał
+`formatMessageTimestamp` bez języka, funkcja zawsze składała AM/PM) i karta sesji czatu bez
+języka. `src/utils/dateFormat.ts` rozwiązuje teraz język przez `normalizeLocaleId` (nieznany →
+`pl`, jak reszta UI), formatuje zegar i datę przez `Intl.DateTimeFormat` dla `pl-PL`/`en-US`
+(„Dzisiaj, 8:30”, „15 paź 2026, 19:30” / „Today, 9:30 AM”, „Oct 15, 2026, 7:30 PM”) i nie składa
+niczego ręcznie; `ChatView` i `ChatSessionCard` przekazują `locale` z `useT()`. Specy
+`src/utils/__tests__/dateFormat.spec.ts` (oba języki: dziś/wczoraj/pełna data, względne,
+niepoprawne wejście). Konto demo nie ma sesji czatu, więc czat sprawdzony tylko specami.
 
-**Propozycja.** `src/services/db/migrations/v01..v34.ts`, każdy eksportuje `{ stores, upgrade }`;
-serwis bazy je rejestruje w pętli. Czysto mechaniczne; stare wersje muszą zostać (bazy użytkowników).
+### B-2 · Widok ścieżki bez faz ściska kafle kroków i pokazuje pustą kartę „Praktyki”
 
-**Kryteria.** `migration.spec`, `migration-edge-cases.spec` i `persistenceMigration.spec` bez zmian
-zielone; otwarcie bazy z `dev:demo` i `dev:verify` bez błędów.
+`zrobione (e7c2a9a2)` · Znaleziono 2026-10-17 przy budowie konta demo · Ścieżki (`program-path`)
 
-### P-5 · Biblioteka obiektów jako `src/features/objects-library/`
+**Rozstrzygnięcie (2026-10-25, sesja bugs-b4-b1-b2).** `pathModel.ts`: `groupWraps` (grupa >
+4 kroków, `PATH_ROW_MAX_STEPS`), `groupColumns` (null dla zawijanej grupy) i
+`pathHasPracticesContent` (praktyki, zadania tygodnia, Momenty). `PathJourney`: zawijana grupa
+dostaje `repeat(auto-fill, minmax(15rem, 1fr))`, kafel w fokusie tej samej szerokości co sąsiedzi
+(rośnie tylko w górę o pełne intro i „po co”); tygodnie z fazami bez zmian (jeden rząd, fokus na
+2 kolumny). `ProgramDetailView`: karta Praktyk tylko gdy `pathHasPracticesContent(program)` albo
+odpowiedź/list z zapisu; gdy prawa kolumna nie ma żadnej karty (też bez karty wiedzy), siatka
+`path-view__grid--solo` = jedna kolumna z `max-width: 72rem` (kontener „default”). Przy
+1512×982 @2x: ifs-parts 7 kafli po 270 px w 4 kolumnach, zero uciętych tytułów, bez pustej karty;
+foundation/cbt-thoughts tak samo; shame-compassion identycznie jak przed zmianą (340/166/166,
+3 kafle praktyk). Specy w `pathModel.spec.ts`.
 
-`otwarte` · Znaleziono 2026-10-20 przy audycie repo · `src/views/ObjectsLibraryView.vue`, `src/components/objects`
+### B-1 · Refleksja miesiąca ma zaszyte męskie formy, ignoruje ustawienie formy żeńskiej
 
-**Kontekst.** `ObjectsLibraryView.vue` ma 2 480 linii, a biblioteka żyje po staremu w
-`components/objects/`, podczas gdy pozostałe obszary (planning-next, quiet-ritual, program-path,
-goal-closing) mają własne katalogi w `features/` z css i view-modelami (reguła w CLAUDE.md).
+`zrobione (4dceb885)` · Znaleziono 2026-10-17 przy budowie konta demo · Rytuał miesiąca, i18n
 
-**Propozycja.** Przenieść do `src/features/objects-library/` i podzielić widok na belkę, listę,
-kartę i edytor; css do `objects-library.css`. Bez zmiany zachowania.
-
-**Kryteria.** Specy kart i belki bez zmian zielone; `verification-smoke` i
-`verification-multi-completion` (karta biblioteki) zielone; `check:design-system` bez nowych
-wpisów.
-
-### P-1 · Wspólne helpery dla seedów dev (`verificationSeed` i `demoSeed`)
-
-`otwarte` · Znaleziono 2026-10-17 przy budowie konta demo · narzędzia dev
-
-**Kontekst.** `src/dev/verificationSeed.ts` i `src/dev/demo/demoSeed.ts` mają zduplikowane
-helpery: `weekDays`, zapis wpisów pomiarów (`addEntries` / `entry`), tworzenie konta i
-bootstrap z markerem w localStorage, zapis próby instrumentu
-(`seedAssessment` w demo, ręcznie dla GAD-7 w weryfikacji). Demo dodatkowo ma `backdate()`,
-którego brakuje seedowi weryfikacyjnemu. Dlatego w weryfikacji próby SCS-SF/FSCRS nie mają
-sensownych dat.
-
-**Propozycja.** Wyciągnąć je do `src/dev/seedKit.ts` (tylko dev, ładowane dynamicznie jak reszta)
-i przepiąć oba seedy. Przy okazji seed weryfikacyjny może dostać próby SCS-SF/FSCRS z datami
-przez `seedAssessment` + `backdate`.
-
-**Kryteria.** Oba seedy dają identyczne dane jak przed zmianą: test
-`src/dev/demo/__tests__/demoSeed.spec.ts` oraz `npm run test:e2e:verify` zielone.
-
----
-
-## Zamknięte
+**Rozstrzygnięcie (2026-10-25, sesja bugs-b4-b1-b2).** `planning.reflection.monthly.anchors.proudOf`
+i `.growth` mają warianty `m`/`f` w obu locale; teksty cichego rytuału (pytania i etykiety kroków,
+podpowiedź wysiłku) siedzą na końcu sekcji pod `planning.reflection.monthly.quiet.*`.
+`QuietMonthlyReflection` (`ANCHORS` i `steps` jako computed na `tg()`), `MonthKontextCard`,
+`MonthlyReflectionWizard` i `RhythmBoard` czytają kotwice przez `tg()`. Spec
+`QuietMonthlyReflection.spec.ts`: forma żeńska, domyślna męska, EN bez polskiego fallbacku.
+**Nie ruszone:** `src/features/planning-next/NextMonthlyReflectionRitual.vue:239, :303, :305`
+(wariant `?ritual=classic`) — strefa zakazana tej sesji (praca Codexa nad asystentem planowania);
+te trzy teksty wciąż są zaszyte po męsku i czekają na przestawienie na te same klucze
+(`…anchors.proudOf`/`.growth` przez `tg()`, `…quiet.steps.compass.question`). Etykiety osi kompasu
+i „Priorytety”/„Kotwice” w `QuietMonthlyReflection` zostają po polsku bez rodzaju (osobny zakres).
 
 ### P-2 · `reportError` z przyczyną zamiast 700× `console.error` + `throw new Error('Failed …')`
 

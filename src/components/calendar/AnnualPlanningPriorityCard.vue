@@ -99,6 +99,7 @@
 import IconPicker from '@/components/shared/IconPicker.vue'
 import ObjectsLibraryPillSelect from '@/components/objects/ObjectsLibraryPillSelect.vue'
 import StatusIconButton from '@/components/objects/StatusIconButton.vue'
+import { useTemplateRef } from 'vue'
 import { useEditableField } from '@/composables/useEditableField'
 import type { Priority } from '@/domain/planning'
 import type { ObjectsLibraryFilterOption } from '@/services/objectsLibraryQueries'
@@ -127,71 +128,50 @@ const emit = defineEmits<{
 
 const DEBOUNCE_MS = 450
 
-const {
-  value: title,
-  inputRef: titleRef,
-  flush: flushTitle,
-} = useEditableField({
+const { value: title, flush: flushTitle } = useEditableField({
+  inputRef: useTemplateRef('titleRef'),
   source: () => props.priority.title,
   commit: value => emit('field-change', 'title', value),
   delay: DEBOUNCE_MS,
 })
 
-const {
-  value: whyNow,
-  inputRef: whyNowRef,
-  flush: flushWhyNow,
-} = useEditableField({
+const { value: whyNow, flush: flushWhyNow } = useEditableField({
+  inputRef: useTemplateRef('whyNowRef'),
   source: () => props.priority.whyNow,
   commit: value => emit('field-change', 'whyNow', value),
   delay: DEBOUNCE_MS,
 })
 
-const {
-  value: desiredDirection,
-  inputRef: desiredDirectionRef,
-  flush: flushDesiredDirection,
-} = useEditableField({
+const { value: desiredDirection, flush: flushDesiredDirection } = useEditableField({
+  inputRef: useTemplateRef('desiredDirectionRef'),
   source: () => props.priority.desiredDirection,
   commit: value => emit('field-change', 'desiredDirection', value),
   delay: DEBOUNCE_MS,
 })
 
-const {
-  value: tradeoffs,
-  inputRef: tradeoffsRef,
-  flush: flushTradeoffs,
-} = useEditableField({
+const { value: tradeoffs, flush: flushTradeoffs } = useEditableField({
+  inputRef: useTemplateRef('tradeoffsRef'),
   source: () => props.priority.tradeoffs,
   commit: value => emit('field-change', 'tradeoffs', value),
   delay: DEBOUNCE_MS,
 })
 
-const {
-  value: years,
-  inputRef: yearsRef,
-  flush: flushYears,
-} = useEditableField<string[], string>({
+const { value: years, flush: flushYears } = useEditableField<string[], string>({
+  inputRef: useTemplateRef('yearsRef'),
   source: () => props.priority.years,
   format: list => (list ?? []).join(', '),
   commit: value => emit('field-change', 'years', value),
 })
 
-const {
-  value: progressSignals,
-  inputRef: progressSignalsRef,
-  flush: flushProgressSignals,
-} = useEditableField<string[], string>({
+const { value: progressSignals, flush: flushProgressSignals } = useEditableField<string[], string>({
+  inputRef: useTemplateRef('progressSignalsRef'),
   source: () => props.priority.progressSignals,
   format: list => (list ?? []).join('\n'),
   commit: value => emit('field-change', 'progressSignals', value),
 })
 
-const {
-  value: riskSignals,
-  inputRef: riskSignalsRef,
-  flush: flushRiskSignals,
-} = useEditableField<string[], string>({
+const { value: riskSignals, flush: flushRiskSignals } = useEditableField<string[], string>({
+  inputRef: useTemplateRef('riskSignalsRef'),
   source: () => props.priority.riskSignals,
   format: list => (list ?? []).join('\n'),
   commit: value => emit('field-change', 'riskSignals', value),

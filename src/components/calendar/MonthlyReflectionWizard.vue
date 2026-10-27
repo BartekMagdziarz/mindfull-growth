@@ -327,7 +327,7 @@ import {
   type ReflectionSummaryContext,
 } from '@/services/reflectionSummaryService'
 
-const { t } = useT()
+const { t, tg } = useT()
 
 const props = defineProps<{
   monthRef: MonthRef
@@ -376,13 +376,17 @@ const lockedSteps = computed(() => STEPS.map(step => isStepLocked(step)))
 // Slimmed to 3 anchors (was 6) — mirrors the weekly slim; the month review summary card
 // still renders any historical 6-anchor reflections (it filters empty categories).
 const monthlyAnchorCategories = computed(() => [
-  { key: 'proudOf', label: t('planning.reflection.monthly.anchors.proudOf'), icon: 'emoji_events' },
+  {
+    key: 'proudOf',
+    label: tg('planning.reflection.monthly.anchors.proudOf'),
+    icon: 'emoji_events',
+  },
   {
     key: 'challenges',
     label: t('planning.reflection.monthly.anchors.challenges'),
     icon: 'warning',
   },
-  { key: 'growth', label: t('planning.reflection.monthly.anchors.growth'), icon: 'trending_up' },
+  { key: 'growth', label: tg('planning.reflection.monthly.anchors.growth'), icon: 'trending_up' },
 ])
 
 const VERDICTS: PriorityVerdict[] = ['continue', 'adjust', 'pause', 'drop']

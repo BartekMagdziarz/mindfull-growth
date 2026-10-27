@@ -151,6 +151,15 @@ describe('getPendingReturnBreak', () => {
 })
 
 describe('getReturnBreakForRitual', () => {
+  // Without any signal the service reads the wall clock as the last signal; the
+  // assertions assume TODAY, so the clock is frozen there (B-12).
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date(`${TODAY}T12:00:00Z`))
+  })
+  afterEach(() => {
+    vi.useRealTimers()
+  })
   it('by hand there is no threshold: a short gap, or none at all, still opens the ritual', async () => {
     expect(await getReturnBreakForRitual(false, TODAY)).toBeUndefined()
     const fresh = await getReturnBreakForRitual(true, TODAY)

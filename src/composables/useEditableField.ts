@@ -17,12 +17,18 @@ import { onScopeDispose, ref, watch, type Ref } from 'vue'
  * ```
  *
  * ```ts
- * const { value: title, inputRef: titleRef, flush: flushTitle } = useEditableField({
+ * const { value: title, flush: flushTitle } = useEditableField({
  *   source: () => props.item.title,
  *   commit: (next) => emit('field-change', 'title', next),
  *   delay: 400,
+ *   inputRef: useTemplateRef('titleRef'),
  * })
  * ```
+ *
+ * Pass the template ref through `inputRef` (Vue 3.5 `useTemplateRef`) when the
+ * component does not read the element itself: a destructured `inputRef` that
+ * only the template's `ref="…"` binds is an unused local for vue-tsc 3.1+.
+ * Without the option the composable creates the ref and returns it to bind.
  */
 export interface UseEditableFieldOptions<TStored, TInput = string> {
   source: () => TStored | undefined
@@ -42,6 +48,12 @@ export interface UseEditableFieldOptions<TStored, TInput = string> {
    * against `inputRef`.
    */
   isFocused?: () => boolean
+  /**
+   * The input element's template ref, when the component owns it (e.g.
+   * `useTemplateRef('titleRef')`). The composable only reads it for the
+   * focus guard; the returned `inputRef` is then this same ref.
+   */
+  inputRef?: Readonly<Ref<HTMLInputElement | HTMLTextAreaElement | null>>
 }
 
 export interface UseEditableFieldReturn<TInput = string> {
@@ -61,7 +73,12 @@ export function useEditableField<TStored, TInput = string>(
   const isEqual = options.isEqual ?? ((a: TInput, b: TInput) => a === b)
 
   const value = ref(format(source())) as Ref<TInput>
-  const inputRef = ref<HTMLInputElement | HTMLTextAreaElement | null>(null)
+  // An external template ref is read-only for the composable; the writable
+  // type stays for the default, composable-owned ref the template binds.
+  const inputRef = (options.inputRef ??
+    ref<HTMLInputElement | HTMLTextAreaElement | null>(null)) as Ref<
+    HTMLInputElement | HTMLTextAreaElement | null
+  >
 
   let debounceTimer: ReturnType<typeof setTimeout> | undefined
   let pendingValue: TInput | undefined

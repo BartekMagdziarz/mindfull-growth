@@ -163,7 +163,7 @@
             <span>{{ t('chat.aiThinking') }}</span>
           </div>
           <p class="text-xs mt-1 opacity-70">
-            {{ formatMessageTimestamp(message.timestamp) }}
+            {{ formatMessageTimestamp(message.timestamp, locale) }}
           </p>
         </div>
       </div>
@@ -258,7 +258,7 @@ const journalStore = useJournalStore()
 const emotionStore = useEmotionStore()
 const tagStore = useTagStore()
 const userPreferencesStore = useUserPreferencesStore()
-const { t } = useT()
+const { t, locale } = useT()
 
 // Use storeToRefs to maintain reactivity
 const { currentChatSession, isLoading, isSaving, error } = storeToRefs(chatStore)

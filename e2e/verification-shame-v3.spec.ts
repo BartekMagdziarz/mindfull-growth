@@ -153,31 +153,39 @@ test.describe('shame path v3', () => {
     await expect(page.getByRole('heading', { name: 'Moment wstydu' }).first()).toBeVisible()
     const step = async (heading: string | RegExp, label: 'Dalej' | 'Zapisz' = 'Dalej') => {
       await expect(page.getByRole('heading', { name: heading, level: 2 })).toBeVisible()
-      await page.getByRole('button', { name: label, exact: true }).click()
+      const next = page.getByRole('button', { name: label, exact: true })
+      await expect(next).toBeEnabled()
+      await next.click()
+    }
+    const pick = async (option: ReturnType<typeof page.getByRole>) => {
+      await expect(option).toBeVisible()
+      await option.click()
     }
     // The preset kind never shows: the first question is whether there was a moment.
     await expect(
       page.getByRole('heading', { name: 'Czy od ostatniego wpisu był taki moment?' })
     ).toBeVisible()
-    await page.getByRole('radio', { name: 'Tak' }).click()
+    await pick(page.getByRole('radio', { name: 'Tak' }))
     await step('Czy od ostatniego wpisu był taki moment?')
     // The quick taps: part · when noticed · response · how strongly.
     await expect(page.getByRole('heading', { name: 'Która część przejęła ster?' })).toBeVisible()
-    await page.getByRole('radio', { name: /Ukrywający/ }).click()
+    await pick(page.getByRole('radio', { name: /Ukrywający/ }))
     await step('Która część przejęła ster?')
-    await page.getByRole('radio', { name: 'Po chwili' }).click()
+    await pick(page.getByRole('radio', { name: 'Po chwili' }))
     await step(/Kiedy to zauważył/)
     const hint = page.getByTestId('micro-hint')
     await expect(hint).toContainText('Zostań w sytuacji minutę dłużej')
-    await page.getByRole('button', { name: 'Oddech' }).click()
+    await pick(page.getByRole('button', { name: 'Oddech' }))
     await step(/Jak odpowiedział/)
     // The strength stack starts empty: Dalej waits for a tap.
     await expect(page.getByRole('button', { name: 'Dalej', exact: true })).toBeDisabled()
-    await page
-      .getByRole('radiogroup', { name: 'Jak silny był wstyd?' })
-      .getByRole('radio', { name: '3' })
-      .click()
+    await pick(
+      page
+        .getByRole('radiogroup', { name: 'Jak silny był wstyd?' })
+        .getByRole('radio', { name: '3' })
+    )
     await step('Jak silny był wstyd?')
+    await expect(page.locator('textarea')).toBeVisible()
     await page
       .locator('textarea')
       .fill('Na stand-upie nie wiedziałem, o co chodzi, i nie zapytałem.')
@@ -186,6 +194,7 @@ test.describe('shame path v3', () => {
     await expect(page.getByTestId('micro-hint')).toContainText('gorąco na twarzy')
     await step('Co działo się w ciele?')
     await step('Co mówił Krytyk?')
+    await expect(page.locator('textarea')).toBeVisible()
     await page.locator('textarea').fill('Nie znać czegoś to nie wstyd. Zapytaj.')
     await step('Co powiedziałby ktoś życzliwy?')
     await step('Co zrobisz następnym razem?', 'Zapisz')
@@ -209,22 +218,22 @@ test.describe('shame path v3', () => {
     expect(axis).toHaveLength(2)
     expect(Number(axis[1]!.slice(1))).toBe(Number(axis[0]!.slice(1)) + 1)
     // The estimate sits behind "więcej, bez szczegółów"; "Dopisz" writes a Moment on a chosen day.
-    await block.getByRole('button', { name: 'więcej, bez szczegółów' }).click()
-    await block.getByRole('button', { name: '1–2' }).click()
+    await pick(block.getByRole('button', { name: 'więcej, bez szczegółów' }))
+    await pick(block.getByRole('button', { name: '1–2' }))
     await expect(block.getByRole('button', { name: '1–2' })).toHaveAttribute('aria-pressed', 'true')
     await expect(block.locator('.qr-scale--row button')).toHaveText(['1', '2', '3', '4', '5'])
-    await block.getByRole('button', { name: 'Szczegóły' }).click()
+    await pick(block.getByRole('button', { name: 'Szczegóły' }))
     await expect(block.locator('.qr-path-moments__list li').first()).toContainText('Na stand-upie')
-    await block.getByTestId('path-backfill-open').click()
+    await pick(block.getByTestId('path-backfill-open'))
     const form = block.getByTestId('path-backfill-form')
-    await form.getByRole('radio').first().click()
-    await form.getByRole('radio', { name: 'Krytyk' }).click()
-    await form.getByRole('button', { name: 'Oddech' }).click()
-    await form.getByRole('button', { name: 'Dopisz', exact: true }).click()
+    await pick(form.getByRole('radio').first())
+    await pick(form.getByRole('radio', { name: 'Krytyk' }))
+    await pick(form.getByRole('button', { name: 'Oddech' }))
+    await pick(form.getByRole('button', { name: 'Dopisz', exact: true }))
     await expect(block.locator('.qr-path-added li')).toHaveCount(1)
     await expect(block.locator('.qr-path-added li')).toContainText('Krytyk')
     await expect(block.locator('.pc__seg.is-later')).toHaveCount(1)
-    await block.locator('.qr-path-added__remove').click()
+    await pick(block.locator('.qr-path-added__remove'))
     await expect(block.locator('.qr-path-added li')).toHaveCount(0)
   })
 

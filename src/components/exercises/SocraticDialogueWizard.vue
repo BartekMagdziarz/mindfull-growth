@@ -194,10 +194,7 @@
           <ExerciseStepWhy :text="tg('exerciseWizards.socraticDialogue.dialogue.why')" />
 
           <!-- Message area -->
-          <div
-            ref="messageContainer"
-            class="neo-surface rounded-xl p-4 h-96 overflow-y-auto space-y-3"
-          >
+          <div class="neo-surface rounded-xl p-4 h-96 overflow-y-auto space-y-3">
             <div
               v-if="messages.length === 0 && !isLlmLoading"
               class="text-center text-on-surface-variant py-8"
@@ -252,7 +249,6 @@
             </div>
             <div class="flex gap-2 items-end">
               <textarea
-                ref="inputRef"
                 v-model="userInput"
                 :placeholder="t('exerciseWizards.socraticDialogue.dialogue.placeholder')"
                 :disabled="isLlmLoading"
@@ -495,9 +491,7 @@ const messages = ref<SocraticDialogueMessage[]>([])
 const userInput = ref('')
 const isLlmLoading = ref(false)
 const llmError = ref('')
-const messageContainer = ref<HTMLDivElement | null>(null)
 const scrollAnchor = ref<HTMLDivElement | null>(null)
-const inputRef = ref<HTMLTextAreaElement | null>(null)
 
 const exchangeCount = computed(() => Math.floor(messages.value.length / 2))
 const canFinish = computed(() => exchangeCount.value >= MIN_EXCHANGES)

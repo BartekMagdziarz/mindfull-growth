@@ -1788,9 +1788,15 @@
         }
       },
       "anchors": {
-        "proudOf": "Z czego jestem dumny",
+        "proudOf": {
+          "m": "Z czego jestem dumny",
+          "f": "Z czego jestem dumna"
+        },
         "challenges": "Największe wyzwania",
-        "growth": "Jak się rozwinąłem",
+        "growth": {
+          "m": "Jak się rozwinąłem",
+          "f": "Jak się rozwinęłam"
+        },
         "patterns": "Zauważone wzorce",
         "carryForward": "Co zabieram ze sobą",
         "letGo": "Co puszczam"
@@ -1814,7 +1820,37 @@
         "pause": "Wstrzymaj",
         "drop": "Porzuć"
       },
-      "journalPlaceholder": "Napisz refleksję nad minionym miesiącem..."
+      "journalPlaceholder": "Napisz refleksję nad minionym miesiącem...",
+      "quiet": {
+        "effortHint": {
+          "m": "Ile świadomej uwagi i energii poświęciłeś temu kierunkowi? To nie ocena rezultatu.",
+          "f": "Ile świadomej uwagi i energii poświęciłaś temu kierunkowi? To nie ocena rezultatu."
+        },
+        "steps": {
+          "priorities": {
+            "label": "Priorytety",
+            "question": {
+              "m": "Jaką uwagę poświęciłeś swoim kierunkom?",
+              "f": "Jaką uwagę poświęciłaś swoim kierunkom?"
+            }
+          },
+          "compass": {
+            "label": "Kompas",
+            "question": {
+              "m": "Jakiego miesiąca doświadczyłeś?",
+              "f": "Jakiego miesiąca doświadczyłaś?"
+            }
+          },
+          "anchors": {
+            "label": "Kotwice",
+            "question": "Co warto zapamiętać?"
+          },
+          "journal": {
+            "label": "Dziennik",
+            "question": "Zamknij miesiąc własnymi słowami"
+          }
+        }
+      }
     }
   },
   "goalClosing": {

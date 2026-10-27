@@ -393,7 +393,6 @@
 
           <!-- Dialog Card -->
           <div
-            ref="customPromptDialogRef"
             role="dialog"
             aria-labelledby="custom-prompt-title"
             class="dialog-panel mg-v2-surface mg-v2-surface--raised relative z-10 p-6 max-w-md w-full mx-4"
@@ -488,7 +487,6 @@ const showChatIntents = ref(false)
 const isStartingChat = ref(false)
 const showCustomPromptDialog = ref(false)
 const customPromptInput = ref('')
-const customPromptDialogRef = ref<HTMLElement | null>(null)
 const showDeleteChatDialog = ref(false)
 const chatSessionToDelete = ref<ChatSession | null>(null)
 

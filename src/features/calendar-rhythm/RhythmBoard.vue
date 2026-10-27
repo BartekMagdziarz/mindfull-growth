@@ -357,6 +357,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
+import { useT } from '@/composables/useT'
 import LoadStateRibbon from '@/components/shared/charts/LoadStateRibbon.vue'
 import RhythmCompassMini from './RhythmCompassMini.vue'
 import RhythmEntrySlots from './RhythmEntrySlots.vue'
@@ -380,6 +381,8 @@ import {
 } from './rhythmProjections'
 import type { BoardRow, ViewOption } from './rhythmRows'
 import type { RhythmObject, RhythmPriority } from './rhythmScenario'
+
+const { t, tg } = useT()
 
 const props = defineProps<{
   rows: BoardRow[]
@@ -461,19 +464,19 @@ const anchors = computed(() => {
       ? [
           {
             id: 'good',
-            label: 'Z czego jestem dumny',
+            label: tg('planning.reflection.monthly.anchors.proudOf'),
             icon: 'thumb_up',
             lines: lines(r.monthly.anchors.proud),
           },
           {
             id: 'hard',
-            label: 'Największe wyzwania',
+            label: t('planning.reflection.monthly.anchors.challenges'),
             icon: 'cloud',
             lines: lines(r.monthly.anchors.challenges),
           },
           {
             id: 'lessons',
-            label: 'Jak się rozwinąłem',
+            label: tg('planning.reflection.monthly.anchors.growth'),
             icon: 'lightbulb',
             lines: lines(r.monthly.anchors.growth),
           },
