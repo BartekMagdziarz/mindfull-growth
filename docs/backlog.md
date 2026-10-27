@@ -27,6 +27,33 @@ wracania do rozmowy, w której go znaleziono.
 
 ## Błędy
 
+### B-12 · `returnQueries.spec` pada, gdy realna data mija stałe `TODAY` testu
+
+`otwarte` · Znaleziono 2026-10-27 przy wdrożeniu wariantu D edytora Dziennika · rytuał powrotu, `src/services/__tests__/returnQueries.spec.ts:154`
+
+**Objaw.** `npx vitest run` → „by hand there is no threshold: a short gap, or none at all,
+still opens the ritual”: `expected undefined to match object { weeks: [], crossedMonth: false }`.
+Reszta pliku zielona.
+
+**Jak odtworzyć.** `npx vitest run src/services/__tests__/returnQueries.spec.ts` dowolnego dnia
+po dacie z `const TODAY = '2026-10-25' as DayRef`.
+
+**Przyczyna.** `getReturnBreakForRitual(true, today)` (`src/services/returnQueries.ts:207`)
+bez żadnego sygnału bierze `new Date().toISOString()` jako `lastSignalAt`, a test podaje
+stałe `TODAY` z przeszłości. Gdy zegar systemowy jest późniejszy niż `TODAY`, przerwa
+zaczyna się „po dziś” i `buildReturnBreak` zwraca `undefined`. Pierwsza asercja (bez
+wpisów) nie ma zamrożonego zegara — `vi.useFakeTimers` jest dopiero w `buildReturnInventory`.
+
+**Dlaczego to błąd.** Test zależy od daty uruchomienia; od 2026-10-27 bramka `vitest`
+jest czerwona bez zmiany w kodzie.
+
+**Propozycja naprawy.** W tym `describe` zamrozić zegar na `TODAY` (`vi.useFakeTimers`
++ `vi.setSystemTime`) jak w `buildReturnInventory`, albo przekazywać „teraz” do
+`getReturnBreakForRitual` jawnie (parametr `now`), tak jak `today`.
+
+**Kryteria akceptacji.** Spec zielony niezależnie od daty systemowej; pozostałe 8 testów
+pliku bez zmian.
+
 ### B-11 · Scena Labu „Pola na kartach biblioteki” importuje usunięty `ObjectCardAffiliation`
 
 `otwarte` · Znaleziono 2026-10-27 przy propozycjach dla przycisków edytora Dziennika · UX Lab, `ux-lab/app/src/components/object-fields/FieldCard.vue`

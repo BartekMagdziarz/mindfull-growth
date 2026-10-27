@@ -15,6 +15,7 @@ vi.mock('vue-router', () => ({
     replace: mockRouterReplace,
   }),
   useRoute: () => mockRoute,
+  onBeforeRouteLeave: () => {},
 }))
 
 // Real catalog ids: the selector resolves family membership through the real
