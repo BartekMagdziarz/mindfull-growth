@@ -232,7 +232,7 @@
             </p>
           </div>
 
-          <p v-if="llmError" class="text-xs text-error">{{ llmError }}</p>
+          <AiErrorNote v-if="llmError" :error="llmError" />
 
           <!-- Carousel navigation -->
           <div
@@ -405,6 +405,7 @@ import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
+import AiErrorNote from '@/components/exercises/AiErrorNote.vue'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import type { Quadrant } from '@/domain/emotion'
@@ -467,7 +468,7 @@ const paradoxicalIntentions = reactive<Record<string, string>>({})
 const practiceScripts = reactive<Record<string, string>>({})
 const llmSuggestions = reactive<Record<string, string>>({})
 const isLlmLoading = ref(false)
-const llmError = ref('')
+const llmError = ref<unknown>(null)
 const llmAssistUsed = ref(false)
 
 const currentFear = computed(() => validFears.value[currentFearIndex.value])
@@ -481,7 +482,7 @@ async function handleMakeFunnier() {
   if (!fear) return
 
   isLlmLoading.value = true
-  llmError.value = ''
+  llmError.value = null
   try {
     const { craftParadoxicalIntention } = await import('@/services/logotherapyLLMAssists')
 
@@ -496,10 +497,7 @@ async function handleMakeFunnier() {
     llmSuggestions[fear.id] = response
     llmAssistUsed.value = true
   } catch (err) {
-    llmError.value =
-      err instanceof Error
-        ? err.message
-        : t('exerciseWizards.paradoxicalIntention.errors.suggestionFailed')
+    llmError.value = err
   } finally {
     isLlmLoading.value = false
   }

@@ -257,7 +257,7 @@
                 {{ t('exerciseWizards.compassionateLetter.check.insertDraft') }}
               </AppButton>
             </div>
-            <p v-if="llmError" class="text-xs text-error">{{ llmError }}</p>
+            <AiErrorNote v-if="llmError" :error="llmError" />
           </div>
         </AppCard>
 
@@ -490,6 +490,7 @@ import { useEmotionStore } from '@/stores/emotion.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
+import AiErrorNote from '@/components/exercises/AiErrorNote.vue'
 import { getQuadrant, getQuadrantChipStyle } from '@/domain/emotion'
 import type { Quadrant } from '@/domain/emotion'
 import type { CreateCompassionateLetterPayload } from '@/domain/exercises'
@@ -615,12 +616,12 @@ function getEmotionChipStyle(id: string): Record<string, string> {
 // ─── LLM Assist ──────────────────────────────────────────────────────────────
 const isLlmLoading = ref(false)
 const llmResponse = ref('')
-const llmError = ref('')
+const llmError = ref<unknown>(null)
 const llmAssistUsed = ref(false)
 
 async function handleCompassionateAssist() {
   isLlmLoading.value = true
-  llmError.value = ''
+  llmError.value = null
   try {
     const { guideCompassionateResponse } = await import('@/services/cbtLLMAssists')
     const emotions = selectedEmotionIds.value.map(id => {
@@ -636,10 +637,7 @@ async function handleCompassionateAssist() {
     })
     llmAssistUsed.value = true
   } catch (err) {
-    llmError.value =
-      err instanceof Error
-        ? err.message
-        : t('exerciseWizards.compassionateLetter.errors.guidanceFailed')
+    llmError.value = err
   } finally {
     isLlmLoading.value = false
   }

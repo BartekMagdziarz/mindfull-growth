@@ -1986,6 +1986,19 @@
   },
   "shared": {
     "whyLabel": "Po co ten krok?",
+    "ai": {
+      "notConfigured": "Asystent AI nie jest jeszcze ustawiony.",
+      "invalidApiKey": "Klucz API nie działa.",
+      "rateLimit": "Dostawca AI prosi o chwilę przerwy. Spróbuj za moment.",
+      "network": "Brak połączenia z dostawcą AI. Sprawdź sieć i spróbuj ponownie.",
+      "refusal": "Model nie odpowiedział na tę prośbę. Spróbuj ująć to inaczej albo wybierz inny model.",
+      "cancelled": "Zapytanie przerwane.",
+      "timedOut": "Odpowiedź nie nadeszła na czas. Spróbuj ponownie.",
+      "emptyResponse": "Odpowiedź przyszła pusta albo urwana. Spróbuj ponownie.",
+      "api": "Dostawca AI odrzucił zapytanie.",
+      "failed": "Nie udało się uzyskać odpowiedzi AI.",
+      "openProfile": "Ustaw w profilu"
+    },
     "ifs": {
       "partRoles": {
         "manager": "Menedżer",

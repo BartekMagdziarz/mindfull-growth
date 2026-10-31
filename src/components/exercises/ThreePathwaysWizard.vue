@@ -416,7 +416,7 @@
             <div v-if="llmResponse" class="neo-panel p-4">
               <p class="text-sm text-on-surface whitespace-pre-wrap">{{ llmResponse }}</p>
             </div>
-            <p v-if="llmError" class="text-xs text-error">{{ llmError }}</p>
+            <AiErrorNote v-if="llmError" :error="llmError" />
           </div>
         </AppCard>
         <div class="flex justify-between">
@@ -559,6 +559,7 @@ import EmotionSelector from '@/components/EmotionSelector.vue'
 import type { Quadrant } from '@/domain/emotion'
 import RatingSlider from '@/components/exercises/RatingSlider.vue'
 import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
+import AiErrorNote from '@/components/exercises/AiErrorNote.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useLifeAreaStore } from '@/stores/lifeArea.store'
 import { useValueMapStore } from '@/stores/valueMap.store'
@@ -669,11 +670,11 @@ const userPreferencesStore = useUserPreferencesStore()
 const useProfileSynthesis = ref(userPreferencesStore.profileContextDefault)
 const isLlmLoading = ref(false)
 const llmResponse = ref('')
-const llmError = ref('')
+const llmError = ref<unknown>(null)
 
 async function handleSynthesisAssist() {
   isLlmLoading.value = true
-  llmError.value = ''
+  llmError.value = null
   try {
     const { synthesizeThreePathways } = await import('@/services/logotherapyLLMAssists')
 
@@ -690,8 +691,7 @@ async function handleSynthesisAssist() {
       useProfile: useProfileSynthesis.value,
     })
   } catch (err) {
-    llmError.value =
-      err instanceof Error ? err.message : t('exerciseWizards.threePathways.errors.analyzeFailed')
+    llmError.value = err
   } finally {
     isLlmLoading.value = false
   }

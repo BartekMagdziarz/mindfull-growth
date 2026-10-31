@@ -1,5 +1,5 @@
 import { userSettingsDexieRepository } from '@/repositories/userSettingsDexieRepository'
-import { CHAT_COPY } from '@/constants/chatCopy'
+import { LlmNotConfiguredError } from '@/services/llmErrors'
 import { ANTHROPIC_DEFAULT_MODEL, ANTHROPIC_HEAVY_MODEL } from '@/services/ai/anthropic/client'
 
 // Default model configuration. gpt-5.4-nano is OpenAI's smallest/cheapest
@@ -117,10 +117,10 @@ export async function getAIProviderSettings(): Promise<AIProviderSettings> {
   if (storedSettings) {
     const settings = parseProviderSettings(storedSettings)
     if (settings && providerRequiresApiKey(settings.provider) && !settings.apiKey) {
-      throw new Error(CHAT_COPY.errors.missingAIProviderConfig)
+      throw new LlmNotConfiguredError()
     }
     if (settings) return settings
-    throw new Error(CHAT_COPY.errors.missingAIProviderConfig)
+    throw new LlmNotConfiguredError()
   }
 
   const legacyApiKey = await userSettingsDexieRepository.get(LEGACY_OPENAI_API_KEY)
@@ -131,7 +131,7 @@ export async function getAIProviderSettings(): Promise<AIProviderSettings> {
     }
   }
 
-  throw new Error(CHAT_COPY.errors.missingAIProviderConfig)
+  throw new LlmNotConfiguredError()
 }
 
 export async function hasAIProviderConfigured(): Promise<boolean> {

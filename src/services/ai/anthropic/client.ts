@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk'
 import type { BetaMessageStreamParams } from '@anthropic-ai/sdk/resources/beta/messages/messages'
 import { CHAT_COPY } from '@/constants/chatCopy'
+import { LlmError } from '@/services/llmErrors'
 import type { ReasoningEffort } from '@/services/aiProviderSettingsService'
 
 /**
@@ -77,16 +78,17 @@ export function createAnthropicClient(apiKey: string, fetch?: typeof globalThis.
 /** Map SDK errors onto the shared llmService copy; other API errors keep the server's message. */
 export function toAnthropicChatError(error: unknown): unknown {
   if (error instanceof Anthropic.AuthenticationError)
-    return new Error(CHAT_COPY.errors.invalidApiKey, { cause: error })
+    return new LlmError('invalid-api-key', CHAT_COPY.errors.invalidApiKey, { cause: error })
   if (error instanceof Anthropic.RateLimitError)
-    return new Error(CHAT_COPY.errors.rateLimit, { cause: error })
+    return new LlmError('rate-limit', CHAT_COPY.errors.rateLimit, { cause: error })
   if (error instanceof Anthropic.APIUserAbortError) return error
   if (error instanceof Anthropic.APIConnectionError)
-    return new Error(CHAT_COPY.errors.network, { cause: error })
+    return new LlmError('network', CHAT_COPY.errors.network, { cause: error })
   if (error instanceof Anthropic.APIError && typeof error.status === 'number') {
     const body = error.error as { error?: { message?: unknown } } | undefined
     const message = body?.error?.message
-    return new Error(
+    return new LlmError(
+      'api',
       typeof message === 'string' ? message : CHAT_COPY.errors.genericApi(error.status),
       { cause: error }
     )

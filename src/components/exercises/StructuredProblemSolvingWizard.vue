@@ -200,7 +200,7 @@
               </p>
               <p class="text-sm text-on-surface whitespace-pre-line">{{ brainstormResponse }}</p>
             </div>
-            <p v-if="brainstormError" class="text-xs text-error">{{ brainstormError }}</p>
+            <AiErrorNote v-if="brainstormError" :error="brainstormError" />
           </div>
         </AppCard>
 
@@ -394,7 +394,7 @@
               </p>
               <p class="text-sm text-on-surface whitespace-pre-line">{{ evaluateResponse }}</p>
             </div>
-            <p v-if="evaluateError" class="text-xs text-error">{{ evaluateError }}</p>
+            <AiErrorNote v-if="evaluateError" :error="evaluateError" />
           </div>
         </AppCard>
 
@@ -881,6 +881,7 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
+import AiErrorNote from '@/components/exercises/AiErrorNote.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useEmotionStore } from '@/stores/emotion.store'
@@ -1004,12 +1005,12 @@ const filledActionSteps = computed(() => actionSteps.filter(s => s.trim().length
 // ─── LLM Assist: Brainstorm ─────────────────────────────────────────────────
 const isBrainstormLoading = ref(false)
 const brainstormResponse = ref('')
-const brainstormError = ref('')
+const brainstormError = ref<unknown>(null)
 const llmAssistsUsed = reactive(new Set<'brainstorm' | 'evaluate'>())
 
 async function handleBrainstormAssist() {
   isBrainstormLoading.value = true
-  brainstormError.value = ''
+  brainstormError.value = null
   try {
     const { brainstormSolutions } = await import('@/services/cbtLLMAssists')
     const emotionNames = emotionIds.value
@@ -1023,10 +1024,7 @@ async function handleBrainstormAssist() {
     })
     llmAssistsUsed.add('brainstorm')
   } catch (err) {
-    brainstormError.value =
-      err instanceof Error
-        ? err.message
-        : t('exerciseWizards.structuredProblemSolving.errors.brainstormFailed')
+    brainstormError.value = err
   } finally {
     isBrainstormLoading.value = false
   }
@@ -1035,11 +1033,11 @@ async function handleBrainstormAssist() {
 // ─── LLM Assist: Evaluate ───────────────────────────────────────────────────
 const isEvaluateLoading = ref(false)
 const evaluateResponse = ref('')
-const evaluateError = ref('')
+const evaluateError = ref<unknown>(null)
 
 async function handleEvaluateAssist() {
   isEvaluateLoading.value = true
-  evaluateError.value = ''
+  evaluateError.value = null
   try {
     const { evaluateSolutions } = await import('@/services/cbtLLMAssists')
     evaluateResponse.value = await evaluateSolutions({
@@ -1054,10 +1052,7 @@ async function handleEvaluateAssist() {
     })
     llmAssistsUsed.add('evaluate')
   } catch (err) {
-    evaluateError.value =
-      err instanceof Error
-        ? err.message
-        : t('exerciseWizards.structuredProblemSolving.errors.evaluateFailed')
+    evaluateError.value = err
   } finally {
     isEvaluateLoading.value = false
   }

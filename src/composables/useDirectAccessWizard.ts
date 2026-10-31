@@ -1,3 +1,4 @@
+import { reportError } from '@/utils/reportError'
 import { ref, computed } from 'vue'
 import type {
   CreateIFSDirectAccessPayload,
@@ -18,7 +19,7 @@ const STEP_ORDER: DirectAccessStep[] = ['part-select', 'self-check', 'dialogue',
 
 export function useDirectAccessWizard() {
   const store = useIFSDirectAccessStore()
-  const { locale, gender, t } = useT()
+  const { locale, gender } = useT()
 
   // Step management
   const currentStep = ref<DirectAccessStep>('part-select')
@@ -34,7 +35,7 @@ export function useDirectAccessWizard() {
   const messages = ref<IFSDialogueMessage[]>([])
   const insights = ref<IFSInsight[]>([])
   const isLoadingResponse = ref(false)
-  const llmError = ref<string | null>(null)
+  const llmError = ref<unknown>(null)
 
   // Summary
   const summary = ref('')
@@ -120,8 +121,8 @@ export function useDirectAccessWizard() {
       messages.value.push(partMsg)
     } catch (err) {
       console.warn('[ifs] LLM assist failed', err)
-      llmError.value = t('exerciseWizards.shared.ifs.errors.responseFailed')
-      console.error('Direct access dialogue error:', err)
+      llmError.value = err
+      reportError('useDirectAccessWizard.llm', err)
     } finally {
       isLoadingResponse.value = false
     }

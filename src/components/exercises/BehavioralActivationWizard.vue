@@ -207,7 +207,7 @@
               </p>
               <p class="text-sm text-on-surface whitespace-pre-line">{{ suggestResult }}</p>
             </div>
-            <p v-if="suggestError" class="text-xs text-error">{{ suggestError }}</p>
+            <AiErrorNote v-if="suggestError" :error="suggestError" />
           </div>
         </AppCard>
 
@@ -455,7 +455,7 @@
             </p>
             <p class="text-sm text-on-surface whitespace-pre-line">{{ reviewResult }}</p>
           </div>
-          <p v-if="reviewError" class="text-xs text-error">{{ reviewError }}</p>
+          <AiErrorNote v-if="reviewError" :error="reviewError" />
         </AppCard>
 
         <!-- Optional notes -->
@@ -492,6 +492,7 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
+import AiErrorNote from '@/components/exercises/AiErrorNote.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
@@ -618,11 +619,11 @@ function removeActivity(idx: number) {
 // ─── LLM Assist: Suggest Activities ──────────────────────────────────────
 const isSuggestLoading = ref(false)
 const suggestResult = ref('')
-const suggestError = ref('')
+const suggestError = ref<unknown>(null)
 
 async function handleSuggestActivities() {
   isSuggestLoading.value = true
-  suggestError.value = ''
+  suggestError.value = null
   try {
     const { suggestActivities } = await import('@/services/cbtLLMAssists')
     suggestResult.value = await suggestActivities({
@@ -635,7 +636,7 @@ async function handleSuggestActivities() {
       useProfile: useProfileSuggest.value,
     })
   } catch (err) {
-    suggestError.value = err instanceof Error ? err.message : 'Failed to get suggestions'
+    suggestError.value = err
   } finally {
     isSuggestLoading.value = false
   }
@@ -644,11 +645,11 @@ async function handleSuggestActivities() {
 // ─── LLM Assist: Week Review ─────────────────────────────────────────────
 const isReviewLoading = ref(false)
 const reviewResult = ref('')
-const reviewError = ref('')
+const reviewError = ref<unknown>(null)
 
 async function handleReviewWeek() {
   isReviewLoading.value = true
-  reviewError.value = ''
+  reviewError.value = null
   try {
     const { reviewActivationWeek } = await import('@/services/cbtLLMAssists')
     reviewResult.value = await reviewActivationWeek({
@@ -664,7 +665,7 @@ async function handleReviewWeek() {
       useProfile: useProfileReviewWeek.value,
     })
   } catch (err) {
-    reviewError.value = err instanceof Error ? err.message : 'Failed to generate review'
+    reviewError.value = err
   } finally {
     isReviewLoading.value = false
   }

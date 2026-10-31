@@ -1986,6 +1986,19 @@
   },
   "shared": {
     "whyLabel": "Why this step?",
+    "ai": {
+      "notConfigured": "The AI assistant is not set up yet.",
+      "invalidApiKey": "The API key does not work.",
+      "rateLimit": "The AI provider asks for a short pause. Try again in a moment.",
+      "network": "Could not reach the AI provider. Check your connection and try again.",
+      "refusal": "The model declined this request. Try rephrasing it or pick another model.",
+      "cancelled": "Request cancelled.",
+      "timedOut": "The answer did not arrive in time. Try again.",
+      "emptyResponse": "The answer came back empty or cut off. Try again.",
+      "api": "The AI provider rejected the request.",
+      "failed": "Could not get an AI answer.",
+      "openProfile": "Set it up in your profile"
+    },
     "ifs": {
       "partRoles": {
         "manager": "Manager",

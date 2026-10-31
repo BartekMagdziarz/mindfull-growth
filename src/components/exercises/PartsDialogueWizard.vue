@@ -278,7 +278,7 @@
               </div>
             </Transition>
 
-            <p v-if="llmError" class="text-xs text-error">{{ llmError }}</p>
+            <AiErrorNote v-if="llmError" :error="llmError" />
           </AppCard>
 
           <div class="flex justify-between">
@@ -489,6 +489,7 @@
 <script setup lang="ts">
 import ExerciseStepper from './ExerciseStepper.vue'
 import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
+import AiErrorNote from '@/components/exercises/AiErrorNote.vue'
 import { ref, computed, nextTick, watch } from 'vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'

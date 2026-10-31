@@ -200,7 +200,7 @@
             </p>
             <p class="text-sm text-on-surface whitespace-pre-line">{{ identifySuggestions }}</p>
           </div>
-          <p v-if="identifyError" class="text-xs text-error">{{ identifyError }}</p>
+          <AiErrorNote v-if="identifyError" :error="identifyError" />
         </div>
       </AppCard>
       <div class="flex justify-between">
@@ -354,7 +354,7 @@
               {{ t('exerciseWizards.thoughtRecord.evidenceAgainst.send') }}
             </AppButton>
           </div>
-          <p v-if="findEvidenceError" class="text-xs text-error">{{ findEvidenceError }}</p>
+          <AiErrorNote v-if="findEvidenceError" :error="findEvidenceError" />
         </div>
       </AppCard>
       <div class="flex justify-between">
@@ -465,7 +465,7 @@
               {{ t('exerciseWizards.thoughtRecord.balancedThought.send') }}
             </AppButton>
           </div>
-          <p v-if="reframeError" class="text-xs text-error">{{ reframeError }}</p>
+          <AiErrorNote v-if="reframeError" :error="reframeError" />
         </div>
       </AppCard>
       <div class="flex justify-between">
@@ -646,6 +646,7 @@ import { useEmotionStore } from '@/stores/emotion.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
+import AiErrorNote from '@/components/exercises/AiErrorNote.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import type { Quadrant } from '@/domain/emotion'
 
@@ -757,7 +758,7 @@ function removeThought(index: number) {
 // LLM Assist: Identify Thoughts
 const isIdentifyLoading = ref(false)
 const identifySuggestions = ref('')
-const identifyError = ref('')
+const identifyError = ref<unknown>(null)
 
 const emotionNamesWithIntensity = computed(() =>
   emotionsBefore.map(er => ({
@@ -768,7 +769,7 @@ const emotionNamesWithIntensity = computed(() =>
 
 async function handleIdentifyThoughts() {
   isIdentifyLoading.value = true
-  identifyError.value = ''
+  identifyError.value = null
   try {
     const { identifyThoughts } = await import('@/services/cbtLLMAssists')
     identifySuggestions.value = await identifyThoughts({
@@ -779,7 +780,7 @@ async function handleIdentifyThoughts() {
     })
     llmAssistsUsed.add('identify-thoughts')
   } catch (err) {
-    identifyError.value = err instanceof Error ? err.message : 'Failed to get suggestions'
+    identifyError.value = err
   } finally {
     isIdentifyLoading.value = false
   }
@@ -799,11 +800,11 @@ const filledEvidenceAgainst = computed(() => evidenceAgainst.filter(e => e.trim(
 const isFindEvidenceLoading = ref(false)
 const findEvidenceMessages = reactive<{ role: 'assistant' | 'user'; content: string }[]>([])
 const findEvidenceFollowUp = ref('')
-const findEvidenceError = ref('')
+const findEvidenceError = ref<unknown>(null)
 
 async function handleFindEvidence() {
   isFindEvidenceLoading.value = true
-  findEvidenceError.value = ''
+  findEvidenceError.value = null
   try {
     const { findEvidence } = await import('@/services/cbtLLMAssists')
     const result = await findEvidence({
@@ -819,7 +820,7 @@ async function handleFindEvidence() {
     findEvidenceMessages.push({ role: 'assistant', content: result })
     llmAssistsUsed.add('find-evidence')
   } catch (err) {
-    findEvidenceError.value = err instanceof Error ? err.message : 'Failed to get suggestions'
+    findEvidenceError.value = err
   } finally {
     isFindEvidenceLoading.value = false
   }
@@ -839,11 +840,11 @@ const balancedThought = ref('')
 const isReframeLoading = ref(false)
 const reframeSuggestions = reactive<{ role: 'assistant' | 'user'; content: string }[]>([])
 const reframeFollowUp = ref('')
-const reframeError = ref('')
+const reframeError = ref<unknown>(null)
 
 async function handleReframeThought() {
   isReframeLoading.value = true
-  reframeError.value = ''
+  reframeError.value = null
   try {
     const { reframeThought } = await import('@/services/cbtLLMAssists')
     const result = await reframeThought({
@@ -859,7 +860,7 @@ async function handleReframeThought() {
     reframeSuggestions.push({ role: 'assistant', content: result })
     llmAssistsUsed.add('reframe')
   } catch (err) {
-    reframeError.value = err instanceof Error ? err.message : 'Failed to get suggestions'
+    reframeError.value = err
   } finally {
     isReframeLoading.value = false
   }

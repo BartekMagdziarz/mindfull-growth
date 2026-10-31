@@ -1,3 +1,4 @@
+import { reportError } from '@/utils/reportError'
 import { ref, computed } from 'vue'
 import type {
   CreateIFSPartsDialoguePayload,
@@ -23,7 +24,7 @@ const STEP_ORDER: PartsDialogueStep[] = [
 
 export function usePartsDialogueWizard() {
   const store = useIFSPartsDialogueStore()
-  const { locale, gender, t } = useT()
+  const { locale, gender } = useT()
 
   // Step management
   const currentStep = ref<PartsDialogueStep>('part-select')
@@ -46,7 +47,7 @@ export function usePartsDialogueWizard() {
   const llmAssistUsed = ref(false)
   const isLoadingAssist = ref(false)
   const llmSuggestion = ref('')
-  const llmError = ref<string | null>(null)
+  const llmError = ref<unknown>(null)
 
   // Summary
   const summary = ref('')
@@ -116,8 +117,8 @@ export function usePartsDialogueWizard() {
       llmSuggestion.value = response
     } catch (err) {
       console.warn('[ifs] LLM assist failed', err)
-      llmError.value = t('exerciseWizards.shared.ifs.errors.suggestionFailed')
-      console.error('Parts dialogue assist error:', err)
+      llmError.value = err
+      reportError('usePartsDialogueWizard.llm', err)
     } finally {
       isLoadingAssist.value = false
     }

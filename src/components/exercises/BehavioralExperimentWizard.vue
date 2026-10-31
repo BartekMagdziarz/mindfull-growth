@@ -242,7 +242,7 @@
               </p>
               <p class="text-sm text-on-surface whitespace-pre-line">{{ designSuggestion }}</p>
             </div>
-            <p v-if="designError" class="text-xs text-error">{{ designError }}</p>
+            <AiErrorNote v-if="designError" :error="designError" />
           </div>
         </AppCard>
         <div class="flex justify-between">
@@ -565,6 +565,7 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
+import AiErrorNote from '@/components/exercises/AiErrorNote.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
@@ -645,12 +646,12 @@ watch(
 // ─── LLM Assist ──────────────────────────────────────────────────────────────
 const isDesignLoading = ref(false)
 const designSuggestion = ref('')
-const designError = ref('')
+const designError = ref<unknown>(null)
 const llmAssistUsed = ref(false)
 
 async function handleDesignAssist() {
   isDesignLoading.value = true
-  designError.value = ''
+  designError.value = null
   try {
     const { designBehavioralExperiment } = await import('@/services/cbtLLMAssists')
     designSuggestion.value = await designBehavioralExperiment({
@@ -662,10 +663,7 @@ async function handleDesignAssist() {
     })
     llmAssistUsed.value = true
   } catch (err) {
-    designError.value =
-      err instanceof Error
-        ? err.message
-        : t('exerciseWizards.behavioralExperiment.errors.designFailed')
+    designError.value = err
   } finally {
     isDesignLoading.value = false
   }

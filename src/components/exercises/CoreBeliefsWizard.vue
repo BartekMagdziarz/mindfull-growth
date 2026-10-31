@@ -212,7 +212,7 @@
             <div v-if="deepenerResponse" class="neo-panel p-4">
               <p class="text-sm text-on-surface whitespace-pre-line">{{ deepenerResponse }}</p>
             </div>
-            <p v-if="deepenerError" class="text-xs text-error">{{ deepenerError }}</p>
+            <AiErrorNote v-if="deepenerError" :error="deepenerError" />
           </div>
         </AppCard>
         <div class="flex justify-start">
@@ -565,7 +565,7 @@
                 {{ t('exerciseWizards.coreBeliefs.alternative.send') }}
               </AppButton>
             </div>
-            <p v-if="alternativeError" class="text-xs text-error">{{ alternativeError }}</p>
+            <AiErrorNote v-if="alternativeError" :error="alternativeError" />
           </div>
         </AppCard>
 
@@ -806,6 +806,7 @@ import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
+import AiErrorNote from '@/components/exercises/AiErrorNote.vue'
 import type { CreateCoreBeliefsExplorationPayload } from '@/domain/exercises'
 
 /** Prefill from the shame path (`?seed=fairDemand`): the critic's thought to examine and the reasonable demand as the alternative. */
@@ -967,12 +968,12 @@ const believabilityDelta = computed(() => {
 // ─── LLM Assist: Help me go deeper ──────────────────────────────────────────
 const isDeepenerLoading = ref(false)
 const deepenerResponse = ref('')
-const deepenerError = ref('')
+const deepenerError = ref<unknown>(null)
 const llmAssistsUsed = reactive(new Set<'identify-belief' | 'alternative-belief'>())
 
 async function handleDeepenerAssist() {
   isDeepenerLoading.value = true
-  deepenerError.value = ''
+  deepenerError.value = null
   try {
     const { guideCoreBeliefExploration } = await import('@/services/cbtLLMAssists')
     const allSteps = currentArrowAnswer.value.trim()
@@ -986,7 +987,7 @@ async function handleDeepenerAssist() {
     })
     llmAssistsUsed.add('identify-belief')
   } catch (err) {
-    deepenerError.value = err instanceof Error ? err.message : 'Failed to get guidance'
+    deepenerError.value = err
   } finally {
     isDeepenerLoading.value = false
   }
@@ -996,11 +997,11 @@ async function handleDeepenerAssist() {
 const isAlternativeLoading = ref(false)
 const alternativeMessages = reactive<{ role: 'assistant' | 'user'; content: string }[]>([])
 const alternativeFollowUp = ref('')
-const alternativeError = ref('')
+const alternativeError = ref<unknown>(null)
 
 async function handleAlternativeAssist() {
   isAlternativeLoading.value = true
-  alternativeError.value = ''
+  alternativeError.value = null
   try {
     const { suggestAlternativeBeliefs } = await import('@/services/cbtLLMAssists')
     const result = await suggestAlternativeBeliefs({
@@ -1015,7 +1016,7 @@ async function handleAlternativeAssist() {
     alternativeMessages.push({ role: 'assistant', content: result })
     llmAssistsUsed.add('alternative-belief')
   } catch (err) {
-    alternativeError.value = err instanceof Error ? err.message : 'Failed to get suggestions'
+    alternativeError.value = err
   } finally {
     isAlternativeLoading.value = false
   }

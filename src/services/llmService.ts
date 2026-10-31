@@ -1,4 +1,5 @@
 import { CHAT_COPY } from '@/constants/chatCopy'
+import { LlmError, isLlmError } from '@/services/llmErrors'
 import { captureUserSession } from '@/services/userSessionScope'
 import { reportError } from '@/utils/reportError'
 import { ANTHROPIC_THINKING_HEADROOM, anthropicEffort } from '@/services/ai/anthropic/client'
@@ -30,6 +31,16 @@ export {
   type LLMTask,
   type ReasoningEffort,
 } from '@/services/aiProviderSettingsService'
+export {
+  LlmError,
+  LlmNotConfiguredError,
+  isLlmAbort,
+  isLlmError,
+  llmErrorCode,
+  llmErrorPresentation,
+  type LlmErrorCode,
+  type LlmErrorPresentation,
+} from '@/services/llmErrors'
 
 const DEFAULT_TEMPERATURE = 0.7
 const DEFAULT_MAX_TOKENS = 500
@@ -300,7 +311,7 @@ function reasoningToText(reasoning: unknown): string {
  *  exhausts its budget can emit just a newline, which must not pass as success. */
 function assertNonEmpty(content: string): void {
   if (!content.trim()) {
-    throw new Error('Empty response from API. Please try again.')
+    throw new LlmError('empty-response', 'Empty response from API. Please try again.')
   }
 }
 
@@ -412,10 +423,13 @@ const openAiAdapter: WireAdapter = {
   parseNonStreaming(json) {
     const data = json as OpenAIResponse
     if (!data.choices || data.choices.length === 0) {
-      throw new Error('Invalid response from API. Please try again.')
+      throw new LlmError('empty-response', 'Invalid response from API. Please try again.')
     }
     if (['length', 'content_filter'].includes(data.choices[0].finish_reason ?? '')) {
-      throw new Error('The API returned an incomplete response. Please try again.')
+      throw new LlmError(
+        'empty-response',
+        'The API returned an incomplete response. Please try again.'
+      )
     }
     const message = data.choices[0].message
     return {
@@ -448,7 +462,7 @@ const openAiAdapter: WireAdapter = {
     try {
       chunk = JSON.parse(data) as OpenAIStreamChunk
     } catch {
-      throw new Error('Invalid streaming response from API.')
+      throw new LlmError('empty-response', 'Invalid streaming response from API.')
     }
 
     if (chunk.error?.message) {
@@ -457,7 +471,10 @@ const openAiAdapter: WireAdapter = {
 
     const choice = chunk.choices?.[0]
     if (choice?.finish_reason === 'length' || choice?.finish_reason === 'content_filter') {
-      throw new Error('The API returned an incomplete response. Please try again.')
+      throw new LlmError(
+        'empty-response',
+        'The API returned an incomplete response. Please try again.'
+      )
     }
     const reasoning = choice?.delta?.reasoning ?? choice?.delta?.reasoning_content
     return {
@@ -525,10 +542,13 @@ const ollamaNativeAdapter: WireAdapter = {
   parseNonStreaming(json) {
     const data = json as OllamaNativeChunk
     if (!data.message) {
-      throw new Error('Invalid response from API. Please try again.')
+      throw new LlmError('empty-response', 'Invalid response from API. Please try again.')
     }
     if (data.done === false || data.done_reason === 'length') {
-      throw new Error('The API returned an incomplete response. Please try again.')
+      throw new LlmError(
+        'empty-response',
+        'The API returned an incomplete response. Please try again.'
+      )
     }
     return {
       content: data.message.content ?? '',
@@ -552,7 +572,7 @@ const ollamaNativeAdapter: WireAdapter = {
     try {
       obj = JSON.parse(line) as OllamaNativeChunk
     } catch {
-      throw new Error('Invalid streaming response from API.')
+      throw new LlmError('empty-response', 'Invalid streaming response from API.')
     }
 
     if (obj.error) {
@@ -566,7 +586,10 @@ const ollamaNativeAdapter: WireAdapter = {
     if (obj.model) delta.rawMeta = { model: obj.model }
     if (obj.done === true) {
       if (obj.done_reason === 'length')
-        throw new Error('The API returned an incomplete response. Please try again.')
+        throw new LlmError(
+          'empty-response',
+          'The API returned an incomplete response. Please try again.'
+        )
       delta.complete = true
       delta.usage = nativeUsage(obj.prompt_eval_count, obj.eval_count)
       delta.rawMeta = { ...(delta.rawMeta ?? {}), ...pickNativeMeta(obj) }
@@ -587,7 +610,7 @@ async function readStreamingResponse(
   requestStartedAt: number
 ): Promise<string> {
   if (!response.body) {
-    throw new Error('Streaming response did not include a readable body.')
+    throw new LlmError('empty-response', 'Streaming response did not include a readable body.')
   }
 
   const reader = response.body.getReader()
@@ -604,13 +627,13 @@ async function readStreamingResponse(
   }
 
   const handleRaw = (rawEvent: string) => {
-    if (options.signal?.aborted) throw new Error('AI request cancelled.')
+    if (options.signal?.aborted) throw new LlmError('cancelled', 'AI request cancelled.')
     const delta = adapter.parseStreamEvent(rawEvent)
     if (!delta) return
     if (delta.complete) complete = true
 
     if (delta.error) {
-      throw new Error(delta.error)
+      throw new LlmError('api', delta.error)
     }
 
     const eventAt = nowMs()
@@ -636,7 +659,7 @@ async function readStreamingResponse(
     }
 
     if (delta.contentDelta) {
-      if (options.signal?.aborted) throw new Error('AI request cancelled.')
+      if (options.signal?.aborted) throw new LlmError('cancelled', 'AI request cancelled.')
       if (firstContentAt === null) {
         firstContentAt = eventAt
         diagnostics.timing.firstContentMs = eventAt - requestStartedAt
@@ -659,9 +682,9 @@ async function readStreamingResponse(
   options.signal?.addEventListener('abort', cancelReader, { once: true })
   try {
     while (true) {
-      if (options.signal?.aborted) throw new Error('AI request cancelled.')
+      if (options.signal?.aborted) throw new LlmError('cancelled', 'AI request cancelled.')
       const { value, done } = await reader.read()
-      if (options.signal?.aborted) throw new Error('AI request cancelled.')
+      if (options.signal?.aborted) throw new LlmError('cancelled', 'AI request cancelled.')
       if (value && firstChunkAt === null) {
         firstChunkAt = nowMs()
         diagnostics.timing.firstChunkMs = firstChunkAt - requestStartedAt
@@ -680,9 +703,13 @@ async function readStreamingResponse(
       handleRaw(buffer)
     }
 
-    if (options.signal?.aborted) throw new Error('AI request cancelled.')
+    if (options.signal?.aborted) throw new LlmError('cancelled', 'AI request cancelled.')
     assertNonEmpty(content)
-    if (!complete) throw new Error('The API returned an incomplete response. Please try again.')
+    if (!complete)
+      throw new LlmError(
+        'empty-response',
+        'The API returned an incomplete response. Please try again.'
+      )
 
     const completedAt = nowMs()
     diagnostics.timing.totalMs = completedAt - requestStartedAt
@@ -793,7 +820,7 @@ export async function sendMessage(
     // Claude goes through the official SDK (Messages API), not the fetch adapters.
     if (settings.provider === 'anthropic') {
       session.assertCurrent()
-      if (controller.signal.aborted) throw new Error('AI request cancelled.')
+      if (controller.signal.aborted) throw new LlmError('cancelled', 'AI request cancelled.')
       const content = await sendAnthropicMessage(
         settings,
         plan,
@@ -813,7 +840,7 @@ export async function sendMessage(
     const requestStartedAt = nowMs()
 
     session.assertCurrent()
-    if (controller.signal.aborted) throw new Error('AI request cancelled.')
+    if (controller.signal.aborted) throw new LlmError('cancelled', 'AI request cancelled.')
     const response = await fetch(built.url, {
       signal: controller.signal,
       method: 'POST',
@@ -832,10 +859,10 @@ export async function sendMessage(
     // Handle HTTP errors
     if (!response.ok) {
       if (response.status === 401) {
-        throw new Error(CHAT_COPY.errors.invalidApiKey)
+        throw new LlmError('invalid-api-key', CHAT_COPY.errors.invalidApiKey)
       }
       if (response.status === 429) {
-        throw new Error(CHAT_COPY.errors.rateLimit)
+        throw new LlmError('rate-limit', CHAT_COPY.errors.rateLimit)
       }
 
       // Try to parse an error body. OpenAI nests it under error.message; Ollama
@@ -859,10 +886,10 @@ export async function sendMessage(
       }
 
       if (errorMessage) {
-        throw new Error(errorMessage)
+        throw new LlmError('api', errorMessage)
       }
 
-      throw new Error(CHAT_COPY.errors.genericApi(response.status))
+      throw new LlmError('api', CHAT_COPY.errors.genericApi(response.status))
     }
 
     if (options?.onToken) {
@@ -878,7 +905,7 @@ export async function sendMessage(
     // Parse successful (non-streaming) response.
     const data: unknown = await response.json()
     session.assertCurrent()
-    if (controller.signal.aborted) throw new Error('AI request cancelled.')
+    if (controller.signal.aborted) throw new LlmError('cancelled', 'AI request cancelled.')
     const result = adapter.parseNonStreaming(data)
     assertNonEmpty(result.content)
 
@@ -906,21 +933,18 @@ export async function sendMessage(
   } catch (error) {
     session.assertCurrent()
     if (controller.signal.aborted)
-      throw new Error(
-        timedOut ? 'AI request timed out. Please try again.' : 'AI request cancelled.'
-      )
-    // Re-throw user-friendly errors as-is
-    if (error instanceof Error && error.message.includes('API key')) {
-      throw error
-    }
-    if (error instanceof Error && error.message.includes('Rate limit')) {
+      throw timedOut
+        ? new LlmError('timed-out', 'AI request timed out. Please try again.')
+        : new LlmError('cancelled', 'AI request cancelled.')
+    // Re-throw coded errors as-is — the UI maps their code.
+    if (isLlmError(error)) {
       throw error
     }
 
     // Handle network errors
     if (error instanceof TypeError && error.message.includes('fetch')) {
       reportError('llmService.sendMessage', error)
-      throw new Error(CHAT_COPY.errors.network, { cause: error })
+      throw new LlmError('network', CHAT_COPY.errors.network, { cause: error })
     }
 
     // Log other errors for debugging (without exposing API key)
@@ -932,7 +956,7 @@ export async function sendMessage(
     }
 
     // Fallback error message
-    throw new Error('An unexpected error occurred. Please try again.', { cause: error })
+    throw new LlmError('api', 'An unexpected error occurred. Please try again.', { cause: error })
   } finally {
     clearTimeout(timer)
     unsubscribe()

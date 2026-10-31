@@ -387,7 +387,7 @@
           </p>
           <p class="text-sm text-on-surface whitespace-pre-line">{{ reviewSummary }}</p>
         </div>
-        <p v-if="reviewError" class="text-xs text-error">{{ reviewError }}</p>
+        <AiErrorNote v-if="reviewError" :error="reviewError" />
       </AppCard>
 
       <!-- Empty state for no entries yet -->
@@ -411,6 +411,7 @@ import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
+import AiErrorNote from '@/components/exercises/AiErrorNote.vue'
 import type {
   PositiveDataLog,
   PositiveDataEntry,
@@ -561,12 +562,12 @@ function handleUpdateRating() {
 // ─── LLM Assist ──────────────────────────────────────────────────────────────
 const isReviewLoading = ref(false)
 const reviewSummary = ref('')
-const reviewError = ref('')
+const reviewError = ref<unknown>(null)
 
 async function handleReviewAssist() {
   if (!props.existingLog || props.existingLog.entries.length === 0) return
   isReviewLoading.value = true
-  reviewError.value = ''
+  reviewError.value = null
   try {
     const { reviewPositiveDataLog } = await import('@/services/cbtLLMAssists')
     reviewSummary.value = await reviewPositiveDataLog({
@@ -578,8 +579,7 @@ async function handleReviewAssist() {
       useProfile: useProfileReview.value,
     })
   } catch (err) {
-    reviewError.value =
-      err instanceof Error ? err.message : t('exerciseWizards.positiveDataLog.errors.reviewFailed')
+    reviewError.value = err
   } finally {
     isReviewLoading.value = false
   }

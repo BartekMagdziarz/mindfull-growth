@@ -4,6 +4,7 @@ import type {
   BetaUsage,
 } from '@anthropic-ai/sdk/resources/beta/messages/messages'
 import { CHAT_COPY } from '@/constants/chatCopy'
+import { LlmError, LlmNotConfiguredError } from '@/services/llmErrors'
 import type {
   AIProviderSettings,
   ChatMessage,
@@ -74,7 +75,7 @@ export async function sendAnthropicMessage(
   options: SendMessageOptions & { signal: AbortSignal },
   diagnostics: LLMDiagnostics
 ): Promise<string> {
-  if (!settings.apiKey) throw new Error(CHAT_COPY.errors.missingAIProviderConfig)
+  if (!settings.apiKey) throw new LlmNotConfiguredError()
   const client = createAnthropicClient(settings.apiKey)
   const { system, messages } = toAnthropicMessages(plan.messages)
   const startedAt = nowMs()
@@ -150,12 +151,16 @@ export async function sendAnthropicMessage(
 
   diagnostics.usage = anthropicUsage(final.usage)
   emit()
-  if (final.stop_reason === 'refusal') throw new Error(CHAT_COPY.errors.refusal)
+  if (final.stop_reason === 'refusal') throw new LlmError('refusal', CHAT_COPY.errors.refusal)
   if (final.stop_reason === 'max_tokens' || final.stop_reason === 'model_context_window_exceeded')
-    throw new Error('The API returned an incomplete response. Please try again.')
+    throw new LlmError(
+      'empty-response',
+      'The API returned an incomplete response. Please try again.'
+    )
   const content = final.content
     .flatMap(block => (block.type === 'text' ? [block.text] : []))
     .join('')
-  if (!content.trim()) throw new Error('Empty response from API. Please try again.')
+  if (!content.trim())
+    throw new LlmError('empty-response', 'Empty response from API. Please try again.')
   return content
 }

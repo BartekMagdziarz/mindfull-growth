@@ -194,7 +194,7 @@
               </p>
               <p class="text-sm text-on-surface whitespace-pre-line">{{ brainstormResult }}</p>
             </div>
-            <p v-if="brainstormError" class="text-xs text-error">{{ brainstormError }}</p>
+            <AiErrorNote v-if="brainstormError" :error="brainstormError" />
           </div>
         </AppCard>
 
@@ -484,6 +484,7 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
+import AiErrorNote from '@/components/exercises/AiErrorNote.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
@@ -550,12 +551,12 @@ const filledSafetyBehaviors = computed(() => safetyBehaviors.value.filter(b => b
 // ─── LLM Assist ──────────────────────────────────────────────────────────────
 const isBrainstormLoading = ref(false)
 const brainstormResult = ref('')
-const brainstormError = ref('')
+const brainstormError = ref<unknown>(null)
 
 async function handleBrainstormSteps() {
   if (!fearTarget.value.trim() || !ultimateGoal.value.trim()) return
   isBrainstormLoading.value = true
-  brainstormError.value = ''
+  brainstormError.value = null
   try {
     const { brainstormExposureSteps } = await import('@/services/cbtLLMAssists')
     brainstormResult.value = await brainstormExposureSteps({
@@ -569,7 +570,7 @@ async function handleBrainstormSteps() {
       useProfile: useProfileBrainstormSteps.value,
     })
   } catch (err) {
-    brainstormError.value = err instanceof Error ? err.message : 'Failed to get suggestions'
+    brainstormError.value = err
   } finally {
     isBrainstormLoading.value = false
   }

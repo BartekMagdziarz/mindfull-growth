@@ -203,7 +203,7 @@
             <div v-if="currentLlmResponse" class="neo-panel p-4">
               <p class="text-sm text-on-surface whitespace-pre-wrap">{{ currentLlmResponse }}</p>
             </div>
-            <p v-if="llmError" class="text-xs text-error">{{ llmError }}</p>
+            <AiErrorNote v-if="llmError" :error="llmError" />
           </div>
 
           <!-- Reframe -->
@@ -424,6 +424,7 @@ import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
+import AiErrorNote from '@/components/exercises/AiErrorNote.vue'
 import { useShadowBeliefsStore } from '@/stores/shadowBeliefs.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
@@ -556,7 +557,7 @@ function enterShiftStep() {
 const userPreferencesStore = useUserPreferencesStore()
 const useProfileReframe = ref(userPreferencesStore.profileContextDefault)
 const isLlmLoading = ref(false)
-const llmError = ref('')
+const llmError = ref<unknown>(null)
 const llmAssistUsed = ref(false)
 
 // Per-statement LLM responses
@@ -570,7 +571,7 @@ const currentLlmResponse = computed(() => {
 async function handleReframeAssist() {
   if (!currentStatement.value) return
   isLlmLoading.value = true
-  llmError.value = ''
+  llmError.value = null
   try {
     const { reframeAttitudinalShift } = await import('@/services/logotherapyLLMAssists')
 
@@ -582,10 +583,7 @@ async function handleReframeAssist() {
     llmResponses.set(currentStatement.value.id, response)
     llmAssistUsed.value = true
   } catch (err) {
-    llmError.value =
-      err instanceof Error
-        ? err.message
-        : t('exerciseWizards.attitudinalShift.errors.reframeFailed')
+    llmError.value = err
   } finally {
     isLlmLoading.value = false
   }

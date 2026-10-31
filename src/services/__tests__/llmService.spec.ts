@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import {
   AI_PROVIDER_SETTINGS_KEY,
   LEGACY_OPENAI_API_KEY,
+  LlmNotConfiguredError,
   sendMessage,
   snapshotLLMDiagnostics,
   computeOllamaNumCtx,
@@ -551,12 +552,15 @@ describe('llmService', () => {
       ])
     })
 
-    it('throws when no AI provider is configured', async () => {
+    it('throws a coded not-configured error when no AI provider is configured', async () => {
       storeSettings()
 
-      await expect(sendMessage([{ role: 'user', content: 'Hello' }])).rejects.toThrow(
+      const request = sendMessage([{ role: 'user', content: 'Hello' }])
+      await expect(request).rejects.toThrow(
         'AI provider is not configured. Please add AI provider settings in Profile settings.'
       )
+      await expect(request).rejects.toBeInstanceOf(LlmNotConfiguredError)
+      await expect(request).rejects.toMatchObject({ code: 'not-configured' })
       expect(mockFetch).not.toHaveBeenCalled()
     })
 
@@ -567,9 +571,11 @@ describe('llmService', () => {
         model: 'gpt-5.4-nano',
       })
 
-      await expect(sendMessage([{ role: 'user', content: 'Hello' }])).rejects.toThrow(
+      const request = sendMessage([{ role: 'user', content: 'Hello' }])
+      await expect(request).rejects.toThrow(
         'AI provider is not configured. Please add AI provider settings in Profile settings.'
       )
+      await expect(request).rejects.toMatchObject({ code: 'not-configured' })
       expect(mockFetch).not.toHaveBeenCalled()
     })
 

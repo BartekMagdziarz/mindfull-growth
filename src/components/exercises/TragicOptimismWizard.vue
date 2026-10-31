@@ -253,7 +253,7 @@
           </div>
 
           <!-- Error -->
-          <p v-if="llmError" class="text-xs text-error">{{ llmError }}</p>
+          <AiErrorNote v-if="llmError" :error="llmError" />
 
           <!-- Input area -->
           <div v-if="!reachedMaxExchanges" class="space-y-2">
@@ -377,6 +377,7 @@ import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
+import AiErrorNote from '@/components/exercises/AiErrorNote.vue'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import type { Quadrant } from '@/domain/emotion'
@@ -481,7 +482,7 @@ const useProfileDialogue = ref(userPreferencesStore.profileContextDefault)
 const messages = ref<SocraticDialogueMessage[]>([])
 const userInput = ref('')
 const isLlmLoading = ref(false)
-const llmError = ref('')
+const llmError = ref<unknown>(null)
 const scrollAnchor = ref<HTMLDivElement | null>(null)
 
 const exchangeCount = computed(() => Math.floor(messages.value.length / 2))
@@ -494,7 +495,7 @@ async function scrollToBottom() {
 
 async function sendFirstMessage() {
   isLlmLoading.value = true
-  llmError.value = ''
+  llmError.value = null
   try {
     const { tragicOptimismTurn } = await import('@/services/logotherapyLLMAssists')
 
@@ -518,8 +519,7 @@ async function sendFirstMessage() {
 
     await scrollToBottom()
   } catch (err) {
-    llmError.value =
-      err instanceof Error ? err.message : t('exerciseWizards.tragicOptimism.errors.startFailed')
+    llmError.value = err
   } finally {
     isLlmLoading.value = false
   }
@@ -540,7 +540,7 @@ async function handleSend() {
   await scrollToBottom()
 
   isLlmLoading.value = true
-  llmError.value = ''
+  llmError.value = null
   try {
     const { tragicOptimismTurn } = await import('@/services/logotherapyLLMAssists')
 
@@ -570,8 +570,7 @@ async function handleSend() {
 
     await scrollToBottom()
   } catch (err) {
-    llmError.value =
-      err instanceof Error ? err.message : t('exerciseWizards.tragicOptimism.errors.responseFailed')
+    llmError.value = err
     messages.value.pop()
   } finally {
     isLlmLoading.value = false

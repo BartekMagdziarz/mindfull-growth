@@ -1,3 +1,4 @@
+import { reportError } from '@/utils/reportError'
 import { ref, computed } from 'vue'
 import type {
   CreateIFSProtectorAppreciationPayload,
@@ -35,7 +36,7 @@ const STEP_ORDER: ProtectorAppreciationStep[] = [
 
 export function useProtectorAppreciationWizard() {
   const store = useIFSProtectorAppreciationStore()
-  const { locale, gender, t } = useT()
+  const { locale, gender } = useT()
   const { formatProtectorBehavior } = useIfsLabels()
 
   // Step management
@@ -60,7 +61,7 @@ export function useProtectorAppreciationWizard() {
   const responseMode = ref<'ai' | 'self' | null>(null)
   const llmAssistUsed = ref(false)
   const isLoadingResponse = ref(false)
-  const llmError = ref<string | null>(null)
+  const llmError = ref<unknown>(null)
   // CFT check: while reading the part's answer, does the body soften, stay or tighten? ("czy pomaga, czy tylko brzmi")
   const bodyCheck = ref<'softens' | 'same' | 'tightens' | null>(null)
 
@@ -191,8 +192,8 @@ export function useProtectorAppreciationWizard() {
       llmAssistUsed.value = true
     } catch (err) {
       console.warn('[ifs] LLM assist failed', err)
-      llmError.value = t('exerciseWizards.shared.ifs.errors.responseFailed')
-      console.error('Protector response error:', err)
+      llmError.value = err
+      reportError('useProtectorAppreciationWizard.llm', err)
     } finally {
       isLoadingResponse.value = false
     }
