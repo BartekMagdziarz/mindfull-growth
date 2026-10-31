@@ -489,8 +489,8 @@ monthly-wizard/portfolio/verdict code (`MonthPlan` is bare, `MonthlyReflectionWi
 specification is **§6.2 + D4 + §10b here**, which §12 extends consistently (§12.2).
 
 But §12 must stay aligned with **one adjacent, already-shipped artifact**: the 3-row **stream
-calendar** (`docs/archive/calendar-3row-design-brief.md`, now the live "Strumień" view —
-[[stream-calendar-view]]). That brief is the *display* side; §12 is the *producer*. Its data
+calendar** (`docs/archive/calendar-3row-design-brief.md`, later the "Strumień" view, removed
+2026-10-31 in favour of the rhythm calendar). That brief is the *display* side; §12 is the *producer*. Its data
 inventory (brief §"Inwentarz danych", "Wkrótce — redesign planowania") already reserves slots to
 surface:
 - **monthly per-object verdicts** `kontynuuj / dostosuj / wstrzymaj / porzuć` ("pasek werdyktów",

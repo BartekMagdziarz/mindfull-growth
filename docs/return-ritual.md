@@ -131,8 +131,7 @@ wraca jako cytat w kroku „Na nowo”. Przy Starcie powstaje JEDEN wpis dzienni
 body z akapitami „Co się działo: …” / „Żywe i odpadłe: …” / „Chcę teraz: …”,
 tag kontekstu „Powrót” (tworzony przy pierwszym użyciu; `contextTags` są
 w tabelach cofnięcia). Ponowny Start nie dubluje wpisu; cofnięcie go usuwa.
-Czytelnicy: dziennik już wchodzi do profilu AI, towarzysza, strumienia
-i historii; refleksja miesiąca pokazuje blok „Powrót po przerwie” w kolumnie
+Czytelnicy: dziennik już wchodzi do profilu AI, towarzysza i historii; refleksja miesiąca pokazuje blok „Powrót po przerwie” w kolumnie
 Kontekst (`listReturnReflectionsForMonth`: po tagu, inaczej po tytule;
 `parseReturnReflection` toleruje własne edycje — tekst bez etykiet czyta się
 jako „co się działo”). Bez ocen za okres przerwy, bez zapisu w polach

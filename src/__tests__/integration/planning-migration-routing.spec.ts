@@ -25,9 +25,10 @@ describe('calendar routing', () => {
     expect(routes.find(route => route.path === '/calendar/week/:weekRef')?.name).toBe(
       'calendar-week'
     )
-    expect(routes.find(route => route.path === '/calendar/stream/:periodRef?')?.name).toBe(
-      'calendar-stream'
-    )
+    const stream = routes.find(route => route.path === '/calendar/stream/:periodRef?')
+    expect(stream?.name).toBe('calendar-stream')
+    expect(stream?.components?.default).toBeUndefined()
+    expect(stream?.redirect).toBeTypeOf('function')
 
     expect(routes.find(route => route.path === '/planning/:pathMatch(.*)*')).toBeUndefined()
     expect(routes.find(route => route.path === '/periodic')).toBeUndefined()

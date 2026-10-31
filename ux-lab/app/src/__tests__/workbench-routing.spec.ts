@@ -22,7 +22,7 @@ describe('workbench URL state', () => {
     expect((selects[1].element as HTMLSelectElement).value).toBe('reference-v1')
     expect(wrapper.find('.workbench-canvas').classes()).toContain('workbench-canvas--compare')
     expect(wrapper.find('.surface-frame').classes()).toContain('surface-frame--mobile')
-    expect(wrapper.find('iframe').attributes('src')).toBe('http://127.0.0.1:5199/calendar/stream/2026-06')
+    expect(wrapper.find('iframe').attributes('src')).toBe('http://127.0.0.1:5199/calendar/month/2026-06')
 
     const experiment = wrapper.findAll('.segmented-control button').find(button => button.text().includes('Eksperyment'))
     expect(experiment).toBeTruthy()

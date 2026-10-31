@@ -1,7 +1,7 @@
 /**
  * Reflection summary assists — prompt assembly + LLM calls that back the
  * "AI summary" and "AI questions" buttons in the weekly/monthly reflection
- * journal step (ReflectionJournalSidebar).
+ * journal step (the quiet monthly reflection's journal context).
  *
  * Mirrors the structure of `profileLLMAssists.ts`:
  *   1. `buildReflectionSummaryPayload(ctx, locale)` — composes the free-text

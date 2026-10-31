@@ -31,26 +31,27 @@ async function bootSeededApp(page: Page): Promise<void> {
 }
 
 test.describe('verification environment', () => {
-  test('auto-logs the verification account and drills the stream year → month → week', async ({
+  test('auto-logs the verification account and opens the rhythm calendar year → month → week', async ({
     page,
   }) => {
     test.setTimeout(120_000)
     await bootSeededApp(page)
 
-    // Year view: month cards with priority-assessment rings from the closed months.
-    await page.goto(`/calendar/stream/${refs.year}`)
-    await expect(page.locator('.stream-year-grid')).toBeVisible()
-    await expect(page.locator('.stream-month__prio-ring').first()).toBeVisible()
+    for (const path of [
+      `/calendar/year/${refs.year}`,
+      `/calendar/month/${prevMonth}`,
+      `/calendar/week/${prevWeek}`,
+    ]) {
+      await page.goto(path)
+      const board = page.locator('.rb-board')
+      await expect(board).toBeVisible()
+      await expect(board.locator('.rb-row').first()).toBeVisible()
+    }
 
-    // Month view: week cards with the weekly-reflection rating matrix.
+    // The former stream address lands on the same period of the rhythm calendar.
     await page.goto(`/calendar/stream/${prevMonth}`)
-    await expect(page.locator('.stream-week-row')).toBeVisible()
-    await expect(page.locator('.stream-week__cell').first()).toBeVisible()
-
-    // Week view: one card per day (journal / emotion content comes from the seed).
-    await page.goto(`/calendar/stream/${prevWeek}`)
-    await expect(page.locator('.stream-day-grid')).toBeVisible()
-    expect(await page.locator('.stream-day__head').count()).toBeGreaterThanOrEqual(7)
+    await expect(page).toHaveURL(new RegExp(`/calendar/month/${prevMonth}$`))
+    await expect(page.locator('.rb-board')).toBeVisible()
   })
 
   test('monthly reflection opens seeded priorities and persists a verdict', async ({ page }) => {

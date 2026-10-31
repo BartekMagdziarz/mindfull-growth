@@ -39,39 +39,6 @@
     "subtitle": "Navigate one planning workspace across year, month, week, and day.",
     "invalidPeriod": "This calendar route points to an invalid period.",
     "loadError": "Couldn't load the calendar workspace.",
-    "stream": {
-      "eyebrow": "Stream · navigation",
-      "today": "Today",
-      "prevPeriod": "Previous period",
-      "nextPeriod": "Next period",
-      "weekShort": "Wk {n}",
-      "weekLong": "Week {n}",
-      "detailsTitle": "Details",
-      "detailsLoading": "Loading the period details…",
-      "hint": {
-        "year": "Click a month to step into its weeks",
-        "month": "Click a week to see its days",
-        "week": "Deepest scale — individual days"
-      },
-      "rings": {
-        "goals": "Goals",
-        "habits": "Habits",
-        "intentions": "Intentions"
-      },
-      "day": {
-        "journal": "Journal",
-        "emotions": "Emotions",
-        "exercises": "Exercises"
-      },
-      "prioritiesTitle": "Priorities",
-      "dimShort": {
-        "balance": "Balance",
-        "purpose": "Purpose",
-        "growth": "Growth",
-        "coherence": "Values",
-        "agency": "Influence"
-      }
-    },
     "scales": {
       "year": "Year",
       "month": "Month",

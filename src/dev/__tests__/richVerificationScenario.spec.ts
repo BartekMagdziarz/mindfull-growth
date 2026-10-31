@@ -73,12 +73,12 @@ describe('RichVerificationScenario', () => {
     ])
     expect(scenario.presets['calendar-year'][0].baselinePath).toBe('/calendar/year/2026')
     expect(scenario.presets['calendar-month'].map(preset => preset.baselinePath)).toEqual([
-      '/calendar/stream/2026-07',
-      '/calendar/stream/2026-06',
+      '/calendar/month/2026-07',
+      '/calendar/month/2026-06',
     ])
     expect(scenario.presets['calendar-week'].map(preset => preset.baselinePath)).toEqual([
-      '/calendar/stream/2026-W28',
-      '/calendar/stream/2026-W27',
+      '/calendar/week/2026-W28',
+      '/calendar/week/2026-W27',
     ])
     expect(scenario.presets['ritual-week'].map(preset => preset.id)).toEqual(['plan', 'reflect'])
     expect(scenario.presets['ritual-month'].map(preset => preset.id)).toEqual(['plan', 'reflect'])

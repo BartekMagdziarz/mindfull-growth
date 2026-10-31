@@ -134,13 +134,10 @@ the exact `http://127.0.0.1:5201` origin and is not reachable in production.
 1. **Planning Next** — jedyny kalendarz (poprzedni interfejs `?ui=legacy` został
    usunięty 2026-10-20). `/calendar` otwiera bieżący tydzień; przejdź przez
    tydzień → miesiąc → rok, a dzień pod `/today/<YYYY-MM-DD>`.
-2. **Stream (Strumień)** — alternatywny drill-down pod `/calendar/stream/<period>`:
-   - year (`/calendar/stream/<YYYY>`): month cards with dimension bars,
-     goal/habit rings, priority ribbon with effort rings on closed months;
-   - month (`/calendar/stream/<YYYY-MM>`): week cards with the 4×3 reflection
-     rating matrix;
-   - week (`/calendar/stream/<YYYY-Www>`): day cards with journal dots,
-     emotion segments, day rings.
+2. **Kalendarz rytmu** — `/calendar/year/<YYYY>`, `/calendar/month/<YYYY-MM>`,
+   `/calendar/week/<YYYY-Www>`: tabela priorytetów i obiektów (`.rb-board`), widok
+   ocen pod `?view=ratings`. Dawny Strumień (`/calendar/stream/<period>`) usunięto
+   2026-10-31; stare adresy przekierowują na ten sam okres kalendarza rytmu.
 3. **Monthly ritual** — `/calendar/month/<YYYY-MM>?action=reflect`. On a
    closed month (M−1): top-3 picks, per-priority effort/verdict, ratings, M4
    weekly↔monthly confrontation. On the current month: planning-only.

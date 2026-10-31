@@ -55,9 +55,8 @@ Three ways the app proposes exercises to the user, all surfaced on "Dzisiaj":
 - **Foundation** (`src/services/foundationCompleteness.ts`): 6 coverage groups, item
   states `not-started/in-progress/completed/outdated` (180 days), routes per item — the
   closest thing to a guided path today.
-- **Stream calendar day cards** (`src/components/calendar/stream/streamData.ts`,
-  `streamModel.ts:102`): journal flag + emotion segments + goal/habit rings; exercises
-  absent.
+- **Stream calendar day cards** (historical; the stream view was removed 2026-10-31):
+  journal flag + emotion segments + goal/habit rings; exercises absent.
 
 ## 3. Gaps this design fills
 
@@ -487,7 +486,7 @@ numbers may drift.
 - Program-timeline visual pattern: `src/components/profile/FoundationTile.vue`,
   `FoundationProgressHeader.vue`, `FoundationPillarsGauge.vue`.
 
-### Stream calendar
+### Stream calendar (historical — removed 2026-10-31)
 
 - `src/components/calendar/stream/streamModel.ts` — `StreamDayVM` (`dayRef,
   weekdayIndex, dayNumber, isToday, isFuture, journalWritten, emotionCount,

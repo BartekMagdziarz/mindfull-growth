@@ -61,7 +61,7 @@ choć jeden rezultat był zaplanowany. „Przypisany” = `plannedWeekRefs` z pa
 miesiąca: aktywny stan tygodnia (macierz albo link okresu), dzień w tym tygodniu
 albo dawny zakres „cały miesiąc” — samo „aktywny w miesiącu” (sekcja „Pozostałe”)
 to nie przypisanie. Ta sama reguła liczenia tygodni (`src/domain/weeklyCadence.ts`)
-działa w refleksji miesiąca, widokach miesiąca/roku i strumieniu. Podpowiedź wyniku: wszystkie met → osiągnięty,
+działa w refleksji miesiąca i w widokach miesiąca/roku. Podpowiedź wyniku: wszystkie met → osiągnięty,
 żaden → nieosiągnięty, inaczej częściowo; bez danych — brak podpowiedzi.
 
 Serwis `src/services/goalClosingService.ts`: `buildGoalClosingSnapshot`,

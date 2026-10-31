@@ -43,7 +43,7 @@ Relative to the real today: 2 fully closed months + 8 closed weeks (plans,
 top-3, entries, reflections, assessments), current month/week planning-only,
 journal + emotion logs over the last ~5 weeks. Key routes:
 
-- stream: `/calendar/stream/<YYYY>` → `/<YYYY-MM>` → `/<YYYY-Www>`
+- rhythm calendar: `/calendar/year/<YYYY>` → `/calendar/month/<YYYY-MM>` → `/calendar/week/<YYYY-Www>` (the stream view was removed 2026-10-31; `/calendar/stream/…` redirects)
 - monthly ritual: `/calendar/month/<YYYY-MM>?action=reflect`
 - weekly ritual: `/calendar/week/<YYYY-Www>?action=reflect`
 - today: `/today`

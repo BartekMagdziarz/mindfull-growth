@@ -1,8 +1,26 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
-import { getPeriodRefsForDate } from '@/utils/periods'
+import type { RouteLocationRaw } from 'vue-router'
+import { getPeriodRefsForDate, getPeriodType, parsePeriodRef } from '@/utils/periods'
 
 const PUBLIC_ROUTES = ['login', 'signup']
+
+/** Old stream links (`/calendar/stream/<year|month|week|day>`) keep their period. */
+function streamRedirect(periodRef: string | string[] | undefined): RouteLocationRaw {
+  const ref = Array.isArray(periodRef) ? periodRef[0] : periodRef
+  if (ref) {
+    try {
+      const type = getPeriodType(parsePeriodRef(ref))
+      if (type === 'day') return { name: 'today-day', params: { dayRef: ref } }
+      if (type === 'week') return { name: 'calendar-week', params: { weekRef: ref } }
+      if (type === 'month') return { name: 'calendar-month', params: { monthRef: ref } }
+      if (type === 'year') return { name: 'calendar-year', params: { yearRef: ref } }
+    } catch {
+      // fall through to the current week
+    }
+  }
+  return { name: 'calendar-week', params: { weekRef: getPeriodRefsForDate(new Date()).week } }
+}
 
 const router = createRouter({
   history: createWebHistory(),
@@ -97,13 +115,12 @@ const router = createRouter({
         periodRef: route.params.weekRef,
       }),
     },
-    // Alternative "Strumień" (stream) calendar view — a single drill-down stream
-    // of cards across year → month → week. Kept alongside the classic calendar.
+    // The former "Strumień" stream view (removed 2026-10-31): old links land on the
+    // rhythm calendar of the same period, or on this week when no period is given.
     {
       path: '/calendar/stream/:periodRef?',
       name: 'calendar-stream',
-      component: () => import('@/views/CalendarStreamView.vue'),
-      props: route => ({ periodRef: route.params.periodRef }),
+      redirect: route => streamRedirect(route.params.periodRef),
     },
     {
       path: '/objects',

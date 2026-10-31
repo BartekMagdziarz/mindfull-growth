@@ -39,39 +39,6 @@
     "subtitle": "Jedna przestrzeń do planowania i refleksji w skali roku, miesiąca, tygodnia i dnia.",
     "invalidPeriod": "Ten adres kalendarza wskazuje nieprawidłowy okres.",
     "loadError": "Nie udało się wczytać widoku kalendarza.",
-    "stream": {
-      "eyebrow": "Strumień · nawigacja",
-      "today": "Dziś",
-      "prevPeriod": "Poprzedni okres",
-      "nextPeriod": "Następny okres",
-      "weekShort": "Tydz. {n}",
-      "weekLong": "Tydzień {n}",
-      "detailsTitle": "Szczegóły",
-      "detailsLoading": "Wczytywanie szczegółów okresu…",
-      "hint": {
-        "year": "Kliknij miesiąc, aby wejść w jego tygodnie",
-        "month": "Kliknij tydzień, aby zobaczyć poszczególne dni",
-        "week": "Najgłębsza skala — poszczególne dni"
-      },
-      "rings": {
-        "goals": "Cele",
-        "habits": "Nawyki",
-        "intentions": "Intencje"
-      },
-      "day": {
-        "journal": "Dziennik",
-        "emotions": "Emocje",
-        "exercises": "Ćwiczenia"
-      },
-      "prioritiesTitle": "Priorytety",
-      "dimShort": {
-        "balance": "Balans",
-        "purpose": "Sens",
-        "growth": "Rozwój",
-        "coherence": "Wartości",
-        "agency": "Wpływ"
-      }
-    },
     "scales": {
       "year": "Rok",
       "month": "Miesiąc",

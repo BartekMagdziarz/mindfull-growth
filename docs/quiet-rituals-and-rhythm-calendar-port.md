@@ -35,7 +35,8 @@ porównania do 2026-10-31 i zostały usunięte (decyzja F4). Rok bez zmian:
 
 **A3. Kalendarz rytmu jest jedyny** dla tygodnia/miesiąca/roku, gdy nie jest otwarty
 rytuał. Poprzednia szyna + kafle (`?overview=classic`, `NextPeriodRail`/`NextPeriodOverview`)
-usunięte 2026-10-31 (F4). **Skala dnia nietknięta** —
+usunięte 2026-10-31 (F4); Strumień (`/calendar/stream`) usunięty tego samego dnia (decyzja D1),
+stare adresy przekierowują na kalendarz rytmu. **Skala dnia nietknięta** —
 dalej `Planning Next` (scena w wierszu, kolumna kontekstu).
 
 **A4. Obie powierzchnie renderują się „full-bleed”** — bez lewej szyny i bez wklęsłego

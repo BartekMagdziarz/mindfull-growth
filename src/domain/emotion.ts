@@ -122,20 +122,6 @@ export function getQuadrantTintStyle(quadrant: Quadrant | null): Record<string, 
 }
 
 /**
- * Inline style for a quadrant-colored surface — a count tile, mini-card, or
- * any rectangular area that should carry the quadrant's identity through the
- * same gradient + text-color recipe as the selector buttons. Used by the
- * 2×2 emotion heatmap grids in WeekEmotionsCard / MonthEmotionsCard /
- * ReflectionJournalSidebar.
- */
-export function getQuadrantSurfaceStyle(quadrant: Quadrant): Record<string, string> {
-  return {
-    background: `linear-gradient(145deg, var(--color-quadrant-${quadrant}-top), var(--color-quadrant-${quadrant}-bottom))`,
-    color: `var(--color-quadrant-${quadrant}-text)`,
-  }
-}
-
-/**
  * Inline style for a "selected emotion" chip in the summary row. The chip
  * shares the same gradient as an unselected quadrant button (`-top` → `-bottom`)
  * with a subtle neumorphic shadow for depth — no outline. Earlier iterations
