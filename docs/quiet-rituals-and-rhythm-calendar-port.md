@@ -81,8 +81,8 @@ dziedziczy priorytety po swoim celu.
 **B6. Refleksje zawsze `done`** — szkice żyją w `draftStorage`, nie w bazie, więc
 etykieta „szkic” z Labu nie występuje.
 
-**B7. Etykiety kompasu zostają produktowe:** Balans / Sens / Rozwój / **Spójność** /
-**Sprawczość**. Lab proponował „Zasady / Wpływ” jako jawną hipotezę do oceny; zmiana
+**B7. Etykiety kompasu:** Balans / Sens / Rozwój / **Zasady** / **Wpływ** (do 2026-10-31
+„Spójność / Sprawczość”, zmiana decyzją F2/D4). Lab proponował „Zasady / Wpływ” jako jawną hipotezę do oceny; zmiana
 etykiety zmienia znaczenie już zapisanych danych, więc nie robiłem jej samodzielnie.
 → **do decyzji: F2**.
 
@@ -201,7 +201,7 @@ przed hydratacją — naprawia to również klasyczne kreatory.
 | # | Rzecz | Dlaczego czeka |
 |---|---|---|
 | F1 | Roczny spokojny rytuał | Decyzja 2026-10-31: parking — rok zostaje na `AnnualPlanningWizard` do osobnego planu |
-| F2 | Zmiana etykiet kompasu na „Zasady / Wpływ” | Decyzja 2026-10-31: ZMIENIAMY (PL „Zasady / Wpływ”, EN „Principles / Influence”), bez noty w refleksji — zob. docs/backlog.md D4 |
+| F2 | Zmiana etykiet kompasu na „Zasady / Wpływ” | Decyzja 2026-10-31: ZMIENIAMY (PL „Zasady / Wpływ”, EN „Principles / Influence”), bez noty w refleksji — zrobione ce9ce1d5 |
 | F3 | „Dzień” w przełączniku skali kalendarza | Lab ma trzy skale; dziś do dnia wchodzi się przez kolumnę dnia |
 | F4 | Usunięcie klasycznych kreatorów i kafelkowego przeglądu | Decyzja 2026-10-31: KASUJEMY oba (`?ritual=classic`, `?overview=classic`) — zob. docs/backlog.md D2 |
 | F5 | Intencje w kroku „Wsparcie” miesiąca | Intencje są z definicji tygodniowe; planer miesiąca ich nie ładuje |

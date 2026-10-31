@@ -77,7 +77,7 @@ wpisy wyżej; przy wykonaniu dopisz `zrobione (hash)` w tej linii.
   `?overview=classic` w `PlanningNextWorkspace`, komponenty `Next*Ritual*.vue`, kafelkowy przegląd,
   ich specy i klucze i18n; composables `use{Weekly,Monthly}ReflectionWizard` zostają (stoją pod quiet).
 - **D3 (F1) roczny spokojny rytuał** — parking; rok zostaje na `AnnualPlanningWizard` do osobnego planu.
-- **D4 (F2) etykiety kompasu** — `otwarte`. PL „Spójność / Sprawczość” → „Zasady / Wpływ”, bez noty w
+- **D4 (F2) etykiety kompasu** — `zrobione (ce9ce1d5, 2026-10-31)`. PL „Spójność / Sprawczość” → „Zasady / Wpływ”, bez noty w
   refleksji. Miejsca: `src/features/calendar-rhythm/rhythmProjections.ts` (`COMPASS`),
   `src/features/quiet-ritual/QuietMonthlyReflection.vue` (etykiety + komentarz), `NextPeriodRail.vue`,
   `src/features/ai-companion/sourcePresentation.ts`, `NextMonthlyReflectionRitual.vue` (znika z D2),
