@@ -27,69 +27,56 @@ wracania do rozmowy, w której go znaleziono.
 
 ## Błędy
 
-### B-10 · Zaznaczony `neo-pill--primary` wygląda jak niezaznaczony (mostek legacy)
+---
 
-`otwarte` · Znaleziono 2026-10-25 przy poprawie postępu w kwestionariuszach · design system, `adapters.css`
+## Pomysły
 
-**Objaw.** Chip wybrany w kontrolkach na `neo-pill` nie różni się od pozostałych —
-nie widać, która opcja jest zaznaczona (tak wyglądały odpowiedzi w kwestionariuszach,
-zanim przeszły na `.exercise-chip`).
+### P-4 · Migracje Dexie w osobnych plikach
 
-**Jak odtworzyć.** `npm run dev:verify` → Profil → budowanie profilu, krok zakresu
-(`ProfileScopeStep`): kliknij preset dat albo filtr ćwiartki — chip nie dostaje obrysu
-akcentu. To samo w `ProfileContextToggle`, `KrPillDropdown`, `AnnualPlanningWizard`.
+`otwarte` · Znaleziono 2026-10-20 przy audycie repo · `src/services/userDatabaseService.ts`
 
-**Przyczyna.** `src/design-system/adapters.css:375` (`.neo-pill.neo-pill`, specyficzność
-0-2-0) ustawia tło mist, ramkę `--mg-color-border` i atrament dla KAŻDEGO `neo-pill`.
-Reguła stanu wybranego `:where(.neo-pill--primary)` w `:313` ma specyficzność 0-1-0
-(`.mg-design-v2` + `:where`), więc przegrywa i obrys akcentu nigdy się nie pojawia.
+**Kontekst.** 34 bloki `version(n).stores().upgrade()` w jednym pliku o 1 778 liniach.
 
-**Dlaczego to błąd.** README design systemu: zaznaczony chip = cienki obrys akcentu na
-paper. Stan wybrany jest niewidoczny, więc kontrolka nie komunikuje wyboru.
+**Propozycja.** `src/services/db/migrations/v01..v34.ts`, każdy eksportuje `{ stores, upgrade }`;
+serwis bazy je rejestruje w pętli. Czysto mechaniczne; stare wersje muszą zostać (bazy użytkowników).
 
-**Propozycja naprawy.** Dopisać w sekcji mostka 2026-10-20 regułę o wyższej
-specyficzności: `.neo-pill.neo-pill.neo-pill--primary { border-color: var(--mg-color-primary);
-color: var(--mg-color-primary-strong); background: var(--mg-color-paper); }`. Lepiej:
-przenieść tych 4 konsumentów na `.mg-v2-pill--primary.mg-v2-pill--selected` i usunąć
-mostek dla `neo-pill--primary`.
+**Kryteria.** `migration.spec`, `migration-edge-cases.spec` i `persistenceMigration.spec` bez zmian
+zielone; otwarcie bazy z `dev:demo` i `dev:verify` bez błędów.
 
-**Kryteria akceptacji.** W 4 widokach wybrany chip ma obrys akcentu; zrzuty 1512 × 982 @2x
-przed/po; `npm run check:design-system` OK.
+### P-5 · Biblioteka obiektów jako `src/features/objects-library/`
 
-**Uwagi.** Kwestionariusze już nie zależą od tej reguły (`LikertItemList` używa
-`.exercise-chip`).
+`otwarte` · Znaleziono 2026-10-20 przy audycie repo · `src/views/ObjectsLibraryView.vue`, `src/components/objects`
 
-### B-6 · Komunikat „AI provider is not configured…” po angielsku w kreatorach z AI
+**Kontekst.** `ObjectsLibraryView.vue` ma 2 480 linii, a biblioteka żyje po staremu w
+`components/objects/`, podczas gdy pozostałe obszary (planning-next, quiet-ritual, program-path,
+goal-closing) mają własne katalogi w `features/` z css i view-modelami (reguła w CLAUDE.md).
 
-`otwarte` · Znaleziono 2026-10-17 przy przeglądzie designu kreatorów ćwiczeń · usługi LLM, kreatory z AI
+**Propozycja.** Przenieść do `src/features/objects-library/` i podzielić widok na belkę, listę,
+kartę i edytor; css do `objects-library.css`. Bez zmiany zachowania.
 
-**Objaw.** W Dialogu sokratycznym (krok „Dialog”), Rozmowie z częścią siebie i innych kreatorach
-z przyciskiem AI, bez skonfigurowanego dostawcy pojawia się czerwony tekst
-„AI provider is not configured. Please add AI provider settings in Profile settings.” — po angielsku,
-w polskim UI.
-
-**Jak odtworzyć.** `npm run dev:verify` → `/exercises/socratic-dialogue` → przejdź do kroku „Dialog”
-(konto weryfikacyjne nie ma dostawcy AI).
-
-**Przyczyna.** `src/services/llmService.ts` rzuca błąd z gotowym angielskim komunikatem
-(zob. `src/services/__tests__/llmService.spec.ts:558`), a kreatory renderują `error.message` wprost
-(`SocraticDialogueWizard.vue`, `DirectAccessWizard.vue`, `PartsDialogueWizard.vue` — `text-error`).
-
-**Dlaczego to błąd.** UI jest dwujęzyczne (PL/EN), wszystkie komunikaty użytkownika idą przez i18n;
-tu wycieka tekst serwisu. Dodatkowo kolor `text-error` krzyczy tam, gdzie wystarczy cicha notka.
-
-**Propozycja naprawy.** Serwis rzuca błąd z kodem (`LlmNotConfiguredError` / `code: 'not-configured'`),
-kreatory mapują kod na klucz `exerciseWizards.shared.ai.notConfigured` (PL/EN) i renderują go jako
-`.exercise-note` z linkiem do profilu; pozostałe komunikaty serwisu analogicznie.
-
-**Kryteria akceptacji.** Brak angielskich zdań w PL UI przy braku dostawcy; spec llmService dalej
-przechodzi (kod + wiadomość); snapshot/spec kreatora pokazuje klucz i18n.
+**Kryteria.** Specy kart i belki bez zmian zielone; `verification-smoke` i
+`verification-multi-completion` (karta biblioteki) zielone; `check:design-system` bez nowych
+wpisów.
 
 ---
 
+## Zamknięte
+
 ### B-3 · Nawyk miesięczny dwa razy w przeglądzie tygodnia na przełomie miesięcy
 
-`otwarte` · Znaleziono 2026-10-17 przy budowie konta demo · Rytuał tygodnia (quiet), zapytania planowania
+`zrobione (d2a4d8be)` · Znaleziono 2026-10-17 przy budowie konta demo · Rytuał tygodnia (quiet), zapytania planowania
+
+**Rozstrzygnięcie (2026-10-31, sesja product-b3-p8-b6-b10, d2a4d8be).** Wariant 1.
+`mergeMonthBoundaryItems` w `src/services/reflectionDataQueries.ts` scala pozycje miesięczne
+tego samego obiektu (z `getWeekRelevantObjects`, po jednej na miesiąc) przed spłaszczeniem do
+`weekObjectItems` — także dla `habitReflectionItems`, grup celów, `habitSummary` i
+`weeklySummary`. Wiersz scalony: klucz `habit:<id>`/`keyResult:<id>` raz, komórki całego tygodnia,
+`measurement` = wynik tygodnia (werdykt podcelu tygodnia, jeśli jest `weekMeasurement`; inaczej
+liczba zapisów tygodnia bez celu — `target`/`evaluationStatus` puste, więc „Wynik” pokazuje samą
+liczbę, a ton wiersza jest neutralny). Tygodnie w jednym miesiącu i obiekty tygodniowe bez zmian;
+planer nietknięty. Spec: `weeklyReflectionReview.spec.ts` (2026-W26, nawyk aktywny w czerwcu i
+lipcu: jeden wiersz, unikalne klucze, 3 zapisy; z podcelem tygodnia `met`; tydzień wewnątrz
+miesiąca dalej pokazuje miesięczne podsumowanie).
 
 **Decyzja użytkownika (2026-10-25).** Wariant 1: jeden wiersz na obiekt w przeglądzie tygodnia,
 pozycje miesięczne scalone w `reflectionDataQueries`, wynik tygodniowy.
@@ -150,38 +137,121 @@ zapytaniu dotknie wszystkich, więc sprawdź każdy widok. Nie zmieniaj zachowan
 `getWeekRelevantObjects` dla planera. Por. pamięć „weekly cadence week by week”: obiekty
 tygodniowe są oceniane per tydzień, miesięczne per miesiąc.
 
----
+### P-8 · Lepsza nazwa typu monitorowania celów i nawyków zamiast „odhaczania”
 
-## Pomysły
+`zrobione (b347d485)` · Zgłoszono 2026-10-25 przez użytkownika · cele i nawyki, nazewnictwo monitorowania
 
-### P-4 · Migracje Dexie w osobnych plikach
+**Rozstrzygnięcie (2026-10-31, sesja product-b3-p8-b6-b10, b347d485).** „Checklista” w PL:
+`planning.objects.fields.mode.multi-completion` („Odhaczaj” → „Checklista”, wybór typu w
+kreatorze celu/nawyku i w zdaniu pomiaru na kartach biblioteki),
+`planning.today.actions.input.multi-completion` („Dzisiejsza checklista” → „Checklista na dziś”,
+etykieta pola w Dzisiaj), `PlanningDraftCard.vue` pomocnika planowania („Odhaczaj listę” →
+„Checklista”), `presentation.ts` pomocnika (tracker „Lista” → „Checklista”), `capabilities.ts`
+(opis typu zaczyna się od „Checklista:”, treść bez zmian). `entryMode.multi-completion`
+(„Checklista”) i małe „checklista” w rytuałach zamknięcia celu i powrotu już były spójne.
+EN: „Checklist” także w wyborze typu (było „Check off”). Żaden spec ani e2e nie szukał starych
+etykiet; `check-locales` zielone.
 
-`otwarte` · Znaleziono 2026-10-20 przy audycie repo · `src/services/userDatabaseService.ts`
+**Decyzja użytkownika (2026-10-25).** Nazwa „Checklista” wszędzie w PL (w miejsce „Odhaczaj”
+i „Dzisiejsza checklista”), EN zostaje „Checklist”.
 
-**Kontekst.** 34 bloki `version(n).stores().upgrade()` w jednym pliku o 1 778 liniach.
+**Objaw.** Nazwa typu monitorowania określana jako „odhaczanie” wymaga zmiany na
+bardziej zrozumiałą i naturalną. Wstępny kierunek użytkownika: „Lista” albo podobna nazwa;
+ostateczne brzmienie pozostaje do ustalenia.
 
-**Propozycja.** `src/services/db/migrations/v01..v34.ts`, każdy eksportuje `{ stores, upgrade }`;
-serwis bazy je rejestruje w pętli. Czysto mechaniczne; stare wersje muszą zostać (bazy użytkowników).
+**Jak odtworzyć.** Otworzyć tworzenie lub edycję celu albo nawyku i wybór typu
+monitorowania z listą elementów do zaznaczenia.
 
-**Kryteria.** `migration.spec`, `migration-edge-cases.spec` i `persistenceMigration.spec` bez zmian
-zielone; otwarcie bazy z `dev:demo` i `dev:verify` bez błędów.
+**Kontekst.** W `src/locales/pl/planning.json` typ `multi-completion` ma m.in. etykiety
+„Odhaczaj”, „Checklista” i „Dzisiejsza checklista”. Przed wdrożeniem sprawdzić wszystkie
+miejsca prezentujące ten typ dla celów i nawyków.
 
-### P-5 · Biblioteka obiektów jako `src/features/objects-library/`
+**Propozycja.** Dobrać i uzgodnić lepszą nazwę (np. „Lista” lub „Lista elementów”),
+a następnie ujednolicić etykiety i powiązane opisy w interfejsie.
 
-`otwarte` · Znaleziono 2026-10-20 przy audycie repo · `src/views/ObjectsLibraryView.vue`, `src/components/objects`
+**Kryteria akceptacji.** Uzgodniona nazwa jest spójna w tworzeniu, edycji i prezentacji
+celów oraz nawyków; opisy jasno tłumaczą zaznaczanie poszczególnych elementów.
+Zmiana nazwy zachowuje działanie monitorowania i istniejące dane. Przy wdrożeniu
+sprawdzić odpowiednie tłumaczenia PL/EN i oczekiwania testów dotyczące etykiet.
 
-**Kontekst.** `ObjectsLibraryView.vue` ma 2 480 linii, a biblioteka żyje po staremu w
-`components/objects/`, podczas gdy pozostałe obszary (planning-next, quiet-ritual, program-path,
-goal-closing) mają własne katalogi w `features/` z css i view-modelami (reguła w CLAUDE.md).
+### B-6 · Komunikat „AI provider is not configured…” po angielsku w kreatorach z AI
 
-**Propozycja.** Przenieść do `src/features/objects-library/` i podzielić widok na belkę, listę,
-kartę i edytor; css do `objects-library.css`. Bez zmiany zachowania.
+`zrobione (a668b973)` · Znaleziono 2026-10-17 przy przeglądzie designu kreatorów ćwiczeń · usługi LLM, kreatory z AI
 
-**Kryteria.** Specy kart i belki bez zmian zielone; `verification-smoke` i
-`verification-multi-completion` (karta biblioteki) zielone; `check:design-system` bez nowych
-wpisów.
+**Rozstrzygnięcie (2026-10-31, sesja product-b3-p8-b6-b10, a668b973).** `src/services/llmErrors.ts`:
+`LlmError` z `code` (`not-configured`, `invalid-api-key`, `rate-limit`, `network`, `refusal`,
+`cancelled`, `timed-out`, `empty-response`, `api`), `LlmNotConfiguredError`, `isLlmError`,
+`isLlmAbort`, `llmErrorPresentation` (kod → klucz `exerciseWizards.shared.ai.*`, PL+EN; zwykły
+`Error`/string → `failed` z oryginalnym tekstem jako detal). Rzucanie z kodem w `llmService`,
+`aiProviderSettingsService`, `ai/anthropic/{chat,client}`; angielskie `message` zostaje do
+logów (spec llmService sprawdza kod + wiadomość). Nowy `AiErrorNote.vue` (`.exercise-note`, link
+`/profile#ai-settings` przy braku dostawcy lub złym kluczu, detal dostawcy małym drukiem) zastępuje
+24 akapity `text-error` w 18 kreatorach; trzy composable IFS trzymają złapany błąd (+`reportError`).
+Specy: `llmErrors.spec.ts`, `AiErrorNote.spec.ts`.
 
-## Zamknięte
+**Objaw.** W Dialogu sokratycznym (krok „Dialog”), Rozmowie z częścią siebie i innych kreatorach
+z przyciskiem AI, bez skonfigurowanego dostawcy pojawia się czerwony tekst
+„AI provider is not configured. Please add AI provider settings in Profile settings.” — po angielsku,
+w polskim UI.
+
+**Jak odtworzyć.** `npm run dev:verify` → `/exercises/socratic-dialogue` → przejdź do kroku „Dialog”
+(konto weryfikacyjne nie ma dostawcy AI).
+
+**Przyczyna.** `src/services/llmService.ts` rzuca błąd z gotowym angielskim komunikatem
+(zob. `src/services/__tests__/llmService.spec.ts:558`), a kreatory renderują `error.message` wprost
+(`SocraticDialogueWizard.vue`, `DirectAccessWizard.vue`, `PartsDialogueWizard.vue` — `text-error`).
+
+**Dlaczego to błąd.** UI jest dwujęzyczne (PL/EN), wszystkie komunikaty użytkownika idą przez i18n;
+tu wycieka tekst serwisu. Dodatkowo kolor `text-error` krzyczy tam, gdzie wystarczy cicha notka.
+
+**Propozycja naprawy.** Serwis rzuca błąd z kodem (`LlmNotConfiguredError` / `code: 'not-configured'`),
+kreatory mapują kod na klucz `exerciseWizards.shared.ai.notConfigured` (PL/EN) i renderują go jako
+`.exercise-note` z linkiem do profilu; pozostałe komunikaty serwisu analogicznie.
+
+**Kryteria akceptacji.** Brak angielskich zdań w PL UI przy braku dostawcy; spec llmService dalej
+przechodzi (kod + wiadomość); snapshot/spec kreatora pokazuje klucz i18n.
+
+### B-10 · Zaznaczony `neo-pill--primary` wygląda jak niezaznaczony (mostek legacy)
+
+`zrobione (16e341c5)` · Znaleziono 2026-10-25 przy poprawie postępu w kwestionariuszach · design system, `adapters.css`
+
+**Rozstrzygnięcie (2026-10-31, sesja product-b3-p8-b6-b10, 16e341c5).** Wariant preferowany:
+`ProfileScopeStep`, `ProfileContextToggle` i `AnnualPlanningWizard` na `.mg-v2-pill` ze stanem
+`.mg-v2-pill--primary.mg-v2-pill--selected`; oceny obszarów = chipy stałej szerokości (`w-7`) bez
+`rounded-lg`/`text-[11px]`. `KrPillDropdown` już siedział na `.mg-v2-sentence__pill` (stan
+otwarty = papier + inset) — bez zmian. Mostek `:where(.neo-pill--primary)` usunięty z
+`adapters.css` (zero konsumentów poza `main.css`); baza strażnika 2099 → 2081; decyzja w
+`docs/design-decisions.md`. Zrzuty 1512 × 982 @2x przed/po na verify 5209 (profil-zakres,
+przełącznik profilu w kroku „Dialog” dialogu sokratycznego, plan roczny, karta biblioteki) w
+scratchpadzie sesji (`b10/before-*.png`, `b10/after-*.png`).
+
+**Objaw.** Chip wybrany w kontrolkach na `neo-pill` nie różni się od pozostałych —
+nie widać, która opcja jest zaznaczona (tak wyglądały odpowiedzi w kwestionariuszach,
+zanim przeszły na `.exercise-chip`).
+
+**Jak odtworzyć.** `npm run dev:verify` → Profil → budowanie profilu, krok zakresu
+(`ProfileScopeStep`): kliknij preset dat albo filtr ćwiartki — chip nie dostaje obrysu
+akcentu. To samo w `ProfileContextToggle`, `KrPillDropdown`, `AnnualPlanningWizard`.
+
+**Przyczyna.** `src/design-system/adapters.css:375` (`.neo-pill.neo-pill`, specyficzność
+0-2-0) ustawia tło mist, ramkę `--mg-color-border` i atrament dla KAŻDEGO `neo-pill`.
+Reguła stanu wybranego `:where(.neo-pill--primary)` w `:313` ma specyficzność 0-1-0
+(`.mg-design-v2` + `:where`), więc przegrywa i obrys akcentu nigdy się nie pojawia.
+
+**Dlaczego to błąd.** README design systemu: zaznaczony chip = cienki obrys akcentu na
+paper. Stan wybrany jest niewidoczny, więc kontrolka nie komunikuje wyboru.
+
+**Propozycja naprawy.** Dopisać w sekcji mostka 2026-10-20 regułę o wyższej
+specyficzności: `.neo-pill.neo-pill.neo-pill--primary { border-color: var(--mg-color-primary);
+color: var(--mg-color-primary-strong); background: var(--mg-color-paper); }`. Lepiej:
+przenieść tych 4 konsumentów na `.mg-v2-pill--primary.mg-v2-pill--selected` i usunąć
+mostek dla `neo-pill--primary`.
+
+**Kryteria akceptacji.** W 4 widokach wybrany chip ma obrys akcentu; zrzuty 1512 × 982 @2x
+przed/po; `npm run check:design-system` OK.
+
+**Uwagi.** Kwestionariusze już nie zależą od tej reguły (`LikertItemList` używa
+`.exercise-chip`).
 
 ### B-11 · Scena Labu „Pola na kartach biblioteki” importuje usunięty `ObjectCardAffiliation`
 
@@ -372,32 +442,6 @@ w specach). Druga możliwość: test wybiera refleksję tygodnia, w którym leż
 
 **Kryteria akceptacji.** Spec przechodzi przy zegarze ustawionym na każdy dzień tygodnia
 (np. `page.clock` albo seed z podanym `todayRef`). Pozostałe testy goal-closing są zielone.
-
-### P-8 · Lepsza nazwa typu monitorowania celów i nawyków zamiast „odhaczania”
-
-`otwarte` · Zgłoszono 2026-10-25 przez użytkownika · cele i nawyki, nazewnictwo monitorowania
-
-**Decyzja użytkownika (2026-10-25).** Nazwa „Checklista” wszędzie w PL (w miejsce „Odhaczaj”
-i „Dzisiejsza checklista”), EN zostaje „Checklist”.
-
-**Objaw.** Nazwa typu monitorowania określana jako „odhaczanie” wymaga zmiany na
-bardziej zrozumiałą i naturalną. Wstępny kierunek użytkownika: „Lista” albo podobna nazwa;
-ostateczne brzmienie pozostaje do ustalenia.
-
-**Jak odtworzyć.** Otworzyć tworzenie lub edycję celu albo nawyku i wybór typu
-monitorowania z listą elementów do zaznaczenia.
-
-**Kontekst.** W `src/locales/pl/planning.json` typ `multi-completion` ma m.in. etykiety
-„Odhaczaj”, „Checklista” i „Dzisiejsza checklista”. Przed wdrożeniem sprawdzić wszystkie
-miejsca prezentujące ten typ dla celów i nawyków.
-
-**Propozycja.** Dobrać i uzgodnić lepszą nazwę (np. „Lista” lub „Lista elementów”),
-a następnie ujednolicić etykiety i powiązane opisy w interfejsie.
-
-**Kryteria akceptacji.** Uzgodniona nazwa jest spójna w tworzeniu, edycji i prezentacji
-celów oraz nawyków; opisy jasno tłumaczą zaznaczanie poszczególnych elementów.
-Zmiana nazwy zachowuje działanie monitorowania i istniejące dane. Przy wdrożeniu
-sprawdzić odpowiednie tłumaczenia PL/EN i oczekiwania testów dotyczące etykiet.
 
 ### P-7 · vue-tsc 3.1+ zgłasza refy szablonu jako nieużywane (`noUnusedLocals`)
 
