@@ -27,36 +27,6 @@ wracania do rozmowy, w której go znaleziono.
 
 ## Błędy
 
-### B-11 · Scena Labu „Pola na kartach biblioteki” importuje usunięty `ObjectCardAffiliation`
-
-`otwarte` · Znaleziono 2026-10-27 przy propozycjach dla przycisków edytora Dziennika · UX Lab, `ux-lab/app/src/components/object-fields/FieldCard.vue`
-
-**Objaw.** `/concepts/object-card-fields` nie wstaje (Vite: `Failed to resolve import
-"@product/components/objects/ObjectCardAffiliation.vue"`). Do 2026-10-27 kładło to cały
-Lab, bo router importował wszystkie sceny statycznie; teraz sceny są leniwe
-(`ux-lab/app/src/router/index.ts`), więc pada tylko ta trasa.
-
-**Jak odtworzyć.** `npm run dev:lab:ui` → `http://127.0.0.1:5201/concepts/object-card-fields`
-→ błąd 500 w konsoli serwera, pusta scena.
-
-**Przyczyna.** Commit `866cac10` (przynależność jako linia tekstu) usunął
-`src/components/objects/ObjectCardAffiliation.vue`, a `FieldCard.vue:14-18` i `:72` nadal go
-importują i renderują z propsami `priority-ids`/`life-area-ids`/`*-options`. Zastępca w
-produkcie to `ObjectCardMetaLine.vue` (inne propsy: `periods`, `cadence`, `priorityIds`,
-`lifeAreaIds`, …). `vue-tsc` Labu tego nie łapie — alias `@product` nie jest rozwiązywany
-w typecheckingu, więc nieznany import jest `any`.
-
-**Dlaczego to błąd.** README Labu obiecuje, że każda scena działa niezależnie; scena
-`object-card-fields` jest zapisem wdrożonej decyzji (reguła B) i ma pozostać czytelna.
-
-**Propozycja naprawy.** W `FieldCard.vue` zamienić `ObjectCardAffiliation` na
-`ObjectCardMetaLine` (jedna linia tekstu pod tytułem, zgodnie z 866cac10) albo zreplikować
-dawne glify lokalnie w Labie, skoro scena dokumentuje stan z 11.10.2026. Przy okazji dodać
-do `check-boundaries.mjs` sprawdzenie, czy ścieżki `@product/...` istnieją na dysku.
-
-**Kryteria akceptacji.** Scena otwiera się bez błędów; `npm --prefix ux-lab/app run build`
-przechodzi; nowy check wykrywa nieistniejący import produktu.
-
 ### B-10 · Zaznaczony `neo-pill--primary` wygląda jak niezaznaczony (mostek legacy)
 
 `otwarte` · Znaleziono 2026-10-25 przy poprawie postępu w kwestionariuszach · design system, `adapters.css`
@@ -88,35 +58,6 @@ przed/po; `npm run check:design-system` OK.
 
 **Uwagi.** Kwestionariusze już nie zależą od tej reguły (`LikertItemList` używa
 `.exercise-chip`).
-
-### B-9 · Testy katalogu ikon UX Labu oczekują 320 zamiast 325 ikon
-
-`otwarte` · Znaleziono 2026-10-25 przy prototypie pomocnika planowania AI · UX Lab, testy katalogu ikon
-
-**Objaw.** Pełny zestaw Labu: 146 testów przechodzi, 2 padają w `organicIcons.spec.ts`.
-Testy samego pomocnika przechodzą (17/17); build i granice importów są poprawne.
-
-**Jak odtworzyć.** `npm --prefix ux-lab/app test` — dwie asercje raportują
-`expected ... length of 320 but got 325`.
-
-**Przyczyna.** `ux-lab/app/src/__tests__/organicIcons.spec.ts:11-16` zawiera stałe 320
-także dla unikalności, a `:49` oczekuje tylu samo wyrenderowanych kart. Aktualny
-`src/design-system/icons/organicIcons.ts` eksportuje 325 ikon, co potwierdza również
-`npm --prefix ux-lab/app run export:icons`. Żaden z tych plików nie został zmieniony
-w zadaniu pomocnika; porównanie z HEAD nie pokazuje lokalnego diffu.
-
-**Dlaczego to błąd.** Nieaktualny kontrakt katalogu utrzymuje bazowy zestaw testów na czerwono
-i utrudnia ocenę regresji innych scenariuszy Labu.
-
-**Propozycja naprawy.** Zweryfikować pięć dodanych konturów i oczekiwane liczebności kolekcji.
-Uaktualnić jawny kontrakt katalogu do zatwierdzonego zestawu, zachowując asercje unikalności ID
-i geometrii; w teście renderowania porównać liczbę kart z zaimportowanym katalogiem.
-
-**Kryteria akceptacji.** `npm --prefix ux-lab/app test` oraz `npm --prefix ux-lab/app run build`
-przechodzą; kontury zatwierdzonych ikon i filtry kolekcji nadal są sprawdzane.
-
-**Uwagi.** Nie zwiększać wyłącznie jednej liczby ani nie usuwać sprawdzania geometrii.
-Przed naprawą ponownie sprawdzić katalog i numery linii.
 
 ### B-6 · Komunikat „AI provider is not configured…” po angielsku w kreatorach z AI
 
@@ -240,9 +181,70 @@ kartę i edytor; css do `objects-library.css`. Bez zmiany zachowania.
 `verification-multi-completion` (karta biblioteki) zielone; `check:design-system` bez nowych
 wpisów.
 
+## Zamknięte
+
+### B-11 · Scena Labu „Pola na kartach biblioteki” importuje usunięty `ObjectCardAffiliation`
+
+`zrobione (464ad5ee, 2026-10-31: FieldCard na ObjectCardMetaLine, check-boundaries sprawdza istnienie importów @product/…)` · Znaleziono 2026-10-27 przy propozycjach dla przycisków edytora Dziennika · UX Lab, `ux-lab/app/src/components/object-fields/FieldCard.vue`
+
+**Objaw.** `/concepts/object-card-fields` nie wstaje (Vite: `Failed to resolve import
+"@product/components/objects/ObjectCardAffiliation.vue"`). Do 2026-10-27 kładło to cały
+Lab, bo router importował wszystkie sceny statycznie; teraz sceny są leniwe
+(`ux-lab/app/src/router/index.ts`), więc pada tylko ta trasa.
+
+**Jak odtworzyć.** `npm run dev:lab:ui` → `http://127.0.0.1:5201/concepts/object-card-fields`
+→ błąd 500 w konsoli serwera, pusta scena.
+
+**Przyczyna.** Commit `866cac10` (przynależność jako linia tekstu) usunął
+`src/components/objects/ObjectCardAffiliation.vue`, a `FieldCard.vue:14-18` i `:72` nadal go
+importują i renderują z propsami `priority-ids`/`life-area-ids`/`*-options`. Zastępca w
+produkcie to `ObjectCardMetaLine.vue` (inne propsy: `periods`, `cadence`, `priorityIds`,
+`lifeAreaIds`, …). `vue-tsc` Labu tego nie łapie — alias `@product` nie jest rozwiązywany
+w typecheckingu, więc nieznany import jest `any`.
+
+**Dlaczego to błąd.** README Labu obiecuje, że każda scena działa niezależnie; scena
+`object-card-fields` jest zapisem wdrożonej decyzji (reguła B) i ma pozostać czytelna.
+
+**Propozycja naprawy.** W `FieldCard.vue` zamienić `ObjectCardAffiliation` na
+`ObjectCardMetaLine` (jedna linia tekstu pod tytułem, zgodnie z 866cac10) albo zreplikować
+dawne glify lokalnie w Labie, skoro scena dokumentuje stan z 11.10.2026. Przy okazji dodać
+do `check-boundaries.mjs` sprawdzenie, czy ścieżki `@product/...` istnieją na dysku.
+
+**Kryteria akceptacji.** Scena otwiera się bez błędów; `npm --prefix ux-lab/app run build`
+przechodzi; nowy check wykrywa nieistniejący import produktu.
+
+### B-9 · Testy katalogu ikon UX Labu oczekują 320 zamiast 325 ikon
+
+`zrobione (ff5b5b6f, 2026-10-31: kontrakt katalogu ux-lab/app/src/lab/iconCatalogContract.ts, spec liczy karty z katalogu)` · Znaleziono 2026-10-25 przy prototypie pomocnika planowania AI · UX Lab, testy katalogu ikon
+
+**Objaw.** Pełny zestaw Labu: 146 testów przechodzi, 2 padają w `organicIcons.spec.ts`.
+Testy samego pomocnika przechodzą (17/17); build i granice importów są poprawne.
+
+**Jak odtworzyć.** `npm --prefix ux-lab/app test` — dwie asercje raportują
+`expected ... length of 320 but got 325`.
+
+**Przyczyna.** `ux-lab/app/src/__tests__/organicIcons.spec.ts:11-16` zawiera stałe 320
+także dla unikalności, a `:49` oczekuje tylu samo wyrenderowanych kart. Aktualny
+`src/design-system/icons/organicIcons.ts` eksportuje 325 ikon, co potwierdza również
+`npm --prefix ux-lab/app run export:icons`. Żaden z tych plików nie został zmieniony
+w zadaniu pomocnika; porównanie z HEAD nie pokazuje lokalnego diffu.
+
+**Dlaczego to błąd.** Nieaktualny kontrakt katalogu utrzymuje bazowy zestaw testów na czerwono
+i utrudnia ocenę regresji innych scenariuszy Labu.
+
+**Propozycja naprawy.** Zweryfikować pięć dodanych konturów i oczekiwane liczebności kolekcji.
+Uaktualnić jawny kontrakt katalogu do zatwierdzonego zestawu, zachowując asercje unikalności ID
+i geometrii; w teście renderowania porównać liczbę kart z zaimportowanym katalogiem.
+
+**Kryteria akceptacji.** `npm --prefix ux-lab/app test` oraz `npm --prefix ux-lab/app run build`
+przechodzą; kontury zatwierdzonych ikon i filtry kolekcji nadal są sprawdzane.
+
+**Uwagi.** Nie zwiększać wyłącznie jednej liczby ani nie usuwać sprawdzania geometrii.
+Przed naprawą ponownie sprawdzić katalog i numery linii.
+
 ### P-1 · Wspólne helpery dla seedów dev (`verificationSeed` i `demoSeed`)
 
-`otwarte` · Znaleziono 2026-10-17 przy budowie konta demo · narzędzia dev
+`zrobione (bb8adaf0, 2026-10-31: src/dev/seedKit.ts + seedSnapshot.spec.ts; verify dostał datowane SCS-SF/FSCRS na ścieżce wstydu)` · Znaleziono 2026-10-17 przy budowie konta demo · narzędzia dev
 
 **Kontekst.** `src/dev/verificationSeed.ts` i `src/dev/demo/demoSeed.ts` mają zduplikowane
 helpery: `weekDays`, zapis wpisów pomiarów (`addEntries` / `entry`), tworzenie konta i
@@ -259,8 +261,6 @@ przez `seedAssessment` + `backdate`.
 `src/dev/demo/__tests__/demoSeed.spec.ts` oraz `npm run test:e2e:verify` zielone.
 
 ---
-
-## Zamknięte
 
 ### B-12 · `returnQueries.spec` pada, gdy realna data mija stałe `TODAY` testu
 
