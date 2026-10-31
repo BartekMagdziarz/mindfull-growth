@@ -30,7 +30,7 @@ export const PLANNING_CAPABILITIES = {
     rating:
       'Średnia ocen na określonej skali. Target mieści się w skali, ratingMin >=1, ratingMax > ratingMin.',
     'multi-completion':
-      'Lista do 8 elementów z całkowitymi wagami >=1; dailyThreshold null oznacza komplet aktywnych wag. Target okresu liczy DNI osiągające dzienny próg, nie punkty ani podzadania.',
+      'Checklista: lista do 8 elementów z całkowitymi wagami >=1; dailyThreshold null oznacza komplet aktywnych wag. Target okresu liczy DNI osiągające dzienny próg, nie punkty ani podzadania.',
   },
   rules: [
     'Targety są tygodniowe lub miesięczne, nigdy dowolnie sumowane po całym terminie celu.',

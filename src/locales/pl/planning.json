@@ -397,7 +397,7 @@
         "counter": "Dzisiejsza wartość licznika",
         "value": "Dzisiejsza wartość",
         "rating": "Dzisiejsza ocena",
-        "multi-completion": "Dzisiejsza checklista"
+        "multi-completion": "Checklista na dziś"
       },
       "moveToTomorrow": "Przenieś na jutro",
       "stageRow": "Pokaż w scenie",
@@ -1016,7 +1016,7 @@
         "counter": "Zliczaj",
         "value": "Mierz",
         "rating": "Oceniaj",
-        "multi-completion": "Odhaczaj"
+        "multi-completion": "Checklista"
       },
       "metDaysUnit": "dni z zaliczeniem",
       "op": {

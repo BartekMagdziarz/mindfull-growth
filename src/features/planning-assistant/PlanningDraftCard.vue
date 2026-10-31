@@ -64,7 +64,7 @@
           <option value="counter">Zliczaj wykonania</option>
           <option value="value">Wpisuj wartość</option>
           <option value="rating">Oceniaj</option>
-          <option value="multi-completion">Odhaczaj listę</option>
+          <option value="multi-completion">Checklista</option>
         </select>
         <template v-if="item.entryMode === 'rating'">
           <span>od</span

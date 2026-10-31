@@ -19,7 +19,7 @@ export function plannerMeasurementSentence(item: PlannerObject): string {
   if (item.kind === 'tracker') {
     if (item.entryMode === 'rating')
       return `Ocena ${item.ratingMin}–${item.ratingMax} · bez targetu`
-    return `${{ completion: 'Odhaczenie', counter: 'Licznik', value: 'Wartość', rating: 'Ocena', 'multi-completion': 'Lista' }[item.entryMode]} · bez targetu`
+    return `${{ completion: 'Odhaczenie', counter: 'Licznik', value: 'Wartość', rating: 'Ocena', 'multi-completion': 'Checklista' }[item.entryMode]} · bez targetu`
   }
   const comparison = item.operator === 'min' ? 'Co najmniej' : 'Co najwyżej'
   if (item.entryMode === 'completion')

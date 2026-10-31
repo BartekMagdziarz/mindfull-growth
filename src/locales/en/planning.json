@@ -1016,7 +1016,7 @@
         "counter": "Count",
         "value": "Measure",
         "rating": "Rate",
-        "multi-completion": "Check off"
+        "multi-completion": "Checklist"
       },
       "metDaysUnit": "days met",
       "op": {
