@@ -1,6 +1,8 @@
 <template>
   <!-- One object library card under a field rule. Header classes mirror
-       ObjectsLibraryGoalCard / ObjectsLibraryMeasurementCard; affiliation and
+       ObjectsLibraryGoalCard / ObjectsLibraryMeasurementCard; the meta line
+       (periods · priorities · life areas, one quiet line since 866cac10 — it
+       replaced the affiliation glyphs of the 11.10.2026 round) and the
        timeline are the live presentational components. data-depth marks each
        surface level for the "Pokaż poziomy" overlay. -->
   <article class="mg-v2-surface mg-v2-surface--raised-sm fc" :class="`fc--${rule}`" data-depth="1">
@@ -9,15 +11,17 @@
       <strong class="fc__title">{{ card.title }}</strong>
     </header>
 
-    <!-- Under the title: affiliation glyphs (+ goal timeline) -->
+    <!-- Under the title: the meta line (+ goal timeline) -->
     <div class="fc__under" :class="{ 'fc-field fc-field--strip': metaField }" :data-depth="metaField ? 2 : undefined">
-      <ObjectCardAffiliation
+      <ObjectCardMetaLine
+        :periods="card.periods"
+        cadence="weekly"
+        :is-permanent="card.isPermanent"
         :priority-ids="card.priorityIds"
         :life-area-ids="card.lifeAreaIds"
         :priority-options="PRIORITY_OPTIONS"
         :life-area-options="LIFE_AREA_OPTIONS"
-        group-label="Powiązania"
-        empty-label="Dodaj powiązanie"
+        empty-links-label="Dodaj powiązanie"
       />
       <ObjectCardTimeline
         v-if="card.kind === 'goal' && card.window"
@@ -69,7 +73,7 @@
 
 <script setup lang="ts">
 import AppIcon from '@product/components/shared/AppIcon.vue'
-import ObjectCardAffiliation from '@product/components/objects/ObjectCardAffiliation.vue'
+import ObjectCardMetaLine from '@product/components/objects/ObjectCardMetaLine.vue'
 import ObjectCardTimeline from '@product/components/objects/ObjectCardTimeline.vue'
 import FieldChart from './FieldChart.vue'
 import { LIFE_AREA_OPTIONS, PRIORITY_OPTIONS, type FieldCardSample } from './objectFieldSamples'
