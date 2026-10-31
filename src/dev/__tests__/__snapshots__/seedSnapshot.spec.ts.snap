@@ -1,0 +1,251 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`dev seeds produce the same data as before (table digests) > demo seed („Julia”) on 2026-10-17 1`] = `
+{
+  "assessmentAttempts": {
+    "digest": "01fd739c9eb519e9",
+    "rows": 13,
+  },
+  "assessmentResponses": {
+    "digest": "2327972fd8e86041",
+    "rows": 277,
+  },
+  "dailyMeasurementEntries": {
+    "digest": "60cabd623662d9c8",
+    "rows": 943,
+  },
+  "emotionLogs": {
+    "digest": "06e0b6c1a5a86713",
+    "rows": 85,
+  },
+  "exerciseCompletions": {
+    "digest": "843cf9e5fd165cd6",
+    "rows": 131,
+  },
+  "exercisePlanItems": {
+    "digest": "45e447e8a5faf5b3",
+    "rows": 110,
+  },
+  "goalMonthStates": {
+    "digest": "1e0ec96c747f4e7f",
+    "rows": 13,
+  },
+  "goals": {
+    "digest": "7b2e20dd0e107c1d",
+    "rows": 3,
+  },
+  "habits": {
+    "digest": "185160c1d73f484e",
+    "rows": 6,
+  },
+  "ifsParts": {
+    "digest": "50a24c36eec7315b",
+    "rows": 4,
+  },
+  "ifsPartsMaps": {
+    "digest": "598a99491d261854",
+    "rows": 1,
+  },
+  "journalEntries": {
+    "digest": "66c772ecf3421dcf",
+    "rows": 35,
+  },
+  "keyResults": {
+    "digest": "d59358d603404583",
+    "rows": 6,
+  },
+  "lifeAreaAssessments": {
+    "digest": "8ed9ce8f039413cb",
+    "rows": 2,
+  },
+  "lifeAreas": {
+    "digest": "bfbd42e7ed6c6d17",
+    "rows": 7,
+  },
+  "measurementDayAssignments": {
+    "digest": "b609f06982b17895",
+    "rows": 711,
+  },
+  "measurementMonthStates": {
+    "digest": "83d3f5fdb0c3d6ad",
+    "rows": 168,
+  },
+  "measurementWeekStates": {
+    "digest": "1cd2c87e6243f300",
+    "rows": 349,
+  },
+  "microExerciseEntries": {
+    "digest": "09e3773ce19b28ce",
+    "rows": 89,
+  },
+  "monthPlans": {
+    "digest": "ea6abf57993fc11f",
+    "rows": 8,
+  },
+  "monthlyReflections": {
+    "digest": "748faec7f66b2b57",
+    "rows": 6,
+  },
+  "periodObjectReflections": {
+    "digest": "ce2df451ba5e50db",
+    "rows": 18,
+  },
+  "priorities": {
+    "digest": "e2a67d6de3ce6105",
+    "rows": 4,
+  },
+  "priorityLinks": {
+    "digest": "20c61fcd29e12646",
+    "rows": 8,
+  },
+  "programEnrollments": {
+    "digest": "a428d4a332bd56b0",
+    "rows": 2,
+  },
+  "trackers": {
+    "digest": "c20d6329a8ac82d3",
+    "rows": 2,
+  },
+  "transformativePurposes": {
+    "digest": "e8a8843bf7362b70",
+    "rows": 1,
+  },
+  "userSettings": {
+    "digest": "5d2955553ccdd69f",
+    "rows": 2,
+  },
+  "weekPlans": {
+    "digest": "54d4e1f96a0c3e5d",
+    "rows": 29,
+  },
+  "weeklyIntentions": {
+    "digest": "0b0b11ae01797e07",
+    "rows": 68,
+  },
+  "weeklyReflections": {
+    "digest": "701d749a816df63b",
+    "rows": 28,
+  },
+}
+`;
+
+exports[`dev seeds produce the same data as before (table digests) > verification seed (rich-v1) on 2026-10-17 1`] = `
+{
+  "assessmentAttempts": {
+    "digest": "79fd5ca2ec83400c",
+    "rows": 4,
+  },
+  "assessmentResponses": {
+    "digest": "ebccb75423bea97b",
+    "rows": 46,
+  },
+  "dailyMeasurementEntries": {
+    "digest": "272ec91e0e0fd2fa",
+    "rows": 971,
+  },
+  "drafts": {
+    "digest": "89764f0559c501ee",
+    "rows": 1,
+  },
+  "emotionLogs": {
+    "digest": "b4896ea1b99918ae",
+    "rows": 26,
+  },
+  "exerciseCompletions": {
+    "digest": "2a0a263279256e56",
+    "rows": 64,
+  },
+  "exercisePlanItems": {
+    "digest": "2d958e8bc787149e",
+    "rows": 47,
+  },
+  "goalMonthStates": {
+    "digest": "622d1c9d212f5629",
+    "rows": 30,
+  },
+  "goals": {
+    "digest": "5acf2a95d0b374a3",
+    "rows": 5,
+  },
+  "gradedExposureHierarchies": {
+    "digest": "52d99decd25dbca8",
+    "rows": 1,
+  },
+  "habits": {
+    "digest": "e17cc4e6b739bf45",
+    "rows": 10,
+  },
+  "ifsParts": {
+    "digest": "1e34c6cde4c8aa37",
+    "rows": 2,
+  },
+  "journalEntries": {
+    "digest": "a10b3726affcc29c",
+    "rows": 16,
+  },
+  "keyResults": {
+    "digest": "abaf70be54d47339",
+    "rows": 9,
+  },
+  "lifeAreas": {
+    "digest": "cc39571b1b5019b7",
+    "rows": 4,
+  },
+  "measurementDayAssignments": {
+    "digest": "bf4db9fa29f3b6c0",
+    "rows": 301,
+  },
+  "measurementMonthStates": {
+    "digest": "41ec7c663987915c",
+    "rows": 143,
+  },
+  "measurementWeekStates": {
+    "digest": "f1df3d91aa63fd98",
+    "rows": 351,
+  },
+  "microExerciseEntries": {
+    "digest": "e29fda2846a82c5d",
+    "rows": 47,
+  },
+  "monthPlans": {
+    "digest": "dc52f2ddd8c2e6d9",
+    "rows": 7,
+  },
+  "monthlyReflections": {
+    "digest": "68184df01864bafa",
+    "rows": 6,
+  },
+  "periodObjectReflections": {
+    "digest": "3cdd007eb2ca0060",
+    "rows": 42,
+  },
+  "priorities": {
+    "digest": "1b751d2be5205a98",
+    "rows": 4,
+  },
+  "priorityLinks": {
+    "digest": "cd482bef61584db6",
+    "rows": 5,
+  },
+  "programEnrollments": {
+    "digest": "f488e27782a6dfef",
+    "rows": 5,
+  },
+  "trackers": {
+    "digest": "56cc505b38509c2e",
+    "rows": 3,
+  },
+  "weekPlans": {
+    "digest": "af9479e93e29bd5c",
+    "rows": 17,
+  },
+  "weeklyIntentions": {
+    "digest": "2384afbf2accd9ce",
+    "rows": 32,
+  },
+  "weeklyReflections": {
+    "digest": "37160012482307b5",
+    "rows": 15,
+  },
+}
+`;

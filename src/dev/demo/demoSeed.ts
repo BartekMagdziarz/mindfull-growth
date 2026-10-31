@@ -24,12 +24,10 @@
  *   await window.__demoSeed()
  */
 
-import Dexie from 'dexie'
 import type { DayRef, MonthRef, WeekRef, YearRef } from '@/domain/period'
 import type { MeasurementSubjectType, WeekTopPriorityRef } from '@/domain/planningState'
 import type { AssessmentId, AssessmentItemDefinition } from '@/domain/assessments'
 import type { MeasurementEntryMode, MeasurementTarget } from '@/domain/planning'
-import type { User } from '@/domain/user'
 import {
   addDaysToDayRef,
   getPeriodBounds,
@@ -37,8 +35,6 @@ import {
   getPreviousPeriod,
   getWeekOverlappingMonths,
 } from '@/utils/periods'
-import { assessmentsDexieRepository } from '@/repositories/assessmentsDexieRepository'
-import { authDexieRepository } from '@/repositories/authDexieRepository'
 import { emotionLogDexieRepository } from '@/repositories/emotionLogDexieRepository'
 import { exerciseCompletionDexieRepository } from '@/repositories/exerciseCompletionDexieRepository'
 import { exercisePlanDexieRepository } from '@/repositories/exercisePlanDexieRepository'
@@ -60,8 +56,6 @@ import { programEnrollmentDexieRepository } from '@/repositories/programEnrollme
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
 import { userSettingsDexieRepository } from '@/repositories/userSettingsDexieRepository'
-import { getAssessmentRegistryEntry } from '@/services/assessments/registry'
-import { hashPassword } from '@/services/cryptoService'
 import { closeGoal } from '@/services/goalClosingService'
 import {
   setMonthTopPriorities,
@@ -74,12 +68,6 @@ import {
   linkMeasurementPeriod,
   toggleMeasurementDayAssignment,
 } from '@/services/planningMutations'
-import { invalidatePlanningQueryCache } from '@/services/planningQueryCache'
-import {
-  connectUserDatabase,
-  disconnectUserDatabase,
-  getUserDatabase,
-} from '@/services/userDatabaseService'
 import { createWeeklyIntention, setWeekTopPriorities } from '@/services/weeklyIntentionService'
 import {
   DEMO_DB_NAME,
@@ -88,6 +76,17 @@ import {
   DEMO_USERNAME,
   DEMO_USER_ID,
 } from '../demoAccount'
+import {
+  backdate,
+  clamp,
+  createSeedRunner,
+  ensureSeedUser,
+  isoAt as iso,
+  leveledResponses,
+  seedAssessmentAttempt,
+  upsertMeasurementEntry,
+  weekDays,
+} from '../seedKit'
 import {
   DEMO_CURRENT_MONTH_TOP3,
   DEMO_CURRENT_WEEK_INTENTIONS,
@@ -110,54 +109,36 @@ const SEED_MARKER_KEY = 'mindfull_growth_demo_seed_version'
 
 // ─── Account + bootstrap ─────────────────────────────────────────────────────
 
-export async function ensureDemoUser(): Promise<void> {
-  if (await authDexieRepository.getUserById(DEMO_USER_ID)) return
-  const now = new Date().toISOString()
-  const user: User = {
-    id: DEMO_USER_ID,
-    username: DEMO_USERNAME,
-    passwordHash: await hashPassword(DEMO_PASSWORD),
-    createdAt: now,
-    lastLoginAt: now,
-    displayName: DEMO_DISPLAY_NAME,
-  }
-  try {
-    await authDexieRepository.createUser(user)
-  } catch (error) {
-    if (!(await authDexieRepository.getUserById(DEMO_USER_ID))) throw error
-  }
+const DEMO_ACCOUNT = {
+  id: DEMO_USER_ID,
+  username: DEMO_USERNAME,
+  password: DEMO_PASSWORD,
+  displayName: DEMO_DISPLAY_NAME,
 }
 
 function markerValue(today: DayRef): string {
   return `demo-v${DEMO_SEED_VERSION}:${today}`
 }
 
-/** Reset-then-seed: always deletes the demo DB first, so re-runs never duplicate. */
-export async function runDemoSeed(options: { reload?: boolean } = {}): Promise<void> {
-  console.log('[demoSeed] Resetting demo database…')
-  await ensureDemoUser()
-  await disconnectUserDatabase()
-  await Dexie.delete(DEMO_DB_NAME)
-  await connectUserDatabase(DEMO_USER_ID)
+const runner = createSeedRunner({
+  account: DEMO_ACCOUNT,
+  dbName: DEMO_DB_NAME,
+  markerKey: SEED_MARKER_KEY,
+  markerValue: () => markerValue(getPeriodRefsForDate(new Date()).day),
+  seed: () => seedDemoData(),
+  log: { prefix: '[demoSeed]', resetting: 'Resetting demo database…', ready: '✅ Demo ready.' },
+})
 
-  await seedDemoData()
-
-  invalidatePlanningQueryCache()
-  window.localStorage.setItem(SEED_MARKER_KEY, markerValue(getPeriodRefsForDate(new Date()).day))
-  console.log('[demoSeed] ✅ Demo ready.')
-  if (options.reload !== false) window.location.reload()
+export async function ensureDemoUser(): Promise<void> {
+  await ensureSeedUser(DEMO_ACCOUNT)
 }
 
-/** main.ts (demo mode only), BEFORE `app.use(router)` — see verificationSeed for why. */
+/** Reset-then-seed: always deletes the demo DB first, so re-runs never duplicate. */
+export const runDemoSeed = runner.runSeed
+
+/** main.ts (demo mode only), BEFORE `app.use(router)` — see seedKit for why. */
 export async function bootstrapDemoEnvironment(): Promise<void> {
-  await ensureDemoUser()
-  await connectUserDatabase(DEMO_USER_ID)
-  if (
-    window.localStorage.getItem(SEED_MARKER_KEY) !==
-    markerValue(getPeriodRefsForDate(new Date()).day)
-  ) {
-    await runDemoSeed({ reload: false })
-  }
+  await runner.bootstrap()
   Object.assign(window, { __demoSeed: runDemoSeed })
   console.log('[demoSeed] Helper installed: window.__demoSeed()')
 }
@@ -173,15 +154,6 @@ export function demoRandom(...parts: number[]): number {
     h ^= h >>> 13
   }
   return ((h >>> 0) % 10000) / 10000
-}
-
-function clamp(value: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, value))
-}
-
-function weekDays(weekRef: WeekRef, offsets: number[]): DayRef[] {
-  const monday = getPeriodBounds(weekRef).start
-  return offsets.map(offset => addDaysToDayRef(monday, offset))
 }
 
 /** Closed months (oldest first) and every week from the first one's start to the current week. */
@@ -212,13 +184,6 @@ export function demoPeriods(today: Date): {
 export function storyIndexForWeek(index: number, count: number): number {
   return Math.max(0, DEMO_WEEK_STORIES.length - count + index)
 }
-
-/** Rewrites timestamps of a row this seed created (see module doc). */
-async function backdate(table: string, id: string, fields: Record<string, string>): Promise<void> {
-  await getUserDatabase().table(table).update(id, fields)
-}
-
-const iso = (dayRef: DayRef, time = '12:00:00') => `${dayRef}T${time}.000Z`
 
 // ─── Dataset ─────────────────────────────────────────────────────────────────
 
@@ -651,20 +616,7 @@ export async function seedDemoData(): Promise<void> {
   console.log('[demoSeed] Created planning objects')
 
   // ── 5. Weekly plans, assignments and entries ──────────────────────────────
-  const entry = (
-    subjectType: MeasurementSubjectType,
-    subjectId: string,
-    dayRef: DayRef,
-    value: number | null,
-    checkedItemIds?: string[]
-  ) =>
-    planningStateDexieRepository.upsertDailyMeasurementEntry({
-      subjectType,
-      subjectId,
-      dayRef,
-      value,
-      ...(checkedItemIds ? { checkedItemIds } : {}),
-    })
+  const entry = upsertMeasurementEntry
   const assign = (subjectType: MeasurementSubjectType, subjectId: string, days: DayRef[]) =>
     Promise.all(
       days.map(dayRef =>
@@ -1631,45 +1583,13 @@ async function seedIfsPath({
  * level per item (in the instrument's response range, keyed direction), then
  * backdates it. Returns the attempt id.
  */
+/** A leveled, backdated attempt (see seedKit.leveledResponses); returns the attempt id. */
 async function seedAssessment(
   assessmentId: AssessmentId,
   daysAgo: number,
   level: (item: AssessmentItemDefinition) => number
 ): Promise<string> {
-  const entry = getAssessmentRegistryEntry(assessmentId)
-  const { definition } = entry
-  const attempt = await assessmentsDexieRepository.startAttempt({
-    assessmentId,
-    instrumentVersion: definition.instrumentVersion,
-    language: 'pl',
-    scoringKeyVersion: definition.scoringKeyVersion,
-    missingDataPolicyVersion: definition.missingDataPolicy.id,
-    totalItems: definition.items.length,
-  })
-  const responses = await assessmentsDexieRepository.bulkSaveResponses(
-    definition.items.map((item, index) => {
-      const keyed = level(item) + (index % 3 === 0 ? 0.4 : index % 3 === 1 ? -0.4 : 0)
-      const raw = item.reverse ? item.responseMax + item.responseMin - keyed : keyed
-      return {
-        attemptId: attempt.id,
-        assessmentId,
-        itemId: item.id,
-        responseValue: clamp(Math.round(raw), item.responseMin, item.responseMax),
-        reverseFlagAtTime: item.reverse,
-        scoringKeyVersion: definition.scoringKeyVersion,
-      }
-    })
-  )
-  await assessmentsDexieRepository.completeAttempt(
-    attempt.id,
-    entry.scorer.score({ definition, responses })
-  )
-  const day = addDaysToDayRef(getPeriodRefsForDate(new Date()).day, -daysAgo)
-  await backdate('assessmentAttempts', attempt.id, {
-    startedAt: iso(day, '17:40:00'),
-    completedAt: iso(day, '17:55:00'),
-    updatedAt: iso(day, '17:55:00'),
-  })
+  const attempt = await seedAssessmentAttempt(assessmentId, leveledResponses(level), { daysAgo })
   return attempt.id
 }
 

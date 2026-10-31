@@ -22,10 +22,8 @@
  *   await window.__verifySeed()
  */
 
-import Dexie from 'dexie'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import type { MeasurementSubjectType, WeekTopPriorityRef } from '@/domain/planningState'
-import type { User } from '@/domain/user'
 import emotionsMeta from '@/data/emotions-meta.json'
 import {
   addDaysToDayRef,
@@ -34,8 +32,6 @@ import {
   getPeriodRefsForDate,
   getWeekOverlappingMonths,
 } from '@/utils/periods'
-import { assessmentsDexieRepository } from '@/repositories/assessmentsDexieRepository'
-import { authDexieRepository } from '@/repositories/authDexieRepository'
 import { emotionLogDexieRepository } from '@/repositories/emotionLogDexieRepository'
 import { exerciseCompletionDexieRepository } from '@/repositories/exerciseCompletionDexieRepository'
 import { exercisePlanDexieRepository } from '@/repositories/exercisePlanDexieRepository'
@@ -58,8 +54,6 @@ import { reflectionDexieRepository } from '@/repositories/reflectionDexieReposit
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
 import { weeklyIntentionDexieRepository } from '@/repositories/weeklyIntentionDexieRepository'
-import { getAssessmentRegistryEntry } from '@/services/assessments/registry'
-import { hashPassword } from '@/services/cryptoService'
 import { saveDraftToDB } from '@/services/draftStorage'
 import {
   setMonthTopPriorities,
@@ -74,8 +68,6 @@ import {
   updateMeasurementTargetOverride,
   updateMeasurementWeekTargetOverride,
 } from '@/services/planningMutations'
-import { invalidatePlanningQueryCache } from '@/services/planningQueryCache'
-import { connectUserDatabase, disconnectUserDatabase } from '@/services/userDatabaseService'
 import { createWeeklyIntention, setWeekTopPriorities } from '@/services/weeklyIntentionService'
 import {
   VERIFY_DB_NAME,
@@ -95,63 +87,56 @@ import {
   isAllowedUxLabOrigin,
   parseVerifyBridgeRequest,
 } from './verificationBridge'
+import {
+  type RunSeedOptions,
+  addMeasurementEntries,
+  addMultiCompletionEntries,
+  createSeedRunner,
+  ensureSeedUser,
+  leveledResponses,
+  seedAssessmentAttempt,
+  weekDays,
+} from './seedKit'
 import { createVerificationScenarioIdRegistry } from './verificationScenarioAdapter'
 
 const SEED_MARKER_KEY = 'mindfull_growth_verification_seed_version'
 
-// ─── Account ─────────────────────────────────────────────────────────────────
+// ─── Account + runner ───────────────────────────────────────────────────────
+
+const runner = createSeedRunner({
+  account: {
+    id: VERIFY_USER_ID,
+    username: VERIFY_USERNAME,
+    password: VERIFY_PASSWORD,
+    displayName: VERIFY_DISPLAY_NAME,
+  },
+  dbName: VERIFY_DB_NAME,
+  markerKey: SEED_MARKER_KEY,
+  markerValue: () => fixtureMarkerValue(buildRichVerificationScenario().meta),
+  seed: () => seedVerificationData(),
+  log: {
+    prefix: '[verificationSeed]',
+    resetting: 'Resetting verification database…',
+    ready: '✅ Seed complete.',
+  },
+})
 
 /** Create the fixed verification user in the auth DB if it does not exist yet. */
 export async function ensureVerificationUser(): Promise<void> {
-  const existing = await authDexieRepository.getUserById(VERIFY_USER_ID)
-  if (existing) return
-
-  const now = new Date().toISOString()
-  const user: User = {
+  await ensureSeedUser({
     id: VERIFY_USER_ID,
     username: VERIFY_USERNAME,
-    passwordHash: await hashPassword(VERIFY_PASSWORD),
-    createdAt: now,
-    lastLoginAt: now,
+    password: VERIFY_PASSWORD,
     displayName: VERIFY_DISPLAY_NAME,
-  }
-
-  try {
-    await authDexieRepository.createUser(user)
-  } catch (error) {
-    // Two tabs can race here; the fixed id already existing is the success case.
-    if (!(await authDexieRepository.getUserById(VERIFY_USER_ID))) throw error
-  }
+  })
 }
 
 // ─── Public API ──────────────────────────────────────────────────────────────
 
-export interface RunVerificationSeedOptions {
-  /** Reload after seeding so Pinia stores drop stale state (default true). */
-  reload?: boolean
-}
+export type RunVerificationSeedOptions = RunSeedOptions
 
 /** Reset-then-seed: always deletes the verification DB first, so re-runs never duplicate. */
-export async function runVerificationSeed(options: RunVerificationSeedOptions = {}): Promise<void> {
-  console.log('[verificationSeed] Resetting verification database…')
-  await ensureVerificationUser()
-  await disconnectUserDatabase()
-  await Dexie.delete(VERIFY_DB_NAME)
-  await connectUserDatabase(VERIFY_USER_ID)
-
-  await seedVerificationData()
-
-  invalidatePlanningQueryCache()
-  window.localStorage.setItem(
-    SEED_MARKER_KEY,
-    fixtureMarkerValue(buildRichVerificationScenario().meta)
-  )
-  console.log('[verificationSeed] ✅ Seed complete.')
-
-  if (options.reload !== false) {
-    window.location.reload()
-  }
-}
+export const runVerificationSeed = runner.runSeed
 
 /**
  * Called from main.ts (verification mode only) BEFORE `app.use(router)`:
@@ -159,14 +144,7 @@ export async function runVerificationSeed(options: RunVerificationSeedOptions = 
  * so the verification user must already exist for the dev auto-login bypass.
  */
 export async function bootstrapVerificationEnvironment(): Promise<void> {
-  await ensureVerificationUser()
-  await connectUserDatabase(VERIFY_USER_ID)
-
-  const expectedMarker = fixtureMarkerValue(buildRichVerificationScenario().meta)
-  if (window.localStorage.getItem(SEED_MARKER_KEY) !== expectedMarker) {
-    await runVerificationSeed({ reload: false })
-  }
-
+  await runner.bootstrap()
   installVerificationHelpers()
   installVerificationBridge()
 }
@@ -319,52 +297,9 @@ function buildEmotionPools(): string[][] {
   return pools
 }
 
-/** DayRefs at the given Monday-offsets (0=Mon … 6=Sun) within a week. */
-function weekDays(weekRef: WeekRef, offsets: number[]): DayRef[] {
-  const monday = getPeriodBounds(weekRef).start
-  return offsets.map(offset => addDaysToDayRef(monday, offset))
-}
-
 /** Every 3rd week (staggered by `phase`) is a miss, the rest are met. */
 function isMet(weekIdx: number, phase: number): boolean {
   return (weekIdx + phase) % 3 !== 2
-}
-
-async function addEntries(
-  subjectType: MeasurementSubjectType,
-  subjectId: string,
-  days: DayRef[],
-  value: number | null
-): Promise<void> {
-  await Promise.all(
-    days.map(dayRef =>
-      planningStateDexieRepository.upsertDailyMeasurementEntry({
-        subjectType,
-        subjectId,
-        dayRef,
-        value,
-      })
-    )
-  )
-}
-
-async function addMultiEntries(
-  subjectType: MeasurementSubjectType,
-  subjectId: string,
-  days: DayRef[],
-  checkedItemIds: string[]
-): Promise<void> {
-  await Promise.all(
-    days.map(dayRef =>
-      planningStateDexieRepository.upsertDailyMeasurementEntry({
-        subjectType,
-        subjectId,
-        dayRef,
-        value: null,
-        checkedItemIds,
-      })
-    )
-  )
 }
 
 const WEEK_ANCHOR_TEXTS = {
@@ -782,37 +717,37 @@ export async function seedVerificationData(): Promise<void> {
 
     // Entries: staggered met/miss so rings and charts vary week to week.
     // Current week gets only days up to today (an in-progress week).
-    await addEntries(
+    await addMeasurementEntries(
       'keyResult',
       kr1.id,
       upToToday(weekDays(weekRef, isMet(weekIdx, 0) ? [1, 3, 5] : [1])),
       null
     )
-    await addEntries(
+    await addMeasurementEntries(
       'keyResult',
       kr2.id,
       upToToday(weekDays(weekRef, isMet(weekIdx, 1) ? [1, 3, 5] : [1, 3])),
       isMet(weekIdx, 1) ? 6 : 4
     )
-    await addEntries(
+    await addMeasurementEntries(
       'keyResult',
       kr4.id,
       upToToday(weekDays(weekRef, isMet(weekIdx, 2) ? [0, 1, 2, 3] : [0, 1])),
       null
     )
-    await addEntries(
+    await addMeasurementEntries(
       'habit',
       h1.id,
       upToToday(weekDays(weekRef, isMet(weekIdx, 1) ? [0, 1, 2, 3, 4] : [0, 2])),
       null
     )
-    await addEntries(
+    await addMeasurementEntries(
       'habit',
       h2.id,
       upToToday(weekDays(weekRef, isMet(weekIdx, 2) ? [4, 5, 6] : [5])),
       null
     )
-    await addEntries(
+    await addMeasurementEntries(
       'habit',
       h3.id,
       upToToday(weekDays(weekRef, isMet(weekIdx, 0) ? [0, 1, 2, 3] : [0, 3])),
@@ -820,7 +755,7 @@ export async function seedVerificationData(): Promise<void> {
     )
     // h4 (entryDays min 5): met weeks log 5 days of "4"; missed weeks a single "3"
     // → primaryMet ∧ ¬presenceMet.
-    await addEntries(
+    await addMeasurementEntries(
       'habit',
       h4.id,
       upToToday(weekDays(weekRef, isMet(weekIdx, 0) ? [0, 1, 2, 3, 4] : [2])),
@@ -828,7 +763,7 @@ export async function seedVerificationData(): Promise<void> {
     )
     // h5 (entryDays max 3): met weeks stay within the 3-day limit; missed weeks
     // log 4 days of good ratings → primaryMet ∧ ¬presenceMet (limit exceeded).
-    await addEntries(
+    await addMeasurementEntries(
       'habit',
       h5.id,
       upToToday(weekDays(weekRef, isMet(weekIdx, 1) ? [1, 3] : [1, 2, 4, 5])),
@@ -837,27 +772,37 @@ export async function seedVerificationData(): Promise<void> {
     // h6 (multi, threshold 3/4 pts): met weeks = 4 full days + 1 partial
     // (2 pts, amber); missed weeks = 2 low-point partials + 1 met day.
     if (isMet(weekIdx, 2)) {
-      await addMultiEntries('habit', h6.id, upToToday(weekDays(weekRef, [0, 1, 2, 3])), [
+      await addMultiCompletionEntries('habit', h6.id, upToToday(weekDays(weekRef, [0, 1, 2, 3])), [
         'wake',
         'meditate',
         'train',
       ])
-      await addMultiEntries('habit', h6.id, upToToday(weekDays(weekRef, [4])), ['wake', 'meditate'])
+      await addMultiCompletionEntries('habit', h6.id, upToToday(weekDays(weekRef, [4])), [
+        'wake',
+        'meditate',
+      ])
     } else {
-      await addMultiEntries('habit', h6.id, upToToday(weekDays(weekRef, [1, 3])), ['wake'])
-      await addMultiEntries('habit', h6.id, upToToday(weekDays(weekRef, [5])), ['wake', 'train'])
+      await addMultiCompletionEntries('habit', h6.id, upToToday(weekDays(weekRef, [1, 3])), [
+        'wake',
+      ])
+      await addMultiCompletionEntries('habit', h6.id, upToToday(weekDays(weekRef, [5])), [
+        'wake',
+        'train',
+      ])
     }
     // t3 (multi tracker, all-items threshold): alternating full and partial days.
-    await addMultiEntries('tracker', t3.id, upToToday(weekDays(weekRef, [0, 2])), [
+    await addMultiCompletionEntries('tracker', t3.id, upToToday(weekDays(weekRef, [0, 2])), [
       'no-screens',
       'journal',
     ])
-    await addMultiEntries('tracker', t3.id, upToToday(weekDays(weekRef, [4])), ['journal'])
+    await addMultiCompletionEntries('tracker', t3.id, upToToday(weekDays(weekRef, [4])), [
+      'journal',
+    ])
     for (const [dayIdx, dayRef] of upToToday(weekDays(weekRef, [0, 2, 4, 6])).entries()) {
-      await addEntries('tracker', t1.id, [dayRef], 2 + ((weekIdx + dayIdx) % 4))
+      await addMeasurementEntries('tracker', t1.id, [dayRef], 2 + ((weekIdx + dayIdx) % 4))
     }
     for (const [dayIdx, dayRef] of upToToday(weekDays(weekRef, [0, 1, 2, 3, 4])).entries()) {
-      await addEntries('tracker', t2.id, [dayRef], 1 + ((weekIdx + dayIdx) % 3))
+      await addMeasurementEntries('tracker', t2.id, [dayRef], 1 + ((weekIdx + dayIdx) % 3))
     }
   }
 
@@ -878,14 +823,14 @@ export async function seedVerificationData(): Promise<void> {
     const cycle = monthIndex % 4
     if (cycle === 3) continue
     const offsets = cycle === 2 ? [9] : [4, 14]
-    await addEntries(
+    await addMeasurementEntries(
       'keyResult',
       kr3.id,
       offsets.map(offset => addDaysToDayRef(monthStart(monthRef), offset)),
       1
     )
   }
-  await addEntries('keyResult', kr3.id, upToToday([monthStart(currentMonth)]), 1)
+  await addMeasurementEntries('keyResult', kr3.id, upToToday([monthStart(currentMonth)]), 1)
 
   // ── 7b. Month V2 coverage objects ──────────────────────────────────────────
   // Cases the base dataset lacked: value average/last aggregations, lte/max
@@ -1032,18 +977,23 @@ export async function seedVerificationData(): Promise<void> {
 
     // kr5: sleep hours on 4 days — met weeks average 7.5, missed 6.5.
     for (const [dayIdx, dayRef] of upToToday(weekDays(weekRef, [0, 2, 4, 6])).entries()) {
-      await addEntries('keyResult', kr5.id, [dayRef], (isMet(weekIdx, 0) ? 7 : 6) + (dayIdx % 2))
+      await addMeasurementEntries(
+        'keyResult',
+        kr5.id,
+        [dayRef],
+        (isMet(weekIdx, 0) ? 7 : 6) + (dayIdx % 2)
+      )
     }
     // kr6: two weigh-ins; the LAST one decides (79.4 ≤ 80 met, 81.2 missed).
-    await addEntries('keyResult', kr6.id, upToToday(weekDays(weekRef, [1])), 80.5)
-    await addEntries(
+    await addMeasurementEntries('keyResult', kr6.id, upToToday(weekDays(weekRef, [1])), 80.5)
+    await addMeasurementEntries(
       'keyResult',
       kr6.id,
       upToToday(weekDays(weekRef, [4])),
       isMet(weekIdx, 1) ? 79.4 : 81.2
     )
     // kr7: orphan KR logs twice on met weeks.
-    await addEntries(
+    await addMeasurementEntries(
       'keyResult',
       kr7.id,
       upToToday(weekDays(weekRef, isMet(weekIdx, 2) ? [2, 5] : [2])),
@@ -1051,7 +1001,7 @@ export async function seedVerificationData(): Promise<void> {
     )
     // h7: coffee counter — met weeks total 8 (within limit), missed 12 (over).
     for (const dayRef of upToToday(weekDays(weekRef, [0, 2, 4]))) {
-      await addEntries('habit', h7.id, [dayRef], isMet(weekIdx, 2) ? 3 : 4)
+      await addMeasurementEntries('habit', h7.id, [dayRef], isMet(weekIdx, 2) ? 3 : 4)
     }
   }
 
@@ -1111,7 +1061,7 @@ export async function seedVerificationData(): Promise<void> {
       })
     }
     // Sessions: Mon/Wed/Fri, every fourth week only two → three of four weeks met.
-    await addEntries(
+    await addMeasurementEntries(
       'keyResult',
       kr8.id,
       weekDays(weekRef, weekIdx % 4 === 3 ? [0, 4] : [0, 2, 4]),
@@ -1119,7 +1069,7 @@ export async function seedVerificationData(): Promise<void> {
     )
     // Stretching: logged in the first two weeks only → missed, then no data.
     if (weekIdx < 2) {
-      await addEntries('keyResult', kr9.id, weekDays(weekRef, [0, 1, 2]), null)
+      await addMeasurementEntries('keyResult', kr9.id, weekDays(weekRef, [0, 1, 2]), null)
     }
   }
   const g5 = await goalDexieRepository.create({
@@ -1141,7 +1091,7 @@ export async function seedVerificationData(): Promise<void> {
       cadence: 'weekly',
       periodRef: weekRef,
     })
-    await addEntries('habit', h10.id, weekDays(weekRef, [1, 3]), null)
+    await addMeasurementEntries('habit', h10.id, weekDays(weekRef, [1, 3]), null)
   }
 
   // Monthly-cadence coverage: h8 (multi) and h9 (specific-days, target > 7).
@@ -1162,11 +1112,14 @@ export async function seedVerificationData(): Promise<void> {
   // h8 entries: boundary-week days of the current month (in-month only) + one
   // partial mid-month; previous month gets two full days.
   const currentMonthStart = monthStart(currentMonth)
-  await addMultiEntries('habit', h8.id, upToToday([currentMonthStart]), ['plan', 'do'])
-  await addMultiEntries('habit', h8.id, upToToday([addDaysToDayRef(currentMonthStart, 1)]), [
-    'plan',
-  ])
-  await addMultiEntries(
+  await addMultiCompletionEntries('habit', h8.id, upToToday([currentMonthStart]), ['plan', 'do'])
+  await addMultiCompletionEntries(
+    'habit',
+    h8.id,
+    upToToday([addDaysToDayRef(currentMonthStart, 1)]),
+    ['plan']
+  )
+  await addMultiCompletionEntries(
     'habit',
     h8.id,
     [addDaysToDayRef(monthStart(monthM1), 5), addDaysToDayRef(monthStart(monthM1), 12)],
@@ -1186,7 +1139,7 @@ export async function seedVerificationData(): Promise<void> {
       monthRef: currentMonth,
     })
   }
-  await addEntries('habit', h9.id, upToToday(h9Days.filter((_, i) => i % 2 === 0)), null)
+  await addMeasurementEntries('habit', h9.id, upToToday(h9Days.filter((_, i) => i % 2 === 0)), null)
 
   // Target overrides: a month override + a weekly per-week override on kr2, and
   // monthly week sub-targets (the planner's "Rozłóż"/Σ machinery) on kr3.
@@ -1243,7 +1196,7 @@ export async function seedVerificationData(): Promise<void> {
 
     // Past weeks: mark most first-intentions done so the review shows a mix.
     if (weekRef !== currentWeek && isMet(weekIdx, 1)) {
-      await addEntries('weeklyIntention', first.id, weekDays(weekRef, [2]), null)
+      await addMeasurementEntries('weeklyIntention', first.id, weekDays(weekRef, [2]), null)
     }
   }
 
@@ -1873,30 +1826,8 @@ export async function seedVerificationData(): Promise<void> {
   })
 
   // Baseline GAD-7 (13/21, moderate), linked to step 1 below so the path view shows it under "Mapa lęku".
-  const gadEntry = getAssessmentRegistryEntry('gad-7')
-  const gadAttempt = await assessmentsDexieRepository.startAttempt({
-    assessmentId: 'gad-7',
-    instrumentVersion: gadEntry.definition.instrumentVersion,
-    language: 'pl',
-    scoringKeyVersion: gadEntry.definition.scoringKeyVersion,
-    missingDataPolicyVersion: gadEntry.definition.missingDataPolicy.id,
-    totalItems: gadEntry.definition.items.length,
-  })
   const gadAnswers = [2, 2, 3, 2, 1, 2, 1]
-  const gadResponses = await assessmentsDexieRepository.bulkSaveResponses(
-    gadEntry.definition.items.map((item, index) => ({
-      attemptId: gadAttempt.id,
-      assessmentId: 'gad-7' as const,
-      itemId: item.id,
-      responseValue: gadAnswers[index]!,
-      reverseFlagAtTime: item.reverse,
-      scoringKeyVersion: gadEntry.definition.scoringKeyVersion,
-    }))
-  )
-  await assessmentsDexieRepository.completeAttempt(
-    gadAttempt.id,
-    gadEntry.scorer.score({ definition: gadEntry.definition, responses: gadResponses })
-  )
+  const gadAttempt = await seedAssessmentAttempt('gad-7', (_, index) => gadAnswers[index]!)
 
   await programEnrollmentDexieRepository.update(anxietyEnrollment.id, {
     currentStepIndex: 7,
@@ -2037,32 +1968,11 @@ export async function seedVerificationData(): Promise<void> {
     startedAt: `${angerStart}T12:00:00.000Z`,
     contentVersion: 2,
   })
-  const seedAttempt = async (assessmentId: 'anger-barometer', answers: readonly number[]) => {
-    const registry = getAssessmentRegistryEntry(assessmentId)
-    const attempt = await assessmentsDexieRepository.startAttempt({
+  const seedAttempt = (assessmentId: 'anger-barometer', answers: readonly number[]) =>
+    seedAssessmentAttempt(
       assessmentId,
-      instrumentVersion: registry.definition.instrumentVersion,
-      language: 'pl',
-      scoringKeyVersion: registry.definition.scoringKeyVersion,
-      missingDataPolicyVersion: registry.definition.missingDataPolicy.id,
-      totalItems: registry.definition.items.length,
-    })
-    const responses = await assessmentsDexieRepository.bulkSaveResponses(
-      registry.definition.items.map((item, index) => ({
-        attemptId: attempt.id,
-        assessmentId,
-        itemId: item.id,
-        responseValue: answers[index] ?? answers[answers.length - 1] ?? 2,
-        reverseFlagAtTime: item.reverse,
-        scoringKeyVersion: registry.definition.scoringKeyVersion,
-      }))
+      (_, index) => answers[index] ?? answers[answers.length - 1] ?? 2
     )
-    await assessmentsDexieRepository.completeAttempt(
-      attempt.id,
-      registry.scorer.score({ definition: registry.definition, responses })
-    )
-    return attempt
-  }
   const angerBaseline = await seedAttempt('anger-barometer', [3, 3, 2, 3, 2])
   const angerStepDays = [18, 17, 16, 14, 11, 8] as const
   const angerStepSlugs = [
@@ -2320,6 +2230,23 @@ export async function seedVerificationData(): Promise<void> {
       source: 'plan',
     })
   }
+  // Baseline measures of the path's first two steps, dated on the step day
+  // (SCS-SF low, FSCRS with a loud inadequate-self scale), so the path view's
+  // "Pomiar" tracks start with a value instead of an empty point.
+  const shameScs = await seedAssessmentAttempt(
+    'scs-sf',
+    leveledResponses(() => 2.1),
+    {
+      daysAgo: shameStepDays[0],
+    }
+  )
+  const shameFscrs = await seedAssessmentAttempt(
+    'fscrs',
+    leveledResponses(
+      item => ({ inadequateSelf: 3.2, reassuredSelf: 1.4, hatedSelf: 1.8 })[item.scaleId ?? ''] ?? 2
+    ),
+    { daysAgo: shameStepDays[1] }
+  )
   await exercisePlanDexieRepository.create({
     exerciseSlug: 'thought-record',
     dayRef: todayRef,
@@ -2560,6 +2487,8 @@ export async function seedVerificationData(): Promise<void> {
     completedSteps: shameStepSlugs.map((_, index) => ({
       stepIndex: index,
       completedAt: `${addDaysToDayRef(todayRef, -shameStepDays[index]!)}T12:00:00.000Z`,
+      ...(index === 0 ? { recordId: shameScs.id } : {}),
+      ...(index === 1 ? { recordId: shameFscrs.id } : {}),
       ...(index === 7 ? { recordId: shameResponseEntry.id } : {}),
     })),
   })
