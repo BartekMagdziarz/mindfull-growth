@@ -73,7 +73,7 @@ wpisy wyżej; przy wykonaniu dopisz `zrobione (hash)` w tej linii.
   `planning.calendar.stream.*` nieużywane poza planning-next. Loadery `streamData.ts`,
   `streamModel.ts`, `objectItems.ts` i `streamData.spec.ts` przenieść do
   `src/features/planning-next/` (importy w `usePlanningPeriodData.ts`, `NextPeriodRail.vue`).
-- **D2 (F4) klasyczne rytuały** — `otwarte`. SKASOWAĆ gałęzie `?ritual=classic` i
+- **D2 (F4) klasyczne rytuały** — `zrobione (db3f8ea1, 2026-10-31)`. Skasowane gałęzie `?ritual=classic` i
   `?overview=classic` w `PlanningNextWorkspace`, komponenty `Next*Ritual*.vue`, kafelkowy przegląd,
   ich specy i klucze i18n; composables `use{Weekly,Monthly}ReflectionWizard` zostają (stoją pod quiet).
 - **D3 (F1) roczny spokojny rytuał** — parking; rok zostaje na `AnnualPlanningWizard` do osobnego planu.
