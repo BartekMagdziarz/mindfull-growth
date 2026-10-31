@@ -843,6 +843,66 @@ function buildWeeklySummary(
 // Weekly bundle
 // ---------------------------------------------------------------------------
 
+/**
+ * A monthly-cadence object active in both months of a week that crosses a
+ * month boundary comes out of `getWeekRelevantObjects` as one reflection item
+ * per month — the planner needs each month's own state and target. The week
+ * review shows one row per object, so those items are merged here: one key,
+ * day cells over the whole week, and a week result instead of either month's
+ * total — the week sub-target verdict when the week has one, otherwise the
+ * plain count of this week's entries with no target to judge it against.
+ * Weekly-cadence objects and single-month items pass through untouched.
+ */
+export function mergeMonthBoundaryItems<T extends WeekMeasurementReflectionItem>(
+  items: T[],
+  rawEntries: DailyMeasurementEntry[],
+  weekRef: WeekRef,
+  asOfDayRef?: DayRef
+): T[] {
+  const groups = new Map<string, T[]>()
+  for (const item of items) {
+    const key = `${item.subjectType}:${item.subject.id}`
+    const group = groups.get(key)
+    if (group) group.push(item)
+    else groups.set(key, [item])
+  }
+
+  const merged = new Map<string, T>()
+  for (const [key, group] of groups) {
+    const [first] = group
+    if (group.length === 1 || !first) continue
+    const weekMeasurement = group.find(item => item.weekMeasurement)?.weekMeasurement
+    const weekCount = buildMeasurementSummary(first.subject, rawEntries, weekRef, asOfDayRef)
+    const measurement: MeasurementSummary = weekMeasurement ?? {
+      ...weekCount,
+      target: undefined,
+      evaluationStatus: undefined,
+      primaryMet: undefined,
+      presenceMet: undefined,
+      qualifiedEntryDays: undefined,
+    }
+    merged.set(key, {
+      ...first,
+      sourceMonthRef: undefined,
+      measurement,
+      weekMeasurement,
+      hasEntries: group.some(item => item.hasEntries),
+      isScheduled: group.some(item => item.isScheduled),
+    })
+  }
+  if (merged.size === 0) return items
+
+  const emitted = new Set<string>()
+  return items.flatMap(item => {
+    const key = `${item.subjectType}:${item.subject.id}`
+    const replacement = merged.get(key)
+    if (!replacement) return [item]
+    if (emitted.has(key)) return []
+    emitted.add(key)
+    return [replacement]
+  })
+}
+
 export async function getWeeklyReflectionDataBundle(
   weekRef: WeekRef,
   asOfDayRef?: DayRef
@@ -881,7 +941,18 @@ export async function getWeeklyReflectionDataBundle(
 
   try {
     const relevant = await getWeekRelevantObjects(weekRef, asOfDayRef)
-    const reflectionMeasurements = relevant.reflection.measurementItems
+    const reflectionMeasurements = mergeMonthBoundaryItems(
+      relevant.reflection.measurementItems,
+      relevant.rawEntries,
+      weekRef,
+      asOfDayRef
+    )
+    const cadencedItems = mergeMonthBoundaryItems(
+      relevant.reflection.cadencedItems,
+      relevant.rawEntries,
+      weekRef,
+      asOfDayRef
+    )
     const habits = reflectionMeasurements.filter(m => m.subjectType === 'habit')
 
     let metCount = 0
@@ -911,9 +982,7 @@ export async function getWeeklyReflectionDataBundle(
     )
 
     rawEntries = relevant.rawEntries
-    habitReflectionItems = relevant.reflection.cadencedItems.filter(
-      item => item.subjectType === 'habit'
-    )
+    habitReflectionItems = cadencedItems.filter(item => item.subjectType === 'habit')
     trackerReflectionItems = relevant.reflection.trackerItems
 
     // Load day assignments for the whole set of overlapping months so bar/dot
@@ -922,9 +991,7 @@ export async function getWeeklyReflectionDataBundle(
 
     // Build goal -> KRs groups for the reflection summary. We pull goals from
     // the reflection bundle's goalItems and match KRs by goalId.
-    const keyResultItems = relevant.reflection.cadencedItems.filter(
-      item => item.subjectType === 'keyResult'
-    )
+    const keyResultItems = cadencedItems.filter(item => item.subjectType === 'keyResult')
     const goalMap = new Map<string, Goal>()
     for (const goalItem of relevant.reflection.goalItems) {
       goalMap.set(goalItem.goal.id, goalItem.goal)
