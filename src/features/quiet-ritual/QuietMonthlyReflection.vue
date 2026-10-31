@@ -536,9 +536,9 @@ interface CompassAxis {
 }
 
 /**
- * Compass labels stay the product's own (Spójność / Sprawczość). The Lab
- * proposed renaming them to "Zasady / Wpływ"; the keys and the stored meaning
- * are unchanged either way, so the rename is a separate decision.
+ * Compass axes. The last two read "Zasady / Wpływ" since 2026-10-31 (formerly
+ * "Spójność / Sprawczość"); the keys and the stored ratings are unchanged — same
+ * dimension, clearer name, no note on older months.
  */
 const COMPASS: CompassAxis[] = [
   {
@@ -556,14 +556,14 @@ const COMPASS: CompassAxis[] = [
   },
   {
     key: 'coherence',
-    label: 'Spójność',
-    hint: 'Zgodność działań z własnymi kierunkami i wartościami.',
+    label: 'Zasady',
+    hint: 'Zgodność działań z własnymi zasadami i wartościami.',
     ref: coherenceRating,
   },
   {
     key: 'agency',
-    label: 'Sprawczość',
-    hint: 'Poczucie wyboru i możliwości działania.',
+    label: 'Wpływ',
+    hint: 'Poczucie wyboru i wpływu na to, co się dzieje.',
     ref: agencyRating,
   },
 ]

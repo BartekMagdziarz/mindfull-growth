@@ -64,7 +64,7 @@ export const AREA_KEYS = REFLECTION_MATRIX_AREAS.map(area => area.key) as readon
 export const AREA_ICONS = REFLECTION_MATRIX_AREAS.map(area => area.icon) as readonly string[]
 /* Compass labels are the product's own (the Lab proposed "Zasady / Wpływ";
    the stored keys and meaning are unchanged, so that rename is a separate call). */
-export const COMPASS = ['Balans', 'Sens', 'Rozwój', 'Spójność', 'Sprawczość'] as const
+export const COMPASS = ['Balans', 'Sens', 'Rozwój', 'Zasady', 'Wpływ'] as const
 export const FAMILY_LABEL: Record<RhythmObject['family'], string> = {
   goal: 'Cele',
   keyResult: 'Cele',

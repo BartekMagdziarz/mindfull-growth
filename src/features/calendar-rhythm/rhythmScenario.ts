@@ -98,7 +98,7 @@ export interface RhythmWeeklyReflection {
 export interface RhythmMonthlyReflection {
   monthRef: MonthRef
   status: 'done' | 'draft'
-  /** Balance · Purpose · Growth · Coherence · Agency, 1–5. */
+  /** Balance · Purpose · Growth · Coherence („Zasady”) · Agency („Wpływ”), 1–5. */
   compass: (number | null)[]
   anchors: { proud: string; challenges: string; growth: string }
   priorityVerdicts: { priorityKey: string; effort: number | null; verdict: PriorityVerdict | '' }[]
