@@ -95,7 +95,7 @@ wpisy wyżej; przy wykonaniu dopisz `zrobione (hash)` w tej linii.
   Plan: `ideas/html-plans/2026-10-17-data-blues-unification.html` fazy 1–3.
 - **D10 fill przycisku głównego** — zostaje 86 142 210 (3,4:1); wrócić przy K2 z pomiarem kontrastu.
 - **D11 ścieżka wstydu §11** — (a) Powrót proponuje tylko powtórki praktyk, nie ponowny zapis;
-  (b) `otwarte`: „Moje zdania” — akcja „Ukryj” na `PathSentencesCard` (lista ukrytych `entryId`
+  (b) `zrobione (d6d39205, 2026-10-31)`: „Moje zdania” — akcja „Ukryj” na `PathSentencesCard` (lista ukrytych `entryId`
   na enrollmencie, bez edycji i bez usuwania); (c) dni praktyki tylko w dashboardzie ścieżki,
   pole „Ścieżki” w Dzisiaj bez liczników; (d) odnogi — parking.
 - **D12 (P-8) „Checklista”** — zrobione (b347d485).
