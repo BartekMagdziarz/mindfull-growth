@@ -45,8 +45,8 @@
           v-for="preset in DATE_PRESETS"
           :key="preset"
           type="button"
-          class="neo-pill px-3 py-1.5 text-sm"
-          :class="{ 'neo-pill--primary': isPresetActive(preset) }"
+          class="mg-v2-pill"
+          :class="{ 'mg-v2-pill--primary mg-v2-pill--selected': isPresetActive(preset) }"
           :data-test-preset="preset"
           @click="selectPreset(preset)"
         >
@@ -54,8 +54,8 @@
         </button>
         <button
           type="button"
-          class="neo-pill px-3 py-1.5 text-sm"
-          :class="{ 'neo-pill--primary': props.dateRange.kind === 'custom' }"
+          class="mg-v2-pill"
+          :class="{ 'mg-v2-pill--primary mg-v2-pill--selected': props.dateRange.kind === 'custom' }"
           data-test-preset="custom"
           @click="selectCustom()"
         >
@@ -110,8 +110,8 @@
               v-for="code in EMOTION_QUADRANT_CODES"
               :key="code"
               type="button"
-              class="neo-pill px-3 py-1.5 text-xs"
-              :class="{ 'neo-pill--primary': isQuadrantActive(code) }"
+              class="mg-v2-pill"
+              :class="{ 'mg-v2-pill--primary mg-v2-pill--selected': isQuadrantActive(code) }"
               :data-test-quadrant="code"
               @click="toggleQuadrant(code)"
             >
@@ -130,8 +130,10 @@
               v-for="la in lifeAreaOptions"
               :key="la.id"
               type="button"
-              class="neo-pill px-3 py-1.5 text-xs"
-              :class="{ 'neo-pill--primary': isFilterActive('lifeAreaIds', la.id) }"
+              class="mg-v2-pill"
+              :class="{
+                'mg-v2-pill--primary mg-v2-pill--selected': isFilterActive('lifeAreaIds', la.id),
+              }"
               @click="toggleFilter('lifeAreaIds', la.id)"
             >
               {{ la.name }}
@@ -149,8 +151,10 @@
               v-for="tag in peopleTagOptions"
               :key="tag.id"
               type="button"
-              class="neo-pill px-3 py-1.5 text-xs"
-              :class="{ 'neo-pill--primary': isFilterActive('peopleTagIds', tag.id) }"
+              class="mg-v2-pill"
+              :class="{
+                'mg-v2-pill--primary mg-v2-pill--selected': isFilterActive('peopleTagIds', tag.id),
+              }"
               @click="toggleFilter('peopleTagIds', tag.id)"
             >
               {{ tag.name }}
@@ -168,8 +172,10 @@
               v-for="tag in contextTagOptions"
               :key="tag.id"
               type="button"
-              class="neo-pill px-3 py-1.5 text-xs"
-              :class="{ 'neo-pill--primary': isFilterActive('contextTagIds', tag.id) }"
+              class="mg-v2-pill"
+              :class="{
+                'mg-v2-pill--primary mg-v2-pill--selected': isFilterActive('contextTagIds', tag.id),
+              }"
               @click="toggleFilter('contextTagIds', tag.id)"
             >
               {{ tag.name }}

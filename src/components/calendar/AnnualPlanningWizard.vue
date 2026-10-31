@@ -112,11 +112,11 @@
                   v-for="score in scoreOptions"
                   :key="score"
                   type="button"
-                  class="h-7 w-7 rounded-lg text-[11px] font-semibold transition-all"
+                  class="mg-v2-pill w-7 justify-center px-0"
                   :class="
                     assessmentItem(area.id)?.score === score
-                      ? 'neo-pill neo-pill--primary text-primary'
-                      : 'neo-pill text-on-surface-variant'
+                      ? 'mg-v2-pill--primary mg-v2-pill--selected'
+                      : ''
                   "
                   @click.stop="void updateLifeAreaScore(area.id, score)"
                 >

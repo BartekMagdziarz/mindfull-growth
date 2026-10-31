@@ -2,8 +2,8 @@
   <button
     v-if="available"
     type="button"
-    class="neo-pill text-xs gap-1.5 px-3 py-1.5"
-    :class="modelValue ? 'neo-pill--primary' : ''"
+    class="mg-v2-pill gap-1.5"
+    :class="modelValue ? 'mg-v2-pill--primary mg-v2-pill--selected' : ''"
     :aria-pressed="modelValue"
     :aria-label="modelValue ? t('common.profileContext.on') : t('common.profileContext.off')"
     data-test-profile-context-toggle

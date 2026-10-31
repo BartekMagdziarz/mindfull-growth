@@ -299,22 +299,13 @@
   background: var(--mg-color-primary-fill);
 }
 
-/* Pills: colour variants keep their semantic tone; default = muted mist. */
+/* Pills: colour variants keep their semantic tone; default = muted mist.
+   A selected chip is no longer bridged — `neo-pill--primary` has no consumers
+   (B-10, 2026-10-31); selection is `.mg-v2-pill--primary.mg-v2-pill--selected`. */
 .mg-design-v2
-  :where(
-    .neo-pill:not(.neo-pill--primary):not(.neo-pill--success):not(.neo-pill--warning):not(
-        .neo-pill--danger
-      )
-  ) {
+  :where(.neo-pill:not(.neo-pill--success):not(.neo-pill--warning):not(.neo-pill--danger)) {
   color: var(--mg-color-muted);
   background: var(--mg-color-mist);
-}
-
-.mg-design-v2 :where(.neo-pill--primary) {
-  border-color: var(--mg-color-primary);
-  color: var(--mg-color-primary-strong);
-  background: var(--mg-color-paper);
-  box-shadow: none;
 }
 
 /* ------------------------------------------------------------------ */

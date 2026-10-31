@@ -324,3 +324,20 @@ chmura `DsButton` „Porozmawiaj w osobnym czacie” rozwija intencje jako
 `.mg-v2-pill` (opis w `title`), bez dropdownu i click-outside.
 Konsekwencje: `journal.editor.*` dostaje klucze sekcji/czatu/wyjścia (pl+en);
 e2e klikają dalej przyciski „AI”/„Emocje” (kapsułka); dług strażnika 2100 → 2099.
+
+## 2026-10-31 — Zaznaczony chip: koniec mostka `neo-pill--primary` (B-10)
+
+Kontekst: w mostku legacy reguła stanu wybranego `:where(.neo-pill--primary)`
+(specyficzność 0-1-0) przegrywała z `.neo-pill.neo-pill` (0-2-0), więc
+zaznaczony chip w `ProfileScopeStep`, `ProfileContextToggle` i
+`AnnualPlanningWizard` wyglądał jak niezaznaczony. `KrPillDropdown` już
+siedział na `.mg-v2-sentence__pill`.
+Decyzja: zamiast podbijać specyficzność mostka, trzech konsumentów
+przechodzi na anatomię `.mg-v2-pill` ze stanem wybranym
+`.mg-v2-pill--primary.mg-v2-pill--selected` (cienki obrys akcentu na
+papierze, płasko — jak w README); oceny obszarów w planie rocznym to te same
+chipy o stałej szerokości (`w-7`, bez `rounded-lg`/`text-[11px]`). Mostek dla
+`neo-pill--primary` usunięty z `adapters.css`; `neo-pill` bez wariantu dalej
+mostkowany dla pozostałych odznak.
+Konsekwencje: zero konsumentów `neo-pill--primary` poza `main.css`
+(legacy do wycofania razem z `neo-pill`); dług strażnika 2099 → 2081.
