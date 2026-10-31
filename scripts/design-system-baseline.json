@@ -1,13 +1,13 @@
 {
   "generatedAt": "2026-10-31",
-  "total": 2081,
+  "total": 2077,
   "byRule": {
     "legacyClass": 755,
     "tailwindArbitraryText": 137,
     "localFont": 1,
     "radiusLiteral": 232,
     "localShadow": 25,
-    "fontSizeLiteral": 473,
+    "fontSizeLiteral": 469,
     "tailwindRadius": 307,
     "tailwindShadow": 122,
     "rawColor": 29
@@ -171,7 +171,7 @@
     "src/features/goal-closing/goal-closing.css": 34,
     "src/features/planning-next/NextDayItemRow.vue": 2,
     "src/features/planning-next/NextObjectChartCard.vue": 1,
-    "src/features/planning-next/planning-next.css": 37,
+    "src/features/planning-next/planning-next.css": 33,
     "src/features/program-path/MaintenanceRepeatsPanel.vue": 1,
     "src/features/program-path/PathDoseCard.vue": 1,
     "src/features/program-path/PathKnowledgeCard.vue": 2,

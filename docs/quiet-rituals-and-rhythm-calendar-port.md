@@ -26,14 +26,16 @@ Wszystko działa na prawdziwych repozytoriach i serwisach — żadnych fikstur w
 `src/features/calendar-rhythm/` — a nie rozbudowa `planning-next/`. Oba dopisałem do
 `scripts/check-design-system.mjs`, więc obowiązuje je ten sam strażnik (tokeny `--mg-*`,
 brak surowych kolorów, brak lokalnych cieni). *Dlaczego:* to osobne powierzchnie z własnym
-językiem wizualnym; `planning-next` zostaje przy dniu i „klasycznych” wariantach.
+językiem wizualnym; `planning-next` zostaje przy dniu (i hostuje rytuały przez `NextRitualHost`).
 
-**A2. Spokojne rytuały są domyślne** dla tygodnia i miesiąca (plan i refleksja).
-Poprzednie kreatory (`NextWeeklyPlanRitual` i spółka) są dostępne pod `?ritual=classic` —
-do porównania. Rok bez zmian: `AnnualPlanningWizard` (Lab nie ma wariantu 02 dla roku).
+**A2. Spokojne rytuały są jedyne** dla tygodnia i miesiąca (plan i refleksja).
+Poprzednie kreatory (`NextWeeklyPlanRitual` i spółka, `?ritual=classic`) były dostępne do
+porównania do 2026-10-31 i zostały usunięte (decyzja F4). Rok bez zmian:
+`AnnualPlanningWizard` (Lab nie ma wariantu 02 dla roku).
 
-**A3. Kalendarz rytmu jest domyślny** dla tygodnia/miesiąca/roku, gdy nie jest otwarty
-rytuał. Poprzednia szyna + kafle są pod `?overview=classic`. **Skala dnia nietknięta** —
+**A3. Kalendarz rytmu jest jedyny** dla tygodnia/miesiąca/roku, gdy nie jest otwarty
+rytuał. Poprzednia szyna + kafle (`?overview=classic`, `NextPeriodRail`/`NextPeriodOverview`)
+usunięte 2026-10-31 (F4). **Skala dnia nietknięta** —
 dalej `Planning Next` (scena w wierszu, kolumna kontekstu).
 
 **A4. Obie powierzchnie renderują się „full-bleed”** — bez lewej szyny i bez wklęsłego

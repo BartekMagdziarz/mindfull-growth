@@ -229,8 +229,8 @@ month → open week. UX for this chain (length, skippability) is an open topic.
   `emotionalIntensityRating`, `taskLoadRating`, `closeOnesNeedsRating`) and **Stan**
   (state) = the stored `state` field. The `actions` column (`*CareRating`,
   `productivityRating`, …) is no longer asked in the quiet ritual and is not drawn
-  anywhere new; the fields stay in the data as history and the classic wizard
-  (`?ritual=classic`) still writes them. Semantics: tasks' load = work actually
+  anywhere new; the fields stay in the data as history (the classic wizard that
+  still wrote them was removed 2026-10-31). Semantics: tasks' load = work actually
   processed (worrying about undone work is *emotional* load); close ones' load =
   support given + being thrown off balance. A pair gets one colour — the emotion
   quadrant tokens with load as arousal and state as pleasantness: rose = heavy·bad,

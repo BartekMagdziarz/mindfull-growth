@@ -81,7 +81,7 @@ Serwis `src/services/goalClosingService.ts`: `buildGoalClosingSnapshot`,
 - **Po refleksji tygodnia i miesiąca** (`QuietRitualShell` + `GoalClosingInvite`):
   po zapisie lista otwartych celów z terminem ≤ koniec okresu, także zaległych z
   wcześniej (D3). „Podsumuj cel” wraca potem do refleksji (`?return=`), „Później”
-  odkłada o 7 dni. Klasyczne kreatory (`?ritual=classic`) bez zaproszenia.
+  odkłada o 7 dni.
 
 ## Decyzje domyślne (do ewentualnej zmiany)
 
