@@ -341,3 +341,17 @@ chipy o stałej szerokości (`w-7`, bez `rounded-lg`/`text-[11px]`). Mostek dla
 mostkowany dla pozostałych odznak.
 Konsekwencje: zero konsumentów `neo-pill--primary` poza `main.css`
 (legacy do wycofania razem z `neo-pill`); dług strażnika 2099 → 2081.
+
+## 2026-10-31 — Decyzje porządkowe: kompas, picker emocji, błękity danych, przycisk główny
+
+Kontekst: sesja decyzyjna nad otwartymi punktami (docs/backlog.md „Decyzje porządkowe
+2026-10-31”).
+Decyzje: (1) etykiety kompasu miesiąca w PL zmieniają się na „Zasady / Wpływ” (EN
+„Principles / Influence”), bez noty przy historycznych ocenach — ten sam wymiar, lepsza
+nazwa; (2) `EmotionGroupPicker` zostaje w obecnej skórce, cztery skórki z Labu
+(`/concepts/emotion-picker`, 2026-09-09) są zamkniętym zapisem koncepcji; (3) sweep
+błękitów danych (`--mg-color-data-fill` / `data-target` / `effort-fill` poza kartami
+obiektów) wchodzi razem z K2, partiami po widoku; (4) fill przycisku głównego zostaje
+86 142 210 — decyzja Labu, wracamy przy K2 z pomiarem kontrastu.
+Konsekwencje: żadnych nowych tokenów; K2 ma jeden ciąg pracy (literały + błękity);
+`--neo-chart-primary-*` do skasowania w tym ciągu.

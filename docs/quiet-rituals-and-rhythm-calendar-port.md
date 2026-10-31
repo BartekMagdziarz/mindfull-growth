@@ -197,15 +197,15 @@ przed hydratacją — naprawia to również klasyczne kreatory.
 
 | # | Rzecz | Dlaczego czeka |
 |---|---|---|
-| F1 | Roczny spokojny rytuał | Lab nie ma wariantu 02 dla roku; rok dalej na `AnnualPlanningWizard` |
-| F2 | Zmiana etykiet kompasu na „Zasady / Wpływ” | Zmienia znaczenie zapisanych danych; plan eksperymentu sam nazywa to hipotezą do QA |
+| F1 | Roczny spokojny rytuał | Decyzja 2026-10-31: parking — rok zostaje na `AnnualPlanningWizard` do osobnego planu |
+| F2 | Zmiana etykiet kompasu na „Zasady / Wpływ” | Decyzja 2026-10-31: ZMIENIAMY (PL „Zasady / Wpływ”, EN „Principles / Influence”), bez noty w refleksji — zob. docs/backlog.md D4 |
 | F3 | „Dzień” w przełączniku skali kalendarza | Lab ma trzy skale; dziś do dnia wchodzi się przez kolumnę dnia |
-| F4 | Usunięcie klasycznych kreatorów i kafelkowego przeglądu | Zostawione pod `?ritual=classic` / `?overview=classic` do porównania. Powiedz, kiedy kasować |
+| F4 | Usunięcie klasycznych kreatorów i kafelkowego przeglądu | Decyzja 2026-10-31: KASUJEMY oba (`?ritual=classic`, `?overview=classic`) — zob. docs/backlog.md D2 |
 | F5 | Intencje w kroku „Wsparcie” miesiąca | Intencje są z definicji tygodniowe; planer miesiąca ich nie ładuje |
 | F6 | Jednostka miary na obiektach (km/kg/h) | Wymaga pola w domenie + edytorów obiektów |
-| F7 | Tagi obszarów jako osobna encja | Dziś siedzą w `promptResponses` (bez migracji). Jeśli mają być filtrowalne, potrzebna decyzja o modelu |
+| F7 | Tagi obszarów jako osobna encja | Decyzja 2026-10-31: zostają w `promptResponses`; wracamy, gdy pojawi się widok filtrujący |
 | F8 | ~~„Wysiłek” vs „Działania” jako nazwa sekcji~~ | Rozstrzygnięte 2026-09-20: oś nazywa się „Obciążenie” i czyta pole Wymagań (D10) |
-| F9 | Panel szczegółów obiektu z innych wariantów kalendarza | Nie należy do wariantu 05 |
+| F9 | Panel szczegółów obiektu z innych wariantów kalendarza | Decyzja 2026-10-31: odrzucone; klik = zoom w podokres |
 | F10 | Podwarianty próbek z Labu (`?sample=`) | To fikstury deweloperskie, nie produkt |
 
 ---

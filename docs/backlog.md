@@ -60,6 +60,57 @@ wpisów.
 
 ---
 
+## Decyzje
+
+### Decyzje porządkowe 2026-10-31
+
+Sesja decyzyjna nad otwartymi punktami z pamięci projektu i docs (plan lokalny:
+`ideas/html-plans/2026-10-31-open-items-cleanup.html`). Pozycje z zadaniem mają status jak
+wpisy wyżej; przy wykonaniu dopisz `zrobione (hash)` w tej linii.
+
+- **D1 Strumień** — `otwarte`. USUNĄĆ widok `/calendar/stream`: trasa `calendar-stream`,
+  `src/views/CalendarStreamView.vue`, karty `src/components/calendar/stream/Stream*.vue`, klucze
+  `planning.calendar.stream.*` nieużywane poza planning-next. Loadery `streamData.ts`,
+  `streamModel.ts`, `objectItems.ts` i `streamData.spec.ts` przenieść do
+  `src/features/planning-next/` (importy w `usePlanningPeriodData.ts`, `NextPeriodRail.vue`).
+- **D2 (F4) klasyczne rytuały** — `otwarte`. SKASOWAĆ gałęzie `?ritual=classic` i
+  `?overview=classic` w `PlanningNextWorkspace`, komponenty `Next*Ritual*.vue`, kafelkowy przegląd,
+  ich specy i klucze i18n; composables `use{Weekly,Monthly}ReflectionWizard` zostają (stoją pod quiet).
+- **D3 (F1) roczny spokojny rytuał** — parking; rok zostaje na `AnnualPlanningWizard` do osobnego planu.
+- **D4 (F2) etykiety kompasu** — `otwarte`. PL „Spójność / Sprawczość” → „Zasady / Wpływ”, bez noty w
+  refleksji. Miejsca: `src/features/calendar-rhythm/rhythmProjections.ts` (`COMPASS`),
+  `src/features/quiet-ritual/QuietMonthlyReflection.vue` (etykiety + komentarz), `NextPeriodRail.vue`,
+  `src/features/ai-companion/sourcePresentation.ts`, `NextMonthlyReflectionRitual.vue` (znika z D2),
+  klucze `coherence`/`agency` w `src/locales/pl/planning.json`; EN ma dziś „Values”/„Principles”
+  + „Influence” — ujednolicić do „Principles / Influence”.
+- **D5 (F7) tagi obszarów** — odrzucone do czasu widoku filtrującego; zostają w `promptResponses`.
+- **D6 (F9) panel szczegółów w kalendarzu rytmu** — odrzucone; klik = zoom w podokres.
+- **D7 nazwy rodzin reakcji** (złość: Ostrzej · Wybuch · Milczenie · Na siebie; lęk: Odkładanie ·
+  Wycofanie · Sprawdzanie · Zamartwianie) — zaakceptowane bez zmian.
+- **D8 skórka pickera emocji** — zostaje obecny `EmotionGroupPicker`; scena Labu
+  `/concepts/emotion-picker` to tylko zapis koncepcji.
+- **D9 sweep błękitów danych** — `otwarte`. Tak, razem z K2 (migracja literałów) partiami po widoku:
+  Dzisiaj (`NextObjectChartCard` i spółka: `--neo-chart-primary-*` → `--mg-color-data-fill`),
+  kalendarz rytmu, dock, runner mikro, gradient ocen; kolory ćwiartek/części/wstęgi zostają.
+  Plan: `ideas/html-plans/2026-10-17-data-blues-unification.html` fazy 1–3.
+- **D10 fill przycisku głównego** — zostaje 86 142 210 (3,4:1); wrócić przy K2 z pomiarem kontrastu.
+- **D11 ścieżka wstydu §11** — (a) Powrót proponuje tylko powtórki praktyk, nie ponowny zapis;
+  (b) `otwarte`: „Moje zdania” — akcja „Ukryj” na `PathSentencesCard` (lista ukrytych `entryId`
+  na enrollmencie, bez edycji i bez usuwania); (c) dni praktyki tylko w dashboardzie ścieżki,
+  pole „Ścieżki” w Dzisiaj bez liczników; (d) odnogi — parking.
+- **D12 (P-8) „Checklista”** — zrobione (b347d485).
+- **D13 plany w `ideas/`** — zostają poza gitem; wdrożona specyfikacja trafia do `docs/`.
+
+**Parking (nie robimy do odwołania):** roczny spokojny rytuał; odnogi ścieżki wstydu; dalsze etapy
+rytuału powrotu (`docs/return-ritual.md` „Następne etapy”); profil 3b/3c; prefill nowego celu po
+zamknięciu i ponowne zaproszenie; kreatory ćwiczeń P3 (stopka w karcie bespoke, Koło życia na
+ExerciseStepper, kwestionariusze na ExerciseScaleRow, BodyLocationPicker 320 px, koło 8 C) i wymiana
+`EmotionSelector` w 7 kreatorach; skala roku przy 52 tygodniach w LoadStateRibbon; pytania widoku
+ścieżki (dysk „1/3”, „co” na późniejszych kaflach, „Zobacz”); edycja istniejących planów w pomocniku
+planowania; Hub priorytetu; klik w licznik karty = filtr.
+
+---
+
 ## Zamknięte
 
 ### B-3 · Nawyk miesięczny dwa razy w przeglądzie tygodnia na przełomie miesięcy
