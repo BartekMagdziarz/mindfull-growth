@@ -68,7 +68,7 @@ Sesja decyzyjna nad otwartymi punktami z pamięci projektu i docs (plan lokalny:
 `ideas/html-plans/2026-10-31-open-items-cleanup.html`). Pozycje z zadaniem mają status jak
 wpisy wyżej; przy wykonaniu dopisz `zrobione (hash)` w tej linii.
 
-- **D1 Strumień** — `otwarte`. USUNĄĆ widok `/calendar/stream`: trasa `calendar-stream`,
+- **D1 Strumień** — `zrobione (64008e2d, 2026-10-31; loadery nie miały już konsumentów, poszły razem z widokiem i klasycznymi kreatorami refleksji; `/calendar/stream/…` przekierowuje na kalendarz rytmu)`. Pierwotny zakres: trasa `calendar-stream`,
   `src/views/CalendarStreamView.vue`, karty `src/components/calendar/stream/Stream*.vue`, klucze
   `planning.calendar.stream.*` nieużywane poza planning-next. Loadery `streamData.ts`,
   `streamModel.ts`, `objectItems.ts` i `streamData.spec.ts` przenieść do
