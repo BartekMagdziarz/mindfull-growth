@@ -3,19 +3,19 @@
 exports[`dev seeds produce the same data as before (table digests) > demo seed („Julia”) on 2026-10-17 1`] = `
 {
   "assessmentAttempts": {
-    "digest": "01fd739c9eb519e9",
+    "digest": "55db84107e3a1b0e",
     "rows": 13,
   },
   "assessmentResponses": {
-    "digest": "2327972fd8e86041",
+    "digest": "f78bbcca139ca1e8",
     "rows": 277,
   },
   "dailyMeasurementEntries": {
-    "digest": "60cabd623662d9c8",
+    "digest": "c6b114d4e83601a9",
     "rows": 943,
   },
   "emotionLogs": {
-    "digest": "06e0b6c1a5a86713",
+    "digest": "b63366505d0834b1",
     "rows": 85,
   },
   "exerciseCompletions": {
@@ -23,15 +23,15 @@ exports[`dev seeds produce the same data as before (table digests) > demo seed (
     "rows": 131,
   },
   "exercisePlanItems": {
-    "digest": "45e447e8a5faf5b3",
+    "digest": "4bf9c67159cc2904",
     "rows": 110,
   },
   "goalMonthStates": {
-    "digest": "1e0ec96c747f4e7f",
+    "digest": "772cf37e9c80be2d",
     "rows": 13,
   },
   "goals": {
-    "digest": "7b2e20dd0e107c1d",
+    "digest": "7a2640abf055657d",
     "rows": 3,
   },
   "habits": {
@@ -47,11 +47,11 @@ exports[`dev seeds produce the same data as before (table digests) > demo seed (
     "rows": 1,
   },
   "journalEntries": {
-    "digest": "66c772ecf3421dcf",
+    "digest": "73bff569b7941ba2",
     "rows": 35,
   },
   "keyResults": {
-    "digest": "d59358d603404583",
+    "digest": "a248eed25d710cb9",
     "rows": 6,
   },
   "lifeAreaAssessments": {
@@ -63,15 +63,15 @@ exports[`dev seeds produce the same data as before (table digests) > demo seed (
     "rows": 7,
   },
   "measurementDayAssignments": {
-    "digest": "b609f06982b17895",
+    "digest": "5c02288323ffca28",
     "rows": 711,
   },
   "measurementMonthStates": {
-    "digest": "83d3f5fdb0c3d6ad",
+    "digest": "7b3ccbe44754dc5c",
     "rows": 168,
   },
   "measurementWeekStates": {
-    "digest": "1cd2c87e6243f300",
+    "digest": "12fc2332e004d26a",
     "rows": 349,
   },
   "microExerciseEntries": {
@@ -79,15 +79,15 @@ exports[`dev seeds produce the same data as before (table digests) > demo seed (
     "rows": 89,
   },
   "monthPlans": {
-    "digest": "ea6abf57993fc11f",
+    "digest": "87d98443de259652",
     "rows": 8,
   },
   "monthlyReflections": {
-    "digest": "748faec7f66b2b57",
+    "digest": "5bdb0730034be0bb",
     "rows": 6,
   },
   "periodObjectReflections": {
-    "digest": "ce2df451ba5e50db",
+    "digest": "68e1b3580d957279",
     "rows": 18,
   },
   "priorities": {
@@ -95,11 +95,11 @@ exports[`dev seeds produce the same data as before (table digests) > demo seed (
     "rows": 4,
   },
   "priorityLinks": {
-    "digest": "20c61fcd29e12646",
+    "digest": "795ffd5874cbccfe",
     "rows": 8,
   },
   "programEnrollments": {
-    "digest": "a428d4a332bd56b0",
+    "digest": "5588217ade5ec80a",
     "rows": 2,
   },
   "trackers": {
@@ -115,11 +115,11 @@ exports[`dev seeds produce the same data as before (table digests) > demo seed (
     "rows": 2,
   },
   "weekPlans": {
-    "digest": "54d4e1f96a0c3e5d",
+    "digest": "e4b690623f532c00",
     "rows": 29,
   },
   "weeklyIntentions": {
-    "digest": "0b0b11ae01797e07",
+    "digest": "fc0a3d55282a866d",
     "rows": 68,
   },
   "weeklyReflections": {
@@ -132,23 +132,23 @@ exports[`dev seeds produce the same data as before (table digests) > demo seed (
 exports[`dev seeds produce the same data as before (table digests) > verification seed (rich-v1) on 2026-10-17 1`] = `
 {
   "assessmentAttempts": {
-    "digest": "79fd5ca2ec83400c",
+    "digest": "0ccd0904a79429a1",
     "rows": 4,
   },
   "assessmentResponses": {
-    "digest": "ebccb75423bea97b",
+    "digest": "9e9d2dea3596550b",
     "rows": 46,
   },
   "dailyMeasurementEntries": {
-    "digest": "272ec91e0e0fd2fa",
+    "digest": "b6c135ecc7bba78f",
     "rows": 971,
   },
   "drafts": {
-    "digest": "89764f0559c501ee",
+    "digest": "f223ed96513113d4",
     "rows": 1,
   },
   "emotionLogs": {
-    "digest": "b4896ea1b99918ae",
+    "digest": "fc483f682eec9897",
     "rows": 26,
   },
   "exerciseCompletions": {
@@ -156,51 +156,51 @@ exports[`dev seeds produce the same data as before (table digests) > verificatio
     "rows": 64,
   },
   "exercisePlanItems": {
-    "digest": "2d958e8bc787149e",
+    "digest": "7bf7e7984ccecc44",
     "rows": 47,
   },
   "goalMonthStates": {
-    "digest": "622d1c9d212f5629",
+    "digest": "acd3b0a88c4febc9",
     "rows": 30,
   },
   "goals": {
-    "digest": "5acf2a95d0b374a3",
+    "digest": "4d77b35cbe3c2d0c",
     "rows": 5,
   },
   "gradedExposureHierarchies": {
-    "digest": "52d99decd25dbca8",
+    "digest": "8b6a479916c4464a",
     "rows": 1,
   },
   "habits": {
-    "digest": "e17cc4e6b739bf45",
+    "digest": "e8d24e66b50f1bb5",
     "rows": 10,
   },
   "ifsParts": {
-    "digest": "1e34c6cde4c8aa37",
+    "digest": "17d231b7073dd455",
     "rows": 2,
   },
   "journalEntries": {
-    "digest": "a10b3726affcc29c",
+    "digest": "a74e6934ba523d29",
     "rows": 16,
   },
   "keyResults": {
-    "digest": "abaf70be54d47339",
+    "digest": "62978df3f00aa9f8",
     "rows": 9,
   },
   "lifeAreas": {
-    "digest": "cc39571b1b5019b7",
+    "digest": "9013c85f6f8191a8",
     "rows": 4,
   },
   "measurementDayAssignments": {
-    "digest": "bf4db9fa29f3b6c0",
+    "digest": "841c6367593f3ca1",
     "rows": 301,
   },
   "measurementMonthStates": {
-    "digest": "41ec7c663987915c",
+    "digest": "e5298761a0be67b3",
     "rows": 143,
   },
   "measurementWeekStates": {
-    "digest": "f1df3d91aa63fd98",
+    "digest": "88a8a641608f04c9",
     "rows": 351,
   },
   "microExerciseEntries": {
@@ -208,43 +208,43 @@ exports[`dev seeds produce the same data as before (table digests) > verificatio
     "rows": 47,
   },
   "monthPlans": {
-    "digest": "dc52f2ddd8c2e6d9",
+    "digest": "7662c772699e540c",
     "rows": 7,
   },
   "monthlyReflections": {
-    "digest": "68184df01864bafa",
+    "digest": "623800dfe51b14c3",
     "rows": 6,
   },
   "periodObjectReflections": {
-    "digest": "3cdd007eb2ca0060",
+    "digest": "f287e70f954e5069",
     "rows": 42,
   },
   "priorities": {
-    "digest": "1b751d2be5205a98",
+    "digest": "eafe61c62e47f4af",
     "rows": 4,
   },
   "priorityLinks": {
-    "digest": "cd482bef61584db6",
+    "digest": "8c1ba2059704536c",
     "rows": 5,
   },
   "programEnrollments": {
-    "digest": "f488e27782a6dfef",
+    "digest": "077d84de81628e57",
     "rows": 5,
   },
   "trackers": {
-    "digest": "56cc505b38509c2e",
+    "digest": "73b89fbeffa19b15",
     "rows": 3,
   },
   "weekPlans": {
-    "digest": "af9479e93e29bd5c",
+    "digest": "9b290cface4cd8d3",
     "rows": 17,
   },
   "weeklyIntentions": {
-    "digest": "2384afbf2accd9ce",
+    "digest": "ae1b43517cee025d",
     "rows": 32,
   },
   "weeklyReflections": {
-    "digest": "37160012482307b5",
+    "digest": "8159d071054a3ce2",
     "rows": 15,
   },
 }

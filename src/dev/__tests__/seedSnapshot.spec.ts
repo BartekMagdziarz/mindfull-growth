@@ -16,7 +16,9 @@ import { seedVerificationData } from '@/dev/verificationSeed'
  * is replaced by a placeholder. Arrays of objects are sorted, because a few
  * of them (the closing snapshot's key results) follow IndexedDB's order of
  * UUID keys, which differs between runs; timestamps are stable because the
- * seeds only read the faked clock.
+ * seeds only read the faked clock. The frozen instant is given in UTC (`Z`):
+ * a local-time literal would freeze a different instant per time zone, and
+ * the CI runner (UTC) would then disagree with a developer's machine.
  */
 const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi
 
@@ -72,13 +74,13 @@ describe('dev seeds produce the same data as before (table digests)', () => {
   })
 
   it('verification seed (rich-v1) on 2026-10-17', async () => {
-    const snapshot = await runSeed(seedVerificationData, new Date('2026-10-17T10:00:00'))
+    const snapshot = await runSeed(seedVerificationData, new Date('2026-10-17T10:00:00Z'))
     expect(Object.keys(snapshot).length).toBeGreaterThan(20)
     expect(snapshot).toMatchSnapshot()
   }, 240_000)
 
   it('demo seed („Julia”) on 2026-10-17', async () => {
-    const snapshot = await runSeed(seedDemoData, new Date('2026-10-17T10:00:00'))
+    const snapshot = await runSeed(seedDemoData, new Date('2026-10-17T10:00:00Z'))
     expect(Object.keys(snapshot).length).toBeGreaterThan(20)
     expect(snapshot).toMatchSnapshot()
   }, 240_000)
