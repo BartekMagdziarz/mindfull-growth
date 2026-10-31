@@ -176,7 +176,10 @@ intro + Rozpocznij, the due practice, chips Zapisz moment · Mój plan · List o
 Postęp = `PathMomentsGlance` (parts × weeks small multiples, tone = strength 1–5, response
 discs / noticing bars / numbers table behind "Szczegóły") + `PathMeasureTracks` (one track
 per scale, first and latest measurement as discs, grids behind "Szczegóły";
-`features/program-path/outcomeSeries.ts`), `PathSentencesCard` and `PathKnowledgeCard`
+`features/program-path/outcomeSeries.ts`), `PathSentencesCard` (since 2026-10-31 a sentence
+can be hidden — quiet „Ukryj” chip right after it on hover/focus, list under „Ukryte (n)” with
+„Przywróć”; keys `entryId:source` in `ProgramEnrollment.hiddenSentences`, the micro entry is
+never edited or deleted) and `PathKnowledgeCard`
 (two titles, side drawer, `readCards` via `programEnrollmentStore.markCardRead`). Components
 live in `src/features/program-path/` with `program-path.css` as the shared vocabulary;
 `ProgramStepTile`, `ProgramPracticeRail`, `ProgramWeekPanel`, `ProgramMomentsRow` and

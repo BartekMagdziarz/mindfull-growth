@@ -226,6 +226,8 @@ export interface ProgramEnrollment {
   readCards?: string[]
   /** IFS parts the path offered to create that the user removed — not recreated. */
   partsDismissed?: string[]
+  /** "Moje zdania" the user hid from the path view (`ownSentenceKey`); the entries stay. */
+  hiddenSentences?: string[]
   createdAt: string
   updatedAt: string
 }
@@ -266,4 +268,5 @@ export interface UpdateProgramEnrollmentPayload {
   futureLetter?: { entryId: string; showAt: string; readAt?: string }
   readCards?: string[]
   partsDismissed?: string[]
+  hiddenSentences?: string[]
 }

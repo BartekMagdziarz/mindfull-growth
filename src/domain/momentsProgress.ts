@@ -268,6 +268,15 @@ const SENTENCE_SOURCES: Readonly<Record<MomentFamilyKind, readonly SentenceSourc
   anxiety: [],
 }
 
+/**
+ * Stable key of one "Moje zdania" sentence: the entry it came from plus the
+ * step source (one shame-response entry yields two sentences). Hiding stores
+ * this key on the enrollment; the micro entry itself is never edited.
+ */
+export function ownSentenceKey(sentence: Pick<OwnSentence, 'entryId' | 'source'>): string {
+  return `${sentence.entryId}:${sentence.source}`
+}
+
 function normalizeSentence(text: string): string {
   return text
     .trim()

@@ -3,6 +3,7 @@ import type { MicroExerciseEntry } from '@/domain/microExercises'
 import type { WeekRef } from '@/domain/period'
 import {
   collectOwnSentences,
+  ownSentenceKey,
   momentsProgress,
   partSummary,
   noticedShift,
@@ -163,6 +164,18 @@ describe('collectOwnSentences', () => {
       ['moment', 'Zapomniałeś raz.'],
     ])
     expect(collectOwnSentences(entries, 1)).toHaveLength(1)
+  })
+
+  it('keys a sentence by its entry and source, so one shame-response entry yields two keys', () => {
+    const own = collectOwnSentences([
+      entry(
+        'resp',
+        '2026-09-20T12:00:00',
+        { sentence: 'Widzę cię.', unblendSentence: 'To mój Krytyk mówi, nie ja.' },
+        'shame-response'
+      ),
+    ])
+    expect(own.map(ownSentenceKey)).toEqual(['resp:response', 'resp:unblend'])
   })
 })
 

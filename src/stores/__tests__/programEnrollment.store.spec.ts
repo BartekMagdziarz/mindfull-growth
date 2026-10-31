@@ -15,6 +15,7 @@ import { useProgramEnrollmentStore } from '@/stores/programEnrollment.store'
 vi.mock('@/repositories/programEnrollmentDexieRepository', () => ({
   programEnrollmentDexieRepository: {
     listAll: vi.fn(async () => [] as ProgramEnrollment[]),
+    update: vi.fn(),
   },
 }))
 
@@ -166,6 +167,29 @@ describe('useProgramEnrollmentStore', () => {
     await store.runScheduler()
 
     expect(planStore.items.map(i => i.id)).toEqual(['plan-sched'])
+  })
+
+  it('setSentenceHidden adds and removes the sentence key, and skips no-op writes', async () => {
+    const store = useProgramEnrollmentStore()
+    vi.mocked(programEnrollmentDexieRepository.listAll).mockResolvedValueOnce([enrollment()])
+    await store.ensureLoaded()
+    vi.mocked(programEnrollmentDexieRepository.update).mockImplementation(async (_id, patch) =>
+      enrollment(patch as Partial<ProgramEnrollment>)
+    )
+
+    await store.setSentenceHidden('enr-1', 'e1:image', true)
+    expect(programEnrollmentDexieRepository.update).toHaveBeenLastCalledWith('enr-1', {
+      hiddenSentences: ['e1:image'],
+    })
+    expect(store.enrollments[0]?.hiddenSentences).toEqual(['e1:image'])
+
+    await store.setSentenceHidden('enr-1', 'e1:image', true)
+    expect(programEnrollmentDexieRepository.update).toHaveBeenCalledTimes(1)
+
+    await store.setSentenceHidden('enr-1', 'e1:image', false)
+    expect(programEnrollmentDexieRepository.update).toHaveBeenLastCalledWith('enr-1', {
+      hiddenSentences: [],
+    })
   })
 
   it('reset clears everything', async () => {

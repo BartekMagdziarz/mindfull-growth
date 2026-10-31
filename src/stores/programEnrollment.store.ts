@@ -239,6 +239,22 @@ export const useProgramEnrollmentStore = defineStore('programEnrollment', () => 
     applyUpdate(updated)
   }
 
+  /** "Moje zdania": hide a sentence from the path view, or bring it back. Entries are never touched. */
+  async function setSentenceHidden(id: string, key: string, hidden: boolean): Promise<void> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    const current = enrollments.value.find(enrollment => enrollment.id === id)
+    if (!current) return
+    const keys = current.hiddenSentences ?? []
+    if (keys.includes(key) === hidden) return
+    const updated = await operation.wait(
+      programEnrollmentDexieRepository.update(id, {
+        hiddenSentences: hidden ? [...keys, key] : keys.filter(k => k !== key),
+      })
+    )
+    applyUpdate(updated)
+  }
+
   /** The letter to a future self was opened — "Najbliżej" shows it as read from now on. */
   async function markFutureLetterRead(id: string): Promise<void> {
     const operation = sessionScope.capture()
@@ -305,6 +321,7 @@ export const useProgramEnrollmentStore = defineStore('programEnrollment', () => 
     skipStep,
     undoStep,
     markCardRead,
+    setSentenceHidden,
     markFutureLetterRead,
     applyPracticeOverrides,
     runScheduler,

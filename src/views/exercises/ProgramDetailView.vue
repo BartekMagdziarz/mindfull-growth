@@ -174,6 +174,9 @@
           v-if="sentencesKind && enrollment"
           :entries="pathEntries"
           :kind="sentencesKind"
+          :hidden-keys="enrollment.hiddenSentences ?? []"
+          @hide="setSentenceHidden($event, true)"
+          @restore="setSentenceHidden($event, false)"
         />
 
         <PathKnowledgeCard
@@ -245,6 +248,7 @@ import { currentPhase as phaseOf, unloggedSeries } from '@/services/programWeekS
 import { useExercisePlanStore } from '@/stores/exercisePlan.store'
 import { useMicroExerciseEntryStore } from '@/stores/microExerciseEntry.store'
 import { useProgramEnrollmentStore } from '@/stores/programEnrollment.store'
+import { reportError } from '@/utils/reportError'
 import { formatDayShort } from '@/utils/periodLabels'
 import { addDaysToDayRef, getPeriodRefsForDate } from '@/utils/periods'
 import { programStepTitle } from '@/utils/programStepTitle'
@@ -638,6 +642,13 @@ async function handleSkip(): Promise<void> {
 async function handleUndo(): Promise<void> {
   const id = openEnrollment.value?.id
   if (id) await run(() => enrollmentStore.undoStep(id))
+}
+function setSentenceHidden(key: string, hidden: boolean): void {
+  const id = enrollment.value?.id
+  if (id)
+    void enrollmentStore
+      .setSentenceHidden(id, key, hidden)
+      .catch(err => reportError('programDetailView', err))
 }
 function markRead(key: string): void {
   const id = enrollment.value?.id
