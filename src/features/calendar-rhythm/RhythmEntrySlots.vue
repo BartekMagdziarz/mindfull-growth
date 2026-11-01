@@ -35,7 +35,7 @@ const label = computed(
   display: inline-block;
   width: 9px;
   height: 9px;
-  border-radius: 999px;
+  border-radius: var(--mg-radius-pill);
   background: var(--cp-mark-dim);
 }
 .entry-slots i.on {
@@ -46,7 +46,7 @@ const label = computed(
   display: inline-block;
   width: 34px;
   height: 8px;
-  border-radius: 4px;
+  border-radius: var(--mg-radius-sketch-a);
   background: var(--cp-card);
   overflow: hidden;
 }
@@ -55,7 +55,7 @@ const label = computed(
   left: 0;
   top: 0;
   bottom: 0;
-  border-radius: 4px;
+  border-radius: var(--mg-radius-sketch-b);
   background: var(--cp-accent);
 }
 .entry-bar i.none {

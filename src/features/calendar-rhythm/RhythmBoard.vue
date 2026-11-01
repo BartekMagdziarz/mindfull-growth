@@ -623,7 +623,7 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
   min-height: 40px;
   padding: 0 10px 0 6px;
   border: 1px solid var(--cp-line);
-  border-radius: 15px 12px 16px 13px;
+  border-radius: var(--mg-radius-sm);
   background: var(--cp-inner);
   color: var(--mg-color-ink);
   box-shadow: var(--mg-shadow-rhythm-card);
@@ -638,10 +638,10 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
   flex: none;
   width: 28px;
   height: 27px;
-  border-radius: 52% 48% 54% 46% / 47% 53% 46% 54%;
+  border-radius: var(--mg-radius-organic-a);
   color: var(--cp-mark);
   background: var(--cp-field);
-  font-size: 17px;
+  font-size: var(--mg-font-size-lg);
 }
 .rb-view__select {
   flex: 1;
@@ -651,7 +651,7 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
   background: transparent;
   color: inherit;
   font: inherit;
-  font-size: 14px;
+  font-size: var(--mg-font-size-sm);
   font-weight: 800;
   appearance: none;
   -webkit-appearance: none;
@@ -667,7 +667,7 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
 }
 .rb-view__chev {
   flex: none;
-  font-size: 18px;
+  font-size: var(--mg-font-size-lg);
   color: var(--mg-color-muted);
 }
 .rb-axis__track {
@@ -676,7 +676,7 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
   bottom: 0;
   left: calc(var(--pad) + var(--name) - 2px);
   right: calc(var(--pad) - 4px);
-  border-radius: 18px 15px 19px 16px;
+  border-radius: var(--mg-radius-md);
   background: var(--cp-card);
   box-shadow: var(--mg-shadow-inset-sm);
 }
@@ -692,18 +692,18 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
   margin: 4px 0;
   padding: 3px 4px;
   border: 1px solid transparent;
-  border-radius: 13px 16px 11px 17px;
+  border-radius: var(--mg-radius-sm);
   background: transparent;
   color: var(--mg-color-muted);
-  font-size: 12.5px;
+  font-size: var(--mg-font-size-xs);
   font-weight: 800;
   cursor: pointer;
 }
 .rb-axis__unit:nth-child(even) {
-  border-radius: 16px 12px 17px 13px;
+  border-radius: var(--mg-radius-sm);
 }
 .rb-board--year .rb-axis__unit {
-  font-size: 12px;
+  font-size: var(--mg-font-size-xs);
 }
 .rb-axis__unit:hover {
   background: var(--cp-field);
@@ -722,27 +722,27 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
   color: var(--mg-color-muted);
 }
 .rb-axis__unit strong {
-  font-size: 17px;
+  font-size: var(--mg-font-size-lg);
   color: var(--mg-color-ink);
 }
 .rb-sigma {
   display: grid;
   place-items: center;
   color: var(--mg-color-muted);
-  font-size: 12.5px;
+  font-size: var(--mg-font-size-xs);
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   overflow: hidden;
 }
 .rb-sigma--head {
   color: var(--mg-color-muted);
-  font-size: 11px;
+  font-size: var(--mg-font-size-xs);
   font-weight: 900;
   letter-spacing: 0.06em;
 }
 .rb-sigma__well {
   padding: 4px 9px;
-  border-radius: 11px 14px 10px 13px;
+  border-radius: var(--mg-radius-sm);
   background: var(--cp-field);
   white-space: nowrap;
 }
@@ -759,7 +759,7 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
 .rb-cloud {
   padding: 8px 0 8px;
   border: 1px solid var(--cp-line);
-  border-radius: 25px 30px 24px 28px;
+  border-radius: var(--mg-radius-lg);
   background: var(--cp-card);
   box-shadow: var(--mg-shadow-rhythm-card);
 }
@@ -770,7 +770,7 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
   min-width: 0;
   padding: 8px 8px;
   border: 0;
-  border-radius: 13px 17px 12px 16px;
+  border-radius: var(--mg-radius-sm);
   background: transparent;
   color: var(--mg-color-ink);
   font: inherit;
@@ -778,19 +778,19 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
 }
 .rb-name--series {
   padding-left: 14px;
-  font-size: 13.5px;
+  font-size: var(--mg-font-size-sm);
   font-weight: 700;
   color: var(--mg-color-ink);
 }
 .rb-name--series small {
   color: var(--mg-color-muted);
-  font-size: 11px;
+  font-size: var(--mg-font-size-chart);
   font-weight: 600;
 }
 .rb-name--sub {
   padding: 6px 8px 0 14px;
   color: var(--mg-color-muted);
-  font-size: 10px;
+  font-size: var(--mg-font-size-chart);
   font-weight: 900;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -817,15 +817,15 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
   flex: none;
   width: 31px;
   height: 30px;
-  border-radius: 52% 48% 54% 46% / 47% 53% 46% 54%;
+  border-radius: var(--mg-radius-organic-b);
   color: var(--cp-mark);
   background: var(--cp-inner);
-  font-size: 19px;
+  font-size: var(--mg-font-size-lg);
 }
 .rb-name__icon--small {
   width: 25px;
   height: 24px;
-  font-size: 15px;
+  font-size: var(--mg-font-size-md);
 }
 
 .rb-cell {
@@ -833,13 +833,13 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
   place-items: center;
   min-height: 46px;
   border: 0;
-  border-radius: 12px 16px 10px 14px;
+  border-radius: var(--mg-radius-sm);
   background: transparent;
   color: var(--mg-color-ink);
   cursor: pointer;
 }
 .rb-cell:nth-child(even) {
-  border-radius: 15px 11px 14px 12px;
+  border-radius: var(--mg-radius-sm);
 }
 .rb-cell:hover {
   background: var(--cp-field);
@@ -852,7 +852,7 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
 }
 .rb-name--focus {
   padding-left: 14px;
-  font-size: 14px;
+  font-size: var(--mg-font-size-sm);
   font-weight: 800;
 }
 .rb-focus-band {
@@ -863,12 +863,12 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
   max-width: 170px;
   height: 22px;
   border: 1px solid var(--cp-edge-strong);
-  border-radius: 9px 13px 8px 11px;
+  border-radius: var(--mg-radius-sm);
   background: var(--cp-inner);
   box-shadow: var(--mg-shadow-raised-sm);
 }
 .rb-focus-band .material-symbols-outlined {
-  font-size: 14px;
+  font-size: var(--mg-font-size-sm);
 }
 .rb-focus-gap {
   width: calc(100% - 18px);
@@ -912,7 +912,7 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
 .rb-series--plot .rb-cell--series {
   position: relative;
   min-height: 104px;
-  border-radius: 10px;
+  border-radius: var(--mg-radius-sm);
 }
 .rb-series--plot .rb-cell--series:hover {
   background: var(--cp-field);
@@ -944,7 +944,7 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
   bottom: 8px;
   transform: translateX(-50%);
   color: var(--cp-accent-strong);
-  font-size: 16px;
+  font-size: var(--mg-font-size-md);
   line-height: 1;
 }
 .rb-readout {
@@ -955,11 +955,11 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
   bottom: 4px;
   transform: translate(-50%, 0);
   padding: 3px 8px;
-  border-radius: 8px 10px 7px 11px;
+  border-radius: var(--mg-radius-xs);
   background: var(--mg-color-ink);
   color: var(--mg-color-on-primary);
   white-space: nowrap;
-  font-size: 11.5px;
+  font-size: var(--mg-font-size-xs);
   font-weight: 700;
   pointer-events: none;
   box-shadow: var(--mg-shadow-raised-sm);
@@ -979,7 +979,7 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
   justify-content: space-between;
   margin-right: 8px;
   color: var(--mg-color-muted);
-  font-size: 10px;
+  font-size: var(--mg-font-size-chart);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   text-align: right;
@@ -1004,7 +1004,7 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
   width: 25px;
   height: 24px;
   border: 1px solid var(--cp-line);
-  border-radius: 52% 48% 54% 46% / 47% 53% 46% 54%;
+  border-radius: var(--mg-radius-organic-c);
   background: var(--cp-inner);
   color: var(--cp-mark);
   opacity: 0;
@@ -1013,7 +1013,7 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
   transition: opacity 0.12s;
 }
 .rb-zoom .material-symbols-outlined {
-  font-size: 15px;
+  font-size: var(--mg-font-size-md);
 }
 .rb-series:hover .rb-zoom,
 .rb-zoom:focus-visible,
@@ -1039,7 +1039,7 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
 .rb-note {
   min-height: 44px;
   color: var(--mg-color-muted);
-  font-size: 13.5px;
+  font-size: var(--mg-font-size-sm);
 }
 .rb-note span {
   grid-column: 1 / -1;
@@ -1063,12 +1063,12 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
   align-items: baseline;
   gap: 8px;
   color: var(--mg-color-ink);
-  font-size: 15px;
+  font-size: var(--mg-font-size-md);
   font-weight: 800;
 }
 .rb-refl__title small {
   color: var(--mg-color-muted);
-  font-size: 12.5px;
+  font-size: var(--mg-font-size-xs);
   font-weight: 700;
 }
 .rb-refl__anchors {
@@ -1085,27 +1085,27 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
   background: var(--cp-field);
 }
 .rb-refl__anchor:nth-child(2) {
-  border-radius: 14px 18px 15px 17px;
+  border-radius: var(--mg-radius-md);
 }
 .rb-refl__eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 7px;
   color: var(--cp-mark);
-  font-size: 11px;
+  font-size: var(--mg-font-size-xs);
   font-weight: 900;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 .rb-refl__eyebrow .material-symbols-outlined {
-  font-size: 16px;
+  font-size: var(--mg-font-size-icon-sm);
 }
 .rb-refl__anchor p {
   margin: 0;
   padding-left: 12px;
   border-left: 2px solid var(--mg-color-state-soft);
   color: var(--mg-color-ink);
-  font-size: 13.5px;
+  font-size: var(--mg-font-size-sm);
   line-height: 1.5;
 }
 .rb-refl__anchor--hard p {
@@ -1123,7 +1123,7 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
   margin: 0;
   max-width: 78ch;
   color: var(--mg-color-ink);
-  font-size: 14.5px;
+  font-size: var(--mg-font-size-md);
   line-height: 1.7;
   white-space: pre-line;
 }
@@ -1131,7 +1131,7 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
   display: grid;
   gap: 6px;
   padding: 12px 16px 12px;
-  border-radius: 14px 18px 15px 17px;
+  border-radius: var(--mg-radius-md);
   background: var(--cp-field);
 }
 .rb-refl__verdicts ul {
@@ -1146,20 +1146,20 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
   gap: 14px;
   align-items: baseline;
   padding: 6px 0;
-  font-size: 13.5px;
+  font-size: var(--mg-font-size-sm);
 }
 .rb-refl__verdicts li + li {
   border-top: 1px dashed var(--cp-line);
 }
 .rb-refl__verdicts small {
   color: var(--mg-color-muted);
-  font-size: 12px;
+  font-size: var(--mg-font-size-xs);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 .rb-refl__verdicts em {
   color: var(--cp-mark);
-  font-size: 12px;
+  font-size: var(--mg-font-size-xs);
   font-style: normal;
   font-weight: 800;
   text-align: right;
@@ -1173,6 +1173,6 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
 .rb-refl__none {
   margin: 0;
   color: var(--mg-color-muted);
-  font-size: 13.5px;
+  font-size: var(--mg-font-size-sm);
 }
 </style>

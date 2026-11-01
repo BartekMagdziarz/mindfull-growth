@@ -389,3 +389,15 @@ fallback `#b3261e` → `--mg-color-danger`.
 Konsekwencje: zrzuty wszystkich kroków rytuałów przy 1512 × 982 @2x — układ bez
 zmian, drobne korekty rozmiarów (etykiety +1 px, nazwy wierszy −1 px); dług
 strażnika 1741 → 1511.
+
+## 2026-11-01 — K2, partia 2: Dzisiaj, kalendarz rytmu, rytuał zamknięcia celu
+
+Te same reguły co partia 1 (także rozmiary w `rem`) na `planning-next.css`,
+komponentach `calendar-rhythm/` i `goal-closing.css`. Wyjątki ustalone na zrzutach:
+nagłówek grupy tabeli rytmu (`.rb-name--sub`, wersaliki 0,12 em) i podpisy serii
+(`.rb-name--series small`) zostają na `chart` (11 px) — przy `xs` zawijały się w wąskiej
+kolumnie nazw. Pierścień „dziś” na kaflu Najbliżej → nowy token
+`--mg-shadow-current-ring` (na wzór `--mg-shadow-stepper-halo`).
+Konsekwencje: podpisy kafli Najbliżej i Ścieżek w Dzisiaj rosną z 9,6–10,6 px do
+12 px (minimum tekstu UI), kafle są nieco wyższe; reszta układu bez zmian. Dług
+strażnika 1511 → 1345.

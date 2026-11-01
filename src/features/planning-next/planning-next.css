@@ -76,7 +76,7 @@
   display: block;
   height: 3px;
   overflow: hidden;
-  border-radius: 0 0 3px 3px;
+  border-radius: var(--mg-radius-sketch-a);
   background: var(--mg-color-border);
 }
 
@@ -496,7 +496,7 @@
 .next-day-cal__month-head {
   padding-bottom: 2px;
   color: var(--mg-color-muted);
-  font-size: 0.6rem;
+  font-size: var(--mg-font-size-xs);
   font-weight: 850;
   letter-spacing: 0.1em;
   text-align: center;
@@ -522,7 +522,7 @@
 
 .next-day-cal__day small {
   color: var(--mg-color-muted);
-  font-size: 0.6rem;
+  font-size: var(--mg-font-size-xs);
   font-weight: 850;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -617,7 +617,7 @@
   padding-top: 2px;
   border-top: 1px solid var(--mg-color-border);
   color: var(--mg-color-muted);
-  font-size: 0.6rem;
+  font-size: var(--mg-font-size-xs);
   font-weight: 750;
 }
 
@@ -667,7 +667,7 @@
   -webkit-line-clamp: 2;
   overflow: hidden;
   max-width: 100%;
-  font-size: 0.66rem;
+  font-size: var(--mg-font-size-xs);
   font-weight: 800;
   line-height: 1.25;
 }
@@ -777,7 +777,7 @@
 
 .next-day-add__types button {
   color: var(--mg-color-primary-strong);
-  font-size: 0.66rem;
+  font-size: var(--mg-font-size-xs);
   font-weight: 850;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -816,7 +816,7 @@
   border: 0;
   background: transparent;
   color: var(--mg-color-ink);
-  border-radius: 13px 16px 12px 15px;
+  border-radius: var(--mg-radius-sm);
   padding: 7px;
   cursor: pointer;
   font: inherit;
@@ -832,7 +832,7 @@
   cursor: default;
 }
 .day-plan-calendar .material-symbols-outlined {
-  font-size: 20px;
+  font-size: var(--mg-font-size-icon-lg);
   color: var(--mg-color-primary-strong);
 }
 .day-plan-calendar__header {
@@ -842,20 +842,20 @@
   gap: 12px;
 }
 .day-plan-calendar__header strong {
-  font-size: 16px;
+  font-size: var(--mg-font-size-md);
 }
 .day-plan-calendar__header button {
-  font-size: 12px;
+  font-size: var(--mg-font-size-xs);
 }
 .day-plan-calendar__period {
   display: flex;
   gap: 8px;
   align-items: center;
   margin: 8px 0;
-  font-size: 12px;
+  font-size: var(--mg-font-size-xs);
 }
 .day-plan-calendar__selection {
-  font-size: 12px;
+  font-size: var(--mg-font-size-xs);
   margin: 8px 0;
   font-weight: 700;
 }
@@ -869,7 +869,7 @@
   gap: 4px;
 }
 .day-plan-calendar__days small {
-  font-size: 11px;
+  font-size: var(--mg-font-size-xs);
 }
 .day-plan-calendar__days button[aria-pressed='true'] {
   background: var(--mg-color-paper);
@@ -911,23 +911,23 @@
   flex-direction: column;
   gap: 8px;
   padding: 10px;
-  border-radius: 18px;
+  border-radius: var(--mg-radius-md);
   background: var(--mg-color-mist);
   min-height: 230px;
 }
 .week-plan-board__days > section > strong {
-  font-size: 12px;
+  font-size: var(--mg-font-size-xs);
   text-align: center;
 }
 .week-plan-board__days > section > button {
   background: var(--mg-color-paper);
-  font-size: 12px;
+  font-size: var(--mg-font-size-xs);
   text-align: left;
   display: block;
   overflow-wrap: anywhere;
 }
 .week-plan-board__days small {
-  font-size: 11px;
+  font-size: var(--mg-font-size-chart);
 }
 .week-plan-board__days .material-symbols-outlined {
   display: block;
@@ -938,7 +938,7 @@
   flex-wrap: wrap;
   gap: 12px;
   padding: 18px 0 6px;
-  font-size: 12px;
+  font-size: var(--mg-font-size-xs);
 }
 .week-plan-board__editor {
   display: flex;
@@ -948,25 +948,25 @@
   padding: 16px;
   margin-top: 16px;
   background: var(--mg-color-mist);
-  border-radius: 16px;
+  border-radius: var(--mg-radius-md);
 }
 .week-plan-board__editor label {
   display: grid;
   gap: 6px;
-  font-size: 12px;
+  font-size: var(--mg-font-size-xs);
 }
 .week-plan-board__editor input,
 .week-plan-board__editor select {
   padding: 9px;
   border: 0;
-  border-radius: 10px;
+  border-radius: var(--mg-radius-sm);
   background: var(--mg-color-paper);
   max-width: 320px;
 }
 .week-plan-board [role='status'],
 .week-plan-board [role='alert'] {
   margin-top: 14px;
-  font-size: 13px;
+  font-size: var(--mg-font-size-sm);
 }
 
 .today-calendar-layout {
@@ -1005,7 +1005,7 @@
 }
 .week-plan-board__flex > button {
   background: var(--mg-color-paper);
-  font-size: 12px;
+  font-size: var(--mg-font-size-xs);
 }
 
 .planning-next--today {
@@ -1055,7 +1055,7 @@ main:has(> .planning-next--today) {
 .day-plan-drag-preview .ndi {
   margin: 0;
   background: var(--mg-color-paper);
-  border-radius: 16px;
+  border-radius: var(--mg-radius-md);
   box-shadow: var(--mg-shadow-drag-preview);
   outline: 1px solid color-mix(in srgb, var(--mg-color-primary-strong) 25%, transparent);
 }
@@ -1186,7 +1186,7 @@ main:has(> .planning-next--today) {
   padding: var(--mg-space-2) var(--mg-space-1);
 }
 .next-day-toolbar .next-day-entries__tile small {
-  font-size: 0.66rem;
+  font-size: var(--mg-font-size-xs);
   line-height: 1.25;
   white-space: normal;
   text-align: center;
@@ -1386,7 +1386,7 @@ main:has(> .planning-next--today) {
 .ndt--today {
   border-color: var(--mg-color-primary-soft);
   background: var(--mg-color-paper);
-  box-shadow: 0 0 0 3px var(--mg-color-primary-soft);
+  box-shadow: var(--mg-shadow-current-ring);
 }
 
 .ndt--today .ndt__title {
@@ -1419,14 +1419,14 @@ main:has(> .planning-next--today) {
   flex: 0 0 auto;
   max-width: 100%;
   padding-top: 0;
-  font-size: 0.66rem;
+  font-size: var(--mg-font-size-xs);
   font-weight: 800;
   line-height: 1.25;
 }
 
 .next-day-upcoming .ndt__mark {
   margin-top: auto;
-  font-size: 0.62rem;
+  font-size: var(--mg-font-size-xs);
 }
 
 .next-day-upcoming__glyph {
@@ -1438,7 +1438,8 @@ main:has(> .planning-next--today) {
   border-radius: var(--mg-radius-icon-field-a);
   color: color-mix(in srgb, var(--mg-color-muted) 70%, transparent);
   background: color-mix(in srgb, var(--mg-color-muted) 5%, var(--mg-color-mist));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--mg-color-border) 85%, transparent);
+  outline: 1px solid color-mix(in srgb, var(--mg-color-border) 85%, transparent);
+  outline-offset: -1px;
   transition:
     color var(--mg-duration-fast) var(--mg-ease-standard),
     background var(--mg-duration-fast) var(--mg-ease-standard);
@@ -1660,7 +1661,8 @@ main:has(> .planning-next--today) {
   margin-bottom: 2px;
   border-radius: var(--mg-radius-icon-field-a);
   background: color-mix(in srgb, var(--mg-color-muted) 5%, var(--mg-color-mist));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--mg-color-border) 85%, transparent);
+  outline: 1px solid color-mix(in srgb, var(--mg-color-border) 85%, transparent);
+  outline-offset: -1px;
   color: color-mix(in srgb, var(--mg-color-muted) 70%, transparent);
   transition: color var(--mg-duration-fast) var(--mg-ease-standard);
 }
@@ -1676,7 +1678,7 @@ main:has(> .planning-next--today) {
 .ndpath__step .ndpath__text,
 .ndpath__moment .ndpath__text {
   max-width: 100%;
-  font-size: 0.66rem;
+  font-size: var(--mg-font-size-xs);
   font-weight: 800;
   line-height: 1.25;
 }
@@ -1684,12 +1686,12 @@ main:has(> .planning-next--today) {
 .ndpath__step .ndpath__when,
 .ndpath__moment .ndpath__when {
   align-self: end;
-  font-size: 0.62rem;
+  font-size: var(--mg-font-size-xs);
 }
 
 .ndpath__eyebrow {
   color: var(--mg-color-muted);
-  font-size: 0.66rem;
+  font-size: var(--mg-font-size-xs);
   font-weight: 850;
   letter-spacing: 0.1em;
   text-transform: uppercase;

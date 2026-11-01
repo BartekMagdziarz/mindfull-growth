@@ -325,14 +325,14 @@ function pct(value: number | null): number {
 }
 .ps__eyebrow {
   color: var(--cp-mark);
-  font-size: 11px;
+  font-size: var(--mg-font-size-xs);
   font-weight: 900;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 .ps__eyebrow small {
   color: var(--mg-color-muted);
-  font-size: 11px;
+  font-size: var(--mg-font-size-xs);
   letter-spacing: 0;
   text-transform: none;
 }
@@ -356,11 +356,11 @@ function pct(value: number | null): number {
   max-width: 260px;
   padding: 3px 12px 3px 4px;
   border: 1px solid var(--cp-line);
-  border-radius: 17px 14px 18px 15px;
+  border-radius: var(--mg-radius-md);
   background: var(--cp-inner);
   color: var(--mg-color-ink);
   font: inherit;
-  font-size: 13.5px;
+  font-size: var(--mg-font-size-sm);
   font-weight: 800;
   text-align: left;
   cursor: pointer;
@@ -378,7 +378,7 @@ function pct(value: number | null): number {
   flex: none;
   width: 30px;
   height: 29px;
-  border-radius: 52% 48% 54% 46% / 47% 53% 46% 54%;
+  border-radius: var(--mg-radius-organic-a);
   color: var(--cp-mark);
   background: var(--cp-inner);
 }
@@ -388,18 +388,18 @@ function pct(value: number | null): number {
   flex: none;
   width: 30px;
   height: 29px;
-  border-radius: 52% 48% 54% 46% / 47% 53% 46% 54%;
+  border-radius: var(--mg-radius-organic-b);
   color: var(--cp-mark);
   background: var(--cp-inner);
 }
 .ps__orb .material-symbols-outlined {
-  font-size: 18px;
+  font-size: var(--mg-font-size-icon-md);
 }
 .ps__toggle {
   flex: none;
 }
 .ps__empty {
-  font-size: 13px;
+  font-size: var(--mg-font-size-sm);
   color: var(--mg-color-muted);
   margin: 0;
 }
@@ -439,7 +439,7 @@ function pct(value: number | null): number {
   width: 30px;
   height: 29px;
   border: 0;
-  border-radius: 52% 48% 54% 46% / 47% 53% 46% 54%;
+  border-radius: var(--mg-radius-organic-c);
   background: transparent;
   color: var(--mg-color-muted);
   cursor: pointer;
@@ -450,7 +450,7 @@ function pct(value: number | null): number {
   color: var(--mg-color-ink);
 }
 .ps__drill .material-symbols-outlined {
-  font-size: 17px;
+  font-size: var(--mg-font-size-icon-md);
 }
 .ps__bars {
   display: grid;
@@ -478,13 +478,13 @@ function pct(value: number | null): number {
   display: inline-block;
   width: 22px;
   min-height: 3px;
-  border-radius: 9px 7px 3px 4px / 8px 9px 3px 3px;
+  border-radius: var(--mg-radius-sketch-a);
   background: var(--cp-accent);
   transform: rotate(-1.2deg);
 }
 .ps__col i:nth-child(even) {
   transform: rotate(1deg);
-  border-radius: 7px 9px 4px 3px / 9px 8px 3px 3px;
+  border-radius: var(--mg-radius-sketch-b);
 }
 .ps__bars--pairs {
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -505,7 +505,7 @@ function pct(value: number | null): number {
   color: var(--mg-color-muted);
 }
 .ps__bars.ps__bars--pairs small {
-  font-size: 11.5px;
+  font-size: var(--mg-font-size-xs);
 }
 /* miesiąc: kompas w tej samej wysokości co pary tygodnia */
 .ps__bars--tall {
@@ -521,7 +521,7 @@ function pct(value: number | null): number {
   color: var(--mg-color-muted);
 }
 .ps__bars.ps__bars--tall small {
-  font-size: 11.5px;
+  font-size: var(--mg-font-size-xs);
 }
 .ps__col .l {
   background: rgb(var(--sky-800));
@@ -560,11 +560,11 @@ function pct(value: number | null): number {
   align-items: center;
   gap: 6px;
   color: var(--mg-color-muted);
-  font-size: 11.5px;
+  font-size: var(--mg-font-size-xs);
   font-weight: 800;
 }
 .ps__multiple > span .material-symbols-outlined {
-  font-size: 15px;
+  font-size: var(--mg-font-size-md);
   color: var(--cp-mark);
 }
 .ps__col i.none {
@@ -577,13 +577,13 @@ function pct(value: number | null): number {
   bottom: 100%;
   transform: translate(-50%, -2px);
   color: var(--mg-color-ink);
-  font-size: 10.5px;
+  font-size: var(--mg-font-size-xs);
   font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
 .ps__bars small {
   color: var(--mg-color-muted);
-  font-size: 10.5px;
+  font-size: var(--mg-font-size-chart);
   font-weight: 800;
   text-align: center;
 }
@@ -592,19 +592,19 @@ function pct(value: number | null): number {
   align-items: center;
   gap: 6px;
   color: var(--mg-color-muted);
-  font-size: 11px;
+  font-size: var(--mg-font-size-chart);
   font-weight: 800;
 }
 .ps__legend i {
   display: inline-block;
   width: 8px;
   height: 8px;
-  border-radius: 3px 2px 3px 2px;
+  border-radius: var(--mg-radius-sketch-c);
 }
 .ps__none {
   margin: 4px 0 0;
   color: var(--mg-color-muted);
-  font-size: 14px;
+  font-size: var(--mg-font-size-sm);
 }
 .ps__hero--empty {
   align-content: start;
@@ -644,14 +644,14 @@ function pct(value: number | null): number {
   background: var(--cp-field);
 }
 .ps__tile:nth-child(even) {
-  border-radius: 14px 18px 15px 17px;
+  border-radius: var(--mg-radius-md);
 }
 .ps__tile--none .ps__tile-label {
   color: var(--mg-color-muted);
 }
 .ps__tile-label {
   color: var(--mg-color-ink);
-  font-size: 16px;
+  font-size: var(--mg-font-size-md);
   font-weight: 800;
   letter-spacing: 0.01em;
 }
@@ -689,13 +689,13 @@ function pct(value: number | null): number {
   align-items: baseline;
   white-space: nowrap;
   color: var(--mg-color-ink);
-  font-size: 12px;
+  font-size: var(--mg-font-size-xs);
   font-weight: 900;
   font-variant-numeric: tabular-nums;
 }
 .ps__pct span {
   color: var(--mg-color-muted);
-  font-size: 8px;
+  font-size: var(--mg-font-size-xs);
 }
 .ps__dash {
   color: var(--mg-color-muted);
@@ -708,13 +708,13 @@ function pct(value: number | null): number {
   padding-left: 12px;
   border-left: 2px solid var(--mg-color-state-soft);
   color: var(--mg-color-ink);
-  font-size: 14px;
+  font-size: var(--mg-font-size-sm);
   line-height: 1.5;
 }
 .ps__quote span {
   flex: none;
   color: var(--mg-color-muted);
-  font-size: 12px;
+  font-size: var(--mg-font-size-xs);
   font-weight: 700;
 }
 
@@ -727,12 +727,12 @@ function pct(value: number | null): number {
 }
 h4 {
   margin: 0 0 6px;
-  font-size: 18px;
+  font-size: var(--mg-font-size-lg);
 }
 .ps__narrative p {
   margin: 0;
   max-width: 70ch;
-  font-size: 14px;
+  font-size: var(--mg-font-size-sm);
   line-height: 1.7;
 }
 </style>

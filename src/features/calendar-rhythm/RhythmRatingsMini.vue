@@ -61,7 +61,7 @@ const label = computed(() =>
 .ratings-mini__pair i {
   display: inline-block;
   width: 6px;
-  border-radius: 2px 2px 0 0;
+  border-radius: var(--mg-radius-sketch-a);
   min-height: 0;
 }
 .ratings-mini--lg .ratings-mini__pair i {

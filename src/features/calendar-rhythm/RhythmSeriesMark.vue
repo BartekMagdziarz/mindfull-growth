@@ -106,7 +106,7 @@ function scaleY(value: number): number {
 .sm-faint::after {
   width: 9px;
   height: 9px;
-  border-radius: 45% 55% 47% 53%;
+  border-radius: var(--mg-radius-organic-a);
   background: rgb(var(--sky-400) / 0.38);
   content: '';
 }
@@ -127,7 +127,7 @@ function scaleY(value: number): number {
   left: 7px;
   bottom: 0;
   width: 16px;
-  border-radius: 4px 4px 0 0;
+  border-radius: var(--mg-radius-sketch-a);
   background: var(--cp-accent);
   min-height: 2px;
 }
@@ -144,7 +144,7 @@ function scaleY(value: number): number {
   width: 12px;
   height: 12px;
   border: 2px solid var(--cp-accent-strong);
-  border-radius: 999px;
+  border-radius: var(--mg-radius-pill);
   box-sizing: border-box;
 }
 .sm-bar__none {

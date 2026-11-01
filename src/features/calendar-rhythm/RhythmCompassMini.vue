@@ -44,7 +44,7 @@ const label = computed(() =>
 .compass-bars i {
   display: inline-block;
   width: 5px;
-  border-radius: 2px 2px 0 0;
+  border-radius: var(--mg-radius-sketch-a);
   background: var(--cp-accent);
   min-height: 2px;
 }
@@ -64,7 +64,7 @@ const label = computed(() =>
 }
 .compass-mini__axis small {
   color: var(--mg-color-muted);
-  font-size: 11px;
+  font-size: var(--mg-font-size-chart);
   font-weight: 700;
 }
 .compass-mini__axis b {
@@ -75,7 +75,7 @@ const label = computed(() =>
   display: inline-block;
   width: 5px;
   height: 11px;
-  border-radius: 2px;
+  border-radius: var(--mg-radius-sketch-b);
   background: var(--cp-mark-dim);
 }
 .compass-mini--labels .compass-mini__axis i {

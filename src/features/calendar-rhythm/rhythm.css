@@ -72,7 +72,7 @@
 }
 .cp__date h2 {
   margin: 0 8px;
-  font-size: 22px;
+  font-size: var(--mg-font-size-xl);
   font-weight: 800;
 }
 .cp__arrow {
@@ -107,7 +107,7 @@
   display: inline-flex;
   gap: 4px;
   padding: 4px;
-  border-radius: 18px 15px 19px 16px;
+  border-radius: var(--mg-radius-md);
   background: var(--cp-card);
   box-shadow: var(--mg-shadow-inset-sm);
 }
@@ -115,11 +115,11 @@
   min-height: 36px;
   padding: 0 14px;
   border: 1px solid transparent;
-  border-radius: 12px 15px 11px 16px;
+  border-radius: var(--mg-radius-sm);
   background: transparent;
   color: var(--mg-color-muted);
   font: inherit;
-  font-size: 13.5px;
+  font-size: var(--mg-font-size-sm);
   font-weight: 700;
   cursor: pointer;
 }
@@ -144,7 +144,7 @@
   background: var(--cp-inner);
   color: var(--mg-color-ink);
   font: inherit;
-  font-size: 13.5px;
+  font-size: var(--mg-font-size-sm);
   font-weight: 800;
   cursor: pointer;
   box-shadow: var(--mg-shadow-rhythm-card);
@@ -153,7 +153,7 @@
   background: var(--cp-inner);
 }
 .cp-btn .material-symbols-outlined {
-  font-size: 18px;
+  font-size: var(--mg-font-size-icon-md);
   color: var(--cp-accent-strong);
 }
 .cp-btn--quiet {
@@ -176,7 +176,7 @@
   position: relative;
   width: 21px;
   height: 20px;
-  border-radius: 48% 52% 44% 56% / 54% 44% 56% 46%;
+  border-radius: var(--mg-radius-organic-a);
   background: var(--cp-inner);
   box-shadow: var(--mg-shadow-raised-sm);
 }
@@ -184,7 +184,7 @@
   content: '';
   position: absolute;
   inset: 5px 5px 4px 4px;
-  border-radius: 48% 52% 44% 56%;
+  border-radius: var(--mg-radius-organic-b);
   background: var(--mg-color-ink);
   transform: rotate(-2deg);
 }
@@ -197,7 +197,7 @@
   border-bottom-color: var(--cp-line-strong);
 }
 .cp .sm-bar__value {
-  border-radius: 6px 4px 1px 2px;
+  border-radius: var(--mg-radius-sketch-a);
   background: var(--cp-accent);
   transform: rotate(-0.7deg);
 }
@@ -207,7 +207,7 @@
 .cp .compass-mini__axis i,
 .cp .compass-bars i,
 .cp .ratings-mini__pair i {
-  border-radius: 4px 3px 2px 1px;
+  border-radius: var(--mg-radius-sketch-b);
   transform: rotate(-1.1deg);
 }
 .cp .compass-mini__axis i:nth-child(even),

@@ -117,6 +117,8 @@
   --mg-shadow-inset-sm: inset 0 1px 2px rgb(var(--sky-700) / 0.1);
   /* Paper halo around the current stepper dot (sketch marker on a sheet). */
   --mg-shadow-stepper-halo: 0 0 0 3px var(--mg-color-paper);
+  /* The ring marking „today” on a tile (Najbliżej). */
+  --mg-shadow-current-ring: 0 0 0 3px var(--mg-color-primary-soft);
   --mg-shadow-drag-preview: 0 18px 38px color-mix(in srgb, var(--mg-color-ink) 18%, transparent);
   --mg-shadow-drop-target: 0 6px 14px
     color-mix(in srgb, var(--mg-color-primary-strong) 18%, transparent);
