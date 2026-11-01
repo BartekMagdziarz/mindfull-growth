@@ -222,7 +222,7 @@ const legendHead = computed(() => {
 
 <style scoped>
 .pc {
-  --ink: color-mix(in srgb, rgb(var(--sky-800)) 38%, transparent);
+  --ink: var(--mg-color-data-ink-soft);
   --pencil: color-mix(in srgb, var(--mg-color-muted) 58%, transparent);
   --col-h: 5.1rem;
   display: grid;

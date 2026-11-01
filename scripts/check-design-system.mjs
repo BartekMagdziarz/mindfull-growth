@@ -47,8 +47,8 @@ const exemptPaths = [
 const exemptRules = {
   'src/domain/emotionGroups.ts': ['rawColor'], // dane domenowe koła emocji (K2: tokeny)
   'src/domain/emotionFamily.ts': ['rawColor'], // j.w.
-  'src/features/program-path/partColors.ts': ['rawColor'], // kolory części IFS (K2)
-  'src/utils/ratingGradient.ts': ['rawColor'], // rampy ocen czytane z tokenów produktu
+  'src/features/program-path/partColors.ts': ['rawColor', 'rawSky'], // kolory części IFS (K2)
+  'src/domain/loadState.ts': ['rawSky'], // paleta pary obciążenie/stan (D10), kanały dla alf
 }
 
 const rules = {
@@ -57,6 +57,10 @@ const rules = {
     test: line =>
       /(?<![\w&"'=#/])#[0-9a-f]{3,8}\b|\b(?:rgb|hsl)a?\s*\((?!\s*var\()/i.test(line) &&
       !/href=["']#|url\(#|#app\b|#\{|\.hash|location\.|router|mask\s*:/i.test(line),
+  },
+  rawSky: {
+    label: 'surowy odcień --sky-N (użyj tokenu: data-*, state, sky-field, surface…)',
+    test: line => /var\(--sky-\d/.test(line),
   },
   localShadow: {
     label: 'lokalny cień',

@@ -75,9 +75,9 @@ const isActive = (path: string): boolean => {
    palette directly and mirrors the V2 ladder: capsule = card (sky-100, the
    only shadow), hover = field (white 45%), active = inner (white 80%). */
 .dock {
-  --dock-card: rgb(var(--sky-100));
-  --dock-field: color-mix(in srgb, white 45%, rgb(var(--sky-100)));
-  --dock-inner: color-mix(in srgb, white 80%, rgb(var(--sky-100)));
+  --dock-card: var(--mg-color-surface);
+  --dock-field: var(--mg-color-mist);
+  --dock-inner: var(--mg-color-paper);
   --dock-line: rgb(var(--neo-border) / 0.14);
   --dock-shadow:
     -5px -5px 11px rgb(var(--neo-shadow-light) / 0.7),
@@ -196,7 +196,7 @@ const isActive = (path: string): boolean => {
 
 .dock-item:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgb(var(--sky-400) / 0.42);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--mg-color-data-fill) 50%, transparent);
 }
 
 /* Icons inside controls follow the app accent — never ink/grey. */

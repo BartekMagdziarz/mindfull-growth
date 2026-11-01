@@ -81,10 +81,10 @@ const aria = computed(
   transform: rotate(1deg);
 }
 .ls-bars__load {
-  background: rgb(var(--sky-800));
+  background: var(--mg-color-data-ink);
 }
 .ls-bars__state {
-  background: rgb(var(--sky-500));
+  background: var(--mg-color-load-neutral);
 }
 .ls-bars__pair i.none {
   background: rgb(var(--neo-border) / 0.5);

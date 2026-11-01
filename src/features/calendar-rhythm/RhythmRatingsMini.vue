@@ -68,9 +68,9 @@ const label = computed(() =>
   width: 9px;
 }
 .ratings-mini__load {
-  background: rgb(var(--sky-800));
+  background: var(--mg-color-data-ink);
 }
 .ratings-mini__state {
-  background: rgb(var(--sky-500));
+  background: var(--mg-color-load-neutral);
 }
 </style>

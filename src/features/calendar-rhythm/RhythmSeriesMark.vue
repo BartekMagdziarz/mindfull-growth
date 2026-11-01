@@ -107,7 +107,7 @@ function scaleY(value: number): number {
   width: 9px;
   height: 9px;
   border-radius: var(--mg-radius-organic-a);
-  background: rgb(var(--sky-400) / 0.38);
+  background: color-mix(in srgb, var(--mg-color-data-fill) 45%, transparent);
   content: '';
 }
 .sm-wells:not(.sm-wells--one) .sm-faint::after {

@@ -524,7 +524,7 @@ function pct(value: number | null): number {
   font-size: var(--mg-font-size-xs);
 }
 .ps__col .l {
-  background: rgb(var(--sky-800));
+  background: var(--mg-color-data-ink);
 }
 .ps__col .s,
 .ps__legend .s {

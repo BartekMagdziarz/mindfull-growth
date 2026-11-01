@@ -401,3 +401,20 @@ kolumnie nazw. Pierścień „dziś” na kaflu Najbliżej → nowy token
 Konsekwencje: podpisy kafli Najbliżej i Ścieżek w Dzisiaj rosną z 9,6–10,6 px do
 12 px (minimum tekstu UI), kafle są nieco wyższe; reszta układu bez zmian. Dług
 strażnika 1511 → 1345.
+
+## 2026-11-01 — K2, partia 3: błękity danych (D9) i strażnik przeciw surowemu `--sky-N`
+
+Plan `ideas/html-plans/2026-10-17-data-blues-unification.html` — większość jego celów
+(stare wizualizacje Dzisiaj, month-v2, karty Kontekstu, `ratingGradient`) zniknęła w T2/T3;
+nowe wykresy Dzisiaj były już na `state`/`primary`. Zrobione: nowe role
+`--mg-color-data-ink` (sky-800, linie wartości i oś obciążenia), `--mg-color-data-ink-soft`
+(38%, obwódki), `--mg-color-load-neutral` (sky-500) i `--mg-color-load-recovery` (sky-600)
+— te same wartości, tylko nazwane; znacznik serii rytmu, akcenty runnera mikro i kreatorów
+oraz pierścień docka na `--mg-color-data-fill` z dobraną krycią (0,38 / 0,51 / 0,42 jak
+przedtem); tło docka na `--mg-color-surface/mist/paper`; `--neo-chart-primary-*` skasowane
+(trzy motywy, zero użyć). Strażnik ma regułę `rawSky` (`var(--sky-N)` poza tokenami); jawne
+wyjątki: `src/domain/loadState.ts` (kanały dla alf pary obciążenie/stan) i
+`src/features/program-path/partColors.ts` (paleta części); martwy wyjątek dla usuniętego
+`ratingGradient.ts` usunięty.
+Konsekwencje: zrzuty Dzisiaj, widoku ocen, ścieżki i runnera identyczne co do piksela;
+nowa reguła nie dodała długu (1345).

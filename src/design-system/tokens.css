@@ -87,6 +87,12 @@
      state = marks, endpoints, target lines (at reduced alpha); ink lines stay
      --sky-800. effort-fill is the rose twin of fill for missed / overdue. */
   --mg-color-data-fill: rgb(var(--sky-400) / 0.85);
+  /* Chart ink (value lines, the load axis) and its faint form for outlines. */
+  --mg-color-data-ink: rgb(var(--sky-800));
+  --mg-color-data-ink-soft: color-mix(in srgb, var(--mg-color-data-ink) 38%, transparent);
+  /* Load/state pair (D10): the neutral state midpoint and heavy·good recovery. */
+  --mg-color-load-neutral: rgb(var(--sky-500));
+  --mg-color-load-recovery: rgb(var(--sky-600));
   --mg-color-effort-fill: rgb(var(--rose-300) / 0.85);
   --mg-color-data-target: rgb(var(--sky-600) / 0.45);
   --mg-color-lavender: rgb(155 110 195);

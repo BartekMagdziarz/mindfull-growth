@@ -1273,7 +1273,7 @@
   color: var(--qr-effort-ink);
 }
 .qr-axis--load .qr-bar-body {
-  --ds-rating-fill: rgb(var(--sky-800));
+  --ds-rating-fill: var(--mg-color-data-ink);
 }
 .qr-axis--paired .qr-bar-body {
   --ds-rating-fill: var(--qr-fill);
@@ -2473,7 +2473,7 @@
   gap: 16px;
 }
 .qr-path-block {
-  --qr-section: color-mix(in srgb, white 62%, rgb(var(--sky-100)));
+  --qr-section: color-mix(in srgb, white 62%, var(--mg-color-surface));
   display: grid;
   gap: 12px;
   width: min(100%, 46rem);
@@ -2779,7 +2779,7 @@
   height: 0.6rem;
   border-radius: var(--mg-radius-organic-a);
   background: var(--part);
-  outline: 1px solid color-mix(in srgb, rgb(var(--sky-800)) 38%, transparent);
+  outline: 1px solid var(--mg-color-data-ink-soft);
   outline-offset: -1px;
 }
 .qr-path-chips__part[aria-checked='true'] i {
@@ -2810,7 +2810,7 @@
   height: 0.6rem;
   border-radius: var(--mg-radius-organic-b);
   background: var(--part);
-  outline: 1px solid color-mix(in srgb, rgb(var(--sky-800)) 38%, transparent);
+  outline: 1px solid var(--mg-color-data-ink-soft);
   outline-offset: -1px;
 }
 .qr-path-added li small {
@@ -2950,7 +2950,7 @@
   margin-top: 0.3rem;
   border-radius: var(--mg-radius-organic-a);
   background: var(--part);
-  outline: 1px solid color-mix(in srgb, rgb(var(--sky-800)) 38%, transparent);
+  outline: 1px solid var(--mg-color-data-ink-soft);
   outline-offset: -1px;
 }
 .qr-path-moments__copy {

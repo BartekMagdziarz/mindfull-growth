@@ -207,7 +207,7 @@ const gradientStops = computed(() => {
     .map((p, i) => (rated(p) ? { offset: x(i) / W, color: pairColor(p.load, p.state) } : null))
     .filter((s): s is { offset: number; color: string } => s !== null)
   // an empty gradient renders black — fall back to the neutral tone
-  return stops.length ? stops : [{ offset: 0, color: 'rgb(var(--sky-500))' }]
+  return stops.length ? stops : [{ offset: 0, color: 'var(--mg-color-load-neutral)' }]
 })
 
 const aria = computed(() => {
@@ -253,7 +253,7 @@ const aria = computed(() => {
   stroke-width: 1.3;
 }
 .ls-ribbon__line--state {
-  stroke: rgb(var(--sky-800));
+  stroke: var(--mg-color-data-ink);
   stroke-width: 2;
 }
 .ls-ribbon--thin .ls-ribbon__line--load {

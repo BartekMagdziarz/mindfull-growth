@@ -922,7 +922,7 @@ textarea.micro-field--long {
 
 .micro-field:focus-visible {
   outline: none;
-  border-color: rgb(var(--sky-400) / 0.5);
+  border-color: color-mix(in srgb, var(--mg-color-data-fill) 60%, transparent);
   box-shadow: var(--mg-focus-ring);
 }
 

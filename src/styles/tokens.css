@@ -151,8 +151,6 @@
   --neo-accent-text: 255 255 255;
 
   /* Chart primary color (unified palette for all Today view charts) */
-  --neo-chart-primary-start: 142 188 240;
-  --neo-chart-primary-end: 112 168 232;
 
   /* --- Sky scale ---------------------------------------------------------- *
    * Sampled from the design "paleta nieba" reference. Used for rating
@@ -382,9 +380,6 @@
   --neo-accent-end: 108 164 228;
   --neo-accent-text: 255 255 255;
 
-  --neo-chart-primary-start: 132 178 232;
-  --neo-chart-primary-end: 108 164 228;
-
   /* Status family adopts the slightly cooler tones of this theme */
   --status-good: 53 137 104;
   --status-warn: 184 129 53;
@@ -480,9 +475,6 @@
   --neo-accent-start: 137 177 229;
   --neo-accent-end: 112 158 218;
   --neo-accent-text: 255 255 255;
-
-  --neo-chart-primary-start: 137 177 229;
-  --neo-chart-primary-end: 112 158 218;
 
   /* Warmer tones for status and insight in sunrise-cloud */
   --status-good: 64 140 108;
