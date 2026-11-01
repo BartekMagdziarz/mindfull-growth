@@ -33,18 +33,6 @@ _Brak otwartych błędów (stan 2026-11-01)._
 
 ## Pomysły
 
-### P-4 · Migracje Dexie w osobnych plikach
-
-`otwarte` · Znaleziono 2026-10-20 przy audycie repo · `src/services/userDatabaseService.ts`
-
-**Kontekst.** 34 bloki `version(n).stores().upgrade()` w jednym pliku o 1 778 liniach.
-
-**Propozycja.** `src/services/db/migrations/v01..v34.ts`, każdy eksportuje `{ stores, upgrade }`;
-serwis bazy je rejestruje w pętli. Czysto mechaniczne; stare wersje muszą zostać (bazy użytkowników).
-
-**Kryteria.** `migration.spec`, `migration-edge-cases.spec` i `persistenceMigration.spec` bez zmian
-zielone; otwarcie bazy z `dev:demo` i `dev:verify` bez błędów.
-
 ### P-5 · Biblioteka obiektów jako `src/features/objects-library/`
 
 `otwarte` · Znaleziono 2026-10-20 przy audycie repo · `src/views/ObjectsLibraryView.vue`, `src/components/objects`
@@ -114,6 +102,18 @@ planowania; Hub priorytetu; klik w licznik karty = filtr.
 ---
 
 ## Zamknięte
+
+### P-4 · Migracje Dexie w osobnych plikach
+
+`zrobione (3138075c, 2026-11-01: wersje w `src/services/migrations/versions/` obok istniejących pomocników migracji — jeden folder migracji zamiast proponowanego `services/db/migrations`; rejestracja w pętli; specy migracji, e2e verify 46/46 i boot konta demo zielone)` · Znaleziono 2026-10-20 przy audycie repo · `src/services/userDatabaseService.ts`
+
+**Kontekst.** 34 bloki `version(n).stores().upgrade()` w jednym pliku o 1 778 liniach.
+
+**Propozycja.** `src/services/db/migrations/v01..v34.ts`, każdy eksportuje `{ stores, upgrade }`;
+serwis bazy je rejestruje w pętli. Czysto mechaniczne; stare wersje muszą zostać (bazy użytkowników).
+
+**Kryteria.** `migration.spec`, `migration-edge-cases.spec` i `persistenceMigration.spec` bez zmian
+zielone; otwarcie bazy z `dev:demo` i `dev:verify` bez błędów.
 
 ### B-13 · E2E „rhythm calendar: ratings view” pada, gdy pierwszy odcinek wstęgi stanu jest płaski
 
