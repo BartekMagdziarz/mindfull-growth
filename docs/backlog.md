@@ -27,6 +27,12 @@ wracania do rozmowy, w której go znaleziono.
 
 ## Błędy
 
+_Brak otwartych błędów (stan 2026-11-01)._
+
+---
+
+## Pomysły
+
 ### P-4 · Migracje Dexie w osobnych plikach
 
 `otwarte` · Znaleziono 2026-10-20 przy audycie repo · `src/services/userDatabaseService.ts`
@@ -134,10 +140,6 @@ na zawinięciu (np. `STATE_STORY` kończące się na 3).
 
 **Kryteria akceptacji.** Test przechodzi przy datach z początku, środka i końca miesiąca (np.
 `page.clock`/`setSystemTime` na 2026-11-01 i 2026-11-15); nic poza testem/seedem się nie zmienia.
-
----
-
-## Pomysły
 
 ### B-3 · Nawyk miesięczny dwa razy w przeglądzie tygodnia na przełomie miesięcy
 
