@@ -27,6 +27,32 @@ wracania do rozmowy, w której go znaleziono.
 
 ## Błędy
 
+### B-13 · E2E „rhythm calendar: ratings view” pada, gdy pierwszy odcinek wstęgi stanu jest płaski
+
+`otwarte` · Znaleziono 2026-11-01 przy T8 (jeden słupek ocen) — pada też na czystym `HEAD` · e2e verification, seed
+
+**Objaw.** `e2e/verification-smoke.spec.ts` › „rhythm calendar: ratings view draws four area
+ribbons…” kończy się „Received: hidden” na
+`.rb-series--ribbon .ls-ribbon__line--state` (od 2026-11-01; wcześniej zielony).
+
+**Jak odtworzyć.** Przy dacie 2026-11-01: `VERIFY_PORT=5209 npx playwright test --project=verification
+e2e/verification-smoke.spec.ts -g "rhythm calendar: ratings view"`.
+
+**Przyczyna.** Seed liczy tygodnie względem dzisiaj; `STATE_STORY = [4, 5, 2, 1, 2, 4, 3, 4]` w
+`src/dev/verificationSeed.ts` (sekcja 10) zawija się z 4 na 4, więc w miesiącu poprzednim pierwszy
+widoczny odcinek wstęgi obszaru „Ciało” łączy dwa tygodnie o stanie 4. Ścieżka ma wtedy stałe `y`
+(`d="M50,65 … 150,65"`), jej bounding box ma zerową wysokość i Playwright uznaje ją za niewidoczną.
+
+**Dlaczego to błąd.** Test sprawdza obecność wstęgi, a pada od kalendarza (dnia uruchomienia), nie od
+zachowania aplikacji — fałszywie czerwony smoke w CI w części miesięcy.
+
+**Propozycja naprawy.** W teście zamienić `toBeVisible()` na `toBeAttached()` + asercję, że `d`
+zawiera co najmniej dwa punkty (wstęga narysowana); opcjonalnie w seedzie unikać równych sąsiadów
+na zawinięciu (np. `STATE_STORY` kończące się na 3).
+
+**Kryteria akceptacji.** Test przechodzi przy datach z początku, środka i końca miesiąca (np.
+`page.clock`/`setSystemTime` na 2026-11-01 i 2026-11-15); nic poza testem/seedem się nie zmienia.
+
 ---
 
 ## Pomysły
