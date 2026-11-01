@@ -27,30 +27,7 @@ wracania do rozmowy, w której go znaleziono.
 
 ## Błędy
 
-### B-14 · Kolejność kluczowych rezultatów na karcie celu jest przypadkowa
-
-`otwarte` · Znaleziono 2026-11-01 przy P-5 (zrzuty przed/po biblioteki) · biblioteka obiektów, `src/services/objectsLibraryQueries.ts`
-
-**Objaw.** Na karcie celu w `/objects/goals` rezultaty stoją w innej kolejności w każdej świeżej
-bazie (dwa przebiegi tego samego kodu na tym samym seedzie dały różne układy), a w realnej bazie
-nowy rezultat może wskoczyć w dowolne miejsce listy zamiast na koniec.
-
-**Jak odtworzyć.** Dwa razy `npm run dev:verify` w świeżych profilach przeglądarki (albo dwa
-konteksty Playwright) → `/objects/goals` → porównaj kolejność rezultatów celu „Przebiec 10 km…”.
-
-**Przyczyna.** `keyResultDexieRepository.listAll()` zwraca `db.keyResults.toArray()`, czyli kolejność
-klucza głównego (losowy UUID). `buildContext` w `src/services/objectsLibraryQueries.ts:408-414` grupuje
-je po `goalId` bez sortowania, a `buildGoalListItem` (`:928`, `childPreviews`) mapuje w tej kolejności.
-
-**Dlaczego to błąd.** Lista ma stabilny porządek wszędzie indziej (`sortLibraryItems`, tytuły,
-lata); rezultaty celu to jedyna lista, której układ zależy od losowych identyfikatorów.
-
-**Propozycja naprawy.** W `buildContext` posortować rezultaty każdego celu po `createdAt`, przy
-remisie po tytule (`localeCompare`); ewentualnie później jawne pole kolejności z DnD.
-
-**Kryteria akceptacji.** Test jednostkowy zapytania: trzy rezultaty o różnych UUID i `createdAt`
-wracają w kolejności utworzenia, przy równym `createdAt` — alfabetycznie; zrzut `/objects/goals`
-identyczny w dwóch świeżych bazach.
+_Brak otwartych błędów (stan 2026-11-01)._
 
 ---
 
@@ -112,6 +89,31 @@ planowania; Hub priorytetu; klik w licznik karty = filtr.
 ---
 
 ## Zamknięte
+
+### B-14 · Kolejność kluczowych rezultatów na karcie celu jest przypadkowa
+
+`zrobione (c013facf, 2026-11-01: sortowanie w `buildContext` po `createdAt`, remis po tytule; test zapytania pada 2/3 na starym kodzie; w świeżych seedach kolejność może się jeszcze różnić tylko dla rezultatów utworzonych w tej samej milisekundzie — wtedy rozstrzyga tytuł; dane użytkownika tego nie mają)` · Znaleziono 2026-11-01 przy P-5 (zrzuty przed/po biblioteki) · biblioteka obiektów, `src/services/objectsLibraryQueries.ts`
+
+**Objaw.** Na karcie celu w `/objects/goals` rezultaty stoją w innej kolejności w każdej świeżej
+bazie (dwa przebiegi tego samego kodu na tym samym seedzie dały różne układy), a w realnej bazie
+nowy rezultat może wskoczyć w dowolne miejsce listy zamiast na koniec.
+
+**Jak odtworzyć.** Dwa razy `npm run dev:verify` w świeżych profilach przeglądarki (albo dwa
+konteksty Playwright) → `/objects/goals` → porównaj kolejność rezultatów celu „Przebiec 10 km…”.
+
+**Przyczyna.** `keyResultDexieRepository.listAll()` zwraca `db.keyResults.toArray()`, czyli kolejność
+klucza głównego (losowy UUID). `buildContext` w `src/services/objectsLibraryQueries.ts:408-414` grupuje
+je po `goalId` bez sortowania, a `buildGoalListItem` (`:928`, `childPreviews`) mapuje w tej kolejności.
+
+**Dlaczego to błąd.** Lista ma stabilny porządek wszędzie indziej (`sortLibraryItems`, tytuły,
+lata); rezultaty celu to jedyna lista, której układ zależy od losowych identyfikatorów.
+
+**Propozycja naprawy.** W `buildContext` posortować rezultaty każdego celu po `createdAt`, przy
+remisie po tytule (`localeCompare`); ewentualnie później jawne pole kolejności z DnD.
+
+**Kryteria akceptacji.** Test jednostkowy zapytania: trzy rezultaty o różnych UUID i `createdAt`
+wracają w kolejności utworzenia, przy równym `createdAt` — alfabetycznie; zrzut `/objects/goals`
+identyczny w dwóch świeżych bazach.
 
 ### P-5 · Biblioteka obiektów jako `src/features/objects-library/`
 
