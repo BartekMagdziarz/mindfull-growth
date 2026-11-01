@@ -1,13 +1,5 @@
 <template>
   <DsSurface elevation="raised-sm" class="next-day-rail">
-    <!-- Day progress: a mute filament on the top edge — no label, no counter on the surface. -->
-    <span
-      class="next-day-rail__filament"
-      role="img"
-      :aria-label="t('planning.today.progress', { done: doneCount, total: visibleCount })"
-    >
-      <i :style="{ width: `${progressPct}%` }" />
-    </span>
     <header class="next-day-rail__heading">
       <span>Plan dnia</span>
       <span class="next-day-rail__tools">
@@ -216,11 +208,6 @@ const visibleItems = computed(() => visibleGroups.value.flatMap(group => group.i
 const collapsedCount = computed(() =>
   collapseCompleted.value ? allItems.value.filter(isCompletedForCollapse).length : 0
 )
-const visibleCount = computed(() => allItems.value.length)
-const doneCount = computed(() => allItems.value.filter(hasEntry).length)
-const progressPct = computed(() =>
-  visibleCount.value ? Math.round((doneCount.value / visibleCount.value) * 100) : 0
-)
 // Only an explicit click expands a row (user decision 2026-09-10: no row is
 // expanded by default); a row that gets hidden or collapsed simply drops it.
 const stagedItem = computed<TodayItem | null>(
@@ -302,14 +289,6 @@ async function loadDay() {
 
 function itemTitle(item: TodayItem): string {
   return item.subject.title
-}
-
-function hasEntry(item: TodayItem): boolean {
-  const entry = item.todayEntry
-  if (!entry) return false
-  if (item.subject.entryMode === 'multi-completion') return (entry.checkedItemIds?.length ?? 0) > 0
-  if (item.subject.entryMode === 'completion') return true
-  return typeof entry.value === 'number' && entry.value !== 0
 }
 
 function isCompletedForCollapse(item: TodayItem): boolean {

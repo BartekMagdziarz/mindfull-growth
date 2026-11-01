@@ -476,7 +476,6 @@
       "actionsLabel": "Akcje: {title}"
     },
     "completedCount": "Wykonane ({n})",
-    "progress": "Wykonanie dnia: {done} z {total}",
     "compass": {
       "title": "Kompas",
       "empty": "Brak kierunków na ten miesiąc"

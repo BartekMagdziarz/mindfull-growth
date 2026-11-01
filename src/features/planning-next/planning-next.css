@@ -66,28 +66,6 @@
   border-radius: var(--mg-radius-lg);
 }
 
-/* Day progress lives on the top edge as a barely-there filament: it carries the
-   number only for assistive tech, never as a visible counter. */
-.next-day-rail__filament {
-  position: absolute;
-  top: 0;
-  right: var(--mg-space-5);
-  left: var(--mg-space-5);
-  display: block;
-  height: 3px;
-  overflow: hidden;
-  border-radius: var(--mg-radius-sketch-a);
-  background: var(--mg-color-border);
-}
-
-.next-day-rail__filament > i {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--mg-color-state);
-  transition: width var(--mg-duration-base) var(--mg-ease-standard);
-}
-
 .next-day-rail__tools {
   display: inline-flex;
   align-items: center;

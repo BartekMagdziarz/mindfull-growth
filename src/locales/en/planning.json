@@ -476,7 +476,6 @@
       "actionsLabel": "Actions: {title}"
     },
     "completedCount": "Completed ({n})",
-    "progress": "Day progress: {done} of {total}",
     "compass": {
       "title": "Compass",
       "empty": "No directions for this month"

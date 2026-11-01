@@ -250,9 +250,6 @@ describe('NextDayRail — inline stage', () => {
       'Usuń z dziś',
       'Otwórz',
     ])
-    expect(wrapper.find('.next-day-rail__filament').attributes('aria-label')).toBe(
-      'Wykonanie dnia: 2 z 4'
-    )
 
     // Clicking the expanded row again folds it — no row has to stay open.
     await habitRow.find('button.ndi__label').trigger('click')
