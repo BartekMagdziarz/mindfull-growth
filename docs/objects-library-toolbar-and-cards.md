@@ -187,3 +187,19 @@ przed/po: `ideas/ux-audit-2026-10-25-object-cards/`.
   lokalny szkic kafelka do czasu nadania nazwy; pusta grupa wykresu nie
   rysuje się bez punktów. Zrzuty:
   `ideas/ux-audit-2026-10-25-object-cards/after-p4/`. Plan D1–D9 zamknięty.
+
+## Struktura kodu (2026-11-01, P-5)
+
+Biblioteka jest featurem: `src/features/objects-library/`. Widok
+`ObjectsLibraryView.vue` (ok. 400 linii) tylko składa części: belka
+`ObjectsLibraryToolbar.vue`, karty (`ObjectsLibrary*Card.vue`), kreator celu
+`GoalCreationWizard.vue` i dialogi. Stan i zapisy żyją obok w composables:
+`useLibraryOptions` (etykiety, listy opcji, puste stany), `useLibraryRoute`
+(filtry w URL), `useLibraryPeriods` (rozwinięty KR/pomiar, tygodnie i miesiące),
+`useLibraryGoals` (kreator, pola celu, ponowne otwarcie, rytuał zamknięcia),
+`useLibraryFieldChanges` (pola KR, nawyków/trackerów, priorytetów, intencji),
+`useLibraryLifecycle` (tworzenie, archiwizacja, usuwanie); wspólny
+`LibraryContext` (store, `t`, snackbar, znaczniki „nowy”) i czyste
+`libraryTargets.ts`. W `src/components/objects/` zostały elementy współdzielone
+z innymi obszarami: `MultiItemsEditor`, `ObjectsLibraryPillSelect`,
+`StatusIconButton`, `priority-creator/`.
