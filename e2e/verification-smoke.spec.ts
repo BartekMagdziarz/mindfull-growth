@@ -131,9 +131,16 @@ test.describe('verification environment', () => {
     const board = page.locator('.rb-board')
     await expect(board).toBeVisible()
     await expect(board.locator('.rb-series--ribbon')).toHaveCount(4)
-    await expect(
-      board.locator('.rb-series--ribbon').first().locator('.ls-ribbon__line--state').first()
-    ).toBeVisible()
+    // The state line is drawn: attached and with a real path. Not `toBeVisible()` — two weeks with
+    // the same state give a flat path whose bounding box has zero height, which Playwright reports
+    // as hidden even though the line is on screen (B-13: the seed is relative to today).
+    const stateLine = board
+      .locator('.rb-series--ribbon')
+      .first()
+      .locator('.ls-ribbon__line--state')
+      .first()
+    await expect(stateLine).toBeAttached()
+    await expect(stateLine).toHaveAttribute('d', /^M[\d.]+,[\d.]+ C/)
     // The rating card of the month carries the weeks as 2 × 2 area ribbons.
     await expect(page.locator('.ps__multiple')).toHaveCount(4)
   })
