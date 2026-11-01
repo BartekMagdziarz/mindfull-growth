@@ -114,6 +114,52 @@ describe('objectsLibraryQueries', () => {
     expect(bundle.expandedItem?.title).toBe(goal.title)
   })
 
+  it('lists a goal’s key results in creation order, ties alphabetically (B-14)', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    try {
+      vi.setSystemTime(new Date('2026-03-01T09:00:00Z'))
+      const goal = await goalDexieRepository.create({
+        title: 'Run a 10k',
+        isActive: true,
+        priorityIds: [],
+        lifeAreaIds: [],
+        status: 'open',
+      })
+      const createKr = (title: string) =>
+        keyResultDexieRepository.create({
+          title,
+          isActive: true,
+          goalId: goal.id,
+          cadence: 'weekly',
+          entryMode: 'completion',
+          target: { kind: 'count', operator: 'min', value: 1 },
+          status: 'open',
+        })
+      vi.setSystemTime(new Date('2026-03-02T09:00:00Z'))
+      await createKr('Zone 2 runs')
+      vi.setSystemTime(new Date('2026-03-03T09:00:00Z'))
+      await createKr('Long run')
+      // Same instant: alphabetical.
+      await createKr('Interval session')
+
+      const bundle = await loadObjectsLibraryBundle({
+        family: 'goals',
+        q: '',
+        lifeAreaIds: [],
+        priorityIds: [],
+        showClosed: false,
+      })
+
+      expect(bundle.items[0]?.childPreviews?.map(kr => kr.title)).toEqual([
+        'Zone 2 runs',
+        'Interval session',
+        'Long run',
+      ])
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('builds priority results as strategic cards without chart data', async () => {
     const lifeArea = await lifeAreaDexieRepository.create({
       name: 'Growth',

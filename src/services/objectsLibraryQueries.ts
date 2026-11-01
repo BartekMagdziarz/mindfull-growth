@@ -412,6 +412,14 @@ function buildContext(deps: ObjectsLibraryDependencies): ObjectRefContext {
     existing.push(keyResult)
     keyResultsByGoalId.set(keyResult.goalId, existing)
   }
+  // Rows come back in primary-key (random UUID) order; a goal's key results read
+  // in the order they were created, ties by title (B-14).
+  for (const keyResults of keyResultsByGoalId.values()) {
+    keyResults.sort(
+      (left, right) =>
+        left.createdAt.localeCompare(right.createdAt) || left.title.localeCompare(right.title)
+    )
+  }
 
   const subjectEntryMap = new Map<string, DailyMeasurementEntry[]>()
   for (const entry of deps.dailyMeasurementEntries) {
