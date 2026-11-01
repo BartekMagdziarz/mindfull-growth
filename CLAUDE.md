@@ -38,6 +38,9 @@ problems · `npm run format:check` → clean · `npm run check-locales` → gree
   `git add -A`.
 - Data writes go through repositories/services (`src/repositories/`,
   `src/services/`) — never raw IndexedDB.
+- Dexie schema: one file per version in `src/services/migrations/versions/`
+  (`vNN.ts` → `{ version, stores, upgrade? }`, listed in its `index.ts`);
+  append-only — never edit a shipped version, fix data in a new one.
 - Dev-only code: `import.meta.env.DEV` guard + dynamic `import()` (see
   `src/main.ts`), so it drops out of prod builds.
 - Language (decision 2026-10-20): the product is Polish-first. Feature areas

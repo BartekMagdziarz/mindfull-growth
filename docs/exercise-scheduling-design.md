@@ -297,7 +297,8 @@ entries).
 
 New tables only (no reshaping of existing rows). Schema lives in
 `src/services/userDatabaseService.ts` (`class UserDatabase extends Dexie`); current
-version is **22** as of 2026-07-04 — verify the latest `this.version(N)` before bumping.
+version is **22** as of 2026-07-04 — verify the latest version before bumping (since
+2026-11-01 versions live one per file in `src/services/migrations/versions/`).
 One version bump per phase, matching trunk-based delivery:
 
 - **v23 (Phase 1):** `exerciseCompletions: 'id, exerciseSlug, dayRef, completedAt'`,
@@ -470,7 +471,7 @@ numbers may drift.
 
 - `src/services/userDatabaseService.ts` — `class UserDatabase extends Dexie`; table
   fields typed `Table<T, string>` near the top; versions declared sequentially
-  (`this.version(N).stores({...})`); **new tables need no `.upgrade`** (see v21/v22
+  (since 2026-11-01 one file per version, `src/services/migrations/versions/vNN.ts`); **new tables need no `.upgrade`** (see v21/v22
   comments); reshape example with `.upgrade`: v19/v20. The 33 exercise tables are
   declared in the class field block — the source list for the v23 backfill (plus
   `assessmentAttempts: 'id, assessmentId'`).
