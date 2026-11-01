@@ -11,7 +11,7 @@
 </template>
 <script setup lang="ts">
 import { ref } from 'vue'
-import PeriodCalendarPicker from '@/components/objects/PeriodCalendarPicker.vue'
+import PeriodCalendarPicker from '@/features/objects-library/PeriodCalendarPicker.vue'
 import { useT } from '@/composables/useT'
 export interface LinkedMonth {
   monthRef: string

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
-import ObjectsLibraryView from '@/views/ObjectsLibraryView.vue'
+import ObjectsLibraryView from '@/features/objects-library/ObjectsLibraryView.vue'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { habitDexieRepository } from '@/repositories/habitDexieRepository'
 import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'

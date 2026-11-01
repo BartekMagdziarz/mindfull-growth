@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { render } from '@testing-library/vue'
-import ObjectsLibraryMeasurementCard from '@/components/objects/ObjectsLibraryMeasurementCard.vue'
+import ObjectsLibraryMeasurementCard from '@/features/objects-library/ObjectsLibraryMeasurementCard.vue'
 import type { ObjectsLibraryListItem } from '@/services/objectsLibraryQueries'
 
 function habit(overrides: Partial<ObjectsLibraryListItem> = {}): ObjectsLibraryListItem {

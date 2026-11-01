@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { fireEvent, render } from '@testing-library/vue'
-import ObjectCardTimeline from '@/components/objects/ObjectCardTimeline.vue'
+import ObjectCardTimeline from '@/features/objects-library/ObjectCardTimeline.vue'
 import type { DayRef, YearRef } from '@/domain/period'
 import type { ObjectWindow, YearsWindow } from '@/utils/objectWindow'
 

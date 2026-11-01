@@ -73,8 +73,8 @@
 
 <script setup lang="ts">
 import AppIcon from '@product/components/shared/AppIcon.vue'
-import ObjectCardMetaLine from '@product/components/objects/ObjectCardMetaLine.vue'
-import ObjectCardTimeline from '@product/components/objects/ObjectCardTimeline.vue'
+import ObjectCardMetaLine from '@product/features/objects-library/ObjectCardMetaLine.vue'
+import ObjectCardTimeline from '@product/features/objects-library/ObjectCardTimeline.vue'
 import FieldChart from './FieldChart.vue'
 import { LIFE_AREA_OPTIONS, PRIORITY_OPTIONS, type FieldCardSample } from './objectFieldSamples'
 

@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
-import ObjectsLibraryPriorityCard from '@/components/objects/ObjectsLibraryPriorityCard.vue'
+import ObjectsLibraryPriorityCard from '@/features/objects-library/ObjectsLibraryPriorityCard.vue'
 import type { ObjectsLibraryListItem } from '@/services/objectsLibraryQueries'
 
 function makePriorityItem(overrides: Partial<ObjectsLibraryListItem> = {}): ObjectsLibraryListItem {

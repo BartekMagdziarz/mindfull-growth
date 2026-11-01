@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
-import KrPillDropdown from '@/components/objects/KrPillDropdown.vue'
+import KrPillDropdown from '@/features/objects-library/KrPillDropdown.vue'
 import { useT } from '@/composables/useT'
 import type {
   ComparisonOperator,

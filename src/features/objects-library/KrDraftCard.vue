@@ -43,7 +43,7 @@
 
 <script setup lang="ts">
 import AppIcon from '@/components/shared/AppIcon.vue'
-import MeasurementTargetSentence from '@/components/objects/MeasurementTargetSentence.vue'
+import MeasurementTargetSentence from '@/features/objects-library/MeasurementTargetSentence.vue'
 import { useT } from '@/composables/useT'
 import type { MeasurementEntryMode, MeasurementTarget, PlanningCadence } from '@/domain/planning'
 import type { KrDraft } from '@/composables/useGoalCreationWizard'

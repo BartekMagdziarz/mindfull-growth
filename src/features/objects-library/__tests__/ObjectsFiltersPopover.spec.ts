@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { fireEvent, render, screen, within } from '@testing-library/vue'
-import ObjectsFiltersPopover from '@/components/objects/ObjectsFiltersPopover.vue'
+import ObjectsFiltersPopover from '@/features/objects-library/ObjectsFiltersPopover.vue'
 import type { ObjectsLibraryQuery } from '@/services/objectsLibraryQueries'
 
 const lifeAreas = [

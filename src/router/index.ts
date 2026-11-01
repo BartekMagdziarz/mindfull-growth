@@ -163,7 +163,7 @@ const router = createRouter({
     {
       path: '/objects/:family',
       name: 'objects-family',
-      component: () => import('@/views/ObjectsLibraryView.vue'),
+      component: () => import('@/features/objects-library/ObjectsLibraryView.vue'),
       props: route => ({ family: route.params.family }),
     },
     {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { fireEvent, render, screen, within } from '@testing-library/vue'
-import ObjectsPeriodSelect from '@/components/objects/ObjectsPeriodSelect.vue'
+import ObjectsPeriodSelect from '@/features/objects-library/ObjectsPeriodSelect.vue'
 import type { PeriodRef } from '@/domain/period'
 
 const labels = {

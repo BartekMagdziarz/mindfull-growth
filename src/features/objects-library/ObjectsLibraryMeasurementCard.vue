@@ -226,16 +226,16 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
-import PeriodCalendarPicker from '@/components/objects/PeriodCalendarPicker.vue'
+import PeriodCalendarPicker from '@/features/objects-library/PeriodCalendarPicker.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import IconPicker from '@/components/shared/IconPicker.vue'
-import MeasurementTargetSentence from '@/components/objects/MeasurementTargetSentence.vue'
+import MeasurementTargetSentence from '@/features/objects-library/MeasurementTargetSentence.vue'
 import MultiItemsEditor from '@/components/objects/MultiItemsEditor.vue'
-import GoalLinksDropdown from '@/components/objects/GoalLinksDropdown.vue'
-import ObjectCardMetaLine from '@/components/objects/ObjectCardMetaLine.vue'
-import ObjectsCardStatusMenu from '@/components/objects/ObjectsCardStatusMenu.vue'
-import MeasurementSparkline from '@/components/objects/MeasurementSparkline.vue'
+import GoalLinksDropdown from '@/features/objects-library/GoalLinksDropdown.vue'
+import ObjectCardMetaLine from '@/features/objects-library/ObjectCardMetaLine.vue'
+import ObjectsCardStatusMenu from '@/features/objects-library/ObjectsCardStatusMenu.vue'
+import MeasurementSparkline from '@/features/objects-library/MeasurementSparkline.vue'
 import { useEditableField } from '@/composables/useEditableField'
 import { checklistSentenceFacts, formatMeasurementSentence } from '@/utils/measurementTargetFormat'
 import type {
@@ -243,7 +243,7 @@ import type {
   ObjectsLibraryListItem,
 } from '@/services/objectsLibraryQueries'
 import type { MeasurementEntryMode, MeasurementTarget, PlanningCadence } from '@/domain/planning'
-import type { LinkedPeriod } from '@/components/objects/ObjectsLibraryKrCard.vue'
+import type { LinkedPeriod } from '@/features/objects-library/ObjectsLibraryKrCard.vue'
 
 const props = defineProps<{
   item: ObjectsLibraryListItem

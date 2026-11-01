@@ -309,14 +309,14 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import AppDialog from '@/components/AppDialog.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import { DsButton, DsSegmentedControl, DsState } from '@/design-system/components'
-import ObjectsLibraryFilters from '@/components/objects/ObjectsLibraryFilters.vue'
-import ObjectsLibraryActiveFilters from '@/components/objects/ObjectsLibraryActiveFilters.vue'
-import ObjectsLibraryPriorityCard from '@/components/objects/ObjectsLibraryPriorityCard.vue'
-import ObjectsLibraryGoalCard from '@/components/objects/ObjectsLibraryGoalCard.vue'
-import GoalCreationWizard from '@/components/objects/GoalCreationWizard.vue'
+import ObjectsLibraryFilters from '@/features/objects-library/ObjectsLibraryFilters.vue'
+import ObjectsLibraryActiveFilters from '@/features/objects-library/ObjectsLibraryActiveFilters.vue'
+import ObjectsLibraryPriorityCard from '@/features/objects-library/ObjectsLibraryPriorityCard.vue'
+import ObjectsLibraryGoalCard from '@/features/objects-library/ObjectsLibraryGoalCard.vue'
+import GoalCreationWizard from '@/features/objects-library/GoalCreationWizard.vue'
 import type { GoalWizardEditInput } from '@/composables/useGoalCreationWizard'
-import ObjectsLibraryMeasurementCard from '@/components/objects/ObjectsLibraryMeasurementCard.vue'
-import ObjectsLibraryIntentionCard from '@/components/objects/ObjectsLibraryIntentionCard.vue'
+import ObjectsLibraryMeasurementCard from '@/features/objects-library/ObjectsLibraryMeasurementCard.vue'
+import ObjectsLibraryIntentionCard from '@/features/objects-library/ObjectsLibraryIntentionCard.vue'
 import { useObjectsLibraryStore } from '@/stores/objectsLibrary.store'
 import { useT } from '@/composables/useT'
 import type {
@@ -361,8 +361,8 @@ import type {
   PriorityClosingReflection,
 } from '@/domain/planning'
 import { createMultiCompletionItem } from '@/domain/planning'
-import type { LinkedPeriod } from '@/components/objects/ObjectsLibraryKrCard.vue'
-import type { LinkedMonth } from '@/components/objects/GoalMonthsDropdown.vue'
+import type { LinkedPeriod } from '@/features/objects-library/ObjectsLibraryKrCard.vue'
+import type { LinkedMonth } from '@/features/objects-library/GoalMonthsDropdown.vue'
 
 interface Props {
   family: string | string[]

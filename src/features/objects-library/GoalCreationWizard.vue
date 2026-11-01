@@ -490,11 +490,11 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { DsButton } from '@/design-system/components'
 import AppIcon from '@/components/shared/AppIcon.vue'
-import PeriodSelectionSummary from '@/components/objects/PeriodSelectionSummary.vue'
-import PeriodCalendarPicker from '@/components/objects/PeriodCalendarPicker.vue'
+import PeriodSelectionSummary from '@/features/objects-library/PeriodSelectionSummary.vue'
+import PeriodCalendarPicker from '@/features/objects-library/PeriodCalendarPicker.vue'
 import { getPeriodRefsForDate } from '@/utils/periods'
 import { periodsInDateRange } from '@/utils/periodSchedule'
-import KrDraftCard from '@/components/objects/KrDraftCard.vue'
+import KrDraftCard from '@/features/objects-library/KrDraftCard.vue'
 import { useT } from '@/composables/useT'
 import {
   useGoalCreationWizard,

@@ -52,8 +52,8 @@
 
 <script setup lang="ts">
 import AppIcon from '@/components/shared/AppIcon.vue'
-import ObjectsPeriodSelect from '@/components/objects/ObjectsPeriodSelect.vue'
-import ObjectsFiltersPopover from '@/components/objects/ObjectsFiltersPopover.vue'
+import ObjectsPeriodSelect from '@/features/objects-library/ObjectsPeriodSelect.vue'
+import ObjectsFiltersPopover from '@/features/objects-library/ObjectsFiltersPopover.vue'
 import type { PeriodRef } from '@/domain/period'
 import type {
   ObjectsLibraryFilterOption,

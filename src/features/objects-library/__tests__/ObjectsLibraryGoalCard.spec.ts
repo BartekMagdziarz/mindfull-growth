@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { fireEvent, render } from '@testing-library/vue'
-import ObjectsLibraryGoalCard from '@/components/objects/ObjectsLibraryGoalCard.vue'
+import ObjectsLibraryGoalCard from '@/features/objects-library/ObjectsLibraryGoalCard.vue'
 import type { ObjectsLibraryListItem } from '@/services/objectsLibraryQueries'
 
 function goal(overrides: Partial<ObjectsLibraryListItem> = {}): ObjectsLibraryListItem {

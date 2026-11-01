@@ -141,10 +141,10 @@
 import { computed, nextTick, ref, watch } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import EntityIcon from '@/components/shared/EntityIcon.vue'
-import GoalLinksDropdown from '@/components/objects/GoalLinksDropdown.vue'
-import MeasurementTargetSentence from '@/components/objects/MeasurementTargetSentence.vue'
+import GoalLinksDropdown from '@/features/objects-library/GoalLinksDropdown.vue'
+import MeasurementTargetSentence from '@/features/objects-library/MeasurementTargetSentence.vue'
 import MultiItemsEditor from '@/components/objects/MultiItemsEditor.vue'
-import ObjectCardMetaLine from '@/components/objects/ObjectCardMetaLine.vue'
+import ObjectCardMetaLine from '@/features/objects-library/ObjectCardMetaLine.vue'
 import { useT } from '@/composables/useT'
 import type {
   MeasurementEntryMode,

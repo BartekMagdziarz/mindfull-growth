@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/vue'
-import PeriodCalendarPicker from '@/components/objects/PeriodCalendarPicker.vue'
+import PeriodCalendarPicker from '@/features/objects-library/PeriodCalendarPicker.vue'
 import { getChildPeriods, getPeriodRefsForDate } from '@/utils/periods'
 import { formatWeekRange } from '@/utils/periodLabels'
 

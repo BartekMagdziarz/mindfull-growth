@@ -76,7 +76,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
-import ObjectsCompactMultiSelect from '@/components/objects/ObjectsCompactMultiSelect.vue'
+import ObjectsCompactMultiSelect from '@/features/objects-library/ObjectsCompactMultiSelect.vue'
 import type {
   ObjectsLibraryFilterOption,
   ObjectsLibraryQuery,

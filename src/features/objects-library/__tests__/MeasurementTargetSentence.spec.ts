@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { fireEvent, render, screen } from '@testing-library/vue'
-import MeasurementTargetSentence from '@/components/objects/MeasurementTargetSentence.vue'
+import MeasurementTargetSentence from '@/features/objects-library/MeasurementTargetSentence.vue'
 import type { MeasurementEntryMode, MeasurementTarget } from '@/domain/planning'
 
 type MeasurementUpdate = { entryMode: MeasurementEntryMode; target: MeasurementTarget }
