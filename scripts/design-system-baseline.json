@@ -1,16 +1,16 @@
 {
   "generatedAt": "2026-11-01",
-  "total": 1741,
+  "total": 1511,
   "byRule": {
     "legacyClass": 694,
     "tailwindArbitraryText": 76,
     "localFont": 1,
-    "radiusLiteral": 185,
-    "localShadow": 22,
-    "fontSizeLiteral": 385,
+    "radiusLiteral": 115,
+    "localShadow": 18,
+    "fontSizeLiteral": 230,
     "tailwindRadius": 265,
     "tailwindShadow": 89,
-    "rawColor": 24
+    "rawColor": 23
   },
   "files": {
     "src/components/AppNavDock.vue": 12,
@@ -145,7 +145,6 @@
     "src/features/quiet-ritual/QuietEmotionStack.vue": 4,
     "src/features/quiet-ritual/QuietPlanGroups.vue": 7,
     "src/features/quiet-ritual/QuietRatingBar.vue": 2,
-    "src/features/quiet-ritual/quiet-ritual.css": 230,
     "src/styles/text-field-focus.css": 1,
     "src/utils/selfEnergyColors.ts": 1,
     "src/views/AIPlaygroundView.vue": 16,

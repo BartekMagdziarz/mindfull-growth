@@ -372,3 +372,20 @@ słupkiem). Semantyka ujednolicona do `radiogroup`/`radio` z nazwą = liczba
 Konsekwencje: `ExerciseRatingStack` usunięty; ~120 linii CSS kolumny zniknęło z
 `quiet-ritual.css`, rytuał tylko przekolorowuje słupek per oś; zrzuty przed/po
 1512 × 982 @2x identyczne poza kolorem −/+; dług strażnika 1752 → 1741.
+
+## 2026-11-01 — K2, partia 1: literały rytuałów na tokenach; role rozmiaru ikon
+
+Kontekst: K2 (migracja literałów), decyzja D9 — błękity danych razem z K2.
+`quiet-ritual.css` miał 230 naruszeń strażnika (155 literalnych `font-size`, 70
+`border-radius`, 4 lokalne cienie, 1 surowy kolor).
+Decyzja: tekst przyciągnięty do skali (9–11 px → `xs`, a w etykietach wykresów
+`chart`; 12 → `xs`; 13–14 → `sm`; 15–16 → `md`; 17–19 → `lg`; 20–24 → `xl`;
+tytuł `clamp()` → `2xl`). Ikony od 16 px dostają nowe role
+`--mg-font-size-icon-sm/md/lg` (16/18/22 px), żeby nie skakały razem z tekstem;
+mniejsze ikony w linii zostają na skali tekstu. Ręczne promienie szkicowe → najbliższy
+token wg średniej (`xs`…`xl`), procentowe bloby → `organic-*`, drobne znaczniki
+danych → `sketch-*`; obwódki `inset 0 0 0 1px` → `outline` z ujemnym przesunięciem;
+fallback `#b3261e` → `--mg-color-danger`.
+Konsekwencje: zrzuty wszystkich kroków rytuałów przy 1512 × 982 @2x — układ bez
+zmian, drobne korekty rozmiarów (etykiety +1 px, nazwy wierszy −1 px); dług
+strażnika 1741 → 1511.

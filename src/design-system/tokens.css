@@ -16,6 +16,11 @@
   --mg-font-size-2xl: 2rem;
   /* The value above a rating stack (DsRatingStack). */
   --mg-font-size-rating: 1.75rem;
+  /* Icon glyph sizes (Material Symbols / inline SVG sized by font-size) — kept
+     apart from the text scale so icons do not jump when text snaps to it. */
+  --mg-font-size-icon-sm: 1rem;
+  --mg-font-size-icon-md: 1.125rem;
+  --mg-font-size-icon-lg: 1.375rem;
   /* Four weights only: body / label (meta, chips, subtitles) / strong
      (buttons, selected labels) / title (headings, eyebrows). */
   --mg-weight-body: 400;
