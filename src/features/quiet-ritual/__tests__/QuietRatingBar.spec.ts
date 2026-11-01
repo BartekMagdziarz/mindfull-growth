@@ -3,19 +3,20 @@ import { mount } from '@vue/test-utils'
 import QuietRatingBar from '../QuietRatingBar.vue'
 
 describe('QuietRatingBar · symmetric column', () => {
-  it('puts the value above the bar, the −/+ pair below it, and nothing where there is no rating yet', async () => {
+  it('renders the shared quiet rating stack: value above, −/+ below, nothing before a rating', async () => {
     const wrapper = mount(QuietRatingBar, { props: { modelValue: null, label: 'Balans' } })
     const body = wrapper.find('.qr-bar-body')
+    expect(body.classes()).toEqual(expect.arrayContaining(['ds-rating', 'ds-rating--quiet']))
     const children = body.element.children
     expect(children[0].tagName).toBe('OUTPUT')
-    expect(children[1].className).toContain('qr-bar-stack')
-    expect(children[2].className).toContain('qr-bar-steps')
+    expect(children[1].className).toContain('ds-rating__stack')
+    expect(children[2].className).toContain('ds-rating__steps')
 
     // empty state reserves the slot without a dash
     expect(body.find('output').text()).toBe('')
-    expect(body.find('output').classes()).toContain('qr-bar-value--empty')
+    expect(body.find('output').classes()).toContain('is-empty')
 
-    const steps = body.findAll('.qr-bar-steps button')
+    const steps = body.findAll('.ds-rating__steps button')
     expect(steps.map(b => b.attributes('aria-label'))).toEqual([
       'Zmniejsz: Balans',
       'Zwiększ: Balans',
@@ -27,7 +28,24 @@ describe('QuietRatingBar · symmetric column', () => {
 
     await wrapper.setProps({ modelValue: 3 })
     expect(body.find('output').text()).toBe('3')
-    expect(body.find('output').classes()).not.toContain('qr-bar-value--empty')
+    expect(body.find('output').classes()).not.toContain('is-empty')
+  })
+
+  it('hands the previous period to the stack as a ghost until the bar is rated', async () => {
+    const wrapper = mount(QuietRatingBar, {
+      props: { modelValue: null, label: 'Stan', previous: 3, previousLabel: 'Poprzednio' },
+    })
+    const radios = wrapper.findAll('.ds-rating__bars [role="radio"]')
+    expect(radios.map(r => r.classes().includes('is-ghost'))).toEqual([
+      true,
+      true,
+      true,
+      false,
+      false,
+    ])
+    expect(radios[0].attributes('title')).toBe('Poprzednio: 3')
+    await wrapper.setProps({ modelValue: 2 })
+    expect(wrapper.findAll('.ds-rating__bars .is-ghost')).toHaveLength(0)
   })
 
   it('renders slot content inside the card, under the bar', () => {

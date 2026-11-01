@@ -355,3 +355,20 @@ obiektów) wchodzi razem z K2, partiami po widoku; (4) fill przycisku głównego
 86 142 210 — decyzja Labu, wracamy przy K2 z pomiarem kontrastu.
 Konsekwencje: żadnych nowych tokenów; K2 ma jeden ciąg pracy (literały + błękity);
 `--neo-chart-primary-*` do skasowania w tym ciągu.
+
+## 2026-11-01 — Jeden słupek ocen: `DsRatingStack`
+
+Kontekst: ten sam słupek chmurek żył w dwóch kopiach — kolumna `QuietRatingBar`
+(rytuały, CSS w `quiet-ritual.css`) i `ExerciseRatingStack` (krótkie skale
+mikro-ćwiczeń); otwarte od 2026-10-17 („jeden słupek, dwa hosty”, T8 planu
+porządków).
+Decyzja: anatomia trafia do warstwy wspólnej jako `DsRatingStack` z propem
+`quiet` (puste chmurki i podpisy końców tylko w użyciu) i zmiennymi
+`--ds-rating-*` dla koloru i gęstości. Nowe role tokenów:
+`--mg-radius-cloud-a/b` (kształt chmurki) i `--mg-font-size-rating` (wartość nad
+słupkiem). Semantyka ujednolicona do `radiogroup`/`radio` z nazwą = liczba
+(wcześniej rytuał: `group` + przyciski „Etykieta: n z 5” z `aria-pressed`).
+−/+ w akcencie (reguła rytuału: ikony w kontrolkach nigdy w atramencie).
+Konsekwencje: `ExerciseRatingStack` usunięty; ~120 linii CSS kolumny zniknęło z
+`quiet-ritual.css`, rytuał tylko przekolorowuje słupek per oś; zrzuty przed/po
+1512 × 982 @2x identyczne poza kolorem −/+; dług strażnika 1752 → 1741.

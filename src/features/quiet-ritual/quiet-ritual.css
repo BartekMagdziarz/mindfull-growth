@@ -1259,138 +1259,28 @@
   margin-bottom: 6px;
 }
 /* The area step (ribbon + two bars + tags) fits one desktop screen; the step card itself scrolls otherwise. */
-.qr-bars .qr-scale--vertical {
-  gap: 6px;
+.qr-bars .qr-bar-body {
+  --ds-rating-gap: 6px;
+  --ds-rating-bar-height: 28px;
+  --ds-rating-step-size: 32px;
 }
-.qr-bars .qr-scale--vertical button {
-  height: 28px;
+/* The column is DsRatingStack (design system); the ritual only recolours it per
+   axis and shows the scale ends while the whole card is hovered or focused. */
+.qr-axis--effort .qr-bar-body {
+  --ds-rating-fill: var(--qr-effort-strong);
 }
-.qr-bars .qr-bar-step {
-  width: 32px;
-  height: 32px;
-}
-.qr-bar-body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-.qr-bar-body > output {
-  min-height: 34px;
-  font-size: 28px;
-  font-weight: 750;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-}
-.qr-axis--effort .qr-bar-body > output {
+.qr-axis--effort .qr-bar-body .ds-rating__value {
   color: var(--qr-effort-ink);
 }
-.qr-bar-stack {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.qr-axis--load .qr-bar-body {
+  --ds-rating-fill: rgb(var(--sky-800));
 }
-/* Scale ends sit to the left of the bar and only show while the bar is in use. */
-.qr-bar-ends {
-  position: absolute;
-  right: calc(100% + 10px);
-  inset-block: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 8px 0;
-  font-size: 11px;
-  color: var(--qr-muted);
-  text-align: right;
-  white-space: nowrap;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.18s;
+.qr-axis--paired .qr-bar-body {
+  --ds-rating-fill: var(--qr-fill);
 }
-.qr-axis:hover .qr-bar-ends,
-.qr-axis:has(:focus-visible) .qr-bar-ends {
+.qr-axis:hover .qr-bar-body .ds-rating__ends,
+.qr-axis:has(:focus-visible) .qr-bar-body .ds-rating__ends {
   opacity: 1;
-}
-.qr-bar-steps {
-  display: flex;
-  gap: 10px;
-  margin-top: 4px;
-}
-.qr-bar-step {
-  width: 36px;
-  height: 36px;
-  background: var(--qr-inner);
-}
-.qr-bar-step:disabled {
-  opacity: 0.3;
-  cursor: default;
-}
-.qr-scale--vertical {
-  display: flex;
-  flex-direction: column-reverse;
-  gap: 7px;
-  padding: 4px 0;
-}
-.qr-scale--vertical:focus-visible {
-  outline: 2px solid var(--qr-accent);
-  outline-offset: 6px;
-  border-radius: 14px;
-}
-.qr-scale--vertical button {
-  width: 136px;
-  height: 32px;
-  font-size: 0;
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: 14px 18px 12px 16px / 55% 45% 60% 40%;
-  transform: rotate(-0.9deg);
-  transition:
-    background 0.18s,
-    border-color 0.18s,
-    opacity 0.18s;
-}
-.qr-scale--vertical button:nth-child(2n) {
-  border-radius: 17px 13px 18px 12px / 45% 60% 40% 55%;
-  transform: rotate(0.9deg);
-}
-.qr-scale--vertical:hover button,
-.qr-scale--vertical:focus-visible button {
-  border-color: var(--qr-line-soft);
-}
-.qr-scale--vertical button.ghost {
-  background: var(--qr-wash);
-}
-.qr-scale--vertical button:hover {
-  border-color: var(--qr-line-strong);
-}
-.qr-scale--vertical button.filled {
-  border: 1px solid transparent;
-  background: var(--qr-accent);
-}
-.qr-scale--vertical button.filled:nth-child(1) {
-  opacity: 0.5;
-}
-.qr-scale--vertical button.filled:nth-child(2) {
-  opacity: 0.62;
-}
-.qr-scale--vertical button.filled:nth-child(3) {
-  opacity: 0.74;
-}
-.qr-scale--vertical button.filled:nth-child(4) {
-  opacity: 0.87;
-}
-.qr-scale--vertical button[aria-pressed='true'] {
-  opacity: 1;
-}
-.qr-axis--effort .qr-scale--vertical button.filled {
-  background: var(--qr-effort-strong);
-}
-.qr-axis--load .qr-scale--vertical button.filled {
-  background: rgb(var(--sky-800));
-}
-.qr-axis--paired .qr-scale--vertical button.filled {
-  background: var(--qr-fill);
 }
 /* Axis tags under a rating bar: pills + one chevron; open = search/re-use/create. */
 .qr-tagfield {

@@ -91,11 +91,11 @@ describe('QuietWeeklyReflection · area step (load + state)', () => {
   it('writes the load bar into the demands field and colours the state bar once both are rated', async () => {
     const wrapper = await mountOnBodyStep()
     const [loadBar, stateBar] = wrapper.findAll('.qr-bars .qr-axis')
-    await loadBar.findAll('.qr-scale--vertical button')[3].trigger('click')
+    await loadBar.findAll('.ds-rating__bars [role="radio"]')[3].trigger('click')
     expect(ratingRefsByKey.physicalIntensityRating.value).toBe(4)
     expect(ratingRefsByKey.physicalCareRating.value).toBeNull()
     expect(stateBar.classes()).not.toContain('qr-axis--paired')
-    await stateBar.findAll('.qr-scale--vertical button')[4].trigger('click')
+    await stateBar.findAll('.ds-rating__bars [role="radio"]')[4].trigger('click')
     expect(ratingRefsByKey.energyRating.value).toBe(5)
     await flushPromises()
     expect(wrapper.findAll('.qr-bars .qr-axis')[1].classes()).toContain('qr-axis--paired')

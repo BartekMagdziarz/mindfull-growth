@@ -97,19 +97,21 @@ test.describe('verification environment', () => {
     await expect(ritual.locator('.qr-day-head')).toHaveCount(7)
     await ritual.getByRole('button', { name: 'Następny krok' }).click()
     // Area step (D10): two axes — load and state — with the ten-week ribbon tail above the bars.
-    await expect(ritual.getByRole('group', { name: 'Obciążenie', exact: true })).toBeVisible()
-    await expect(ritual.getByRole('group', { name: 'Stan', exact: true })).toBeVisible()
-    await expect(ritual.getByRole('group', { name: 'Działania', exact: true })).toHaveCount(0)
+    await expect(ritual.getByRole('radiogroup', { name: 'Obciążenie', exact: true })).toBeVisible()
+    await expect(ritual.getByRole('radiogroup', { name: 'Stan', exact: true })).toBeVisible()
+    await expect(ritual.getByRole('radiogroup', { name: 'Działania', exact: true })).toHaveCount(0)
     const tail = ritual.locator('.qr-tail .ls-ribbon')
     await expect(tail).toBeVisible()
     await expect(tail.locator('.ls-ribbon__hit')).toHaveCount(10)
     // Rating both axes colours the state bar by the pair's quadrant and appends the week to the tail.
     // Seeded weeks already carry ratings; a click on the current value toggles it off, so press until set.
-    for (const label of ['Obciążenie: 4 z 5', 'Stan: 4 z 5']) {
-      const step = ritual.getByRole('button', { name: label })
+    for (const axis of ['Obciążenie', 'Stan']) {
+      const step = ritual
+        .getByRole('radiogroup', { name: axis, exact: true })
+        .getByRole('radio', { name: '4', exact: true })
       await step.click()
-      if ((await step.getAttribute('aria-pressed')) !== 'true') await step.click()
-      await expect(step).toHaveAttribute('aria-pressed', 'true')
+      if ((await step.getAttribute('aria-checked')) !== 'true') await step.click()
+      await expect(step).toHaveAttribute('aria-checked', 'true')
     }
     await expect(ritual.locator('.qr-bars .qr-axis--paired')).toHaveCount(1)
     // The tail's last hit zone is this week: once both axes are rated its tooltip reads the pair.

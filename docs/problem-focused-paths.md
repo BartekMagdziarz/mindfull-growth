@@ -300,8 +300,8 @@ do siebie). E2E: `e2e/verification-shame-v3.spec.ts` follows the new structure.
   uses the `focus` page width (896 px). Choice cells share each row equally by
   option count (2 → a pair ≤ 9 rem, 3–5 → n columns, 6–9 → 3, ≥ 10 → 2); scales up
   to five steps (strength, "did it help") are the reflection's cloud stack
-  (`ExerciseRatingStack`, same recipe as `QuietRatingBar` on product tokens, no card
-  chrome) that starts **empty** — `null` until tapped, "Dalej"/"Zapisz teraz" wait
+  (`DsRatingStack` from the design system — since 2026-11-01 the same component
+  the ritual's `QuietRatingBar` renders, without the card chrome) that starts **empty** — `null` until tapped, "Dalej"/"Zapisz teraz" wait
   for a required rating, an unrated optional scale saves no value; six to eleven
   steps are a grid of N tiles with the end labels under the first and last one,
   textareas set their minimum in lines (global `field-sizing: content` ignores

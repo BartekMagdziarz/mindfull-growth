@@ -48,61 +48,19 @@
         ><span>{{ highLabel }}</span>
       </div>
     </div>
-    <div v-else class="qr-bar-body">
-      <output
-        :aria-label="`${label}: ${modelValue ?? 'bez oceny'}`"
-        :class="{ 'qr-bar-value--empty': modelValue == null }"
-      >
-        {{ modelValue ?? '' }}
-      </output>
-      <div class="qr-bar-stack">
-        <div class="qr-bar-ends" aria-hidden="true">
-          <span>{{ highLabel }}</span
-          ><span>{{ lowLabel }}</span>
-        </div>
-        <div
-          class="qr-scale qr-scale--vertical"
-          role="group"
-          :aria-label="label"
-          tabindex="0"
-          @keydown.up.prevent="step(1)"
-          @keydown.right.prevent="step(1)"
-          @keydown.down.prevent="step(-1)"
-          @keydown.left.prevent="step(-1)"
-        >
-          <button
-            v-for="n in 5"
-            :key="n"
-            type="button"
-            :aria-label="`${label}: ${n} z 5`"
-            :aria-pressed="modelValue === n"
-            :class="{ filled: (modelValue ?? 0) >= n, ghost: ghost >= n }"
-            :title="ghost >= n ? `${previousLabel}: ${previous}` : `${n} z 5`"
-            @click="emit('update:modelValue', modelValue === n ? null : n)"
-          />
-        </div>
-      </div>
-      <div class="qr-bar-steps">
-        <button
-          type="button"
-          class="qr-icon qr-bar-step"
-          :aria-label="`Zmniejsz: ${label}`"
-          :disabled="!modelValue"
-          @click="step(-1)"
-        >
-          <AppIcon name="remove" />
-        </button>
-        <button
-          type="button"
-          class="qr-icon qr-bar-step"
-          :aria-label="`Zwiększ: ${label}`"
-          :disabled="modelValue === 5"
-          @click="step(1)"
-        >
-          <AppIcon name="add" />
-        </button>
-      </div>
-    </div>
+    <!-- Column: the app's one rating stack (DsRatingStack), quiet inside a ritual card. -->
+    <DsRatingStack
+      v-else
+      class="qr-bar-body"
+      quiet
+      :model-value="modelValue"
+      :label="label"
+      :high-label="highLabel"
+      :low-label="lowLabel"
+      :ghost="previous"
+      :ghost-label="previousLabel"
+      @update:model-value="emit('update:modelValue', $event)"
+    />
     <!-- Optional foot (e.g. the axis' tags) stays inside the same card. -->
     <slot />
   </article>
@@ -110,7 +68,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import AppIcon from '@/components/shared/AppIcon.vue'
+import { DsRatingStack } from '@/design-system/components'
 
 const props = withDefaults(
   defineProps<{
@@ -147,10 +105,6 @@ const emit = defineEmits<{ 'update:modelValue': [value: number | null] }>()
 
 const highLabel = computed(() => props.highLabel ?? (props.effort ? 'Duży' : 'Bardzo dobry'))
 const lowLabel = computed(() => props.lowLabel ?? (props.effort ? 'Niewielki' : 'Bardzo słaby'))
-// The ghost is a trace of last time, never an answer: it disappears as soon as
-// this bar carries a value.
-const ghost = computed(() => (props.modelValue === null ? (props.previous ?? 0) : 0))
-
 function step(delta: number) {
   emit('update:modelValue', Math.max(0, Math.min(5, (props.modelValue ?? 0) + delta)) || null)
 }
@@ -168,20 +122,18 @@ function step(delta: number) {
 .qr-axis--compact h2 {
   font-size: 18px;
 }
-.qr-axis--compact .qr-bar-body > output {
-  min-height: 32px;
-  font-size: 24px;
+/* Five bars side by side: narrower clouds and a smaller value. */
+.qr-axis--compact .qr-bar-body {
+  --ds-rating-bar-width: 64px;
+  --mg-font-size-rating: var(--mg-font-size-xl);
 }
 /* Narrow card: the scale ends wrap to two lines and stay inside the card. */
-.qr-axis--compact .qr-bar-ends {
+.qr-axis--compact :deep(.ds-rating__ends) {
   right: calc(100% + 6px);
   width: 46px;
   padding: 4px 0;
   font-size: 9px;
   line-height: 1.15;
   white-space: normal;
-}
-.qr-axis--compact .qr-scale--vertical button {
-  width: 64px;
 }
 </style>

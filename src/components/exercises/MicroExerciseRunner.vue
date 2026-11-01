@@ -92,14 +92,14 @@
 
         <!-- Up to five steps: the reflection's cloud stack, empty until rated.
            Up to eleven: a row of numbered tiles. Wider (0–100): the range. -->
-        <ExerciseRatingStack
+        <DsRatingStack
           v-else-if="currentStep.type === 'slider' && isStackScale(currentStep)"
           v-model="sliderValues[currentStep.key]!"
           :min="currentStep.min"
           :max="currentStep.max"
-          :min-label="tg(stepKey(currentStep, 'minLabel'))"
-          :max-label="tg(stepKey(currentStep, 'maxLabel'))"
-          :aria-label="tg(stepKey(currentStep, 'title'))"
+          :low-label="tg(stepKey(currentStep, 'minLabel'))"
+          :high-label="tg(stepKey(currentStep, 'maxLabel'))"
+          :label="tg(stepKey(currentStep, 'title'))"
           :empty-label="t('exerciseWizards.micro.shared.unrated')"
           :decrease-label="t('exerciseWizards.micro.shared.breath.less')"
           :increase-label="t('exerciseWizards.micro.shared.breath.more')"
@@ -245,7 +245,7 @@ import AppButton from '@/components/AppButton.vue'
 import AppCard from '@/components/AppCard.vue'
 import EmotionGroupPicker from '@/components/emotion/EmotionGroupPicker.vue'
 import ExerciseRangeInput from '@/components/exercises/ExerciseRangeInput.vue'
-import ExerciseRatingStack from '@/components/exercises/ExerciseRatingStack.vue'
+import { DsRatingStack } from '@/design-system/components'
 import ExerciseScaleRow from '@/components/exercises/ExerciseScaleRow.vue'
 import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import MicroBreathTimer from '@/components/exercises/MicroBreathTimer.vue'

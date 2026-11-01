@@ -6,7 +6,7 @@ Design V2 jest celowo ograniczony do korzenia `.mg-design-v2`. Nie zmienia globa
 
 - `tokens.css` — kolor, typografia Nunito, spacing, organiczne promienie, elewacja, ruch, focus i z-index.
 - `base.css` — scoped reset, dostępność oraz współdzielone anatomie komponentów.
-- `components/` — Surface, Button, Field, SegmentedControl, PeriodNavigation, Rail, ProgressMarker, State i WizardShell.
+- `components/` — Surface, Button, Field, SegmentedControl, PeriodNavigation, Rail, RatingStack, ProgressMarker, State i WizardShell.
 - `adapters.css` — tymczasowe adaptery dla współdzielonych komponentów legacy używanych wewnątrz nowego workspace’u.
 
 ## Zasady
@@ -177,3 +177,19 @@ gramatykę dla korzeni poza `#app`.
   karty (`IconPicker ghost-when-empty`): wyblakły „+”, pełny na hover karty.
   `.mg-v2-card-indent` — rzędy pod tytułem karty zaczynają się tam, gdzie
   tekst tytułu (dysk 2,75 rem + odstęp).
+
+## Jeden słupek ocen (2026-11-01)
+
+`DsRatingStack` to jedyna skala 1–5 rysowana jako słupek chmurek: wartość nad
+słupkiem (pusta bez oceny, nic nie jest preselekcją), chmurki wypełniane od dołu
+z rampą krycia, −/+ pod spodem w akcencie, ślad poprzedniej wartości (`ghost`),
+klawiatura strzałkami, Delete czyści, `radiogroup` z rolą `radio` na chmurkach.
+`quiet` = puste chmurki i podpisy końców pokazują się dopiero w użyciu (karty
+rytuału); bez niego są stale widoczne (pojedyncze pytanie w kroku ćwiczenia).
+Kolor i gęstość przez zmienne `--ds-rating-fill`, `--ds-rating-bar-width`,
+`--ds-rating-bar-height`, `--ds-rating-gap`, `--ds-rating-step-size` (domyślne w
+`:where()`, więc każda reguła hosta wygrywa); rozmiar wartości to token
+`--mg-font-size-rating`, kształt chmurki `--mg-radius-cloud-a/b`. Hosty:
+`QuietRatingBar` (obciążenie = atrament, stan = kolor pary, wysiłek = róż, kompas
+kompaktowy) i krótkie skale w `MicroExerciseRunner`. Rzędy 1–5 (`layout="row"`) i
+skale 6–11 (`ExerciseScaleRow`) to osobne anatomie.
