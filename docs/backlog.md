@@ -66,7 +66,7 @@ wpisy wyżej; przy wykonaniu dopisz `zrobione (hash)` w tej linii.
   Wycofanie · Sprawdzanie · Zamartwianie) — zaakceptowane bez zmian.
 - **D8 skórka pickera emocji** — zostaje obecny `EmotionGroupPicker`; scena Labu
   `/concepts/emotion-picker` to tylko zapis koncepcji.
-- **D9 sweep błękitów danych** — `otwarte`. Tak, razem z K2 (migracja literałów) partiami po widoku:
+- **D9 sweep błękitów danych** — `zrobione (1fb067b6, 2026-11-01; K2 partie 1–2: d088de62, 3cd1d382 — rytuały, Dzisiaj, kalendarz rytmu, zamknięcie celu na tokenach; dług 1741 → 1345; dalej K2 = migracja klas `neo-*`/Tailwind w kreatorach ćwiczeń i profilu)`. Tak, razem z K2 (migracja literałów) partiami po widoku:
   Dzisiaj (`NextObjectChartCard` i spółka: `--neo-chart-primary-*` → `--mg-color-data-fill`),
   kalendarz rytmu, dock, runner mikro, gradient ocen; kolory ćwiartek/części/wstęgi zostają.
   Plan: `ideas/html-plans/2026-10-17-data-blues-unification.html` fazy 1–3.
