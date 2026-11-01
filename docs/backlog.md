@@ -27,26 +27,36 @@ wracania do rozmowy, w której go znaleziono.
 
 ## Błędy
 
-_Brak otwartych błędów (stan 2026-11-01)._
+### B-14 · Kolejność kluczowych rezultatów na karcie celu jest przypadkowa
+
+`otwarte` · Znaleziono 2026-11-01 przy P-5 (zrzuty przed/po biblioteki) · biblioteka obiektów, `src/services/objectsLibraryQueries.ts`
+
+**Objaw.** Na karcie celu w `/objects/goals` rezultaty stoją w innej kolejności w każdej świeżej
+bazie (dwa przebiegi tego samego kodu na tym samym seedzie dały różne układy), a w realnej bazie
+nowy rezultat może wskoczyć w dowolne miejsce listy zamiast na koniec.
+
+**Jak odtworzyć.** Dwa razy `npm run dev:verify` w świeżych profilach przeglądarki (albo dwa
+konteksty Playwright) → `/objects/goals` → porównaj kolejność rezultatów celu „Przebiec 10 km…”.
+
+**Przyczyna.** `keyResultDexieRepository.listAll()` zwraca `db.keyResults.toArray()`, czyli kolejność
+klucza głównego (losowy UUID). `buildContext` w `src/services/objectsLibraryQueries.ts:408-414` grupuje
+je po `goalId` bez sortowania, a `buildGoalListItem` (`:928`, `childPreviews`) mapuje w tej kolejności.
+
+**Dlaczego to błąd.** Lista ma stabilny porządek wszędzie indziej (`sortLibraryItems`, tytuły,
+lata); rezultaty celu to jedyna lista, której układ zależy od losowych identyfikatorów.
+
+**Propozycja naprawy.** W `buildContext` posortować rezultaty każdego celu po `createdAt`, przy
+remisie po tytule (`localeCompare`); ewentualnie później jawne pole kolejności z DnD.
+
+**Kryteria akceptacji.** Test jednostkowy zapytania: trzy rezultaty o różnych UUID i `createdAt`
+wracają w kolejności utworzenia, przy równym `createdAt` — alfabetycznie; zrzut `/objects/goals`
+identyczny w dwóch świeżych bazach.
 
 ---
 
 ## Pomysły
 
-### P-5 · Biblioteka obiektów jako `src/features/objects-library/`
-
-`otwarte` · Znaleziono 2026-10-20 przy audycie repo · `src/views/ObjectsLibraryView.vue`, `src/components/objects`
-
-**Kontekst.** `ObjectsLibraryView.vue` ma 2 480 linii, a biblioteka żyje po staremu w
-`components/objects/`, podczas gdy pozostałe obszary (planning-next, quiet-ritual, program-path,
-goal-closing) mają własne katalogi w `features/` z css i view-modelami (reguła w CLAUDE.md).
-
-**Propozycja.** Przenieść do `src/features/objects-library/` i podzielić widok na belkę, listę,
-kartę i edytor; css do `objects-library.css`. Bez zmiany zachowania.
-
-**Kryteria.** Specy kart i belki bez zmian zielone; `verification-smoke` i
-`verification-multi-completion` (karta biblioteki) zielone; `check:design-system` bez nowych
-wpisów.
+_Brak otwartych pomysłów (stan 2026-11-01)._
 
 ---
 
@@ -102,6 +112,21 @@ planowania; Hub priorytetu; klik w licznik karty = filtr.
 ---
 
 ## Zamknięte
+
+### P-5 · Biblioteka obiektów jako `src/features/objects-library/`
+
+`zrobione (a586ba50 + daecb1ea przeniesienie, 5f52b928 podział, 2026-11-01: widok 2116 → 407 linii, belka + 6 composables + kontekst; listę kart zostawiono w szablonie widoku — karty już są komponentami, osobna lista przepychałaby ~40 handlerów; specy bez zmian, e2e 46/46, zrzuty identyczne poza B-14)` · Znaleziono 2026-10-20 przy audycie repo · `src/views/ObjectsLibraryView.vue`, `src/components/objects`
+
+**Kontekst.** `ObjectsLibraryView.vue` ma 2 480 linii, a biblioteka żyje po staremu w
+`components/objects/`, podczas gdy pozostałe obszary (planning-next, quiet-ritual, program-path,
+goal-closing) mają własne katalogi w `features/` z css i view-modelami (reguła w CLAUDE.md).
+
+**Propozycja.** Przenieść do `src/features/objects-library/` i podzielić widok na belkę, listę,
+kartę i edytor; css do `objects-library.css`. Bez zmiany zachowania.
+
+**Kryteria.** Specy kart i belki bez zmian zielone; `verification-smoke` i
+`verification-multi-completion` (karta biblioteki) zielone; `check:design-system` bez nowych
+wpisów.
 
 ### P-4 · Migracje Dexie w osobnych plikach
 
