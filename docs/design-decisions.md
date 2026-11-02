@@ -418,3 +418,29 @@ wyjątki: `src/domain/loadState.ts` (kanały dla alf pary obciążenie/stan) i
 `ratingGradient.ts` usunięty.
 Konsekwencje: zrzuty Dzisiaj, widoku ocen, ścieżki i runnera identyczne co do piksela;
 nowa reguła nie dodała długu (1345).
+
+## 2026-11-02 — K2, partia 4: klasy legacy w kreatorach ćwiczeń
+
+Kontekst: `components/exercises` miało 797 naruszeń, prawie wszystkie to klasy
+`neo-*` i utility `rounded-*`/`shadow-neu-*` w szablonach, wyglądające dziś tak, jak
+każe im mostek w `adapters.css` (podwojone klasy wygrywały z utility).
+Decyzja: każdą klasę legacy zamieniono na anatomię kreatorów o tym samym wyglądzie
+(`exercise-field`, `exercise-block`, `exercise-option` w `exercise-design.css`);
+`neo-focus` usunięty (korzeń V2 daje ten sam pierścień przyciskom, a pola mają fokus
+z `text-field-focus.css`, do którego dopisano `exercise-field`); martwe utility na
+elementach z anatomią (promień i cień, które mostek i tak nadpisywał) usunięte;
+`shadow-neu-pressed` jako stan wybranego `exercise-pill` → `exercise-pill--primary`
+(te same reguły); pozostałe `rounded-*`/`shadow-neu-*` → nowe utility na tokenach
+`rounded-mg-*`/`shadow-mg-*` (dokładnie wartości mostka), tekst SVG i legend
+`text-[9–11px]` → `text-mg-chart`, podpisy i drobne przyciski → `text-xs`. Wyjątki
+świadome, zmieniające wygląd: przełącznik Nauka/Zastosowanie w zniekształceniach →
+`DsSegmentedControl` (jak w liście ćwiczeń), granice intencji paradoksalnej z
+ostrzegawczego żółtego → cicha `exercise-note` (reguła notek bezpieczeństwa),
+`neo-checkbox` → `mg-v2-checkbox` (zamiast resztki neumorfizmu), ikona notki 20 →
+22 px i kafle skali 12 px → `--mg-radius-sm` (reguły partii 1), placeholdery pól na
+`--mg-color-muted`.
+Konsekwencje: porównanie stylów obliczonych ~7 200 elementów w 114 krokach 33
+kreatorów przed/po — poza wyjątkami wyżej identyczne; zrzuty 1512 × 982 @2x
+potwierdzają. Dług strażnika 1345 → 548; `components/exercises` ma 0 naruszeń.
+Mostek `neo-*` w `adapters.css` zostaje dla profilu, ocen i reszty (K2 dalej).
+

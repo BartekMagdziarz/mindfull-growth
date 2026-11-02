@@ -80,11 +80,11 @@
               <button
                 v-for="part in protectorParts"
                 :key="part.id"
-                class="neo-focus rounded-xl p-3 text-left transition-all"
+                class="rounded-mg-md p-3 text-left transition-all"
                 :class="[
                   protectorPartIds.includes(part.id)
-                    ? 'neo-selector neo-selector--active border'
-                    : 'neo-selector border',
+                    ? 'exercise-option exercise-option--active border'
+                    : 'exercise-option border',
                   roleBorderClass(part.role),
                 ]"
                 @click="toggleProtector(part.id)"
@@ -116,11 +116,11 @@
                 <button
                   v-for="option in permissionOptions"
                   :key="option.value"
-                  class="neo-focus rounded-xl p-3 text-left transition-all flex items-start gap-3"
+                  class="rounded-mg-md p-3 text-left transition-all flex items-start gap-3"
                   :class="
                     protectorPermission === option.value
-                      ? 'neo-selector neo-selector--active border'
-                      : 'neo-selector border'
+                      ? 'exercise-option exercise-option--active border'
+                      : 'exercise-option border'
                   "
                   @click="protectorPermission = option.value"
                 >
@@ -139,7 +139,7 @@
             </div>
 
             <!-- "Jeszcze nie" is a complete answer: close for today, the step counts -->
-            <div v-if="isBlocking" class="bg-status-warn-soft p-3 rounded-lg space-y-3">
+            <div v-if="isBlocking" class="bg-status-warn-soft p-3 rounded-mg-sm space-y-3">
               <p
                 class="text-sm text-status-warn-on"
                 v-html="t('exerciseWizards.exileWitnessing.protectorCheck.blockingMessage')"
@@ -200,7 +200,7 @@
                 min="1"
                 max="100"
                 :placeholder="t('exerciseWizards.exileWitnessing.approach.feltAgePlaceholder')"
-                class="neo-input w-24 p-2 text-sm"
+                class="exercise-field w-24 p-2 text-sm"
               />
             </div>
 
@@ -249,8 +249,10 @@
 
             <div class="space-y-3">
               <button
-                class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
-                :class="selfCheckPassed === true ? 'neo-selector--active ring-2 ring-primary' : ''"
+                class="w-full exercise-block p-4 text-left transition-all hover:-translate-y-px"
+                :class="
+                  selfCheckPassed === true ? 'exercise-option--active ring-2 ring-primary' : ''
+                "
                 @click="markSelfCheckPassed"
               >
                 <div class="flex items-center gap-3">
@@ -261,8 +263,8 @@
                 </div>
               </button>
               <button
-                class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
-                :class="selfCheckReactive ? 'shadow-neu-pressed ring-2 ring-status-warn' : ''"
+                class="w-full exercise-block p-4 text-left transition-all hover:-translate-y-px"
+                :class="selfCheckReactive ? 'ring-2 ring-status-warn' : ''"
                 @click="markSelfCheckReactive"
               >
                 <div class="flex items-center gap-3">
@@ -280,7 +282,7 @@
             >
               <div
                 v-if="selfCheckReactive"
-                class="neo-surface p-6 rounded-2xl flex flex-col items-center gap-4"
+                class="exercise-block p-6 flex flex-col items-center gap-4"
               >
                 <div
                   class="breathing-circle breathing-10s w-20 h-20 rounded-full bg-primary/10 border-2 border-primary/30"
@@ -293,7 +295,7 @@
                 </p>
                 <div class="w-full space-y-2">
                   <button
-                    class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
+                    class="w-full exercise-block p-4 text-left transition-all hover:-translate-y-px"
                     @click="confirmSelfCheckAndContinue"
                   >
                     <div class="flex items-center gap-3">
@@ -304,7 +306,7 @@
                     </div>
                   </button>
                   <button
-                    class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
+                    class="w-full exercise-block p-4 text-left transition-all hover:-translate-y-px"
                     @click="leaveForToday()"
                   >
                     <div class="flex items-center gap-3">
@@ -351,14 +353,14 @@
               v-model="exileMessage"
               rows="3"
               :placeholder="tg('exerciseWizards.exileWitnessing.witness.messagePlaceholder')"
-              class="neo-input w-full p-3 text-sm resize-none"
+              class="exercise-field w-full p-3 text-sm resize-none"
             />
 
             <textarea
               v-model="exileBelief"
               rows="3"
               :placeholder="t('exerciseWizards.exileWitnessing.witness.beliefPlaceholder')"
-              class="neo-input w-full p-3 text-sm resize-none"
+              class="exercise-field w-full p-3 text-sm resize-none"
             />
             <p class="text-xs text-on-surface-variant">
               {{ t('exerciseWizards.exileWitnessing.witness.beliefNote') }}
@@ -391,7 +393,7 @@
               <button
                 v-for="chip in compassionChips"
                 :key="chip"
-                class="exercise-pill px-3 py-1.5 text-sm bg-rose-50 text-rose-700 neo-focus shadow-neu-raised-sm hover:-translate-y-px transition-all"
+                class="exercise-pill px-3 py-1.5 text-sm bg-rose-50 text-rose-700 hover:-translate-y-px transition-all"
                 @click="insertCompassionChip(chip)"
               >
                 {{ chip }}
@@ -402,7 +404,7 @@
               v-model="compassionMessage"
               rows="4"
               :placeholder="t('exerciseWizards.exileWitnessing.compassion.placeholder')"
-              class="neo-input w-full p-3 text-sm resize-none"
+              class="exercise-field w-full p-3 text-sm resize-none"
             />
 
             <!-- Settling pause -->
@@ -440,11 +442,11 @@
               <button
                 v-for="option in postStateOptions"
                 :key="option.value"
-                class="neo-focus rounded-xl p-3 text-left transition-all"
+                class="rounded-mg-md p-3 text-left transition-all"
                 :class="
                   postSessionState === option.value
-                    ? 'neo-selector neo-selector--active border'
-                    : 'neo-selector border'
+                    ? 'exercise-option exercise-option--active border'
+                    : 'exercise-option border'
                 "
                 @click="postSessionState = option.value"
               >
@@ -454,7 +456,7 @@
 
             <div
               v-if="postSessionState === 'more-distressed'"
-              class="bg-status-warn-soft p-3 rounded-lg"
+              class="bg-status-warn-soft p-3 rounded-mg-sm"
             >
               <p class="text-sm text-status-warn-on">
                 {{ t('exerciseWizards.exileWitnessing.closing.distressedWarning') }}
@@ -470,7 +472,7 @@
                 <button
                   v-for="chip in promiseChips"
                   :key="chip"
-                  class="exercise-pill px-3 py-1.5 text-sm bg-rose-50 text-rose-700 neo-focus shadow-neu-raised-sm hover:-translate-y-px transition-all"
+                  class="exercise-pill px-3 py-1.5 text-sm bg-rose-50 text-rose-700 hover:-translate-y-px transition-all"
                   @click="insertPromiseChip(chip)"
                 >
                   {{ chip }}
@@ -480,7 +482,7 @@
                 v-model="promise"
                 rows="2"
                 :placeholder="t('exerciseWizards.exileWitnessing.closing.promisePlaceholder')"
-                class="neo-input w-full p-3 text-sm resize-none"
+                class="exercise-field w-full p-3 text-sm resize-none"
               />
             </div>
 
@@ -516,7 +518,7 @@
             <IFSSafetyBanner />
 
             <!-- Summary -->
-            <div class="neo-surface p-4 rounded-xl space-y-3 text-sm">
+            <div class="exercise-block p-4 space-y-3 text-sm">
               <div class="flex items-center gap-2">
                 <span class="text-on-surface-variant">{{
                   t('exerciseWizards.exileWitnessing.reflection.exileLabel')
@@ -595,7 +597,7 @@
             </div>
 
             <label class="flex items-start gap-2 cursor-pointer">
-              <input v-model="updatePartCard" type="checkbox" class="mt-0.5 neo-focus" />
+              <input v-model="updatePartCard" type="checkbox" class="mt-0.5" />
               <span class="text-xs text-on-surface">
                 {{ t('exerciseWizards.exileWitnessing.reflection.updatePartLabel') }}
                 <span class="block text-on-surface-variant">{{
@@ -608,14 +610,14 @@
               v-model="reflection"
               rows="3"
               :placeholder="t('exerciseWizards.exileWitnessing.reflection.reflectionPlaceholder')"
-              class="neo-input w-full p-3 text-sm resize-none"
+              class="exercise-field w-full p-3 text-sm resize-none"
             />
 
             <textarea
               v-model="notes"
               rows="2"
               :placeholder="t('exerciseWizards.exileWitnessing.reflection.notesPlaceholder')"
-              class="neo-input w-full p-3 text-sm resize-none"
+              class="exercise-field w-full p-3 text-sm resize-none"
             />
           </AppCard>
 

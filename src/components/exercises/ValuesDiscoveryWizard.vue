@@ -24,11 +24,11 @@
               v-model="person.name"
               type="text"
               :placeholder="t('exerciseWizards.valuesDiscovery.admirablePeople.namePlaceholder')"
-              class="neo-input flex-1 p-2"
+              class="exercise-field flex-1 p-2"
             />
             <button
               type="button"
-              class="p-2 rounded-lg text-on-surface-variant hover:text-error hover:bg-section transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+              class="p-2 rounded-mg-sm text-on-surface-variant hover:text-error hover:bg-section transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
               @click="draft.admirablePeople.splice(index, 1)"
               :aria-label="t('exerciseWizards.valuesDiscovery.admirablePeople.removePerson')"
             >
@@ -48,12 +48,12 @@
                 :placeholder="
                   t('exerciseWizards.valuesDiscovery.admirablePeople.qualityPlaceholder')
                 "
-                class="neo-input flex-1 p-1.5 text-sm"
+                class="exercise-field flex-1 p-1.5 text-sm"
                 @input="person.qualities[qi] = ($event.target as HTMLInputElement).value"
               />
               <button
                 type="button"
-                class="p-1 rounded text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
+                class="p-1 rounded-mg-xs text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
                 @click="person.qualities.splice(qi, 1)"
               >
                 <AppIcon name="close" class="text-xs" />
@@ -100,7 +100,7 @@
         <ExerciseStepWhy :text="tg('exerciseWizards.valuesDiscovery.coreValues.why')" />
 
         <!-- Show qualities summary -->
-        <div class="p-3 rounded-lg bg-section">
+        <div class="p-3 rounded-mg-sm bg-section">
           <p class="text-xs font-medium text-on-surface-variant mb-2">
             {{ tg('exerciseWizards.valuesDiscovery.coreValues.qualitiesSummaryLabel') }}
           </p>
@@ -127,12 +127,12 @@
               :value="value"
               type="text"
               :placeholder="t('exerciseWizards.valuesDiscovery.coreValues.valuePlaceholder')"
-              class="neo-input flex-1 p-2"
+              class="exercise-field flex-1 p-2"
               @input="draft.coreValues[index] = ($event.target as HTMLInputElement).value"
             />
             <button
               type="button"
-              class="p-1 rounded text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
+              class="p-1 rounded-mg-xs text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
               @click="draft.coreValues.splice(index, 1)"
             >
               <AppIcon name="close" class="text-base" />
@@ -156,7 +156,7 @@
             v-model="draft.notes"
             rows="3"
             :placeholder="tg('exerciseWizards.valuesDiscovery.coreValues.reflectionPlaceholder')"
-            class="neo-input w-full p-3 text-sm resize-none"
+            class="exercise-field w-full p-3 text-sm resize-none"
           />
         </div>
       </AppCard>

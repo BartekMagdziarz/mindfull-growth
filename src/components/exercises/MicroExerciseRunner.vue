@@ -828,7 +828,7 @@ function leaveTooMuch(): void {
 
 .micro-steps .is-current i {
   width: 18px;
-  border-radius: 8px;
+  border-radius: var(--mg-radius-xs);
   opacity: 1;
 }
 
@@ -1029,7 +1029,8 @@ textarea.micro-field--long {
 
 .micro-pick__card.is-selected {
   border-color: var(--mg-color-primary);
-  box-shadow: inset 0 0 0 1px var(--mg-color-primary);
+  outline: 1px solid var(--mg-color-primary);
+  outline-offset: -1px;
 }
 
 .micro-pick__card:focus-visible {

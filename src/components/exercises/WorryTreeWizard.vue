@@ -27,7 +27,7 @@
             v-model="worry"
             rows="4"
             :placeholder="t('exerciseWizards.worryTree.capture.placeholder')"
-            class="neo-input neo-focus w-full p-3 text-sm resize-none"
+            class="exercise-field w-full p-3 text-sm resize-none"
           />
         </AppCard>
 
@@ -59,7 +59,7 @@
               min="0"
               max="100"
               step="1"
-              class="neo-focus w-full accent-primary"
+              class="w-full accent-primary"
             />
             <div class="flex justify-between text-xs text-on-surface-variant">
               <span>{{ t('exerciseWizards.worryTree.capture.intensityMin') }}</span>
@@ -100,8 +100,8 @@
           <button
             type="button"
             :class="[
-              'neo-selector neo-focus w-full text-left p-5 space-y-1',
-              worryType === 'real-problem' ? 'neo-selector--active' : '',
+              'exercise-option w-full text-left p-5 space-y-1',
+              worryType === 'real-problem' ? 'exercise-option--active' : '',
             ]"
             @click="selectWorryType('real-problem')"
           >
@@ -131,8 +131,8 @@
           <button
             type="button"
             :class="[
-              'neo-selector neo-focus w-full text-left p-5 space-y-1',
-              worryType === 'hypothetical' ? 'neo-selector--active' : '',
+              'exercise-option w-full text-left p-5 space-y-1',
+              worryType === 'hypothetical' ? 'exercise-option--active' : '',
             ]"
             @click="selectWorryType('hypothetical')"
           >
@@ -187,8 +187,8 @@
           <button
             type="button"
             :class="[
-              'neo-selector neo-focus w-full text-left p-5',
-              canActNow === true ? 'neo-selector--active' : '',
+              'exercise-option w-full text-left p-5',
+              canActNow === true ? 'exercise-option--active' : '',
             ]"
             @click="selectCanActNow(true)"
           >
@@ -213,8 +213,8 @@
           <button
             type="button"
             :class="[
-              'neo-selector neo-focus w-full text-left p-5',
-              canActNow === false ? 'neo-selector--active' : '',
+              'exercise-option w-full text-left p-5',
+              canActNow === false ? 'exercise-option--active' : '',
             ]"
             @click="selectCanActNow(false)"
           >
@@ -265,20 +265,16 @@
             v-model="actionPlan"
             rows="3"
             :placeholder="t('exerciseWizards.worryTree.actionPlan.placeholder')"
-            class="neo-input neo-focus w-full p-3 text-sm resize-none"
+            class="exercise-field w-full p-3 text-sm resize-none"
           />
           <div class="space-y-1">
             <label class="text-sm font-medium text-on-surface">{{
               t('exerciseWizards.worryTree.actionPlan.whenLabel')
             }}</label>
-            <input
-              v-model="actionDate"
-              type="date"
-              class="neo-input neo-focus w-full p-2.5 text-sm"
-            />
+            <input v-model="actionDate" type="date" class="exercise-field w-full p-2.5 text-sm" />
           </div>
           <label class="flex items-center gap-3 text-sm text-on-surface cursor-pointer">
-            <input v-model="createCommitment" type="checkbox" class="neo-checkbox" />
+            <input v-model="createCommitment" type="checkbox" class="mg-v2-checkbox" />
             {{ t('exerciseWizards.worryTree.actionPlan.createCommitment') }}
           </label>
         </AppCard>
@@ -318,17 +314,13 @@
             v-model="actionPlan"
             rows="3"
             :placeholder="t('exerciseWizards.worryTree.schedule.placeholder')"
-            class="neo-input neo-focus w-full p-3 text-sm resize-none"
+            class="exercise-field w-full p-3 text-sm resize-none"
           />
           <div class="space-y-1">
             <label class="text-sm font-medium text-on-surface">{{
               t('exerciseWizards.worryTree.schedule.whenLabel')
             }}</label>
-            <input
-              v-model="actionDate"
-              type="date"
-              class="neo-input neo-focus w-full p-2.5 text-sm"
-            />
+            <input v-model="actionDate" type="date" class="exercise-field w-full p-2.5 text-sm" />
           </div>
         </AppCard>
 
@@ -374,8 +366,8 @@
             :key="technique.id"
             type="button"
             :class="[
-              'neo-selector neo-focus w-full text-left p-4 space-y-1',
-              selectedTechnique === technique.id ? 'neo-selector--active' : '',
+              'exercise-option w-full text-left p-4 space-y-1',
+              selectedTechnique === technique.id ? 'exercise-option--active' : '',
             ]"
             @click="selectTechnique(technique.id)"
           >
@@ -434,7 +426,7 @@
               min="0"
               max="100"
               step="1"
-              class="neo-focus w-full accent-primary"
+              class="w-full accent-primary"
             />
             <div class="flex justify-between text-xs text-on-surface-variant">
               <span>{{ t('exerciseWizards.worryTree.recheck.intensityMin') }}</span>

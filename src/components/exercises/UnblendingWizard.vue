@@ -20,7 +20,7 @@
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.unblending.checkIn.subtitle') }}
             </p>
-            <div class="neo-surface p-4 rounded-xl">
+            <div class="exercise-block p-4">
               <p
                 class="text-sm text-on-surface leading-relaxed"
                 v-html="t('exerciseWizards.unblending.checkIn.description')"
@@ -62,9 +62,11 @@
               <button
                 v-for="option in awarenessOptions"
                 :key="option.value"
-                class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
+                class="w-full exercise-block p-4 text-left transition-all hover:-translate-y-px"
                 :class="
-                  awarenessChoice === option.value ? 'neo-selector--active ring-2 ring-primary' : ''
+                  awarenessChoice === option.value
+                    ? 'exercise-option--active ring-2 ring-primary'
+                    : ''
                 "
                 @click="handleAwarenessChoice(option.value)"
               >
@@ -81,7 +83,7 @@
               enter-from-class="opacity-0 -translate-y-2"
               leave-to-class="opacity-0 -translate-y-2"
             >
-              <div v-if="awarenessChoice === 'no'" class="neo-surface p-3 rounded-lg">
+              <div v-if="awarenessChoice === 'no'" class="exercise-block p-3">
                 <p class="text-sm text-on-surface-variant italic">
                   {{ t('exerciseWizards.unblending.awareness.noResponse') }}
                 </p>
@@ -113,7 +115,7 @@
               {{ t('exerciseWizards.unblending.magicQuestion.title') }}
             </h2>
 
-            <div class="neo-surface p-6 rounded-xl text-center">
+            <div class="exercise-block p-6 text-center">
               <p class="text-lg font-semibold text-on-surface">
                 {{ t('exerciseWizards.unblending.magicQuestion.question') }}
               </p>
@@ -126,9 +128,9 @@
 
             <div class="space-y-3">
               <button
-                class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
+                class="w-full exercise-block p-4 text-left transition-all hover:-translate-y-px"
                 :class="
-                  selfEnergyPresent === true ? 'neo-selector--active ring-2 ring-primary' : ''
+                  selfEnergyPresent === true ? 'exercise-option--active ring-2 ring-primary' : ''
                 "
                 @click="handleMagicAnswer(true)"
               >
@@ -140,9 +142,9 @@
                 </div>
               </button>
               <button
-                class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
+                class="w-full exercise-block p-4 text-left transition-all hover:-translate-y-px"
                 :class="
-                  selfEnergyPresent === false ? 'neo-selector--active ring-2 ring-primary' : ''
+                  selfEnergyPresent === false ? 'exercise-option--active ring-2 ring-primary' : ''
                 "
                 @click="handleMagicAnswer(false)"
               >
@@ -175,7 +177,7 @@
             <ExerciseStepWhy :text="tg('exerciseWizards.unblending.secondaryCheck.why')" />
 
             <!-- Breathing circle -->
-            <div class="neo-surface p-6 rounded-2xl flex flex-col items-center gap-4">
+            <div class="exercise-block p-6 flex flex-col items-center gap-4">
               <div
                 class="w-24 h-24 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center"
                 :class="breathingActive ? 'breathing-circle' : ''"
@@ -217,7 +219,7 @@
                 </p>
                 <div class="space-y-3">
                   <button
-                    class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
+                    class="w-full exercise-block p-4 text-left transition-all hover:-translate-y-px"
                     @click="confirmSelfEnergyAndContinue"
                   >
                     <div class="flex items-center gap-3">
@@ -228,8 +230,8 @@
                     </div>
                   </button>
                   <button
-                    class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
-                    :class="stillReactive ? 'shadow-neu-pressed ring-2 ring-status-warn' : ''"
+                    class="w-full exercise-block p-4 text-left transition-all hover:-translate-y-px"
+                    :class="stillReactive ? 'ring-2 ring-status-warn' : ''"
                     @click="stillReactive = true"
                   >
                     <div class="flex items-center gap-3">
@@ -281,7 +283,7 @@
               {{ t('exerciseWizards.unblending.steppingBack.title') }}
             </h2>
 
-            <div class="neo-surface p-4 rounded-xl">
+            <div class="exercise-block p-4">
               <p class="text-sm text-on-surface leading-relaxed">
                 {{ t('exerciseWizards.unblending.steppingBack.description') }}
               </p>
@@ -289,7 +291,7 @@
             <ExerciseStepWhy :text="tg('exerciseWizards.unblending.steppingBack.why')" />
 
             <!-- Countdown timer -->
-            <div class="neo-surface p-8 rounded-2xl flex flex-col items-center gap-4">
+            <div class="exercise-block p-8 flex flex-col items-center gap-4">
               <div class="relative w-20 h-20">
                 <svg class="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
                   <circle
@@ -350,7 +352,7 @@
                   v-model="shiftNotes"
                   rows="2"
                   :placeholder="tg('exerciseWizards.unblending.steppingBack.shiftPlaceholder')"
-                  class="neo-input w-full p-3 text-sm resize-none"
+                  class="exercise-field w-full p-3 text-sm resize-none"
                 />
               </div>
             </Transition>
@@ -458,7 +460,7 @@
             </div>
 
             <!-- Shift rating -->
-            <div class="neo-surface p-3 rounded-lg flex items-center justify-between">
+            <div class="exercise-block p-3 flex items-center justify-between">
               <span class="text-sm text-on-surface-variant">{{
                 t('exerciseWizards.unblending.postCheck.spaceLabel')
               }}</span>
@@ -474,7 +476,7 @@
                 v-model="notes"
                 rows="2"
                 :placeholder="t('exerciseWizards.unblending.postCheck.notesPlaceholder')"
-                class="neo-input w-full p-3 text-sm resize-none"
+                class="exercise-field w-full p-3 text-sm resize-none"
               />
             </div>
           </AppCard>

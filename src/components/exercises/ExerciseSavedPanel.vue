@@ -73,7 +73,7 @@ const { t, tg } = useT()
 }
 
 .exercise-saved__mark .material-symbols-outlined {
-  font-size: 1.1rem;
+  font-size: var(--mg-font-size-icon-md);
 }
 
 .exercise-saved__title {

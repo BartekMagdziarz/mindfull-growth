@@ -24,7 +24,7 @@
           </p>
 
           <!-- Classic examples -->
-          <div class="neo-surface p-4 space-y-3">
+          <div class="exercise-block p-4 space-y-3">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('exerciseWizards.paradoxicalIntention.intro.examplesTitle') }}
             </p>
@@ -43,14 +43,14 @@
           </p>
 
           <!-- Boundary notice (permanent, not dismissible) -->
-          <div class="neo-warning p-4 rounded-xl">
+          <div class="exercise-note">
             <div class="flex items-start gap-3">
-              <AppIcon name="warning" class="text-xl text-status-warn-on flex-shrink-0 mt-0.5" />
-              <div class="text-sm text-on-surface">
-                <p class="font-semibold mb-1">
+              <AppIcon name="warning" class="exercise-note__icon" />
+              <div class="space-y-1">
+                <p class="exercise-note__title">
                   {{ t('exerciseWizards.paradoxicalIntention.intro.boundaryTitle') }}
                 </p>
-                <p>
+                <p class="exercise-note__text">
                   {{ t('exerciseWizards.paradoxicalIntention.intro.boundaryText') }}
                 </p>
               </div>
@@ -92,11 +92,7 @@
           </p>
           <ExerciseStepWhy :text="tg('exerciseWizards.paradoxicalIntention.fears.why')" />
 
-          <div
-            v-for="(fear, index) in fears"
-            :key="fear.id"
-            class="neo-surface p-4 space-y-3 rounded-xl"
-          >
+          <div v-for="(fear, index) in fears" :key="fear.id" class="exercise-block p-4 space-y-3">
             <div class="flex items-center justify-between">
               <span class="text-sm font-semibold text-on-surface">{{
                 t('exerciseWizards.paradoxicalIntention.fears.fearLabel', { n: index + 1 })
@@ -118,7 +114,7 @@
               <textarea
                 v-model="fear.description"
                 :placeholder="t('exerciseWizards.paradoxicalIntention.fears.whatPlaceholder')"
-                class="neo-input neo-focus w-full p-3 text-sm resize-none mt-1"
+                class="exercise-field w-full p-3 text-sm resize-none mt-1"
                 rows="2"
               />
             </div>
@@ -132,7 +128,7 @@
                 :placeholder="
                   t('exerciseWizards.paradoxicalIntention.fears.whatHappensPlaceholder')
                 "
-                class="neo-input neo-focus w-full p-3 text-sm resize-none mt-1"
+                class="exercise-field w-full p-3 text-sm resize-none mt-1"
                 rows="2"
               />
             </div>
@@ -206,7 +202,7 @@
           <textarea
             v-model="paradoxicalIntentions[currentFear.id]"
             :placeholder="t('exerciseWizards.paradoxicalIntention.craft.placeholder')"
-            class="neo-input neo-focus w-full p-3 text-sm resize-none"
+            class="exercise-field w-full p-3 text-sm resize-none"
             rows="3"
           />
 
@@ -223,7 +219,7 @@
             <ProfileContextToggle v-model="useProfileFunnier" />
           </div>
 
-          <div v-if="llmSuggestions[currentFear.id]" class="neo-panel p-4">
+          <div v-if="llmSuggestions[currentFear.id]" class="exercise-block p-4">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-2">
               {{ t('exerciseWizards.paradoxicalIntention.craft.suggestionHeader') }}
             </p>
@@ -287,12 +283,8 @@
           </p>
           <ExerciseStepWhy :text="tg('exerciseWizards.paradoxicalIntention.practice.why')" />
 
-          <div
-            v-for="fear in validFears"
-            :key="fear.id"
-            class="neo-surface p-4 space-y-3 rounded-xl"
-          >
-            <div class="neo-embedded p-3">
+          <div v-for="fear in validFears" :key="fear.id" class="exercise-block p-4 space-y-3">
+            <div class="exercise-block p-3">
               <p class="text-sm font-medium text-on-surface">{{ fear.description }}</p>
               <p class="text-xs text-primary italic mt-1">"{{ paradoxicalIntentions[fear.id] }}"</p>
             </div>
@@ -304,7 +296,7 @@
               <textarea
                 v-model="practiceScripts[fear.id]"
                 :placeholder="t('exerciseWizards.paradoxicalIntention.practice.scriptPlaceholder')"
-                class="neo-input neo-focus w-full p-3 text-sm resize-none mt-1"
+                class="exercise-field w-full p-3 text-sm resize-none mt-1"
                 rows="2"
               />
             </div>
@@ -380,7 +372,7 @@
             <textarea
               v-model="notes"
               :placeholder="t('exerciseWizards.paradoxicalIntention.summary.notesPlaceholder')"
-              class="neo-input neo-focus w-full p-3 text-sm resize-none mt-1"
+              class="exercise-field w-full p-3 text-sm resize-none mt-1"
               rows="3"
             />
           </div>

@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col items-center gap-4">
-    <div class="neo-surface rounded-2xl p-4">
+    <div class="exercise-block p-4">
       <svg :width="svgSize" :height="svgSize" :viewBox="`0 0 ${svgSize} ${svgSize}`" class="block">
         <!-- Background segments -->
         <path
@@ -30,7 +30,7 @@
           :y="labelPosition(index).y"
           text-anchor="middle"
           dominant-baseline="middle"
-          class="fill-on-surface text-[10px] font-medium pointer-events-none select-none"
+          class="fill-on-surface text-mg-chart font-medium pointer-events-none select-none"
         >
           {{ qualityLabels[quality] }}
         </text>
@@ -47,7 +47,7 @@
           :y="center"
           text-anchor="middle"
           dominant-baseline="middle"
-          class="fill-primary text-[9px] font-bold pointer-events-none select-none"
+          class="fill-primary text-mg-chart font-bold pointer-events-none select-none"
         >
           {{ t('exerciseWizards.shared.ifs.selfEnergyWheel.center') }}
         </text>
@@ -61,11 +61,11 @@
         <button
           v-for="n in 5"
           :key="n"
-          class="w-8 h-8 rounded-full neo-focus transition-all"
+          class="w-8 h-8 rounded-full transition-all"
           :class="[
             (ratings[selectedQuality] ?? 0) >= n
-              ? 'neo-surface shadow-neu-raised-sm bg-primary/30 text-primary'
-              : 'neo-surface shadow-neu-pressed text-on-surface-variant/40',
+              ? 'exercise-block bg-primary/30 text-primary'
+              : 'exercise-block text-on-surface-variant/40',
           ]"
           @click="setRating(selectedQuality, n)"
         >

@@ -24,7 +24,7 @@
               :value="item"
               type="text"
               :placeholder="t('exerciseWizards.transformativePurpose.curiosities.placeholder')"
-              class="neo-input flex-1 p-2"
+              class="exercise-field flex-1 p-2"
               @input="draft.curiosities[index] = ($event.target as HTMLInputElement).value"
             />
           </div>
@@ -47,7 +47,7 @@
           {{ t('exerciseWizards.transformativePurpose.intersection.description') }}
         </p>
         <ExerciseStepWhy :text="tg('exerciseWizards.transformativePurpose.intersection.why')" />
-        <div class="p-3 rounded-lg bg-section">
+        <div class="p-3 rounded-mg-sm bg-section">
           <p class="text-xs font-medium text-on-surface-variant mb-2">
             {{ t('exerciseWizards.transformativePurpose.intersection.curiositiesLabel') }}
           </p>
@@ -61,7 +61,7 @@
           v-model="draft.intersection"
           rows="3"
           :placeholder="t('exerciseWizards.transformativePurpose.intersection.placeholder')"
-          class="neo-input w-full p-3 text-sm resize-none"
+          class="exercise-field w-full p-3 text-sm resize-none"
         />
       </AppCard>
       <div class="flex justify-between">
@@ -91,7 +91,7 @@
               :value="item"
               type="text"
               :placeholder="t('exerciseWizards.transformativePurpose.problems.placeholder')"
-              class="neo-input flex-1 p-2"
+              class="exercise-field flex-1 p-2"
               @input="draft.problems[index] = ($event.target as HTMLInputElement).value"
             />
           </div>
@@ -121,7 +121,7 @@
           v-model="draft.purposeStatement"
           rows="3"
           :placeholder="t('exerciseWizards.transformativePurpose.purpose.placeholder')"
-          class="neo-input w-full p-3 text-sm resize-none"
+          class="exercise-field w-full p-3 text-sm resize-none"
         />
 
         <div class="space-y-2 pt-2">
@@ -132,7 +132,7 @@
             v-model="draft.notes"
             rows="3"
             :placeholder="t('exerciseWizards.transformativePurpose.purpose.reflectionPlaceholder')"
-            class="neo-input w-full p-3 text-sm resize-none"
+            class="exercise-field w-full p-3 text-sm resize-none"
           />
         </div>
       </AppCard>

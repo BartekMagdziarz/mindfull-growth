@@ -2,10 +2,8 @@
   <div :class="['flex', speaker === 'self' ? 'justify-end' : 'justify-start']">
     <div
       :class="[
-        'relative max-w-[85%] rounded-2xl px-4 py-3 group',
-        speaker === 'self'
-          ? 'neo-surface shadow-neu-raised-sm bg-primary/10'
-          : 'neo-surface shadow-neu-pressed',
+        'relative max-w-[85%] rounded-mg-lg px-4 py-3 group',
+        speaker === 'self' ? 'exercise-block bg-primary/10' : 'exercise-block',
         speaker === 'part' && partColor ? `border-l-4` : '',
       ]"
       :style="speaker === 'part' && partColor ? { borderLeftColor: partColor } : {}"
@@ -18,12 +16,12 @@
         }}
       </p>
       <p class="text-sm text-on-surface whitespace-pre-wrap">{{ message.content }}</p>
-      <p class="text-[10px] text-on-surface-variant/60 mt-1.5">
+      <p class="text-xs text-on-surface-variant/60 mt-1.5">
         {{ formatTime(message.timestamp) }}
       </p>
       <button
         v-if="speaker === 'part'"
-        class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity neo-focus rounded-full p-1"
+        class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity rounded-full p-1"
         :class="
           isBookmarked ? 'text-primary' : 'text-on-surface-variant/40 hover:text-on-surface-variant'
         "

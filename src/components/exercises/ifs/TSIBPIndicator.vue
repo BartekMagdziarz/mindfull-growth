@@ -7,8 +7,8 @@
           idx < currentIndex
             ? 'bg-primary/20 text-primary'
             : idx === currentIndex
-              ? 'neo-step-active bg-primary text-on-primary'
-              : 'neo-surface shadow-neu-pressed text-on-surface-variant/40'
+              ? 'tsibp-dot--current'
+              : 'exercise-block text-on-surface-variant/40'
         "
       >
         {{ label }}
@@ -29,3 +29,15 @@ defineProps<{
 
 const labels = computed(() => tList('exerciseWizards.shared.ifs.tsibp.labels'))
 </script>
+
+<style scoped>
+/* The current phase: the stepper's ink blob with a paper halo, slightly turned. */
+.tsibp-dot--current {
+  border: 0;
+  border-radius: var(--mg-radius-organic-a);
+  color: var(--mg-color-on-primary);
+  background: var(--mg-color-ink);
+  box-shadow: var(--mg-shadow-stepper-halo);
+  transform: rotate(-2deg);
+}
+</style>

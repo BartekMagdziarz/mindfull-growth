@@ -21,7 +21,7 @@
               {{ t('exerciseWizards.trailhead.trigger.subtitle') }}
             </p>
 
-            <div class="neo-surface p-3 rounded-xl">
+            <div class="exercise-block p-3">
               <p class="text-sm text-on-surface-variant leading-relaxed">
                 {{ t('exerciseWizards.trailhead.trigger.description') }}
               </p>
@@ -36,7 +36,7 @@
                 v-model="triggerDescription"
                 rows="3"
                 :placeholder="tg('exerciseWizards.trailhead.trigger.questionPlaceholder')"
-                class="neo-input w-full p-3 text-sm resize-none"
+                class="exercise-field w-full p-3 text-sm resize-none"
               />
             </div>
 
@@ -94,7 +94,7 @@
               v-model="thoughts"
               rows="4"
               :placeholder="t('exerciseWizards.trailhead.thoughts.placeholder')"
-              class="neo-input w-full p-3 text-sm resize-none"
+              class="exercise-field w-full p-3 text-sm resize-none"
             />
 
             <!-- TSIBP indicator -->
@@ -128,7 +128,7 @@
               v-model="sensations"
               rows="3"
               :placeholder="t('exerciseWizards.trailhead.sensations.placeholder')"
-              class="neo-input w-full p-3 text-sm resize-none"
+              class="exercise-field w-full p-3 text-sm resize-none"
             />
 
             <TSIBPIndicator :current-index="1" />
@@ -163,7 +163,7 @@
               v-model="images"
               rows="3"
               :placeholder="t('exerciseWizards.trailhead.images.placeholder')"
-              class="neo-input w-full p-3 text-sm resize-none"
+              class="exercise-field w-full p-3 text-sm resize-none"
             />
 
             <TSIBPIndicator :current-index="2" />
@@ -196,7 +196,7 @@
               v-model="behaviors"
               rows="3"
               :placeholder="tg('exerciseWizards.trailhead.behaviors.placeholder')"
-              class="neo-input w-full p-3 text-sm resize-none"
+              class="exercise-field w-full p-3 text-sm resize-none"
             />
 
             <TSIBPIndicator :current-index="3" />
@@ -291,7 +291,7 @@
             </h2>
 
             <!-- Summary -->
-            <div class="neo-surface p-4 rounded-xl space-y-3">
+            <div class="exercise-block p-4 space-y-3">
               <div class="space-y-1">
                 <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                   {{ t('exerciseWizards.trailhead.reflection.sections.trigger') }}
@@ -346,7 +346,7 @@
                 v-model="reflection"
                 rows="3"
                 :placeholder="t('exerciseWizards.trailhead.reflection.reflectionPlaceholder')"
-                class="neo-input w-full p-3 text-sm resize-none"
+                class="exercise-field w-full p-3 text-sm resize-none"
               />
             </div>
 
@@ -368,7 +368,7 @@
                 <ProfileContextToggle v-model="useProfileAnalysis" />
               </div>
 
-              <div v-if="patternAnalysis" class="neo-surface p-4 rounded-xl">
+              <div v-if="patternAnalysis" class="exercise-block p-4">
                 <p class="text-sm text-on-surface whitespace-pre-wrap">{{ patternAnalysis }}</p>
                 <p class="text-xs text-on-surface-variant/60 italic mt-3">
                   {{ t('exerciseWizards.trailhead.reflection.analysisDisclaimer') }}
@@ -395,7 +395,7 @@
                 v-model="notes"
                 rows="2"
                 :placeholder="t('exerciseWizards.trailhead.reflection.notesPlaceholder')"
-                class="neo-input w-full p-3 text-sm resize-none"
+                class="exercise-field w-full p-3 text-sm resize-none"
               />
             </div>
           </AppCard>

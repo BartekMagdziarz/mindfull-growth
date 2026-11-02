@@ -23,7 +23,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.gradedExposure.intro.description') }}
           </p>
-          <div class="neo-surface p-4 space-y-3">
+          <div class="exercise-block p-4 space-y-3">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('exerciseWizards.gradedExposure.intro.fearLadder') }}
             </p>
@@ -80,7 +80,7 @@
             v-model="fearTarget"
             rows="3"
             :placeholder="t('exerciseWizards.gradedExposure.fearTarget.fearPlaceholder')"
-            class="neo-input neo-focus w-full p-3 text-sm resize-none"
+            class="exercise-field w-full p-3 text-sm resize-none"
           />
 
           <div class="space-y-2 pt-2">
@@ -97,7 +97,7 @@
               v-model="ultimateGoal"
               rows="3"
               :placeholder="t('exerciseWizards.gradedExposure.fearTarget.goalPlaceholder')"
-              class="neo-input neo-focus w-full p-3 text-sm resize-none"
+              class="exercise-field w-full p-3 text-sm resize-none"
             />
           </div>
         </AppCard>
@@ -140,7 +140,7 @@
               v-model="newItemSituation"
               type="text"
               :placeholder="t('exerciseWizards.gradedExposure.buildHierarchy.situationPlaceholder')"
-              class="neo-input neo-focus w-full p-2.5 text-sm"
+              class="exercise-field w-full p-2.5 text-sm"
               @keyup.enter="addItem"
             />
             <div class="space-y-2">
@@ -158,7 +158,7 @@
                 min="0"
                 max="100"
                 step="1"
-                class="neo-focus w-full accent-primary"
+                class="w-full accent-primary"
               />
               <div class="flex justify-between text-xs text-on-surface-variant">
                 <span>{{ t('exerciseWizards.gradedExposure.buildHierarchy.distressMin') }}</span>
@@ -188,7 +188,7 @@
               </AppButton>
               <ProfileContextToggle v-model="useProfileBrainstormSteps" />
             </div>
-            <div v-if="brainstormResult" class="neo-panel p-4 space-y-2">
+            <div v-if="brainstormResult" class="exercise-block p-4 space-y-2">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                 {{ t('exerciseWizards.gradedExposure.buildHierarchy.suggestedSteps') }}
               </p>
@@ -242,7 +242,7 @@
                 <!-- Remove button -->
                 <button
                   type="button"
-                  class="p-1 rounded text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0 mt-2"
+                  class="p-1 rounded-mg-xs text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0 mt-2"
                   @click="removeItem(item.id)"
                 >
                   <AppIcon name="close" class="text-base" />
@@ -312,13 +312,13 @@
                 :value="behavior"
                 type="text"
                 :placeholder="t('exerciseWizards.gradedExposure.safetyBehaviors.placeholder')"
-                class="neo-input neo-focus flex-1 p-2 text-sm"
+                class="exercise-field flex-1 p-2 text-sm"
                 @input="safetyBehaviors[index] = ($event.target as HTMLInputElement).value"
               />
               <button
                 v-if="safetyBehaviors.length > 1"
                 type="button"
-                class="p-1 rounded text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
+                class="p-1 rounded-mg-xs text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
                 @click="removeSafetyBehavior(index)"
               >
                 <AppIcon name="close" class="text-base" />
@@ -332,7 +332,7 @@
         </AppCard>
 
         <!-- Examples -->
-        <div class="neo-embedded p-4 space-y-2">
+        <div class="exercise-block p-4 space-y-2">
           <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
             {{ t('exerciseWizards.gradedExposure.safetyBehaviors.commonExamples') }}
           </p>
@@ -460,7 +460,7 @@
             v-model="notes"
             rows="2"
             :placeholder="t('exerciseWizards.gradedExposure.summary.notesPlaceholder')"
-            class="neo-input neo-focus w-full p-3 text-sm resize-none"
+            class="exercise-field w-full p-3 text-sm resize-none"
           />
         </AppCard>
 

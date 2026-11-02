@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-3">
     <label v-if="label" class="block text-sm font-medium text-on-surface">{{ label }}</label>
-    <div class="neo-surface rounded-2xl p-4 flex justify-center">
+    <div class="exercise-block p-4 flex justify-center">
       <svg
         width="160"
         height="320"
@@ -158,7 +158,7 @@
       >
         {{ formatLocation(loc) }}
         <button
-          class="hover:text-error transition-colors neo-focus rounded-full"
+          class="hover:text-error transition-colors rounded-full"
           @click="removeLocation(loc)"
         >
           <AppIcon name="close" class="text-sm" />

@@ -177,21 +177,21 @@ function timesLabel(times: number): string {
 
 .task-choice__title {
   color: var(--mg-color-ink);
-  font-size: 15px;
+  font-size: var(--mg-font-size-md);
   font-weight: 700;
   line-height: 1.35;
 }
 
 .task-choice__meta {
   color: var(--mg-color-muted);
-  font-size: 12px;
+  font-size: var(--mg-font-size-xs);
   line-height: 1.4;
 }
 
 .task-choice__why {
   margin-top: 6px;
   color: var(--mg-color-muted);
-  font-size: 13px;
+  font-size: var(--mg-font-size-sm);
   line-height: 1.45;
 }
 
@@ -204,16 +204,16 @@ function timesLabel(times: number): string {
   margin-top: 4px;
   padding: 6px var(--mg-space-3);
   border: 0;
-  border-radius: 11px 9px 12px 10px;
+  border-radius: var(--mg-radius-sm);
   background: transparent;
   color: var(--mg-color-muted);
-  font-size: 13px;
+  font-size: var(--mg-font-size-sm);
   font-weight: 600;
   cursor: pointer;
 }
 
 .task-choice__disclosure :deep(.material-symbols-outlined) {
-  font-size: 18px;
+  font-size: var(--mg-font-size-icon-md);
   color: var(--mg-color-primary);
 }
 

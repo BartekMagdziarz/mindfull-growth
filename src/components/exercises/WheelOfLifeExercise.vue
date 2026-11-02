@@ -60,7 +60,7 @@
         </div>
 
         <div v-else-if="wizard.needsSetup.value" class="space-y-4">
-          <div class="rounded-2xl border border-neu-border/20 bg-section/50 p-5 space-y-3">
+          <div class="rounded-mg-lg border border-neu-border/20 bg-section/50 p-5 space-y-3">
             <h3 class="text-xl font-semibold text-on-surface">
               {{ t('exerciseWizards.wheelOfLife.setup.title') }}
             </h3>
@@ -102,7 +102,7 @@
             </ul>
           </div>
 
-          <div class="rounded-2xl border border-neu-border/20 bg-section/50 p-4">
+          <div class="rounded-mg-lg border border-neu-border/20 bg-section/50 p-4">
             <WheelOfLifeRadialChart
               :areas="wizard.areas.value"
               :size="340"

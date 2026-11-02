@@ -39,21 +39,86 @@ button.exercise-pill:hover:not(:disabled) {
   background: var(--mg-color-rose-soft);
 }
 
-/* Legacy utility shadows must not reintroduce deep relief inside a card. */
-.exercise-page :where(.neo-surface, .exercise-pill)[class*='shadow-neu-'] {
+/* ── Exercise anatomies (K2, 2026-11-02): the wizards' field, nested block and
+   option card, on tokens. They replaced the legacy input, surface / embedded /
+   panel and selector bridges with the same look. ── */
+
+/* Field: mist with the thin field edge. Focus = paper + accent edge, owned by
+   styles/text-field-focus.css like every other text field. */
+.exercise-field {
+  border: 1px solid var(--mg-color-field-border);
+  border-radius: var(--mg-radius-sm);
+  color: var(--mg-color-ink);
+  background: var(--mg-color-mist);
+  box-shadow: none;
+  transition:
+    border-color var(--mg-duration-fast) ease,
+    background-color var(--mg-duration-fast) ease;
+}
+
+.exercise-field::placeholder {
+  color: var(--mg-color-muted);
+}
+
+input[type='number'].exercise-field {
+  appearance: textfield;
+}
+
+input[type='number'].exercise-field::-webkit-inner-spin-button,
+input[type='number'].exercise-field::-webkit-outer-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
+/* Nested block inside a step card (an AI answer, an earlier entry, a group of
+   fields): the field tone with the subtlest edge, flat. */
+.exercise-block {
+  border: 1px solid var(--mg-color-border-subtle);
+  border-radius: var(--mg-radius-md);
+  color: var(--mg-color-ink);
+  background: var(--mg-color-mist);
   box-shadow: none;
 }
 
-.exercise-page .neo-selector--active,
-.exercise-page button.exercise-pill.shadow-neu-pressed {
+/* Fields nested inside a block take the next step in the tonal ladder. */
+.exercise-page .exercise-block .exercise-field {
+  background: var(--mg-color-paper);
+}
+
+/* Option card (a choice with a description, a category capsule): mist capsule,
+   hover = paper with a small lift, the picked one = accent edge on the well tint. */
+.exercise-option {
+  border: 1px solid var(--mg-color-border);
+  border-radius: var(--mg-radius-pill);
+  color: var(--mg-color-ink);
+  background: var(--mg-color-mist);
+  box-shadow: var(--mg-shadow-control);
+  transition:
+    box-shadow var(--mg-duration-normal) ease,
+    border-color var(--mg-duration-normal) ease,
+    background-color var(--mg-duration-normal) ease;
+}
+
+.exercise-option:hover:not(:disabled) {
+  transform: none;
+  background: var(--mg-color-paper);
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+
+.exercise-option--active {
   border-color: var(--mg-color-primary);
   background: var(--mg-color-paper);
   box-shadow: none;
 }
 
-/* Fields nested inside a note take the next step in the V2 tonal ladder. */
-.exercise-page :where(.neo-surface, .neo-embedded, .neo-panel) .neo-input {
+.exercise-page .exercise-option--active {
+  background: var(--mg-color-sky-well);
+}
+
+.exercise-option--active:hover:not(:disabled) {
+  border-color: var(--mg-color-primary);
   background: var(--mg-color-paper);
+  box-shadow: none;
 }
 
 .exercise-page :where(input, textarea, select) {
@@ -223,49 +288,42 @@ button.exercise-pill:hover:not(:disabled) {
 }
 
 /* ── Fields: md type, a real minimum height, focus that does not whiten ── */
-.exercise-page .neo-input {
+.exercise-page .exercise-field {
   font-size: var(--mg-font-size-md);
   line-height: 1.6;
 }
 
-.exercise-page textarea.neo-input {
+.exercise-page textarea.exercise-field {
   min-height: calc(3 * 1.6em + 1.5rem + 2px);
 }
 
 /* Global `field-sizing: content` ignores `rows`; the minimum is set here in lines. */
-.exercise-page textarea.neo-input[rows='2'] {
+.exercise-page textarea.exercise-field[rows='2'] {
   min-height: calc(2 * 1.6em + 1.5rem + 2px);
 }
-.exercise-page textarea.neo-input[rows='3'] {
+.exercise-page textarea.exercise-field[rows='3'] {
   min-height: calc(3 * 1.6em + 1.5rem + 2px);
 }
-.exercise-page textarea.neo-input[rows='4'] {
+.exercise-page textarea.exercise-field[rows='4'] {
   min-height: calc(4 * 1.6em + 1.5rem + 2px);
 }
-.exercise-page textarea.neo-input[rows='5'] {
+.exercise-page textarea.exercise-field[rows='5'] {
   min-height: calc(5 * 1.6em + 1.5rem + 2px);
 }
-.exercise-page textarea.neo-input[rows='6'] {
+.exercise-page textarea.exercise-field[rows='6'] {
   min-height: calc(6 * 1.6em + 1.5rem + 2px);
 }
-.exercise-page textarea.neo-input[rows='7'] {
+.exercise-page textarea.exercise-field[rows='7'] {
   min-height: calc(7 * 1.6em + 1.5rem + 2px);
 }
-.exercise-page textarea.neo-input[rows='8'] {
+.exercise-page textarea.exercise-field[rows='8'] {
   min-height: calc(8 * 1.6em + 1.5rem + 2px);
 }
-.exercise-page textarea.neo-input[rows='10'] {
+.exercise-page textarea.exercise-field[rows='10'] {
   min-height: calc(10 * 1.6em + 1.5rem + 2px);
 }
-.exercise-page textarea.neo-input[rows='12'] {
+.exercise-page textarea.exercise-field[rows='12'] {
   min-height: calc(12 * 1.6em + 1.5rem + 2px);
-}
-
-.exercise-page .neo-input:focus,
-.exercise-page .neo-input:focus-visible {
-  outline: none;
-  border-color: color-mix(in srgb, var(--mg-color-data-fill) 60%, transparent);
-  box-shadow: var(--mg-focus-ring);
 }
 
 /* ── Chips: the Today chip; the picked one filled in the accent ── */
@@ -288,11 +346,9 @@ button.exercise-pill:hover:not(:disabled) {
 }
 
 .exercise-page button.exercise-pill.exercise-pill--primary,
-.exercise-page button.exercise-pill.shadow-neu-pressed,
 .exercise-page button.exercise-pill[aria-pressed='true'],
 .exercise-page button.exercise-pill[aria-checked='true'],
-.exercise-page button.exercise-pill.exercise-pill--primary:hover:not(:disabled),
-.exercise-page button.exercise-pill.shadow-neu-pressed:hover:not(:disabled) {
+.exercise-page button.exercise-pill.exercise-pill--primary:hover:not(:disabled) {
   border-color: transparent;
   background: var(--mg-color-primary-fill);
   color: var(--mg-color-on-primary);
@@ -302,11 +358,6 @@ button.exercise-pill:hover:not(:disabled) {
   outline: 2px solid var(--mg-color-focus);
   outline-offset: 2px;
   box-shadow: none;
-}
-
-/* Cards with a description (radio cards, part tiles) stay outlined; the picked one gets the well tint. */
-.exercise-page .neo-selector--active {
-  background: var(--mg-color-sky-well);
 }
 
 /* ── Native controls in the V2 control language ── */
@@ -370,7 +421,7 @@ button.exercise-pill:hover:not(:disabled) {
   outline-offset: 2px;
 }
 
-.exercise-page input[type='checkbox']:not(.neo-checkbox) {
+.exercise-page input[type='checkbox']:not(.mg-v2-checkbox) {
   width: 1.1rem;
   height: 1.1rem;
   accent-color: var(--mg-color-primary);
@@ -414,7 +465,7 @@ button.exercise-pill:hover:not(:disabled) {
 .exercise-note__icon {
   flex-shrink: 0;
   margin-top: 2px;
-  font-size: 1.25rem;
+  font-size: var(--mg-font-size-icon-lg);
   color: var(--mg-color-muted);
 }
 

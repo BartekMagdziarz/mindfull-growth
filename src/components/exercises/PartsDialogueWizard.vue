@@ -58,11 +58,11 @@
               <button
                 v-for="chip in intentionChips"
                 :key="chip"
-                class="exercise-pill text-xs px-3 py-1.5 neo-focus transition-all"
+                class="exercise-pill text-xs px-3 py-1.5 transition-all"
                 :class="
                   intention === chip
-                    ? 'bg-primary/20 text-primary shadow-neu-pressed'
-                    : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'
+                    ? 'bg-primary/20 text-primary exercise-pill--primary'
+                    : 'bg-neu-base text-on-surface-variant hover:-translate-y-px'
                 "
                 @click="intention = chip"
               >
@@ -74,7 +74,7 @@
               v-model="intention"
               rows="3"
               :placeholder="t('exerciseWizards.partsDialogue.intention.placeholder')"
-              class="neo-input w-full p-3 text-sm resize-none"
+              class="exercise-field w-full p-3 text-sm resize-none"
             />
 
             <!-- Magic question: who is about to write — Self or another part? -->
@@ -84,22 +84,22 @@
               </p>
               <div class="flex flex-wrap gap-2">
                 <button
-                  class="exercise-pill text-xs px-3 py-1.5 neo-focus transition-all"
+                  class="exercise-pill text-xs px-3 py-1.5 transition-all"
                   :class="
                     selfCheckPassed === true
-                      ? 'bg-primary/20 text-primary shadow-neu-pressed'
-                      : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'
+                      ? 'bg-primary/20 text-primary exercise-pill--primary'
+                      : 'bg-neu-base text-on-surface-variant hover:-translate-y-px'
                   "
                   @click="selfCheckPassed = true"
                 >
                   {{ t('exerciseWizards.partsDialogue.intention.selfCheckSelf') }}
                 </button>
                 <button
-                  class="exercise-pill text-xs px-3 py-1.5 neo-focus transition-all"
+                  class="exercise-pill text-xs px-3 py-1.5 transition-all"
                   :class="
                     selfCheckPassed === false
-                      ? 'bg-status-warn-soft text-status-warn-on shadow-neu-pressed'
-                      : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'
+                      ? 'bg-status-warn-soft text-status-warn-on exercise-pill--primary'
+                      : 'bg-neu-base text-on-surface-variant hover:-translate-y-px'
                   "
                   @click="selfCheckPassed = false"
                 >
@@ -135,21 +135,21 @@
             <!-- Speaker toggle -->
             <div class="flex gap-2">
               <button
-                class="flex-1 neo-focus rounded-xl py-2 text-sm font-medium transition-all"
+                class="flex-1 rounded-mg-md py-2 text-sm font-medium transition-all"
                 :class="
                   currentSpeaker === 'self'
-                    ? 'neo-surface shadow-neu-pressed bg-primary/10 text-primary'
-                    : 'neo-surface shadow-neu-raised-sm text-on-surface-variant hover:-translate-y-px'
+                    ? 'exercise-block bg-primary/10 text-primary'
+                    : 'exercise-block text-on-surface-variant hover:-translate-y-px'
                 "
                 @click="currentSpeaker = 'self'"
               >
                 {{ t('exerciseWizards.partsDialogue.dialogue.speakers.self') }}
               </button>
               <button
-                class="flex-1 neo-focus rounded-xl py-2 text-sm font-medium transition-all"
+                class="flex-1 rounded-mg-md py-2 text-sm font-medium transition-all"
                 :class="
                   currentSpeaker === 'part'
-                    ? 'neo-surface shadow-neu-pressed text-on-surface' +
+                    ? 'exercise-block text-on-surface' +
                       (selectedPartRole === 'manager'
                         ? ' bg-ifs-manager-soft'
                         : selectedPartRole === 'firefighter'
@@ -157,7 +157,7 @@
                           : selectedPartRole === 'exile'
                             ? ' bg-ifs-exile-soft'
                             : ' bg-neu-base')
-                    : 'neo-surface shadow-neu-raised-sm text-on-surface-variant hover:-translate-y-px'
+                    : 'exercise-block text-on-surface-variant hover:-translate-y-px'
                 "
                 @click="currentSpeaker = 'part'"
               >
@@ -174,7 +174,7 @@
               <button
                 v-for="q in suggestedQuestions"
                 :key="q"
-                class="exercise-pill text-xs px-3 py-1.5 bg-primary/10 text-primary neo-focus hover:bg-primary/20 transition-colors"
+                class="exercise-pill text-xs px-3 py-1.5 bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
                 @click="messageInput = q"
               >
                 {{ q }}
@@ -215,7 +215,7 @@
                         partName: selectedPartName,
                       })
                 "
-                class="neo-input w-full p-3 text-sm resize-none"
+                class="exercise-field w-full p-3 text-sm resize-none"
                 @keydown.enter.exact.prevent="handleAddMessage"
               />
               <AppButton
@@ -251,10 +251,7 @@
               leave-active-class="transition-all duration-150"
               leave-to-class="opacity-0 -translate-y-2"
             >
-              <div
-                v-if="llmSuggestion"
-                class="neo-surface shadow-neu-raised-sm rounded-xl p-4 space-y-3"
-              >
+              <div v-if="llmSuggestion" class="exercise-block p-4 space-y-3">
                 <p class="text-xs font-medium text-on-surface-variant">
                   {{
                     t('exerciseWizards.partsDialogue.dialogue.partMightSay', {
@@ -265,7 +262,7 @@
                 <textarea
                   v-model="editableSuggestion"
                   rows="3"
-                  class="neo-input w-full p-3 text-sm resize-none"
+                  class="exercise-field w-full p-3 text-sm resize-none"
                 />
                 <div class="flex gap-2 justify-end">
                   <AppButton variant="text" @click="discardSuggestion()">{{
@@ -322,10 +319,7 @@
               leave-active-class="transition-all duration-150"
               leave-to-class="opacity-0 -translate-y-2"
             >
-              <div
-                v-if="showInsightForm"
-                class="neo-surface shadow-neu-raised-sm rounded-xl p-4 space-y-3"
-              >
+              <div v-if="showInsightForm" class="exercise-block p-4 space-y-3">
                 <h3 class="text-sm font-semibold text-on-surface">
                   {{ t('exerciseWizards.partsDialogue.insights.tagThisMoment') }}
                 </h3>
@@ -333,17 +327,17 @@
                   v-model="insightContent"
                   rows="2"
                   :placeholder="tg('exerciseWizards.partsDialogue.insights.whatDidYouNotice')"
-                  class="neo-input w-full p-3 text-sm resize-none"
+                  class="exercise-field w-full p-3 text-sm resize-none"
                 />
                 <div class="flex flex-wrap gap-2">
                   <button
                     v-for="tag in insightTags"
                     :key="tag.value"
-                    class="exercise-pill text-xs px-2 py-1 neo-focus transition-all"
+                    class="exercise-pill text-xs px-2 py-1 transition-all"
                     :class="
                       insightTag === tag.value
-                        ? `${tag.activeClass} shadow-neu-pressed`
-                        : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'
+                        ? `${tag.activeClass} exercise-pill--primary`
+                        : 'bg-neu-base text-on-surface-variant hover:-translate-y-px'
                     "
                     @click="insightTag = tag.value"
                   >
@@ -407,7 +401,7 @@
                 <PartRoleBadge v-if="selectedPartRole" :role="selectedPartRole" />
               </div>
 
-              <div class="neo-surface p-3 rounded-lg grid grid-cols-3 gap-3">
+              <div class="exercise-block p-3 grid grid-cols-3 gap-3">
                 <div>
                   <p class="text-xs text-on-surface-variant">
                     {{ t('exerciseWizards.partsDialogue.summary.sections.messages') }}
@@ -453,7 +447,7 @@
                 v-model="summary"
                 rows="3"
                 :placeholder="t('exerciseWizards.partsDialogue.summary.summaryPlaceholder')"
-                class="neo-input w-full p-3 text-sm resize-none"
+                class="exercise-field w-full p-3 text-sm resize-none"
               />
             </div>
 
@@ -465,7 +459,7 @@
                 v-model="notes"
                 rows="2"
                 :placeholder="t('exerciseWizards.partsDialogue.summary.notesPlaceholder')"
-                class="neo-input w-full p-3 text-sm resize-none"
+                class="exercise-field w-full p-3 text-sm resize-none"
               />
             </div>
           </AppCard>

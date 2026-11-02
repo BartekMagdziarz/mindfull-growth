@@ -22,7 +22,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.tragicOptimism.intro.description') }}
           </p>
-          <div class="neo-embedded p-3">
+          <div class="exercise-block p-3">
             <p class="text-xs text-on-surface-variant italic">
               "{{ t('exerciseWizards.tragicOptimism.intro.quote') }}"
             </p>
@@ -80,8 +80,8 @@
               v-for="mode in focusModes"
               :key="mode.value"
               type="button"
-              class="neo-selector p-4 w-full text-left"
-              :class="selectedFocus === mode.value && 'neo-selector--active'"
+              class="exercise-option p-4 w-full text-left"
+              :class="selectedFocus === mode.value && 'exercise-option--active'"
               @click="selectedFocus = mode.value"
             >
               <div class="flex items-start gap-3">
@@ -128,7 +128,7 @@
           <textarea
             v-model="freeWriting"
             :placeholder="t('exerciseWizards.tragicOptimism.write.placeholder')"
-            class="neo-input neo-focus w-full p-3 text-sm resize-none"
+            class="exercise-field w-full p-3 text-sm resize-none"
             rows="12"
           />
         </AppCard>
@@ -163,13 +163,13 @@
           <div
             v-for="(question, idx) in guidedQuestions"
             :key="idx"
-            class="neo-surface rounded-xl p-4 space-y-2"
+            class="exercise-block p-4 space-y-2"
           >
             <label class="text-sm font-medium text-on-surface">{{ question }}</label>
             <textarea
               v-model="guidedAnswers[idx]"
               :placeholder="t('exerciseWizards.tragicOptimism.guided.placeholder')"
-              class="neo-input neo-focus w-full p-3 text-sm resize-none"
+              class="exercise-field w-full p-3 text-sm resize-none"
               rows="4"
             />
           </div>
@@ -207,7 +207,7 @@
           </p>
 
           <!-- Message area -->
-          <div class="neo-surface rounded-xl p-4 h-96 overflow-y-auto space-y-3">
+          <div class="exercise-block p-4 h-96 overflow-y-auto space-y-3">
             <div
               v-if="messages.length === 0 && !isLlmLoading"
               class="text-center text-on-surface-variant py-8"
@@ -222,7 +222,7 @@
             >
               <div
                 :class="[
-                  'max-w-[80%] rounded-lg px-4 py-2',
+                  'max-w-[80%] rounded-mg-sm px-4 py-2',
                   message.role === 'user'
                     ? 'bg-gradient-to-br from-primary to-primary-strong text-on-primary'
                     : 'bg-surface-variant text-on-surface-variant',
@@ -235,7 +235,7 @@
             <!-- Loading indicator -->
             <div v-if="isLlmLoading" class="flex justify-start">
               <div
-                class="max-w-[80%] rounded-lg px-4 py-2 bg-surface-variant text-on-surface-variant"
+                class="max-w-[80%] rounded-mg-sm px-4 py-2 bg-surface-variant text-on-surface-variant"
               >
                 <div class="flex items-center gap-2">
                   <div
@@ -265,7 +265,7 @@
                 v-model="userInput"
                 :placeholder="t('exerciseWizards.tragicOptimism.dialogue.placeholder')"
                 :disabled="isLlmLoading"
-                class="neo-input neo-focus flex-1 p-3 resize-none min-h-[44px] max-h-[120px] text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                class="exercise-field flex-1 p-3 resize-none min-h-[44px] max-h-[120px] text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                 rows="1"
                 @keydown.enter.exact.prevent="handleSend"
               />
@@ -318,7 +318,7 @@
             <textarea
               v-model="insightMeaning"
               :placeholder="t('exerciseWizards.tragicOptimism.insights.meaningPlaceholder')"
-              class="neo-input neo-focus w-full p-3 text-sm resize-none mt-1"
+              class="exercise-field w-full p-3 text-sm resize-none mt-1"
               rows="3"
             />
           </div>
@@ -330,7 +330,7 @@
             <textarea
               v-model="insightCarryForward"
               :placeholder="t('exerciseWizards.tragicOptimism.insights.carryPlaceholder')"
-              class="neo-input neo-focus w-full p-3 text-sm resize-none mt-1"
+              class="exercise-field w-full p-3 text-sm resize-none mt-1"
               rows="3"
             />
           </div>
@@ -352,7 +352,7 @@
             <textarea
               v-model="notes"
               :placeholder="t('exerciseWizards.tragicOptimism.insights.notesPlaceholder')"
-              class="neo-input neo-focus w-full p-3 text-sm resize-none mt-1"
+              class="exercise-field w-full p-3 text-sm resize-none mt-1"
               rows="3"
             />
           </div>

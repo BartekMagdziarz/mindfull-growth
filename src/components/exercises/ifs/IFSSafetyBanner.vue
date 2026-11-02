@@ -13,7 +13,7 @@
           <input
             type="checkbox"
             :checked="acknowledged"
-            class="neo-checkbox"
+            class="mg-v2-checkbox"
             @change="$emit('update:acknowledged', ($event.target as HTMLInputElement).checked)"
           />
           <span class="exercise-note__text">

@@ -472,6 +472,7 @@
       "results": "Results"
     },
     "modeToggle": {
+      "label": "Mode",
       "learning": "Learning",
       "applied": "Applied"
     },

@@ -78,6 +78,6 @@ const lastCompletedLabel = computed(() => {
 .exercise-tile__ai {
   flex-shrink: 0;
   color: var(--mg-color-primary);
-  font-size: 1rem;
+  font-size: var(--mg-font-size-icon-sm);
 }
 </style>

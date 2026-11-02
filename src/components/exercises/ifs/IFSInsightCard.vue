@@ -10,7 +10,7 @@
         </span>
       </div>
       <button
-        class="text-on-surface-variant/40 hover:text-error transition-colors neo-focus rounded-full p-1 shrink-0"
+        class="text-on-surface-variant/40 hover:text-error transition-colors rounded-full p-1 shrink-0"
         @click="$emit('delete')"
       >
         <AppIcon name="close" class="text-base" />

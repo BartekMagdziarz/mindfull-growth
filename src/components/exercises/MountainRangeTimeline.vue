@@ -68,8 +68,7 @@
         :x="tick.x"
         :y="centerY + 14"
         text-anchor="middle"
-        class="fill-on-surface-variant select-none"
-        style="font-size: 9px"
+        class="fill-on-surface-variant select-none text-mg-chart"
       >
         {{ tick.value }}
       </text>
@@ -93,8 +92,7 @@
           :x="pt.x"
           :y="pt.event.type === 'peak' ? pt.y - 10 : pt.y + 16"
           text-anchor="middle"
-          class="fill-on-surface select-none"
-          style="font-size: 9px"
+          class="fill-on-surface select-none text-mg-chart"
         >
           {{ truncate(pt.event.description, 18) }}
         </text>
@@ -104,23 +102,21 @@
       <text
         :x="padding + 4"
         :y="padding + 12"
-        class="fill-primary/60 select-none font-medium"
-        style="font-size: 10px"
+        class="fill-primary/60 select-none font-medium text-mg-chart"
       >
         {{ t('exerciseWizards.mountainRange.timelineLabels.peaks') }}
       </text>
       <text
         :x="padding + 4"
         :y="svgHeight - padding - 4"
-        class="fill-on-surface-variant/50 select-none font-medium"
-        style="font-size: 10px"
+        class="fill-on-surface-variant/50 select-none font-medium text-mg-chart"
       >
         {{ t('exerciseWizards.mountainRange.timelineLabels.valleys') }}
       </text>
     </svg>
 
     <!-- Selected event detail panel -->
-    <div v-if="selectedEvent" class="neo-panel p-4 mt-3">
+    <div v-if="selectedEvent" class="exercise-block p-4 mt-3">
       <div class="flex items-center gap-2 mb-2">
         <span
           class="exercise-pill text-xs"

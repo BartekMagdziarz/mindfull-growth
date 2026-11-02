@@ -82,8 +82,8 @@ const rules = {
   },
   legacyClass: { label: 'klasa legacy neo-*', test: l => /(?<!-)\bneo-[a-z0-9-]+\b/i.test(l) },
   tailwindRadius: {
-    label: 'utility rounded-* (poza rounded-full)',
-    test: l => /(?<![\w-])rounded(?:-(?!full\b)[a-z0-9[\].]+)?(?=[\s"'`:])/.test(l),
+    label: 'utility rounded-* (poza rounded-full i skalą tokenów rounded-mg-*)',
+    test: l => /(?<![\w-])rounded(?:-(?!full\b|mg-)[a-z0-9[\].]+)?(?=[\s"'`:])/.test(l),
   },
   tailwindShadow: { label: 'utility shadow-neu-*', test: l => /\bshadow-neu-[a-z-]+/.test(l) },
   tailwindArbitraryText: {

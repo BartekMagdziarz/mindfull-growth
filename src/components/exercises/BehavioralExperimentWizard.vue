@@ -23,7 +23,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.behavioralExperiment.intro.description') }}
           </p>
-          <div class="neo-surface p-4 space-y-3">
+          <div class="exercise-block p-4 space-y-3">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('exerciseWizards.behavioralExperiment.intro.howItWorks') }}
             </p>
@@ -86,7 +86,7 @@
             v-model="targetBelief"
             rows="3"
             :placeholder="t('exerciseWizards.behavioralExperiment.belief.placeholder')"
-            class="neo-input neo-focus w-full p-3 text-sm resize-none"
+            class="exercise-field w-full p-3 text-sm resize-none"
           />
           <div class="space-y-2">
             <label class="text-sm font-medium text-on-surface">
@@ -102,7 +102,7 @@
               min="0"
               max="100"
               step="1"
-              class="neo-focus w-full accent-primary"
+              class="w-full accent-primary"
             />
             <div class="flex justify-between text-xs text-on-surface-variant">
               <span>{{ t('exerciseWizards.behavioralExperiment.belief.notAtAll') }}</span>
@@ -145,7 +145,7 @@
             v-model="prediction"
             rows="3"
             :placeholder="t('exerciseWizards.behavioralExperiment.prediction.placeholder')"
-            class="neo-input neo-focus w-full p-3 text-sm resize-none"
+            class="exercise-field w-full p-3 text-sm resize-none"
           />
           <div class="space-y-2">
             <label class="text-sm font-medium text-on-surface">
@@ -161,7 +161,7 @@
               min="0"
               max="100"
               step="1"
-              class="neo-focus w-full accent-primary"
+              class="w-full accent-primary"
             />
             <div class="flex justify-between text-xs text-on-surface-variant">
               <span>{{ t('exerciseWizards.behavioralExperiment.prediction.notAtAll') }}</span>
@@ -206,7 +206,7 @@
             v-model="experimentDesign"
             rows="4"
             :placeholder="t('exerciseWizards.behavioralExperiment.design.placeholder')"
-            class="neo-input neo-focus w-full p-3 text-sm resize-none"
+            class="exercise-field w-full p-3 text-sm resize-none"
           />
           <div class="space-y-1">
             <label class="text-xs font-medium text-on-surface-variant">
@@ -215,7 +215,7 @@
             <input
               v-model="experimentWhen"
               type="date"
-              class="neo-input neo-focus w-full p-2.5 text-sm"
+              class="exercise-field w-full p-2.5 text-sm"
             />
           </div>
 
@@ -236,7 +236,7 @@
               </AppButton>
               <ProfileContextToggle v-model="useProfileDesign" />
             </div>
-            <div v-if="designSuggestion" class="neo-panel p-4 space-y-2">
+            <div v-if="designSuggestion" class="exercise-block p-4 space-y-2">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                 {{ t('exerciseWizards.behavioralExperiment.design.suggestedExperiment') }}
               </p>
@@ -287,13 +287,13 @@
                 :value="behavior"
                 type="text"
                 :placeholder="t('exerciseWizards.behavioralExperiment.safety.placeholder')"
-                class="neo-input neo-focus flex-1 p-2 text-sm"
+                class="exercise-field flex-1 p-2 text-sm"
                 @input="safetyBehaviors[index] = ($event.target as HTMLInputElement).value"
               />
               <button
                 v-if="safetyBehaviors.length > 1"
                 type="button"
-                class="p-1 rounded text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
+                class="p-1 rounded-mg-xs text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
                 @click="removeSafetyBehavior(index)"
               >
                 <AppIcon name="close" class="text-base" />
@@ -346,7 +346,7 @@
           </p>
 
           <!-- Prediction reminder -->
-          <div class="neo-panel p-3">
+          <div class="exercise-block p-3">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-1">
               {{ t('exerciseWizards.behavioralExperiment.outcome.predictionLabel') }}
             </p>
@@ -357,7 +357,7 @@
             v-model="outcome"
             rows="4"
             :placeholder="t('exerciseWizards.behavioralExperiment.outcome.placeholder')"
-            class="neo-input neo-focus w-full p-3 text-sm resize-none"
+            class="exercise-field w-full p-3 text-sm resize-none"
           />
         </AppCard>
 
@@ -373,7 +373,7 @@
             v-model="whatLearned"
             rows="3"
             :placeholder="tg('exerciseWizards.behavioralExperiment.outcome.learnedPlaceholder')"
-            class="neo-input neo-focus w-full p-3 text-sm resize-none"
+            class="exercise-field w-full p-3 text-sm resize-none"
           />
         </AppCard>
 
@@ -381,7 +381,7 @@
           <h2 class="text-lg font-semibold text-on-surface">
             {{ t('exerciseWizards.behavioralExperiment.outcome.rerateTitle') }}
           </h2>
-          <div class="neo-panel p-3">
+          <div class="exercise-block p-3">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-1">
               {{ t('exerciseWizards.behavioralExperiment.outcome.targetBeliefLabel') }}
             </p>
@@ -401,7 +401,7 @@
               min="0"
               max="100"
               step="1"
-              class="neo-focus w-full accent-primary"
+              class="w-full accent-primary"
             />
             <div class="flex justify-between text-xs text-on-surface-variant">
               <span>{{ t('exerciseWizards.behavioralExperiment.outcome.notAtAll') }}</span>

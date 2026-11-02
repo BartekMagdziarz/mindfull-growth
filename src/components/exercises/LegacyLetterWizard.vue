@@ -25,7 +25,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.legacyLetter.intro.secondaryDescription') }}
           </p>
-          <div class="neo-embedded p-3">
+          <div class="exercise-block p-3">
             <p class="text-xs text-on-surface-variant italic">
               "{{ tg('exerciseWizards.legacyLetter.intro.quote') }}"
             </p>
@@ -68,8 +68,8 @@
             <div v-for="prompt in warmUpPromptList" :key="prompt" class="space-y-2">
               <button
                 type="button"
-                class="neo-selector p-4 w-full text-left"
-                :class="selectedPromptKeys.has(prompt) && 'neo-selector--active'"
+                class="exercise-option p-4 w-full text-left"
+                :class="selectedPromptKeys.has(prompt) && 'exercise-option--active'"
                 @click="togglePrompt(prompt)"
               >
                 <p class="text-sm text-on-surface">{{ prompt }}</p>
@@ -86,7 +86,7 @@
                   <textarea
                     v-model="warmUpResponses[prompt]"
                     :placeholder="t('exerciseWizards.legacyLetter.warmup.responsePlaceholder')"
-                    class="neo-input neo-focus w-full p-3 text-sm resize-none"
+                    class="exercise-field w-full p-3 text-sm resize-none"
                     rows="3"
                   />
                 </div>
@@ -125,7 +125,7 @@
             {{ t('exerciseWizards.legacyLetter.write.description') }}
           </p>
           <ExerciseStepWhy :text="tg('exerciseWizards.legacyLetter.write.why')" />
-          <div class="neo-embedded p-3">
+          <div class="exercise-block p-3">
             <p class="text-xs text-on-surface-variant">
               {{ tg('exerciseWizards.legacyLetter.write.hint') }}
             </p>
@@ -133,7 +133,7 @@
           <textarea
             v-model="letterText"
             :placeholder="t('exerciseWizards.legacyLetter.write.placeholder')"
-            class="neo-input neo-focus w-full p-4 text-sm resize-none"
+            class="exercise-field w-full p-4 text-sm resize-none"
             rows="16"
           />
 
@@ -157,7 +157,7 @@
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('exerciseWizards.legacyLetter.write.purposeTitle') }}
             </p>
-            <div class="neo-embedded p-3">
+            <div class="exercise-block p-3">
               <p class="text-sm text-on-surface-variant italic">{{ purposeStatement }}</p>
             </div>
           </div>
@@ -208,7 +208,7 @@
 
           <!-- Chat interface -->
           <template v-if="showChat">
-            <div class="neo-surface rounded-xl p-4 h-96 overflow-y-auto space-y-3">
+            <div class="exercise-block p-4 h-96 overflow-y-auto space-y-3">
               <div
                 v-for="(message, index) in messages"
                 :key="`${message.timestamp}-${index}`"
@@ -216,7 +216,7 @@
               >
                 <div
                   :class="[
-                    'max-w-[80%] rounded-lg px-4 py-2',
+                    'max-w-[80%] rounded-mg-sm px-4 py-2',
                     message.role === 'user'
                       ? 'bg-gradient-to-br from-primary to-primary-strong text-on-primary'
                       : 'bg-surface-variant text-on-surface-variant',
@@ -229,7 +229,7 @@
               <!-- Loading indicator -->
               <div v-if="isLlmLoading" class="flex justify-start">
                 <div
-                  class="max-w-[80%] rounded-lg px-4 py-2 bg-surface-variant text-on-surface-variant"
+                  class="max-w-[80%] rounded-mg-sm px-4 py-2 bg-surface-variant text-on-surface-variant"
                 >
                   <div class="flex items-center gap-2">
                     <div
@@ -258,7 +258,7 @@
                   v-model="userInput"
                   :placeholder="t('exerciseWizards.legacyLetter.reflect.placeholder')"
                   :disabled="isLlmLoading"
-                  class="neo-input neo-focus flex-1 p-3 resize-none min-h-[44px] max-h-[120px] text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                  class="exercise-field flex-1 p-3 resize-none min-h-[44px] max-h-[120px] text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                   rows="1"
                   @keydown.enter.exact.prevent="handleSend"
                 />
@@ -294,7 +294,7 @@
               <textarea
                 v-model="reflectionInsight"
                 :placeholder="t('exerciseWizards.legacyLetter.reflect.truthPlaceholder')"
-                class="neo-input neo-focus w-full p-3 text-sm resize-none mt-1"
+                class="exercise-field w-full p-3 text-sm resize-none mt-1"
                 rows="4"
               />
             </div>
@@ -326,7 +326,7 @@
           </h2>
 
           <!-- Letter text -->
-          <div class="neo-embedded p-4">
+          <div class="exercise-block p-4">
             <p class="text-sm text-on-surface whitespace-pre-line leading-relaxed">
               {{ letterText }}
             </p>
@@ -343,7 +343,7 @@
                   p => selectedPromptKeys.has(p) && warmUpResponses[p]?.trim()
                 )"
                 :key="prompt"
-                class="neo-surface rounded-xl p-3"
+                class="exercise-block p-3"
               >
                 <p class="text-xs font-medium text-on-surface-variant mb-1">{{ prompt }}</p>
                 <p class="text-sm text-on-surface">{{ warmUpResponses[prompt] }}</p>
@@ -376,7 +376,7 @@
             <textarea
               v-model="notes"
               :placeholder="t('exerciseWizards.legacyLetter.summary.notesPlaceholder')"
-              class="neo-input neo-focus w-full p-3 text-sm resize-none mt-1"
+              class="exercise-field w-full p-3 text-sm resize-none mt-1"
               rows="3"
             />
           </div>

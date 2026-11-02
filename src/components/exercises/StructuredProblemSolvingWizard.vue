@@ -22,7 +22,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.structuredProblemSolving.intro.description') }}
           </p>
-          <div class="neo-surface p-4 space-y-3">
+          <div class="exercise-block p-4 space-y-3">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('exerciseWizards.structuredProblemSolving.intro.howItWorks') }}
             </p>
@@ -85,7 +85,7 @@
             v-model="problemStatement"
             rows="4"
             :placeholder="t('exerciseWizards.structuredProblemSolving.problem.placeholder')"
-            class="neo-input neo-focus w-full p-3 text-sm resize-none"
+            class="exercise-field w-full p-3 text-sm resize-none"
           />
 
           <div class="space-y-2 pt-2">
@@ -145,7 +145,7 @@
               :placeholder="
                 t('exerciseWizards.structuredProblemSolving.brainstorm.solutionPlaceholder')
               "
-              class="neo-input neo-focus flex-1 p-2.5 text-sm"
+              class="exercise-field flex-1 p-2.5 text-sm"
               @keyup.enter="addSolution"
             />
             <AppButton variant="tonal" :disabled="!newSolutionText.trim()" @click="addSolution">
@@ -161,12 +161,12 @@
               class="flex items-center gap-2 group"
             >
               <span class="text-primary text-sm flex-shrink-0 w-5 text-center">{{ idx + 1 }}.</span>
-              <span class="neo-surface flex-1 p-2.5 text-sm text-on-surface rounded-xl">
+              <span class="exercise-block flex-1 p-2.5 text-sm text-on-surface">
                 {{ sol.description }}
               </span>
               <button
                 type="button"
-                class="p-1 rounded text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
+                class="p-1 rounded-mg-xs text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
                 @click="removeSolution(sol.id)"
               >
                 <AppIcon name="close" class="text-base" />
@@ -194,7 +194,7 @@
               </AppButton>
               <ProfileContextToggle v-model="useProfileBrainstorm" />
             </div>
-            <div v-if="brainstormResponse" class="neo-panel p-4 space-y-2">
+            <div v-if="brainstormResponse" class="exercise-block p-4 space-y-2">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                 {{ t('exerciseWizards.structuredProblemSolving.brainstorm.suggestedSolutions') }}
               </p>
@@ -260,13 +260,13 @@
                 :placeholder="
                   t('exerciseWizards.structuredProblemSolving.evaluate.prosPlaceholder')
                 "
-                class="neo-input neo-focus flex-1 p-2 text-sm"
+                class="exercise-field flex-1 p-2 text-sm"
                 @input="sol.pros[proIdx] = ($event.target as HTMLInputElement).value"
               />
               <button
                 v-if="sol.pros.length > 1"
                 type="button"
-                class="p-1 rounded text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
+                class="p-1 rounded-mg-xs text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
                 @click="sol.pros.splice(proIdx, 1)"
               >
                 <AppIcon name="close" class="text-base" />
@@ -295,13 +295,13 @@
                 :placeholder="
                   t('exerciseWizards.structuredProblemSolving.evaluate.consPlaceholder')
                 "
-                class="neo-input neo-focus flex-1 p-2 text-sm"
+                class="exercise-field flex-1 p-2 text-sm"
                 @input="sol.cons[conIdx] = ($event.target as HTMLInputElement).value"
               />
               <button
                 v-if="sol.cons.length > 1"
                 type="button"
-                class="p-1 rounded text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
+                class="p-1 rounded-mg-xs text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
                 @click="sol.cons.splice(conIdx, 1)"
               >
                 <AppIcon name="close" class="text-base" />
@@ -328,11 +328,11 @@
                 v-for="n in 5"
                 :key="`feas-${n}`"
                 type="button"
-                class="w-9 h-9 rounded-lg text-sm font-semibold transition-all duration-150"
+                class="w-9 h-9 rounded-mg-sm text-sm font-semibold transition-all duration-150"
                 :class="
                   sol.feasibilityRating === n
-                    ? 'neo-selector--active text-primary'
-                    : 'neo-surface text-on-surface-variant hover:text-on-surface'
+                    ? 'exercise-option--active text-primary'
+                    : 'exercise-block text-on-surface-variant hover:text-on-surface'
                 "
                 @click="sol.feasibilityRating = n"
               >
@@ -356,11 +356,11 @@
                 v-for="n in 5"
                 :key="`eff-${n}`"
                 type="button"
-                class="w-9 h-9 rounded-lg text-sm font-semibold transition-all duration-150"
+                class="w-9 h-9 rounded-mg-sm text-sm font-semibold transition-all duration-150"
                 :class="
                   sol.effectivenessRating === n
-                    ? 'neo-selector--active text-primary'
-                    : 'neo-surface text-on-surface-variant hover:text-on-surface'
+                    ? 'exercise-option--active text-primary'
+                    : 'exercise-block text-on-surface-variant hover:text-on-surface'
                 "
                 @click="sol.effectivenessRating = n"
               >
@@ -388,7 +388,7 @@
               </AppButton>
               <ProfileContextToggle v-model="useProfileEvaluate" />
             </div>
-            <div v-if="evaluateResponse" class="neo-panel p-4 space-y-2">
+            <div v-if="evaluateResponse" class="exercise-block p-4 space-y-2">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                 {{ t('exerciseWizards.structuredProblemSolving.evaluate.analysis') }}
               </p>
@@ -436,8 +436,8 @@
               :key="sol.id"
               type="button"
               :class="[
-                'neo-selector neo-focus w-full text-left p-4',
-                chosenSolutionId === sol.id ? 'neo-selector--active' : '',
+                'exercise-option w-full text-left p-4',
+                chosenSolutionId === sol.id ? 'exercise-option--active' : '',
               ]"
               @click="chosenSolutionId = sol.id"
             >
@@ -497,7 +497,7 @@
             :placeholder="
               t('exerciseWizards.structuredProblemSolving.choose.actionPlanPlaceholder')
             "
-            class="neo-input neo-focus w-full p-3 text-sm resize-none"
+            class="exercise-field w-full p-3 text-sm resize-none"
           />
 
           <!-- Action Steps -->
@@ -519,12 +519,12 @@
                     n: idx + 1,
                   })
                 "
-                class="neo-input neo-focus flex-1 p-2 text-sm"
+                class="exercise-field flex-1 p-2 text-sm"
               />
               <button
                 v-if="actionSteps.length > 1"
                 type="button"
-                class="p-1 rounded text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
+                class="p-1 rounded-mg-xs text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
                 @click="actionSteps.splice(idx, 1)"
               >
                 <AppIcon name="close" class="text-base" />
@@ -541,11 +541,7 @@
             <label class="text-sm font-medium text-on-surface">{{
               t('exerciseWizards.structuredProblemSolving.choose.targetDateLabel')
             }}</label>
-            <input
-              v-model="targetDate"
-              type="date"
-              class="neo-input neo-focus w-full p-2.5 text-sm"
-            />
+            <input v-model="targetDate" type="date" class="exercise-field w-full p-2.5 text-sm" />
           </div>
         </AppCard>
 
@@ -643,7 +639,7 @@
             {{ tg('exerciseWizards.structuredProblemSolving.review.markCompletedDescription') }}
           </p>
           <label class="flex items-center gap-3 text-sm text-on-surface cursor-pointer">
-            <input v-model="markCompleted" type="checkbox" class="neo-checkbox" />
+            <input v-model="markCompleted" type="checkbox" class="mg-v2-checkbox" />
             {{ t('exerciseWizards.structuredProblemSolving.review.markCompleted') }}
           </label>
           <div v-if="markCompleted" class="space-y-3">
@@ -651,7 +647,7 @@
               v-model="outcome"
               rows="3"
               :placeholder="t('exerciseWizards.structuredProblemSolving.review.outcomePlaceholder')"
-              class="neo-input neo-focus w-full p-3 text-sm resize-none"
+              class="exercise-field w-full p-3 text-sm resize-none"
             />
           </div>
         </AppCard>
@@ -857,7 +853,7 @@
             v-model="notes"
             rows="2"
             :placeholder="t('exerciseWizards.structuredProblemSolving.summary.notesPlaceholder')"
-            class="neo-input neo-focus w-full p-3 text-sm resize-none"
+            class="exercise-field w-full p-3 text-sm resize-none"
           />
         </AppCard>
 

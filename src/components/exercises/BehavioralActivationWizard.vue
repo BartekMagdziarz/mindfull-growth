@@ -22,7 +22,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.behavioralActivation.intro.description') }}
           </p>
-          <div class="neo-surface p-4 space-y-3">
+          <div class="exercise-block p-4 space-y-3">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('exerciseWizards.behavioralActivation.intro.howItWorks') }}
             </p>
@@ -96,7 +96,7 @@
             <input
               v-model="weekStartDate"
               type="date"
-              class="neo-input neo-focus w-full p-2.5 text-sm"
+              class="exercise-field w-full p-2.5 text-sm"
             />
           </div>
         </AppCard>
@@ -130,14 +130,14 @@
           <ExerciseStepWhy :text="tg('exerciseWizards.behavioralActivation.planActivities.why')" />
 
           <!-- Add activity form -->
-          <div class="neo-surface p-4 space-y-3">
+          <div class="exercise-block p-4 space-y-3">
             <div class="space-y-1">
               <label class="text-xs font-medium text-on-surface-variant">{{
                 t('exerciseWizards.behavioralActivation.planActivities.activityNameLabel')
               }}</label>
               <input
                 v-model="newActivityName"
-                class="neo-input neo-focus w-full p-2.5 text-sm"
+                class="exercise-field w-full p-2.5 text-sm"
                 :placeholder="
                   t('exerciseWizards.behavioralActivation.planActivities.activityNamePlaceholder')
                 "
@@ -154,8 +154,8 @@
                   :key="cat.id"
                   type="button"
                   :class="[
-                    'neo-selector neo-focus px-3 py-1.5 text-xs font-medium rounded-xl',
-                    newActivityCategory === cat.id ? 'neo-selector--active' : '',
+                    'exercise-option px-3 py-1.5 text-xs font-medium',
+                    newActivityCategory === cat.id ? 'exercise-option--active' : '',
                   ]"
                   @click="newActivityCategory = cat.id"
                 >
@@ -172,7 +172,7 @@
               <input
                 v-model="newActivityDate"
                 type="date"
-                class="neo-input neo-focus w-full p-2.5 text-sm"
+                class="exercise-field w-full p-2.5 text-sm"
               />
             </div>
 
@@ -201,7 +201,7 @@
               </AppButton>
               <ProfileContextToggle v-model="useProfileSuggest" />
             </div>
-            <div v-if="suggestResult" class="neo-panel p-4 space-y-2">
+            <div v-if="suggestResult" class="exercise-block p-4 space-y-2">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                 {{ t('exerciseWizards.behavioralActivation.planActivities.suggestedActivities') }}
               </p>
@@ -238,7 +238,7 @@
                 </div>
                 <button
                   type="button"
-                  class="p-1 rounded text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0 ml-2"
+                  class="p-1 rounded-mg-xs text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0 ml-2"
                   :aria-label="`Remove ${act.activity}`"
                   @click="removeActivity(idx)"
                 >
@@ -327,7 +327,7 @@
                 </span>
                 <span class="text-xs text-on-surface-variant"> ({{ group.items.length }}) </span>
               </div>
-              <div class="neo-embedded p-3 space-y-1.5">
+              <div class="exercise-block p-3 space-y-1.5">
                 <div
                   v-for="act in group.items"
                   :key="act.id"
@@ -353,11 +353,11 @@
           </p>
 
           <div class="space-y-3">
-            <div v-for="act in activities" :key="act.id" class="neo-surface p-3 space-y-2">
+            <div v-for="act in activities" :key="act.id" class="exercise-block p-3 space-y-2">
               <div class="flex items-center gap-3">
                 <button
                   type="button"
-                  class="w-5 h-5 rounded border flex-shrink-0 flex items-center justify-center transition-colors"
+                  class="w-5 h-5 rounded-mg-xs border flex-shrink-0 flex items-center justify-center transition-colors"
                   :class="
                     act.completed
                       ? 'bg-primary border-primary text-on-primary'
@@ -407,7 +407,7 @@
                       min="0"
                       max="10"
                       step="1"
-                      class="neo-focus w-full accent-primary"
+                      class="w-full accent-primary"
                       @input="act.moodBefore = Number(($event.target as HTMLInputElement).value)"
                     />
                   </div>
@@ -426,7 +426,7 @@
                       min="0"
                       max="10"
                       step="1"
-                      class="neo-focus w-full accent-primary"
+                      class="w-full accent-primary"
                       @input="act.moodAfter = Number(($event.target as HTMLInputElement).value)"
                     />
                   </div>
@@ -449,7 +449,7 @@
             </AppButton>
             <ProfileContextToggle v-model="useProfileReviewWeek" />
           </div>
-          <div v-if="reviewResult" class="neo-panel p-4 space-y-2">
+          <div v-if="reviewResult" class="exercise-block p-4 space-y-2">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('exerciseWizards.behavioralActivation.summary.weekReview') }}
             </p>
@@ -467,7 +467,7 @@
             v-model="notes"
             rows="3"
             :placeholder="t('exerciseWizards.behavioralActivation.summary.notesPlaceholder')"
-            class="neo-input neo-focus w-full p-3 text-sm resize-none"
+            class="exercise-field w-full p-3 text-sm resize-none"
           />
         </AppCard>
 

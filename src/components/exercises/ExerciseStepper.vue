@@ -113,7 +113,7 @@ function stepLabel(label: string, index: number): string {
 
 .exercise-steps .is-current i {
   width: 18px;
-  border-radius: 8px;
+  border-radius: var(--mg-radius-xs);
   opacity: 1;
 }
 

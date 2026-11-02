@@ -23,7 +23,7 @@
             </p>
             <IFSSafetyBanner />
 
-            <div v-if="!partStore.sortedParts.length" class="neo-surface p-4 rounded-xl">
+            <div v-if="!partStore.sortedParts.length" class="exercise-block p-4">
               <p
                 class="text-sm text-on-surface-variant"
                 v-html="t('exerciseWizards.directAccess.partSelect.emptyState')"
@@ -59,7 +59,7 @@
             </p>
             <ExerciseStepWhy :text="tg('exerciseWizards.directAccess.selfCheck.why')" />
 
-            <div class="neo-surface p-6 rounded-xl text-center">
+            <div class="exercise-block p-6 text-center">
               <p class="text-lg font-semibold text-on-surface">
                 {{
                   t('exerciseWizards.directAccess.selfCheck.question', {
@@ -71,8 +71,8 @@
 
             <div class="space-y-3">
               <button
-                class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
-                :class="selfCheckPassed ? 'neo-selector--active ring-2 ring-primary' : ''"
+                class="w-full exercise-block p-4 text-left transition-all hover:-translate-y-px"
+                :class="selfCheckPassed ? 'exercise-option--active ring-2 ring-primary' : ''"
                 @click="handleSelfCheck(true)"
               >
                 <div class="flex items-center gap-3">
@@ -83,8 +83,8 @@
                 </div>
               </button>
               <button
-                class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
-                :class="showBreathing ? 'shadow-neu-pressed ring-2 ring-status-warn' : ''"
+                class="w-full exercise-block p-4 text-left transition-all hover:-translate-y-px"
+                :class="showBreathing ? 'ring-2 ring-status-warn' : ''"
                 @click="handleSelfCheck(false)"
               >
                 <div class="flex items-center gap-3">
@@ -101,10 +101,7 @@
               enter-active-class="transition-all duration-200"
               enter-from-class="opacity-0 -translate-y-2"
             >
-              <div
-                v-if="showBreathing"
-                class="neo-surface p-6 rounded-2xl flex flex-col items-center gap-4"
-              >
+              <div v-if="showBreathing" class="exercise-block p-6 flex flex-col items-center gap-4">
                 <div
                   class="w-24 h-24 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center"
                   :class="breathingActive ? 'breathing-circle' : ''"
@@ -134,7 +131,7 @@
                 >
                   <div v-if="breathingDone" class="w-full space-y-2">
                     <button
-                      class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
+                      class="w-full exercise-block p-4 text-left transition-all hover:-translate-y-px"
                       @click="confirmSelfCheckAndContinue"
                     >
                       <div class="flex items-center gap-3">
@@ -148,7 +145,7 @@
                       </div>
                     </button>
                     <button
-                      class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
+                      class="w-full exercise-block p-4 text-left transition-all hover:-translate-y-px"
                       @click="leaveForToday()"
                     >
                       <div class="flex items-center gap-3">
@@ -184,7 +181,7 @@
               <button
                 v-for="q in suggestedQuestions"
                 :key="q"
-                class="exercise-pill text-xs px-3 py-1.5 bg-primary/10 text-primary neo-focus hover:bg-primary/20 transition-colors"
+                class="exercise-pill text-xs px-3 py-1.5 bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
                 @click="messageInput = q"
               >
                 {{ q }}
@@ -212,7 +209,7 @@
 
               <!-- Loading -->
               <div v-if="isLoadingResponse" class="flex justify-start">
-                <div class="neo-surface shadow-neu-pressed rounded-2xl px-4 py-3 max-w-[85%]">
+                <div class="exercise-block px-4 py-3 max-w-[85%]">
                   <p class="text-xs font-medium text-on-surface-variant mb-1">
                     {{ selectedPartName }}
                   </p>
@@ -247,7 +244,7 @@
                   v-model="messageInput"
                   rows="2"
                   :placeholder="t('exerciseWizards.directAccess.dialogue.placeholder')"
-                  class="neo-input w-full p-3 text-sm resize-none"
+                  class="exercise-field w-full p-3 text-sm resize-none"
                   @keydown.enter.exact.prevent="handleSend"
                 />
                 <AppButton
@@ -277,17 +274,17 @@
                 v-model="insightContent"
                 rows="2"
                 :placeholder="tg('exerciseWizards.directAccess.dialogue.insightForm.placeholder')"
-                class="neo-input w-full p-3 text-sm resize-none"
+                class="exercise-field w-full p-3 text-sm resize-none"
               />
               <div class="flex flex-wrap gap-2">
                 <button
                   v-for="tag in insightTags"
                   :key="tag.value"
-                  class="exercise-pill text-xs px-2 py-1 neo-focus transition-all"
+                  class="exercise-pill text-xs px-2 py-1 transition-all"
                   :class="
                     insightTag === tag.value
-                      ? `${tag.activeClass} shadow-neu-pressed`
-                      : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'
+                      ? `${tag.activeClass} exercise-pill--primary`
+                      : 'bg-neu-base text-on-surface-variant hover:-translate-y-px'
                   "
                   @click="insightTag = tag.value"
                 >
@@ -340,7 +337,7 @@
               {{ t('exerciseWizards.directAccess.summary.title') }}
             </h2>
 
-            <div class="neo-surface p-3 rounded-lg flex items-center justify-between">
+            <div class="exercise-block p-3 flex items-center justify-between">
               <span class="text-sm text-on-surface-variant">{{
                 t('exerciseWizards.directAccess.summary.messageCount')
               }}</span>
@@ -368,7 +365,7 @@
                 v-model="summary"
                 rows="3"
                 :placeholder="t('exerciseWizards.directAccess.summary.summaryPlaceholder')"
-                class="neo-input w-full p-3 text-sm resize-none"
+                class="exercise-field w-full p-3 text-sm resize-none"
               />
             </div>
 
@@ -389,7 +386,7 @@
                   <input
                     v-model="partJobDiscovered"
                     type="text"
-                    class="neo-input w-full text-sm"
+                    class="exercise-field w-full text-sm"
                     :placeholder="
                       t('exerciseWizards.directAccess.summary.discoveries.job.placeholder')
                     "
@@ -402,7 +399,7 @@
                   <input
                     v-model="partFearDiscovered"
                     type="text"
-                    class="neo-input w-full text-sm"
+                    class="exercise-field w-full text-sm"
                     :placeholder="
                       t('exerciseWizards.directAccess.summary.discoveries.fear.placeholder')
                     "
@@ -415,7 +412,7 @@
                   <input
                     v-model="partNeedDiscovered"
                     type="text"
-                    class="neo-input w-full text-sm"
+                    class="exercise-field w-full text-sm"
                     :placeholder="
                       t('exerciseWizards.directAccess.summary.discoveries.need.placeholder')
                     "
@@ -452,7 +449,7 @@
                 <PartRoleBadge v-if="selectedPartRole" :role="selectedPartRole" />
               </div>
 
-              <div class="neo-surface p-3 rounded-lg grid grid-cols-2 gap-3">
+              <div class="exercise-block p-3 grid grid-cols-2 gap-3">
                 <div>
                   <p class="text-xs text-on-surface-variant">
                     {{ t('exerciseWizards.directAccess.save.stats.messages') }}
@@ -493,7 +490,7 @@
                   {{ partNeedDiscovered }}
                 </p>
                 <label class="flex items-start gap-2 pt-2 cursor-pointer">
-                  <input v-model="updatePartCard" type="checkbox" class="mt-0.5 neo-focus" />
+                  <input v-model="updatePartCard" type="checkbox" class="mt-0.5" />
                   <span class="text-xs text-on-surface">
                     {{ t('exerciseWizards.directAccess.save.updatePartLabel') }}
                     <span class="block text-on-surface-variant">{{
@@ -512,7 +509,7 @@
                 v-model="notes"
                 rows="2"
                 :placeholder="t('exerciseWizards.directAccess.save.notesPlaceholder')"
-                class="neo-input w-full p-3 text-sm resize-none"
+                class="exercise-field w-full p-3 text-sm resize-none"
               />
             </div>
           </AppCard>

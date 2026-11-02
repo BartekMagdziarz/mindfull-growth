@@ -22,7 +22,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.socraticDialogue.intro.description') }}
           </p>
-          <div class="neo-embedded p-3">
+          <div class="exercise-block p-3">
             <p class="text-xs text-on-surface-variant italic">
               {{ t('exerciseWizards.socraticDialogue.intro.quote') }}
             </p>
@@ -63,8 +63,8 @@
               v-for="mode in focusModes"
               :key="mode.value"
               type="button"
-              class="neo-selector p-4 text-left"
-              :class="selectedFocus === mode.value && 'neo-selector--active'"
+              class="exercise-option p-4 text-left"
+              :class="selectedFocus === mode.value && 'exercise-option--active'"
               @click="selectedFocus = mode.value"
             >
               <AppIcon :name="mode.icon" class="text-2xl text-primary mb-2" />
@@ -76,7 +76,7 @@
             v-if="selectedFocus === 'custom'"
             v-model="customFocusText"
             :placeholder="t('exerciseWizards.socraticDialogue.focus.customPlaceholder')"
-            class="neo-input neo-focus w-full p-3 text-sm resize-none"
+            class="exercise-field w-full p-3 text-sm resize-none"
             rows="2"
           />
         </AppCard>
@@ -116,7 +116,7 @@
             <label class="text-sm font-medium text-on-surface">{{
               t('exerciseWizards.socraticDialogue.context.journalLabel')
             }}</label>
-            <select v-model="selectedJournalId" class="neo-input neo-focus w-full p-2 text-sm mt-1">
+            <select v-model="selectedJournalId" class="exercise-field w-full p-2 text-sm mt-1">
               <option value="">
                 {{ t('exerciseWizards.socraticDialogue.context.noneOption') }}
               </option>
@@ -134,10 +134,7 @@
             <label class="text-sm font-medium text-on-surface">{{
               t('exerciseWizards.socraticDialogue.context.lifeAreaLabel')
             }}</label>
-            <select
-              v-model="selectedLifeAreaId"
-              class="neo-input neo-focus w-full p-2 text-sm mt-1"
-            >
+            <select v-model="selectedLifeAreaId" class="exercise-field w-full p-2 text-sm mt-1">
               <option value="">
                 {{ t('exerciseWizards.socraticDialogue.context.noneOption') }}
               </option>
@@ -155,7 +152,7 @@
             <textarea
               v-model="additionalContext"
               :placeholder="t('exerciseWizards.socraticDialogue.context.additionalPlaceholder')"
-              class="neo-input neo-focus w-full p-3 text-sm resize-none mt-1"
+              class="exercise-field w-full p-3 text-sm resize-none mt-1"
               rows="3"
             />
           </div>
@@ -194,7 +191,7 @@
           <ExerciseStepWhy :text="tg('exerciseWizards.socraticDialogue.dialogue.why')" />
 
           <!-- Message area -->
-          <div class="neo-surface rounded-xl p-4 h-96 overflow-y-auto space-y-3">
+          <div class="exercise-block p-4 h-96 overflow-y-auto space-y-3">
             <div
               v-if="messages.length === 0 && !isLlmLoading"
               class="text-center text-on-surface-variant py-8"
@@ -209,7 +206,7 @@
             >
               <div
                 :class="[
-                  'max-w-[80%] rounded-lg px-4 py-2',
+                  'max-w-[80%] rounded-mg-sm px-4 py-2',
                   message.role === 'user'
                     ? 'bg-gradient-to-br from-primary to-primary-strong text-on-primary'
                     : 'bg-surface-variant text-on-surface-variant',
@@ -222,7 +219,7 @@
             <!-- Loading indicator -->
             <div v-if="isLlmLoading" class="flex justify-start">
               <div
-                class="max-w-[80%] rounded-lg px-4 py-2 bg-surface-variant text-on-surface-variant"
+                class="max-w-[80%] rounded-mg-sm px-4 py-2 bg-surface-variant text-on-surface-variant"
               >
                 <div class="flex items-center gap-2">
                   <div
@@ -252,7 +249,7 @@
                 v-model="userInput"
                 :placeholder="t('exerciseWizards.socraticDialogue.dialogue.placeholder')"
                 :disabled="isLlmLoading"
-                class="neo-input neo-focus flex-1 p-3 resize-none min-h-[44px] max-h-[120px] text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                class="exercise-field flex-1 p-3 resize-none min-h-[44px] max-h-[120px] text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                 rows="1"
                 @keydown.enter.exact.prevent="handleSend"
               />
@@ -315,7 +312,7 @@
             <textarea
               v-model="insightPrimary"
               :placeholder="tg('exerciseWizards.socraticDialogue.insights.insightPlaceholder')"
-              class="neo-input neo-focus w-full p-3 text-sm resize-none mt-1"
+              class="exercise-field w-full p-3 text-sm resize-none mt-1"
               rows="3"
             />
           </div>
@@ -327,13 +324,13 @@
             <textarea
               v-model="insightRemember"
               :placeholder="t('exerciseWizards.socraticDialogue.insights.rememberPlaceholder')"
-              class="neo-input neo-focus w-full p-3 text-sm resize-none mt-1"
+              class="exercise-field w-full p-3 text-sm resize-none mt-1"
               rows="2"
             />
           </div>
 
           <label class="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" v-model="createJournalEntry" class="neo-checkbox" />
+            <input type="checkbox" v-model="createJournalEntry" class="mg-v2-checkbox" />
             <span class="text-sm text-on-surface">{{
               t('exerciseWizards.socraticDialogue.insights.journalCheckbox')
             }}</span>
@@ -356,7 +353,7 @@
             <textarea
               v-model="notes"
               :placeholder="t('exerciseWizards.socraticDialogue.insights.notesPlaceholder')"
-              class="neo-input neo-focus w-full p-3 text-sm resize-none mt-1"
+              class="exercise-field w-full p-3 text-sm resize-none mt-1"
               rows="3"
             />
           </div>

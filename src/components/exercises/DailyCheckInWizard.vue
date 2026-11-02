@@ -25,11 +25,11 @@
               <button
                 v-for="practice in practiceOptions"
                 :key="practice.type"
-                class="neo-focus rounded-xl p-4 text-left transition-all space-y-2"
+                class="rounded-mg-md p-4 text-left transition-all space-y-2"
                 :class="[
                   practiceType === practice.type
-                    ? 'neo-selector neo-selector--active border'
-                    : 'neo-selector border',
+                    ? 'exercise-option exercise-option--active border'
+                    : 'exercise-option border',
                 ]"
                 @click="practiceType = practice.type"
               >
@@ -75,11 +75,11 @@
                 <button
                   v-for="part in partStore.sortedParts"
                   :key="part.id"
-                  class="neo-focus rounded-xl p-3 text-left transition-all"
+                  class="rounded-mg-md p-3 text-left transition-all"
                   :class="[
                     isPartActive(part.id)
-                      ? 'neo-selector neo-selector--active border'
-                      : 'neo-selector border',
+                      ? 'exercise-option exercise-option--active border'
+                      : 'exercise-option border',
                     roleBorderClass(part.role),
                   ]"
                   @click="toggleActivePart(part.id)"
@@ -94,7 +94,7 @@
                 <div
                   v-for="ap in activeParts"
                   :key="ap.partId"
-                  class="neo-surface p-3 rounded-xl space-y-2"
+                  class="exercise-block p-3 space-y-2"
                 >
                   <div class="flex items-center gap-2">
                     <span class="text-sm font-medium text-on-surface">{{
@@ -126,7 +126,7 @@
                   <input
                     type="text"
                     :value="ap.triggerNote ?? ''"
-                    class="neo-input w-full p-2 text-xs"
+                    class="exercise-field w-full p-2 text-xs"
                     :placeholder="
                       t('exerciseWizards.dailyCheckIn.practice.weatherReport.triggerPlaceholder')
                     "
@@ -163,13 +163,10 @@
                 :placeholder="
                   t('exerciseWizards.dailyCheckIn.practice.gratitudeToPart.notePlaceholder')
                 "
-                class="neo-input w-full p-3 text-sm resize-none"
+                class="exercise-field w-full p-3 text-sm resize-none"
               />
 
-              <div
-                v-if="gratitudePartId && gratitudeNote.trim()"
-                class="neo-surface p-3 rounded-xl"
-              >
+              <div v-if="gratitudePartId && gratitudeNote.trim()" class="exercise-block p-3">
                 <p class="text-sm text-on-surface-variant italic">
                   "{{
                     t('exerciseWizards.dailyCheckIn.practice.gratitudeToPart.thankYou', {
@@ -196,11 +193,11 @@
                 <button
                   v-for="q in allQualities"
                   :key="q"
-                  class="exercise-pill px-3 py-1.5 text-sm neo-focus transition-all capitalize"
+                  class="exercise-pill px-3 py-1.5 text-sm transition-all capitalize"
                   :class="
                     selfEnergyQuality === q
-                      ? 'bg-primary/15 text-primary font-semibold shadow-neu-pressed'
-                      : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'
+                      ? 'bg-primary/15 text-primary font-semibold exercise-pill--primary'
+                      : 'bg-neu-base text-on-surface-variant hover:-translate-y-px'
                   "
                   @click="selfEnergyQuality = q"
                 >
@@ -210,14 +207,14 @@
 
               <!-- Micro-practice for selected quality -->
               <template v-if="selfEnergyQuality">
-                <div class="neo-surface p-4 rounded-xl space-y-3">
+                <div class="exercise-block p-4 space-y-3">
                   <p class="text-sm font-medium text-on-surface">{{ microPracticeLabel }}</p>
                   <p class="text-sm text-on-surface-variant">{{ microPracticePrompt }}</p>
                   <textarea
                     v-model="microPracticeNotes"
                     rows="2"
                     :placeholder="microPracticePlaceholder"
-                    class="neo-input w-full p-3 text-sm resize-none"
+                    class="exercise-field w-full p-3 text-sm resize-none"
                   />
                 </div>
               </template>
@@ -246,11 +243,11 @@
                   <button
                     v-for="part in partStore.sortedParts"
                     :key="part.id"
-                    class="neo-focus rounded-xl p-3 text-left transition-all"
+                    class="rounded-mg-md p-3 text-left transition-all"
                     :class="[
                       isPartActive(part.id)
-                        ? 'neo-selector neo-selector--active border'
-                        : 'neo-selector border',
+                        ? 'exercise-option exercise-option--active border'
+                        : 'exercise-option border',
                       roleBorderClass(part.role),
                     ]"
                     @click="toggleActivePart(part.id)"
@@ -266,7 +263,7 @@
                 <div
                   v-for="ap in activeParts"
                   :key="ap.partId"
-                  class="neo-surface p-3 rounded-xl space-y-2"
+                  class="exercise-block p-3 space-y-2"
                 >
                   <div class="flex items-center gap-2">
                     <span class="text-sm font-medium text-on-surface">{{
@@ -298,7 +295,7 @@
                   <input
                     type="text"
                     :value="ap.triggerNote ?? ''"
-                    class="neo-input w-full p-2 text-xs"
+                    class="exercise-field w-full p-2 text-xs"
                     :placeholder="
                       t(
                         'exerciseWizards.dailyCheckIn.practice.eveningReflection.triggerPlaceholder'
@@ -318,11 +315,11 @@
                   <button
                     v-for="option in leadershipOptions"
                     :key="option.value"
-                    class="exercise-pill px-3 py-1.5 text-sm neo-focus transition-all"
+                    class="exercise-pill px-3 py-1.5 text-sm transition-all"
                     :class="
                       selfLeadershipRating === option.value
-                        ? 'bg-primary/15 text-primary font-semibold shadow-neu-pressed'
-                        : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'
+                        ? 'bg-primary/15 text-primary font-semibold exercise-pill--primary'
+                        : 'bg-neu-base text-on-surface-variant hover:-translate-y-px'
                     "
                     @click="selfLeadershipRating = option.value"
                   >
@@ -340,7 +337,7 @@
                     'exerciseWizards.dailyCheckIn.practice.eveningReflection.reflectionPlaceholder'
                   )
                 "
-                class="neo-input w-full p-3 text-sm resize-none"
+                class="exercise-field w-full p-3 text-sm resize-none"
               />
 
               <!-- Appreciation note -->
@@ -352,7 +349,7 @@
                     'exerciseWizards.dailyCheckIn.practice.eveningReflection.appreciationPlaceholder'
                   )
                 "
-                class="neo-input w-full p-3 text-sm"
+                class="exercise-field w-full p-3 text-sm"
               />
             </AppCard>
           </template>
@@ -385,7 +382,7 @@
             </div>
 
             <!-- Summary -->
-            <div class="neo-surface p-3 rounded-xl space-y-2 text-sm text-on-surface-variant">
+            <div class="exercise-block p-3 space-y-2 text-sm text-on-surface-variant">
               <template v-if="practiceType === 'weather-report'">
                 <p v-for="ap in activeParts" :key="ap.partId">
                   <span class="font-medium text-on-surface">{{ getPartName(ap.partId) }}</span>
@@ -482,7 +479,7 @@
               <div class="flex justify-end">
                 <ProfileContextToggle v-model="useProfileWeeklySummary" />
               </div>
-              <div v-if="weeklySummary" class="neo-surface p-4 rounded-xl">
+              <div v-if="weeklySummary" class="exercise-block p-4">
                 <p class="text-sm text-on-surface whitespace-pre-line">{{ weeklySummary }}</p>
               </div>
             </div>
@@ -502,7 +499,7 @@
               v-model="notes"
               rows="2"
               :placeholder="t('exerciseWizards.dailyCheckIn.summary.notesPlaceholder')"
-              class="neo-input w-full p-3 text-sm resize-none"
+              class="exercise-field w-full p-3 text-sm resize-none"
             />
           </AppCard>
 

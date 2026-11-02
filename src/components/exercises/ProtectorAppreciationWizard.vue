@@ -22,7 +22,7 @@
               {{ t('exerciseWizards.protectorAppreciation.selectProtector.description') }}
             </p>
 
-            <div v-if="!protectorParts.length" class="neo-surface p-4 rounded-xl">
+            <div v-if="!protectorParts.length" class="exercise-block p-4">
               <p
                 class="text-sm text-on-surface-variant"
                 v-html="t('exerciseWizards.protectorAppreciation.selectProtector.emptyState')"
@@ -72,7 +72,7 @@
                 :placeholder="
                   t('exerciseWizards.protectorAppreciation.understandJob.triggersPlaceholder')
                 "
-                class="neo-input w-full p-3 text-sm resize-none"
+                class="exercise-field w-full p-3 text-sm resize-none"
               />
             </div>
 
@@ -86,7 +86,7 @@
                 :placeholder="
                   t('exerciseWizards.protectorAppreciation.understandJob.fearPlaceholder')
                 "
-                class="neo-input w-full p-3 text-sm resize-none"
+                class="exercise-field w-full p-3 text-sm resize-none"
               />
             </div>
 
@@ -98,11 +98,11 @@
                 <button
                   v-for="b in behaviorOptions"
                   :key="b.value"
-                  class="exercise-pill text-xs px-3 py-1.5 neo-focus transition-all"
+                  class="exercise-pill text-xs px-3 py-1.5 transition-all"
                   :class="
                     behaviors.includes(b.value)
-                      ? 'bg-primary/20 text-primary shadow-neu-pressed'
-                      : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'
+                      ? 'bg-primary/20 text-primary exercise-pill--primary'
+                      : 'bg-neu-base text-on-surface-variant hover:-translate-y-px'
                   "
                   @click="toggleBehavior(b.value)"
                 >
@@ -117,7 +117,7 @@
                 <input
                   v-model="customBehaviorInput"
                   type="text"
-                  class="neo-input flex-1 text-sm"
+                  class="exercise-field flex-1 text-sm"
                   :placeholder="
                     t(
                       'exerciseWizards.protectorAppreciation.understandJob.customBehaviorPlaceholder'
@@ -140,7 +140,7 @@
                   class="exercise-pill text-xs px-2 py-0.5 bg-primary/10 text-primary flex items-center gap-1"
                 >
                   {{ cb }}
-                  <button class="hover:text-error neo-focus" @click="removeCustomBehavior(cb)">
+                  <button class="hover:text-error" @click="removeCustomBehavior(cb)">
                     &times;
                   </button>
                 </span>
@@ -194,7 +194,7 @@
               <button
                 v-for="prompt in letterPrompts"
                 :key="prompt"
-                class="exercise-pill text-xs px-3 py-1.5 bg-primary/10 text-primary neo-focus hover:bg-primary/20 transition-colors"
+                class="exercise-pill text-xs px-3 py-1.5 bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
                 @click="appendToLetter(prompt)"
               >
                 {{ prompt }}
@@ -209,7 +209,7 @@
                   partName: selectedPartName,
                 })
               "
-              class="neo-input w-full p-3 text-sm resize-none"
+              class="exercise-field w-full p-3 text-sm resize-none"
             />
           </AppCard>
 
@@ -244,7 +244,7 @@
               </p>
               <ExerciseStepWhy :text="tg('exerciseWizards.protectorAppreciation.response.why')" />
               <button
-                class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
+                class="w-full exercise-block p-4 text-left transition-all hover:-translate-y-px"
                 @click="handleResponseMode('ai')"
               >
                 <div class="flex items-center gap-3">
@@ -263,7 +263,7 @@
                 <ProfileContextToggle v-model="useProfileResponse" />
               </div>
               <button
-                class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
+                class="w-full exercise-block p-4 text-left transition-all hover:-translate-y-px"
                 @click="handleResponseMode('self')"
               >
                 <div class="flex items-center gap-3">
@@ -286,7 +286,7 @@
             <template v-if="responseMode === 'ai'">
               <div
                 v-if="isLoadingResponse"
-                class="neo-surface p-8 rounded-xl flex flex-col items-center gap-3"
+                class="exercise-block p-8 flex flex-col items-center gap-3"
               >
                 <div class="flex gap-1.5">
                   <span
@@ -331,7 +331,7 @@
                   <textarea
                     v-model="partResponse"
                     rows="4"
-                    class="neo-input w-full p-3 text-sm resize-none"
+                    class="exercise-field w-full p-3 text-sm resize-none"
                   />
                 </AppCard>
                 <div class="flex flex-wrap items-center gap-2">
@@ -355,7 +355,7 @@
                     partName: selectedPartName,
                   })
                 "
-                class="neo-input w-full p-3 text-sm resize-none"
+                class="exercise-field w-full p-3 text-sm resize-none"
               />
             </template>
           </AppCard>
@@ -388,11 +388,11 @@
                 v-for="option in bodyCheckOptions"
                 :key="option"
                 type="button"
-                class="neo-focus rounded-xl p-3 text-left transition-all"
+                class="rounded-mg-md p-3 text-left transition-all"
                 :class="
                   bodyCheck === option
-                    ? 'neo-selector neo-selector--active border'
-                    : 'neo-selector border'
+                    ? 'exercise-option exercise-option--active border'
+                    : 'exercise-option border'
                 "
                 :aria-pressed="bodyCheck === option"
                 @click="bodyCheck = bodyCheck === option ? null : option"
@@ -436,11 +436,11 @@
               <button
                 v-for="chip in commitmentChips"
                 :key="chip"
-                class="exercise-pill text-xs px-3 py-1.5 neo-focus transition-all"
+                class="exercise-pill text-xs px-3 py-1.5 transition-all"
                 :class="
                   commitment === chip
-                    ? 'bg-primary/20 text-primary shadow-neu-pressed'
-                    : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'
+                    ? 'bg-primary/20 text-primary exercise-pill--primary'
+                    : 'bg-neu-base text-on-surface-variant hover:-translate-y-px'
                 "
                 @click="commitment = chip"
               >
@@ -452,7 +452,7 @@
               v-model="commitment"
               rows="3"
               :placeholder="t('exerciseWizards.protectorAppreciation.commitment.placeholder')"
-              class="neo-input w-full p-3 text-sm resize-none"
+              class="exercise-field w-full p-3 text-sm resize-none"
             />
           </AppCard>
 
@@ -469,7 +469,7 @@
               v-model="handover"
               rows="2"
               :placeholder="t('exerciseWizards.protectorAppreciation.handover.placeholder')"
-              class="neo-input w-full p-3 text-sm resize-none"
+              class="exercise-field w-full p-3 text-sm resize-none"
             />
           </AppCard>
 
@@ -506,9 +506,11 @@
               <button
                 v-for="freq in frequencyOptions"
                 :key="freq.value ?? 'none'"
-                class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
+                class="w-full exercise-block p-4 text-left transition-all hover:-translate-y-px"
                 :class="
-                  checkInFrequency === freq.value ? 'neo-selector--active ring-2 ring-primary' : ''
+                  checkInFrequency === freq.value
+                    ? 'exercise-option--active ring-2 ring-primary'
+                    : ''
                 "
                 @click="checkInFrequency = freq.value"
               >
@@ -551,7 +553,7 @@
                 <PartRoleBadge v-if="selectedPartRole" :role="selectedPartRole" />
               </div>
 
-              <div class="neo-surface p-3 rounded-lg flex items-center justify-between">
+              <div class="exercise-block p-3 flex items-center justify-between">
                 <span class="text-sm text-on-surface-variant">{{
                   t('exerciseWizards.protectorAppreciation.summary.sections.workload')
                 }}</span>
@@ -612,7 +614,7 @@
               </p>
 
               <label v-if="hasCardDiscoveries" class="flex items-start gap-2 pt-2 cursor-pointer">
-                <input v-model="updatePartCard" type="checkbox" class="mt-0.5 neo-focus" />
+                <input v-model="updatePartCard" type="checkbox" class="mt-0.5" />
                 <span class="text-xs text-on-surface">
                   {{ t('exerciseWizards.protectorAppreciation.summary.updatePartLabel') }}
                   <span class="block text-on-surface-variant">{{
@@ -630,7 +632,7 @@
                 v-model="notes"
                 rows="2"
                 :placeholder="t('exerciseWizards.protectorAppreciation.summary.notesPlaceholder')"
-                class="neo-input w-full p-3 text-sm resize-none"
+                class="exercise-field w-full p-3 text-sm resize-none"
               />
             </div>
           </AppCard>

@@ -16,7 +16,7 @@
         <div
           v-for="item in startHighlights"
           :key="item.icon"
-          class="rounded-lg border border-neu-border/20 bg-section p-4"
+          class="rounded-mg-sm border border-neu-border/20 bg-section p-4"
         >
           <AppIcon :name="item.icon" class="mb-2 text-xl text-primary" />
           <p class="text-sm font-medium text-on-surface">{{ item.title }}</p>
@@ -47,7 +47,7 @@
         <section
           v-for="category in importanceCategories"
           :key="category.id"
-          class="min-h-[420px] rounded-lg border border-neu-border/20 bg-section p-3"
+          class="min-h-[420px] rounded-mg-sm border border-neu-border/20 bg-section p-3"
           @dragover.prevent
           @drop="handleDrop(category.id)"
         >
@@ -83,7 +83,7 @@
               </Transition>
               <button
                 type="button"
-                class="absolute -bottom-2 left-1/2 z-10 inline-flex h-5 w-7 -translate-x-1/2 items-center justify-center rounded-full border border-neu-border/40 bg-neu-base text-on-surface-variant shadow-neu-raised-sm transition-all duration-200 hover:text-primary neo-focus"
+                class="absolute -bottom-2 left-1/2 z-10 inline-flex h-5 w-7 -translate-x-1/2 items-center justify-center rounded-full border border-neu-border/40 bg-neu-base text-on-surface-variant shadow-mg-raised-sm transition-all duration-200 hover:text-primary"
                 :class="
                   isValueExpanded(value.id)
                     ? 'opacity-100'
@@ -120,7 +120,7 @@
           <article
             v-for="value in unsortedValues"
             :key="value.id"
-            class="group relative rounded-lg border border-neu-border/20 bg-section px-3 pb-4 pt-3"
+            class="group relative rounded-mg-sm border border-neu-border/20 bg-section px-3 pb-4 pt-3"
             draggable="true"
             @dragstart="draggedValueId = value.id"
           >
@@ -142,7 +142,7 @@
             </Transition>
             <button
               type="button"
-              class="absolute -bottom-2 left-1/2 z-10 inline-flex h-5 w-7 -translate-x-1/2 items-center justify-center rounded-full border border-neu-border/40 bg-neu-base text-on-surface-variant shadow-neu-raised-sm transition-all duration-200 hover:text-primary neo-focus"
+              class="absolute -bottom-2 left-1/2 z-10 inline-flex h-5 w-7 -translate-x-1/2 items-center justify-center rounded-full border border-neu-border/40 bg-neu-base text-on-surface-variant shadow-mg-raised-sm transition-all duration-200 hover:text-primary"
               :class="
                 isValueExpanded(value.id)
                   ? 'opacity-100'
@@ -167,7 +167,7 @@
           <input
             v-model="customValueInput"
             type="text"
-            class="neo-input p-3 text-sm"
+            class="exercise-field p-3 text-sm"
             :placeholder="t('exerciseWizards.valueMap.sort.customPlaceholder')"
             @keydown.enter.prevent="addCustomValue"
           />
@@ -196,13 +196,13 @@
 
       <div
         v-if="topCandidateValues.length < 5"
-        class="rounded-lg border border-warning/30 bg-warning/10 p-3 text-sm text-on-surface"
+        class="rounded-mg-sm border border-warning/30 bg-warning/10 p-3 text-sm text-on-surface"
       >
         {{ t('exerciseWizards.valueMap.narrow.tooFewCandidates') }}
       </div>
       <div
         v-else-if="selectedTopIds.length < 5 || selectedTopIds.length > 10"
-        class="rounded-lg border border-neu-border/20 bg-section p-3 text-sm text-on-surface"
+        class="rounded-mg-sm border border-neu-border/20 bg-section p-3 text-sm text-on-surface"
       >
         {{ t('exerciseWizards.valueMap.narrow.selectionHint', { count: selectedTopIds.length }) }}
       </div>
@@ -212,9 +212,9 @@
           v-for="value in topCandidateValues"
           :key="value.id"
           type="button"
-          class="neo-selector border p-3 text-left transition"
+          class="exercise-option border p-3 text-left transition"
           :class="
-            selectedTopIds.includes(value.id) ? 'neo-selector--active' : 'border-neu-border/20'
+            selectedTopIds.includes(value.id) ? 'exercise-option--active' : 'border-neu-border/20'
           "
           @click="toggleSelectedTop(value.id)"
         >
@@ -241,7 +241,7 @@
         <div
           v-for="(valueId, index) in rankedIds"
           :key="valueId"
-          class="grid grid-cols-[3rem_1fr_auto] items-center gap-3 rounded-lg border border-neu-border/20 bg-section p-3"
+          class="grid grid-cols-[3rem_1fr_auto] items-center gap-3 rounded-mg-sm border border-neu-border/20 bg-section p-3"
           draggable="true"
           @dragstart="draggedRankId = valueId"
           @dragover.prevent
@@ -260,14 +260,14 @@
           </div>
           <div class="flex items-center gap-1">
             <button
-              class="rounded p-2 text-on-surface-variant hover:bg-neu-base"
+              class="rounded-mg-xs p-2 text-on-surface-variant hover:bg-neu-base"
               :disabled="index === 0"
               @click="moveRank(index, -1)"
             >
               <AppIcon name="keyboard_arrow_up" />
             </button>
             <button
-              class="rounded p-2 text-on-surface-variant hover:bg-neu-base"
+              class="rounded-mg-xs p-2 text-on-surface-variant hover:bg-neu-base"
               :disabled="index === rankedIds.length - 1"
               @click="moveRank(index, 1)"
             >
@@ -298,7 +298,7 @@
           <textarea
             v-model="personalMeanings[valueId]"
             rows="3"
-            class="neo-input w-full resize-none p-3 text-sm"
+            class="exercise-field w-full resize-none p-3 text-sm"
             :placeholder="t('exerciseWizards.valueMap.meaning.placeholder')"
           />
         </label>
@@ -319,7 +319,7 @@
       <div
         v-for="valueId in coreRankedIds"
         :key="valueId"
-        class="rounded-lg border border-neu-border/20 bg-section p-4"
+        class="rounded-mg-sm border border-neu-border/20 bg-section p-4"
       >
         <label class="flex items-center gap-2 text-sm font-semibold text-on-surface">
           <input v-model="conflictEnabled[valueId]" type="checkbox" />
@@ -328,7 +328,7 @@
           }}
         </label>
         <div v-if="conflictEnabled[valueId]" class="mt-3 grid grid-cols-[1fr_1.4fr] gap-3">
-          <select v-model="conflictTargets[valueId]" class="neo-input p-2 text-sm">
+          <select v-model="conflictTargets[valueId]" class="exercise-field p-2 text-sm">
             <option value="">{{ t('exerciseWizards.valueMap.conflicts.chooseValue') }}</option>
             <option
               v-for="option in rankedIds.filter(id => id !== valueId)"
@@ -341,7 +341,7 @@
           <input
             v-model="conflictNotes[valueId]"
             type="text"
-            class="neo-input p-2 text-sm"
+            class="exercise-field p-2 text-sm"
             :placeholder="t('exerciseWizards.valueMap.conflicts.notePlaceholder')"
           />
         </div>
@@ -353,11 +353,11 @@
           :key="index"
           class="grid grid-cols-[1fr_1fr_1.4fr_auto] gap-2"
         >
-          <select v-model="conflict.valueId" class="neo-input p-2 text-sm">
+          <select v-model="conflict.valueId" class="exercise-field p-2 text-sm">
             <option value="">{{ t('exerciseWizards.valueMap.conflicts.valueA') }}</option>
             <option v-for="id in rankedIds" :key="id" :value="id">{{ getValueLabel(id) }}</option>
           </select>
-          <select v-model="conflict.conflictingValueId" class="neo-input p-2 text-sm">
+          <select v-model="conflict.conflictingValueId" class="exercise-field p-2 text-sm">
             <option value="">{{ t('exerciseWizards.valueMap.conflicts.valueB') }}</option>
             <option
               v-for="id in rankedIds.filter(id => id !== conflict.valueId)"
@@ -370,11 +370,11 @@
           <input
             v-model="conflict.note"
             type="text"
-            class="neo-input p-2 text-sm"
+            class="exercise-field p-2 text-sm"
             :placeholder="t('exerciseWizards.valueMap.conflicts.notePlaceholder')"
           />
           <button
-            class="rounded-lg p-2 text-on-surface-variant hover:bg-section hover:text-error"
+            class="rounded-mg-sm p-2 text-on-surface-variant hover:bg-section hover:text-error"
             @click="extraConflicts.splice(index, 1)"
           >
             <AppIcon name="close" />
@@ -409,7 +409,7 @@
 
       <div
         v-if="lifeAreaStore.activeLifeAreas.length === 0"
-        class="rounded-lg bg-section p-4 text-sm text-on-surface-variant"
+        class="rounded-mg-sm bg-section p-4 text-sm text-on-surface-variant"
       >
         {{ t('exerciseWizards.valueMap.areas.empty') }}
       </div>
@@ -417,7 +417,7 @@
       <div
         v-for="area in lifeAreaStore.activeLifeAreas"
         :key="area.id"
-        class="space-y-3 rounded-lg border border-neu-border/20 bg-section p-4"
+        class="space-y-3 rounded-mg-sm border border-neu-border/20 bg-section p-4"
       >
         <h3 class="text-sm font-semibold text-on-surface">{{ area.name }}</h3>
         <div class="flex flex-wrap gap-2">
@@ -432,7 +432,7 @@
           </button>
         </div>
         <div class="grid grid-cols-[1fr_auto] gap-2">
-          <select v-model="areaValuePicker[area.id]" class="neo-input p-2 text-sm">
+          <select v-model="areaValuePicker[area.id]" class="exercise-field p-2 text-sm">
             <option value="">{{ t('exerciseWizards.valueMap.areas.chooseValue') }}</option>
             <option
               v-for="value in allValues"
@@ -458,13 +458,13 @@
           {{ t('exerciseWizards.valueMap.areas.tensionQuestion') }}
         </label>
         <div v-if="areaTensionEnabled[area.id]" class="grid grid-cols-[1fr_1fr_1.4fr] gap-2">
-          <select v-model="areaTensionA[area.id]" class="neo-input p-2 text-sm">
+          <select v-model="areaTensionA[area.id]" class="exercise-field p-2 text-sm">
             <option value="">{{ t('exerciseWizards.valueMap.conflicts.valueA') }}</option>
             <option v-for="id in areaAssignments[area.id] ?? []" :key="id" :value="id">
               {{ getValueLabel(id) }}
             </option>
           </select>
-          <select v-model="areaTensionB[area.id]" class="neo-input p-2 text-sm">
+          <select v-model="areaTensionB[area.id]" class="exercise-field p-2 text-sm">
             <option value="">{{ t('exerciseWizards.valueMap.conflicts.valueB') }}</option>
             <option
               v-for="id in (areaAssignments[area.id] ?? []).filter(
@@ -478,7 +478,7 @@
           </select>
           <input
             v-model="areaTensionNotes[area.id]"
-            class="neo-input p-2 text-sm"
+            class="exercise-field p-2 text-sm"
             :placeholder="t('exerciseWizards.valueMap.conflicts.notePlaceholder')"
           />
         </div>
@@ -535,7 +535,7 @@
         <div
           v-for="conflict in compiledGlobalConflicts"
           :key="`${conflict.valueId}-${conflict.conflictingValueId}`"
-          class="rounded-lg bg-section p-3 text-sm"
+          class="rounded-mg-sm bg-section p-3 text-sm"
         >
           <span class="font-medium text-on-surface">{{ getValueLabel(conflict.valueId) }}</span>
           <span class="text-on-surface-variant"> ↔ </span>
@@ -555,7 +555,7 @@
         <div
           v-for="assignment in compiledLifeAreaAssignments"
           :key="assignment.lifeAreaId"
-          class="rounded-lg bg-section p-3"
+          class="rounded-mg-sm bg-section p-3"
         >
           <p class="text-sm font-medium text-on-surface">
             {{ getLifeAreaName(assignment.lifeAreaId) }}
@@ -572,13 +572,13 @@
       <textarea
         v-model="notes"
         rows="3"
-        class="neo-input w-full resize-none p-3 text-sm"
+        class="exercise-field w-full resize-none p-3 text-sm"
         :placeholder="t('exerciseWizards.valueMap.summary.notesPlaceholder')"
       />
 
       <div
         v-if="valueMapStore.error"
-        class="rounded-lg border border-error/30 bg-error/10 p-3 text-sm text-error"
+        class="rounded-mg-sm border border-error/30 bg-error/10 p-3 text-sm text-error"
         role="alert"
       >
         {{ t('exerciseWizards.valueMap.summary.saveError') }}

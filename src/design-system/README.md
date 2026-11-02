@@ -116,6 +116,22 @@ Wdrożenie propozycji A z audytu 2026-10-18 (plan i porównanie:
   `shadow-neu-*` → dwa cienie; `font-black/bold/semibold/medium` → cztery wagi;
   `text-on-surface-variant` → `--mg-color-muted`. Mostek jest tymczasowy: nie
   dodawaj nowych konsumentów klas po lewej stronie.
+- **Utility na tokenach (K2, 2026-11-02):** `rounded-mg-xs/sm/md/lg/xl/pill`,
+  `shadow-mg-raised/-raised-sm/-inset-sm` i `text-mg-chart` (Tailwind,
+  `tailwind.config.js`) mapują się 1:1 na `--mg-radius-*`, `--mg-shadow-*` i
+  `--mg-font-size-chart`. Są dla pojedynczych elementów bez anatomii; gdy element
+  ma rolę (pole, blok, opcja, chip), użyj anatomii. Strażnik przepuszcza
+  `rounded-mg-*`, wszystkie inne `rounded-*` poza `rounded-full` dalej łapie.
+  Tokeny promieni mają po cztery wartości, więc nie ma wariantów jednej krawędzi
+  (`rounded-t-*`).
+- **Anatomie kreatorów ćwiczeń** (`components/exercises/exercise-design.css`):
+  `exercise-field` (pole: mgła + cienka krawędź pola, fokus jak wszędzie),
+  `exercise-block` (zagnieżdżony blok w karcie kroku: mgła, najsłabsza krawędź,
+  `md`; pole w bloku idzie na papier), `exercise-option` / `--active` (karta
+  wyboru: kapsuła mgły, hover = papier z małym cieniem, wybrana = krawędź akcentu
+  na tincie studni), obok istniejących `exercise-pill`, `exercise-chip`,
+  `exercise-note`. Zastąpiły w kreatorach `neo-input`, `neo-surface/-embedded/
+  -panel` i `neo-selector` bez zmiany wyglądu.
 - **Strażnik-zapadka:** `npm run check:design-system` skanuje całe `src/`
   (9 reguł) i porównuje z `scripts/design-system-baseline.json`; hook
   PostToolUse sprawdza każdy edytowany plik. `--list [--rule x]` wypisuje

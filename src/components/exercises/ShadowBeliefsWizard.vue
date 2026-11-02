@@ -56,7 +56,7 @@
         <div
           v-for="(entry, index) in draft.beliefs"
           :key="index"
-          class="rounded-xl border border-chip-border p-3 space-y-3"
+          class="rounded-mg-md border border-chip-border p-3 space-y-3"
         >
           <div class="flex items-center gap-2">
             <span class="text-primary">&#8226;</span>
@@ -68,12 +68,12 @@
               :value="entry.belief"
               type="text"
               :placeholder="t('exerciseWizards.shadowBeliefs.beliefs.customPlaceholder')"
-              class="neo-input flex-1 p-2 text-sm font-medium"
+              class="exercise-field flex-1 p-2 text-sm font-medium"
               @input="entry.belief = ($event.target as HTMLInputElement).value"
             />
             <button
               type="button"
-              class="p-1 rounded text-on-surface-variant hover:text-error transition-colors"
+              class="p-1 rounded-mg-xs text-on-surface-variant hover:text-error transition-colors"
               @click="removeBelief(index)"
             >
               <AppIcon name="close" class="text-base" />
@@ -88,7 +88,7 @@
               :value="entry.evidenceFor"
               rows="2"
               :placeholder="t('exerciseWizards.shadowBeliefs.beliefs.evidenceForPlaceholder')"
-              class="neo-input w-full p-2 text-sm resize-none"
+              class="exercise-field w-full p-2 text-sm resize-none"
               @input="entry.evidenceFor = ($event.target as HTMLTextAreaElement).value"
             />
           </div>
@@ -101,7 +101,7 @@
               :value="entry.evidenceAgainst"
               rows="2"
               :placeholder="t('exerciseWizards.shadowBeliefs.beliefs.evidenceAgainstPlaceholder')"
-              class="neo-input w-full p-2 text-sm resize-none"
+              class="exercise-field w-full p-2 text-sm resize-none"
               @input="entry.evidenceAgainst = ($event.target as HTMLTextAreaElement).value"
             />
           </div>
@@ -114,7 +114,7 @@
               :value="entry.reframe"
               rows="2"
               :placeholder="t('exerciseWizards.shadowBeliefs.beliefs.reframePlaceholder')"
-              class="neo-input w-full p-2 text-sm resize-none"
+              class="exercise-field w-full p-2 text-sm resize-none"
               @input="entry.reframe = ($event.target as HTMLTextAreaElement).value"
             />
           </div>
@@ -135,7 +135,7 @@
         <div
           v-for="(item, index) in draft.advice"
           :key="index"
-          class="rounded-xl border border-chip-border p-3 space-y-3"
+          class="rounded-mg-md border border-chip-border p-3 space-y-3"
         >
           <div class="flex items-center gap-2">
             <span class="text-primary">&#8226;</span>
@@ -143,12 +143,12 @@
               :value="item.advice"
               type="text"
               :placeholder="t('exerciseWizards.shadowBeliefs.advice.placeholder')"
-              class="neo-input flex-1 p-2 text-sm"
+              class="exercise-field flex-1 p-2 text-sm"
               @input="item.advice = ($event.target as HTMLInputElement).value"
             />
             <button
               type="button"
-              class="p-1 rounded text-on-surface-variant hover:text-error transition-colors"
+              class="p-1 rounded-mg-xs text-on-surface-variant hover:text-error transition-colors"
               @click="draft.advice.splice(index, 1)"
             >
               <AppIcon name="close" class="text-base" />
@@ -189,7 +189,7 @@
                 :value="item.blocker"
                 rows="2"
                 :placeholder="t('exerciseWizards.shadowBeliefs.advice.blockerPlaceholder')"
-                class="neo-input w-full p-2 text-sm resize-none"
+                class="exercise-field w-full p-2 text-sm resize-none"
                 @input="item.blocker = ($event.target as HTMLTextAreaElement).value"
               />
             </div>
@@ -213,7 +213,7 @@
           v-model="draft.notes"
           rows="3"
           :placeholder="tg('exerciseWizards.shadowBeliefs.reflectionPlaceholder')"
-          class="neo-input w-full p-3 text-sm resize-none"
+          class="exercise-field w-full p-3 text-sm resize-none"
         />
       </div>
     </AppCard>

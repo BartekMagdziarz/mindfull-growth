@@ -10,7 +10,7 @@
     </div>
 
     <div class="grid gap-6 md:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] items-start">
-      <div class="rounded-2xl border border-neu-border/20 bg-section/50 p-4">
+      <div class="rounded-mg-lg border border-neu-border/20 bg-section/50 p-4">
         <WheelOfLifeRadialChart
           :areas="areas"
           :size="340"
@@ -70,7 +70,7 @@
             :value="area.visionSnapshot"
             rows="3"
             :placeholder="t('exerciseWizards.wheelOfLife.rater.visionPlaceholder')"
-            class="neo-input w-full min-h-[88px] p-3 text-sm resize-none"
+            class="exercise-field w-full min-h-[88px] p-3 text-sm resize-none"
             @input="$emit('set-vision', ($event.target as HTMLTextAreaElement).value)"
           />
         </div>
@@ -86,7 +86,7 @@
           :value="area.positiveInfluences"
           rows="2"
           :placeholder="t('exerciseWizards.wheelOfLife.rater.positiveInfluencesPlaceholder')"
-          class="neo-input w-full min-h-[72px] p-3 text-sm resize-none"
+          class="exercise-field w-full min-h-[72px] p-3 text-sm resize-none"
           @input="$emit('set-positive-influences', ($event.target as HTMLTextAreaElement).value)"
         />
       </div>
@@ -99,7 +99,7 @@
           :value="area.negativeInfluences"
           rows="2"
           :placeholder="t('exerciseWizards.wheelOfLife.rater.negativeInfluencesPlaceholder')"
-          class="neo-input w-full min-h-[72px] p-3 text-sm resize-none"
+          class="exercise-field w-full min-h-[72px] p-3 text-sm resize-none"
           @input="$emit('set-negative-influences', ($event.target as HTMLTextAreaElement).value)"
         />
       </div>
@@ -162,10 +162,10 @@ const fillPercent = computed(() => Math.max(0, Math.min((props.area.rating / 10)
   appearance: none;
   width: 22px;
   height: 22px;
-  border-radius: 9999px;
+  border-radius: var(--mg-radius-pill);
   background: rgb(var(--color-surface));
   border: 3px solid rgb(var(--color-primary) / 0.7);
-  box-shadow: 0 2px 6px rgb(var(--neo-shadow-dark) / 0.4);
+  box-shadow: var(--mg-shadow-raised-sm);
   transition: transform 0.15s ease;
   margin-top: -10px;
 }
@@ -182,10 +182,10 @@ const fillPercent = computed(() => Math.max(0, Math.min((props.area.rating / 10)
 .wheel-slider::-moz-range-thumb {
   width: 22px;
   height: 22px;
-  border-radius: 9999px;
+  border-radius: var(--mg-radius-pill);
   background: rgb(var(--color-surface));
   border: 3px solid rgb(var(--color-primary) / 0.7);
-  box-shadow: 0 2px 6px rgb(var(--neo-shadow-dark) / 0.4);
+  box-shadow: var(--mg-shadow-raised-sm);
   transition: transform 0.15s ease;
 }
 

@@ -20,7 +20,7 @@
             <p class="text-sm text-on-surface-variant leading-relaxed">
               {{ t('exerciseWizards.partsMapping.intro.description') }}
             </p>
-            <div class="neo-surface p-4 rounded-xl space-y-4">
+            <div class="exercise-block p-4 space-y-4">
               <div class="flex items-start gap-3">
                 <AppIcon name="group" class="text-xl text-ifs-manager shrink-0 mt-0.5" />
                 <div>
@@ -58,7 +58,7 @@
                 </div>
               </div>
             </div>
-            <div class="neo-surface p-3 rounded-lg">
+            <div class="exercise-block p-3">
               <p class="text-sm italic text-on-surface-variant">
                 "{{ t('exerciseWizards.partsMapping.intro.quote') }}"
                 <span class="text-xs"
@@ -106,7 +106,7 @@
                 v-model="trailheadSituation"
                 rows="3"
                 :placeholder="t('exerciseWizards.partsMapping.trailhead.situationPlaceholder')"
-                class="neo-input w-full p-3 text-sm resize-none"
+                class="exercise-field w-full p-3 text-sm resize-none"
               />
             </div>
 
@@ -134,7 +134,7 @@
                 v-model="trailheadThoughts"
                 rows="2"
                 :placeholder="t('exerciseWizards.partsMapping.trailhead.thoughtsPlaceholder')"
-                class="neo-input w-full p-3 text-sm resize-none"
+                class="exercise-field w-full p-3 text-sm resize-none"
               />
             </div>
           </AppCard>
@@ -171,7 +171,7 @@
               <input
                 v-model="currentPartName"
                 type="text"
-                class="neo-input w-full p-3 text-sm"
+                class="exercise-field w-full p-3 text-sm"
                 :placeholder="t('exerciseWizards.partsMapping.identifyPart.namePlaceholder')"
               />
             </div>
@@ -184,11 +184,11 @@
                 <button
                   v-for="role in roleOptions"
                   :key="role.value"
-                  class="exercise-pill px-3 py-1.5 text-xs neo-focus transition-all"
+                  class="exercise-pill px-3 py-1.5 text-xs transition-all"
                   :class="
                     currentPartRole === role.value
-                      ? `${role.activeClass} shadow-neu-pressed`
-                      : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'
+                      ? `${role.activeClass} exercise-pill--primary`
+                      : 'bg-neu-base text-on-surface-variant hover:-translate-y-px'
                   "
                   @click="currentPartRole = role.value"
                 >
@@ -213,7 +213,7 @@
                   :placeholder="
                     t('exerciseWizards.partsMapping.identifyPart.protectionPlaceholder')
                   "
-                  class="neo-input w-full p-3 text-sm resize-none"
+                  class="exercise-field w-full p-3 text-sm resize-none"
                 />
               </div>
 
@@ -225,7 +225,7 @@
                   v-model="currentPartFears"
                   rows="2"
                   :placeholder="tg('exerciseWizards.partsMapping.identifyPart.fearPlaceholder')"
-                  class="neo-input w-full p-3 text-sm resize-none"
+                  class="exercise-field w-full p-3 text-sm resize-none"
                 />
               </div>
             </template>
@@ -242,7 +242,7 @@
                   :placeholder="
                     t('exerciseWizards.partsMapping.identifyPart.exileCarriesPlaceholder')
                   "
-                  class="neo-input w-full p-3 text-sm resize-none"
+                  class="exercise-field w-full p-3 text-sm resize-none"
                 />
               </div>
 
@@ -256,7 +256,7 @@
                   :placeholder="
                     t('exerciseWizards.partsMapping.identifyPart.exileNeedsPlaceholder')
                   "
-                  class="neo-input w-full p-3 text-sm resize-none"
+                  class="exercise-field w-full p-3 text-sm resize-none"
                 />
               </div>
             </template>
@@ -349,13 +349,13 @@
                 </div>
                 <div class="flex gap-1 shrink-0">
                   <button
-                    class="neo-focus rounded-full p-1 text-on-surface-variant hover:text-primary"
+                    class="rounded-full p-1 text-on-surface-variant hover:text-primary"
                     @click="editPart(idx)"
                   >
                     <AppIcon name="edit" class="text-base" />
                   </button>
                   <button
-                    class="neo-focus rounded-full p-1 text-on-surface-variant hover:text-error"
+                    class="rounded-full p-1 text-on-surface-variant hover:text-error"
                     @click="removePart(idx)"
                   >
                     <AppIcon name="delete" class="text-base" />
@@ -391,7 +391,7 @@
             <ExerciseStepWhy :text="tg('exerciseWizards.partsMapping.visualMap.why')" />
 
             <!-- SVG Map -->
-            <div class="neo-surface rounded-2xl p-4" style="min-height: 300px">
+            <div class="exercise-block p-4" style="min-height: 300px">
               <svg
                 :width="mapWidth"
                 :height="mapHeight"
@@ -450,7 +450,7 @@
                     y="1"
                     text-anchor="middle"
                     dominant-baseline="middle"
-                    class="fill-on-surface text-[10px] font-medium select-none pointer-events-none"
+                    class="fill-on-surface text-mg-chart font-medium select-none pointer-events-none"
                   >
                     {{ part.name.length > 8 ? part.name.slice(0, 7) + '…' : part.name }}
                   </text>
@@ -473,7 +473,7 @@
                 <button
                   v-for="relType in relationshipTypes"
                   :key="relType.value"
-                  class="exercise-pill px-3 py-1 text-xs neo-focus shadow-neu-raised-sm hover:-translate-y-px transition-all"
+                  class="exercise-pill px-3 py-1 text-xs hover:-translate-y-px transition-all"
                   @click="createRelationship(relType.value)"
                 >
                   {{ relType.label }}
@@ -499,7 +499,7 @@
                   {{ getPartName(rel.toPartId) }}
                 </span>
                 <button
-                  class="neo-focus rounded-full p-1 text-on-surface-variant hover:text-error"
+                  class="rounded-full p-1 text-on-surface-variant hover:text-error"
                   @click="removeRelationship(idx)"
                 >
                   <AppIcon name="close" class="text-sm" />
@@ -532,7 +532,7 @@
               v-model="reflection"
               rows="4"
               :placeholder="t('exerciseWizards.partsMapping.reflection.placeholder')"
-              class="neo-input w-full p-3 text-sm resize-none"
+              class="exercise-field w-full p-3 text-sm resize-none"
             />
 
             <div class="flex flex-wrap items-center gap-2">
@@ -551,7 +551,7 @@
               <ProfileContextToggle v-model="useProfileReflection" />
             </div>
 
-            <div v-if="llmInsight" class="neo-surface p-4 rounded-xl">
+            <div v-if="llmInsight" class="exercise-block p-4">
               <p class="text-sm text-on-surface whitespace-pre-wrap">{{ llmInsight }}</p>
               <p class="text-xs text-on-surface-variant/60 italic mt-3">
                 {{ tg('exerciseWizards.partsMapping.reflection.aiDisclaimer') }}
@@ -589,11 +589,11 @@
                   <button
                     v-for="area in lifeAreas"
                     :key="area.id"
-                    class="exercise-pill px-2.5 py-1 text-xs neo-focus transition-all"
+                    class="exercise-pill px-2.5 py-1 text-xs transition-all"
                     :class="
                       isLifeAreaSelected(idx, area.id)
-                        ? 'bg-primary/20 text-primary shadow-neu-pressed'
-                        : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'
+                        ? 'bg-primary/20 text-primary exercise-pill--primary'
+                        : 'bg-neu-base text-on-surface-variant hover:-translate-y-px'
                     "
                     @click="toggleLifeArea(idx, area.id)"
                   >
@@ -715,7 +715,7 @@
                 v-model="notes"
                 rows="2"
                 :placeholder="t('exerciseWizards.partsMapping.summary.notesPlaceholder')"
-                class="neo-input w-full p-3 text-sm resize-none"
+                class="exercise-field w-full p-3 text-sm resize-none"
               />
             </div>
           </AppCard>

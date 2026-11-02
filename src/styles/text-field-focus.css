@@ -21,7 +21,12 @@
   box-shadow: var(--mg-shadow-focus-underline);
 }
 /* Same specificity as the bare-input rule above, declared later so it wins. */
-#app :is(.mg-v2-field, .mg-v2-inline-field, .neo-input):is(textarea, input, select):focus {
+#app
+  :is(.mg-v2-field, .mg-v2-inline-field, .neo-input, .exercise-field):is(
+    textarea,
+    input,
+    select
+  ):focus {
   border-color: var(--mg-color-focus-edge);
   background-color: var(--mg-color-paper);
   box-shadow: none;

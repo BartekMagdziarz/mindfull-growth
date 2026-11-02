@@ -22,7 +22,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ tg('exerciseWizards.compassionateLetter.intro.description') }}
           </p>
-          <div class="neo-surface p-4 space-y-3">
+          <div class="exercise-block p-4 space-y-3">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('exerciseWizards.compassionateLetter.intro.pillarsTitle') }}
             </p>
@@ -90,7 +90,7 @@
             v-model="situation"
             rows="5"
             :placeholder="t('exerciseWizards.compassionateLetter.situation.placeholder')"
-            class="neo-input neo-focus w-full p-3 text-sm resize-none"
+            class="exercise-field w-full p-3 text-sm resize-none"
           />
         </AppCard>
 
@@ -171,7 +171,7 @@
             <div v-for="(_item, idx) in selfCriticalThoughts" :key="idx" class="flex gap-2 group">
               <input
                 v-model="selfCriticalThoughts[idx]"
-                class="neo-input neo-focus flex-1 p-2.5 text-sm"
+                class="exercise-field flex-1 p-2.5 text-sm"
                 :placeholder="t('exerciseWizards.compassionateLetter.critic.placeholder')"
               />
               <button
@@ -225,7 +225,7 @@
             v-model="compassionateResponse"
             rows="8"
             :placeholder="tg('exerciseWizards.compassionateLetter.response.placeholder')"
-            class="neo-input neo-focus w-full p-3 text-sm resize-none"
+            class="exercise-field w-full p-3 text-sm resize-none"
           />
 
           <!-- LLM Assist -->
@@ -248,7 +248,7 @@
               <ProfileContextToggle v-model="useProfileCompassionate" />
             </div>
 
-            <div v-if="llmResponse" class="neo-panel p-4 mt-3">
+            <div v-if="llmResponse" class="exercise-block p-4 mt-3">
               <p class="text-xs text-on-surface-variant mb-2 italic">
                 {{ t('exerciseWizards.compassionateLetter.response.llmHint') }}
               </p>
@@ -292,7 +292,7 @@
             {{ tg('exerciseWizards.compassionateLetter.check.description') }}
           </p>
           <ExerciseStepWhy :text="tg('exerciseWizards.compassionateLetter.check.why')" />
-          <blockquote class="neo-panel p-4 text-sm text-on-surface whitespace-pre-line">
+          <blockquote class="exercise-block p-4 text-sm text-on-surface whitespace-pre-line">
             {{ compassionateResponse }}
           </blockquote>
           <ul class="space-y-2">
@@ -350,7 +350,7 @@
             <div v-for="(_item, idx) in takeaways" :key="idx" class="flex gap-2 group">
               <input
                 v-model="takeaways[idx]"
-                class="neo-input neo-focus flex-1 p-2.5 text-sm"
+                class="exercise-field flex-1 p-2.5 text-sm"
                 :placeholder="t('exerciseWizards.compassionateLetter.takeaways.placeholder')"
               />
               <button
@@ -427,7 +427,7 @@
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('exerciseWizards.compassionateLetter.summary.innerCritic') }}
             </p>
-            <div class="neo-embedded p-3 space-y-1.5">
+            <div class="exercise-block p-3 space-y-1.5">
               <p
                 v-for="(thought, idx) in filledSelfCriticalThoughts"
                 :key="idx"

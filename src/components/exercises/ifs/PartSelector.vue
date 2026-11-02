@@ -8,10 +8,10 @@
         v-for="part in filteredParts"
         :key="part.id"
         :class="[
-          'neo-focus rounded-xl p-3 text-left transition-all',
+          'rounded-mg-md p-3 text-left transition-all',
           part.id === modelValue
-            ? 'neo-selector neo-selector--active border'
-            : 'neo-selector border',
+            ? 'exercise-option exercise-option--active border'
+            : 'exercise-option border',
           roleBorderClass(part.role),
         ]"
         @click="emit('update:modelValue', part.id === modelValue ? null : part.id)"
@@ -26,7 +26,7 @@
       <!-- Add new part card -->
       <button
         v-if="allowCreate"
-        class="neo-focus exercise-add-tile rounded-xl p-3 flex flex-col items-center justify-center gap-1 min-h-[80px]"
+        class="exercise-add-tile rounded-mg-md p-3 flex flex-col items-center justify-center gap-1 min-h-[80px]"
         @click="showCreateForm = !showCreateForm"
       >
         <AppIcon name="add" class="text-2xl text-on-surface-variant" />
@@ -45,22 +45,22 @@
       leave-from-class="opacity-100 translate-y-0"
       leave-to-class="opacity-0 -translate-y-2"
     >
-      <div v-if="showCreateForm" class="neo-surface shadow-neu-raised-sm rounded-xl p-4 space-y-3">
+      <div v-if="showCreateForm" class="exercise-block p-4 space-y-3">
         <input
           v-model="newPartName"
           type="text"
-          class="neo-input w-full"
+          class="exercise-field w-full"
           :placeholder="t('exerciseWizards.shared.ifs.partSelector.placeholder')"
         />
         <div class="flex flex-wrap gap-2">
           <button
             v-for="role in roleOptions"
             :key="role.value"
-            class="exercise-pill px-3 py-1 text-xs neo-focus transition-all"
+            class="exercise-pill px-3 py-1 text-xs transition-all"
             :class="[
               newPartRole === role.value
-                ? `${role.activeClass} shadow-neu-pressed`
-                : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px',
+                ? `${role.activeClass} exercise-pill--primary`
+                : 'bg-neu-base text-on-surface-variant hover:-translate-y-px',
             ]"
             @click="newPartRole = role.value"
           >
@@ -69,13 +69,13 @@
         </div>
         <div class="flex gap-2 justify-end">
           <button
-            class="text-sm text-on-surface-variant hover:text-on-surface neo-focus px-3 py-1 rounded-lg"
+            class="text-sm text-on-surface-variant hover:text-on-surface px-3 py-1 rounded-mg-sm"
             @click="cancelCreate"
           >
             {{ t('common.buttons.cancel') }}
           </button>
           <button
-            class="text-sm text-primary font-medium neo-focus px-3 py-1 rounded-lg neo-selector border active:shadow-neu-pressed disabled:opacity-40"
+            class="text-sm text-primary font-medium px-3 py-1 exercise-option border disabled:opacity-40"
             :disabled="!newPartName.trim()"
             @click="handleCreate"
           >

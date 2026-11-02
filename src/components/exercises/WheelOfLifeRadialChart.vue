@@ -159,7 +159,7 @@
     <!-- Tooltip -->
     <div
       v-if="!compact && hoveredArea !== null"
-      class="absolute z-10 px-3 py-2 rounded-xl bg-surface border border-neu-border/30 text-xs pointer-events-none"
+      class="absolute z-10 px-3 py-2 rounded-mg-md bg-surface border border-neu-border/30 text-xs pointer-events-none"
       :style="tooltipStyle"
     >
       <div class="font-semibold text-on-surface">{{ areas[hoveredArea].name }}</div>

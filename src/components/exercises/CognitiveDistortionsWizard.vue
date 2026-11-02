@@ -2,24 +2,12 @@
   <div class="space-y-6">
     <!-- Mode Toggle -->
     <div class="flex justify-center">
-      <div class="neo-segmented">
-        <button
-          type="button"
-          class="neo-segmented__item neo-focus"
-          :class="{ 'neo-segmented__item--active': mode === 'learning' }"
-          @click="switchMode('learning')"
-        >
-          {{ t('exerciseWizards.cognitiveDistortions.modeToggle.learning') }}
-        </button>
-        <button
-          type="button"
-          class="neo-segmented__item neo-focus"
-          :class="{ 'neo-segmented__item--active': mode === 'applied' }"
-          @click="switchMode('applied')"
-        >
-          {{ t('exerciseWizards.cognitiveDistortions.modeToggle.applied') }}
-        </button>
-      </div>
+      <DsSegmentedControl
+        :label="t('exerciseWizards.cognitiveDistortions.modeToggle.label')"
+        :model-value="mode"
+        :options="modeOptions"
+        @update:model-value="switchMode"
+      />
     </div>
 
     <!-- Step indicator -->
@@ -79,7 +67,7 @@
           </p>
 
           <!-- Example -->
-          <div class="neo-embedded p-4">
+          <div class="exercise-block p-4">
             <p class="text-xs font-semibold text-on-surface-variant mb-1">
               {{ t('exerciseWizards.cognitiveDistortions.carousel.example') }}
             </p>
@@ -136,7 +124,7 @@
               v-for="d in distortions"
               :key="d.id"
               type="button"
-              class="exercise-pill px-3 py-1.5 text-xs font-medium neo-focus"
+              class="exercise-pill px-3 py-1.5 text-xs font-medium"
               :class="{ 'exercise-pill--primary': learningDraft.recognizedIds.has(d.id) }"
               @click="toggleRecognized(d.id)"
             >
@@ -167,7 +155,7 @@
                   :placeholder="
                     t('exerciseWizards.cognitiveDistortions.selfCheck.personalExamplePlaceholder')
                   "
-                  class="neo-input w-full p-2 text-sm resize-none"
+                  class="exercise-field w-full p-2 text-sm resize-none"
                   @input="
                     learningDraft.personalExamples[id] = (
                       $event.target as HTMLTextAreaElement
@@ -207,7 +195,7 @@
           </p>
 
           <div class="space-y-3">
-            <div v-for="id in sortedRecognizedIds" :key="id" class="neo-embedded p-3 space-y-1">
+            <div v-for="id in sortedRecognizedIds" :key="id" class="exercise-block p-3 space-y-1">
               <p class="text-sm font-semibold text-on-surface">{{ distortionById(id)?.name }}</p>
               <p
                 v-if="learningDraft.personalExamples[id]"
@@ -254,7 +242,7 @@
             v-model="appliedDraft.thought"
             rows="4"
             :placeholder="t('exerciseWizards.cognitiveDistortions.appliedThought.placeholder')"
-            class="neo-input w-full p-3 text-sm resize-none"
+            class="exercise-field w-full p-3 text-sm resize-none"
           />
         </AppCard>
         <div class="flex justify-end">
@@ -276,7 +264,7 @@
           <ExerciseStepWhy
             :text="tg('exerciseWizards.cognitiveDistortions.appliedDistortions.why')"
           />
-          <div class="neo-embedded p-3">
+          <div class="exercise-block p-3">
             <p class="text-sm text-on-surface italic">"{{ appliedDraft.thought }}"</p>
           </div>
         </AppCard>
@@ -287,8 +275,10 @@
             v-for="d in distortions"
             :key="d.id"
             type="button"
-            class="text-left p-4 transition-all neo-focus"
-            :class="appliedDraft.selectedIds.has(d.id) ? 'neo-selector--active' : 'neo-selector'"
+            class="text-left p-4 transition-all"
+            :class="
+              appliedDraft.selectedIds.has(d.id) ? 'exercise-option--active' : 'exercise-option'
+            "
             @click="toggleAppliedDistortion(d.id)"
           >
             <p class="text-sm font-semibold text-on-surface">{{ d.name }}</p>
@@ -315,7 +305,7 @@
                       'exerciseWizards.cognitiveDistortions.appliedDistortions.explanationPlaceholder'
                     )
                   "
-                  class="neo-input w-full p-2 text-sm resize-none"
+                  class="exercise-field w-full p-2 text-sm resize-none"
                   @input="
                     appliedDraft.explanations[id] = ($event.target as HTMLTextAreaElement).value
                   "
@@ -339,7 +329,7 @@
             <ProfileContextToggle v-model="useProfileSpot" />
           </div>
 
-          <div v-if="llmResponse" class="neo-panel mt-3">
+          <div v-if="llmResponse" class="exercise-block px-6 py-5 mt-3">
             <p class="text-xs font-semibold text-on-surface-variant mb-2">
               {{ t('exerciseWizards.cognitiveDistortions.appliedDistortions.aiSuggestions') }}
             </p>
@@ -369,12 +359,12 @@
             {{ t('exerciseWizards.cognitiveDistortions.appliedResults.description') }}
           </p>
           <ExerciseStepWhy :text="tg('exerciseWizards.cognitiveDistortions.appliedResults.why')" />
-          <div class="neo-embedded p-3">
+          <div class="exercise-block p-3">
             <p class="text-sm text-on-surface italic">"{{ appliedDraft.thought }}"</p>
           </div>
 
           <div class="space-y-4 mt-2">
-            <div v-for="id in sortedAppliedIds" :key="id" class="neo-embedded p-3 space-y-2">
+            <div v-for="id in sortedAppliedIds" :key="id" class="exercise-block p-3 space-y-2">
               <p class="text-sm font-semibold text-on-surface">{{ distortionById(id)?.name }}</p>
               <p v-if="appliedDraft.explanations[id]" class="text-xs text-on-surface-variant">
                 {{ appliedDraft.explanations[id] }}
@@ -391,7 +381,7 @@
                   :placeholder="
                     tg('exerciseWizards.cognitiveDistortions.appliedResults.reframePlaceholder')
                   "
-                  class="neo-input w-full p-2 text-sm resize-none"
+                  class="exercise-field w-full p-2 text-sm resize-none"
                   @input="appliedDraft.reframes[id] = ($event.target as HTMLTextAreaElement).value"
                 />
               </div>
@@ -408,7 +398,7 @@
             v-model="appliedDraft.notes"
             rows="3"
             :placeholder="t('exerciseWizards.cognitiveDistortions.appliedResults.notesPlaceholder')"
-            class="neo-input w-full p-3 text-sm resize-none"
+            class="exercise-field w-full p-3 text-sm resize-none"
           />
         </AppCard>
 
@@ -429,6 +419,7 @@ import { ref, reactive, computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
+import { DsSegmentedControl } from '@/design-system/components'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { spotDistortions } from '@/services/cbtLLMAssists'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
@@ -485,6 +476,16 @@ const emit = defineEmits<{
 // ── Mode & step ──────────────────────────────────────────────────────────
 const mode = ref<'learning' | 'applied'>('learning')
 const step = ref(0)
+const modeOptions = computed(() => [
+  {
+    value: 'learning' as const,
+    label: t('exerciseWizards.cognitiveDistortions.modeToggle.learning'),
+  },
+  {
+    value: 'applied' as const,
+    label: t('exerciseWizards.cognitiveDistortions.modeToggle.applied'),
+  },
+])
 
 const learningStepLabels = computed(() => [
   t('exerciseWizards.cognitiveDistortions.learningSteps.intro'),

@@ -99,7 +99,7 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', onPointerDown)
 }
 
 .exercise-step-why__icon {
-  font-size: 1rem;
+  font-size: var(--mg-font-size-icon-sm);
 }
 
 .exercise-step-why > p {

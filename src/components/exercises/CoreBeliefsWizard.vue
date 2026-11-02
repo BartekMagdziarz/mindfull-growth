@@ -22,7 +22,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.coreBeliefs.intro.description') }}
           </p>
-          <div class="neo-surface p-4 space-y-3">
+          <div class="exercise-block p-4 space-y-3">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('exerciseWizards.coreBeliefs.intro.techniqueName') }}
             </p>
@@ -78,7 +78,7 @@
             v-model="startingThought"
             rows="3"
             :placeholder="t('exerciseWizards.coreBeliefs.startingThought.placeholder')"
-            class="neo-input neo-focus w-full p-3 text-sm resize-none"
+            class="exercise-field w-full p-3 text-sm resize-none"
           />
           <div class="space-y-1">
             <label class="text-xs font-medium text-on-surface-variant">{{
@@ -147,7 +147,7 @@
               <div class="flex justify-center">
                 <AppIcon name="arrow_downward" class="text-base text-on-surface-variant" />
               </div>
-              <div class="neo-embedded p-3">
+              <div class="exercise-block p-3">
                 <p
                   class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-1"
                 >
@@ -169,7 +169,7 @@
                 v-model="currentArrowAnswer"
                 rows="2"
                 :placeholder="t('exerciseWizards.coreBeliefs.downwardArrow.placeholder')"
-                class="neo-input neo-focus w-full p-3 text-sm resize-none"
+                class="exercise-field w-full p-3 text-sm resize-none"
               />
             </div>
           </div>
@@ -209,7 +209,7 @@
               </AppButton>
               <ProfileContextToggle v-model="useProfileDeepener" />
             </div>
-            <div v-if="deepenerResponse" class="neo-panel p-4">
+            <div v-if="deepenerResponse" class="exercise-block p-4">
               <p class="text-sm text-on-surface whitespace-pre-line">{{ deepenerResponse }}</p>
             </div>
             <AiErrorNote v-if="deepenerError" :error="deepenerError" />
@@ -243,7 +243,7 @@
             v-model="coreBelief"
             rows="2"
             :placeholder="t('exerciseWizards.coreBeliefs.coreBelief.placeholder')"
-            class="neo-input neo-focus w-full p-3 text-sm resize-none"
+            class="exercise-field w-full p-3 text-sm resize-none"
           />
         </AppCard>
 
@@ -257,8 +257,8 @@
               :key="cat.value"
               type="button"
               :class="[
-                'neo-selector neo-focus w-full text-left p-4',
-                beliefCategory === cat.value ? 'neo-selector--active' : '',
+                'exercise-option w-full text-left p-4',
+                beliefCategory === cat.value ? 'exercise-option--active' : '',
               ]"
               @click="beliefCategory = cat.value"
             >
@@ -300,7 +300,7 @@
               min="0"
               max="100"
               step="1"
-              class="neo-focus w-full accent-primary"
+              class="w-full accent-primary"
             />
             <div class="flex justify-between text-xs text-on-surface-variant">
               <span>{{ t('exerciseWizards.coreBeliefs.coreBelief.notAtAll') }}</span>
@@ -356,13 +356,13 @@
               <input
                 v-model="evidenceFor[idx]"
                 type="text"
-                class="neo-input neo-focus flex-1 p-2.5 text-sm"
+                class="exercise-field flex-1 p-2.5 text-sm"
                 :placeholder="t('exerciseWizards.coreBeliefs.evidenceFor.placeholder')"
               />
               <button
                 v-if="evidenceFor.length > 1"
                 type="button"
-                class="p-1 rounded text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
+                class="p-1 rounded-mg-xs text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
                 @click="evidenceFor.splice(idx, 1)"
               >
                 <AppIcon name="close" class="text-xl" />
@@ -417,13 +417,13 @@
               <input
                 v-model="evidenceAgainst[idx]"
                 type="text"
-                class="neo-input neo-focus flex-1 p-2.5 text-sm"
+                class="exercise-field flex-1 p-2.5 text-sm"
                 :placeholder="t('exerciseWizards.coreBeliefs.evidenceAgainst.placeholder')"
               />
               <button
                 v-if="evidenceAgainst.length > 1"
                 type="button"
-                class="p-1 rounded text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
+                class="p-1 rounded-mg-xs text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
                 @click="evidenceAgainst.splice(idx, 1)"
               >
                 <AppIcon name="close" class="text-xl" />
@@ -465,7 +465,7 @@
 
           <!-- Evidence summary -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div class="neo-surface p-3 space-y-2">
+            <div class="exercise-block p-3 space-y-2">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                 {{ t('exerciseWizards.coreBeliefs.alternative.evidenceForLabel') }}
               </p>
@@ -481,7 +481,7 @@
                 {{ t('exerciseWizards.coreBeliefs.alternative.noEvidenceListed') }}
               </p>
             </div>
-            <div class="neo-surface p-3 space-y-2">
+            <div class="exercise-block p-3 space-y-2">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                 {{ t('exerciseWizards.coreBeliefs.alternative.evidenceAgainstLabel') }}
               </p>
@@ -507,7 +507,7 @@
             v-model="alternativeBelief"
             rows="3"
             :placeholder="t('exerciseWizards.coreBeliefs.alternative.placeholder')"
-            class="neo-input neo-focus w-full p-3 text-sm resize-none"
+            class="exercise-field w-full p-3 text-sm resize-none"
           />
 
           <!-- LLM Assist: Help me find alternatives -->
@@ -528,7 +528,7 @@
               <ProfileContextToggle v-model="useProfileAlternative" />
             </div>
             <div v-if="alternativeMessages.length > 0" class="space-y-2">
-              <div v-for="(msg, idx) in alternativeMessages" :key="idx" class="neo-panel p-3">
+              <div v-for="(msg, idx) in alternativeMessages" :key="idx" class="exercise-block p-3">
                 <p
                   class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-1"
                 >
@@ -554,7 +554,7 @@
                 v-model="alternativeFollowUp"
                 type="text"
                 :placeholder="t('exerciseWizards.coreBeliefs.alternative.followUpPlaceholder')"
-                class="neo-input neo-focus flex-1 p-2 text-sm"
+                class="exercise-field flex-1 p-2 text-sm"
                 @keyup.enter="handleAlternativeFollowUp"
               />
               <AppButton
@@ -589,7 +589,7 @@
                 min="0"
                 max="100"
                 step="1"
-                class="neo-focus w-full accent-primary"
+                class="w-full accent-primary"
               />
               <div class="flex justify-between text-xs text-on-surface-variant">
                 <span>{{ t('exerciseWizards.coreBeliefs.alternative.notAtAll') }}</span>
@@ -612,7 +612,7 @@
                 min="0"
                 max="100"
                 step="1"
-                class="neo-focus w-full accent-primary"
+                class="w-full accent-primary"
               />
               <div class="flex justify-between text-xs text-on-surface-variant">
                 <span>{{ t('exerciseWizards.coreBeliefs.alternative.notAtAll') }}</span>
@@ -655,7 +655,7 @@
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('exerciseWizards.coreBeliefs.summary.downwardArrowChain') }}
             </p>
-            <div class="neo-surface p-3 space-y-2">
+            <div class="exercise-block p-3 space-y-2">
               <p class="text-sm text-on-surface italic">"{{ startingThought }}"</p>
               <div
                 v-for="(answer, answerIdx) in downwardArrowSteps"
@@ -682,7 +682,7 @@
 
           <!-- Evidence -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div class="neo-surface p-3 space-y-2">
+            <div class="exercise-block p-3 space-y-2">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                 {{ t('exerciseWizards.coreBeliefs.summary.evidenceFor') }}
               </p>
@@ -698,7 +698,7 @@
                 {{ t('exerciseWizards.coreBeliefs.summary.noneListed') }}
               </p>
             </div>
-            <div class="neo-surface p-3 space-y-2">
+            <div class="exercise-block p-3 space-y-2">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                 {{ t('exerciseWizards.coreBeliefs.summary.evidenceAgainst') }}
               </p>

@@ -80,7 +80,7 @@ function shift(delta: number): void {
   height: 2.75rem;
   padding: 0;
   border: 0;
-  border-radius: 12px;
+  border-radius: var(--mg-radius-sm);
   background: var(--mg-color-paper);
   color: var(--mg-color-ink);
   font: inherit;

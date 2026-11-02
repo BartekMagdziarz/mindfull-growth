@@ -115,8 +115,24 @@ export default {
       borderRadius: {
         md: '0.5rem',
         lg: '1rem',
+        // Design-system radius scale (src/design-system/tokens.css). Prefer an
+        // anatomy (mg-v2-*, exercise-*); use these only on one-off elements.
+        'mg-xs': 'var(--mg-radius-xs)',
+        'mg-sm': 'var(--mg-radius-sm)',
+        'mg-md': 'var(--mg-radius-md)',
+        'mg-lg': 'var(--mg-radius-lg)',
+        'mg-xl': 'var(--mg-radius-xl)',
+        'mg-pill': 'var(--mg-radius-pill)',
+      },
+      fontSize: {
+        // Design-system chart label size, for SVG text and legends.
+        'mg-chart': 'var(--mg-font-size-chart)',
       },
       boxShadow: {
+        // Design-system elevation (src/design-system/tokens.css).
+        'mg-raised': 'var(--mg-shadow-raised)',
+        'mg-raised-sm': 'var(--mg-shadow-raised-sm)',
+        'mg-inset-sm': 'var(--mg-shadow-inset-sm)',
         'neu-raised-sm':
           '-4px -4px 8px rgb(var(--neo-shadow-light) / 0.8), 4px 4px 8px rgb(var(--neo-shadow-dark) / 0.33)',
         'neu-raised':

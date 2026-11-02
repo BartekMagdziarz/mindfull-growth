@@ -19,7 +19,7 @@
           <h2 class="text-lg font-semibold text-on-surface">
             {{ t('exerciseWizards.attitudinalShift.intro.title') }}
           </h2>
-          <div class="neo-embedded p-3">
+          <div class="exercise-block p-3">
             <p class="text-xs text-on-surface-variant italic">
               "{{ t('exerciseWizards.attitudinalShift.intro.quote') }}"
             </p>
@@ -28,7 +28,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.attitudinalShift.intro.description') }}
           </p>
-          <div class="neo-surface p-4 space-y-3">
+          <div class="exercise-block p-4 space-y-3">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('exerciseWizards.attitudinalShift.intro.exampleTitle') }}
             </p>
@@ -110,7 +110,7 @@
           <div
             v-for="(statement, index) in statements"
             :key="statement.id"
-            class="space-y-2 neo-surface p-3 rounded-xl"
+            class="space-y-2 exercise-block p-3"
           >
             <div class="flex items-start gap-2">
               <span class="text-xs font-semibold text-on-surface-variant mt-2"
@@ -120,7 +120,7 @@
                 <textarea
                   v-model="statement.belief"
                   :placeholder="tg('exerciseWizards.attitudinalShift.statements.placeholder')"
-                  class="neo-input neo-focus w-full p-3 text-sm resize-none"
+                  class="exercise-field w-full p-3 text-sm resize-none"
                   rows="2"
                 />
               </div>
@@ -200,7 +200,7 @@
             <div v-if="isLlmLoading" class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.attitudinalShift.shift.thinking') }}
             </div>
-            <div v-if="currentLlmResponse" class="neo-panel p-4">
+            <div v-if="currentLlmResponse" class="exercise-block p-4">
               <p class="text-sm text-on-surface whitespace-pre-wrap">{{ currentLlmResponse }}</p>
             </div>
             <AiErrorNote v-if="llmError" :error="llmError" />
@@ -220,7 +220,7 @@
             <textarea
               v-model="currentStatement.reframe"
               :placeholder="t('exerciseWizards.attitudinalShift.shift.reframePlaceholder')"
-              class="neo-input neo-focus w-full p-3 text-sm resize-none"
+              class="exercise-field w-full p-3 text-sm resize-none"
               rows="3"
             />
           </div>
@@ -272,13 +272,13 @@
               :key="statement.id"
               class="grid grid-cols-2 gap-3"
             >
-              <div class="neo-embedded p-3">
+              <div class="exercise-block p-3">
                 <p class="text-xs font-semibold text-on-surface-variant mb-1">
                   {{ t('exerciseWizards.attitudinalShift.review.beforeHeader') }}
                 </p>
                 <p class="text-sm text-on-surface-variant">{{ statement.belief }}</p>
               </div>
-              <div class="neo-surface p-3 rounded-xl border-l-2 border-primary/30">
+              <div class="exercise-block p-3 border-l-2 border-primary/30">
                 <p class="text-xs font-semibold text-primary mb-1">
                   {{ t('exerciseWizards.attitudinalShift.review.afterHeader') }}
                 </p>
@@ -296,7 +296,7 @@
                 v-model="surpriseReflection"
                 type="text"
                 :placeholder="t('exerciseWizards.attitudinalShift.review.answerPlaceholder')"
-                class="neo-input neo-focus w-full p-2.5 text-sm mt-1"
+                class="exercise-field w-full p-2.5 text-sm mt-1"
               />
             </div>
             <div>
@@ -307,7 +307,7 @@
                 v-model="truestReflection"
                 type="text"
                 :placeholder="t('exerciseWizards.attitudinalShift.review.answerPlaceholder')"
-                class="neo-input neo-focus w-full p-2.5 text-sm mt-1"
+                class="exercise-field w-full p-2.5 text-sm mt-1"
               />
             </div>
           </div>
@@ -341,7 +341,7 @@
             <div
               v-for="statement in filledStatements"
               :key="statement.id"
-              class="neo-surface p-3 rounded-xl space-y-1"
+              class="exercise-block p-3 space-y-1"
             >
               <p class="text-xs text-on-surface-variant line-through">{{ statement.belief }}</p>
               <p class="text-sm text-on-surface font-medium">{{ statement.reframe }}</p>
@@ -381,7 +381,7 @@
             <textarea
               v-model="notes"
               :placeholder="t('exerciseWizards.attitudinalShift.summary.notesPlaceholder')"
-              class="neo-input neo-focus w-full p-3 text-sm resize-none mt-1"
+              class="exercise-field w-full p-3 text-sm resize-none mt-1"
               rows="3"
             />
           </div>
@@ -389,13 +389,13 @@
           <!-- Optional commitment -->
           <div class="space-y-2">
             <label class="flex items-center gap-3 text-sm text-on-surface cursor-pointer">
-              <input v-model="wantsCommitment" type="checkbox" class="neo-checkbox" />
+              <input v-model="wantsCommitment" type="checkbox" class="mg-v2-checkbox" />
               {{ t('exerciseWizards.attitudinalShift.summary.commitmentCheckbox') }}
             </label>
             <select
               v-if="wantsCommitment"
               v-model="commitmentStatementIndex"
-              class="neo-input neo-focus w-full p-2 text-sm"
+              class="exercise-field w-full p-2 text-sm"
             >
               <option v-for="(statement, idx) in filledStatements" :key="statement.id" :value="idx">
                 {{ (statement.reframe ?? '').slice(0, 60)

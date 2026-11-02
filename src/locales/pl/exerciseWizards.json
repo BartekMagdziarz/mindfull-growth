@@ -472,6 +472,7 @@
       "results": "Wyniki"
     },
     "modeToggle": {
+      "label": "Tryb",
       "learning": "Nauka",
       "applied": "Zastosowanie"
     },
