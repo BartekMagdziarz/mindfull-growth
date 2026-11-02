@@ -27,7 +27,40 @@ wracania do rozmowy, w której go znaleziono.
 
 ## Błędy
 
-_Brak otwartych błędów (stan 2026-11-01)._
+### B-15 · E2E „shame path v3 › Today: the day plan…” pada w każdy poniedziałek
+
+`otwarte` · Znaleziono 2026-11-02 (K2, partia 4: kreatory ćwiczeń) · e2e / seed weryfikacyjny
+
+**Objaw.** Test `e2e/verification-shame-v3.spec.ts:253` („Today: the day plan lists the step
+and the practice; the paths card is one row…”) pada w poniedziałek; w inne dni przechodzi.
+Ten sam wynik na czystym HEAD `800157ba`, więc nie jest skutkiem zmian K2.
+
+**Jak odtworzyć.** W poniedziałek:
+`VERIFY_PORT=5209 npx playwright test --project=verification e2e/verification-shame-v3.spec.ts -g "Today: the day plan"`.
+Pada asercja na linii 282: `.ndpath__task-dots > i.is-done` ma 0 elementów zamiast 1. Kolejna
+asercja (`title` = „1 z 3 dni”) też by padła.
+
+**Przyczyna.** `src/dev/verificationSeed.ts:2504–2511` zapisuje pierwszy dzień zadania
+tygodnia „Użyj swojej odpowiedzi na wstyd” na wczoraj, ale tylko gdy wczoraj należy do
+bieżącego tygodnia (`getPeriodRefsForDate(...).week === refs.week`). W poniedziałek wczoraj
+to niedziela poprzedniego tygodnia, więc wpis nie powstaje i zadanie ma 0/3. Spec na
+liniach 281–283 zakłada bezwarunkowo 1/3.
+
+**Dlaczego to błąd.** Testy weryfikacyjne mają być deterministyczne niezależnie od daty;
+seed i spec rozjeżdżają się co tydzień.
+
+**Propozycja naprawy.** W seedzie, gdy wczoraj wypada w poprzednim tygodniu, zapisać wpis
+na dziś (dzień zadania nadal liczy się w bieżącym tygodniu i w kafelku Ścieżek), tak żeby
+zadanie zawsze startowało z 1/3. Komentarz w seedzie poprawić odpowiednio. Alternatywa:
+spec liczy oczekiwaną liczbę z dnia tygodnia, ale wtedy test nie sprawdza kropki „zrobione”
+w poniedziałki.
+
+**Kryteria akceptacji.** Test przechodzi z zegarem przestawionym na poniedziałek i na
+środę (`page.clock` albo zmienna dnia w seedzie). Pozostałe specy ścieżek
+(`verification-problem-paths`, `verification-shame-v3`) dalej zielone.
+
+**Uwagi.** Sprawdzić, czy inne asercje z „wczoraj” w seedzie ścieżki (momenty) nie mają
+tej samej pułapki na granicy tygodnia.
 
 ---
 
