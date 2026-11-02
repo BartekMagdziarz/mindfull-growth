@@ -29,6 +29,11 @@ export type ModelTransport = ((request: ModelRequest) => Promise<ModelResponse>)
   model?: string
   /** USD per 1M tokens for the spend guards; defaults to DEFAULT_COMPANION_RATES. */
   rates?: { input: number; output: number }
+  /**
+   * Output tokens a thinking model may spend before its reply. The transport adds
+   * them to the request's cap itself; spend guards reserve them on top.
+   */
+  outputHeadroom?: number
   /** Per-conversation and daily profile-task cap; defaults to COMPANION_SPEND_CAP_USD. */
   spendCapUsd?: number
 }

@@ -155,6 +155,8 @@ export interface SessionOptions {
   transport: ModelTransport
   budget: SpendingBudget
   rates?: { input: number; output: number }
+  /** The transport's `outputHeadroom`; reserved on top of each request's cap. */
+  outputHeadroom?: number
   onEvent?: (event: CompanionEvent) => void
   timeoutMs?: number
   initialState?: CompanionSessionState
@@ -287,7 +289,10 @@ export function createCompanionSession(options: SessionOptions) {
         const maxOutputTokens = options.context.surface === 'monthly-reflection' ? 8192 : 4096
         // UTF-8 byte count plus framing margin is deliberately conservative for
         // short contexts, not an exact tokenizer. Reserve before starting a request.
-        const reserve = ((inputBytes + 4096) * rates.input + maxOutputTokens * rates.output) / 1e6
+        const reserve =
+          ((inputBytes + 4096) * rates.input +
+            (maxOutputTokens + (options.outputHeadroom ?? 0)) * rates.output) /
+          1e6
         const settle = options.budget.reserve(reserve)
         emit({ type: 'request', round, inputBytes })
         const result = await options.transport({

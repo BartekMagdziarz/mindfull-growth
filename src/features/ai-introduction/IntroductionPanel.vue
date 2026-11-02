@@ -180,6 +180,7 @@ import { createHistoryTools } from '@/services/ai/history/tools'
 import { sourceKey } from '@/services/ai/history/contracts'
 import type { Citation } from '@/services/ai/companion/runtime'
 import { CompanionError } from '@/services/ai/companion/openai'
+import { providerErrorText } from '@/constants/aiProviderErrorCopy'
 import { getPeriodRefsForDate, getPreviousPeriod } from '@/utils/periods'
 const emit = defineEmits<{ changed: []; review: [] }>()
 const service = introductionService(),
@@ -229,7 +230,8 @@ async function perform(work: () => Promise<CompanionIntroduction>) {
                   ? 'Osiągnięto limit długości tej rozmowy. Możesz ją zakończyć i przygotować propozycje.'
                   : code.includes('conflict')
                     ? 'Rozmowa zmieniła się w innej karcie. Wczytano jej obecną wersję.'
-                    : 'Nie udało się uzyskać odpowiedzi. Możesz spróbować ponownie lub zachować rozmowę na później.'
+                    : (providerErrorText(code) ??
+                      'Nie udało się uzyskać odpowiedzi. Możesz spróbować ponownie lub zachować rozmowę na później.')
       if (record.value) {
         try {
           record.value = await service.load(record.value.id)

@@ -256,6 +256,21 @@ describe('companion runtime with real history tools', () => {
     expect(transport).not.toHaveBeenCalled()
   })
 
+  it('reserves the transport’s thinking headroom on top of the reply cap', async () => {
+    const { context, access } = await setup()
+    const transport = vi.fn<ModelTransport>()
+    const session = createCompanionSession({
+      context,
+      access,
+      transport,
+      // Enough for the reply cap alone; 200k headroom tokens add 0.1 USD at default rates.
+      budget: new SpendingBudget(0.1),
+      outputHeadroom: 200_000,
+    })
+    await expect(session.run({ mode: 'topics', draft: '' })).rejects.toThrow('cost-limit')
+    expect(transport).not.toHaveBeenCalled()
+  })
+
   it('cancels without committing and prevents concurrent requests', async () => {
     const { context, access } = await setup()
     let release!: (value: ModelResponse) => void

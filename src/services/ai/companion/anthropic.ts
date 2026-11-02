@@ -7,7 +7,12 @@ import type {
   BetaTool,
 } from '@anthropic-ai/sdk/resources/beta/messages/messages'
 import { HISTORY_TOOL_DEFINITIONS } from '../history/toolDefinitions'
-import { anthropicRates, anthropicRequestExtras, createAnthropicClient } from '../anthropic/client'
+import {
+  ANTHROPIC_THINKING_HEADROOM,
+  anthropicRates,
+  anthropicRequestExtras,
+  createAnthropicClient,
+} from '../anthropic/client'
 import { CompanionError, type ModelTransport, type WireItem } from './openai'
 import type { Schema } from './schema'
 
@@ -142,6 +147,16 @@ export function fromClaudeContent(content: BetaContentBlock[]): WireItem[] {
   })
 }
 
+/** An exhausted credit balance arrives as a plain 400; only its body tells it apart. */
+function isBillingError(error: InstanceType<typeof Anthropic.APIError>): boolean {
+  const body = (error.error as { error?: { type?: unknown; message?: unknown } } | undefined)?.error
+  return (
+    error.status === 402 ||
+    body?.type === 'billing_error' ||
+    (typeof body?.message === 'string' && /credit balance/i.test(body.message))
+  )
+}
+
 export function createAnthropicTransport(options: {
   apiKey: string
   model: string
@@ -153,17 +168,20 @@ export function createAnthropicTransport(options: {
   const client = createAnthropicClient(apiKey, options.fetch)
   const model = options.model
   const rates = anthropicRates(model)
+  const effort = options.effort ?? 'medium'
+  // Claude 5 always thinks, and thinking spends max_tokens before the reply starts.
+  const outputHeadroom = ANTHROPIC_THINKING_HEADROOM[effort]
   const transport: ModelTransport = async request => {
     const messages = toClaudeMessages(request.input)
     const usesTools = request.toolsEnabled || request.input.some(i => i.type === 'function_call')
-    const extras = anthropicRequestExtras(model, options.effort ?? 'medium')
+    const extras = anthropicRequestExtras(model, effort)
     let message: BetaMessage
     let requestId: string | null = null
     try {
       const stream = client.beta.messages.stream(
         {
           model,
-          max_tokens: request.maxOutputTokens,
+          max_tokens: request.maxOutputTokens + outputHeadroom,
           system: request.instructions,
           messages,
           // Every round resends the growing transcript; caching bills repeats at ~0.1×.
@@ -190,8 +208,10 @@ export function createAnthropicTransport(options: {
       if (request.signal.aborted || error instanceof Anthropic.APIUserAbortError)
         throw new CompanionError('cancelled')
       // Never surface provider bodies: they may echo sensitive input or credentials.
-      if (error instanceof Anthropic.APIError && typeof error.status === 'number')
+      if (error instanceof Anthropic.APIError && typeof error.status === 'number') {
+        if (isBillingError(error)) throw new CompanionError('anthropic-billing')
         throw new CompanionError(`anthropic-http-${error.status}`)
+      }
       throw new CompanionError('network-error')
     }
     if (message.stop_reason === 'refusal') throw new CompanionError('model-refusal')
@@ -217,6 +237,7 @@ export function createAnthropicTransport(options: {
   return Object.assign(transport, {
     model,
     rates,
+    outputHeadroom,
     // Pricier models get a proportionally larger cap: max(0.5 USD, price of 1M input tokens).
     spendCapUsd: Math.max(0.5, rates.input),
   })

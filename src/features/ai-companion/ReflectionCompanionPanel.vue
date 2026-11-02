@@ -374,6 +374,7 @@ import { useT } from '@/composables/useT'
 import { companionConversation } from '@/services/ai/companion/weeklyConversation'
 import { createHistoryTools } from '@/services/ai/history/tools'
 import { CompanionError } from '@/services/ai/companion/openai'
+import { providerErrorText } from '@/constants/aiProviderErrorCopy'
 import type { Citation } from '@/services/ai/companion/runtime'
 import type { CompanionConversation, CompanionMessage } from '@/domain/companionConversation'
 import { proposeConversationProfile } from '@/services/ai/profile/assistant'
@@ -556,7 +557,8 @@ const errorText = computed(
       'cost-limit': 'Osiągnięto limit kosztu tej rozmowy. Refleksję możesz dalej pisać i zapisać.',
       'unverified-citation': 'Nie udało się potwierdzić źródła odpowiedzi. Spróbuj ponownie.',
     })[error.value] ??
-    'Nie udało się uzyskać odpowiedzi. Spróbuj ponownie; możesz też zapisać wpis bez AI.'
+    providerErrorText(error.value) ??
+    `Nie udało się uzyskać odpowiedzi (kod: ${error.value}). Spróbuj ponownie; możesz też zapisać wpis bez AI.`
 )
 async function reload() {
   try {

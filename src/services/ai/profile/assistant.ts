@@ -95,7 +95,9 @@ export async function runTask<T>(
   // Profile observations are long-form work: the heavy model where the provider has one.
   const transport = options.transport ?? (await browserCompanionTransport({ task: 'heavy' }))
   const rates = transport.rates ?? DEFAULT_COMPANION_RATES
-  const reserve = ((inputBytes + 4000) * rates.input + 2500 * rates.output) / 1e6
+  const reserve =
+    ((inputBytes + 4000) * rates.input + (2500 + (transport.outputHeadroom ?? 0)) * rates.output) /
+    1e6
   const token = crypto.randomUUID()
   const acquired = await db.transaction('rw', db.profileTasks, async () => {
     repo.guard()

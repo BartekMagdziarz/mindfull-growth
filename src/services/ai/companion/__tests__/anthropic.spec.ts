@@ -46,7 +46,8 @@ describe('Claude companion transport', () => {
     expect(body).toMatchObject({
       model: 'claude-sonnet-5-5',
       system: 'policy',
-      max_tokens: 4096,
+      // The reply cap plus thinking headroom for medium effort.
+      max_tokens: 8192,
       tool_choice: { type: 'auto', disable_parallel_tool_use: true },
       fallbacks: 'default',
       output_config: { effort: 'medium', format: { type: 'json_schema' } },
@@ -64,6 +65,7 @@ describe('Claude companion transport', () => {
     expect(transport.model).toBe('claude-sonnet-5-5')
     expect(transport.rates).toEqual({ input: 2, output: 10 })
     expect(transport.spendCapUsd).toBe(2)
+    expect(transport.outputHeadroom).toBe(4096)
   })
 
   it('round-trips thinking and tool calls into the next request unchanged', async () => {
@@ -133,10 +135,25 @@ describe('Claude companion transport', () => {
       )
     ).rejects.toEqual(new CompanionError('incomplete-response'))
     await expect(
-      make(claudeErrorResponse(400, 'invalid_request_error', 'credit balance is too low'))(
-        request()
-      )
+      make(claudeErrorResponse(400, 'invalid_request_error', 'messages: field required'))(request())
     ).rejects.toEqual(new CompanionError('anthropic-http-400'))
+    await expect(
+      make(claudeErrorResponse(401, 'authentication_error', 'invalid x-api-key'))(request())
+    ).rejects.toEqual(new CompanionError('anthropic-http-401'))
+  })
+
+  it('tells an exhausted credit balance apart from other 400s', async () => {
+    const transport = createAnthropicTransport({
+      apiKey: 'k',
+      model: 'claude-sonnet-5-5',
+      fetch: async () =>
+        claudeErrorResponse(
+          400,
+          'invalid_request_error',
+          'Your credit balance is too low to access the Anthropic API.'
+        ),
+    })
+    await expect(transport(request())).rejects.toEqual(new CompanionError('anthropic-billing'))
   })
 
   it('rejects an empty key', () => {

@@ -112,6 +112,7 @@ export function companionConversation(
         },
         budget,
         rates: transport.rates,
+        outputHeadroom: transport.outputHeadroom,
         initialState: row.state,
         onEvent: input.onEvent,
         transport: async request => {
