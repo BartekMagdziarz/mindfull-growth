@@ -1,24 +1,27 @@
 <template>
-  <section class="neo-raised flex flex-col gap-[18px]" style="padding: 24px">
+  <section
+    class="mg-v2-surface mg-v2-surface--raised-sm flex flex-col gap-[18px]"
+    style="padding: 24px"
+  >
     <!-- Section: Account details -->
     <div>
       <span class="zb-label">{{ t('profile.account.sectionLabel') }}</span>
       <div class="grid grid-cols-2 gap-3 mt-[10px]">
-        <div class="neo-inset" style="padding: 14px">
+        <div class="mg-v2-block" style="padding: 14px">
           <div class="zb-field-label">{{ t('profile.account.fields.name') }}</div>
           <div class="zb-field-value">{{ displayName || username || '—' }}</div>
         </div>
-        <div class="neo-inset" style="padding: 14px">
+        <div class="mg-v2-block" style="padding: 14px">
           <div class="zb-field-label">{{ t('profile.account.fields.username') }}</div>
           <div class="zb-field-value">@{{ username || '—' }}</div>
         </div>
-        <div class="neo-inset" style="padding: 14px">
+        <div class="mg-v2-block" style="padding: 14px">
           <div class="zb-field-label">{{ t('profile.account.fields.email') }}</div>
           <div class="zb-field-value zb-field-value--sm">
             {{ t('profile.headerStrip.fallbackEmail') }}
           </div>
         </div>
-        <div class="neo-inset" style="padding: 14px">
+        <div class="mg-v2-block" style="padding: 14px">
           <div class="zb-field-label">{{ t('profile.account.fields.createdAt') }}</div>
           <div class="zb-field-value zb-field-value--sm">{{ createdAtLabel }}</div>
         </div>
@@ -32,20 +35,16 @@
       <div>
         <span class="zb-label">{{ t('profile.account.activity.title') }}</span>
         <div class="flex items-baseline gap-2 mt-[6px]">
-          <span class="text-[28px] font-bold" style="color: var(--mg-color-primary-strong)">{{
+          <span class="text-mg-rating font-bold" style="color: var(--mg-color-primary-strong)">{{
             streak
           }}</span>
-          <span class="text-[13px]" style="color: var(--mg-color-muted)">
+          <span class="text-mg-sm" style="color: var(--mg-color-muted)">
             {{ t('profile.account.activity.summary', { streak, entries: journalEntryCount }) }}
           </span>
         </div>
       </div>
-      <button
-        type="button"
-        class="neo-pill px-3 py-2 text-[12px] font-semibold gap-[6px]"
-        @click="onComingSoon"
-      >
-        <AppIcon class="material-symbols-outlined text-[16px]" name="target" />
+      <button type="button" class="mg-v2-pill" @click="onComingSoon">
+        <AppIcon class="material-symbols-outlined text-mg-icon-sm" name="target" />
         {{ t('profile.account.activity.cta') }}
       </button>
     </div>
@@ -56,33 +55,28 @@
     <div>
       <span class="zb-label">{{ t('profile.account.security.title') }}</span>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-[10px] mt-[10px]">
-        <button
-          type="button"
-          class="neo-control text-[13px]"
-          style="min-height: 40px"
-          @click="onComingSoon"
-        >
-          <AppIcon class="material-symbols-outlined text-[18px]" name="key" />
+        <button type="button" class="mg-v2-button" style="min-height: 40px" @click="onComingSoon">
+          <AppIcon class="material-symbols-outlined text-mg-icon-md" name="key" />
           {{ t('profile.account.security.changePassword') }}
         </button>
         <button
           type="button"
-          class="neo-control text-[13px]"
+          class="mg-v2-button"
           style="min-height: 40px"
           :disabled="backupBusy"
           @click="exportData"
         >
-          <AppIcon class="material-symbols-outlined text-[18px]" name="download" />
+          <AppIcon class="material-symbols-outlined text-mg-icon-md" name="download" />
           {{ t('profile.account.security.exportData') }}
         </button>
         <button
           type="button"
-          class="neo-control text-[13px]"
+          class="mg-v2-button"
           style="min-height: 40px"
           :disabled="backupBusy"
           @click="backupInput?.click()"
         >
-          <AppIcon class="material-symbols-outlined text-[18px]" name="upload" />
+          <AppIcon class="material-symbols-outlined text-mg-icon-md" name="upload" />
           {{ t('profile.account.security.importData') }}
         </button>
         <input
@@ -95,16 +89,16 @@
         />
         <button
           type="button"
-          class="neo-control text-[13px]"
+          class="mg-v2-button"
           style="min-height: 40px; color: rgb(var(--status-warn))"
           @click="onComingSoon"
         >
-          <AppIcon class="material-symbols-outlined text-[18px]" name="delete" />
+          <AppIcon class="material-symbols-outlined text-mg-icon-md" name="delete" />
           {{ t('profile.account.security.deleteAccount') }}
         </button>
       </div>
     </div>
-    <p class="text-[12px] mt-2">{{ t('profile.account.security.backupHint') }}</p>
+    <p class="text-mg-xs mt-2">{{ t('profile.account.security.backupHint') }}</p>
     <AppDialog
       v-model="confirmRestore"
       :title="t('profile.account.security.importTitle')"
@@ -243,7 +237,7 @@ onMounted(async () => {
 
 <style scoped>
 .zb-label {
-  font-size: 11px;
+  font-size: var(--mg-font-size-xs);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -251,7 +245,7 @@ onMounted(async () => {
 }
 
 .zb-field-label {
-  font-size: 11px;
+  font-size: var(--mg-font-size-xs);
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -259,7 +253,7 @@ onMounted(async () => {
 }
 
 .zb-field-value {
-  font-size: 16px;
+  font-size: var(--mg-font-size-md);
   font-weight: 700;
   margin-top: 4px;
   color: var(--mg-color-ink);
@@ -267,7 +261,7 @@ onMounted(async () => {
 }
 
 .zb-field-value--sm {
-  font-size: 14px;
+  font-size: var(--mg-font-size-sm);
   font-weight: 600;
 }
 

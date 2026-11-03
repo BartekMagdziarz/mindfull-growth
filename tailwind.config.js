@@ -125,8 +125,19 @@ export default {
         'mg-pill': 'var(--mg-radius-pill)',
       },
       fontSize: {
-        // Design-system chart label size, for SVG text and legends.
+        // Design-system type scale (src/design-system/tokens.css). Font size only,
+        // no line-height (unlike Tailwind's own text-xs/sm…).
+        'mg-xs': 'var(--mg-font-size-xs)',
+        'mg-sm': 'var(--mg-font-size-sm)',
+        'mg-md': 'var(--mg-font-size-md)',
+        'mg-lg': 'var(--mg-font-size-lg)',
+        'mg-xl': 'var(--mg-font-size-xl)',
+        'mg-2xl': 'var(--mg-font-size-2xl)',
+        'mg-rating': 'var(--mg-font-size-rating)',
         'mg-chart': 'var(--mg-font-size-chart)',
+        'mg-icon-sm': 'var(--mg-font-size-icon-sm)',
+        'mg-icon-md': 'var(--mg-font-size-icon-md)',
+        'mg-icon-lg': 'var(--mg-font-size-icon-lg)',
       },
       boxShadow: {
         // Design-system elevation (src/design-system/tokens.css).

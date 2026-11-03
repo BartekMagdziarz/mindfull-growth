@@ -22,7 +22,7 @@
 }
 /* Same specificity as the bare-input rule above, declared later so it wins. */
 #app
-  :is(.mg-v2-field, .mg-v2-inline-field, .neo-input, .exercise-field):is(
+  :is(.mg-v2-field, .mg-v2-inline-field, .neo-input, .mg-v2-input):is(
     textarea,
     input,
     select

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="sticky top-0 z-10 flex flex-col gap-4 rounded-2xl border border-neu-border/30 bg-neu-base p-4 shadow-neu-raised"
+    class="sticky top-0 z-10 flex flex-col gap-4 rounded-mg-lg border border-neu-border/30 bg-neu-base p-4 shadow-mg-raised"
   >
     <div>
       <p class="text-xs font-medium uppercase tracking-wide text-on-surface-variant">

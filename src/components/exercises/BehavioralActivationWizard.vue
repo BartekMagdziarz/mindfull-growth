@@ -22,7 +22,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.behavioralActivation.intro.description') }}
           </p>
-          <div class="exercise-block p-4 space-y-3">
+          <div class="mg-v2-block p-4 space-y-3">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('exerciseWizards.behavioralActivation.intro.howItWorks') }}
             </p>
@@ -93,11 +93,7 @@
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.behavioralActivation.moodBaseline.weekStartDescription') }}
             </p>
-            <input
-              v-model="weekStartDate"
-              type="date"
-              class="exercise-field w-full p-2.5 text-sm"
-            />
+            <input v-model="weekStartDate" type="date" class="mg-v2-input w-full p-2.5 text-sm" />
           </div>
         </AppCard>
 
@@ -130,14 +126,14 @@
           <ExerciseStepWhy :text="tg('exerciseWizards.behavioralActivation.planActivities.why')" />
 
           <!-- Add activity form -->
-          <div class="exercise-block p-4 space-y-3">
+          <div class="mg-v2-block p-4 space-y-3">
             <div class="space-y-1">
               <label class="text-xs font-medium text-on-surface-variant">{{
                 t('exerciseWizards.behavioralActivation.planActivities.activityNameLabel')
               }}</label>
               <input
                 v-model="newActivityName"
-                class="exercise-field w-full p-2.5 text-sm"
+                class="mg-v2-input w-full p-2.5 text-sm"
                 :placeholder="
                   t('exerciseWizards.behavioralActivation.planActivities.activityNamePlaceholder')
                 "
@@ -172,7 +168,7 @@
               <input
                 v-model="newActivityDate"
                 type="date"
-                class="exercise-field w-full p-2.5 text-sm"
+                class="mg-v2-input w-full p-2.5 text-sm"
               />
             </div>
 
@@ -201,7 +197,7 @@
               </AppButton>
               <ProfileContextToggle v-model="useProfileSuggest" />
             </div>
-            <div v-if="suggestResult" class="exercise-block p-4 space-y-2">
+            <div v-if="suggestResult" class="mg-v2-block p-4 space-y-2">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                 {{ t('exerciseWizards.behavioralActivation.planActivities.suggestedActivities') }}
               </p>
@@ -327,7 +323,7 @@
                 </span>
                 <span class="text-xs text-on-surface-variant"> ({{ group.items.length }}) </span>
               </div>
-              <div class="exercise-block p-3 space-y-1.5">
+              <div class="mg-v2-block p-3 space-y-1.5">
                 <div
                   v-for="act in group.items"
                   :key="act.id"
@@ -353,7 +349,7 @@
           </p>
 
           <div class="space-y-3">
-            <div v-for="act in activities" :key="act.id" class="exercise-block p-3 space-y-2">
+            <div v-for="act in activities" :key="act.id" class="mg-v2-block p-3 space-y-2">
               <div class="flex items-center gap-3">
                 <button
                   type="button"
@@ -449,7 +445,7 @@
             </AppButton>
             <ProfileContextToggle v-model="useProfileReviewWeek" />
           </div>
-          <div v-if="reviewResult" class="exercise-block p-4 space-y-2">
+          <div v-if="reviewResult" class="mg-v2-block p-4 space-y-2">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('exerciseWizards.behavioralActivation.summary.weekReview') }}
             </p>
@@ -467,7 +463,7 @@
             v-model="notes"
             rows="3"
             :placeholder="t('exerciseWizards.behavioralActivation.summary.notesPlaceholder')"
-            class="exercise-field w-full p-3 text-sm resize-none"
+            class="mg-v2-input w-full p-3 text-sm resize-none"
           />
         </AppCard>
 

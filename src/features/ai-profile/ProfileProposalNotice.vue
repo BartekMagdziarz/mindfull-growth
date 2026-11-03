@@ -66,10 +66,10 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 5px;
   padding: 4px 11px 4px 8px;
-  border-radius: 11px 9px 12px 10px;
+  border-radius: var(--mg-radius-sm);
   background: var(--mg-color-mist);
   color: var(--mg-color-muted);
-  font-size: 12px;
+  font-size: var(--mg-font-size-xs);
   font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
@@ -83,6 +83,6 @@ onBeforeUnmount(() => {
   color: var(--mg-color-ink);
 }
 .profile-proposal-notice .material-symbols-outlined {
-  font-size: 15px;
+  font-size: var(--mg-font-size-md);
 }
 </style>

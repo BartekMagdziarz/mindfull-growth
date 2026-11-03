@@ -20,7 +20,7 @@
             <p class="text-sm text-on-surface-variant leading-relaxed">
               {{ t('exerciseWizards.partsMapping.intro.description') }}
             </p>
-            <div class="exercise-block p-4 space-y-4">
+            <div class="mg-v2-block p-4 space-y-4">
               <div class="flex items-start gap-3">
                 <AppIcon name="group" class="text-xl text-ifs-manager shrink-0 mt-0.5" />
                 <div>
@@ -58,7 +58,7 @@
                 </div>
               </div>
             </div>
-            <div class="exercise-block p-3">
+            <div class="mg-v2-block p-3">
               <p class="text-sm italic text-on-surface-variant">
                 "{{ t('exerciseWizards.partsMapping.intro.quote') }}"
                 <span class="text-xs"
@@ -106,7 +106,7 @@
                 v-model="trailheadSituation"
                 rows="3"
                 :placeholder="t('exerciseWizards.partsMapping.trailhead.situationPlaceholder')"
-                class="exercise-field w-full p-3 text-sm resize-none"
+                class="mg-v2-input w-full p-3 text-sm resize-none"
               />
             </div>
 
@@ -134,7 +134,7 @@
                 v-model="trailheadThoughts"
                 rows="2"
                 :placeholder="t('exerciseWizards.partsMapping.trailhead.thoughtsPlaceholder')"
-                class="exercise-field w-full p-3 text-sm resize-none"
+                class="mg-v2-input w-full p-3 text-sm resize-none"
               />
             </div>
           </AppCard>
@@ -171,7 +171,7 @@
               <input
                 v-model="currentPartName"
                 type="text"
-                class="exercise-field w-full p-3 text-sm"
+                class="mg-v2-input w-full p-3 text-sm"
                 :placeholder="t('exerciseWizards.partsMapping.identifyPart.namePlaceholder')"
               />
             </div>
@@ -213,7 +213,7 @@
                   :placeholder="
                     t('exerciseWizards.partsMapping.identifyPart.protectionPlaceholder')
                   "
-                  class="exercise-field w-full p-3 text-sm resize-none"
+                  class="mg-v2-input w-full p-3 text-sm resize-none"
                 />
               </div>
 
@@ -225,7 +225,7 @@
                   v-model="currentPartFears"
                   rows="2"
                   :placeholder="tg('exerciseWizards.partsMapping.identifyPart.fearPlaceholder')"
-                  class="exercise-field w-full p-3 text-sm resize-none"
+                  class="mg-v2-input w-full p-3 text-sm resize-none"
                 />
               </div>
             </template>
@@ -242,7 +242,7 @@
                   :placeholder="
                     t('exerciseWizards.partsMapping.identifyPart.exileCarriesPlaceholder')
                   "
-                  class="exercise-field w-full p-3 text-sm resize-none"
+                  class="mg-v2-input w-full p-3 text-sm resize-none"
                 />
               </div>
 
@@ -256,7 +256,7 @@
                   :placeholder="
                     t('exerciseWizards.partsMapping.identifyPart.exileNeedsPlaceholder')
                   "
-                  class="exercise-field w-full p-3 text-sm resize-none"
+                  class="mg-v2-input w-full p-3 text-sm resize-none"
                 />
               </div>
             </template>
@@ -391,7 +391,7 @@
             <ExerciseStepWhy :text="tg('exerciseWizards.partsMapping.visualMap.why')" />
 
             <!-- SVG Map -->
-            <div class="exercise-block p-4" style="min-height: 300px">
+            <div class="mg-v2-block p-4" style="min-height: 300px">
               <svg
                 :width="mapWidth"
                 :height="mapHeight"
@@ -532,7 +532,7 @@
               v-model="reflection"
               rows="4"
               :placeholder="t('exerciseWizards.partsMapping.reflection.placeholder')"
-              class="exercise-field w-full p-3 text-sm resize-none"
+              class="mg-v2-input w-full p-3 text-sm resize-none"
             />
 
             <div class="flex flex-wrap items-center gap-2">
@@ -551,7 +551,7 @@
               <ProfileContextToggle v-model="useProfileReflection" />
             </div>
 
-            <div v-if="llmInsight" class="exercise-block p-4">
+            <div v-if="llmInsight" class="mg-v2-block p-4">
               <p class="text-sm text-on-surface whitespace-pre-wrap">{{ llmInsight }}</p>
               <p class="text-xs text-on-surface-variant/60 italic mt-3">
                 {{ tg('exerciseWizards.partsMapping.reflection.aiDisclaimer') }}
@@ -715,7 +715,7 @@
                 v-model="notes"
                 rows="2"
                 :placeholder="t('exerciseWizards.partsMapping.summary.notesPlaceholder')"
-                class="exercise-field w-full p-3 text-sm resize-none"
+                class="mg-v2-input w-full p-3 text-sm resize-none"
               />
             </div>
           </AppCard>

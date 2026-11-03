@@ -25,7 +25,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.legacyLetter.intro.secondaryDescription') }}
           </p>
-          <div class="exercise-block p-3">
+          <div class="mg-v2-block p-3">
             <p class="text-xs text-on-surface-variant italic">
               "{{ tg('exerciseWizards.legacyLetter.intro.quote') }}"
             </p>
@@ -86,7 +86,7 @@
                   <textarea
                     v-model="warmUpResponses[prompt]"
                     :placeholder="t('exerciseWizards.legacyLetter.warmup.responsePlaceholder')"
-                    class="exercise-field w-full p-3 text-sm resize-none"
+                    class="mg-v2-input w-full p-3 text-sm resize-none"
                     rows="3"
                   />
                 </div>
@@ -125,7 +125,7 @@
             {{ t('exerciseWizards.legacyLetter.write.description') }}
           </p>
           <ExerciseStepWhy :text="tg('exerciseWizards.legacyLetter.write.why')" />
-          <div class="exercise-block p-3">
+          <div class="mg-v2-block p-3">
             <p class="text-xs text-on-surface-variant">
               {{ tg('exerciseWizards.legacyLetter.write.hint') }}
             </p>
@@ -133,7 +133,7 @@
           <textarea
             v-model="letterText"
             :placeholder="t('exerciseWizards.legacyLetter.write.placeholder')"
-            class="exercise-field w-full p-4 text-sm resize-none"
+            class="mg-v2-input w-full p-4 text-sm resize-none"
             rows="16"
           />
 
@@ -157,7 +157,7 @@
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('exerciseWizards.legacyLetter.write.purposeTitle') }}
             </p>
-            <div class="exercise-block p-3">
+            <div class="mg-v2-block p-3">
               <p class="text-sm text-on-surface-variant italic">{{ purposeStatement }}</p>
             </div>
           </div>
@@ -208,7 +208,7 @@
 
           <!-- Chat interface -->
           <template v-if="showChat">
-            <div class="exercise-block p-4 h-96 overflow-y-auto space-y-3">
+            <div class="mg-v2-block p-4 h-96 overflow-y-auto space-y-3">
               <div
                 v-for="(message, index) in messages"
                 :key="`${message.timestamp}-${index}`"
@@ -258,7 +258,7 @@
                   v-model="userInput"
                   :placeholder="t('exerciseWizards.legacyLetter.reflect.placeholder')"
                   :disabled="isLlmLoading"
-                  class="exercise-field flex-1 p-3 resize-none min-h-[44px] max-h-[120px] text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                  class="mg-v2-input flex-1 p-3 resize-none min-h-[44px] max-h-[120px] text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                   rows="1"
                   @keydown.enter.exact.prevent="handleSend"
                 />
@@ -294,7 +294,7 @@
               <textarea
                 v-model="reflectionInsight"
                 :placeholder="t('exerciseWizards.legacyLetter.reflect.truthPlaceholder')"
-                class="exercise-field w-full p-3 text-sm resize-none mt-1"
+                class="mg-v2-input w-full p-3 text-sm resize-none mt-1"
                 rows="4"
               />
             </div>
@@ -326,7 +326,7 @@
           </h2>
 
           <!-- Letter text -->
-          <div class="exercise-block p-4">
+          <div class="mg-v2-block p-4">
             <p class="text-sm text-on-surface whitespace-pre-line leading-relaxed">
               {{ letterText }}
             </p>
@@ -343,7 +343,7 @@
                   p => selectedPromptKeys.has(p) && warmUpResponses[p]?.trim()
                 )"
                 :key="prompt"
-                class="exercise-block p-3"
+                class="mg-v2-block p-3"
               >
                 <p class="text-xs font-medium text-on-surface-variant mb-1">{{ prompt }}</p>
                 <p class="text-sm text-on-surface">{{ warmUpResponses[prompt] }}</p>
@@ -376,7 +376,7 @@
             <textarea
               v-model="notes"
               :placeholder="t('exerciseWizards.legacyLetter.summary.notesPlaceholder')"
-              class="exercise-field w-full p-3 text-sm resize-none mt-1"
+              class="mg-v2-input w-full p-3 text-sm resize-none mt-1"
               rows="3"
             />
           </div>

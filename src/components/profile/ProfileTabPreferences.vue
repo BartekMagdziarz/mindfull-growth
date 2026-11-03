@@ -1,11 +1,11 @@
 <template>
-  <section class="neo-raised flex flex-col gap-5" style="padding: 24px">
+  <section class="mg-v2-surface mg-v2-surface--raised-sm flex flex-col gap-5" style="padding: 24px">
     <!-- Theme picker -->
     <div>
       <h3 class="text-base font-bold m-0" style="color: var(--mg-color-ink)">
         {{ t('profile.appearance.colorTheme') }}
       </h3>
-      <p class="text-[12px] m-0 mt-[2px]" style="color: var(--mg-color-muted)">
+      <p class="text-mg-xs m-0 mt-[2px]" style="color: var(--mg-color-muted)">
         {{ t('profile.appearance.description') }} {{ t('profile.appearance.themeHint') }}
       </p>
 
@@ -14,7 +14,7 @@
           v-for="opt in themeOptions"
           :key="opt.id"
           type="button"
-          class="theme-card neo-raised"
+          class="theme-card mg-v2-surface mg-v2-surface--raised-sm"
           :class="{ 'theme-card--active': themePreference === opt.id }"
           :aria-pressed="themePreference === opt.id"
           :aria-label="opt.label"
@@ -38,14 +38,14 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Language -->
       <div>
-        <h3 class="text-[14px] font-bold m-0 mb-1" style="color: var(--mg-color-ink)">
+        <h3 class="text-mg-sm font-bold m-0 mb-1" style="color: var(--mg-color-ink)">
           {{ t('profile.language.label') }}
         </h3>
-        <p class="text-[12px] m-0 mb-[10px]" style="color: var(--mg-color-muted)">
+        <p class="text-mg-xs m-0 mb-[10px]" style="color: var(--mg-color-muted)">
           {{ t('profile.language.description') }}
         </p>
         <div
-          class="neo-segmented w-full"
+          class="mg-v2-segmented w-full"
           role="radiogroup"
           :aria-label="t('profile.language.label')"
         >
@@ -55,8 +55,6 @@
             type="button"
             role="radio"
             :aria-checked="languagePreference === opt.id"
-            class="neo-segmented__item flex-1 text-[12px]"
-            :class="{ 'neo-segmented__item--active': languagePreference === opt.id }"
             @click="onLanguageChange(opt.id)"
           >
             {{ opt.label }}
@@ -66,21 +64,23 @@
 
       <!-- Grammatical gender -->
       <div>
-        <h3 class="text-[14px] font-bold m-0 mb-1" style="color: var(--mg-color-ink)">
+        <h3 class="text-mg-sm font-bold m-0 mb-1" style="color: var(--mg-color-ink)">
           {{ t('profile.gender.label') }}
         </h3>
-        <p class="text-[12px] m-0 mb-[10px]" style="color: var(--mg-color-muted)">
+        <p class="text-mg-xs m-0 mb-[10px]" style="color: var(--mg-color-muted)">
           {{ t('profile.gender.description') }}
         </p>
-        <div class="neo-segmented w-full" role="radiogroup" :aria-label="t('profile.gender.label')">
+        <div
+          class="mg-v2-segmented w-full"
+          role="radiogroup"
+          :aria-label="t('profile.gender.label')"
+        >
           <button
             v-for="opt in genderOptions"
             :key="opt.id"
             type="button"
             role="radio"
             :aria-checked="genderPreference === opt.id"
-            class="neo-segmented__item flex-1 text-[12px]"
-            :class="{ 'neo-segmented__item--active': genderPreference === opt.id }"
             @click="onGenderChange(opt.id)"
           >
             {{ opt.label }}
@@ -115,17 +115,17 @@ const themeOptions = computed(() => [
   {
     id: 'current' as ThemeId,
     label: t('profile.appearance.themes.current'),
-    gradient: 'linear-gradient(135deg, #E8F0FE, #70A8E8)',
+    gradient: 'var(--mg-theme-swatch-current)',
   },
   {
     id: 'sky-mist' as ThemeId,
     label: t('profile.appearance.themes.skyMist'),
-    gradient: 'linear-gradient(135deg, #F2F7FF, #6CA4E4)',
+    gradient: 'var(--mg-theme-swatch-sky-mist)',
   },
   {
     id: 'sunrise-cloud' as ThemeId,
     label: t('profile.appearance.themes.sunriseCloud'),
-    gradient: 'linear-gradient(135deg, #FFF8EE, #709EDA)',
+    gradient: 'var(--mg-theme-swatch-sunrise-cloud)',
   },
 ])
 
@@ -206,7 +206,7 @@ onMounted(async () => {
   gap: 10px;
   min-width: 180px;
   padding: 10px 14px;
-  border-radius: 1rem;
+  border-radius: var(--mg-radius-md);
   cursor: pointer;
   font-family: inherit;
   color: var(--mg-color-ink);
@@ -216,34 +216,34 @@ onMounted(async () => {
     border-color 220ms ease;
 }
 
+/* Tile grammar: hover = mist, the picked theme sits pressed with the accent edge. */
 .theme-card:hover:not(.theme-card--active) {
-  filter: brightness(1.02);
+  background: var(--mg-color-mist);
 }
 
 .theme-card--active {
-  background: rgb(var(--neo-surface-base));
-  box-shadow:
-    inset -3px -3px 6px rgb(var(--neo-inset-light) / 0.8),
-    inset 3px 3px 6px rgb(var(--neo-inset-dark) / 0.33);
+  border-color: var(--mg-color-primary);
+  background: var(--mg-color-mist);
+  box-shadow: var(--mg-shadow-inset-sm);
 }
 
 .theme-card__swatch {
   width: 28px;
   height: 28px;
-  border-radius: 9999px;
+  border-radius: var(--mg-radius-pill);
   flex-shrink: 0;
-  box-shadow: 0 1px 3px rgb(var(--neo-shadow-dark) / 0.25);
+  box-shadow: var(--mg-shadow-raised-sm);
 }
 
 .theme-card__label {
-  font-size: 13px;
+  font-size: var(--mg-font-size-sm);
   font-weight: 600;
   flex: 1;
   text-align: left;
 }
 
 .theme-card__check {
-  font-size: 18px;
+  font-size: var(--mg-font-size-icon-md);
   color: var(--mg-color-primary-strong);
   margin-left: auto;
 }

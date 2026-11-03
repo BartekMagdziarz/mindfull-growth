@@ -67,7 +67,7 @@
           </p>
 
           <!-- Example -->
-          <div class="exercise-block p-4">
+          <div class="mg-v2-block p-4">
             <p class="text-xs font-semibold text-on-surface-variant mb-1">
               {{ t('exerciseWizards.cognitiveDistortions.carousel.example') }}
             </p>
@@ -155,7 +155,7 @@
                   :placeholder="
                     t('exerciseWizards.cognitiveDistortions.selfCheck.personalExamplePlaceholder')
                   "
-                  class="exercise-field w-full p-2 text-sm resize-none"
+                  class="mg-v2-input w-full p-2 text-sm resize-none"
                   @input="
                     learningDraft.personalExamples[id] = (
                       $event.target as HTMLTextAreaElement
@@ -195,7 +195,7 @@
           </p>
 
           <div class="space-y-3">
-            <div v-for="id in sortedRecognizedIds" :key="id" class="exercise-block p-3 space-y-1">
+            <div v-for="id in sortedRecognizedIds" :key="id" class="mg-v2-block p-3 space-y-1">
               <p class="text-sm font-semibold text-on-surface">{{ distortionById(id)?.name }}</p>
               <p
                 v-if="learningDraft.personalExamples[id]"
@@ -242,7 +242,7 @@
             v-model="appliedDraft.thought"
             rows="4"
             :placeholder="t('exerciseWizards.cognitiveDistortions.appliedThought.placeholder')"
-            class="exercise-field w-full p-3 text-sm resize-none"
+            class="mg-v2-input w-full p-3 text-sm resize-none"
           />
         </AppCard>
         <div class="flex justify-end">
@@ -264,7 +264,7 @@
           <ExerciseStepWhy
             :text="tg('exerciseWizards.cognitiveDistortions.appliedDistortions.why')"
           />
-          <div class="exercise-block p-3">
+          <div class="mg-v2-block p-3">
             <p class="text-sm text-on-surface italic">"{{ appliedDraft.thought }}"</p>
           </div>
         </AppCard>
@@ -305,7 +305,7 @@
                       'exerciseWizards.cognitiveDistortions.appliedDistortions.explanationPlaceholder'
                     )
                   "
-                  class="exercise-field w-full p-2 text-sm resize-none"
+                  class="mg-v2-input w-full p-2 text-sm resize-none"
                   @input="
                     appliedDraft.explanations[id] = ($event.target as HTMLTextAreaElement).value
                   "
@@ -329,7 +329,7 @@
             <ProfileContextToggle v-model="useProfileSpot" />
           </div>
 
-          <div v-if="llmResponse" class="exercise-block px-6 py-5 mt-3">
+          <div v-if="llmResponse" class="mg-v2-block px-6 py-5 mt-3">
             <p class="text-xs font-semibold text-on-surface-variant mb-2">
               {{ t('exerciseWizards.cognitiveDistortions.appliedDistortions.aiSuggestions') }}
             </p>
@@ -359,12 +359,12 @@
             {{ t('exerciseWizards.cognitiveDistortions.appliedResults.description') }}
           </p>
           <ExerciseStepWhy :text="tg('exerciseWizards.cognitiveDistortions.appliedResults.why')" />
-          <div class="exercise-block p-3">
+          <div class="mg-v2-block p-3">
             <p class="text-sm text-on-surface italic">"{{ appliedDraft.thought }}"</p>
           </div>
 
           <div class="space-y-4 mt-2">
-            <div v-for="id in sortedAppliedIds" :key="id" class="exercise-block p-3 space-y-2">
+            <div v-for="id in sortedAppliedIds" :key="id" class="mg-v2-block p-3 space-y-2">
               <p class="text-sm font-semibold text-on-surface">{{ distortionById(id)?.name }}</p>
               <p v-if="appliedDraft.explanations[id]" class="text-xs text-on-surface-variant">
                 {{ appliedDraft.explanations[id] }}
@@ -381,7 +381,7 @@
                   :placeholder="
                     tg('exerciseWizards.cognitiveDistortions.appliedResults.reframePlaceholder')
                   "
-                  class="exercise-field w-full p-2 text-sm resize-none"
+                  class="mg-v2-input w-full p-2 text-sm resize-none"
                   @input="appliedDraft.reframes[id] = ($event.target as HTMLTextAreaElement).value"
                 />
               </div>
@@ -398,7 +398,7 @@
             v-model="appliedDraft.notes"
             rows="3"
             :placeholder="t('exerciseWizards.cognitiveDistortions.appliedResults.notesPlaceholder')"
-            class="exercise-field w-full p-3 text-sm resize-none"
+            class="mg-v2-input w-full p-3 text-sm resize-none"
           />
         </AppCard>
 

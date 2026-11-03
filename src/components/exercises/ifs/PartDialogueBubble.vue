@@ -3,7 +3,7 @@
     <div
       :class="[
         'relative max-w-[85%] rounded-mg-lg px-4 py-3 group',
-        speaker === 'self' ? 'exercise-block bg-primary/10' : 'exercise-block',
+        speaker === 'self' ? 'mg-v2-block bg-primary/10' : 'mg-v2-block',
         speaker === 'part' && partColor ? `border-l-4` : '',
       ]"
       :style="speaker === 'part' && partColor ? { borderLeftColor: partColor } : {}"
@@ -16,7 +16,7 @@
         }}
       </p>
       <p class="text-sm text-on-surface whitespace-pre-wrap">{{ message.content }}</p>
-      <p class="text-xs text-on-surface-variant/60 mt-1.5">
+      <p class="text-mg-xs text-on-surface-variant/60 mt-1.5">
         {{ formatTime(message.timestamp) }}
       </p>
       <button

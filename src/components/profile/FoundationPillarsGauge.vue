@@ -2,11 +2,11 @@
   <div role="img" :aria-label="ariaLabel" class="flex flex-col gap-3">
     <!-- Keystone: dim while locked, lit once every pillar clears its line. -->
     <div
-      class="flex items-center justify-center gap-2 rounded-xl px-3 py-1.5 text-xs font-medium transition-all duration-500"
+      class="flex items-center justify-center gap-2 rounded-mg-md px-3 py-1.5 text-xs font-medium transition-all duration-500"
       :class="
         unlocked
-          ? 'bg-primary/15 text-primary-strong shadow-neu-raised-sm ring-1 ring-primary/40'
-          : 'bg-neu-base text-on-surface-variant shadow-neu-pressed-sm'
+          ? 'bg-primary/15 text-primary-strong shadow-mg-raised-sm ring-1 ring-primary/40'
+          : 'bg-neu-base text-on-surface-variant shadow-mg-inset-sm'
       "
       data-testid="foundation-keystone"
     >
@@ -23,7 +23,7 @@
         :data-test-foundation-pillar="pillar.group"
       >
         <div
-          class="relative h-24 w-full overflow-hidden rounded-xl bg-neu-base shadow-neu-pressed sm:h-28"
+          class="relative h-24 w-full overflow-hidden rounded-mg-md bg-neu-base shadow-mg-inset-sm sm:h-28"
         >
           <!-- Fill -->
           <div
@@ -43,19 +43,17 @@
           <Transition name="fade">
             <span
               v-if="pillar.satisfied"
-              class="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-neu-base text-primary shadow-neu-raised-sm"
+              class="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-neu-base text-primary shadow-mg-raised-sm"
             >
               <AppIcon name="check" class="text-sm" />
             </span>
           </Transition>
         </div>
 
-        <p
-          class="w-full truncate text-center text-[11px] font-medium leading-tight text-on-surface"
-        >
+        <p class="w-full truncate text-center text-mg-xs font-medium leading-tight text-on-surface">
           {{ groupLabel(pillar.group) }}
         </p>
-        <p class="text-[11px] tabular-nums text-on-surface-variant">
+        <p class="text-mg-xs tabular-nums text-on-surface-variant">
           {{ pillar.completed }}/{{ pillar.total }}
         </p>
       </div>

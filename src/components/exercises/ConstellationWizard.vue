@@ -28,7 +28,7 @@
             />
 
             <!-- Prerequisites check -->
-            <div class="exercise-block p-3 flex items-center gap-3">
+            <div class="mg-v2-block p-3 flex items-center gap-3">
               <div
                 class="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
                 :class="hasPrerequisites ? 'bg-status-good-soft' : 'bg-status-warn-soft'"
@@ -94,7 +94,7 @@
                   selectedPartIds.includes(part.id)
                     ? 'exercise-option exercise-option--active border'
                     : selectedPartIds.length >= 5
-                      ? 'exercise-block opacity-40 cursor-not-allowed'
+                      ? 'mg-v2-block opacity-40 cursor-not-allowed'
                       : 'exercise-option border',
                   roleBorderClass(part.role),
                 ]"
@@ -181,7 +181,7 @@
               <input
                 type="text"
                 :value="getRelationship(pair.partAId, pair.partBId)?.notes ?? ''"
-                class="exercise-field w-full p-2 text-xs"
+                class="mg-v2-input w-full p-2 text-xs"
                 :placeholder="
                   t('exerciseWizards.constellation.mapRelationships.notePlaceholder', {
                     partA: getPartName(pair.partAId),
@@ -237,7 +237,7 @@
                 }}</span>
               </div>
 
-              <div class="exercise-block p-4 space-y-3">
+              <div class="mg-v2-block p-4 space-y-3">
                 <div>
                   <label class="block text-xs font-medium text-on-surface-variant mb-1">
                     {{
@@ -250,7 +250,7 @@
                   <textarea
                     v-model="dd.partAThinks"
                     rows="2"
-                    class="exercise-field w-full p-2 text-sm resize-none"
+                    class="mg-v2-input w-full p-2 text-sm resize-none"
                     :placeholder="
                       t(
                         'exerciseWizards.constellation.polarizationDeepDive.partAThinkPlaceholder',
@@ -272,7 +272,7 @@
                   <textarea
                     v-model="dd.partBThinks"
                     rows="2"
-                    class="exercise-field w-full p-2 text-sm resize-none"
+                    class="mg-v2-input w-full p-2 text-sm resize-none"
                     :placeholder="
                       t(
                         'exerciseWizards.constellation.polarizationDeepDive.partBThinkPlaceholder',
@@ -289,7 +289,7 @@
                   <textarea
                     v-model="dd.ifOneWon"
                     rows="2"
-                    class="exercise-field w-full p-2 text-sm resize-none"
+                    class="mg-v2-input w-full p-2 text-sm resize-none"
                     :placeholder="
                       t('exerciseWizards.constellation.polarizationDeepDive.ifOneWonPlaceholder')
                     "
@@ -303,7 +303,7 @@
                   <textarea
                     v-model="dd.commonProtection"
                     rows="2"
-                    class="exercise-field w-full p-2 text-sm resize-none"
+                    class="mg-v2-input w-full p-2 text-sm resize-none"
                     :placeholder="
                       t(
                         'exerciseWizards.constellation.polarizationDeepDive.commonProtectionPlaceholder'
@@ -338,7 +338,7 @@
             </h2>
 
             <!-- SVG Visualization -->
-            <div class="exercise-block p-4">
+            <div class="mg-v2-block p-4">
               <svg :viewBox="`0 0 ${svgSize} ${svgSize}`" class="w-full" style="min-height: 300px">
                 <!-- Relationship lines -->
                 <template v-for="rel in relationships" :key="`line-${rel.partAId}-${rel.partBId}`">
@@ -420,7 +420,7 @@
                 v-model="cascadeNotes"
                 rows="2"
                 :placeholder="t('exerciseWizards.constellation.visual.cascadesPlaceholder')"
-                class="exercise-field w-full p-3 text-sm resize-none"
+                class="mg-v2-input w-full p-3 text-sm resize-none"
               />
               <p class="text-xs text-on-surface-variant">
                 {{ t('exerciseWizards.constellation.visual.cascadesHint') }}
@@ -449,7 +449,7 @@
               v-model="reflection"
               rows="3"
               :placeholder="t('exerciseWizards.constellation.reflection.placeholder')"
-              class="exercise-field w-full p-3 text-sm resize-none"
+              class="mg-v2-input w-full p-3 text-sm resize-none"
             />
 
             <!-- LLM Analysis -->
@@ -469,7 +469,7 @@
                 <ProfileContextToggle v-model="useProfileAnalysis" />
               </div>
 
-              <div v-if="llmInsight" class="exercise-block p-4 space-y-3">
+              <div v-if="llmInsight" class="mg-v2-block p-4 space-y-3">
                 <p class="text-sm text-on-surface whitespace-pre-line">{{ llmInsight }}</p>
                 <p class="text-xs text-on-surface-variant italic">
                   {{ tg('exerciseWizards.constellation.reflection.aiDisclaimer') }}
@@ -498,7 +498,7 @@
             <IFSSafetyBanner />
 
             <!-- Summary -->
-            <div class="exercise-block p-4 space-y-3 text-sm">
+            <div class="mg-v2-block p-4 space-y-3 text-sm">
               <div class="flex items-center gap-2 flex-wrap">
                 <span class="text-on-surface-variant">{{
                   t('exerciseWizards.constellation.save.partsLabel')
@@ -566,7 +566,7 @@
               v-model="notes"
               rows="2"
               :placeholder="t('exerciseWizards.constellation.save.notesPlaceholder')"
-              class="exercise-field w-full p-3 text-sm resize-none"
+              class="mg-v2-input w-full p-3 text-sm resize-none"
             />
           </AppCard>
 

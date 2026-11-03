@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-3">
     <label v-if="label" class="block text-sm font-medium text-on-surface">{{ label }}</label>
-    <div class="exercise-block p-4 flex justify-center">
+    <div class="mg-v2-block p-4 flex justify-center">
       <svg
         width="160"
         height="320"

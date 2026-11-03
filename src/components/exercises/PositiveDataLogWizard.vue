@@ -26,7 +26,7 @@
             <p class="text-sm text-on-surface-variant leading-relaxed">
               {{ t('exerciseWizards.positiveDataLog.intro.description') }}
             </p>
-            <div class="exercise-block p-4 space-y-3">
+            <div class="mg-v2-block p-4 space-y-3">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                 {{ t('exerciseWizards.positiveDataLog.intro.howItWorks') }}
               </p>
@@ -80,7 +80,7 @@
               v-model="targetBelief"
               rows="3"
               :placeholder="frameCopy.placeholder"
-              class="exercise-field w-full p-3 text-sm resize-none"
+              class="mg-v2-input w-full p-3 text-sm resize-none"
             />
 
             <div class="space-y-3 pt-2">
@@ -174,7 +174,7 @@
          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
     <template v-else-if="mode === 'log' && existingLog">
       <!-- Header: Target belief + current believability -->
-      <div class="exercise-block p-4 space-y-2">
+      <div class="mg-v2-block p-4 space-y-2">
         <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
           {{ frameCopy.label }}
         </p>
@@ -226,7 +226,7 @@
             <label class="text-xs font-medium text-on-surface-variant">{{
               t('exerciseWizards.positiveDataLog.log.dateLabel')
             }}</label>
-            <input v-model="newEntryDate" type="date" class="exercise-field w-full p-2.5 text-sm" />
+            <input v-model="newEntryDate" type="date" class="mg-v2-input w-full p-2.5 text-sm" />
           </div>
 
           <div class="space-y-1">
@@ -237,7 +237,7 @@
               v-model="newEntryEvidence"
               rows="3"
               :placeholder="frameCopy.evidencePlaceholder"
-              class="exercise-field w-full p-3 text-sm resize-none"
+              class="mg-v2-input w-full p-3 text-sm resize-none"
             />
           </div>
 
@@ -249,7 +249,7 @@
               v-model="newEntryNotes"
               rows="2"
               :placeholder="t('exerciseWizards.positiveDataLog.log.notesPlaceholder')"
-              class="exercise-field w-full p-3 text-sm resize-none"
+              class="mg-v2-input w-full p-3 text-sm resize-none"
             />
           </div>
 
@@ -377,7 +377,7 @@
           </AppButton>
           <ProfileContextToggle v-model="useProfileReview" />
         </div>
-        <div v-if="reviewSummary" class="exercise-block p-4 space-y-2">
+        <div v-if="reviewSummary" class="mg-v2-block p-4 space-y-2">
           <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
             {{ t('exerciseWizards.positiveDataLog.log.progressReview') }}
           </p>
@@ -387,7 +387,7 @@
       </AppCard>
 
       <!-- Empty state for no entries yet -->
-      <div v-if="sortedEntries.length === 0" class="exercise-block p-6 text-center">
+      <div v-if="sortedEntries.length === 0" class="mg-v2-block p-6 text-center">
         <AppIcon name="assignment" class="text-4xl text-on-surface-variant mx-auto mb-2 block" />
         <p class="text-sm text-on-surface-variant">
           {{ t('exerciseWizards.positiveDataLog.log.noEvidenceYet') }}

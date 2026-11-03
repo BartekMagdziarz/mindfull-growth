@@ -1,6 +1,6 @@
 <template>
   <div
-    class="rounded-2xl border border-status-warn/40 bg-status-warn-soft/70 p-4 shadow-neu-flat"
+    class="rounded-mg-lg border border-status-warn/40 bg-status-warn-soft/70 p-4 shadow-mg-raised-sm"
     role="status"
   >
     <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">

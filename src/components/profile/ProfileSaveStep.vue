@@ -68,7 +68,7 @@
       <input
         id="profile-save-note"
         type="text"
-        class="neo-input w-full p-3 text-sm"
+        class="mg-v2-input w-full p-3 text-sm"
         :placeholder="t('profile.psychologicalProfile.wizard.save.note.placeholder')"
         :value="wizard.note.value"
         :maxlength="120"
@@ -88,7 +88,11 @@
     </div>
 
     <!-- Error banner -->
-    <div v-if="wizard.saveError.value" class="neo-warning p-3 rounded-2xl" data-test-save-error>
+    <div
+      v-if="wizard.saveError.value"
+      class="mg-v2-block mg-v2-block--warn p-3"
+      data-test-save-error
+    >
       <p class="text-sm text-on-surface">{{ wizard.saveError.value }}</p>
     </div>
   </div>

@@ -156,6 +156,12 @@
   --mg-radius-cloud-b: 17px 13px 18px 12px / 45% 60% 40% 55%;
   --mg-icon-board-size: 3.25rem;
 
+  /* Theme picker swatches (Profil → Preferencje): each shows ITS theme's
+     sky, so the values are fixed, independent of the active theme. */
+  --mg-theme-swatch-current: linear-gradient(135deg, #e8f0fe, #70a8e8);
+  --mg-theme-swatch-sky-mist: linear-gradient(135deg, #f2f7ff, #6ca4e4);
+  --mg-theme-swatch-sunrise-cloud: linear-gradient(135deg, #fff8ee, #709eda);
+
   --mg-duration-fast: 160ms;
   --mg-duration-normal: 240ms;
   --mg-duration-base: var(--mg-duration-normal);

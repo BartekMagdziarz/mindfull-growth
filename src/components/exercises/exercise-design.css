@@ -39,49 +39,11 @@ button.exercise-pill:hover:not(:disabled) {
   background: var(--mg-color-rose-soft);
 }
 
-/* ── Exercise anatomies (K2, 2026-11-02): the wizards' field, nested block and
-   option card, on tokens. They replaced the legacy input, surface / embedded /
-   panel and selector bridges with the same look. ── */
-
-/* Field: mist with the thin field edge. Focus = paper + accent edge, owned by
-   styles/text-field-focus.css like every other text field. */
-.exercise-field {
-  border: 1px solid var(--mg-color-field-border);
-  border-radius: var(--mg-radius-sm);
-  color: var(--mg-color-ink);
-  background: var(--mg-color-mist);
-  box-shadow: none;
-  transition:
-    border-color var(--mg-duration-fast) ease,
-    background-color var(--mg-duration-fast) ease;
-}
-
-.exercise-field::placeholder {
-  color: var(--mg-color-muted);
-}
-
-input[type='number'].exercise-field {
-  appearance: textfield;
-}
-
-input[type='number'].exercise-field::-webkit-inner-spin-button,
-input[type='number'].exercise-field::-webkit-outer-spin-button {
-  margin: 0;
-  -webkit-appearance: none;
-}
-
-/* Nested block inside a step card (an AI answer, an earlier entry, a group of
-   fields): the field tone with the subtlest edge, flat. */
-.exercise-block {
-  border: 1px solid var(--mg-color-border-subtle);
-  border-radius: var(--mg-radius-md);
-  color: var(--mg-color-ink);
-  background: var(--mg-color-mist);
-  box-shadow: none;
-}
+/* ── Exercise option card (K2, 2026-11-02). Fields and nested blocks use the
+   shared .mg-v2-input / .mg-v2-block (base.css). ── */
 
 /* Fields nested inside a block take the next step in the tonal ladder. */
-.exercise-page .exercise-block .exercise-field {
+.exercise-page .mg-v2-block .mg-v2-input {
   background: var(--mg-color-paper);
 }
 
@@ -288,41 +250,41 @@ input[type='number'].exercise-field::-webkit-outer-spin-button {
 }
 
 /* ── Fields: md type, a real minimum height, focus that does not whiten ── */
-.exercise-page .exercise-field {
+.exercise-page .mg-v2-input {
   font-size: var(--mg-font-size-md);
   line-height: 1.6;
 }
 
-.exercise-page textarea.exercise-field {
+.exercise-page textarea.mg-v2-input {
   min-height: calc(3 * 1.6em + 1.5rem + 2px);
 }
 
 /* Global `field-sizing: content` ignores `rows`; the minimum is set here in lines. */
-.exercise-page textarea.exercise-field[rows='2'] {
+.exercise-page textarea.mg-v2-input[rows='2'] {
   min-height: calc(2 * 1.6em + 1.5rem + 2px);
 }
-.exercise-page textarea.exercise-field[rows='3'] {
+.exercise-page textarea.mg-v2-input[rows='3'] {
   min-height: calc(3 * 1.6em + 1.5rem + 2px);
 }
-.exercise-page textarea.exercise-field[rows='4'] {
+.exercise-page textarea.mg-v2-input[rows='4'] {
   min-height: calc(4 * 1.6em + 1.5rem + 2px);
 }
-.exercise-page textarea.exercise-field[rows='5'] {
+.exercise-page textarea.mg-v2-input[rows='5'] {
   min-height: calc(5 * 1.6em + 1.5rem + 2px);
 }
-.exercise-page textarea.exercise-field[rows='6'] {
+.exercise-page textarea.mg-v2-input[rows='6'] {
   min-height: calc(6 * 1.6em + 1.5rem + 2px);
 }
-.exercise-page textarea.exercise-field[rows='7'] {
+.exercise-page textarea.mg-v2-input[rows='7'] {
   min-height: calc(7 * 1.6em + 1.5rem + 2px);
 }
-.exercise-page textarea.exercise-field[rows='8'] {
+.exercise-page textarea.mg-v2-input[rows='8'] {
   min-height: calc(8 * 1.6em + 1.5rem + 2px);
 }
-.exercise-page textarea.exercise-field[rows='10'] {
+.exercise-page textarea.mg-v2-input[rows='10'] {
   min-height: calc(10 * 1.6em + 1.5rem + 2px);
 }
-.exercise-page textarea.exercise-field[rows='12'] {
+.exercise-page textarea.mg-v2-input[rows='12'] {
   min-height: calc(12 * 1.6em + 1.5rem + 2px);
 }
 

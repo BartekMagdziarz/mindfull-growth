@@ -124,14 +124,19 @@ Wdrożenie propozycji A z audytu 2026-10-18 (plan i porównanie:
   `rounded-mg-*`, wszystkie inne `rounded-*` poza `rounded-full` dalej łapie.
   Tokeny promieni mają po cztery wartości, więc nie ma wariantów jednej krawędzi
   (`rounded-t-*`).
-- **Anatomie kreatorów ćwiczeń** (`components/exercises/exercise-design.css`):
-  `exercise-field` (pole: mgła + cienka krawędź pola, fokus jak wszędzie),
-  `exercise-block` (zagnieżdżony blok w karcie kroku: mgła, najsłabsza krawędź,
-  `md`; pole w bloku idzie na papier), `exercise-option` / `--active` (karta
-  wyboru: kapsuła mgły, hover = papier z małym cieniem, wybrana = krawędź akcentu
-  na tincie studni), obok istniejących `exercise-pill`, `exercise-chip`,
-  `exercise-note`. Zastąpiły w kreatorach `neo-input`, `neo-surface/-embedded/
-  -panel` i `neo-selector` bez zmiany wyglądu.
+- **Następcy mostka legacy (K2, 2026-11-02/03):** `mg-v2-block` (zagnieżdżony blok
+  w karcie: mgła, najsłabsza krawędź, `md`, bez układu; `--warn` = ton ostrzeżenia ze
+  słowami), `mg-v2-input` (skórka pola z cienką krawędzią, bez geometrii; fokus z
+  `text-field-focus.css`). Zastąpiły `neo-surface/-inset/-panel/-embedded`, `neo-warning`
+  i `neo-input` w kreatorach ćwiczeń i profilu bez zmiany wyglądu. `mg-v2-field`
+  (bez ramki, z geometrią) i `mg-v2-input` to dwie skórki pola — ich scalenie należy do
+  otwartej decyzji „9 skórek pól → 1”. W kreatorach dochodzi `exercise-option(--active)`
+  (karta wyboru) obok `exercise-pill`, `exercise-chip`, `exercise-note`
+  (`components/exercises/exercise-design.css`). `mg-v2-segmented` obsługuje też
+  `role="radio"` + `aria-checked`. Skala tekstu jako utility: `text-mg-xs…2xl`,
+  `text-mg-rating`, `text-mg-chart`, `text-mg-icon-sm/md/lg` (tylko font-size, bez
+  line-height w odróżnieniu od `text-xs/sm` Tailwinda). Próbki motywów w
+  Preferencjach: `--mg-theme-swatch-*` (stałe, niezależne od aktywnego motywu).
 - **Strażnik-zapadka:** `npm run check:design-system` skanuje całe `src/`
   (9 reguł) i porównuje z `scripts/design-system-baseline.json`; hook
   PostToolUse sprawdza każdy edytowany plik. `--list [--rule x]` wypisuje

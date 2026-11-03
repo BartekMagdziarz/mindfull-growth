@@ -3,7 +3,7 @@
     <details
       v-for="sectionId in PROFILE_SECTION_IDS"
       :key="sectionId"
-      class="neo-surface rounded-2xl p-4"
+      class="mg-v2-block p-4"
       :open="defaultOpen(sectionId)"
     >
       <summary class="flex items-center justify-between cursor-pointer select-none">

@@ -95,7 +95,7 @@
             <!-- Lowest C highlight card -->
             <AppCard v-if="!allHigh" variant="inset" padding="md" class="space-y-3">
               <div class="flex items-center gap-3">
-                <div class="exercise-block p-2">
+                <div class="mg-v2-block p-2">
                   <AppIcon
                     :name="qualityIcon(lowestQuality)"
                     class="text-2xl"
@@ -171,7 +171,7 @@
 
             <!-- Calm: Box Breathing -->
             <template v-if="microPracticeType === 'calm'">
-              <div class="exercise-block p-4 space-y-4">
+              <div class="mg-v2-block p-4 space-y-4">
                 <p class="text-sm font-medium text-on-surface">
                   {{ t('exerciseWizards.selfEnergy.microPractice.calm.title') }}
                 </p>
@@ -228,7 +228,7 @@
 
             <!-- Curiosity -->
             <template v-else-if="microPracticeType === 'curiosity'">
-              <div class="exercise-block p-4 space-y-3">
+              <div class="mg-v2-block p-4 space-y-3">
                 <p class="text-sm font-medium text-on-surface">
                   {{ t('exerciseWizards.selfEnergy.microPractice.curiosity.title') }}
                 </p>
@@ -239,14 +239,14 @@
                   v-model="microPracticeNotes"
                   rows="3"
                   :placeholder="t('exerciseWizards.selfEnergy.microPractice.curiosity.placeholder')"
-                  class="exercise-field w-full p-3 text-sm resize-none"
+                  class="mg-v2-input w-full p-3 text-sm resize-none"
                 />
               </div>
             </template>
 
             <!-- Compassion -->
             <template v-else-if="microPracticeType === 'compassion'">
-              <div class="exercise-block p-4 space-y-3">
+              <div class="mg-v2-block p-4 space-y-3">
                 <p class="text-sm font-medium text-on-surface">
                   {{ t('exerciseWizards.selfEnergy.microPractice.compassion.title') }}
                 </p>
@@ -265,14 +265,14 @@
                   :placeholder="
                     tg('exerciseWizards.selfEnergy.microPractice.compassion.placeholder')
                   "
-                  class="exercise-field w-full p-3 text-sm resize-none"
+                  class="mg-v2-input w-full p-3 text-sm resize-none"
                 />
               </div>
             </template>
 
             <!-- Clarity -->
             <template v-else-if="microPracticeType === 'clarity'">
-              <div class="exercise-block p-4 space-y-3">
+              <div class="mg-v2-block p-4 space-y-3">
                 <p class="text-sm font-medium text-on-surface">
                   {{ t('exerciseWizards.selfEnergy.microPractice.clarity.title') }}
                 </p>
@@ -283,14 +283,14 @@
                   v-model="microPracticeNotes"
                   type="text"
                   :placeholder="t('exerciseWizards.selfEnergy.microPractice.clarity.placeholder')"
-                  class="exercise-field w-full p-3 text-sm"
+                  class="mg-v2-input w-full p-3 text-sm"
                 />
               </div>
             </template>
 
             <!-- Courage -->
             <template v-else-if="microPracticeType === 'courage'">
-              <div class="exercise-block p-4 space-y-3">
+              <div class="mg-v2-block p-4 space-y-3">
                 <p class="text-sm font-medium text-on-surface">
                   {{ t('exerciseWizards.selfEnergy.microPractice.courage.title') }}
                 </p>
@@ -301,14 +301,14 @@
                   v-model="microPracticeNotes"
                   type="text"
                   :placeholder="t('exerciseWizards.selfEnergy.microPractice.courage.placeholder')"
-                  class="exercise-field w-full p-3 text-sm"
+                  class="mg-v2-input w-full p-3 text-sm"
                 />
               </div>
             </template>
 
             <!-- Creativity -->
             <template v-else-if="microPracticeType === 'creativity'">
-              <div class="exercise-block p-4 space-y-3">
+              <div class="mg-v2-block p-4 space-y-3">
                 <p class="text-sm font-medium text-on-surface">
                   {{ t('exerciseWizards.selfEnergy.microPractice.creativity.title') }}
                 </p>
@@ -321,14 +321,14 @@
                   :placeholder="
                     t('exerciseWizards.selfEnergy.microPractice.creativity.placeholder')
                   "
-                  class="exercise-field w-full p-3 text-sm resize-none"
+                  class="mg-v2-input w-full p-3 text-sm resize-none"
                 />
               </div>
             </template>
 
             <!-- Confidence -->
             <template v-else-if="microPracticeType === 'confidence'">
-              <div class="exercise-block p-4 space-y-3">
+              <div class="mg-v2-block p-4 space-y-3">
                 <p class="text-sm font-medium text-on-surface">
                   {{ t('exerciseWizards.selfEnergy.microPractice.confidence.title') }}
                 </p>
@@ -341,14 +341,14 @@
                   :placeholder="
                     tg('exerciseWizards.selfEnergy.microPractice.confidence.placeholder')
                   "
-                  class="exercise-field w-full p-3 text-sm resize-none"
+                  class="mg-v2-input w-full p-3 text-sm resize-none"
                 />
               </div>
             </template>
 
             <!-- Connection -->
             <template v-else-if="microPracticeType === 'connection'">
-              <div class="exercise-block p-4 space-y-3">
+              <div class="mg-v2-block p-4 space-y-3">
                 <p class="text-sm font-medium text-on-surface">
                   {{ t('exerciseWizards.selfEnergy.microPractice.connection.title') }}
                 </p>
@@ -361,7 +361,7 @@
                   :placeholder="
                     t('exerciseWizards.selfEnergy.microPractice.connection.placeholder')
                   "
-                  class="exercise-field w-full p-3 text-sm"
+                  class="mg-v2-input w-full p-3 text-sm"
                 />
               </div>
             </template>
@@ -387,7 +387,7 @@
             <SelfEnergyWheel :ratings="ratings" :interactive="false" size="md" />
 
             <!-- Lowest C summary -->
-            <div class="exercise-block p-3 flex items-center justify-between">
+            <div class="mg-v2-block p-3 flex items-center justify-between">
               <span class="text-sm text-on-surface-variant">{{
                 formatQuality(lowestQuality)
               }}</span>
@@ -426,7 +426,7 @@
                 <ProfileContextToggle v-model="useProfileTrendReview" />
               </div>
 
-              <div v-if="trendReview" class="exercise-block p-4">
+              <div v-if="trendReview" class="mg-v2-block p-4">
                 <p class="text-sm text-on-surface whitespace-pre-wrap">{{ trendReview }}</p>
                 <p class="text-xs text-on-surface-variant/60 italic mt-3">
                   {{ t('exerciseWizards.selfEnergy.summary.trendDisclaimer') }}
@@ -445,7 +445,7 @@
             </p>
 
             <!-- Trend chart (7+ check-ins) -->
-            <div v-if="selfEnergyStore.checkIns.length >= 7" class="exercise-block p-4">
+            <div v-if="selfEnergyStore.checkIns.length >= 7" class="mg-v2-block p-4">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-3">
                 {{ t('exerciseWizards.selfEnergy.summary.trendLabel') }}
               </p>
@@ -499,7 +499,7 @@
                 v-model="notes"
                 rows="2"
                 :placeholder="t('exerciseWizards.selfEnergy.summary.notesPlaceholder')"
-                class="exercise-field w-full p-3 text-sm resize-none"
+                class="mg-v2-input w-full p-3 text-sm resize-none"
               />
             </div>
           </AppCard>

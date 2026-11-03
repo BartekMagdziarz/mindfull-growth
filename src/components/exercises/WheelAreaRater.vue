@@ -70,7 +70,7 @@
             :value="area.visionSnapshot"
             rows="3"
             :placeholder="t('exerciseWizards.wheelOfLife.rater.visionPlaceholder')"
-            class="exercise-field w-full min-h-[88px] p-3 text-sm resize-none"
+            class="mg-v2-input w-full min-h-[88px] p-3 text-sm resize-none"
             @input="$emit('set-vision', ($event.target as HTMLTextAreaElement).value)"
           />
         </div>
@@ -86,7 +86,7 @@
           :value="area.positiveInfluences"
           rows="2"
           :placeholder="t('exerciseWizards.wheelOfLife.rater.positiveInfluencesPlaceholder')"
-          class="exercise-field w-full min-h-[72px] p-3 text-sm resize-none"
+          class="mg-v2-input w-full min-h-[72px] p-3 text-sm resize-none"
           @input="$emit('set-positive-influences', ($event.target as HTMLTextAreaElement).value)"
         />
       </div>
@@ -99,7 +99,7 @@
           :value="area.negativeInfluences"
           rows="2"
           :placeholder="t('exerciseWizards.wheelOfLife.rater.negativeInfluencesPlaceholder')"
-          class="exercise-field w-full min-h-[72px] p-3 text-sm resize-none"
+          class="mg-v2-input w-full min-h-[72px] p-3 text-sm resize-none"
           @input="$emit('set-negative-influences', ($event.target as HTMLTextAreaElement).value)"
         />
       </div>

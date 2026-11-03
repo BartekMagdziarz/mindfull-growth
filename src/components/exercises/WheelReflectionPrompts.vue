@@ -13,7 +13,7 @@
         :value="notes"
         rows="4"
         :placeholder="t('exerciseWizards.wheelOfLife.reflectionStep.overallNotesPlaceholder')"
-        class="exercise-field w-full p-3 text-sm resize-none"
+        class="mg-v2-input w-full p-3 text-sm resize-none"
         @input="$emit('update-notes', ($event.target as HTMLTextAreaElement).value)"
       />
     </div>

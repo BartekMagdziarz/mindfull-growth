@@ -68,7 +68,7 @@
               :value="entry.belief"
               type="text"
               :placeholder="t('exerciseWizards.shadowBeliefs.beliefs.customPlaceholder')"
-              class="exercise-field flex-1 p-2 text-sm font-medium"
+              class="mg-v2-input flex-1 p-2 text-sm font-medium"
               @input="entry.belief = ($event.target as HTMLInputElement).value"
             />
             <button
@@ -88,7 +88,7 @@
               :value="entry.evidenceFor"
               rows="2"
               :placeholder="t('exerciseWizards.shadowBeliefs.beliefs.evidenceForPlaceholder')"
-              class="exercise-field w-full p-2 text-sm resize-none"
+              class="mg-v2-input w-full p-2 text-sm resize-none"
               @input="entry.evidenceFor = ($event.target as HTMLTextAreaElement).value"
             />
           </div>
@@ -101,7 +101,7 @@
               :value="entry.evidenceAgainst"
               rows="2"
               :placeholder="t('exerciseWizards.shadowBeliefs.beliefs.evidenceAgainstPlaceholder')"
-              class="exercise-field w-full p-2 text-sm resize-none"
+              class="mg-v2-input w-full p-2 text-sm resize-none"
               @input="entry.evidenceAgainst = ($event.target as HTMLTextAreaElement).value"
             />
           </div>
@@ -114,7 +114,7 @@
               :value="entry.reframe"
               rows="2"
               :placeholder="t('exerciseWizards.shadowBeliefs.beliefs.reframePlaceholder')"
-              class="exercise-field w-full p-2 text-sm resize-none"
+              class="mg-v2-input w-full p-2 text-sm resize-none"
               @input="entry.reframe = ($event.target as HTMLTextAreaElement).value"
             />
           </div>
@@ -143,7 +143,7 @@
               :value="item.advice"
               type="text"
               :placeholder="t('exerciseWizards.shadowBeliefs.advice.placeholder')"
-              class="exercise-field flex-1 p-2 text-sm"
+              class="mg-v2-input flex-1 p-2 text-sm"
               @input="item.advice = ($event.target as HTMLInputElement).value"
             />
             <button
@@ -189,7 +189,7 @@
                 :value="item.blocker"
                 rows="2"
                 :placeholder="t('exerciseWizards.shadowBeliefs.advice.blockerPlaceholder')"
-                class="exercise-field w-full p-2 text-sm resize-none"
+                class="mg-v2-input w-full p-2 text-sm resize-none"
                 @input="item.blocker = ($event.target as HTMLTextAreaElement).value"
               />
             </div>
@@ -213,7 +213,7 @@
           v-model="draft.notes"
           rows="3"
           :placeholder="tg('exerciseWizards.shadowBeliefs.reflectionPlaceholder')"
-          class="exercise-field w-full p-3 text-sm resize-none"
+          class="mg-v2-input w-full p-3 text-sm resize-none"
         />
       </div>
     </AppCard>

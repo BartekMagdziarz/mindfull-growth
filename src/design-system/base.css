@@ -292,6 +292,56 @@
   color: var(--mg-color-muted);
 }
 
+/* Framed input skin (K2, 2026-11-02): mist with the thin field edge, no
+   geometry — the form sets its own padding. Successor of the legacy
+   legacy input bridge in exercises and the profile. mg-v2-field is the frameless
+   field with geometry; merging the two belongs to the open "field skins → 1"
+   decision. Focus is owned by styles/text-field-focus.css. */
+.mg-v2-input {
+  border: 1px solid var(--mg-color-field-border);
+  border-radius: var(--mg-radius-sm);
+  color: var(--mg-color-ink);
+  background: var(--mg-color-mist);
+  box-shadow: none;
+  transition:
+    border-color var(--mg-duration-fast) ease,
+    background-color var(--mg-duration-fast) ease;
+}
+
+.mg-v2-input::placeholder {
+  color: var(--mg-color-muted);
+}
+
+input[type='number'].mg-v2-input {
+  appearance: textfield;
+}
+
+input[type='number'].mg-v2-input::-webkit-inner-spin-button,
+input[type='number'].mg-v2-input::-webkit-outer-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
+/* Nested block inside a card (an AI answer, an earlier entry, a read-only
+   fact, a group of fields): the field tone with the subtlest edge, flat, no
+   layout. Successor of the legacy surface / inset / panel / embedded bridges.
+   For grouped card parts with their own rhythm use .mg-v2-group. */
+.mg-v2-block {
+  border: 1px solid var(--mg-color-border-subtle);
+  border-radius: var(--mg-radius-md);
+  color: var(--mg-color-ink);
+  background: var(--mg-color-mist);
+  box-shadow: none;
+}
+
+/* A block that must be noticed (a save error, content the AI will not see):
+   the warn tone, always with its own words. */
+.mg-v2-block--warn {
+  border-color: var(--mg-color-warn);
+  color: var(--mg-color-warn-on);
+  background: var(--mg-color-warn-soft);
+}
+
 /* Inline field: a bare title/label input that sits in a card header or a
    list row and reads as text until it is touched. Hover lays it on paper
    (like .mg-v2-inline-trigger); focus adds the accent edge. Geometry is
@@ -544,7 +594,8 @@
 }
 
 .mg-v2-segmented button[aria-pressed='true'],
-.mg-v2-segmented button[aria-selected='true'] {
+.mg-v2-segmented button[aria-selected='true'],
+.mg-v2-segmented button[aria-checked='true'] {
   color: var(--mg-color-primary-strong);
   background: var(--mg-color-paper);
   box-shadow: var(--mg-shadow-raised-sm);

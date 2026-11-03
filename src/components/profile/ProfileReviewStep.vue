@@ -31,7 +31,7 @@
       <section
         v-for="sectionId in PROFILE_SECTION_IDS"
         :key="sectionId"
-        class="neo-surface rounded-2xl p-4"
+        class="mg-v2-block p-4"
         :data-test-section="sectionId"
       >
         <header class="flex items-center justify-between gap-2 mb-2">
@@ -40,7 +40,7 @@
           </h3>
           <button
             type="button"
-            class="neo-icon-button neo-focus"
+            class="mg-v2-button mg-v2-button--icon mg-v2-button--icon-sm"
             :aria-label="
               wizard.editingPerSection[sectionId]
                 ? t('common.buttons.done')
@@ -62,7 +62,7 @@
           v-if="wizard.editingPerSection[sectionId]"
           :value="wizard.editedSections.value[sectionId]"
           :rows="textareaRows(wizard.editedSections.value[sectionId])"
-          class="neo-input w-full p-3 text-sm resize-y"
+          class="mg-v2-input w-full p-3 text-sm resize-y"
           :placeholder="t('profile.psychologicalProfile.wizard.review.placeholder')"
           :data-test-textarea="sectionId"
           @input="onSectionInput(sectionId, $event)"
@@ -84,7 +84,7 @@
       <!-- Extras bucket (read-only) -->
       <section
         v-if="wizard.extras.value.trim().length > 0"
-        class="neo-warning rounded-2xl p-4"
+        class="mg-v2-block mg-v2-block--warn p-4"
         data-test-extras
       >
         <header class="flex items-center justify-between gap-2 mb-2 flex-wrap">

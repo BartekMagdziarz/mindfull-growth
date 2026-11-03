@@ -27,7 +27,7 @@
             v-model="worry"
             rows="4"
             :placeholder="t('exerciseWizards.worryTree.capture.placeholder')"
-            class="exercise-field w-full p-3 text-sm resize-none"
+            class="mg-v2-input w-full p-3 text-sm resize-none"
           />
         </AppCard>
 
@@ -265,13 +265,13 @@
             v-model="actionPlan"
             rows="3"
             :placeholder="t('exerciseWizards.worryTree.actionPlan.placeholder')"
-            class="exercise-field w-full p-3 text-sm resize-none"
+            class="mg-v2-input w-full p-3 text-sm resize-none"
           />
           <div class="space-y-1">
             <label class="text-sm font-medium text-on-surface">{{
               t('exerciseWizards.worryTree.actionPlan.whenLabel')
             }}</label>
-            <input v-model="actionDate" type="date" class="exercise-field w-full p-2.5 text-sm" />
+            <input v-model="actionDate" type="date" class="mg-v2-input w-full p-2.5 text-sm" />
           </div>
           <label class="flex items-center gap-3 text-sm text-on-surface cursor-pointer">
             <input v-model="createCommitment" type="checkbox" class="mg-v2-checkbox" />
@@ -314,13 +314,13 @@
             v-model="actionPlan"
             rows="3"
             :placeholder="t('exerciseWizards.worryTree.schedule.placeholder')"
-            class="exercise-field w-full p-3 text-sm resize-none"
+            class="mg-v2-input w-full p-3 text-sm resize-none"
           />
           <div class="space-y-1">
             <label class="text-sm font-medium text-on-surface">{{
               t('exerciseWizards.worryTree.schedule.whenLabel')
             }}</label>
-            <input v-model="actionDate" type="date" class="exercise-field w-full p-2.5 text-sm" />
+            <input v-model="actionDate" type="date" class="mg-v2-input w-full p-2.5 text-sm" />
           </div>
         </AppCard>
 

@@ -45,11 +45,11 @@
       leave-from-class="opacity-100 translate-y-0"
       leave-to-class="opacity-0 -translate-y-2"
     >
-      <div v-if="showCreateForm" class="exercise-block p-4 space-y-3">
+      <div v-if="showCreateForm" class="mg-v2-block p-4 space-y-3">
         <input
           v-model="newPartName"
           type="text"
-          class="exercise-field w-full"
+          class="mg-v2-input w-full"
           :placeholder="t('exerciseWizards.shared.ifs.partSelector.placeholder')"
         />
         <div class="flex flex-wrap gap-2">

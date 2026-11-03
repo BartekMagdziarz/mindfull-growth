@@ -122,20 +122,10 @@
             role="switch"
             :aria-checked="profileContextDefault"
             :aria-label="t('profile.psychologicalProfile.profileContextDefaults.general')"
-            :class="[
-              'neo-toggle-track',
-              profileContextDefault ? 'neo-toggle-track--on' : 'neo-toggle-track--off',
-            ]"
+            class="mg-v2-switch"
             data-test-profile-context-default-toggle
             @click="toggleProfileContextDefault"
-          >
-            <span
-              class="neo-toggle-thumb"
-              :style="{
-                transform: profileContextDefault ? 'translateX(1.25rem)' : 'translateX(0.1rem)',
-              }"
-            />
-          </button>
+          ></button>
         </div>
 
         <!-- Journal default -->
@@ -148,22 +138,10 @@
             role="switch"
             :aria-checked="profileContextDefaultJournal"
             :aria-label="t('profile.psychologicalProfile.profileContextDefaults.journal')"
-            :class="[
-              'neo-toggle-track',
-              profileContextDefaultJournal ? 'neo-toggle-track--on' : 'neo-toggle-track--off',
-            ]"
+            class="mg-v2-switch"
             data-test-profile-context-default-journal-toggle
             @click="toggleProfileContextDefaultJournal"
-          >
-            <span
-              class="neo-toggle-thumb"
-              :style="{
-                transform: profileContextDefaultJournal
-                  ? 'translateX(1.25rem)'
-                  : 'translateX(0.1rem)',
-              }"
-            />
-          </button>
+          ></button>
         </div>
       </div>
     </AppCard>

@@ -91,11 +91,7 @@
 
               <!-- Active parts detail -->
               <div v-if="activeParts.length" class="space-y-3">
-                <div
-                  v-for="ap in activeParts"
-                  :key="ap.partId"
-                  class="exercise-block p-3 space-y-2"
-                >
+                <div v-for="ap in activeParts" :key="ap.partId" class="mg-v2-block p-3 space-y-2">
                   <div class="flex items-center gap-2">
                     <span class="text-sm font-medium text-on-surface">{{
                       getPartName(ap.partId)
@@ -126,7 +122,7 @@
                   <input
                     type="text"
                     :value="ap.triggerNote ?? ''"
-                    class="exercise-field w-full p-2 text-xs"
+                    class="mg-v2-input w-full p-2 text-xs"
                     :placeholder="
                       t('exerciseWizards.dailyCheckIn.practice.weatherReport.triggerPlaceholder')
                     "
@@ -163,10 +159,10 @@
                 :placeholder="
                   t('exerciseWizards.dailyCheckIn.practice.gratitudeToPart.notePlaceholder')
                 "
-                class="exercise-field w-full p-3 text-sm resize-none"
+                class="mg-v2-input w-full p-3 text-sm resize-none"
               />
 
-              <div v-if="gratitudePartId && gratitudeNote.trim()" class="exercise-block p-3">
+              <div v-if="gratitudePartId && gratitudeNote.trim()" class="mg-v2-block p-3">
                 <p class="text-sm text-on-surface-variant italic">
                   "{{
                     t('exerciseWizards.dailyCheckIn.practice.gratitudeToPart.thankYou', {
@@ -207,14 +203,14 @@
 
               <!-- Micro-practice for selected quality -->
               <template v-if="selfEnergyQuality">
-                <div class="exercise-block p-4 space-y-3">
+                <div class="mg-v2-block p-4 space-y-3">
                   <p class="text-sm font-medium text-on-surface">{{ microPracticeLabel }}</p>
                   <p class="text-sm text-on-surface-variant">{{ microPracticePrompt }}</p>
                   <textarea
                     v-model="microPracticeNotes"
                     rows="2"
                     :placeholder="microPracticePlaceholder"
-                    class="exercise-field w-full p-3 text-sm resize-none"
+                    class="mg-v2-input w-full p-3 text-sm resize-none"
                   />
                 </div>
               </template>
@@ -260,11 +256,7 @@
 
               <!-- Active parts detail -->
               <div v-if="activeParts.length" class="space-y-3">
-                <div
-                  v-for="ap in activeParts"
-                  :key="ap.partId"
-                  class="exercise-block p-3 space-y-2"
-                >
+                <div v-for="ap in activeParts" :key="ap.partId" class="mg-v2-block p-3 space-y-2">
                   <div class="flex items-center gap-2">
                     <span class="text-sm font-medium text-on-surface">{{
                       getPartName(ap.partId)
@@ -295,7 +287,7 @@
                   <input
                     type="text"
                     :value="ap.triggerNote ?? ''"
-                    class="exercise-field w-full p-2 text-xs"
+                    class="mg-v2-input w-full p-2 text-xs"
                     :placeholder="
                       t(
                         'exerciseWizards.dailyCheckIn.practice.eveningReflection.triggerPlaceholder'
@@ -337,7 +329,7 @@
                     'exerciseWizards.dailyCheckIn.practice.eveningReflection.reflectionPlaceholder'
                   )
                 "
-                class="exercise-field w-full p-3 text-sm resize-none"
+                class="mg-v2-input w-full p-3 text-sm resize-none"
               />
 
               <!-- Appreciation note -->
@@ -349,7 +341,7 @@
                     'exerciseWizards.dailyCheckIn.practice.eveningReflection.appreciationPlaceholder'
                   )
                 "
-                class="exercise-field w-full p-3 text-sm"
+                class="mg-v2-input w-full p-3 text-sm"
               />
             </AppCard>
           </template>
@@ -382,7 +374,7 @@
             </div>
 
             <!-- Summary -->
-            <div class="exercise-block p-3 space-y-2 text-sm text-on-surface-variant">
+            <div class="mg-v2-block p-3 space-y-2 text-sm text-on-surface-variant">
               <template v-if="practiceType === 'weather-report'">
                 <p v-for="ap in activeParts" :key="ap.partId">
                   <span class="font-medium text-on-surface">{{ getPartName(ap.partId) }}</span>
@@ -479,7 +471,7 @@
               <div class="flex justify-end">
                 <ProfileContextToggle v-model="useProfileWeeklySummary" />
               </div>
-              <div v-if="weeklySummary" class="exercise-block p-4">
+              <div v-if="weeklySummary" class="mg-v2-block p-4">
                 <p class="text-sm text-on-surface whitespace-pre-line">{{ weeklySummary }}</p>
               </div>
             </div>
@@ -499,7 +491,7 @@
               v-model="notes"
               rows="2"
               :placeholder="t('exerciseWizards.dailyCheckIn.summary.notesPlaceholder')"
-              class="exercise-field w-full p-3 text-sm resize-none"
+              class="mg-v2-input w-full p-3 text-sm resize-none"
             />
           </AppCard>
 

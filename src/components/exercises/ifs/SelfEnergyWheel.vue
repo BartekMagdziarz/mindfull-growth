@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col items-center gap-4">
-    <div class="exercise-block p-4">
+    <div class="mg-v2-block p-4">
       <svg :width="svgSize" :height="svgSize" :viewBox="`0 0 ${svgSize} ${svgSize}`" class="block">
         <!-- Background segments -->
         <path
@@ -64,8 +64,8 @@
           class="w-8 h-8 rounded-full transition-all"
           :class="[
             (ratings[selectedQuality] ?? 0) >= n
-              ? 'exercise-block bg-primary/30 text-primary'
-              : 'exercise-block text-on-surface-variant/40',
+              ? 'mg-v2-block bg-primary/30 text-primary'
+              : 'mg-v2-block text-on-surface-variant/40',
           ]"
           @click="setRating(selectedQuality, n)"
         >

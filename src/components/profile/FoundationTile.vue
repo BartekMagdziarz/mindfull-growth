@@ -6,17 +6,15 @@
   -->
   <div
     v-if="showVariantChooser"
-    class="w-full rounded-2xl border p-4 text-left"
+    class="w-full rounded-mg-lg border p-4 text-left"
     :class="tileClass"
     :data-test-foundation-item="status.id"
   >
     <div class="flex items-center justify-between gap-3">
-      <span
-        class="neo-icon-circle flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
-      >
+      <span class="mg-v2-icon-board mg-v2-icon-board--sm">
         <AppIcon :name="iconName" class="text-xl text-primary" />
       </span>
-      <span class="neo-pill px-2.5 py-1 text-xs" :class="pillClass">
+      <span class="mg-v2-pill" :class="pillClass">
         {{ pillLabel }}
       </span>
     </div>
@@ -33,7 +31,7 @@
         v-for="variant in variantOptions"
         :key="variant.assessmentId"
         type="button"
-        class="neo-pill flex flex-col items-start gap-0.5 rounded-xl px-3 py-2 text-left transition-all duration-200 hover:-translate-y-px active:translate-y-0"
+        class="mg-v2-block flex flex-col items-start gap-0.5 px-3 py-2 text-left transition-all duration-200 hover:-translate-y-px active:translate-y-0"
         :aria-label="`${title}: ${variant.label}`"
         @click="
           emit('navigate', { routeName: variant.routeName, routeParams: variant.routeParams })
@@ -49,19 +47,17 @@
   <button
     v-else
     type="button"
-    class="w-full rounded-2xl border p-4 text-left transition-all duration-200 hover:-translate-y-px active:translate-y-0"
+    class="w-full rounded-mg-lg border p-4 text-left transition-all duration-200 hover:-translate-y-px active:translate-y-0"
     :class="tileClass"
     :aria-label="title"
     :data-test-foundation-item="status.id"
     @click="emit('navigate', { routeName: status.routeName, routeParams: status.routeParams })"
   >
     <div class="flex items-center justify-between gap-3">
-      <span
-        class="neo-icon-circle flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
-      >
+      <span class="mg-v2-icon-board mg-v2-icon-board--sm">
         <AppIcon :name="iconName" class="text-xl text-primary" />
       </span>
-      <span class="neo-pill px-2.5 py-1 text-xs" :class="pillClass">
+      <span class="mg-v2-pill" :class="pillClass">
         {{ pillLabel }}
       </span>
     </div>
@@ -194,28 +190,28 @@ const dateLine = computed(() => {
 const tileClass = computed(() => {
   switch (props.status.state) {
     case 'not-started':
-      return 'border-neu-border/30 bg-neu-base shadow-neu-flat'
+      return 'border-neu-border/30 bg-neu-base shadow-mg-raised-sm'
     case 'in-progress':
-      return 'border-primary/30 bg-primary/10 shadow-neu-raised-sm'
+      return 'border-primary/30 bg-primary/10 shadow-mg-raised-sm'
     case 'outdated':
-      return 'border-status-warn/40 bg-status-warn-soft/40 shadow-neu-raised-sm'
+      return 'border-status-warn/40 bg-status-warn-soft/40 shadow-mg-raised-sm'
     case 'completed':
     default:
-      return 'border-neu-border/30 bg-neu-base shadow-neu-raised-sm'
+      return 'border-neu-border/30 bg-neu-base shadow-mg-raised-sm'
   }
 })
 
 const pillClass = computed(() => {
   switch (props.status.state) {
     case 'in-progress':
-      return 'border-primary/30 bg-primary/10 text-primary-strong'
+      return 'mg-v2-pill--primary'
     case 'completed':
-      return 'neo-pill--success'
+      return 'mg-v2-pill--success'
     case 'outdated':
-      return 'border-status-warn/40 bg-status-warn-soft/70 text-status-warn-on'
+      return 'mg-v2-pill--warning'
     case 'not-started':
     default:
-      return 'text-on-surface-variant'
+      return ''
   }
 })
 </script>

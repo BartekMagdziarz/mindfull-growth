@@ -2,9 +2,9 @@
   <div class="space-y-4">
     <!-- Loading skeleton -->
     <div v-if="isLoading" class="space-y-3" aria-live="polite">
-      <div v-for="i in 3" :key="i" class="neo-surface rounded-2xl p-4 animate-pulse">
-        <div class="h-4 w-1/3 bg-neu-base rounded mb-2" />
-        <div class="h-3 w-2/3 bg-neu-base rounded" />
+      <div v-for="i in 3" :key="i" class="mg-v2-block p-4 animate-pulse">
+        <div class="h-4 w-1/3 bg-neu-base rounded-mg-xs mb-2" />
+        <div class="h-3 w-2/3 bg-neu-base rounded-mg-xs" />
       </div>
     </div>
 
@@ -12,7 +12,7 @@
       <!-- Error banner -->
       <div
         v-if="error"
-        class="neo-surface rounded-2xl p-3 border border-status-bad/30 bg-status-bad-soft/40 text-sm text-status-bad-on"
+        class="mg-v2-block p-3 border border-status-bad/30 bg-status-bad-soft/40 text-sm text-status-bad-on"
         role="alert"
       >
         {{ error }}
@@ -28,13 +28,13 @@
         </p>
 
         <div class="mt-3 grid grid-cols-2 gap-3">
-          <div class="neo-surface rounded-2xl p-3">
+          <div class="mg-v2-block p-3">
             <p class="text-xs text-on-surface-variant uppercase tracking-wide">
               {{ t('profile.psychologicalProfile.wizard.preview.dateRange') }}
             </p>
             <p class="text-sm text-on-surface mt-1">{{ dateRangeSummary }}</p>
           </div>
-          <div class="neo-surface rounded-2xl p-3">
+          <div class="mg-v2-block p-3">
             <p class="text-xs text-on-surface-variant uppercase tracking-wide">
               {{ t('profile.psychologicalProfile.wizard.preview.totalItems') }}
             </p>
@@ -54,7 +54,7 @@
       <!-- Token warning -->
       <div
         v-if="showTokenWarning"
-        class="neo-surface rounded-2xl p-3 border border-status-warn/30 bg-status-warn-soft/40 text-sm text-status-warn-on"
+        class="mg-v2-block p-3 border border-status-warn/30 bg-status-warn-soft/40 text-sm text-status-warn-on"
         role="status"
       >
         {{ t('profile.psychologicalProfile.wizard.preview.tokenWarning') }}
@@ -63,7 +63,7 @@
       <!-- Trimmed-to-fit notice -->
       <div
         v-if="droppedTotal > 0"
-        class="neo-surface rounded-2xl p-3 text-sm text-on-surface-variant"
+        class="mg-v2-block p-3 text-sm text-on-surface-variant"
         role="status"
         data-test="trimmed-notice"
       >
@@ -78,7 +78,7 @@
       <!-- Summarized-history notice (older periods as digests) -->
       <div
         v-if="(summarizedPeriods ?? 0) > 0"
-        class="neo-surface rounded-2xl p-3 text-sm text-on-surface-variant"
+        class="mg-v2-block p-3 text-sm text-on-surface-variant"
         role="status"
         data-test="summarized-notice"
       >
@@ -94,7 +94,7 @@
         <div
           v-for="type in activeTypes"
           :key="type"
-          class="neo-surface rounded-2xl p-3"
+          class="mg-v2-block p-3"
           :data-test-count-type="type"
         >
           <p class="text-xs text-on-surface-variant">
@@ -107,7 +107,7 @@
       </div>
 
       <!-- Token breakdown (per-type × age) -->
-      <details v-if="hasBreakdown" class="neo-surface rounded-2xl" data-test="token-breakdown">
+      <details v-if="hasBreakdown" class="mg-v2-block" data-test="token-breakdown">
         <summary class="cursor-pointer p-3 text-sm font-medium text-on-surface">
           {{ t('profile.psychologicalProfile.wizard.preview.breakdown.title') }}
         </summary>
@@ -120,7 +120,7 @@
               <div
                 v-for="item in breakdownByType"
                 :key="item.type"
-                class="neo-surface rounded-xl p-2"
+                class="mg-v2-block p-2"
                 :data-test-tokens-type="item.type"
               >
                 <div class="text-xs text-on-surface-variant">
@@ -140,7 +140,7 @@
               <div
                 v-for="bucket in breakdownByAge"
                 :key="bucket.key"
-                class="neo-surface rounded-xl p-2"
+                class="mg-v2-block p-2"
                 :data-test-tokens-age="bucket.key"
               >
                 <div class="text-xs text-on-surface-variant">
@@ -158,14 +158,14 @@
       </details>
 
       <!-- Empty state -->
-      <div v-if="totalCount === 0 && !error" class="neo-surface rounded-2xl p-6 text-center">
+      <div v-if="totalCount === 0 && !error" class="mg-v2-block p-6 text-center">
         <p class="text-sm text-on-surface-variant">
           {{ t('profile.psychologicalProfile.wizard.preview.emptyState') }}
         </p>
       </div>
 
       <!-- Source list -->
-      <details v-if="headers.length > 0" class="neo-surface rounded-2xl">
+      <details v-if="headers.length > 0" class="mg-v2-block">
         <summary class="cursor-pointer p-3 text-sm font-medium text-on-surface">
           {{ t('profile.psychologicalProfile.wizard.preview.sourceList') }}
           ({{ headers.length }})
@@ -176,7 +176,7 @@
             :key="`${h.type}-${h.id}`"
             class="flex items-center gap-2 text-xs text-on-surface-variant"
           >
-            <span class="neo-pill px-2 py-0.5 text-[10px] uppercase tracking-wide">
+            <span class="mg-v2-badge uppercase tracking-wide">
               {{ t(`profile.psychologicalProfile.wizard.preview.counts.${h.type}`) }}
             </span>
             <span class="flex-1 min-w-0 truncate text-on-surface">{{ h.title }}</span>

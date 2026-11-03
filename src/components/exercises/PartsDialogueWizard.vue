@@ -74,7 +74,7 @@
               v-model="intention"
               rows="3"
               :placeholder="t('exerciseWizards.partsDialogue.intention.placeholder')"
-              class="exercise-field w-full p-3 text-sm resize-none"
+              class="mg-v2-input w-full p-3 text-sm resize-none"
             />
 
             <!-- Magic question: who is about to write — Self or another part? -->
@@ -138,8 +138,8 @@
                 class="flex-1 rounded-mg-md py-2 text-sm font-medium transition-all"
                 :class="
                   currentSpeaker === 'self'
-                    ? 'exercise-block bg-primary/10 text-primary'
-                    : 'exercise-block text-on-surface-variant hover:-translate-y-px'
+                    ? 'mg-v2-block bg-primary/10 text-primary'
+                    : 'mg-v2-block text-on-surface-variant hover:-translate-y-px'
                 "
                 @click="currentSpeaker = 'self'"
               >
@@ -149,7 +149,7 @@
                 class="flex-1 rounded-mg-md py-2 text-sm font-medium transition-all"
                 :class="
                   currentSpeaker === 'part'
-                    ? 'exercise-block text-on-surface' +
+                    ? 'mg-v2-block text-on-surface' +
                       (selectedPartRole === 'manager'
                         ? ' bg-ifs-manager-soft'
                         : selectedPartRole === 'firefighter'
@@ -157,7 +157,7 @@
                           : selectedPartRole === 'exile'
                             ? ' bg-ifs-exile-soft'
                             : ' bg-neu-base')
-                    : 'exercise-block text-on-surface-variant hover:-translate-y-px'
+                    : 'mg-v2-block text-on-surface-variant hover:-translate-y-px'
                 "
                 @click="currentSpeaker = 'part'"
               >
@@ -215,7 +215,7 @@
                         partName: selectedPartName,
                       })
                 "
-                class="exercise-field w-full p-3 text-sm resize-none"
+                class="mg-v2-input w-full p-3 text-sm resize-none"
                 @keydown.enter.exact.prevent="handleAddMessage"
               />
               <AppButton
@@ -251,7 +251,7 @@
               leave-active-class="transition-all duration-150"
               leave-to-class="opacity-0 -translate-y-2"
             >
-              <div v-if="llmSuggestion" class="exercise-block p-4 space-y-3">
+              <div v-if="llmSuggestion" class="mg-v2-block p-4 space-y-3">
                 <p class="text-xs font-medium text-on-surface-variant">
                   {{
                     t('exerciseWizards.partsDialogue.dialogue.partMightSay', {
@@ -262,7 +262,7 @@
                 <textarea
                   v-model="editableSuggestion"
                   rows="3"
-                  class="exercise-field w-full p-3 text-sm resize-none"
+                  class="mg-v2-input w-full p-3 text-sm resize-none"
                 />
                 <div class="flex gap-2 justify-end">
                   <AppButton variant="text" @click="discardSuggestion()">{{
@@ -319,7 +319,7 @@
               leave-active-class="transition-all duration-150"
               leave-to-class="opacity-0 -translate-y-2"
             >
-              <div v-if="showInsightForm" class="exercise-block p-4 space-y-3">
+              <div v-if="showInsightForm" class="mg-v2-block p-4 space-y-3">
                 <h3 class="text-sm font-semibold text-on-surface">
                   {{ t('exerciseWizards.partsDialogue.insights.tagThisMoment') }}
                 </h3>
@@ -327,7 +327,7 @@
                   v-model="insightContent"
                   rows="2"
                   :placeholder="tg('exerciseWizards.partsDialogue.insights.whatDidYouNotice')"
-                  class="exercise-field w-full p-3 text-sm resize-none"
+                  class="mg-v2-input w-full p-3 text-sm resize-none"
                 />
                 <div class="flex flex-wrap gap-2">
                   <button
@@ -401,7 +401,7 @@
                 <PartRoleBadge v-if="selectedPartRole" :role="selectedPartRole" />
               </div>
 
-              <div class="exercise-block p-3 grid grid-cols-3 gap-3">
+              <div class="mg-v2-block p-3 grid grid-cols-3 gap-3">
                 <div>
                   <p class="text-xs text-on-surface-variant">
                     {{ t('exerciseWizards.partsDialogue.summary.sections.messages') }}
@@ -447,7 +447,7 @@
                 v-model="summary"
                 rows="3"
                 :placeholder="t('exerciseWizards.partsDialogue.summary.summaryPlaceholder')"
-                class="exercise-field w-full p-3 text-sm resize-none"
+                class="mg-v2-input w-full p-3 text-sm resize-none"
               />
             </div>
 
@@ -459,7 +459,7 @@
                 v-model="notes"
                 rows="2"
                 :placeholder="t('exerciseWizards.partsDialogue.summary.notesPlaceholder')"
-                class="exercise-field w-full p-3 text-sm resize-none"
+                class="mg-v2-input w-full p-3 text-sm resize-none"
               />
             </div>
           </AppCard>

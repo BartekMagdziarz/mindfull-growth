@@ -24,7 +24,7 @@
               v-model="person.name"
               type="text"
               :placeholder="t('exerciseWizards.valuesDiscovery.admirablePeople.namePlaceholder')"
-              class="exercise-field flex-1 p-2"
+              class="mg-v2-input flex-1 p-2"
             />
             <button
               type="button"
@@ -48,7 +48,7 @@
                 :placeholder="
                   t('exerciseWizards.valuesDiscovery.admirablePeople.qualityPlaceholder')
                 "
-                class="exercise-field flex-1 p-1.5 text-sm"
+                class="mg-v2-input flex-1 p-1.5 text-sm"
                 @input="person.qualities[qi] = ($event.target as HTMLInputElement).value"
               />
               <button
@@ -127,7 +127,7 @@
               :value="value"
               type="text"
               :placeholder="t('exerciseWizards.valuesDiscovery.coreValues.valuePlaceholder')"
-              class="exercise-field flex-1 p-2"
+              class="mg-v2-input flex-1 p-2"
               @input="draft.coreValues[index] = ($event.target as HTMLInputElement).value"
             />
             <button
@@ -156,7 +156,7 @@
             v-model="draft.notes"
             rows="3"
             :placeholder="tg('exerciseWizards.valuesDiscovery.coreValues.reflectionPlaceholder')"
-            class="exercise-field w-full p-3 text-sm resize-none"
+            class="mg-v2-input w-full p-3 text-sm resize-none"
           />
         </div>
       </AppCard>

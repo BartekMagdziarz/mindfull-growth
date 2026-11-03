@@ -23,7 +23,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.behavioralExperiment.intro.description') }}
           </p>
-          <div class="exercise-block p-4 space-y-3">
+          <div class="mg-v2-block p-4 space-y-3">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('exerciseWizards.behavioralExperiment.intro.howItWorks') }}
             </p>
@@ -86,7 +86,7 @@
             v-model="targetBelief"
             rows="3"
             :placeholder="t('exerciseWizards.behavioralExperiment.belief.placeholder')"
-            class="exercise-field w-full p-3 text-sm resize-none"
+            class="mg-v2-input w-full p-3 text-sm resize-none"
           />
           <div class="space-y-2">
             <label class="text-sm font-medium text-on-surface">
@@ -145,7 +145,7 @@
             v-model="prediction"
             rows="3"
             :placeholder="t('exerciseWizards.behavioralExperiment.prediction.placeholder')"
-            class="exercise-field w-full p-3 text-sm resize-none"
+            class="mg-v2-input w-full p-3 text-sm resize-none"
           />
           <div class="space-y-2">
             <label class="text-sm font-medium text-on-surface">
@@ -206,17 +206,13 @@
             v-model="experimentDesign"
             rows="4"
             :placeholder="t('exerciseWizards.behavioralExperiment.design.placeholder')"
-            class="exercise-field w-full p-3 text-sm resize-none"
+            class="mg-v2-input w-full p-3 text-sm resize-none"
           />
           <div class="space-y-1">
             <label class="text-xs font-medium text-on-surface-variant">
               {{ t('exerciseWizards.behavioralExperiment.design.whenLabel') }}
             </label>
-            <input
-              v-model="experimentWhen"
-              type="date"
-              class="exercise-field w-full p-2.5 text-sm"
-            />
+            <input v-model="experimentWhen" type="date" class="mg-v2-input w-full p-2.5 text-sm" />
           </div>
 
           <!-- LLM Assist -->
@@ -236,7 +232,7 @@
               </AppButton>
               <ProfileContextToggle v-model="useProfileDesign" />
             </div>
-            <div v-if="designSuggestion" class="exercise-block p-4 space-y-2">
+            <div v-if="designSuggestion" class="mg-v2-block p-4 space-y-2">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                 {{ t('exerciseWizards.behavioralExperiment.design.suggestedExperiment') }}
               </p>
@@ -287,7 +283,7 @@
                 :value="behavior"
                 type="text"
                 :placeholder="t('exerciseWizards.behavioralExperiment.safety.placeholder')"
-                class="exercise-field flex-1 p-2 text-sm"
+                class="mg-v2-input flex-1 p-2 text-sm"
                 @input="safetyBehaviors[index] = ($event.target as HTMLInputElement).value"
               />
               <button
@@ -346,7 +342,7 @@
           </p>
 
           <!-- Prediction reminder -->
-          <div class="exercise-block p-3">
+          <div class="mg-v2-block p-3">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-1">
               {{ t('exerciseWizards.behavioralExperiment.outcome.predictionLabel') }}
             </p>
@@ -357,7 +353,7 @@
             v-model="outcome"
             rows="4"
             :placeholder="t('exerciseWizards.behavioralExperiment.outcome.placeholder')"
-            class="exercise-field w-full p-3 text-sm resize-none"
+            class="mg-v2-input w-full p-3 text-sm resize-none"
           />
         </AppCard>
 
@@ -373,7 +369,7 @@
             v-model="whatLearned"
             rows="3"
             :placeholder="tg('exerciseWizards.behavioralExperiment.outcome.learnedPlaceholder')"
-            class="exercise-field w-full p-3 text-sm resize-none"
+            class="mg-v2-input w-full p-3 text-sm resize-none"
           />
         </AppCard>
 
@@ -381,7 +377,7 @@
           <h2 class="text-lg font-semibold text-on-surface">
             {{ t('exerciseWizards.behavioralExperiment.outcome.rerateTitle') }}
           </h2>
-          <div class="exercise-block p-3">
+          <div class="mg-v2-block p-3">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-1">
               {{ t('exerciseWizards.behavioralExperiment.outcome.targetBeliefLabel') }}
             </p>

@@ -23,7 +23,7 @@
             </div>
             <p
               v-if="assessment.scope === 'partial'"
-              class="mt-0.5 text-xs leading-tight text-on-surface-variant"
+              class="mt-0.5 text-mg-xs leading-tight text-on-surface-variant"
             >
               {{ t('exerciseWizards.wheelOfLife.timeline.partialHint') }}
             </p>
@@ -31,14 +31,14 @@
           <div class="flex shrink-0 items-center gap-1">
             <button
               type="button"
-              class="rounded-mg-sm px-2 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary-soft"
+              class="rounded-mg-sm px-2 py-1 text-mg-xs font-medium text-primary transition-colors hover:bg-primary-soft"
               @click="$emit('edit', assessment.id)"
             >
               {{ t('exerciseWizards.wheelOfLife.timeline.editSelected') }}
             </button>
             <button
               type="button"
-              class="rounded-mg-sm px-2 py-1 text-xs font-medium text-error transition-colors hover:bg-error/10"
+              class="rounded-mg-sm px-2 py-1 text-mg-xs font-medium text-error transition-colors hover:bg-error/10"
               @click="$emit('delete', assessment.id)"
             >
               {{ t('common.buttons.delete') }}

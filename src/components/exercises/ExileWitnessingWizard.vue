@@ -200,7 +200,7 @@
                 min="1"
                 max="100"
                 :placeholder="t('exerciseWizards.exileWitnessing.approach.feltAgePlaceholder')"
-                class="exercise-field w-24 p-2 text-sm"
+                class="mg-v2-input w-24 p-2 text-sm"
               />
             </div>
 
@@ -249,7 +249,7 @@
 
             <div class="space-y-3">
               <button
-                class="w-full exercise-block p-4 text-left transition-all hover:-translate-y-px"
+                class="w-full mg-v2-block p-4 text-left transition-all hover:-translate-y-px"
                 :class="
                   selfCheckPassed === true ? 'exercise-option--active ring-2 ring-primary' : ''
                 "
@@ -263,7 +263,7 @@
                 </div>
               </button>
               <button
-                class="w-full exercise-block p-4 text-left transition-all hover:-translate-y-px"
+                class="w-full mg-v2-block p-4 text-left transition-all hover:-translate-y-px"
                 :class="selfCheckReactive ? 'ring-2 ring-status-warn' : ''"
                 @click="markSelfCheckReactive"
               >
@@ -282,7 +282,7 @@
             >
               <div
                 v-if="selfCheckReactive"
-                class="exercise-block p-6 flex flex-col items-center gap-4"
+                class="mg-v2-block p-6 flex flex-col items-center gap-4"
               >
                 <div
                   class="breathing-circle breathing-10s w-20 h-20 rounded-full bg-primary/10 border-2 border-primary/30"
@@ -295,7 +295,7 @@
                 </p>
                 <div class="w-full space-y-2">
                   <button
-                    class="w-full exercise-block p-4 text-left transition-all hover:-translate-y-px"
+                    class="w-full mg-v2-block p-4 text-left transition-all hover:-translate-y-px"
                     @click="confirmSelfCheckAndContinue"
                   >
                     <div class="flex items-center gap-3">
@@ -306,7 +306,7 @@
                     </div>
                   </button>
                   <button
-                    class="w-full exercise-block p-4 text-left transition-all hover:-translate-y-px"
+                    class="w-full mg-v2-block p-4 text-left transition-all hover:-translate-y-px"
                     @click="leaveForToday()"
                   >
                     <div class="flex items-center gap-3">
@@ -353,14 +353,14 @@
               v-model="exileMessage"
               rows="3"
               :placeholder="tg('exerciseWizards.exileWitnessing.witness.messagePlaceholder')"
-              class="exercise-field w-full p-3 text-sm resize-none"
+              class="mg-v2-input w-full p-3 text-sm resize-none"
             />
 
             <textarea
               v-model="exileBelief"
               rows="3"
               :placeholder="t('exerciseWizards.exileWitnessing.witness.beliefPlaceholder')"
-              class="exercise-field w-full p-3 text-sm resize-none"
+              class="mg-v2-input w-full p-3 text-sm resize-none"
             />
             <p class="text-xs text-on-surface-variant">
               {{ t('exerciseWizards.exileWitnessing.witness.beliefNote') }}
@@ -404,7 +404,7 @@
               v-model="compassionMessage"
               rows="4"
               :placeholder="t('exerciseWizards.exileWitnessing.compassion.placeholder')"
-              class="exercise-field w-full p-3 text-sm resize-none"
+              class="mg-v2-input w-full p-3 text-sm resize-none"
             />
 
             <!-- Settling pause -->
@@ -482,7 +482,7 @@
                 v-model="promise"
                 rows="2"
                 :placeholder="t('exerciseWizards.exileWitnessing.closing.promisePlaceholder')"
-                class="exercise-field w-full p-3 text-sm resize-none"
+                class="mg-v2-input w-full p-3 text-sm resize-none"
               />
             </div>
 
@@ -518,7 +518,7 @@
             <IFSSafetyBanner />
 
             <!-- Summary -->
-            <div class="exercise-block p-4 space-y-3 text-sm">
+            <div class="mg-v2-block p-4 space-y-3 text-sm">
               <div class="flex items-center gap-2">
                 <span class="text-on-surface-variant">{{
                   t('exerciseWizards.exileWitnessing.reflection.exileLabel')
@@ -610,14 +610,14 @@
               v-model="reflection"
               rows="3"
               :placeholder="t('exerciseWizards.exileWitnessing.reflection.reflectionPlaceholder')"
-              class="exercise-field w-full p-3 text-sm resize-none"
+              class="mg-v2-input w-full p-3 text-sm resize-none"
             />
 
             <textarea
               v-model="notes"
               rows="2"
               :placeholder="t('exerciseWizards.exileWitnessing.reflection.notesPlaceholder')"
-              class="exercise-field w-full p-3 text-sm resize-none"
+              class="mg-v2-input w-full p-3 text-sm resize-none"
             />
           </AppCard>
 

@@ -116,7 +116,7 @@
     </svg>
 
     <!-- Selected event detail panel -->
-    <div v-if="selectedEvent" class="exercise-block p-4 mt-3">
+    <div v-if="selectedEvent" class="mg-v2-block p-4 mt-3">
       <div class="flex items-center gap-2 mb-2">
         <span
           class="exercise-pill text-xs"

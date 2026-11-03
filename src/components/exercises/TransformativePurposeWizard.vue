@@ -24,7 +24,7 @@
               :value="item"
               type="text"
               :placeholder="t('exerciseWizards.transformativePurpose.curiosities.placeholder')"
-              class="exercise-field flex-1 p-2"
+              class="mg-v2-input flex-1 p-2"
               @input="draft.curiosities[index] = ($event.target as HTMLInputElement).value"
             />
           </div>
@@ -61,7 +61,7 @@
           v-model="draft.intersection"
           rows="3"
           :placeholder="t('exerciseWizards.transformativePurpose.intersection.placeholder')"
-          class="exercise-field w-full p-3 text-sm resize-none"
+          class="mg-v2-input w-full p-3 text-sm resize-none"
         />
       </AppCard>
       <div class="flex justify-between">
@@ -91,7 +91,7 @@
               :value="item"
               type="text"
               :placeholder="t('exerciseWizards.transformativePurpose.problems.placeholder')"
-              class="exercise-field flex-1 p-2"
+              class="mg-v2-input flex-1 p-2"
               @input="draft.problems[index] = ($event.target as HTMLInputElement).value"
             />
           </div>
@@ -121,7 +121,7 @@
           v-model="draft.purposeStatement"
           rows="3"
           :placeholder="t('exerciseWizards.transformativePurpose.purpose.placeholder')"
-          class="exercise-field w-full p-3 text-sm resize-none"
+          class="mg-v2-input w-full p-3 text-sm resize-none"
         />
 
         <div class="space-y-2 pt-2">
@@ -132,7 +132,7 @@
             v-model="draft.notes"
             rows="3"
             :placeholder="t('exerciseWizards.transformativePurpose.purpose.reflectionPlaceholder')"
-            class="exercise-field w-full p-3 text-sm resize-none"
+            class="mg-v2-input w-full p-3 text-sm resize-none"
           />
         </div>
       </AppCard>

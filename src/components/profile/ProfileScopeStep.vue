@@ -12,12 +12,12 @@
         <label
           v-for="type in PROFILE_DATA_TYPES"
           :key="type"
-          class="neo-surface rounded-2xl p-3 flex items-center gap-3 cursor-pointer"
+          class="mg-v2-block p-3 flex items-center gap-3 cursor-pointer"
           :class="{ 'opacity-70': !isTypeEnabled(type) }"
         >
           <input
             type="checkbox"
-            class="neo-checkbox"
+            class="mg-v2-checkbox"
             :checked="isTypeEnabled(type)"
             :data-test-type="type"
             @change="toggleType(type)"
@@ -73,7 +73,7 @@
           </span>
           <input
             type="date"
-            class="neo-input w-full p-3 text-sm"
+            class="mg-v2-input w-full p-3 text-sm"
             :value="customStart"
             data-test-custom-start
             @input="updateCustomStart(($event.target as HTMLInputElement).value)"
@@ -85,7 +85,7 @@
           </span>
           <input
             type="date"
-            class="neo-input w-full p-3 text-sm"
+            class="mg-v2-input w-full p-3 text-sm"
             :value="customEnd"
             data-test-custom-end
             @input="updateCustomEnd(($event.target as HTMLInputElement).value)"
@@ -95,7 +95,7 @@
     </section>
 
     <!-- Filters (optional, collapsed by default) -->
-    <details class="neo-surface rounded-2xl">
+    <details class="mg-v2-block">
       <summary class="cursor-pointer p-3 text-sm font-medium text-on-surface">
         {{ t('profile.psychologicalProfile.wizard.scope.filters.title') }}
       </summary>

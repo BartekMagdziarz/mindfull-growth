@@ -22,7 +22,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.threePathways.intro.description') }}
           </p>
-          <div class="exercise-block p-4 space-y-3">
+          <div class="mg-v2-block p-4 space-y-3">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('exerciseWizards.threePathways.intro.pathwaysTitle') }}
             </p>
@@ -62,7 +62,7 @@
               </div>
             </div>
           </div>
-          <div class="exercise-block p-3">
+          <div class="mg-v2-block p-3">
             <p class="text-xs text-on-surface-variant italic">
               {{ t('exerciseWizards.threePathways.intro.quote') }}
             </p>
@@ -105,7 +105,7 @@
           <div
             v-for="(item, index) in creativeValues"
             :key="index"
-            class="space-y-2 exercise-block p-3"
+            class="space-y-2 mg-v2-block p-3"
           >
             <div class="flex items-start gap-2">
               <span class="text-xs font-semibold text-on-surface-variant mt-2"
@@ -115,7 +115,7 @@
                 <textarea
                   v-model="item.description"
                   :placeholder="t('exerciseWizards.threePathways.creative.placeholder')"
-                  class="exercise-field w-full p-3 text-sm resize-none"
+                  class="mg-v2-input w-full p-3 text-sm resize-none"
                   rows="2"
                 />
                 <RatingSlider
@@ -124,7 +124,7 @@
                   :min="1"
                   :max="5"
                 />
-                <select v-model="item.lifeAreaId" class="exercise-field w-full p-2 text-sm">
+                <select v-model="item.lifeAreaId" class="mg-v2-input w-full p-2 text-sm">
                   <option value="">
                     {{ t('exerciseWizards.threePathways.creative.lifeAreaSelect') }}
                   </option>
@@ -185,7 +185,7 @@
           <div
             v-for="(item, index) in experientialValues"
             :key="index"
-            class="space-y-2 exercise-block p-3"
+            class="space-y-2 mg-v2-block p-3"
           >
             <div class="flex items-start gap-2">
               <span class="text-xs font-semibold text-on-surface-variant mt-2"
@@ -195,7 +195,7 @@
                 <textarea
                   v-model="item.description"
                   :placeholder="t('exerciseWizards.threePathways.experiential.placeholder')"
-                  class="exercise-field w-full p-3 text-sm resize-none"
+                  class="mg-v2-input w-full p-3 text-sm resize-none"
                   rows="2"
                 />
                 <RatingSlider
@@ -204,7 +204,7 @@
                   :min="1"
                   :max="5"
                 />
-                <select v-model="item.lifeAreaId" class="exercise-field w-full p-2 text-sm">
+                <select v-model="item.lifeAreaId" class="mg-v2-input w-full p-2 text-sm">
                   <option value="">
                     {{ t('exerciseWizards.threePathways.experiential.lifeAreaSelect') }}
                   </option>
@@ -267,7 +267,7 @@
           <div
             v-for="(item, index) in attitudinalValues"
             :key="index"
-            class="space-y-2 exercise-block p-3"
+            class="space-y-2 mg-v2-block p-3"
           >
             <div class="flex items-start gap-2">
               <span class="text-xs font-semibold text-on-surface-variant mt-2"
@@ -277,7 +277,7 @@
                 <textarea
                   v-model="item.description"
                   :placeholder="t('exerciseWizards.threePathways.attitudinal.placeholder')"
-                  class="exercise-field w-full p-3 text-sm resize-none"
+                  class="mg-v2-input w-full p-3 text-sm resize-none"
                   rows="2"
                 />
                 <RatingSlider
@@ -286,7 +286,7 @@
                   :min="1"
                   :max="5"
                 />
-                <select v-model="item.lifeAreaId" class="exercise-field w-full p-2 text-sm">
+                <select v-model="item.lifeAreaId" class="mg-v2-input w-full p-2 text-sm">
                   <option value="">
                     {{ t('exerciseWizards.threePathways.attitudinal.lifeAreaSelect') }}
                   </option>
@@ -354,7 +354,7 @@
 
           <!-- Three-column summary -->
           <div class="grid grid-cols-3 gap-3">
-            <div class="exercise-block p-3">
+            <div class="mg-v2-block p-3">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-2">
                 {{ t('exerciseWizards.threePathways.synthesis.columnCreative') }}
               </p>
@@ -369,7 +369,7 @@
                 </li>
               </ul>
             </div>
-            <div class="exercise-block p-3">
+            <div class="mg-v2-block p-3">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-2">
                 {{ t('exerciseWizards.threePathways.synthesis.columnExperiential') }}
               </p>
@@ -384,7 +384,7 @@
                 </li>
               </ul>
             </div>
-            <div class="exercise-block p-3">
+            <div class="mg-v2-block p-3">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-2">
                 {{ t('exerciseWizards.threePathways.synthesis.columnAttitudinal') }}
               </p>
@@ -413,7 +413,7 @@
             <div v-if="isLlmLoading" class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.threePathways.synthesis.thinking') }}
             </div>
-            <div v-if="llmResponse" class="exercise-block p-4">
+            <div v-if="llmResponse" class="mg-v2-block p-4">
               <p class="text-sm text-on-surface whitespace-pre-wrap">{{ llmResponse }}</p>
             </div>
             <AiErrorNote v-if="llmError" :error="llmError" />
@@ -533,7 +533,7 @@
             <textarea
               v-model="notes"
               :placeholder="t('exerciseWizards.threePathways.summary.notesPlaceholder')"
-              class="exercise-field w-full p-3 text-sm resize-none mt-1"
+              class="mg-v2-input w-full p-3 text-sm resize-none mt-1"
               rows="3"
             />
           </div>

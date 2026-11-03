@@ -3,7 +3,7 @@
     <!-- In-flight -->
     <section
       v-if="state === 'in-flight'"
-      class="neo-surface rounded-3xl p-8 flex flex-col items-center text-center"
+      class="mg-v2-block p-8 flex flex-col items-center text-center"
       data-test-generate-state="in-flight"
     >
       <div class="relative flex items-center justify-center mb-5">
@@ -24,7 +24,7 @@
     <!-- Error: missing API key -->
     <section
       v-else-if="state === 'error' && errorCode === 'missingApiKey'"
-      class="neo-surface rounded-3xl p-6 space-y-4"
+      class="mg-v2-block p-6 space-y-4"
       data-test-generate-state="missing-api-key"
     >
       <div class="flex items-start gap-3">
@@ -46,7 +46,7 @@
     <!-- Error: scope too large for the (local) model context -->
     <section
       v-else-if="state === 'error' && errorCode === 'contextTooLarge'"
-      class="neo-surface rounded-3xl p-6 space-y-4"
+      class="mg-v2-block p-6 space-y-4"
       data-test-generate-state="context-too-large"
     >
       <div class="flex items-start gap-3">
@@ -68,7 +68,7 @@
     <!-- Error: model returned an empty / unusable response -->
     <section
       v-else-if="state === 'error' && errorCode === 'emptyResponse'"
-      class="neo-surface rounded-3xl p-6 space-y-4"
+      class="mg-v2-block p-6 space-y-4"
       data-test-generate-state="empty-response"
     >
       <div class="flex items-start gap-3">
@@ -90,7 +90,7 @@
     <!-- Error: generic -->
     <section
       v-else-if="state === 'error'"
-      class="neo-surface rounded-3xl p-6 space-y-4"
+      class="mg-v2-block p-6 space-y-4"
       data-test-generate-state="error"
     >
       <div class="flex items-start gap-3">
@@ -112,7 +112,7 @@
     <!-- Success placeholder (transient — the view usually auto-advances) -->
     <section
       v-else-if="state === 'success'"
-      class="neo-surface rounded-3xl p-8 flex flex-col items-center text-center"
+      class="mg-v2-block p-8 flex flex-col items-center text-center"
       data-test-generate-state="success"
     >
       <AppIcon name="check_circle" class="text-4xl text-primary mb-3" />
@@ -122,7 +122,7 @@
     </section>
 
     <!-- Idle (should rarely render — the view flips us to in-flight immediately) -->
-    <section v-else class="neo-surface rounded-3xl p-8 text-center" data-test-generate-state="idle">
+    <section v-else class="mg-v2-block p-8 text-center" data-test-generate-state="idle">
       <p class="text-sm text-on-surface-variant">
         {{ t('profile.psychologicalProfile.wizard.generate.inFlight') }}
       </p>

@@ -22,7 +22,7 @@
               {{ t('exerciseWizards.protectorAppreciation.selectProtector.description') }}
             </p>
 
-            <div v-if="!protectorParts.length" class="exercise-block p-4">
+            <div v-if="!protectorParts.length" class="mg-v2-block p-4">
               <p
                 class="text-sm text-on-surface-variant"
                 v-html="t('exerciseWizards.protectorAppreciation.selectProtector.emptyState')"
@@ -72,7 +72,7 @@
                 :placeholder="
                   t('exerciseWizards.protectorAppreciation.understandJob.triggersPlaceholder')
                 "
-                class="exercise-field w-full p-3 text-sm resize-none"
+                class="mg-v2-input w-full p-3 text-sm resize-none"
               />
             </div>
 
@@ -86,7 +86,7 @@
                 :placeholder="
                   t('exerciseWizards.protectorAppreciation.understandJob.fearPlaceholder')
                 "
-                class="exercise-field w-full p-3 text-sm resize-none"
+                class="mg-v2-input w-full p-3 text-sm resize-none"
               />
             </div>
 
@@ -117,7 +117,7 @@
                 <input
                   v-model="customBehaviorInput"
                   type="text"
-                  class="exercise-field flex-1 text-sm"
+                  class="mg-v2-input flex-1 text-sm"
                   :placeholder="
                     t(
                       'exerciseWizards.protectorAppreciation.understandJob.customBehaviorPlaceholder'
@@ -209,7 +209,7 @@
                   partName: selectedPartName,
                 })
               "
-              class="exercise-field w-full p-3 text-sm resize-none"
+              class="mg-v2-input w-full p-3 text-sm resize-none"
             />
           </AppCard>
 
@@ -244,7 +244,7 @@
               </p>
               <ExerciseStepWhy :text="tg('exerciseWizards.protectorAppreciation.response.why')" />
               <button
-                class="w-full exercise-block p-4 text-left transition-all hover:-translate-y-px"
+                class="w-full mg-v2-block p-4 text-left transition-all hover:-translate-y-px"
                 @click="handleResponseMode('ai')"
               >
                 <div class="flex items-center gap-3">
@@ -263,7 +263,7 @@
                 <ProfileContextToggle v-model="useProfileResponse" />
               </div>
               <button
-                class="w-full exercise-block p-4 text-left transition-all hover:-translate-y-px"
+                class="w-full mg-v2-block p-4 text-left transition-all hover:-translate-y-px"
                 @click="handleResponseMode('self')"
               >
                 <div class="flex items-center gap-3">
@@ -286,7 +286,7 @@
             <template v-if="responseMode === 'ai'">
               <div
                 v-if="isLoadingResponse"
-                class="exercise-block p-8 flex flex-col items-center gap-3"
+                class="mg-v2-block p-8 flex flex-col items-center gap-3"
               >
                 <div class="flex gap-1.5">
                   <span
@@ -331,7 +331,7 @@
                   <textarea
                     v-model="partResponse"
                     rows="4"
-                    class="exercise-field w-full p-3 text-sm resize-none"
+                    class="mg-v2-input w-full p-3 text-sm resize-none"
                   />
                 </AppCard>
                 <div class="flex flex-wrap items-center gap-2">
@@ -355,7 +355,7 @@
                     partName: selectedPartName,
                   })
                 "
-                class="exercise-field w-full p-3 text-sm resize-none"
+                class="mg-v2-input w-full p-3 text-sm resize-none"
               />
             </template>
           </AppCard>
@@ -452,7 +452,7 @@
               v-model="commitment"
               rows="3"
               :placeholder="t('exerciseWizards.protectorAppreciation.commitment.placeholder')"
-              class="exercise-field w-full p-3 text-sm resize-none"
+              class="mg-v2-input w-full p-3 text-sm resize-none"
             />
           </AppCard>
 
@@ -469,7 +469,7 @@
               v-model="handover"
               rows="2"
               :placeholder="t('exerciseWizards.protectorAppreciation.handover.placeholder')"
-              class="exercise-field w-full p-3 text-sm resize-none"
+              class="mg-v2-input w-full p-3 text-sm resize-none"
             />
           </AppCard>
 
@@ -506,7 +506,7 @@
               <button
                 v-for="freq in frequencyOptions"
                 :key="freq.value ?? 'none'"
-                class="w-full exercise-block p-4 text-left transition-all hover:-translate-y-px"
+                class="w-full mg-v2-block p-4 text-left transition-all hover:-translate-y-px"
                 :class="
                   checkInFrequency === freq.value
                     ? 'exercise-option--active ring-2 ring-primary'
@@ -553,7 +553,7 @@
                 <PartRoleBadge v-if="selectedPartRole" :role="selectedPartRole" />
               </div>
 
-              <div class="exercise-block p-3 flex items-center justify-between">
+              <div class="mg-v2-block p-3 flex items-center justify-between">
                 <span class="text-sm text-on-surface-variant">{{
                   t('exerciseWizards.protectorAppreciation.summary.sections.workload')
                 }}</span>
@@ -632,7 +632,7 @@
                 v-model="notes"
                 rows="2"
                 :placeholder="t('exerciseWizards.protectorAppreciation.summary.notesPlaceholder')"
-                class="exercise-field w-full p-3 text-sm resize-none"
+                class="mg-v2-input w-full p-3 text-sm resize-none"
               />
             </div>
           </AppCard>

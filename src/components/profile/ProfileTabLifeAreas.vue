@@ -1,21 +1,21 @@
 <template>
-  <section class="neo-raised" style="padding: 24px">
+  <section class="mg-v2-surface mg-v2-surface--raised-sm" style="padding: 24px">
     <!-- Header row -->
     <div class="flex items-start justify-between mb-[14px] gap-[14px]">
       <div class="min-w-0">
         <h3 class="text-base font-bold m-0" style="color: var(--mg-color-ink)">
           {{ t('profile.lifeAreas.title') }}
         </h3>
-        <p class="text-[12px] m-0 mt-[2px] max-w-[460px]" style="color: var(--mg-color-muted)">
+        <p class="text-mg-xs m-0 mt-[2px] max-w-[460px]" style="color: var(--mg-color-muted)">
           {{ t('profile.lifeAreas.tabDescription') }}
         </p>
       </div>
       <button
         type="button"
-        class="neo-control neo-control--accent flex-shrink-0 text-[13px]"
+        class="mg-v2-button mg-v2-button--primary flex-shrink-0"
         @click="goToAreas"
       >
-        <AppIcon class="material-symbols-outlined text-[18px]" name="edit" />
+        <AppIcon class="material-symbols-outlined text-mg-icon-md" name="edit" />
         {{ t('common.buttons.manage') }}
       </button>
     </div>
@@ -25,37 +25,33 @@
       <div
         v-for="(area, index) in areas"
         :key="area.id"
-        class="neo-inset flex items-center gap-[10px]"
+        class="mg-v2-block flex items-center gap-[10px]"
         style="padding: 12px"
       >
         <span class="area-dot flex-shrink-0" :style="dotStyle(area, index)" aria-hidden="true" />
         <div class="flex-1 min-w-0">
-          <div class="text-[13px] font-bold truncate" style="color: var(--mg-color-ink)">
+          <div class="text-mg-sm font-bold truncate" style="color: var(--mg-color-ink)">
             {{ area.name }}
           </div>
-          <div
-            v-if="area.meaning"
-            class="text-[11px] truncate"
-            style="color: var(--mg-color-muted)"
-          >
+          <div v-if="area.meaning" class="text-mg-xs truncate" style="color: var(--mg-color-muted)">
             {{ area.meaning }}
           </div>
         </div>
       </div>
     </div>
 
-    <div v-else class="text-[13px] py-4 text-center" style="color: var(--mg-color-muted)">
+    <div v-else class="text-mg-sm py-4 text-center" style="color: var(--mg-color-muted)">
       {{ t('profile.lifeAreas.noAreas') }}
     </div>
 
     <!-- Footer summary -->
     <div
       v-if="areas.length > 0"
-      class="mt-[14px] flex items-center gap-2 text-[12px]"
+      class="mt-[14px] flex items-center gap-2 text-mg-xs"
       style="color: var(--mg-color-muted)"
     >
       <AppIcon
-        class="material-symbols-outlined text-[16px]"
+        class="material-symbols-outlined text-mg-icon-sm"
         style="color: var(--mg-color-primary-strong)"
         aria-hidden="true"
         name="explore"
@@ -126,6 +122,6 @@ onMounted(async () => {
 .area-dot {
   width: 10px;
   height: 10px;
-  border-radius: 9999px;
+  border-radius: var(--mg-radius-pill);
 }
 </style>

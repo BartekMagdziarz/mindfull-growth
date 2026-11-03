@@ -22,7 +22,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.socraticDialogue.intro.description') }}
           </p>
-          <div class="exercise-block p-3">
+          <div class="mg-v2-block p-3">
             <p class="text-xs text-on-surface-variant italic">
               {{ t('exerciseWizards.socraticDialogue.intro.quote') }}
             </p>
@@ -76,7 +76,7 @@
             v-if="selectedFocus === 'custom'"
             v-model="customFocusText"
             :placeholder="t('exerciseWizards.socraticDialogue.focus.customPlaceholder')"
-            class="exercise-field w-full p-3 text-sm resize-none"
+            class="mg-v2-input w-full p-3 text-sm resize-none"
             rows="2"
           />
         </AppCard>
@@ -116,7 +116,7 @@
             <label class="text-sm font-medium text-on-surface">{{
               t('exerciseWizards.socraticDialogue.context.journalLabel')
             }}</label>
-            <select v-model="selectedJournalId" class="exercise-field w-full p-2 text-sm mt-1">
+            <select v-model="selectedJournalId" class="mg-v2-input w-full p-2 text-sm mt-1">
               <option value="">
                 {{ t('exerciseWizards.socraticDialogue.context.noneOption') }}
               </option>
@@ -134,7 +134,7 @@
             <label class="text-sm font-medium text-on-surface">{{
               t('exerciseWizards.socraticDialogue.context.lifeAreaLabel')
             }}</label>
-            <select v-model="selectedLifeAreaId" class="exercise-field w-full p-2 text-sm mt-1">
+            <select v-model="selectedLifeAreaId" class="mg-v2-input w-full p-2 text-sm mt-1">
               <option value="">
                 {{ t('exerciseWizards.socraticDialogue.context.noneOption') }}
               </option>
@@ -152,7 +152,7 @@
             <textarea
               v-model="additionalContext"
               :placeholder="t('exerciseWizards.socraticDialogue.context.additionalPlaceholder')"
-              class="exercise-field w-full p-3 text-sm resize-none mt-1"
+              class="mg-v2-input w-full p-3 text-sm resize-none mt-1"
               rows="3"
             />
           </div>
@@ -191,7 +191,7 @@
           <ExerciseStepWhy :text="tg('exerciseWizards.socraticDialogue.dialogue.why')" />
 
           <!-- Message area -->
-          <div class="exercise-block p-4 h-96 overflow-y-auto space-y-3">
+          <div class="mg-v2-block p-4 h-96 overflow-y-auto space-y-3">
             <div
               v-if="messages.length === 0 && !isLlmLoading"
               class="text-center text-on-surface-variant py-8"
@@ -249,7 +249,7 @@
                 v-model="userInput"
                 :placeholder="t('exerciseWizards.socraticDialogue.dialogue.placeholder')"
                 :disabled="isLlmLoading"
-                class="exercise-field flex-1 p-3 resize-none min-h-[44px] max-h-[120px] text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                class="mg-v2-input flex-1 p-3 resize-none min-h-[44px] max-h-[120px] text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                 rows="1"
                 @keydown.enter.exact.prevent="handleSend"
               />
@@ -312,7 +312,7 @@
             <textarea
               v-model="insightPrimary"
               :placeholder="tg('exerciseWizards.socraticDialogue.insights.insightPlaceholder')"
-              class="exercise-field w-full p-3 text-sm resize-none mt-1"
+              class="mg-v2-input w-full p-3 text-sm resize-none mt-1"
               rows="3"
             />
           </div>
@@ -324,7 +324,7 @@
             <textarea
               v-model="insightRemember"
               :placeholder="t('exerciseWizards.socraticDialogue.insights.rememberPlaceholder')"
-              class="exercise-field w-full p-3 text-sm resize-none mt-1"
+              class="mg-v2-input w-full p-3 text-sm resize-none mt-1"
               rows="2"
             />
           </div>
@@ -353,7 +353,7 @@
             <textarea
               v-model="notes"
               :placeholder="t('exerciseWizards.socraticDialogue.insights.notesPlaceholder')"
-              class="exercise-field w-full p-3 text-sm resize-none mt-1"
+              class="mg-v2-input w-full p-3 text-sm resize-none mt-1"
               rows="3"
             />
           </div>

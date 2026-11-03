@@ -22,7 +22,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.dereflection.intro.description') }}
           </p>
-          <div class="exercise-block p-3">
+          <div class="mg-v2-block p-3">
             <p class="text-xs text-on-surface-variant italic">
               "{{ t('exerciseWizards.dereflection.intro.quote') }}"
             </p>
@@ -67,7 +67,7 @@
             <textarea
               v-model="fixation"
               :placeholder="t('exerciseWizards.dereflection.fixation.whatPlaceholder')"
-              class="exercise-field w-full p-3 text-sm resize-none mt-1"
+              class="mg-v2-input w-full p-3 text-sm resize-none mt-1"
               rows="3"
             />
           </div>
@@ -90,7 +90,7 @@
             <textarea
               v-model="fixationImpact"
               :placeholder="t('exerciseWizards.dereflection.fixation.impactPlaceholder')"
-              class="exercise-field w-full p-3 text-sm resize-none mt-1"
+              class="mg-v2-input w-full p-3 text-sm resize-none mt-1"
               rows="3"
             />
           </div>
@@ -128,10 +128,7 @@
           <ExerciseStepWhy :text="tg('exerciseWizards.dereflection.redirections.why')" />
 
           <!-- Suggestions from Wheel of Life / Purpose -->
-          <div
-            v-if="suggestions.length > 0 || purposeStatement"
-            class="exercise-block p-4 space-y-3"
-          >
+          <div v-if="suggestions.length > 0 || purposeStatement" class="mg-v2-block p-4 space-y-3">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('exerciseWizards.dereflection.redirections.suggestionsTitle') }}
             </p>
@@ -160,11 +157,7 @@
           </div>
 
           <!-- Redirections list -->
-          <div
-            v-for="(item, index) in redirections"
-            :key="index"
-            class="space-y-2 exercise-block p-3"
-          >
+          <div v-for="(item, index) in redirections" :key="index" class="space-y-2 mg-v2-block p-3">
             <div class="flex items-start gap-2">
               <span class="text-xs font-semibold text-on-surface-variant mt-2"
                 >{{ index + 1 }}.</span
@@ -173,10 +166,10 @@
                 <textarea
                   v-model="item.description"
                   :placeholder="t('exerciseWizards.dereflection.redirections.activityPlaceholder')"
-                  class="exercise-field w-full p-3 text-sm resize-none"
+                  class="mg-v2-input w-full p-3 text-sm resize-none"
                   rows="2"
                 />
-                <select v-model="item.lifeAreaId" class="exercise-field w-full p-2 text-sm">
+                <select v-model="item.lifeAreaId" class="mg-v2-input w-full p-2 text-sm">
                   <option value="">
                     {{ t('exerciseWizards.dereflection.redirections.lifeAreaSelect') }}
                   </option>
@@ -233,7 +226,7 @@
           <ExerciseStepWhy :text="tg('exerciseWizards.dereflection.commit.why')" />
 
           <div v-for="(item, index) in filledRedirections" :key="index" class="space-y-2">
-            <label class="flex items-start gap-3 exercise-block p-3 cursor-pointer">
+            <label class="flex items-start gap-3 mg-v2-block p-3 cursor-pointer">
               <input
                 type="checkbox"
                 :checked="chosenRedirections.includes(item.description)"
@@ -251,7 +244,7 @@
                   v-model="commitPlans[item.description + '_when']"
                   type="text"
                   :placeholder="t('exerciseWizards.dereflection.commit.whenPlaceholder')"
-                  class="exercise-field w-full p-2 text-sm mt-0.5"
+                  class="mg-v2-input w-full p-2 text-sm mt-0.5"
                 />
               </div>
               <div>
@@ -262,7 +255,7 @@
                   v-model="commitPlans[item.description + '_fallback']"
                   type="text"
                   :placeholder="t('exerciseWizards.dereflection.commit.pullbackPlaceholder')"
-                  class="exercise-field w-full p-2 text-sm mt-0.5"
+                  class="mg-v2-input w-full p-2 text-sm mt-0.5"
                 />
               </div>
             </div>
@@ -366,7 +359,7 @@
             <textarea
               v-model="notes"
               :placeholder="t('exerciseWizards.dereflection.summary.notesPlaceholder')"
-              class="exercise-field w-full p-3 text-sm resize-none mt-1"
+              class="mg-v2-input w-full p-3 text-sm resize-none mt-1"
               rows="3"
             />
           </div>

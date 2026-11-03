@@ -14,7 +14,7 @@
       <button
         v-if="logs.length > 0"
         type="button"
-        class="neo-raised rounded-xl px-3 py-1.5 text-xs text-on-surface hover:-translate-y-px active:shadow-neu-pressed transition-transform"
+        class="mg-v2-surface mg-v2-surface--raised-sm px-3 py-1.5 text-xs text-on-surface hover:-translate-y-px transition-transform"
         data-test-clear-build-logs
         @click="askClear"
       >
@@ -50,7 +50,7 @@
       <li
         v-for="log in logs"
         :key="log.id"
-        class="neo-surface rounded-2xl p-3"
+        class="mg-v2-block p-3"
         :data-test-build-log-row="log.id"
       >
         <button
@@ -110,7 +110,7 @@
           <div v-if="log.errorMessage">
             <h4 class="text-xs font-semibold text-on-surface-variant mb-1">Error</h4>
             <pre
-              class="text-xs p-2 bg-section rounded-xl whitespace-pre-wrap break-all"
+              class="text-xs p-2 bg-section rounded-mg-md whitespace-pre-wrap break-all"
               data-test-build-log-error
               >{{ log.errorMessage }}</pre>
           </div>
@@ -119,19 +119,19 @@
           <div v-if="log.tokenUsage">
             <h4 class="text-xs font-semibold text-on-surface-variant mb-1">Token usage</h4>
             <div class="grid grid-cols-3 gap-2 text-xs">
-              <div class="bg-section rounded-xl p-2">
+              <div class="bg-section rounded-mg-md p-2">
                 <div class="text-on-surface-variant">Prompt</div>
                 <div class="font-mono text-on-surface">
                   {{ log.tokenUsage.promptTokens }}
                 </div>
               </div>
-              <div class="bg-section rounded-xl p-2">
+              <div class="bg-section rounded-mg-md p-2">
                 <div class="text-on-surface-variant">Completion</div>
                 <div class="font-mono text-on-surface">
                   {{ log.tokenUsage.completionTokens }}
                 </div>
               </div>
-              <div class="bg-section rounded-xl p-2">
+              <div class="bg-section rounded-mg-md p-2">
                 <div class="text-on-surface-variant">Total</div>
                 <div class="font-mono text-on-surface">
                   {{ log.tokenUsage.totalTokens }}
@@ -158,14 +158,14 @@
             </div>
             <div class="space-y-2">
               <div v-if="estimateTypeEntries(log).length > 0">
-                <div class="text-[10px] uppercase tracking-wide text-on-surface-variant mb-1">
+                <div class="text-mg-xs uppercase tracking-wide text-on-surface-variant mb-1">
                   By type
                 </div>
                 <div class="grid grid-cols-3 gap-2 text-xs">
                   <div
                     v-for="[type, tokens] in estimateTypeEntries(log)"
                     :key="type"
-                    class="bg-section rounded-xl p-2"
+                    class="bg-section rounded-mg-md p-2"
                   >
                     <div class="text-on-surface-variant">{{ type }}</div>
                     <div class="font-mono text-on-surface">{{ tokens }}</div>
@@ -173,14 +173,14 @@
                 </div>
               </div>
               <div v-if="estimateAgeEntries(log).length > 0">
-                <div class="text-[10px] uppercase tracking-wide text-on-surface-variant mb-1">
+                <div class="text-mg-xs uppercase tracking-wide text-on-surface-variant mb-1">
                   By age
                 </div>
                 <div class="grid grid-cols-3 gap-2 text-xs">
                   <div
                     v-for="[bucket, tokens] in estimateAgeEntries(log)"
                     :key="bucket"
-                    class="bg-section rounded-xl p-2"
+                    class="bg-section rounded-mg-md p-2"
                   >
                     <div class="text-on-surface-variant">{{ bucket }}</div>
                     <div class="font-mono text-on-surface">{{ tokens }}</div>
@@ -197,7 +197,7 @@
               <div
                 v-for="[type, count] in droppedEntries(log)"
                 :key="type"
-                class="bg-section rounded-xl p-2"
+                class="bg-section rounded-mg-md p-2"
               >
                 <div class="text-on-surface-variant">{{ type }}</div>
                 <div class="font-mono text-on-surface">−{{ count }}</div>
@@ -209,7 +209,7 @@
           <div>
             <h4 class="text-xs font-semibold text-on-surface-variant mb-1">Scope</h4>
             <pre
-              class="text-xs p-2 bg-section rounded-xl whitespace-pre-wrap break-all max-h-48 overflow-auto"
+              class="text-xs p-2 bg-section rounded-mg-md whitespace-pre-wrap break-all max-h-48 overflow-auto"
               >{{ formatScopeSummary(log.scope) }}</pre>
           </div>
 
@@ -217,7 +217,7 @@
           <div>
             <h4 class="text-xs font-semibold text-on-surface-variant mb-1">Request body</h4>
             <pre
-              class="text-xs p-2 bg-section rounded-xl whitespace-pre-wrap break-all max-h-96 overflow-auto"
+              class="text-xs p-2 bg-section rounded-mg-md whitespace-pre-wrap break-all max-h-96 overflow-auto"
               data-test-build-log-request
               >{{ formatJsonIfPossible(log.requestBody) }}</pre>
           </div>
@@ -226,7 +226,7 @@
           <div>
             <h4 class="text-xs font-semibold text-on-surface-variant mb-1">Response body</h4>
             <pre
-              class="text-xs p-2 bg-section rounded-xl whitespace-pre-wrap break-all max-h-96 overflow-auto"
+              class="text-xs p-2 bg-section rounded-mg-md whitespace-pre-wrap break-all max-h-96 overflow-auto"
               data-test-build-log-response
               >{{ formatJsonIfPossible(log.responseBody) }}</pre>
           </div>

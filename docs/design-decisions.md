@@ -444,3 +444,31 @@ kreatorów przed/po — poza wyjątkami wyżej identyczne; zrzuty 1512 × 982 @2
 potwierdzają. Dług strażnika 1345 → 548; `components/exercises` ma 0 naruszeń.
 Mostek `neo-*` w `adapters.css` zostaje dla profilu, ocen i reszty (K2 dalej).
 
+## 2026-11-03 — K2, partia 5: profil i wspólni następcy mostka
+
+Kontekst: profil (`components/profile`, `features/ai-profile`, widok profilu
+psychologicznego) miał 199 naruszeń: karty zakładek `neo-raised`, wstawki
+`neo-inset/-surface`, pola `neo-input`, pigułki, przyciski `neo-control`, segmenty,
+przełączniki, kółka ikon, `text-[Npx]` i literały w `profile.css`. Blok zagnieżdżony
+i pole z krawędzią mają teraz drugiego konsumenta (po kreatorach), więc trafiły do
+warstwy wspólnej.
+Decyzja: `mg-v2-block` (+ `--warn`) i `mg-v2-input` w `base.css` zastępują
+`exercise-block`/`exercise-field` z partii 4 (kreatory przepięte, style identyczne) oraz
+odpowiednie klasy w profilu. Gdzie istnieje anatomia kanoniczna, profil jej używa:
+karty zakładek → `mg-v2-surface--raised-sm`, przyciski → `mg-v2-button(--primary)`,
+statusy → `mg-v2-pill--success/--warning/--primary` (mostek zjadał ich kolory), etykieta
+typu → `mg-v2-badge`, kółka ikon → `mg-v2-icon-board--sm`, segmenty Języka i Formy
+zwracania się → `mg-v2-segmented` (dopisano obsługę `aria-checked`), przełączniki
+domyślnego kontekstu → `mg-v2-switch`, checkbox → `mg-v2-checkbox`. Kafle motywu: CSS
+komponentu na tokenach w gramatyce kafla (hover = mgła, wybrany = krawędź akcentu +
+cień wewnętrzny zamiast neumorficznego wcięcia); próbki motywów jako tokeny
+`--mg-theme-swatch-*`. Rozmiary jako nowe utility `text-mg-*` (font-size bez
+line-height), literały CSS według reguł partii 1.
+Konsekwencje: przyciski Konta i Obszarów są niebieskie i normalnej wagi jak inne
+przyciski V2; kafle fundamentu mają widoczne kółka ikon i kolorowe statusy; segmenty
+Preferencji wyglądają jak pasek zakładek nad nimi; status Asystenta AI ma tło
+ostrzeżenia. Porównanie stylów obliczonych profilu i 114 kroków kreatorów
+potwierdza resztę; zrzuty 1512 × 982 @2x. Dług strażnika 548 → 349. Przy okazji wyszło,
+że `.mg-design-v2 button { font: inherit }` przebija rozmiar i wagę `mg-v2-button` i
+`mg-v2-pill` na elementach `<button>` (B-16).
+

@@ -1,18 +1,22 @@
 <template>
-  <section id="ai-settings" class="neo-raised flex flex-col gap-[18px]" style="padding: 24px">
+  <section
+    id="ai-settings"
+    class="mg-v2-surface mg-v2-surface--raised-sm flex flex-col gap-[18px]"
+    style="padding: 24px"
+  >
     <!-- Header row -->
     <div class="flex items-start justify-between gap-[14px] flex-wrap">
       <div class="min-w-0 flex-1">
         <h3 class="text-base font-bold m-0" style="color: var(--mg-color-ink)">
           {{ t('profile.aiSettings.title') }}
         </h3>
-        <p class="text-[12px] m-0 mt-[2px] max-w-[500px]" style="color: var(--mg-color-muted)">
+        <p class="text-mg-xs m-0 mt-[2px] max-w-[500px]" style="color: var(--mg-color-muted)">
           {{ t('profile.aiSettings.description') }}
         </p>
       </div>
       <span
-        class="neo-pill px-3 py-[6px] text-[11px] font-bold gap-[6px]"
-        :style="{ color: isConnected ? 'rgb(var(--status-good))' : 'rgb(var(--status-warn))' }"
+        class="mg-v2-pill"
+        :class="isConnected ? 'mg-v2-pill--success' : 'mg-v2-pill--warning'"
         aria-live="polite"
       >
         <span aria-hidden="true">●</span>
@@ -34,7 +38,7 @@
         <select
           id="aiProvider"
           v-model="aiProvider"
-          class="neo-input w-full px-4 py-3"
+          class="mg-v2-input w-full px-4 py-3"
           @change="handleProviderChange"
         >
           <option value="openai">{{ t('profile.aiSettings.providers.openai') }}</option>
@@ -67,11 +71,11 @@
           v-model="aiModel"
           type="text"
           :placeholder="t('profile.aiSettings.modelPlaceholder')"
-          class="neo-input w-full px-4 py-3"
+          class="mg-v2-input w-full px-4 py-3"
           :class="{ 'field-input--error': modelError }"
           @input="validateAISettings"
         />
-        <p v-if="modelError" class="mt-2 text-[12px]" style="color: rgb(var(--color-error))">
+        <p v-if="modelError" class="mt-2 text-mg-xs" style="color: rgb(var(--color-error))">
           {{ modelError }}
         </p>
       </div>
@@ -103,14 +107,18 @@
           <label for="reasoningEffort" class="field-label block mb-[6px]">{{
             t('profile.aiSettings.reasoningEffortLabel')
           }}</label>
-          <select id="reasoningEffort" v-model="reasoningEffort" class="neo-input w-full px-4 py-3">
+          <select
+            id="reasoningEffort"
+            v-model="reasoningEffort"
+            class="mg-v2-input w-full px-4 py-3"
+          >
             <option value="none">{{ t('profile.aiSettings.reasoningEfforts.none') }}</option>
             <option value="low">{{ t('profile.aiSettings.reasoningEfforts.low') }}</option>
             <option value="medium">{{ t('profile.aiSettings.reasoningEfforts.medium') }}</option>
             <option value="high">{{ t('profile.aiSettings.reasoningEfforts.high') }}</option>
           </select>
         </div>
-        <p class="text-[12px] m-0" style="color: var(--mg-color-muted)">
+        <p class="text-mg-xs m-0" style="color: var(--mg-color-muted)">
           {{
             aiProvider === 'openai'
               ? t('profile.aiSettings.reasoningEffortHintOpenai')
@@ -131,11 +139,11 @@
           v-model="baseUrl"
           type="url"
           :placeholder="t('profile.aiSettings.baseUrlPlaceholder')"
-          class="neo-input w-full px-4 py-3"
+          class="mg-v2-input w-full px-4 py-3"
           :class="{ 'field-input--error': baseUrlError }"
           @input="validateAISettings"
         />
-        <p v-if="baseUrlError" class="mt-2 text-[12px]" style="color: rgb(var(--color-error))">
+        <p v-if="baseUrlError" class="mt-2 text-mg-xs" style="color: rgb(var(--color-error))">
           {{ baseUrlError }}
         </p>
       </div>
@@ -151,15 +159,15 @@
             v-model="apiKey"
             type="password"
             :placeholder="t('profile.aiSettings.apiKeyPlaceholder')"
-            class="neo-input flex-1 px-4 py-3"
+            class="mg-v2-input flex-1 px-4 py-3"
             :class="{ 'field-input--error': apiKeyError }"
             @input="validateAISettings"
           />
         </div>
-        <p v-if="apiKeyError" class="mt-2 text-[12px]" style="color: rgb(var(--color-error))">
+        <p v-if="apiKeyError" class="mt-2 text-mg-xs" style="color: rgb(var(--color-error))">
           {{ apiKeyError }}
         </p>
-        <p v-else class="mt-2 text-[12px]" style="color: var(--mg-color-muted)">
+        <p v-else class="mt-2 text-mg-xs" style="color: var(--mg-color-muted)">
           {{
             aiProvider === 'anthropic'
               ? t('profile.aiSettings.apiKeyHintAnthropic')
@@ -378,7 +386,7 @@ onMounted(async () => {
 
 <style scoped>
 .field-label {
-  font-size: 11px;
+  font-size: var(--mg-font-size-xs);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;

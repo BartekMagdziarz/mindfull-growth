@@ -22,7 +22,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.tragicOptimism.intro.description') }}
           </p>
-          <div class="exercise-block p-3">
+          <div class="mg-v2-block p-3">
             <p class="text-xs text-on-surface-variant italic">
               "{{ t('exerciseWizards.tragicOptimism.intro.quote') }}"
             </p>
@@ -128,7 +128,7 @@
           <textarea
             v-model="freeWriting"
             :placeholder="t('exerciseWizards.tragicOptimism.write.placeholder')"
-            class="exercise-field w-full p-3 text-sm resize-none"
+            class="mg-v2-input w-full p-3 text-sm resize-none"
             rows="12"
           />
         </AppCard>
@@ -163,13 +163,13 @@
           <div
             v-for="(question, idx) in guidedQuestions"
             :key="idx"
-            class="exercise-block p-4 space-y-2"
+            class="mg-v2-block p-4 space-y-2"
           >
             <label class="text-sm font-medium text-on-surface">{{ question }}</label>
             <textarea
               v-model="guidedAnswers[idx]"
               :placeholder="t('exerciseWizards.tragicOptimism.guided.placeholder')"
-              class="exercise-field w-full p-3 text-sm resize-none"
+              class="mg-v2-input w-full p-3 text-sm resize-none"
               rows="4"
             />
           </div>
@@ -207,7 +207,7 @@
           </p>
 
           <!-- Message area -->
-          <div class="exercise-block p-4 h-96 overflow-y-auto space-y-3">
+          <div class="mg-v2-block p-4 h-96 overflow-y-auto space-y-3">
             <div
               v-if="messages.length === 0 && !isLlmLoading"
               class="text-center text-on-surface-variant py-8"
@@ -265,7 +265,7 @@
                 v-model="userInput"
                 :placeholder="t('exerciseWizards.tragicOptimism.dialogue.placeholder')"
                 :disabled="isLlmLoading"
-                class="exercise-field flex-1 p-3 resize-none min-h-[44px] max-h-[120px] text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                class="mg-v2-input flex-1 p-3 resize-none min-h-[44px] max-h-[120px] text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                 rows="1"
                 @keydown.enter.exact.prevent="handleSend"
               />
@@ -318,7 +318,7 @@
             <textarea
               v-model="insightMeaning"
               :placeholder="t('exerciseWizards.tragicOptimism.insights.meaningPlaceholder')"
-              class="exercise-field w-full p-3 text-sm resize-none mt-1"
+              class="mg-v2-input w-full p-3 text-sm resize-none mt-1"
               rows="3"
             />
           </div>
@@ -330,7 +330,7 @@
             <textarea
               v-model="insightCarryForward"
               :placeholder="t('exerciseWizards.tragicOptimism.insights.carryPlaceholder')"
-              class="exercise-field w-full p-3 text-sm resize-none mt-1"
+              class="mg-v2-input w-full p-3 text-sm resize-none mt-1"
               rows="3"
             />
           </div>
@@ -352,7 +352,7 @@
             <textarea
               v-model="notes"
               :placeholder="t('exerciseWizards.tragicOptimism.insights.notesPlaceholder')"
-              class="exercise-field w-full p-3 text-sm resize-none mt-1"
+              class="mg-v2-input w-full p-3 text-sm resize-none mt-1"
               rows="3"
             />
           </div>

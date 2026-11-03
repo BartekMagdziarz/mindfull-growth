@@ -167,7 +167,7 @@
           <input
             v-model="customValueInput"
             type="text"
-            class="exercise-field p-3 text-sm"
+            class="mg-v2-input p-3 text-sm"
             :placeholder="t('exerciseWizards.valueMap.sort.customPlaceholder')"
             @keydown.enter.prevent="addCustomValue"
           />
@@ -298,7 +298,7 @@
           <textarea
             v-model="personalMeanings[valueId]"
             rows="3"
-            class="exercise-field w-full resize-none p-3 text-sm"
+            class="mg-v2-input w-full resize-none p-3 text-sm"
             :placeholder="t('exerciseWizards.valueMap.meaning.placeholder')"
           />
         </label>
@@ -328,7 +328,7 @@
           }}
         </label>
         <div v-if="conflictEnabled[valueId]" class="mt-3 grid grid-cols-[1fr_1.4fr] gap-3">
-          <select v-model="conflictTargets[valueId]" class="exercise-field p-2 text-sm">
+          <select v-model="conflictTargets[valueId]" class="mg-v2-input p-2 text-sm">
             <option value="">{{ t('exerciseWizards.valueMap.conflicts.chooseValue') }}</option>
             <option
               v-for="option in rankedIds.filter(id => id !== valueId)"
@@ -341,7 +341,7 @@
           <input
             v-model="conflictNotes[valueId]"
             type="text"
-            class="exercise-field p-2 text-sm"
+            class="mg-v2-input p-2 text-sm"
             :placeholder="t('exerciseWizards.valueMap.conflicts.notePlaceholder')"
           />
         </div>
@@ -353,11 +353,11 @@
           :key="index"
           class="grid grid-cols-[1fr_1fr_1.4fr_auto] gap-2"
         >
-          <select v-model="conflict.valueId" class="exercise-field p-2 text-sm">
+          <select v-model="conflict.valueId" class="mg-v2-input p-2 text-sm">
             <option value="">{{ t('exerciseWizards.valueMap.conflicts.valueA') }}</option>
             <option v-for="id in rankedIds" :key="id" :value="id">{{ getValueLabel(id) }}</option>
           </select>
-          <select v-model="conflict.conflictingValueId" class="exercise-field p-2 text-sm">
+          <select v-model="conflict.conflictingValueId" class="mg-v2-input p-2 text-sm">
             <option value="">{{ t('exerciseWizards.valueMap.conflicts.valueB') }}</option>
             <option
               v-for="id in rankedIds.filter(id => id !== conflict.valueId)"
@@ -370,7 +370,7 @@
           <input
             v-model="conflict.note"
             type="text"
-            class="exercise-field p-2 text-sm"
+            class="mg-v2-input p-2 text-sm"
             :placeholder="t('exerciseWizards.valueMap.conflicts.notePlaceholder')"
           />
           <button
@@ -432,7 +432,7 @@
           </button>
         </div>
         <div class="grid grid-cols-[1fr_auto] gap-2">
-          <select v-model="areaValuePicker[area.id]" class="exercise-field p-2 text-sm">
+          <select v-model="areaValuePicker[area.id]" class="mg-v2-input p-2 text-sm">
             <option value="">{{ t('exerciseWizards.valueMap.areas.chooseValue') }}</option>
             <option
               v-for="value in allValues"
@@ -458,13 +458,13 @@
           {{ t('exerciseWizards.valueMap.areas.tensionQuestion') }}
         </label>
         <div v-if="areaTensionEnabled[area.id]" class="grid grid-cols-[1fr_1fr_1.4fr] gap-2">
-          <select v-model="areaTensionA[area.id]" class="exercise-field p-2 text-sm">
+          <select v-model="areaTensionA[area.id]" class="mg-v2-input p-2 text-sm">
             <option value="">{{ t('exerciseWizards.valueMap.conflicts.valueA') }}</option>
             <option v-for="id in areaAssignments[area.id] ?? []" :key="id" :value="id">
               {{ getValueLabel(id) }}
             </option>
           </select>
-          <select v-model="areaTensionB[area.id]" class="exercise-field p-2 text-sm">
+          <select v-model="areaTensionB[area.id]" class="mg-v2-input p-2 text-sm">
             <option value="">{{ t('exerciseWizards.valueMap.conflicts.valueB') }}</option>
             <option
               v-for="id in (areaAssignments[area.id] ?? []).filter(
@@ -478,7 +478,7 @@
           </select>
           <input
             v-model="areaTensionNotes[area.id]"
-            class="exercise-field p-2 text-sm"
+            class="mg-v2-input p-2 text-sm"
             :placeholder="t('exerciseWizards.valueMap.conflicts.notePlaceholder')"
           />
         </div>
@@ -572,7 +572,7 @@
       <textarea
         v-model="notes"
         rows="3"
-        class="exercise-field w-full resize-none p-3 text-sm"
+        class="mg-v2-input w-full resize-none p-3 text-sm"
         :placeholder="t('exerciseWizards.valueMap.summary.notesPlaceholder')"
       />
 

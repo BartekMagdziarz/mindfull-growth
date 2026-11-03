@@ -22,7 +22,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.structuredProblemSolving.intro.description') }}
           </p>
-          <div class="exercise-block p-4 space-y-3">
+          <div class="mg-v2-block p-4 space-y-3">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('exerciseWizards.structuredProblemSolving.intro.howItWorks') }}
             </p>
@@ -85,7 +85,7 @@
             v-model="problemStatement"
             rows="4"
             :placeholder="t('exerciseWizards.structuredProblemSolving.problem.placeholder')"
-            class="exercise-field w-full p-3 text-sm resize-none"
+            class="mg-v2-input w-full p-3 text-sm resize-none"
           />
 
           <div class="space-y-2 pt-2">
@@ -145,7 +145,7 @@
               :placeholder="
                 t('exerciseWizards.structuredProblemSolving.brainstorm.solutionPlaceholder')
               "
-              class="exercise-field flex-1 p-2.5 text-sm"
+              class="mg-v2-input flex-1 p-2.5 text-sm"
               @keyup.enter="addSolution"
             />
             <AppButton variant="tonal" :disabled="!newSolutionText.trim()" @click="addSolution">
@@ -161,7 +161,7 @@
               class="flex items-center gap-2 group"
             >
               <span class="text-primary text-sm flex-shrink-0 w-5 text-center">{{ idx + 1 }}.</span>
-              <span class="exercise-block flex-1 p-2.5 text-sm text-on-surface">
+              <span class="mg-v2-block flex-1 p-2.5 text-sm text-on-surface">
                 {{ sol.description }}
               </span>
               <button
@@ -194,7 +194,7 @@
               </AppButton>
               <ProfileContextToggle v-model="useProfileBrainstorm" />
             </div>
-            <div v-if="brainstormResponse" class="exercise-block p-4 space-y-2">
+            <div v-if="brainstormResponse" class="mg-v2-block p-4 space-y-2">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                 {{ t('exerciseWizards.structuredProblemSolving.brainstorm.suggestedSolutions') }}
               </p>
@@ -260,7 +260,7 @@
                 :placeholder="
                   t('exerciseWizards.structuredProblemSolving.evaluate.prosPlaceholder')
                 "
-                class="exercise-field flex-1 p-2 text-sm"
+                class="mg-v2-input flex-1 p-2 text-sm"
                 @input="sol.pros[proIdx] = ($event.target as HTMLInputElement).value"
               />
               <button
@@ -295,7 +295,7 @@
                 :placeholder="
                   t('exerciseWizards.structuredProblemSolving.evaluate.consPlaceholder')
                 "
-                class="exercise-field flex-1 p-2 text-sm"
+                class="mg-v2-input flex-1 p-2 text-sm"
                 @input="sol.cons[conIdx] = ($event.target as HTMLInputElement).value"
               />
               <button
@@ -332,7 +332,7 @@
                 :class="
                   sol.feasibilityRating === n
                     ? 'exercise-option--active text-primary'
-                    : 'exercise-block text-on-surface-variant hover:text-on-surface'
+                    : 'mg-v2-block text-on-surface-variant hover:text-on-surface'
                 "
                 @click="sol.feasibilityRating = n"
               >
@@ -360,7 +360,7 @@
                 :class="
                   sol.effectivenessRating === n
                     ? 'exercise-option--active text-primary'
-                    : 'exercise-block text-on-surface-variant hover:text-on-surface'
+                    : 'mg-v2-block text-on-surface-variant hover:text-on-surface'
                 "
                 @click="sol.effectivenessRating = n"
               >
@@ -388,7 +388,7 @@
               </AppButton>
               <ProfileContextToggle v-model="useProfileEvaluate" />
             </div>
-            <div v-if="evaluateResponse" class="exercise-block p-4 space-y-2">
+            <div v-if="evaluateResponse" class="mg-v2-block p-4 space-y-2">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                 {{ t('exerciseWizards.structuredProblemSolving.evaluate.analysis') }}
               </p>
@@ -497,7 +497,7 @@
             :placeholder="
               t('exerciseWizards.structuredProblemSolving.choose.actionPlanPlaceholder')
             "
-            class="exercise-field w-full p-3 text-sm resize-none"
+            class="mg-v2-input w-full p-3 text-sm resize-none"
           />
 
           <!-- Action Steps -->
@@ -519,7 +519,7 @@
                     n: idx + 1,
                   })
                 "
-                class="exercise-field flex-1 p-2 text-sm"
+                class="mg-v2-input flex-1 p-2 text-sm"
               />
               <button
                 v-if="actionSteps.length > 1"
@@ -541,7 +541,7 @@
             <label class="text-sm font-medium text-on-surface">{{
               t('exerciseWizards.structuredProblemSolving.choose.targetDateLabel')
             }}</label>
-            <input v-model="targetDate" type="date" class="exercise-field w-full p-2.5 text-sm" />
+            <input v-model="targetDate" type="date" class="mg-v2-input w-full p-2.5 text-sm" />
           </div>
         </AppCard>
 
@@ -647,7 +647,7 @@
               v-model="outcome"
               rows="3"
               :placeholder="t('exerciseWizards.structuredProblemSolving.review.outcomePlaceholder')"
-              class="exercise-field w-full p-3 text-sm resize-none"
+              class="mg-v2-input w-full p-3 text-sm resize-none"
             />
           </div>
         </AppCard>
@@ -853,7 +853,7 @@
             v-model="notes"
             rows="2"
             :placeholder="t('exerciseWizards.structuredProblemSolving.summary.notesPlaceholder')"
-            class="exercise-field w-full p-3 text-sm resize-none"
+            class="mg-v2-input w-full p-3 text-sm resize-none"
           />
         </AppCard>
 

@@ -12,7 +12,7 @@
         <p class="text-sm text-on-surface-variant leading-relaxed">
           {{ t('exerciseWizards.thoughtRecord.intro.description') }}
         </p>
-        <div class="exercise-block p-4 space-y-3">
+        <div class="mg-v2-block p-4 space-y-3">
           <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
             {{ t('exerciseWizards.thoughtRecord.intro.howItWorks') }}
           </p>
@@ -55,13 +55,13 @@
           v-model="situation"
           rows="4"
           :placeholder="t('exerciseWizards.thoughtRecord.situation.placeholder')"
-          class="exercise-field w-full p-3 text-sm resize-none"
+          class="mg-v2-input w-full p-3 text-sm resize-none"
         />
         <div class="space-y-1">
           <label class="text-xs font-medium text-on-surface-variant">{{
             t('exerciseWizards.thoughtRecord.situation.dateLabel')
           }}</label>
-          <input v-model="situationDate" type="date" class="exercise-field p-2 text-sm w-full" />
+          <input v-model="situationDate" type="date" class="mg-v2-input p-2 text-sm w-full" />
         </div>
       </AppCard>
       <div class="flex justify-between">
@@ -94,11 +94,7 @@
           <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
             {{ t('exerciseWizards.thoughtRecord.emotions.intensityRatings') }}
           </p>
-          <div
-            v-for="er in emotionsBefore"
-            :key="er.emotionId"
-            class="exercise-block p-3 space-y-2"
-          >
+          <div v-for="er in emotionsBefore" :key="er.emotionId" class="mg-v2-block p-3 space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-sm font-medium text-on-surface">
                 {{ getEmotionName(er.emotionId) }}
@@ -151,7 +147,7 @@
               :class="
                 hotThoughtIndex === index
                   ? 'exercise-pill--primary text-primary font-bold'
-                  : 'exercise-block text-on-surface-variant hover:text-primary'
+                  : 'mg-v2-block text-on-surface-variant hover:text-primary'
               "
               :aria-label="`Mark thought ${index + 1} as hot thought`"
               :aria-pressed="hotThoughtIndex === index"
@@ -163,7 +159,7 @@
               :value="thought"
               type="text"
               :placeholder="t('exerciseWizards.thoughtRecord.thoughts.placeholder')"
-              class="exercise-field flex-1 p-2 text-sm"
+              class="mg-v2-input flex-1 p-2 text-sm"
               @input="automaticThoughts[index] = ($event.target as HTMLInputElement).value"
             />
             <button
@@ -198,7 +194,7 @@
             </AppButton>
             <ProfileContextToggle v-model="useProfileIdentify" />
           </div>
-          <div v-if="identifySuggestions" class="exercise-block p-4 space-y-2">
+          <div v-if="identifySuggestions" class="mg-v2-block p-4 space-y-2">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('exerciseWizards.thoughtRecord.thoughts.suggestedThoughts') }}
             </p>
@@ -242,7 +238,7 @@
               :value="item"
               type="text"
               :placeholder="t('exerciseWizards.thoughtRecord.evidenceFor.placeholder')"
-              class="exercise-field flex-1 p-2 text-sm"
+              class="mg-v2-input flex-1 p-2 text-sm"
               @input="evidenceFor[index] = ($event.target as HTMLInputElement).value"
             />
             <button
@@ -295,7 +291,7 @@
               :value="item"
               type="text"
               :placeholder="t('exerciseWizards.thoughtRecord.evidenceAgainst.placeholder')"
-              class="exercise-field flex-1 p-2 text-sm"
+              class="mg-v2-input flex-1 p-2 text-sm"
               @input="evidenceAgainst[index] = ($event.target as HTMLInputElement).value"
             />
             <button
@@ -331,7 +327,7 @@
             <ProfileContextToggle v-model="useProfileEvidence" />
           </div>
           <div v-if="findEvidenceMessages.length > 0" class="space-y-2">
-            <div v-for="(msg, idx) in findEvidenceMessages" :key="idx" class="exercise-block p-3">
+            <div v-for="(msg, idx) in findEvidenceMessages" :key="idx" class="mg-v2-block p-3">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-1">
                 {{
                   msg.role === 'assistant'
@@ -347,7 +343,7 @@
               v-model="findEvidenceFollowUp"
               type="text"
               :placeholder="t('exerciseWizards.thoughtRecord.evidenceAgainst.followUpPlaceholder')"
-              class="exercise-field flex-1 p-2 text-sm"
+              class="mg-v2-input flex-1 p-2 text-sm"
               @keyup.enter="handleFindEvidenceFollowUp"
             />
             <AppButton
@@ -417,7 +413,7 @@
           v-model="balancedThought"
           rows="4"
           :placeholder="t('exerciseWizards.thoughtRecord.balancedThought.placeholder')"
-          class="exercise-field w-full p-3 text-sm resize-none"
+          class="mg-v2-input w-full p-3 text-sm resize-none"
         />
 
         <!-- LLM Assist: Reframe -->
@@ -434,7 +430,7 @@
             <ProfileContextToggle v-model="useProfileReframe" />
           </div>
           <div v-if="reframeSuggestions.length > 0" class="space-y-2">
-            <div v-for="(msg, idx) in reframeSuggestions" :key="idx" class="exercise-block p-3">
+            <div v-for="(msg, idx) in reframeSuggestions" :key="idx" class="mg-v2-block p-3">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-1">
                 {{
                   msg.role === 'assistant'
@@ -458,7 +454,7 @@
               v-model="reframeFollowUp"
               type="text"
               :placeholder="t('exerciseWizards.thoughtRecord.balancedThought.followUpPlaceholder')"
-              class="exercise-field flex-1 p-2 text-sm"
+              class="mg-v2-input flex-1 p-2 text-sm"
               @keyup.enter="handleReframeFollowUp"
             />
             <AppButton
@@ -491,7 +487,7 @@
         </p>
         <ExerciseStepWhy :text="tg('exerciseWizards.thoughtRecord.rerate.why')" />
         <div class="space-y-3">
-          <div v-for="er in emotionsAfter" :key="er.emotionId" class="exercise-block p-3 space-y-2">
+          <div v-for="er in emotionsAfter" :key="er.emotionId" class="mg-v2-block p-3 space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-sm font-medium text-on-surface">
                 {{ getEmotionName(er.emotionId) }}
@@ -589,7 +585,7 @@
 
         <!-- Evidence -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div class="exercise-block p-3 space-y-2">
+          <div class="mg-v2-block p-3 space-y-2">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('exerciseWizards.thoughtRecord.summary.evidenceFor') }}
             </p>
@@ -602,7 +598,7 @@
               {{ t('exerciseWizards.thoughtRecord.summary.noneListed') }}
             </p>
           </div>
-          <div class="exercise-block p-3 space-y-2">
+          <div class="mg-v2-block p-3 space-y-2">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('exerciseWizards.thoughtRecord.summary.evidenceAgainst') }}
             </p>

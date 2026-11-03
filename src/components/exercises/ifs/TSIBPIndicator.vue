@@ -8,7 +8,7 @@
             ? 'bg-primary/20 text-primary'
             : idx === currentIndex
               ? 'tsibp-dot--current'
-              : 'exercise-block text-on-surface-variant/40'
+              : 'mg-v2-block text-on-surface-variant/40'
         "
       >
         {{ label }}

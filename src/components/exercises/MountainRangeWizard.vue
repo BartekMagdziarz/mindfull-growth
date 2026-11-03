@@ -22,7 +22,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.mountainRange.intro.description') }}
           </p>
-          <div class="exercise-block p-4 space-y-3">
+          <div class="mg-v2-block p-4 space-y-3">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('exerciseWizards.mountainRange.intro.mapTitle') }}
             </p>
@@ -91,7 +91,7 @@
           <div
             v-for="(event, index) in peakEvents"
             :key="event.id"
-            class="space-y-2 exercise-block p-3"
+            class="space-y-2 mg-v2-block p-3"
           >
             <div class="flex items-start gap-2">
               <span class="text-xs font-semibold text-on-surface-variant mt-2"
@@ -101,7 +101,7 @@
                 <textarea
                   v-model="event.description"
                   :placeholder="t('exerciseWizards.mountainRange.peaks.eventPlaceholder')"
-                  class="exercise-field w-full p-3 text-sm resize-none"
+                  class="mg-v2-input w-full p-3 text-sm resize-none"
                   rows="3"
                 />
                 <div class="flex items-center gap-3">
@@ -113,13 +113,13 @@
                     type="number"
                     min="0"
                     max="120"
-                    class="exercise-field w-20 p-2 text-sm text-center"
+                    class="mg-v2-input w-20 p-2 text-sm text-center"
                   />
                 </div>
                 <textarea
                   v-model="event.reflection"
                   :placeholder="t('exerciseWizards.mountainRange.peaks.meaningPlaceholder')"
-                  class="exercise-field w-full p-3 text-sm resize-none"
+                  class="mg-v2-input w-full p-3 text-sm resize-none"
                   rows="2"
                 />
                 <div class="space-y-2">
@@ -211,7 +211,7 @@
           <div
             v-for="(event, index) in valleyEvents"
             :key="event.id"
-            class="space-y-2 exercise-block p-3"
+            class="space-y-2 mg-v2-block p-3"
           >
             <div class="flex items-start gap-2">
               <span class="text-xs font-semibold text-on-surface-variant mt-2"
@@ -221,7 +221,7 @@
                 <textarea
                   v-model="event.description"
                   :placeholder="t('exerciseWizards.mountainRange.valleys.eventPlaceholder')"
-                  class="exercise-field w-full p-3 text-sm resize-none"
+                  class="mg-v2-input w-full p-3 text-sm resize-none"
                   rows="4"
                 />
                 <div class="flex items-center gap-3">
@@ -233,13 +233,13 @@
                     type="number"
                     min="0"
                     max="120"
-                    class="exercise-field w-20 p-2 text-sm text-center"
+                    class="mg-v2-input w-20 p-2 text-sm text-center"
                   />
                 </div>
                 <textarea
                   v-model="event.reflection"
                   :placeholder="tg('exerciseWizards.mountainRange.valleys.growthPlaceholder')"
-                  class="exercise-field w-full p-3 text-sm resize-none"
+                  class="mg-v2-input w-full p-3 text-sm resize-none"
                   rows="4"
                 />
                 <div class="space-y-2">
@@ -362,7 +362,7 @@
               <textarea
                 v-model="peakPatterns"
                 :placeholder="t('exerciseWizards.mountainRange.themes.peaksPlaceholder')"
-                class="exercise-field w-full p-3 text-sm resize-none mt-1"
+                class="mg-v2-input w-full p-3 text-sm resize-none mt-1"
                 rows="3"
               />
             </div>
@@ -373,7 +373,7 @@
               <textarea
                 v-model="valleyPatterns"
                 :placeholder="t('exerciseWizards.mountainRange.themes.valleysPlaceholder')"
-                class="exercise-field w-full p-3 text-sm resize-none mt-1"
+                class="mg-v2-input w-full p-3 text-sm resize-none mt-1"
                 rows="3"
               />
             </div>
@@ -384,7 +384,7 @@
               <textarea
                 v-model="valleyToPeakConnection"
                 :placeholder="t('exerciseWizards.mountainRange.themes.connectionPlaceholder')"
-                class="exercise-field w-full p-3 text-sm resize-none mt-1"
+                class="mg-v2-input w-full p-3 text-sm resize-none mt-1"
                 rows="3"
               />
             </div>
@@ -402,7 +402,7 @@
             <div v-if="isLlmLoading" class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.mountainRange.themes.thinking') }}
             </div>
-            <div v-if="llmSynthesis" class="exercise-block p-4">
+            <div v-if="llmSynthesis" class="mg-v2-block p-4">
               <p class="text-sm text-on-surface whitespace-pre-wrap">{{ llmSynthesis }}</p>
             </div>
             <AiErrorNote v-if="llmError" :error="llmError" />
@@ -435,11 +435,7 @@
             {{ t('exerciseWizards.mountainRange.future.description') }}
           </p>
           <ExerciseStepWhy :text="tg('exerciseWizards.mountainRange.future.why')" />
-          <div
-            v-for="(peak, index) in futurePeaks"
-            :key="index"
-            class="space-y-2 exercise-block p-3"
-          >
+          <div v-for="(peak, index) in futurePeaks" :key="index" class="space-y-2 mg-v2-block p-3">
             <div class="flex items-start gap-2">
               <span class="text-xs font-semibold text-on-surface-variant mt-2"
                 >{{ index + 1 }}.</span
@@ -448,10 +444,10 @@
                 <textarea
                   v-model="peak.description"
                   :placeholder="t('exerciseWizards.mountainRange.future.peakPlaceholder')"
-                  class="exercise-field w-full p-3 text-sm resize-none"
+                  class="mg-v2-input w-full p-3 text-sm resize-none"
                   rows="2"
                 />
-                <select v-model="peak.lifeAreaId" class="exercise-field w-full p-2 text-sm">
+                <select v-model="peak.lifeAreaId" class="mg-v2-input w-full p-2 text-sm">
                   <option value="">
                     {{ t('exerciseWizards.mountainRange.future.lifeAreaSelect') }}
                   </option>
@@ -496,7 +492,7 @@
             <textarea
               v-model="notes"
               :placeholder="t('exerciseWizards.mountainRange.future.notesPlaceholder')"
-              class="exercise-field w-full p-3 text-sm resize-none mt-1"
+              class="mg-v2-input w-full p-3 text-sm resize-none mt-1"
               rows="3"
             />
           </div>

@@ -23,7 +23,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.gradedExposure.intro.description') }}
           </p>
-          <div class="exercise-block p-4 space-y-3">
+          <div class="mg-v2-block p-4 space-y-3">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('exerciseWizards.gradedExposure.intro.fearLadder') }}
             </p>
@@ -80,7 +80,7 @@
             v-model="fearTarget"
             rows="3"
             :placeholder="t('exerciseWizards.gradedExposure.fearTarget.fearPlaceholder')"
-            class="exercise-field w-full p-3 text-sm resize-none"
+            class="mg-v2-input w-full p-3 text-sm resize-none"
           />
 
           <div class="space-y-2 pt-2">
@@ -97,7 +97,7 @@
               v-model="ultimateGoal"
               rows="3"
               :placeholder="t('exerciseWizards.gradedExposure.fearTarget.goalPlaceholder')"
-              class="exercise-field w-full p-3 text-sm resize-none"
+              class="mg-v2-input w-full p-3 text-sm resize-none"
             />
           </div>
         </AppCard>
@@ -140,7 +140,7 @@
               v-model="newItemSituation"
               type="text"
               :placeholder="t('exerciseWizards.gradedExposure.buildHierarchy.situationPlaceholder')"
-              class="exercise-field w-full p-2.5 text-sm"
+              class="mg-v2-input w-full p-2.5 text-sm"
               @keyup.enter="addItem"
             />
             <div class="space-y-2">
@@ -188,7 +188,7 @@
               </AppButton>
               <ProfileContextToggle v-model="useProfileBrainstormSteps" />
             </div>
-            <div v-if="brainstormResult" class="exercise-block p-4 space-y-2">
+            <div v-if="brainstormResult" class="mg-v2-block p-4 space-y-2">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                 {{ t('exerciseWizards.gradedExposure.buildHierarchy.suggestedSteps') }}
               </p>
@@ -312,7 +312,7 @@
                 :value="behavior"
                 type="text"
                 :placeholder="t('exerciseWizards.gradedExposure.safetyBehaviors.placeholder')"
-                class="exercise-field flex-1 p-2 text-sm"
+                class="mg-v2-input flex-1 p-2 text-sm"
                 @input="safetyBehaviors[index] = ($event.target as HTMLInputElement).value"
               />
               <button
@@ -332,7 +332,7 @@
         </AppCard>
 
         <!-- Examples -->
-        <div class="exercise-block p-4 space-y-2">
+        <div class="mg-v2-block p-4 space-y-2">
           <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
             {{ t('exerciseWizards.gradedExposure.safetyBehaviors.commonExamples') }}
           </p>
@@ -460,7 +460,7 @@
             v-model="notes"
             rows="2"
             :placeholder="t('exerciseWizards.gradedExposure.summary.notesPlaceholder')"
-            class="exercise-field w-full p-3 text-sm resize-none"
+            class="mg-v2-input w-full p-3 text-sm resize-none"
           />
         </AppCard>
 
