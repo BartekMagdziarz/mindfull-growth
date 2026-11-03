@@ -27,6 +27,32 @@ wracania do rozmowy, w której go znaleziono.
 
 ## Błędy
 
+### B-19 · Menu statusu priorytetu w planie rocznym pokazuje surowe klucze tłumaczeń
+
+`otwarte` · Znaleziono 2026-11-03 (K2, partia 10: StatusIconButton) · plan roczny / `src/components/calendar/AnnualPlanningWizard.vue`
+
+**Objaw.** Plan roczny → krok „Priorytety” → przycisk statusu na karcie priorytetu: menu
+pokazuje `planning.objects.status.active` i `planning.objects.status.paused` zamiast
+„Aktywny” / „Wstrzymany”; `title` i `aria-label` przycisku („Status: planning.objects…”)
+też.
+
+**Jak odtworzyć.** `npm run dev:verify`, `/calendar/year/<rok>?action=plan`, przejść do
+kroku priorytetów, kliknąć okrągły przycisk statusu na karcie.
+
+**Przyczyna.** `src/components/calendar/AnnualPlanningWizard.vue:474–475` woła
+`t('planning.objects.status.active' | '.paused')`; takie klucze nie istniały od
+`15fc72fd` („Add annual planning wizard”). Etykiety statusów leżą pod
+`planning.objects.badges.status.*` (`active` = „Aktywny”, `paused` = „Wstrzymany”).
+
+**Dlaczego to błąd.** Użytkownik widzi identyfikatory zamiast słów, a czytnik ekranu czyta
+klucz jako nazwę przycisku.
+
+**Propozycja naprawy.** Zmienić oba wywołania na `planning.objects.badges.status.active` /
+`.paused` (EN ma te same klucze).
+
+**Kryteria akceptacji.** Menu i `aria-label` pokazują „Aktywny” / „Wstrzymany”; test
+komponentu sprawdza etykiety opcji.
+
 ### B-18 · E2E panelu AI oczekuje ogólnego błędu, a 503 ma dziś nazwany komunikat
 
 `otwarte` · Znaleziono 2026-11-03 (K2, partia 8: panel AI) · e2e / `e2e/verification-companion.spec.ts`
