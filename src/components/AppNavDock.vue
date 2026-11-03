@@ -4,10 +4,10 @@
     class="dock"
     :class="{ 'dock--responsive': route.meta.responsive }"
   >
-    <div class="dock-capsule neo-scroll">
+    <div class="dock-capsule">
       <div class="dock-title">
         <span class="dock-glyph" aria-hidden="true">
-          <AppIcon name="spa" class="text-[17px]" />
+          <AppIcon name="spa" class="text-mg-icon-md" />
         </span>
         <span class="dock-label dock-title-label">Mindful Growth</span>
       </div>
@@ -71,24 +71,16 @@ const isActive = (path: string): boolean => {
 </script>
 
 <style scoped>
-/* The dock lives outside the .mg-design-v2 root, so it reads the product
-   palette directly and mirrors the V2 ladder: capsule = card (sky-100, the
-   only shadow), hover = field (white 45%), active = inner (white 80%). */
+/* The dock lives outside the .mg-design-v2 root; the --mg-* tokens are on
+   :root, so it mirrors the V2 ladder directly: capsule = card (the overlay
+   shadow — it floats over every view), hover = field (mist), active = inner
+   (paper). */
 .dock {
-  --dock-card: var(--mg-color-surface);
-  --dock-field: var(--mg-color-mist);
-  --dock-inner: var(--mg-color-paper);
-  --dock-line: rgb(var(--neo-border) / 0.14);
-  --dock-shadow:
-    -5px -5px 11px rgb(var(--neo-shadow-light) / 0.7),
-    5px 5px 11px rgb(var(--neo-shadow-dark) / 0.16);
-  --dock-shadow-sm:
-    -2px -2px 5px rgb(var(--neo-shadow-light) / 0.6), 2px 2px 5px rgb(var(--neo-shadow-dark) / 0.13);
   position: fixed;
   inset: 0 auto 0 0;
   z-index: 40;
   pointer-events: none;
-  font-family: 'Nunito', 'Avenir Next', sans-serif;
+  font-family: var(--mg-font-sans);
 }
 
 .dock-capsule {
@@ -103,13 +95,15 @@ const isActive = (path: string): boolean => {
   max-height: calc(100vh - 32px);
   overflow-y: auto;
   overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--mg-color-field-border) transparent;
   padding: 12px;
   pointer-events: auto;
-  border: 1px solid var(--dock-line);
+  border: 1px solid var(--mg-color-border);
   /* Hand-drawn capsule: uneven corners like the V2 cards. */
-  border-radius: 34px 27px 32px 25px;
-  background: var(--dock-card);
-  box-shadow: var(--dock-shadow);
+  border-radius: var(--mg-radius-xl);
+  background: var(--mg-color-surface);
+  box-shadow: var(--mg-shadow-raised);
   transition:
     width 220ms ease,
     box-shadow 220ms ease;
@@ -137,16 +131,16 @@ const isActive = (path: string): boolean => {
   flex: none;
   width: 34px;
   height: 34px;
-  border-radius: 52% 48% 54% 46% / 47% 53% 46% 54%;
-  background: rgb(var(--color-primary-strong));
-  color: rgb(var(--neo-accent-text));
+  border-radius: var(--mg-radius-icon-field-a);
+  background: var(--mg-color-primary-fill);
+  color: var(--mg-color-on-primary);
   transform: rotate(-4deg);
 }
 
 .dock-title-label {
-  font-size: 0.9rem;
-  font-weight: 800;
-  color: rgb(var(--color-on-surface));
+  font-size: var(--mg-font-size-md);
+  font-weight: var(--mg-weight-title);
+  color: var(--mg-color-ink);
 }
 
 /* Pencil separator: a faint dashed line instead of a hairline. */
@@ -154,7 +148,7 @@ const isActive = (path: string): boolean => {
   flex: none;
   height: 0;
   margin: 6px 10px;
-  border-top: 1px dashed rgb(var(--neo-border) / 0.55);
+  border-top: 1px dashed var(--mg-color-field-border);
 }
 
 .dock-item {
@@ -165,10 +159,10 @@ const isActive = (path: string): boolean => {
   height: 44px;
   padding: 0 11px;
   border: 1px solid transparent;
-  border-radius: 17px 14px 18px 15px;
-  color: rgb(var(--neo-muted));
-  font-size: 0.875rem;
-  font-weight: 700;
+  border-radius: var(--mg-radius-md);
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-sm);
+  font-weight: var(--mg-weight-strong);
   white-space: nowrap;
   text-align: left;
   text-decoration: none;
@@ -180,23 +174,23 @@ const isActive = (path: string): boolean => {
 }
 
 .dock-item:hover {
-  color: rgb(var(--color-on-surface));
-  background: var(--dock-field);
+  color: var(--mg-color-ink);
+  background: var(--mg-color-mist);
 }
 
 /* Current section = inner step, slightly lifted and tilted like the current
    unit in the rhythm calendar axis. */
 .dock-item--active {
-  color: rgb(var(--color-primary-strong));
-  background: var(--dock-inner);
-  border-color: var(--dock-line);
-  box-shadow: var(--dock-shadow-sm);
+  color: var(--mg-color-primary-strong);
+  background: var(--mg-color-paper);
+  border-color: var(--mg-color-border);
+  box-shadow: var(--mg-shadow-raised-sm);
   transform: rotate(-0.8deg);
 }
 
 .dock-item:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--mg-color-data-fill) 50%, transparent);
+  box-shadow: var(--mg-focus-ring);
 }
 
 /* Icons inside controls follow the app accent — never ink/grey. */
@@ -204,12 +198,12 @@ const isActive = (path: string): boolean => {
   flex: none;
   width: 24px;
   text-align: center;
-  font-size: 22px;
-  color: rgb(var(--color-primary));
+  font-size: var(--mg-font-size-icon-lg);
+  color: var(--mg-color-primary);
 }
 
 .dock-item--active .dock-item-icon {
-  color: rgb(var(--color-primary-strong));
+  color: var(--mg-color-primary-strong);
 }
 
 .dock-label {

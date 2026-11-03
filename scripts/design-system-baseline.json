@@ -1,19 +1,17 @@
 {
   "generatedAt": "2026-11-03",
-  "total": 185,
+  "total": 136,
   "byRule": {
-    "legacyClass": 40,
-    "tailwindArbitraryText": 12,
-    "localFont": 1,
-    "radiusLiteral": 24,
-    "localShadow": 8,
-    "fontSizeLiteral": 65,
-    "tailwindRadius": 30,
+    "legacyClass": 29,
+    "tailwindRadius": 26,
     "tailwindShadow": 2,
-    "rawColor": 3
+    "fontSizeLiteral": 43,
+    "tailwindArbitraryText": 11,
+    "radiusLiteral": 19,
+    "localShadow": 5,
+    "rawColor": 1
   },
   "files": {
-    "src/components/AppNavDock.vue": 12,
     "src/components/AppShell.vue": 1,
     "src/components/AppSnackbar.vue": 2,
     "src/components/assessments/AssessmentIntroCard.vue": 1,
@@ -31,7 +29,6 @@
     "src/components/today/EmotionCard.vue": 7,
     "src/design-system/base.css": 7,
     "src/domain/loadState.ts": 3,
-    "src/features/ai-companion/ReflectionCompanionPanel.vue": 21,
     "src/features/ai-introduction/IntroductionPanel.vue": 2,
     "src/features/calendar-rhythm/RhythmBoard.vue": 1,
     "src/features/objects-library/GoalCreationWizard.vue": 4,
@@ -56,7 +53,6 @@
     "src/features/quiet-ritual/QuietRatingBar.vue": 2,
     "src/styles/text-field-focus.css": 1,
     "src/utils/selfEnergyColors.ts": 1,
-    "src/views/AIPlaygroundView.vue": 16,
     "src/views/ChatView.vue": 4,
     "src/views/SignupView.vue": 1,
     "src/views/exercises/ConstellationView.vue": 1,

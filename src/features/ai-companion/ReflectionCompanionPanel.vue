@@ -817,7 +817,7 @@ onBeforeUnmount(() => {
   --cp-line: color-mix(in srgb, var(--mg-color-primary) 26%, transparent);
   padding: 12px 14px;
   border: 0;
-  border-radius: 14px 18px 15px 17px;
+  border-radius: var(--mg-radius-md);
   box-shadow: none;
 }
 .companion-panel--conversation {
@@ -836,8 +836,8 @@ onBeforeUnmount(() => {
   gap: 0.5rem;
 }
 .companion-panel h2 {
-  font-size: 1.05rem;
-  font-weight: 700;
+  font-size: var(--mg-font-size-lg);
+  font-weight: var(--mg-weight-strong);
   margin: 0;
 }
 .companion-panel .companion-settings-button[aria-expanded='true'] {
@@ -865,24 +865,24 @@ onBeforeUnmount(() => {
   overflow-wrap: anywhere;
 }
 .companion-muted {
-  font-size: 0.78rem;
+  font-size: var(--mg-font-size-xs);
   color: var(--mg-color-muted);
 }
 .companion-introduction {
-  font-size: 0.87rem;
+  font-size: var(--mg-font-size-sm);
 }
 .companion-eyebrow {
   margin: 0.35rem 0 0;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: 0.7rem;
+  font-size: var(--mg-font-size-xs);
   color: var(--mg-color-primary-strong);
 }
 .companion-options,
 .companion-archive,
 .companion-message-sources,
 .companion-access {
-  font-size: 0.8rem;
+  font-size: var(--mg-font-size-sm);
 }
 summary {
   cursor: pointer;
@@ -900,7 +900,7 @@ summary {
 }
 .companion-options h3 {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: var(--mg-font-size-md);
 }
 .companion-profile {
   display: grid;
@@ -919,18 +919,18 @@ summary {
   padding: 0.8rem 0.9rem;
   border-radius: var(--mg-radius-md);
   background: var(--cp-field);
-  font-size: 0.85rem;
+  font-size: var(--mg-font-size-sm);
 }
 .companion-source {
   max-height: 28rem;
   overflow: auto;
 }
 .companion-source article {
-  font-size: 0.8rem;
+  font-size: var(--mg-font-size-sm);
 }
 .companion-status,
 .companion-error {
-  font-size: 0.85rem;
+  font-size: var(--mg-font-size-sm);
   padding: 0.7rem 0.9rem;
   border-radius: var(--mg-radius-md);
   background: var(--cp-field);
@@ -947,7 +947,7 @@ summary {
   gap: 0.85rem;
 }
 .companion-message {
-  font-size: 0.87rem;
+  font-size: var(--mg-font-size-sm);
   padding: 0.7rem 0.9rem;
   border-radius: var(--mg-radius-lg);
   background: var(--cp-field);
@@ -955,12 +955,12 @@ summary {
 .companion-author {
   display: block;
   margin-bottom: 0.25rem;
-  font-size: 0.68rem;
-  font-weight: 750;
+  font-size: var(--mg-font-size-xs);
+  font-weight: var(--mg-weight-strong);
   color: var(--mg-color-muted);
 }
 .companion-message h3 {
-  font-size: 0.9rem;
+  font-size: var(--mg-font-size-md);
   margin: 0.3rem 0;
 }
 .companion-message--assistant {
@@ -975,7 +975,7 @@ summary {
   padding: 0 0.2rem;
   background: transparent;
   color: var(--mg-color-muted);
-  font-size: 0.78rem;
+  font-size: var(--mg-font-size-xs);
 }
 .companion-message-toolbar {
   display: flex;
@@ -989,7 +989,7 @@ summary {
   padding: 0.45rem 0;
   background: transparent;
   color: var(--mg-color-muted);
-  font-size: 0.8rem;
+  font-size: var(--mg-font-size-sm);
   cursor: pointer;
 }
 .companion-text-action:hover {
@@ -1019,7 +1019,7 @@ summary {
   text-align: left;
   background: var(--cp-field);
   border: 1px solid transparent;
-  border-radius: var(--mg-radius-md, 16px);
+  border-radius: var(--mg-radius-md);
   transition: background 180ms ease;
 }
 .companion-topic[open] {
@@ -1027,7 +1027,7 @@ summary {
   padding-bottom: 0.8rem;
 }
 .companion-topic[data-active='true'] {
-  border-color: var(--mg-color-primary, #568ac5);
+  border-color: var(--mg-color-primary);
 }
 .companion-topic > summary {
   display: flex;
@@ -1036,10 +1036,10 @@ summary {
   min-height: 3rem;
   padding: 0.65rem 0.8rem;
   list-style: none;
-  color: var(--mg-color-ink, #183153);
-  font-size: 0.84rem;
+  color: var(--mg-color-ink);
+  font-size: var(--mg-font-size-sm);
   line-height: 1.35;
-  font-weight: 650;
+  font-weight: var(--mg-weight-label);
   border-radius: inherit;
 }
 .companion-topic > summary::-webkit-details-marker {
@@ -1072,7 +1072,7 @@ summary {
   margin: 0.6rem 0.8rem 0;
 }
 .companion-topic > p {
-  font-size: 0.84rem;
+  font-size: var(--mg-font-size-sm);
 }
 
 /* Composer: a field like the entry canvas, no divider line. */
@@ -1081,7 +1081,7 @@ summary {
   display: block;
   flex: none;
   padding-top: 0.2rem;
-  font-size: 0.85rem;
+  font-size: var(--mg-font-size-sm);
 }
 .companion-panel textarea {
   width: 100%;
@@ -1124,12 +1124,12 @@ summary {
   justify-content: center;
   gap: 0.35rem;
   border: none;
-  font-size: 0.82rem;
+  font-size: var(--mg-font-size-sm);
   cursor: pointer;
 }
 .companion-panel .qr-primary {
   padding: 0.6rem 0.95rem;
-  border-radius: var(--mg-radius-md, 12px);
+  border-radius: var(--mg-radius-md);
   background: var(--mg-color-primary-fill);
   color: var(--mg-color-on-primary);
 }
@@ -1138,7 +1138,7 @@ summary {
 }
 .companion-panel .qr-quiet {
   padding: 0.45rem 0.7rem;
-  border-radius: var(--mg-radius-sm, 10px);
+  border-radius: var(--mg-radius-sm);
   background: transparent;
   color: var(--mg-color-muted);
 }

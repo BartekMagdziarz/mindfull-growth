@@ -3,7 +3,7 @@
     <header class="mb-6 flex flex-wrap items-start justify-between gap-4">
       <div>
         <div class="mb-2 flex items-center gap-2">
-          <span class="neo-pill px-3 py-1 text-xs font-semibold text-primary">
+          <span class="mg-v2-pill">
             {{ t('aiPlayground.developmentOnly') }}
           </span>
           <span v-if="settings" class="text-xs text-on-surface-variant">
@@ -27,35 +27,37 @@
       <AppCard padding="lg" class="h-fit space-y-5">
         <div class="grid gap-4 sm:grid-cols-2">
           <label class="space-y-2 sm:col-span-2">
-            <span class="field-label">{{ t('aiPlayground.systemPrompt') }}</span>
+            <span class="mg-v2-field-wrap__label block">{{ t('aiPlayground.systemPrompt') }}</span>
             <textarea
               v-model="systemPrompt"
-              class="neo-input min-h-[100px] w-full resize-y px-4 py-3"
+              class="mg-v2-input min-h-[100px] w-full resize-y px-4 py-3"
               :placeholder="t('aiPlayground.systemPromptPlaceholder')"
               :disabled="isRunning"
             ></textarea>
           </label>
 
           <label class="space-y-2 sm:col-span-2">
-            <span class="field-label">{{ t('aiPlayground.userPrompt') }}</span>
+            <span class="mg-v2-field-wrap__label block">{{ t('aiPlayground.userPrompt') }}</span>
             <textarea
               v-model="userPrompt"
-              class="neo-input min-h-[150px] w-full resize-y px-4 py-3"
+              class="mg-v2-input min-h-[150px] w-full resize-y px-4 py-3"
               :placeholder="t('aiPlayground.userPromptPlaceholder')"
               :disabled="isRunning"
             ></textarea>
           </label>
 
           <label class="space-y-2">
-            <span class="field-label">{{ t('aiPlayground.model') }}</span>
-            <input v-model="model" class="neo-input w-full px-4 py-3" :disabled="isRunning" />
+            <span class="mg-v2-field-wrap__label block">{{ t('aiPlayground.model') }}</span>
+            <input v-model="model" class="mg-v2-input w-full px-4 py-3" :disabled="isRunning" />
           </label>
 
           <label class="space-y-2">
-            <span class="field-label">{{ t('aiPlayground.reasoningEffort') }}</span>
+            <span class="mg-v2-field-wrap__label block">{{
+              t('aiPlayground.reasoningEffort')
+            }}</span>
             <select
               v-model="reasoningEffort"
-              class="neo-input w-full px-4 py-3"
+              class="mg-v2-input w-full px-4 py-3"
               :aria-label="t('aiPlayground.reasoningEffort')"
               :disabled="isRunning"
             >
@@ -70,26 +72,26 @@
           </label>
 
           <label class="space-y-2">
-            <span class="field-label">{{ t('aiPlayground.maxTokens') }}</span>
+            <span class="mg-v2-field-wrap__label block">{{ t('aiPlayground.maxTokens') }}</span>
             <input
               v-model.number="maxTokens"
               type="number"
               min="1"
               max="8192"
-              class="neo-input w-full px-4 py-3"
+              class="mg-v2-input w-full px-4 py-3"
               :disabled="isRunning"
             />
           </label>
 
           <label class="space-y-2">
-            <span class="field-label">{{ t('aiPlayground.temperature') }}</span>
+            <span class="mg-v2-field-wrap__label block">{{ t('aiPlayground.temperature') }}</span>
             <input
               v-model.number="temperature"
               type="number"
               min="0"
               max="2"
               step="0.1"
-              class="neo-input w-full px-4 py-3"
+              class="mg-v2-input w-full px-4 py-3"
               :disabled="isRunning"
             />
           </label>
@@ -117,7 +119,7 @@
 
         <div
           v-if="error"
-          class="rounded-2xl border border-error/30 bg-error-container p-4 text-sm text-on-error-container"
+          class="rounded-mg-md border border-error/30 bg-error-container p-4 text-sm text-on-error-container"
           role="alert"
         >
           <strong>{{ t('aiPlayground.error') }}:</strong> {{ error }}
@@ -130,12 +132,12 @@
             <h2 class="text-lg font-semibold text-on-surface">
               {{ t('aiPlayground.response') }}
             </h2>
-            <span v-if="isRunning" class="neo-pill px-3 py-1 text-xs text-primary">
+            <span v-if="isRunning" class="mg-v2-pill">
               {{ response ? t('chat.sending') : t('chat.aiThinking') }}
             </span>
           </div>
           <div
-            class="neo-inset min-h-[180px] rounded-2xl p-4 text-sm leading-6 text-on-surface"
+            class="mg-v2-block min-h-[180px] p-4 text-sm leading-6 text-on-surface"
             aria-live="polite"
           >
             <p v-if="response" class="whitespace-pre-wrap break-words">
@@ -171,11 +173,7 @@
               {{ t('aiPlayground.tokens') }}
             </h2>
             <dl class="grid grid-cols-2 gap-3">
-              <div
-                v-for="metric in tokenMetrics"
-                :key="metric.label"
-                class="neo-inset rounded-xl p-3"
-              >
+              <div v-for="metric in tokenMetrics" :key="metric.label" class="mg-v2-block p-3">
                 <dt class="text-xs text-on-surface-variant">{{ metric.label }}</dt>
                 <dd class="mt-1 text-lg font-semibold text-on-surface">
                   {{ metric.value }}
@@ -206,7 +204,7 @@
                 {{ t('aiPlayground.rawMetadata') }}
               </summary>
               <pre
-                class="mt-4 max-h-72 overflow-auto whitespace-pre-wrap break-all rounded-xl bg-section p-3 text-xs text-on-surface-variant"
+                class="mt-4 max-h-72 overflow-auto whitespace-pre-wrap break-all rounded-mg-md bg-section p-3 text-xs text-on-surface-variant"
                 >{{ rawMetadata }}</pre>
             </details>
           </AppCard>
@@ -475,22 +473,13 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.field-label {
-  display: block;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: rgb(var(--color-on-surface-variant));
-}
-
 .streaming-cursor {
   display: inline-block;
   width: 0.45em;
   height: 1em;
   margin-left: 0.15em;
   vertical-align: -0.12em;
-  border-radius: 2px;
+  border-radius: var(--mg-radius-sketch-a);
   background: currentColor;
   animation: cursor-blink 0.8s steps(1) infinite;
 }

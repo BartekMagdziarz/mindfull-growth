@@ -517,3 +517,25 @@ ikon 40 → 36 px w kolorze akcentu na tle karty (wcześniej papier — odwróco
 popovery z promieniem `md`. Dług 283 → 185; `components/shared`, `components/emotion` i
 `EmotionSelector` = 0.
 
+
+## 2026-11-03 — K2, partia 8: panel AI, dok nawigacji, AI Playground
+
+Kontekst: trzy największe pozostałe pliki długu — `ReflectionCompanionPanel` (21, rytuały
+tygodnia/miesiąca i edytor dziennika), `AppNavDock` (12, na każdym widoku) i
+`AIPlaygroundView` (16, tylko dev).
+Decyzja: panel — wszystkie rozmiary pisma na skali (13,4–14 px → `sm`, 14,4 → `md`,
+16,8 → `lg`, 10,9–12,5 → `xs`), wagi 650/750 → `label`/`strong`, zagnieżdżony panel na
+`--mg-radius-md`, bez fallbacków hex. Dok — tokeny zamiast własnych `--dock-*`: kapsuła
+`--mg-radius-xl` + `--mg-shadow-raised` (unosi się nad każdym widokiem), aktywna pozycja
+`paper` + `raised-sm`, glif na `primary-fill`, etykiety `muted` (ciemniejszy, jedyny muted)
+13 px, aktywna `--mg-color-primary-strong` (pogłębiony akcent na ≥ 4:1 — token wprost
+wymienia dok), ikony `icon-lg`, fokus `--mg-focus-ring`; własny pasek przewijania zamiast
+`neo-scroll` (jedyny konsument — reguła usunięta z `main.css`). Playground — `mg-v2-input`,
+`mg-v2-block`, `mg-v2-pill`, etykiety pól → wspólne `mg-v2-field-wrap__label` (wersalikowa
+etykieta 12 px zawijała „Budżet tokenów odpowiedzi” i rozjeżdżała wiersz siatki).
+Konsekwencje: style obliczone 17 stanów (dok w spoczynku / hover / fokus, panel od
+włączenia AI przez tematy, źródło, rozmowę, wstawianie, opcje i fokus pola, panel w
+edytorze dziennika, Playground) porównane przed/po z biegiem kontrolnym. Widoczne: pismo
+panelu o ~1 px mniejsze w treści, tytuł 17 → 18 px; dok o 1 px mniejsze etykiety,
+ciemniejszy muted i akcent aktywnej pozycji; etykiety Playground w zwykłym zapisie.
+Dług 185 → 136.
