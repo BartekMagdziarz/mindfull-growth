@@ -1,14 +1,14 @@
 {
   "generatedAt": "2026-11-03",
-  "total": 136,
+  "total": 110,
   "byRule": {
     "legacyClass": 29,
-    "tailwindRadius": 26,
+    "tailwindRadius": 23,
     "tailwindShadow": 2,
-    "fontSizeLiteral": 43,
-    "tailwindArbitraryText": 11,
-    "radiusLiteral": 19,
-    "localShadow": 5,
+    "fontSizeLiteral": 32,
+    "tailwindArbitraryText": 10,
+    "radiusLiteral": 12,
+    "localShadow": 1,
     "rawColor": 1
   },
   "files": {
@@ -24,7 +24,6 @@
     "src/components/lifeAreas/LifeAreaLinkedEntities.vue": 4,
     "src/components/objects/ObjectsLibraryPillSelect.vue": 1,
     "src/components/objects/StatusIconButton.vue": 6,
-    "src/components/objects/priority-creator/PriorityCreatorRitual.vue": 8,
     "src/components/planning/PlanningStatePanel.vue": 5,
     "src/components/today/EmotionCard.vue": 7,
     "src/design-system/base.css": 7,
@@ -45,9 +44,6 @@
     "src/features/program-path/PathDoseCard.vue": 1,
     "src/features/program-path/PathKnowledgeCard.vue": 2,
     "src/features/program-path/PathMeasureTracks.vue": 2,
-    "src/features/program-path/PathMomentsGlance.vue": 1,
-    "src/features/program-path/PathPartsChart.vue": 10,
-    "src/features/program-path/program-path.css": 7,
     "src/features/quiet-ritual/QuietEmotionStack.vue": 4,
     "src/features/quiet-ritual/QuietPlanGroups.vue": 7,
     "src/features/quiet-ritual/QuietRatingBar.vue": 2,

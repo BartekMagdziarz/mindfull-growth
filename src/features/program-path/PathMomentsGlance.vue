@@ -277,7 +277,7 @@ const noticedBars = computed(() => {
   display: flex;
   height: 0.6rem;
   overflow: hidden;
-  border-radius: 5px 4px 5px 4px;
+  border-radius: var(--mg-radius-segment);
   background: var(--mg-color-paper);
   box-shadow: var(--mg-shadow-inset-sm);
 }

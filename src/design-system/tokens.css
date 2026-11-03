@@ -154,6 +154,12 @@
   --mg-radius-sketch-a: 22% 17% 20% 16% / 18% 24% 16% 22%;
   --mg-radius-sketch-b: 17% 22% 16% 20% / 24% 18% 22% 16%;
   --mg-radius-sketch-c: 20% 16% 22% 18% / 16% 22% 18% 24%;
+  /* Stacked chart segments (parts per week, the Moments glance): small uneven
+     corners in px, so a 3 px sliver keeps its shape; the base and top segments
+     round their outer end a little more. */
+  --mg-radius-segment: 5px 4px 5px 4px;
+  --mg-radius-segment-top: 7px 6px 4px 5px;
+  --mg-radius-segment-base: 4px 5px 6px 7px;
   /* One cloud of a rating stack (DsRatingStack): a wide, soft pill with uneven
      ends; a and b alternate up the stack. */
   --mg-radius-cloud-a: 14px 18px 12px 16px / 55% 45% 60% 40%;

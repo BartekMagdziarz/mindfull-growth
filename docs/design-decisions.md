@@ -539,3 +539,23 @@ edytorze dziennika, Playground) porównane przed/po z biegiem kontrolnym. Widocz
 panelu o ~1 px mniejsze w treści, tytuł 17 → 18 px; dok o 1 px mniejsze etykiety,
 ciemniejszy muted i akcent aktywnej pozycji; etykiety Playground w zwykłym zapisie.
 Dług 185 → 136.
+
+## 2026-11-03 — K2, partia 9: ścieżki i rytuał priorytetu
+
+Kontekst: wykres części (`PathPartsChart`, widok ścieżki i refleksja tygodnia), CSS ścieżki
+(`program-path.css`) i rytuał priorytetu — 25 naruszeń; ten sam literał segmentu
+(5/4/5/4 px) w `PathPartsChart` i `PathMomentsGlance`.
+Decyzja: nowa rola `--mg-radius-segment(-top/-base)` (px, nie procent — patrz README);
+obrys segmentów i kropek legendy `outline` zamiast lokalnego cienia `inset`; etykiety
+osi i legendy wykresu → `--mg-font-size-chart` (było 9,9–10,6 px); ramka bieżącego kafla
+ścieżki → `--mg-shadow-current-ring` (ta sama wartość); eyebrow bloków i odczyt dysku →
+`xs` + `title` (900 → 800). Martwe reguły `.pp-mark*` (żadnego konsumenta) usunięte
+zamiast przenoszone. Rytuał: eyebrow sukcesu `text-mg-xs`, ostrzeżenia (limit portfela,
+szkic) → `mg-v2-block--warn`, notka o nowych obiektach `rounded-mg-md`, tekst granic 14 →
+13 px, glif sygnału `icon-sm`.
+Konsekwencje: style obliczone 16 stanów (4 ścieżki w spoczynku / hover / fokus kolumny,
+refleksja tygodnia z wykresem kompaktowym, kroki rytuału) porównane przed/po z biegiem
+kontrolnym; segmenty na zrzucie @2x nie do odróżnienia. Widoczne: etykiety wykresu o ~1 px
+większe, eyebrow „Części” 12 px. Ostrzeżenia rytuału (limit, szkic) zmieniono bez podglądu
+na żywo — seed nie dochodzi do tych stanów. `QuietEmotionStack` ma własne, mniejsze
+literały segmentów (3–5 px) — do przeniesienia na tę rolę w kolejnej partii. Dług 136 → 110.

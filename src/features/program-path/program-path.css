@@ -23,7 +23,7 @@
   margin-bottom: var(--mg-space-3);
   color: var(--mg-color-primary-strong);
   font-size: var(--mg-font-size-xs);
-  font-weight: 900;
+  font-weight: var(--mg-weight-title);
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -156,48 +156,6 @@
   gap: 4px;
 }
 
-/* Step marks: tiny discs in the week row, a larger disc in the step list. */
-.pp-mark {
-  display: inline-grid;
-  place-items: center;
-  width: 0.6rem;
-  height: 0.6rem;
-  border: 1px solid var(--mg-color-border);
-  border-radius: var(--mg-radius-organic-b);
-  background: var(--mg-color-canvas);
-}
-
-.pp-mark:nth-child(even) {
-  border-radius: var(--mg-radius-organic-c);
-}
-
-.pp-mark--done {
-  border-color: transparent;
-  background: var(--mg-color-primary-fill);
-}
-
-.pp-mark--current {
-  border-color: var(--mg-color-primary);
-  box-shadow: 0 0 0 2px var(--mg-color-primary-soft);
-}
-
-.pp-mark--lg {
-  width: 1.3rem;
-  height: 1.3rem;
-  color: var(--mg-color-on-primary);
-  box-shadow: var(--mg-shadow-inset-sm);
-}
-
-.pp-mark--lg.pp-mark--done {
-  background: var(--mg-color-sky-field);
-  color: var(--mg-color-primary-strong);
-  box-shadow: none;
-}
-
-.pp-mark--lg .material-symbols-outlined {
-  font-size: 0.8rem;
-}
-
 /* A tile inside a card (Lab round 6): the step tile's anatomy — head
    (title + mark), one sentence, an optional footer with the action right
    after the content. Tonal ladder in one direction: card (surface) →
@@ -259,7 +217,7 @@
   display: inline-flex;
   margin-top: 1px;
   color: var(--mg-color-muted);
-  font-size: 1rem;
+  font-size: var(--mg-font-size-icon-sm);
   line-height: 1;
 }
 
@@ -350,7 +308,7 @@
 /* The current step: the same size as its neighbours, paper with a ring. */
 .pp-tile--current {
   border-color: var(--mg-color-primary-soft);
-  box-shadow: 0 0 0 3px var(--mg-color-primary-soft);
+  box-shadow: var(--mg-shadow-current-ring);
 }
 
 .pp-tile--current .pp-tile__title {
@@ -408,8 +366,8 @@
 
 .pp-block__label {
   color: var(--mg-color-muted);
-  font-size: 0.66rem;
-  font-weight: 900;
+  font-size: var(--mg-font-size-xs);
+  font-weight: var(--mg-weight-title);
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -430,14 +388,14 @@
 }
 
 .pp-disc b {
-  font-size: 0.78rem;
-  font-weight: 900;
+  font-size: var(--mg-font-size-xs);
+  font-weight: var(--mg-weight-title);
   line-height: 1;
 }
 
 .pp-disc b i {
-  font-size: 0.6rem;
-  font-weight: 700;
+  font-size: var(--mg-font-size-chart);
+  font-weight: var(--mg-weight-strong);
   font-style: normal;
   opacity: 0.7;
 }

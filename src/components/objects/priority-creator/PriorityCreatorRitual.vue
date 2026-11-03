@@ -7,7 +7,7 @@
     >
       <AppIcon name="check_circle" class="text-4xl text-primary" />
       <div class="space-y-1">
-        <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
+        <p class="text-mg-xs font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
           {{
             ritual.result.value.priority.status === 'draft'
               ? t('planning.priorityRitual.success.eyebrowDraft')
@@ -206,10 +206,7 @@
               </div>
             </div>
 
-            <div
-              v-if="ritual.atPortfolioLimit.value"
-              class="rounded-xl bg-status-warn-soft p-4 text-status-warn-on"
-            >
+            <div v-if="ritual.atPortfolioLimit.value" class="mg-v2-block mg-v2-block--warn p-4">
               <p class="text-sm font-semibold">
                 {{
                   t('planning.priorityRitual.boundaries.limitTitle', {
@@ -619,7 +616,7 @@
             </div>
             <div
               v-if="ritual.selectedNewCount.value > 0"
-              class="rounded-xl bg-primary-soft p-3 text-sm text-on-surface"
+              class="rounded-mg-md bg-primary-soft p-3 text-sm text-on-surface"
             >
               {{
                 t('planning.priorityRitual.review.pendingNotice', {
@@ -629,7 +626,7 @@
             </div>
             <div
               v-if="ritual.willCreateAsDraft.value"
-              class="rounded-xl bg-status-warn-soft p-3 text-sm text-status-warn-on"
+              class="mg-v2-block mg-v2-block--warn p-3 text-sm"
             >
               {{ t('planning.priorityRitual.review.draftNotice') }}
             </div>
@@ -924,7 +921,7 @@ onMounted(() => {
   width: 0.375rem;
   height: 0.375rem;
   margin-top: 0.95rem;
-  border-radius: 999px;
+  border-radius: var(--mg-radius-pill);
   background: var(--mg-color-muted);
 }
 
@@ -936,7 +933,7 @@ onMounted(() => {
   padding: var(--mg-space-2) 0;
   border: 0;
   font: inherit;
-  font-size: 0.875rem;
+  font-size: var(--mg-font-size-sm);
   line-height: 1.25rem;
   color: inherit;
   background: transparent;
@@ -1004,13 +1001,13 @@ onMounted(() => {
   border-radius: var(--mg-radius-organic-a);
   color: var(--signal-ink);
   background: var(--signal-soft);
-  font-weight: 900;
+  font-weight: var(--mg-weight-title);
 }
 
 .priority-signal-card__kind-icon {
   width: 1.75rem;
   height: 1.75rem;
-  font-size: 1rem;
+  font-size: var(--mg-font-size-icon-sm);
   box-shadow: var(--mg-shadow-raised-sm);
 }
 
@@ -1040,7 +1037,7 @@ onMounted(() => {
   width: 1.5rem;
   height: 1.5rem;
   margin-top: 0.1rem;
-  font-size: 0.875rem;
+  font-size: var(--mg-font-size-sm);
 }
 
 .priority-signal-row__text {

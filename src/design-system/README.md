@@ -141,6 +141,12 @@ Wdrożenie propozycji A z audytu 2026-10-18 (plan i porównanie:
   `--mg-color-veil-strong` (75 %) — papier kładziony na barwnym tle (tint ćwiartki
   emocji, kolor części), gdzie nieprzezroczysta mgła/papier przesunęłaby barwę ku niebu.
   Nie na zwykłych kartach i polach — tam drabinka mgła → papier.
+- **Segmenty słupków (K2, 2026-11-03):** `--mg-radius-segment` (środek stosu),
+  `--mg-radius-segment-top` i `-base` (zewnętrzne końce) — w px, żeby 3-pikselowy
+  segment zachował kształt (procentowy `sketch` spłaszczyłby go w elipsę). Dla
+  wykresów warstwowych (części w tygodniu, przegląd Momentów); pojedynczy słupek
+  dalej `sketch`. Obrys segmentu barwą części = `outline: 1px; outline-offset: -1px`,
+  nie lokalny `box-shadow: inset`.
 - **Strażnik-zapadka:** `npm run check:design-system` skanuje całe `src/`
   (9 reguł) i porównuje z `scripts/design-system-baseline.json`; hook
   PostToolUse sprawdza każdy edytowany plik. `--list [--rule x]` wypisuje

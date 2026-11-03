@@ -263,8 +263,8 @@ const legendHead = computed(() => {
   margin-bottom: 2px;
   overflow: hidden;
   color: var(--mg-color-muted);
-  font-size: 0.62rem;
-  font-weight: 700;
+  font-size: var(--mg-font-size-chart);
+  font-weight: var(--mg-weight-strong);
   line-height: 1.2;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -281,8 +281,8 @@ const legendHead = computed(() => {
   align-items: start;
   min-height: 0.9rem;
   color: var(--mg-color-muted);
-  font-size: 0.66rem;
-  font-weight: 700;
+  font-size: var(--mg-font-size-chart);
+  font-weight: var(--mg-weight-strong);
   line-height: 1.2;
   transition: color 120ms ease;
 }
@@ -293,7 +293,8 @@ const legendHead = computed(() => {
   margin-top: 0.12rem;
   border-radius: var(--mg-radius-organic-a);
   background: var(--part);
-  box-shadow: inset 0 0 0 1px var(--ink);
+  outline: 1px solid var(--ink);
+  outline-offset: -1px;
 }
 .pc__legend-row:nth-child(odd) i {
   border-radius: var(--mg-radius-organic-b);
@@ -354,15 +355,16 @@ const legendHead = computed(() => {
   display: block;
   flex: 0 0 auto;
   min-height: 3px;
-  border-radius: 5px 4px 5px 4px;
+  border-radius: var(--mg-radius-segment);
   background: var(--part);
-  box-shadow: inset 0 0 0 1px var(--ink);
+  outline: 1px solid var(--ink);
+  outline-offset: -1px;
 }
 .pc__col .pc__seg:last-child {
-  border-radius: 7px 6px 4px 5px;
+  border-radius: var(--mg-radius-segment-top);
 }
 .pc__col .pc__seg:first-child {
-  border-radius: 4px 5px 6px 7px;
+  border-radius: var(--mg-radius-segment-base);
 }
 /* written down later: the part's colour as a hatch — a memory, not a catch */
 .pc__seg.is-later {
@@ -374,7 +376,9 @@ const legendHead = computed(() => {
   order: 1;
   border: 1px dashed var(--pencil);
   border-bottom: 0;
-  border-radius: 7px 6px 0 0;
+  border-radius: var(--mg-radius-segment-top);
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
 }
 .pc__week.is-slot .pc__col,
 .pc__week.is-quiet .pc__col {
@@ -384,7 +388,7 @@ const legendHead = computed(() => {
   filter: saturate(1.15) brightness(0.98);
 }
 .pc__week:focus-visible .pc__col {
-  border-radius: 6px;
+  border-radius: var(--mg-radius-xs);
   box-shadow: var(--mg-focus-ring);
 }
 /* the baseline is a pencil hairline, like the object timeline */
@@ -402,8 +406,8 @@ const legendHead = computed(() => {
 .pc__axis small {
   min-height: 0.7rem;
   color: var(--mg-color-muted);
-  font-size: 0.62rem;
-  font-weight: 700;
+  font-size: var(--mg-font-size-chart);
+  font-weight: var(--mg-weight-strong);
   line-height: 1;
   text-align: center;
 }
