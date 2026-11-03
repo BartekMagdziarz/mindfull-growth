@@ -1,15 +1,15 @@
 {
   "generatedAt": "2026-11-03",
-  "total": 349,
+  "total": 283,
   "byRule": {
-    "legacyClass": 91,
-    "tailwindArbitraryText": 28,
+    "legacyClass": 57,
+    "tailwindArbitraryText": 16,
     "localFont": 1,
     "radiusLiteral": 45,
     "localShadow": 11,
     "fontSizeLiteral": 92,
-    "tailwindRadius": 53,
-    "tailwindShadow": 8,
+    "tailwindRadius": 37,
+    "tailwindShadow": 4,
     "rawColor": 20
   },
   "files": {
@@ -23,9 +23,6 @@
     "src/components/assessments/AssessmentReview.vue": 1,
     "src/components/assessments/ConsentDisclaimerStep.vue": 1,
     "src/components/assessments/LikertItemList.vue": 1,
-    "src/components/calendar/AnnualPlanningPriorityCard.vue": 8,
-    "src/components/calendar/AnnualPlanningWizard.vue": 36,
-    "src/components/calendar/AssignmentMatrix.vue": 22,
     "src/components/emotion/EmotionFaceIcon.vue": 5,
     "src/components/emotion/EmotionGroupPicker.vue": 17,
     "src/components/lifeAreas/LifeAreaForm.vue": 5,

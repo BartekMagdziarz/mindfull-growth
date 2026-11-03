@@ -1,5 +1,5 @@
 <template>
-  <article class="neo-card border-neu-border/30 bg-gradient-to-br from-neu-top to-neu-bottom p-3.5">
+  <article class="mg-v2-surface mg-v2-surface--raised-sm p-3.5">
     <div class="space-y-3">
       <div class="flex items-center gap-2">
         <IconPicker
@@ -36,13 +36,13 @@
       />
 
       <label class="block space-y-1">
-        <span class="text-[10px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
+        <span class="text-mg-xs font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
           {{ yearsLabel }}
         </span>
         <input
           ref="yearsRef"
           v-model="years"
-          class="neo-input min-h-10 w-full px-3 py-2 text-xs"
+          class="mg-v2-input min-h-10 w-full px-3 py-2 text-xs"
           placeholder="2026"
           @change="flushYears"
           @blur="flushYears"
@@ -53,7 +53,7 @@
         ref="whyNowRef"
         v-model="whyNow"
         rows="4"
-        class="neo-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
+        class="mg-v2-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
         :placeholder="whyNowPlaceholder"
         @blur="flushWhyNow"
       />
@@ -61,7 +61,7 @@
         ref="desiredDirectionRef"
         v-model="desiredDirection"
         rows="4"
-        class="neo-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
+        class="mg-v2-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
         :placeholder="desiredDirectionPlaceholder"
         @blur="flushDesiredDirection"
       />
@@ -69,7 +69,7 @@
         ref="tradeoffsRef"
         v-model="tradeoffs"
         rows="4"
-        class="neo-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
+        class="mg-v2-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
         :placeholder="tradeoffsPlaceholder"
         @blur="flushTradeoffs"
       />
@@ -77,7 +77,7 @@
         ref="progressSignalsRef"
         v-model="progressSignals"
         rows="4"
-        class="neo-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
+        class="mg-v2-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
         :placeholder="progressSignalsPlaceholder"
         @change="flushProgressSignals"
         @blur="flushProgressSignals"
@@ -86,7 +86,7 @@
         ref="riskSignalsRef"
         v-model="riskSignals"
         rows="4"
-        class="neo-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
+        class="mg-v2-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
         :placeholder="riskSignalsPlaceholder"
         @change="flushRiskSignals"
         @blur="flushRiskSignals"

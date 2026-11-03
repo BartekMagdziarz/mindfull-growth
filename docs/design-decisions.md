@@ -472,3 +472,21 @@ potwierdza resztę; zrzuty 1512 × 982 @2x. Dług strażnika 548 → 349. Przy o
 że `.mg-design-v2 button { font: inherit }` przebija rozmiar i wagę `mg-v2-button` i
 `mg-v2-pill` na elementach `<button>` (B-16).
 
+## 2026-11-03 — K2, partia 6: kalendarz (plan roczny i macierz przypisań)
+
+Kontekst: `components/calendar` miało 66 naruszeń w kreatorze planu rocznego, karcie
+priorytetu rocznego i macierzy przypisań (dziś używa jej rytuał powrotu).
+Decyzja: karty `neo-card` → `mg-v2-surface--raised-sm`, wstawki → `mg-v2-block`, pola →
+`mg-v2-input`, kropki kreatora rocznego → `mg-v2-stepper__dot(--done/--current)` jak w
+budowaniu profilu, przycisk rozwinięcia obszaru → `mg-v2-button--icon`, nośnik ikony w
+pustym panelu → `mg-v2-icon-board`. Akcje wierszy macierzy (28 px) → `mg-v2-button--icon`
+z nowym modyfikatorem `--icon-xs` w `base.css` obok `--icon-sm`. Etykiety macierzy zostają
+na `chart` (tabela danych, jak w kalendarzu rytmu), etykiety kreatora rocznego → `xs`.
+Puste komórki macierzy mają krawędź z CSS komponentu (`.am-cell.mg-v2-block`): w rytuale
+powrotu `.quiet-ritual button { border: 0 }` zdejmował ją ze wspólnego bloku, a mgła
+komórki zlewa się z polem macierzy.
+Konsekwencje: style obliczone kreatora rocznego (6 kroków) i rytuału powrotu z macierzą
+porównane przed/po (różnice danych z biegu kontrolnego odjęte). Widoczne: kropki
+steppera o 2 px większe, akcje wierszy macierzy bez ledwo widocznego obrysu i w kolorze
+akcentu, nośnik ikony w pustym panelu na tle pola ikony. Dług 349 → 283.
+

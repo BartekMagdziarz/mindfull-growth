@@ -133,7 +133,7 @@ Wdrożenie propozycji A z audytu 2026-10-18 (plan i porównanie:
   otwartej decyzji „9 skórek pól → 1”. W kreatorach dochodzi `exercise-option(--active)`
   (karta wyboru) obok `exercise-pill`, `exercise-chip`, `exercise-note`
   (`components/exercises/exercise-design.css`). `mg-v2-segmented` obsługuje też
-  `role="radio"` + `aria-checked`. Skala tekstu jako utility: `text-mg-xs…2xl`,
+  `role="radio"` + `aria-checked`. Przycisk ikony ma rozmiary `--icon` (36 px), `--icon-sm` (32 px) i `--icon-xs` (28 px, gęste siatki). Skala tekstu jako utility: `text-mg-xs…2xl`,
   `text-mg-rating`, `text-mg-chart`, `text-mg-icon-sm/md/lg` (tylko font-size, bez
   line-height w odróżnieniu od `text-xs/sm` Tailwinda). Próbki motywów w
   Preferencjach: `--mg-theme-swatch-*` (stałe, niezależne od aktywnego motywu).

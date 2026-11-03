@@ -12,7 +12,7 @@
       class="flex flex-col items-center gap-0.5 pb-1"
     >
       <span
-        class="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-on-surface-variant"
+        class="inline-flex items-center gap-1 text-mg-chart font-bold uppercase tracking-wide text-on-surface-variant"
       >
         {{ column.label }}
         <span
@@ -21,12 +21,12 @@
           :title="column.marker"
         />
       </span>
-      <span v-if="column.sublabel" class="text-[11px] font-semibold text-on-surface">
+      <span v-if="column.sublabel" class="text-mg-chart font-semibold text-on-surface">
         {{ column.sublabel }}
       </span>
     </div>
     <div
-      class="pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-on-surface-variant"
+      class="pb-1 text-center text-mg-chart font-bold uppercase tracking-wide text-on-surface-variant"
     >
       {{ targetLabel }}
     </div>
@@ -37,13 +37,15 @@
       <component
         :is="section.collapsible ? 'button' : 'div'"
         v-if="section.rows.length > 0"
-        class="col-span-full mt-2 flex items-center gap-1.5 rounded-lg px-1 py-1 text-left first:mt-0"
+        class="col-span-full mt-2 flex items-center gap-1.5 rounded-mg-sm px-1 py-1 text-left first:mt-0"
         :class="section.collapsible ? 'transition-colors hover:bg-primary/5' : ''"
         :type="section.collapsible ? 'button' : undefined"
         :data-testid="`matrix-section-${section.key}`"
         @click="section.collapsible && toggleSection(section)"
       >
-        <span class="text-[11px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
+        <span
+          class="text-mg-chart font-semibold uppercase tracking-[0.14em] text-on-surface-variant"
+        >
           {{ section.label }}
         </span>
         <AppIcon
@@ -69,7 +71,7 @@
             </span>
             <span
               v-if="row.softLabel"
-              class="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary-strong"
+              class="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-mg-chart font-medium text-primary-strong"
             >
               {{ row.softLabel }}
             </span>
@@ -80,7 +82,7 @@
             <button
               v-if="row.cells[column.key]"
               type="button"
-              class="neo-focus relative flex h-8 items-center justify-center rounded-xl transition-all duration-150"
+              class="am-cell relative flex h-8 items-center justify-center rounded-mg-md transition-all duration-150"
               :class="cellClass(row.cells[column.key]!)"
               :disabled="row.cells[column.key]!.disabled"
               :aria-pressed="row.cells[column.key]!.state !== 'empty'"
@@ -96,7 +98,7 @@
               />
               <span
                 v-if="row.cells[column.key]!.badge"
-                class="absolute -right-1 -top-1 rounded-full bg-neu-base px-1 py-px text-[9px] font-bold leading-none text-on-surface-variant shadow-neu-raised-sm"
+                class="absolute -right-1 -top-1 rounded-full bg-neu-base px-1 py-px text-mg-chart font-bold leading-none text-on-surface-variant shadow-mg-raised-sm"
               >
                 {{ row.cells[column.key]!.badge }}
               </span>
@@ -115,10 +117,10 @@
           <div class="flex items-center gap-1 pr-1">
             <button
               type="button"
-              class="neo-icon-button h-7 w-7 rounded-lg"
+              class="mg-v2-button mg-v2-button--icon mg-v2-button--icon-xs"
               :class="
                 row.isWholePeriod
-                  ? 'text-primary-strong shadow-neu-pressed-sm'
+                  ? 'text-primary-strong'
                   : 'text-on-surface-variant opacity-50 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 hover:text-primary'
               "
               :aria-pressed="Boolean(row.isWholePeriod)"
@@ -131,7 +133,7 @@
             </button>
             <button
               type="button"
-              class="neo-icon-button h-7 w-7 rounded-lg text-on-surface-variant opacity-50 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 hover:text-on-surface disabled:pointer-events-none disabled:opacity-20"
+              class="mg-v2-button mg-v2-button--icon mg-v2-button--icon-xs text-on-surface-variant opacity-50 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 hover:text-on-surface disabled:pointer-events-none disabled:opacity-20"
               :disabled="!row.hasPlacement"
               :aria-label="clearLabel"
               :title="clearLabel"
@@ -143,10 +145,10 @@
             <button
               v-if="row.expandable"
               type="button"
-              class="neo-icon-button h-7 w-7 rounded-lg"
+              class="mg-v2-button mg-v2-button--icon mg-v2-button--icon-xs"
               :class="
                 isRowExpanded(row.key)
-                  ? 'text-primary-strong shadow-neu-pressed-sm'
+                  ? 'text-primary-strong'
                   : 'text-on-surface-variant opacity-50 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 hover:text-primary'
               "
               :aria-expanded="isRowExpanded(row.key)"
@@ -167,7 +169,7 @@
           <!-- Expanded detail strip (e.g. month sub-target editor) -->
           <div
             v-if="row.expandable && isRowExpanded(row.key)"
-            class="col-span-full mb-1 rounded-xl border border-primary/15 bg-primary/4 px-3 py-2"
+            class="col-span-full mb-1 rounded-mg-md border border-primary/15 bg-primary/4 px-3 py-2"
             :data-testid="`matrix-detail-${row.key}`"
           >
             <slot name="row-detail" :row="row" />
@@ -243,14 +245,23 @@ function toggleRowExpanded(rowKey: string): void {
 
 function cellClass(cell: AssignmentMatrixCell): string {
   if (cell.state === 'checked') {
-    return 'bg-primary/15 text-primary shadow-neu-pressed-sm'
+    return 'bg-primary/15 text-primary shadow-mg-inset-sm'
   }
   if (cell.state === 'soft') {
     return 'bg-primary/8 text-primary'
   }
   if (cell.disabled) {
-    return 'neo-inset opacity-40'
+    return 'mg-v2-block opacity-40'
   }
-  return 'neo-inset text-on-surface-variant hover:bg-primary/8'
+  return 'mg-v2-block text-on-surface-variant hover:bg-primary/8'
 }
 </script>
+
+<style scoped>
+/* An empty cell is a mist block inside a mist field (the return ritual's
+   .rr-matrix): its hairline is the only cue, and button resets such as
+   `.quiet-ritual button { border: 0 }` must not take it away. */
+.am-cell.mg-v2-block {
+  border: 1px solid var(--mg-color-border-subtle);
+}
+</style>

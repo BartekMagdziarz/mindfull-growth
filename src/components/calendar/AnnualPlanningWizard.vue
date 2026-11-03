@@ -1,5 +1,8 @@
 <template>
-  <section data-testid="annual-planning-wizard" class="neo-card space-y-8 px-4 py-4 md:px-5">
+  <section
+    data-testid="annual-planning-wizard"
+    class="mg-v2-surface mg-v2-surface--raised-sm space-y-8 px-4 py-4 md:px-5"
+  >
     <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <div class="flex items-baseline gap-2">
         <h2 class="text-lg font-bold text-on-surface">
@@ -23,13 +26,13 @@
             :aria-label="`Step ${idx + 1}: ${label}`"
             :aria-current="idx === stepIndex ? 'step' : undefined"
             :disabled="idx > stepIndex"
-            class="rounded-full transition-all duration-200"
+            class="mg-v2-stepper__dot"
             :class="
               idx < stepIndex
-                ? 'neo-step-completed h-2.5 w-2.5 cursor-pointer'
+                ? 'mg-v2-stepper__dot--done cursor-pointer'
                 : idx === stepIndex
-                  ? 'neo-step-active h-3.5 w-3.5'
-                  : 'neo-step-future h-2.5 w-2.5'
+                  ? 'mg-v2-stepper__dot--current'
+                  : ''
             "
             @click="idx < stepIndex && goToStep(STEPS[idx])"
           />
@@ -79,27 +82,24 @@
           <textarea
             v-model="annualBriefNote"
             rows="5"
-            class="neo-input min-h-[9rem] w-full resize-y px-4 py-3 text-sm leading-relaxed"
+            class="mg-v2-input min-h-[9rem] w-full resize-y px-4 py-3 text-sm leading-relaxed"
             :placeholder="t('planning.annual.brief.placeholder')"
           />
         </label>
       </div>
 
       <div v-else-if="currentStep === 'life-areas'" key="life-areas" class="space-y-4">
-        <div
-          v-if="lifeAreas.length === 0"
-          class="neo-inset rounded-[1.75rem] p-5 text-sm text-on-surface-variant"
-        >
+        <div v-if="lifeAreas.length === 0" class="mg-v2-block p-5 text-sm text-on-surface-variant">
           {{ t('planning.annual.lifeAreas.empty') }}
         </div>
 
         <div v-else class="grid gap-3 lg:grid-cols-2">
-          <article v-for="area in lifeAreas" :key="area.id" class="neo-inset rounded-[1.5rem] p-3">
+          <article v-for="area in lifeAreas" :key="area.id" class="mg-v2-block p-3">
             <div class="flex w-full flex-col gap-3 text-left sm:flex-row sm:items-center">
               <EntityIcon v-if="area.icon" :icon="area.icon" size="sm" />
               <div class="min-w-0 flex-1">
                 <div class="truncate text-sm font-semibold text-on-surface">{{ area.name }}</div>
-                <div class="text-[11px] text-on-surface-variant">
+                <div class="text-mg-xs text-on-surface-variant">
                   {{
                     t('planning.annual.lifeAreas.score', {
                       score: assessmentItem(area.id)?.score ?? '-',
@@ -125,7 +125,7 @@
               </div>
               <button
                 type="button"
-                class="neo-icon-button neo-focus h-9 w-9 shrink-0 rounded-xl"
+                class="mg-v2-button mg-v2-button--icon shrink-0"
                 :aria-label="
                   expandedAreaIds.has(area.id)
                     ? t('common.buttons.close')
@@ -153,28 +153,28 @@
                 <textarea
                   :value="area.meaning ?? ''"
                   rows="2"
-                  class="neo-input min-h-[4.5rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
+                  class="mg-v2-input min-h-[4.5rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
                   :placeholder="t('planning.annual.lifeAreas.meaning')"
                   @change="handleLifeAreaText(area.id, 'meaning', $event)"
                 />
                 <textarea
                   :value="area.desiredState ?? ''"
                   rows="2"
-                  class="neo-input min-h-[4.5rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
+                  class="mg-v2-input min-h-[4.5rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
                   :placeholder="t('planning.annual.lifeAreas.desiredState')"
                   @change="handleLifeAreaText(area.id, 'desiredState', $event)"
                 />
                 <textarea
                   :value="area.typicalRisks ?? ''"
                   rows="2"
-                  class="neo-input min-h-[4.5rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
+                  class="mg-v2-input min-h-[4.5rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
                   :placeholder="t('planning.annual.lifeAreas.typicalRisks')"
                   @change="handleLifeAreaText(area.id, 'typicalRisks', $event)"
                 />
                 <textarea
                   :value="area.reflectionSignals.join('\n')"
                   rows="3"
-                  class="neo-input min-h-[5.5rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
+                  class="mg-v2-input min-h-[5.5rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
                   :placeholder="t('planning.annual.lifeAreas.reflectionSignals')"
                   @change="handleLifeAreaText(area.id, 'reflectionSignals', $event)"
                 />
@@ -217,9 +217,9 @@
 
       <div v-else-if="currentStep === 'priorities'" key="priorities" class="space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-3">
-          <div class="neo-inset rounded-2xl px-4 py-3">
+          <div class="mg-v2-block px-4 py-3">
             <div
-              class="text-[10px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant"
+              class="text-mg-xs font-semibold uppercase tracking-[0.16em] text-on-surface-variant"
             >
               {{ t('planning.annual.priorities.counter') }}
             </div>
@@ -280,7 +280,7 @@
           <textarea
             v-model="executionPlaceholderNote"
             rows="5"
-            class="neo-input min-h-[9rem] w-full resize-y px-4 py-3 text-sm leading-relaxed"
+            class="mg-v2-input min-h-[9rem] w-full resize-y px-4 py-3 text-sm leading-relaxed"
             :placeholder="t('planning.annual.execution.placeholder')"
           />
         </label>
@@ -288,9 +288,9 @@
 
       <div v-else key="summary" class="space-y-4">
         <div class="grid gap-3 md:grid-cols-3">
-          <div class="neo-inset rounded-[1.5rem] px-4 py-4">
+          <div class="mg-v2-block px-4 py-4">
             <div
-              class="text-[10px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant"
+              class="text-mg-xs font-semibold uppercase tracking-[0.16em] text-on-surface-variant"
             >
               {{ t('planning.annual.summary.status') }}
             </div>
@@ -302,17 +302,17 @@
               }}
             </div>
           </div>
-          <div class="neo-inset rounded-[1.5rem] px-4 py-4">
+          <div class="mg-v2-block px-4 py-4">
             <div
-              class="text-[10px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant"
+              class="text-mg-xs font-semibold uppercase tracking-[0.16em] text-on-surface-variant"
             >
               {{ t('planning.annual.summary.lifeAreas') }}
             </div>
             <div class="mt-2 text-lg font-semibold text-on-surface">{{ lifeAreas.length }}</div>
           </div>
-          <div class="neo-inset rounded-[1.5rem] px-4 py-4">
+          <div class="mg-v2-block px-4 py-4">
             <div
-              class="text-[10px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant"
+              class="text-mg-xs font-semibold uppercase tracking-[0.16em] text-on-surface-variant"
             >
               {{ t('planning.annual.summary.priorities') }}
             </div>
@@ -321,9 +321,7 @@
             </div>
           </div>
         </div>
-        <div
-          class="neo-inset rounded-[1.75rem] p-5 text-sm leading-relaxed text-on-surface-variant"
-        >
+        <div class="mg-v2-block p-5 text-sm leading-relaxed text-on-surface-variant">
           {{ t('planning.annual.summary.body') }}
         </div>
       </div>
@@ -508,9 +506,9 @@ const PlaceholderPanel = defineComponent({
   },
   setup(componentProps) {
     return () =>
-      h('div', { class: 'neo-inset rounded-[1.75rem] p-5 md:p-6' }, [
+      h('div', { class: 'mg-v2-block p-5 md:p-6' }, [
         h('div', { class: 'flex items-start gap-4' }, [
-          h('div', { class: 'neo-icon-button h-12 w-12 shrink-0 text-primary' }, [
+          h('div', { class: 'mg-v2-icon-board' }, [
             h(AppIcon, { name: componentProps.icon, class: 'text-2xl' }),
           ]),
           h('div', { class: 'min-w-0 space-y-1' }, [
@@ -536,7 +534,7 @@ const NarrativeField = defineComponent({
   emits: ['update:modelValue'],
   setup(componentProps, { emit: componentEmit }) {
     return () =>
-      h('label', { class: 'neo-inset block rounded-[1.5rem] p-4' }, [
+      h('label', { class: 'mg-v2-block block p-4' }, [
         h('div', { class: 'mb-3 flex items-center gap-2 text-primary' }, [
           h(AppIcon, { name: componentProps.icon, class: 'text-xl' }),
           h('span', { class: 'text-sm font-semibold text-on-surface' }, componentProps.label),
