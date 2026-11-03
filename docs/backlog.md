@@ -27,6 +27,32 @@ wracania do rozmowy, w której go znaleziono.
 
 ## Błędy
 
+### B-18 · E2E panelu AI oczekuje ogólnego błędu, a 503 ma dziś nazwany komunikat
+
+`otwarte` · Znaleziono 2026-11-03 (K2, partia 8: panel AI) · e2e / `e2e/verification-companion.spec.ts`
+
+**Objaw.** `VERIFY_PORT=5209 npx playwright test e2e/verification-companion.spec.ts -g "provider error"`
+→ pada na `expect(getByRole('alert')).toContainText('Nie udało się uzyskać odpowiedzi')`;
+alert pokazuje „Dostawca AI jest chwilowo niedostępny lub przeciążony. Spróbuj ponownie za
+chwilę.”. Pada tak samo na czystym HEAD (4503bc6f), więc to nie skutek K2.
+
+**Jak odtworzyć.** Komenda wyżej (13 pozostałych testów panelu i smoke przechodzi).
+
+**Przyczyna.** Atrapa w specu (`fakeOpenAI` → `api.fail()`, linia ~28) zwraca HTTP 503. Od
+`2efc34be` („name provider errors”) `providerErrorText` w
+`src/constants/aiProviderErrorCopy.ts:14–15` mapuje każdy status ≥ 500 na nazwany komunikat,
+a spec (`e2e/verification-companion.spec.ts:341`) dalej oczekuje ogólnego tekstu panelu.
+
+**Dlaczego to błąd.** Test jest w bramce `npm run test:e2e:verify` i stoi czerwony, choć
+produkt zachowuje się zgodnie z zamierzeniem (wpis zostaje edytowalny, brak zmyślonej
+odpowiedzi) — czerwień zasłania prawdziwe regresje.
+
+**Propozycja naprawy.** Zmienić oczekiwanie w linii 341 na `'Dostawca AI jest chwilowo
+niedostępny'` (albo regex obejmujący oba teksty), zostawiając asercje o edytowalnym
+dzienniku i pustym logu.
+
+**Kryteria akceptacji.** `e2e/verification-companion.spec.ts` w całości zielony na 5209.
+
 ### B-17 · E2E przepływów dziennika i emocji czeka na `/today`, a rejestracja ląduje na `/today/<dzień>`
 
 `otwarte` · Znaleziono 2026-11-03 (K2, partia 7: selektor emocji) · e2e / `e2e/emotion-log-flow.spec.ts`, `e2e/journal-flow.spec.ts`
