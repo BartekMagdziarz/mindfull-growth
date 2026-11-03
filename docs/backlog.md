@@ -27,6 +27,37 @@ wracania do rozmowy, w której go znaleziono.
 
 ## Błędy
 
+### B-17 · E2E przepływów dziennika i emocji czeka na `/today`, a rejestracja ląduje na `/today/<dzień>`
+
+`otwarte` · Znaleziono 2026-11-03 (K2, partia 7: selektor emocji) · e2e / `e2e/emotion-log-flow.spec.ts`, `e2e/journal-flow.spec.ts`
+
+**Objaw.** `npx playwright test e2e/emotion-log-flow.spec.ts e2e/journal-flow.spec.ts`
+→ 5 z 5 testów z rejestracją pada na `page.waitForURL: Timeout 5000ms exceeded` (log:
+`navigated to "/signup"` → `navigated to "/today/2026-11-03"`). Pada tak samo na czystym
+HEAD (8fcf42b9), więc to nie skutek K2.
+
+**Jak odtworzyć.** `VERIFY_PORT=5209 npx playwright test e2e/emotion-log-flow.spec.ts:218 --project=chromium`.
+
+**Przyczyna.** Helper `signUp` w `e2e/emotion-log-flow.spec.ts:57` (i jego kopia w
+`e2e/journal-flow.spec.ts`) czeka na `url.pathname === '/today'`. Od przejścia Dzisiaj na
+własny widok `/today/:dayRef` (pamięć „Today own view”) `/today` od razu przekierowuje na
+`/today/YYYY-MM-DD`, więc warunek nigdy nie jest spełniony.
+
+**Dlaczego to błąd.** Specy przepływów są bramką `npm run test:e2e`; stoją czerwone
+niezależnie od zmian w produkcie, więc nie pilnują już dziennika ani pickera emocji.
+
+**Propozycja naprawy.** W obu helperach: `await page.waitForURL(url =>
+url.pathname.startsWith('/today'), { timeout: 5000 })` (albo regex `/^\/today(\/|$)/`).
+
+**Kryteria akceptacji.** Oba pliki zielone na 5183; komentarz przy helperze opisuje
+przekierowanie na dzień.
+
+**Uwagi.** Za przekierowaniem czeka drugi problem: `selectEmotion` (stałe w
+`e2e/emotion-log-flow.spec.ts:3–8`) klika testid starego `EmotionSelector`
+(`emotion-quadrant-*`, `emotion-family-expand-*`, `emotion-option-*`), a edytory dziennika
+i emocji używają dziś `EmotionGroupPicker` (`egp-quadrant-*`, `egp-tile-*`, `egp-chip-*`).
+Helper trzeba przepisać na ścieżkę ćwiartka → kafel grupy → słowo.
+
 ### B-16 · `mg-v2-button` i `mg-v2-pill` na `<button>` nie dostają swojego rozmiaru ani wagi
 
 `otwarte` · Znaleziono 2026-11-03 (K2, partia 5: profil) · design system / `base.css`
