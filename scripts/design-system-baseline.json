@@ -1,14 +1,13 @@
 {
   "generatedAt": "2026-11-03",
-  "total": 79,
+  "total": 62,
   "byRule": {
-    "legacyClass": 17,
-    "tailwindRadius": 20,
+    "legacyClass": 10,
+    "tailwindRadius": 18,
     "tailwindShadow": 2,
-    "tailwindArbitraryText": 10,
-    "radiusLiteral": 5,
-    "localShadow": 1,
-    "fontSizeLiteral": 23,
+    "tailwindArbitraryText": 9,
+    "fontSizeLiteral": 19,
+    "radiusLiteral": 3,
     "rawColor": 1
   },
   "files": {
@@ -19,11 +18,8 @@
     "src/components/assessments/AssessmentReview.vue": 1,
     "src/components/assessments/ConsentDisclaimerStep.vue": 1,
     "src/components/assessments/LikertItemList.vue": 1,
-    "src/components/lifeAreas/LifeAreaForm.vue": 5,
     "src/components/lifeAreas/LifeAreaLinkedEntities.vue": 4,
     "src/components/objects/ObjectsLibraryPillSelect.vue": 1,
-    "src/components/planning/PlanningStatePanel.vue": 5,
-    "src/design-system/base.css": 7,
     "src/domain/loadState.ts": 3,
     "src/features/ai-introduction/IntroductionPanel.vue": 2,
     "src/features/calendar-rhythm/RhythmBoard.vue": 1,

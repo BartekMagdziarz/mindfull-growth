@@ -21,6 +21,13 @@
   --mg-font-size-icon-sm: 1rem;
   --mg-font-size-icon-md: 1.125rem;
   --mg-font-size-icon-lg: 1.375rem;
+  /* The glyph inside an icon board (24 = the Material Symbols optical size)
+     and inside the large board. */
+  --mg-font-size-icon-xl: 1.5rem;
+  --mg-font-size-icon-2xl: 2.25rem;
+  /* Below the text scale: a count mark on an icon control and the uppercase
+     label of a popover menu section — never for running text. */
+  --mg-font-size-mark: 0.5625rem;
   /* Four weights only: body / label (meta, chips, subtitles) / strong
      (buttons, selected labels) / title (headings, eyebrows). */
   --mg-weight-body: 400;
@@ -164,6 +171,9 @@
      ends; a and b alternate up the stack. */
   --mg-radius-cloud-a: 14px 18px 12px 16px / 55% 45% 60% 40%;
   --mg-radius-cloud-b: 17px 13px 18px 12px / 45% 60% 40% 55%;
+  /* The axis cloud of a goal/priority timeline (1 rem high): a thin track
+     whose uneven px corners keep it from reading as a plain pill. */
+  --mg-radius-cloud-track: 14px 12px 13px 15px / 12px 14px 11px 13px;
   --mg-icon-board-size: 3.25rem;
 
   /* Theme picker swatches (Profil → Preferencje): each shows ITS theme's

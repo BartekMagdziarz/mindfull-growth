@@ -138,6 +138,8 @@ export default {
         'mg-icon-sm': 'var(--mg-font-size-icon-sm)',
         'mg-icon-md': 'var(--mg-font-size-icon-md)',
         'mg-icon-lg': 'var(--mg-font-size-icon-lg)',
+        'mg-icon-xl': 'var(--mg-font-size-icon-xl)',
+        'mg-icon-2xl': 'var(--mg-font-size-icon-2xl)',
       },
       boxShadow: {
         // Design-system elevation (src/design-system/tokens.css).

@@ -45,7 +45,6 @@
 
     <PlanningStatePanel
       v-if="isLoading"
-      compact
       :title="t('common.loading')"
       :body="t('planning.annual.loading')"
       :eyebrow="t('planning.annual.title')"
@@ -53,7 +52,6 @@
 
     <PlanningStatePanel
       v-else-if="loadError"
-      compact
       :title="t('planning.annual.loadError')"
       :body="loadError"
       :eyebrow="t('planning.annual.title')"
@@ -235,7 +233,6 @@
 
         <PlanningStatePanel
           v-if="activePriorities.length === 0"
-          compact
           :title="t('planning.annual.priorities.emptyTitle')"
           :body="t('planning.annual.priorities.emptyBody')"
           :eyebrow="t('planning.annual.priorities.title')"

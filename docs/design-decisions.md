@@ -581,3 +581,25 @@ PVQ-40 po pełnym przejściu, refleksja tygodnia, plan tygodnia z grupami) poró
 przed/po (szum kontrolny 0). Notka „sumNotice” wyników nie była osiągnięta (glif
 1,25 rem → `icon-md`). Przy okazji: menu statusu pokazuje surowe klucze — B-19.
 Dług 110 → 79.
+
+## 2026-11-03 — K2, partia 11: role glifów i znaczników w base.css, panel stanu planu, formularz obszaru
+
+Kontekst: `base.css` (7 naruszeń: 9-pikselowe etykiety, glify tablic 24/36 px, oś osi
+czasu), `PlanningStatePanel` (plan roczny: ładowanie, błąd, brak priorytetów) i
+`LifeAreaForm` (edytor obszaru) — 17 naruszeń.
+Decyzja: wartości bez odpowiednika w skali dostały ROLE zamiast przyciągania do skali —
+`--mg-font-size-icon-xl/-2xl` (24/36 px, glif tablicy ikony; przyciągnięcie do `icon-lg`
+22 px zmieniłoby każdą tablicę w aplikacji) i `--mg-font-size-mark` (9 px, licznik na
+kontrolce i etykieta sekcji menu; 12 px wersalikami w menu byłoby za głośne).
+`mg-v2-timeline__cloud` → `--mg-radius-cloud-track` (dokładna dotychczasowa wartość) i
+cień `--mg-shadow-inset-sm` (sky-700 zamiast neo-inset-dark; różnica niewidoczna na
+zrzucie @2x). Promień wypełnienia osi usunięty: tnie je `overflow: hidden` chmurki, a
+prawy koniec wtapia maska. `PlanningStatePanel` → `mg-v2-surface--raised-sm` +
+`mg-v2-block`; promienie `rounded-[1.9rem]/[1.8rem]` i tak przegrywały z mostkami (0,2,0),
+więc kształt się nie zmienia; nieużywany po tym prop `compact` usunięty (3 wywołania w
+`AnnualPlanningWizard`). Eyebrow 11 → 12 px (`text-mg-xs`). `LifeAreaForm`: `neo-input` →
+`mg-v2-input` (te same wartości, fokus z `text-field-focus.css`).
+Konsekwencje: style obliczone 15 stanów (cele i priorytety z osią i menu statusu,
+katalog ćwiczeń, obszary, nowy obszar z fokusem pól, kroki planu rocznego za dwa lata z
+pustym stanem priorytetów) porównane przed/po z biegiem kontrolnym; jedyne widoczne:
+eyebrow panelu stanu o 1 px większy. Dług 79 → 62.

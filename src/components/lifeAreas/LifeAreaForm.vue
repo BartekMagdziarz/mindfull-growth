@@ -5,7 +5,7 @@
       <label for="area-name" class="block text-sm font-medium text-on-surface mb-2">
         {{ t('lifeAreas.form.nameLabel') }}
       </label>
-      <div class="neo-input flex items-center gap-2 px-2 py-1.5">
+      <div class="mg-v2-input flex items-center gap-2 px-2 py-1.5">
         <IconPicker
           v-model="form.icon"
           icon-size="lg"
@@ -46,7 +46,7 @@
         v-model="form.meaning"
         rows="3"
         :placeholder="t('lifeAreas.form.meaningPlaceholder')"
-        class="neo-input w-full px-4 py-3 resize-none overflow-hidden min-h-[5.5rem]"
+        class="mg-v2-input w-full px-4 py-3 resize-none overflow-hidden min-h-[5.5rem]"
         @input="resizeMeaning"
       />
     </div>
@@ -65,7 +65,7 @@
         v-model="form.desiredState"
         rows="3"
         :placeholder="t('lifeAreas.form.desiredStatePlaceholder')"
-        class="neo-input w-full px-4 py-3 resize-none overflow-hidden min-h-[5.5rem]"
+        class="mg-v2-input w-full px-4 py-3 resize-none overflow-hidden min-h-[5.5rem]"
         @input="resizeDesiredState"
       />
     </div>
@@ -84,7 +84,7 @@
         v-model="form.typicalRisks"
         rows="3"
         :placeholder="t('lifeAreas.form.typicalRisksPlaceholder')"
-        class="neo-input w-full px-4 py-3 resize-none overflow-hidden min-h-[5.5rem]"
+        class="mg-v2-input w-full px-4 py-3 resize-none overflow-hidden min-h-[5.5rem]"
         @input="resizeTypicalRisks"
       />
     </div>
@@ -107,7 +107,7 @@
             v-model="form.reflectionSignals[index]"
             type="text"
             :placeholder="t('lifeAreas.form.reflectionSignalPlaceholder')"
-            class="neo-input flex-1 px-3 py-2 text-sm"
+            class="mg-v2-input flex-1 px-3 py-2 text-sm"
           />
           <button
             @click="removeReflectionSignal(index)"

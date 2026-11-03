@@ -147,6 +147,15 @@ Wdrożenie propozycji A z audytu 2026-10-18 (plan i porównanie:
   wykresów warstwowych (części w tygodniu, przegląd Momentów); pojedynczy słupek
   dalej `sketch`. Obrys segmentu barwą części = `outline: 1px; outline-offset: -1px`,
   nie lokalny `box-shadow: inset`.
+- **Glify tablic i znaczniki (K2, 2026-11-03):** `--mg-font-size-icon-xl` (24 px,
+  glif w `mg-v2-icon-board`, rozmiar optyczny Material Symbols) i `-icon-2xl` (36 px,
+  `--lg`); utility `text-mg-icon-xl/2xl`. `--mg-font-size-mark` (9 px) — poniżej skali
+  tekstu, wyłącznie licznik na kontrolce z ikoną (`mg-v2-icon-count`) i wersalikowa
+  etykieta sekcji menu (`mg-v2-menu-section__label`); nigdy dla zwykłego tekstu.
+- **Oś osi czasu (K2, 2026-11-03):** `--mg-radius-cloud-track` — chmurka osi celu /
+  priorytetu (`mg-v2-timeline__cloud`, 1 rem wysokości), nierówne rogi w px; wgłębienie
+  osi = `--mg-shadow-inset-sm`. Wypełnienie osi nie ma własnego promienia — tnie je
+  chmurka, a koniec wtapia maska.
 - **Strażnik-zapadka:** `npm run check:design-system` skanuje całe `src/`
   (9 reguł) i porównuje z `scripts/design-system-baseline.json`; hook
   PostToolUse sprawdza każdy edytowany plik. `--list [--rule x]` wypisuje

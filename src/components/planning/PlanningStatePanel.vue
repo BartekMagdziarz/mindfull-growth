@@ -1,11 +1,9 @@
 <template>
-  <section
-    :class="['neo-card overflow-hidden p-6 text-center md:p-8', compact ? 'rounded-[1.9rem]' : '']"
-  >
-    <div class="neo-surface rounded-[1.8rem] px-6 py-10">
+  <section class="mg-v2-surface mg-v2-surface--raised-sm overflow-hidden p-6 text-center md:p-8">
+    <div class="mg-v2-block px-6 py-10">
       <p
         v-if="eyebrow"
-        class="text-[11px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant"
+        class="text-mg-xs font-semibold uppercase tracking-[0.18em] text-on-surface-variant"
       >
         {{ eyebrow }}
       </p>
@@ -34,7 +32,6 @@ defineProps<{
   body?: string
   eyebrow?: string
   actionLabel?: string
-  compact?: boolean
 }>()
 
 defineEmits<{

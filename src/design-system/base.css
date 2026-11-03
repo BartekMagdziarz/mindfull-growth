@@ -856,9 +856,9 @@ input[type='number'].mg-v2-input::-webkit-outer-spin-button {
   left: 0;
   height: 1rem;
   overflow: hidden;
-  border-radius: 14px 12px 13px 15px / 12px 14px 11px 13px;
+  border-radius: var(--mg-radius-cloud-track);
   background: var(--mg-color-mist);
-  box-shadow: inset 0 1px 2px rgb(var(--neo-inset-dark) / 0.16);
+  box-shadow: var(--mg-shadow-inset-sm);
   transform: translateY(-50%);
 }
 
@@ -873,7 +873,6 @@ input[type='number'].mg-v2-input::-webkit-outer-spin-button {
   position: absolute;
   inset: 0 auto 0 0;
   width: calc(var(--mg-timeline-progress, 0%) + 1.1rem);
-  border-radius: 0 10px 10px 0;
   background: var(--mg-timeline-sky);
   -webkit-mask: linear-gradient(90deg, #000 calc(100% - 2.4rem), transparent 100%);
   mask: linear-gradient(90deg, #000 calc(100% - 2.4rem), transparent 100%);
@@ -965,7 +964,7 @@ input[type='number'].mg-v2-input::-webkit-outer-spin-button {
   right: -0.05rem;
   pointer-events: none;
   color: var(--mg-color-muted);
-  font-size: 0.5625rem;
+  font-size: var(--mg-font-size-mark);
   font-variant-numeric: tabular-nums;
   font-weight: 700;
   line-height: 1;
@@ -979,8 +978,8 @@ input[type='number'].mg-v2-input::-webkit-outer-spin-button {
 .mg-v2-menu-section__label {
   padding: var(--mg-space-2) var(--mg-space-3) var(--mg-space-1);
   color: var(--mg-color-muted);
-  font-size: 0.5625rem;
-  font-weight: 700;
+  font-size: var(--mg-font-size-mark);
+  font-weight: var(--mg-weight-strong);
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
@@ -1252,7 +1251,7 @@ input[type='number'].mg-v2-input::-webkit-outer-spin-button {
 }
 
 .mg-v2-icon-board .material-symbols-outlined {
-  font-size: 1.5rem;
+  font-size: var(--mg-font-size-icon-xl);
   font-variation-settings:
     'FILL' 0,
     'wght' 500,
@@ -1261,7 +1260,7 @@ input[type='number'].mg-v2-input::-webkit-outer-spin-button {
 }
 
 .mg-v2-icon-board--lg .material-symbols-outlined {
-  font-size: 2.25rem;
+  font-size: var(--mg-font-size-icon-2xl);
 }
 
 /* Tile: a clickable first-level card (catalog entries, life areas). */
