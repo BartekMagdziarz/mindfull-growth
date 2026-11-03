@@ -27,6 +27,41 @@ wracania do rozmowy, w której go znaleziono.
 
 ## Błędy
 
+### B-16 · `mg-v2-button` i `mg-v2-pill` na `<button>` nie dostają swojego rozmiaru ani wagi
+
+`otwarte` · Znaleziono 2026-11-03 (K2, partia 5: profil) · design system / `base.css`
+
+**Objaw.** Przycisk z klasą `mg-v2-button` ma 16 px i wagę 400 zamiast 13 px i 800 z
+anatomii; `mg-v2-pill` na `<button>` ma 16 px / 400 i kolor muted, a ta sama pigułka na
+`<span>` ma 12 px / 800. Widać to np. w Profilu → Konto („Zmień hasło”, „Zobacz
+statystyki”) i w każdym `AppButton`.
+
+**Jak odtworzyć.** `npm run dev:verify`, `/profile`, w DevTools porównać
+`getComputedStyle` przycisku „Zmień hasło” z regułą `.mg-v2-button` w
+`src/design-system/base.css`.
+
+**Przyczyna.** `src/design-system/base.css:21–26`: `.mg-design-v2 button { font: inherit }`
+ma specyficzność (0,1,1) i przebija `.mg-v2-button` / `.mg-v2-pill` (0,1,0), w tym ich
+`font-size` i `font-weight`. Reguła `.mg-v2-button { font-weight: strong }` w
+`adapters.css` też ma (0,1,0) i przegrywa. `mg-v2-segmented button` wygrywa tylko
+dlatego, że ma tę samą specyficzność i stoi później.
+
+**Dlaczego to błąd.** Anatomia deklaruje rozmiar i wagę przycisku; w praktyce
+dziedziczy je z rodzica, więc przyciski w różnych miejscach mają różne rozmiary.
+
+**Propozycja naprawy.** Zawęzić reset do elementów bez anatomii, np.
+`.mg-design-v2 :where(button, input, textarea, select) { font: inherit }` (zerowa
+specyficzność), i sprawdzić wszystkie widoki z przyciskami. To zmienia wygląd każdego
+przycisku V2 (13 px / 800 zamiast dziedziczonego), więc wymaga decyzji użytkownika i
+zrzutów 1512 × 982 obok siebie.
+
+**Kryteria akceptacji.** `getComputedStyle` przycisku `mg-v2-button` zwraca rozmiar i
+wagę z anatomii; zrzuty Dzisiaj, rytuałów, kreatorów i profilu ocenione przez
+użytkownika; strażnik i e2e zielone.
+
+**Uwagi.** Zależy od decyzji, czy przyciski mają zostać „16 px normalne”, jak wyglądają
+dziś, wtedy poprawić anatomię zamiast resetu.
+
 ### B-15 · E2E „shame path v3 › Today: the day plan…” pada w każdy poniedziałek
 
 `otwarte` · Znaleziono 2026-11-02 (K2, partia 4: kreatory ćwiczeń) · e2e / seed weryfikacyjny
