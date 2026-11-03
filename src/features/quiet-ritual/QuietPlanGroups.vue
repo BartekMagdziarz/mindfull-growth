@@ -171,7 +171,7 @@ function groupBy(items: QuietPlanGroupItem[]) {
   background: var(--qr-inner);
   color: var(--qr-ink);
   font: inherit;
-  font-size: 13px;
+  font-size: var(--mg-font-size-sm);
   line-height: 1.4;
   text-align: left;
   cursor: pointer;
@@ -183,7 +183,7 @@ function groupBy(items: QuietPlanGroupItem[]) {
 .qr-plan-flat .material-symbols-outlined {
   flex-shrink: 0;
   margin-top: 1px;
-  font-size: 16px;
+  font-size: var(--mg-font-size-icon-sm);
   color: var(--qr-accent);
 }
 .qr-plan-flat li button:hover {
@@ -226,21 +226,21 @@ function groupBy(items: QuietPlanGroupItem[]) {
   cursor: pointer;
   list-style: none;
   color: var(--qr-ink);
-  font-size: 13px;
+  font-size: var(--mg-font-size-sm);
 }
 .qr-plan-group > summary::-webkit-details-marker {
   display: none;
 }
 .qr-plan-group > summary > span:nth-child(2) {
   flex: 1;
-  font-weight: 650;
+  font-weight: var(--mg-weight-label);
 }
 .qr-plan-group small {
-  font-size: 11px;
+  font-size: var(--mg-font-size-xs);
   color: var(--qr-muted);
 }
 .qr-plan-group .material-symbols-outlined {
-  font-size: 16px;
+  font-size: var(--mg-font-size-icon-sm);
   color: var(--qr-accent);
 }
 .qr-group-chevron {
@@ -277,10 +277,10 @@ function groupBy(items: QuietPlanGroupItem[]) {
   color: var(--qr-ink);
   padding: 8px 7px;
   font: inherit;
-  font-size: 13px;
+  font-size: var(--mg-font-size-sm);
   line-height: 1.45;
   text-align: left;
-  border-radius: 8px;
+  border-radius: var(--mg-radius-xs);
   cursor: pointer;
   overflow-wrap: anywhere;
 }

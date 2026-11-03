@@ -559,3 +559,25 @@ kontrolnym; segmenty na zrzucie @2x nie do odróżnienia. Widoczne: etykiety wyk
 większe, eyebrow „Części” 12 px. Ostrzeżenia rytuału (limit, szkic) zmieniono bez podglądu
 na żywo — seed nie dochodzi do tych stanów. `QuietEmotionStack` ma własne, mniejsze
 literały segmentów (3–5 px) — do przeniesienia na tę rolę w kolejnej partii. Dług 136 → 110.
+
+## 2026-11-03 — K2, partia 10: przycisk statusu, wyniki kwestionariuszy, plan w rytuałach
+
+Kontekst: `StatusIconButton` (plan roczny), `AssessmentResults`, `QuietPlanGroups` (plan
+tygodnia/miesiąca), `QuietEmotionStack` (refleksje) i `EmotionCard` — 31 naruszeń.
+Decyzja: `StatusIconButton` → `mg-v2-button--quiet --icon --icon-sm`, ton statusu tylko na
+ikonie (good-on / rose / warn-on / primary; glif zawsze inny), menu → `mg-v2-popover` (tło
+karty zamiast czystej bieli). Mostek `.neo-icon-button.neo-icon-button` (0,2,0) przebijał
+warianty tonów `:where()`, więc ikona była zawsze atramentowa — teraz ton wraca. Pigułki
+wyników → `mg-v2-pill`; pasmo („niski” / „wysoki”) zostaje NEUTRALNE — dawne
+`neo-pill--success/--warning` też ginęły pod mostkiem, a ostrzegawczy kolor dla niskiej
+ważności wartości (PVQ) czy niskiego wyniku cechy byłby fałszywym sygnałem; `bandClass`
+usunięty. `QuietPlanGroups`: 13/16/11 px → `sm` / `icon-sm` / `xs`, 650 → `label`.
+`QuietEmotionStack` na rolę `--mg-radius-segment(-base/-top)` z partii 9 (+1–2 px
+zaokrąglenia na 16-pikselowym glifie). `EmotionCard` był sierotą (nic go nie renderowało,
+`useDayWellness` brał z niego tylko typ) — typ `EmotionDonutLog` przeniesiony do
+`useDayWellness.ts`, komponent usunięty.
+Konsekwencje: style obliczone 7 stanów (plan roczny z przyciskiem i menu statusu, wyniki
+PVQ-40 po pełnym przejściu, refleksja tygodnia, plan tygodnia z grupami) porównane
+przed/po (szum kontrolny 0). Notka „sumNotice” wyników nie była osiągnięta (glif
+1,25 rem → `icon-md`). Przy okazji: menu statusu pokazuje surowe klucze — B-19.
+Dług 110 → 79.

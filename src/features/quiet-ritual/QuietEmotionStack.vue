@@ -83,26 +83,26 @@ const label = computed(() => {
 .eds i {
   display: block;
   width: 100%;
-  border-radius: 3px 4px 2px 3px;
+  border-radius: var(--mg-radius-segment);
   border: 1px solid var(--qr-line-soft);
   box-sizing: border-box;
   transform: rotate(-1deg);
 }
 .eds i:first-child {
-  border-radius: 3px 4px 5px 4px;
+  border-radius: var(--mg-radius-segment-base);
 }
 .eds i:nth-child(2n) {
   transform: rotate(1deg);
 }
 .eds i:last-child {
-  border-radius: 5px 4px 2px 3px;
+  border-radius: var(--mg-radius-segment-top);
 }
 .eds--empty::before {
   content: '';
   display: block;
   width: 100%;
   height: 3px;
-  border-radius: 2px;
+  border-radius: var(--mg-radius-pill);
   background: var(--qr-line-soft);
 }
 </style>

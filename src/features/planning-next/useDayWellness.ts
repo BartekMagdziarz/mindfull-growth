@@ -1,5 +1,4 @@
 import { computed, type Ref } from 'vue'
-import type { EmotionDonutLog } from '@/components/today/EmotionCard.vue'
 import type { DayRef } from '@/domain/period'
 import { getQuadrant, type Quadrant } from '@/domain/emotion'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
@@ -12,6 +11,11 @@ import { getPeriodRefsForDate } from '@/utils/periods'
 import { toLocalDateKey } from '@/utils/streaks'
 
 export const DAILY_EMOTION_TARGET = 3
+
+/** One emotion log reduced to its quadrant weights (the day's emotion donut). */
+export interface EmotionDonutLog {
+  quadrants: Partial<Record<Quadrant, number>>
+}
 
 /**
  * Day-scoped wellness signals (journal, emotions, exercises, programs) shared by

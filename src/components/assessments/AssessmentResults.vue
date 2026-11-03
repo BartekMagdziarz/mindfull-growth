@@ -22,7 +22,7 @@
       <button
         v-if="supportsCentering"
         type="button"
-        class="neo-pill px-3 py-1.5 text-xs font-medium"
+        class="mg-v2-pill"
         @click="$emit('toggle-centering', !centeredEnabled)"
       >
         {{
@@ -85,7 +85,7 @@
       >
         <div class="flex items-start justify-between gap-3">
           <h4 class="text-base font-semibold text-on-surface">{{ t(score.labelKey) }}</h4>
-          <span class="neo-pill px-2 py-1 text-xs font-semibold" :class="bandClass(score.band)">
+          <span class="mg-v2-pill">
             {{ score.band ? t(`assessments.common.results.bandLabels.${score.band}`) : '-' }}
           </span>
         </div>
@@ -271,8 +271,8 @@ function sumTotalLabel(score: ScaleScore): string {
 }
 
 function formatIntDelta(value: number): string {
-  const rounded = Math.round(value)
-  return `${rounded > 0 ? '+' : ''}${rounded}`
+  const whole = Math.round(value)
+  return `${whole > 0 ? '+' : ''}${whole}`
 }
 
 const sumNotice = computed(() => {
@@ -299,12 +299,6 @@ function formatScore(value: number | null): string {
 function formatDelta(value: number): string {
   const sign = value >= 0 ? '+' : ''
   return `${sign}${value.toFixed(2)}`
-}
-
-function bandClass(band: ScaleBand | undefined): string {
-  if (band === 'high') return 'neo-pill--success'
-  if (band === 'low') return 'neo-pill--warning'
-  return ''
 }
 
 function asNumber(value: unknown): number | null {
@@ -335,6 +329,6 @@ function hasVlqDetails(score: ScaleScore): boolean {
 .assessment-notice__icon {
   flex-shrink: 0;
   color: var(--mg-color-primary);
-  font-size: 1.25rem;
+  font-size: var(--mg-font-size-icon-md);
 }
 </style>

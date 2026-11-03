@@ -2,7 +2,7 @@
   <div ref="rootRef" class="relative">
     <button
       type="button"
-      class="neo-icon-button neo-icon-button--flat neo-focus"
+      class="mg-v2-button mg-v2-button--quiet mg-v2-button--icon mg-v2-button--icon-sm"
       :class="toneClass"
       :title="selectedLabel"
       :aria-label="`Status: ${selectedLabel}`"
@@ -12,7 +12,7 @@
     </button>
     <div
       v-if="open"
-      class="absolute bottom-full right-0 z-20 mb-1 min-w-[120px] overflow-hidden rounded-xl border border-outline/30 bg-surface shadow-lg"
+      class="mg-v2-popover absolute bottom-full right-0 mb-1 min-w-[120px] overflow-hidden"
       @click.stop
     >
       <button
@@ -66,13 +66,13 @@ const statusIcon = computed(() => {
 const toneClass = computed(() => {
   switch (props.modelValue) {
     case 'completed':
-      return 'neo-icon-button--success'
+      return 'status-icon--completed'
     case 'dropped':
-      return 'neo-icon-button--danger'
+      return 'status-icon--dropped'
     case 'retired':
-      return 'neo-icon-button--warning'
+      return 'status-icon--retired'
     default:
-      return 'neo-icon-button--open'
+      return 'status-icon--open'
   }
 })
 
@@ -97,3 +97,20 @@ onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', handleOutsideClick)
 })
 </script>
+
+<style scoped>
+/* The status reads from the icon's tone (always with its own glyph); the
+   control itself stays a quiet round icon button. */
+.status-icon--completed {
+  color: var(--mg-color-good-on);
+}
+.status-icon--dropped {
+  color: var(--mg-color-rose);
+}
+.status-icon--retired {
+  color: var(--mg-color-warn-on);
+}
+.status-icon--open {
+  color: var(--mg-color-primary);
+}
+</style>
