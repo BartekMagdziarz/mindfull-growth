@@ -26,15 +26,10 @@
         leave-from-class="transform scale-100 opacity-100"
         leave-to-class="transform scale-95 opacity-0"
       >
-        <div
-          v-if="isOpen"
-          ref="menuRef"
-          class="fixed z-50 w-72 rounded-2xl border border-neu-border/30 bg-neu-base p-3 shadow-neu-raised"
-          :style="menuStyle"
-        >
+        <div v-if="isOpen" ref="menuRef" class="mg-v2-popover fixed w-72 p-3" :style="menuStyle">
           <p
             v-if="title"
-            class="mb-2 px-1 text-[11px] font-medium uppercase tracking-wide text-on-surface-variant"
+            class="mb-2 px-1 text-mg-xs font-medium uppercase tracking-wide text-on-surface-variant"
           >
             {{ title }}
           </p>
@@ -43,7 +38,7 @@
               v-for="preset in presets"
               :key="preset.hex"
               type="button"
-              class="group relative flex h-9 w-9 items-center justify-center rounded-full transition-all duration-150 neo-focus"
+              class="group relative flex h-9 w-9 items-center justify-center rounded-full transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
               :class="
                 modelValue === preset.hex
                   ? 'scale-110 ring-2 ring-offset-2 ring-offset-neu-base ring-on-surface/60'
@@ -73,7 +68,7 @@
           <button
             v-if="allowClear && modelValue"
             type="button"
-            class="mt-3 block w-full rounded-lg px-2 py-1.5 text-xs text-on-surface-variant transition-colors hover:bg-section/60 hover:text-on-surface"
+            class="mt-3 block w-full rounded-mg-sm px-2 py-1.5 text-xs text-on-surface-variant transition-colors hover:bg-section/60 hover:text-on-surface"
             @click="clearSelection"
           >
             {{ clearLabel }}
@@ -131,8 +126,8 @@ const selectedLabel = computed(() => {
 
 const triggerClass = computed(() => {
   return [
-    'inline-flex h-9 w-9 items-center justify-center rounded-full transition-all duration-150 neo-focus',
-    props.modelValue ? '' : 'neo-icon-button',
+    'inline-flex h-9 w-9 items-center justify-center rounded-full transition-all duration-150',
+    props.modelValue ? '' : 'mg-v2-button mg-v2-button--icon',
     props.disabled ? 'cursor-not-allowed opacity-60' : 'hover:scale-105 active:scale-95',
   ]
     .filter(Boolean)

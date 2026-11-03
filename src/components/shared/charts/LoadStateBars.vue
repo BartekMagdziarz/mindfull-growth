@@ -70,11 +70,11 @@ const aria = computed(
   display: inline-block;
   width: 6px;
   min-height: 2px;
-  border-radius: 2px 2px 0 0;
+  border-radius: var(--mg-radius-sketch-a);
 }
 .ls-bars--md .ls-bars__pair i {
   width: 14px;
-  border-radius: 9px 7px 3px 4px / 8px 9px 3px 3px;
+  border-radius: var(--mg-radius-sketch-a);
   transform: rotate(-1.2deg);
 }
 .ls-bars--md .ls-bars__pair i:nth-child(2) {
@@ -95,13 +95,13 @@ const aria = computed(
   bottom: 100%;
   transform: translate(-50%, -2px);
   color: rgb(var(--color-on-surface));
-  font-size: 10.5px;
+  font-size: var(--mg-font-size-chart);
   font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
 .ls-bars__label {
   color: rgb(var(--neo-muted));
-  font-size: 10.5px;
+  font-size: var(--mg-font-size-chart);
   font-weight: 800;
   text-align: center;
 }

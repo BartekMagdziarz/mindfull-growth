@@ -33,8 +33,8 @@ const emit = defineEmits<{ cancel: [] }>()
   flex-wrap: wrap;
   gap: 8px 16px;
   padding: 8px 0;
-  color: var(--mg-color-muted, #4c6a8b);
-  font-size: 13px;
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-sm);
 }
 .ai-activity__status {
   display: flex;
@@ -46,7 +46,7 @@ const emit = defineEmits<{ cancel: [] }>()
   height: 6px;
   flex: 0 0 6px;
   border-radius: 50%;
-  background: var(--mg-color-primary, #598fcc);
+  background: var(--mg-color-primary);
   animation: ai-breathe 2.4s ease-in-out infinite;
 }
 /* Quiet pill in the field tone of its host (the companion panel exposes
@@ -59,25 +59,25 @@ const emit = defineEmits<{ cancel: [] }>()
   min-height: 32px;
   padding: 6px 12px;
   border: 0;
-  border-radius: var(--mg-radius-sm, 10px);
-  background: var(--cp-field, var(--mg-color-mist, #e6f0fc));
-  color: var(--mg-color-muted, #4c6a8b);
+  border-radius: var(--mg-radius-sm);
+  background: var(--cp-field, var(--mg-color-mist));
+  color: var(--mg-color-muted);
   font: inherit;
-  font-size: 12px;
+  font-size: var(--mg-font-size-xs);
   cursor: pointer;
 }
 .ai-activity__cancel:hover {
-  background: var(--cp-inner, var(--mg-color-paper, #f8fbff));
-  color: var(--mg-color-ink, #193454);
+  background: var(--cp-inner, var(--mg-color-paper));
+  color: var(--mg-color-ink);
 }
 .ai-activity__cancel:focus-visible {
   outline: none;
-  box-shadow: var(--mg-focus-ring, 0 0 0 3px rgb(89 143 204 / 0.42));
+  box-shadow: var(--mg-focus-ring);
 }
 .ai-activity__stop {
   width: 6px;
   height: 6px;
-  border-radius: 2px;
+  border-radius: var(--mg-radius-sketch-a);
   background: currentColor;
 }
 @keyframes ai-breathe {

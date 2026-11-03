@@ -47,9 +47,9 @@ const directSymbol = computed(() => {
 const sizeConfig = computed(() => {
   if (props.size === 'xs') {
     return {
-      container: 'h-5 w-5 text-[10px]',
+      container: 'h-5 w-5 text-mg-xs',
       iconFont: 'text-xs',
-      emoji: 'text-[10px]',
+      emoji: 'text-mg-xs',
       dot: 'h-1.5 w-1.5',
     }
   }

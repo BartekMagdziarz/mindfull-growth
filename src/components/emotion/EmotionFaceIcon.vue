@@ -9,7 +9,7 @@
   Krążek przebarwia się przez dziedziczone zmienne CSS (ustawiane na rodzicu):
     --disc        — tło krążka (gradient w kolorze ćwiartki)
     --disc-shadow — ciemna połowa cienia neumorficznego
-  Bez nich obowiązuje neutralny błękitno-szary fallback.
+  Bez nich krążek jest papierowy (fallback na tokenach).
 -->
 <template>
   <span class="neuface" :style="discStyle" aria-hidden="true" v-html="svg" />
@@ -47,14 +47,14 @@ const discStyle = computed(() => {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: var(--disc, linear-gradient(145deg, #f1f6fc, #dde6f1));
+  background: var(--disc, var(--mg-color-paper));
   box-shadow:
-    -3px -3px 6px rgba(255, 255, 255, 0.92),
-    3px 3px 7px var(--disc-shadow, rgba(120, 150, 190, 0.42)),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+    -3px -3px 6px var(--mg-color-veil-strong),
+    3px 3px 7px var(--disc-shadow, var(--mg-color-border)),
+    inset 0 0 0 1px var(--mg-color-veil);
 }
 .neuface :deep(svg) {
   display: block;
-  filter: drop-shadow(0 0.6px 0.4px rgba(255, 255, 255, 0.7));
+  filter: drop-shadow(0 0.6px 0.4px var(--mg-color-veil-strong));
 }
 </style>

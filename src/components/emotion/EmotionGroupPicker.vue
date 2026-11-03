@@ -469,7 +469,7 @@ const chips = computed(() =>
 }
 .oh-t {
   font-weight: 700;
-  font-size: 12px;
+  font-size: var(--mg-font-size-xs);
   line-height: 1.1;
   letter-spacing: 0.09em;
   text-transform: uppercase;
@@ -584,7 +584,7 @@ const chips = computed(() =>
 .q-en,
 .q-pl {
   font-weight: 700;
-  font-size: 13px;
+  font-size: var(--mg-font-size-sm);
   line-height: 1.15;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -599,10 +599,10 @@ const chips = computed(() =>
   min-width: 23px;
   height: 23px;
   border-radius: var(--mg-radius-pill);
-  background: color-mix(in srgb, white 55%, transparent);
+  background: var(--mg-color-veil);
   color: var(--qtx);
   font-weight: 700;
-  font-size: 12px;
+  font-size: var(--mg-font-size-xs);
   line-height: normal;
   display: flex;
   align-items: center;
@@ -666,7 +666,7 @@ const chips = computed(() =>
 }
 .etname {
   font-weight: 700;
-  font-size: 10px;
+  font-size: var(--mg-font-size-xs);
   line-height: 1.25;
   letter-spacing: 0.07em;
   text-transform: uppercase;
@@ -683,7 +683,7 @@ const chips = computed(() =>
 .etaux {
   font-style: italic;
   font-weight: 400;
-  font-size: 9.5px;
+  font-size: var(--mg-font-size-xs);
   line-height: 1.2;
   color: var(--mg-color-muted);
   white-space: nowrap;
@@ -694,7 +694,7 @@ const chips = computed(() =>
   position: absolute;
   top: 8px;
   right: 12px;
-  font-size: 13px;
+  font-size: var(--mg-font-size-sm);
   color: var(--mg-color-ink);
   pointer-events: none;
 }
@@ -716,7 +716,7 @@ const chips = computed(() =>
   position: relative;
   flex: 1;
   height: 14px;
-  border-radius: 8px 6px 9px 7px;
+  border-radius: var(--mg-radius-xs);
   background: var(--track-paper, var(--mg-color-paper));
   box-shadow: none;
   overflow: hidden;
@@ -727,7 +727,7 @@ const chips = computed(() =>
   top: 4px;
   bottom: 4px;
   width: var(--fw, 0%);
-  border-radius: 4px 3px 5px 3px;
+  border-radius: var(--mg-radius-xs);
   background: var(--slider-ink);
   transition: width var(--mg-duration-normal) cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -755,7 +755,7 @@ const chips = computed(() =>
   border: 0;
   cursor: pointer;
   padding: 0;
-  border-radius: 43% 57% 48% 52% / 54% 42% 58% 46%;
+  border-radius: var(--mg-radius-organic-a);
   background: color-mix(in srgb, var(--c) 15%, var(--track-paper, var(--mg-color-emotion-paper)));
   display: grid;
   place-items: center;
@@ -811,13 +811,13 @@ const chips = computed(() =>
 }
 .ttip-n {
   font-weight: 700;
-  font-size: 13px;
+  font-size: var(--mg-font-size-sm);
   line-height: normal;
   margin-bottom: 5px;
 }
 .ttip-ap {
   font-weight: 400;
-  font-size: 11px;
+  font-size: var(--mg-font-size-xs);
   line-height: 1.5;
   color: color-mix(in srgb, var(--mg-color-inverse-ink) 85%, var(--mg-color-inverse));
 }
@@ -829,7 +829,7 @@ const chips = computed(() =>
 }
 .ttip-w span {
   font-weight: 500;
-  font-size: 10px;
+  font-size: var(--mg-font-size-xs);
   line-height: normal;
   background: color-mix(in srgb, var(--mg-color-inverse-ink) 14%, transparent);
   color: var(--mg-color-inverse-ink);
@@ -840,7 +840,7 @@ const chips = computed(() =>
 /* ---- stopka ---- */
 .f-lab {
   font-weight: 700;
-  font-size: 10px;
+  font-size: var(--mg-font-size-xs);
   line-height: normal;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -849,7 +849,7 @@ const chips = computed(() =>
 }
 .f-empty {
   font-weight: 400;
-  font-size: 12px;
+  font-size: var(--mg-font-size-xs);
   line-height: normal;
   color: var(--mg-color-muted);
   font-style: italic;
@@ -871,7 +871,7 @@ const chips = computed(() =>
   flex: none;
   color: var(--mg-color-ink);
   font-weight: 600;
-  font-size: 12px;
+  font-size: var(--mg-font-size-xs);
   line-height: normal;
   background: color-mix(in srgb, var(--c) 25%, var(--mg-color-emotion-paper));
   box-shadow: none;
@@ -879,7 +879,7 @@ const chips = computed(() =>
 .fchip .fn {
   opacity: 0.85;
   font-weight: 500;
-  font-size: 11px;
+  font-size: var(--mg-font-size-xs);
 }
 .fx {
   width: 17px;
@@ -887,14 +887,14 @@ const chips = computed(() =>
   border: 0;
   border-radius: var(--mg-radius-pill);
   cursor: pointer;
-  background: color-mix(in srgb, white 50%, transparent);
+  background: var(--mg-color-veil);
   color: inherit;
-  font-size: 9px;
+  font-size: var(--mg-font-size-xs);
   display: grid;
   place-items: center;
 }
 .fx:hover {
-  background: color-mix(in srgb, white 50%, transparent);
+  background: var(--mg-color-veil);
 }
 /* ---- wariant wąski: 3 kolumny kafli, 4 rzędy (decyzja usera 2026-07-10) ---- */
 @container (max-width: 699px) {

@@ -137,6 +137,10 @@ Wdrożenie propozycji A z audytu 2026-10-18 (plan i porównanie:
   `text-mg-rating`, `text-mg-chart`, `text-mg-icon-sm/md/lg` (tylko font-size, bez
   line-height w odróżnieniu od `text-xs/sm` Tailwinda). Próbki motywów w
   Preferencjach: `--mg-theme-swatch-*` (stałe, niezależne od aktywnego motywu).
+- **Welon (K2, 2026-11-03):** `--mg-color-veil` (biel 55 %, przezroczysta) i
+  `--mg-color-veil-strong` (75 %) — papier kładziony na barwnym tle (tint ćwiartki
+  emocji, kolor części), gdzie nieprzezroczysta mgła/papier przesunęłaby barwę ku niebu.
+  Nie na zwykłych kartach i polach — tam drabinka mgła → papier.
 - **Strażnik-zapadka:** `npm run check:design-system` skanuje całe `src/`
   (9 reguł) i porównuje z `scripts/design-system-baseline.json`; hook
   PostToolUse sprawdza każdy edytowany plik. `--list [--rule x]` wypisuje

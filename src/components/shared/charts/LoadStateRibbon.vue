@@ -277,17 +277,17 @@ const aria = computed(() => {
   justify-items: center;
   gap: 2px;
   padding: 6px 9px;
-  border-radius: 12px 9px 11px 10px;
+  border-radius: var(--mg-radius-sm);
   background: rgb(var(--color-on-surface));
   color: white;
-  font-size: 11px;
+  font-size: var(--mg-font-size-xs);
   white-space: nowrap;
   pointer-events: none;
   z-index: 2;
 }
 .ls-ribbon__tip span {
   padding: 1px 7px;
-  border-radius: 999px;
+  border-radius: var(--mg-radius-pill);
   font-weight: 750;
 }
 .ls-ribbon__tip small {
@@ -298,7 +298,7 @@ const aria = computed(() => {
   grid-auto-flow: column;
   grid-auto-columns: 1fr;
   color: rgb(var(--neo-muted));
-  font-size: 10px;
+  font-size: var(--mg-font-size-chart);
   font-style: italic;
   text-align: center;
 }

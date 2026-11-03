@@ -47,6 +47,10 @@
   --mg-color-mist: color-mix(in srgb, white 45%, rgb(var(--sky-100)));
   --mg-color-emotion-paper: #fafbfd;
   --mg-color-paper: color-mix(in srgb, white 80%, rgb(var(--sky-100)));
+  /* Veil = translucent paper laid over a coloured ground (emotion-quadrant
+     tint, part colour), where opaque mist/paper would pull the hue to sky. */
+  --mg-color-veil: color-mix(in srgb, white 55%, transparent);
+  --mg-color-veil-strong: color-mix(in srgb, white 75%, transparent);
   --mg-color-ink: rgb(var(--color-on-surface));
   /* Muted ink darkened vs legacy neo-muted: the bluer canvas/surface tones
      of the sky ladder would otherwise drop small labels below ~3:1. */

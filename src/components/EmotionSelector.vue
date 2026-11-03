@@ -61,7 +61,7 @@
           type="button"
           :aria-label="`Remove ${emotion.name}`"
           :style="getEmotionChipStyle(emotion.id)"
-          class="neo-emotion-chip inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200"
+          class="es-chip inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200"
           @click="removeEmotion(emotion.id)"
         >
           <span>{{ emotion.name }}</span>
@@ -73,7 +73,7 @@
           type="button"
           :aria-label="`Remove ${familyName(family)}`"
           :style="getQuadrantChipStyle(family.quadrant)"
-          class="neo-emotion-chip inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200"
+          class="es-chip inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200"
           @click="removeFamily(family.id)"
         >
           <AppIcon name="category" class="text-sm opacity-80" />
@@ -121,9 +121,9 @@
       v-else-if="
         props.showSelectedSection && props.showEmptyState && !props.label && !hasAnySelection
       "
-      class="mb-4 p-3 rounded-2xl bg-section text-center text-on-surface-variant text-xs border border-neu-border/30"
+      class="mg-v2-block mb-4 p-3 text-center text-xs"
     >
-      {{ t('emotionViews.selector.noSelection') }}
+      <span class="text-on-surface-variant">{{ t('emotionViews.selector.noSelection') }}</span>
     </div>
 
     <!-- Wspólne pole/panel — 2 poziomy z animacjami zagłębiania -->
@@ -587,7 +587,7 @@ function gradients(q: Quadrant) {
   return {
     backgroundGradient: `linear-gradient(145deg, ${v('top')}, ${v('bottom')})`,
     softGradient: `linear-gradient(145deg, ${v('tint-soft')}, ${v('tint')})`,
-    discGradient: `linear-gradient(145deg, #ffffff, ${v('tint-soft')})`,
+    discGradient: `linear-gradient(145deg, var(--mg-color-paper), ${v('tint-soft')})`,
     // Ciemna połowa cienia neumorficznego krążka — zamiast neutralnego
     // błękitno-szarego (fallback w EmotionFaceIcon) odcień ćwiartki.
     discShadow: `color-mix(in srgb, ${v('border')} 42%, transparent)`,
@@ -602,7 +602,7 @@ const quadrantButtonStyles: Record<Quadrant, ReturnType<typeof gradients>> = {
   'low-energy-low-pleasantness': gradients('low-energy-low-pleasantness'),
 }
 function getQuadrantButtonClasses(): string {
-  return 'flex items-center justify-center px-4 py-3 rounded-2xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background neo-quadrant-btn'
+  return 'flex items-center justify-center px-4 py-3 rounded-mg-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background es-quadrant-btn'
 }
 function getQuadrantButtonStyle(quadrant: Quadrant): Record<string, string> {
   const s = quadrantButtonStyles[quadrant]
@@ -692,7 +692,7 @@ onMounted(async () => {
 .es-panel {
   position: relative;
   min-height: 168px;
-  border-radius: 18px;
+  border-radius: var(--mg-radius-md);
   /* clip + margines zamiast samego hidden: neumorficzne cienie przycisków przy
      krawędziach pola nie są ucinane, a przeskalowania animacji nadal maskowane.
      overflow:hidden zostaje jako fallback dla silników bez `overflow: clip`. */
@@ -712,13 +712,13 @@ onMounted(async () => {
 }
 
 /* === Duże przyciski ćwiartek (poziom 1 / krok 1) === */
-.neo-quadrant-btn {
+.es-quadrant-btn {
   border: 1px solid rgb(var(--neo-border) / 0.1);
   box-shadow:
     -7px -7px 14px rgb(var(--neo-shadow-light) / 0.8),
     7px 7px 14px rgb(var(--neo-shadow-dark) / 0.33);
 }
-.neo-quadrant-btn:hover {
+.es-quadrant-btn:hover {
   transform: translateY(-1px);
   box-shadow:
     -8px -8px 16px rgb(var(--neo-shadow-light) / 0.85),
@@ -734,10 +734,10 @@ onMounted(async () => {
   align-items: center;
   gap: 2px;
   padding: 2px;
-  border-radius: 999px;
+  border-radius: var(--mg-radius-pill);
   flex-shrink: 0;
   margin-left: auto;
-  background: rgb(255 255 255 / 0.5);
+  background: var(--mg-color-veil);
   border: 1px solid rgb(var(--neo-border) / 0.14);
   box-shadow:
     -2px -2px 5px rgb(var(--neo-shadow-light) / 0.6),
@@ -746,11 +746,11 @@ onMounted(async () => {
 .q-capsule__seg {
   width: 27px;
   height: 20px;
-  border-radius: 999px;
+  border-radius: var(--mg-radius-pill);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: var(--mg-font-size-sm);
   padding: 0;
   border: none;
   background: transparent;
@@ -766,7 +766,7 @@ onMounted(async () => {
 }
 .q-capsule__seg:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px rgb(var(--color-focus));
+  box-shadow: var(--mg-focus-ring);
 }
 .q-capsule__seg--active {
   opacity: 1;
@@ -797,7 +797,7 @@ onMounted(async () => {
   position: relative;
   display: flex;
   flex-direction: column;
-  border-radius: 16px;
+  border-radius: var(--mg-radius-md);
   border: 1px solid rgb(var(--neo-border) / 0.1);
   box-shadow:
     -5px -5px 10px rgb(var(--neo-shadow-light) / 0.8),
@@ -826,7 +826,7 @@ onMounted(async () => {
   gap: 8px;
   min-height: 88px;
   padding: 14px 10px;
-  border-radius: 16px;
+  border-radius: var(--mg-radius-md);
   border: none;
   text-align: center;
   cursor: pointer;
@@ -834,7 +834,9 @@ onMounted(async () => {
 .fam-card--split {
   min-height: 74px;
   padding-bottom: 10px;
-  border-radius: 16px 16px 0 0;
+  border-radius: var(--mg-radius-md);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
 }
 .fam-card--selected {
   box-shadow:
@@ -847,7 +849,7 @@ onMounted(async () => {
 .emotion-btn:focus-visible,
 .fam-expanded__head--selectable:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px rgb(var(--color-focus));
+  box-shadow: var(--mg-focus-ring);
 }
 .fam-card__icon {
   flex-shrink: 0;
@@ -855,7 +857,7 @@ onMounted(async () => {
 /* Tło i cień krążka twarzy przejmuje EmotionFaceIcon przez dziedziczone
    zmienne --disc / --disc-shadow (ustawiane w familyCardStyle). */
 .fam-card__name {
-  font-size: 12.5px;
+  font-size: var(--mg-font-size-xs);
   font-weight: 700;
   line-height: 1.2;
 }
@@ -863,7 +865,7 @@ onMounted(async () => {
   position: absolute;
   top: 6px;
   right: 6px;
-  font-size: 16px;
+  font-size: var(--mg-font-size-icon-sm);
   color: inherit;
 }
 /* Plakietka ●N: liczba wybranych emocji z tej rodziny (stan „wchłonięty") */
@@ -874,22 +876,23 @@ onMounted(async () => {
   min-width: 18px;
   height: 18px;
   padding: 0 5px;
-  border-radius: 999px;
+  border-radius: var(--mg-radius-pill);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 10.5px;
+  font-size: var(--mg-font-size-xs);
   font-weight: 800;
   color: inherit;
-  background: rgb(255 255 255 / 0.75);
-  box-shadow: inset 0 0 0 1px rgb(var(--neo-border) / 0.18);
+  background: var(--mg-color-veil-strong);
+  outline: 1px solid var(--mg-color-border);
+  outline-offset: -1px;
 }
 /* Bierna strzałka w trybie bez podziału stref (cała karta = rozwiń) */
 .fam-card__chevron {
   position: absolute;
   bottom: 4px;
   right: 8px;
-  font-size: 14px;
+  font-size: var(--mg-font-size-sm);
   opacity: 0.45;
 }
 
@@ -901,7 +904,9 @@ onMounted(async () => {
   padding: 2px 0 3px;
   border: none;
   border-top: 1px solid rgb(var(--neo-border) / 0.14);
-  border-radius: 0 0 16px 16px;
+  border-radius: var(--mg-radius-md);
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
   color: inherit;
   cursor: pointer;
   filter: brightness(0.985);
@@ -920,7 +925,7 @@ onMounted(async () => {
 
 /* === Karta rozwinięta: pełny rząd, emocje rodziny === */
 .fam-expanded {
-  border-radius: 16px;
+  border-radius: var(--mg-radius-md);
   padding: 12px 14px;
 }
 .fam-expanded__inner {
@@ -940,7 +945,7 @@ onMounted(async () => {
   gap: 8px;
   flex-shrink: 0;
   padding: 6px 12px 6px 8px;
-  border-radius: 999px;
+  border-radius: var(--mg-radius-pill);
   border: 1px solid transparent;
   color: inherit;
 }
@@ -975,9 +980,9 @@ onMounted(async () => {
   align-items: center;
   gap: 8px;
   padding: 6px 14px 6px 8px;
-  border-radius: 999px;
+  border-radius: var(--mg-radius-pill);
   border: 1px solid rgb(var(--neo-border) / 0.12);
-  font-size: 12.5px;
+  font-size: var(--mg-font-size-xs);
   font-weight: 700;
   cursor: pointer;
   box-shadow:
@@ -1007,10 +1012,10 @@ onMounted(async () => {
   width: 28px;
   height: 28px;
   padding: 0;
-  border-radius: 999px;
+  border-radius: var(--mg-radius-pill);
   flex-shrink: 0;
   color: inherit;
-  background: rgb(255 255 255 / 0.5);
+  background: var(--mg-color-veil);
   border: 1px solid rgb(var(--neo-border) / 0.14);
   cursor: pointer;
   transition: transform 150ms ease;
@@ -1032,12 +1037,12 @@ onMounted(async () => {
 
 .emotion-description-strip {
   padding: 7px 12px;
-  border-radius: 12px;
-  font-size: 12px;
+  border-radius: var(--mg-radius-sm);
+  font-size: var(--mg-font-size-xs);
   line-height: 1.4;
   text-align: center;
   color: rgb(var(--neo-text));
-  background: rgb(255 255 255 / 0.55);
+  background: var(--mg-color-veil);
   border: 1px solid rgb(var(--neo-border) / 0.12);
   box-shadow:
     inset -2px -2px 4px rgb(var(--neo-inset-light) / 0.6),
@@ -1045,14 +1050,14 @@ onMounted(async () => {
 }
 
 /* === Sekcja wybranych chipów === */
-.neo-emotion-chip {
+.es-chip {
   border: none;
 }
-.neo-emotion-chip:hover {
+.es-chip:hover {
   transform: translateY(-1px);
   filter: brightness(1.04);
 }
-.neo-emotion-chip:active {
+.es-chip:active {
   transform: translateY(0);
   filter: brightness(0.98);
 }

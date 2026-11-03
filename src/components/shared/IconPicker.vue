@@ -45,13 +45,11 @@
         <div
           v-if="isOpen"
           ref="menuRef"
-          class="mg-design-v2 icon-picker-menu fixed z-50 w-[30rem] rounded-2xl border border-neu-border/28 bg-neu-base p-3 shadow-neu-raised"
+          class="mg-design-v2 mg-v2-popover icon-picker-menu fixed w-[30rem] p-3"
           :style="menuStyle"
         >
           <div class="mb-2 flex items-center gap-2">
-            <label
-              class="flex flex-1 items-center gap-2 rounded-xl border border-neu-border/22 bg-section/45 px-2.5 py-1.5"
-            >
+            <label class="mg-v2-input flex flex-1 items-center gap-2 px-2.5 py-1.5">
               <AppIcon name="search" class="text-sm text-on-surface-variant" />
               <input
                 ref="searchInputRef"
@@ -65,7 +63,7 @@
             <button
               v-if="allowClear && modelValue"
               type="button"
-              class="neo-pill px-2 py-0.5 text-[11px]"
+              class="mg-v2-pill"
               @click="clearSelection"
             >
               {{ t('common.iconPicker.clear') }}
@@ -78,8 +76,8 @@
                 v-for="icon in filteredOptions"
                 :key="icon.id"
                 type="button"
-                class="neo-icon-button neo-focus h-10 w-10 p-0"
-                :class="{ 'neo-icon-button--primary': selectedGlyph === icon.id }"
+                class="mg-v2-button mg-v2-button--icon"
+                :class="{ 'mg-v2-button--primary': selectedGlyph === icon.id }"
                 :title="labelFor(icon)"
                 :aria-label="labelFor(icon)"
                 @click="select(`mg-${icon.id}`)"
@@ -190,20 +188,20 @@ const ghostSizeClass = computed(() => {
 const triggerClass = computed(() => {
   if (props.compact && props.minimal) {
     return [
-      'inline-flex items-center justify-center rounded-lg p-0.5 transition-colors hover:bg-section/50 neo-focus',
+      'inline-flex items-center justify-center rounded-mg-xs p-0.5 transition-colors hover:bg-section/50',
       props.disabled ? 'opacity-60 cursor-not-allowed' : '',
     ].join(' ')
   }
 
   if (props.compact) {
     return [
-      'neo-icon-button neo-focus h-9 w-9 p-0',
+      'mg-v2-button mg-v2-button--icon',
       props.disabled ? 'opacity-60 cursor-not-allowed' : '',
     ].join(' ')
   }
 
   return [
-    'neo-input neo-focus inline-flex w-full min-w-[13rem] items-center gap-2 px-2.5 py-2',
+    'mg-v2-input inline-flex w-full min-w-[13rem] items-center gap-2 px-2.5 py-2',
     props.disabled ? 'opacity-60 cursor-not-allowed' : '',
   ].join(' ')
 })
@@ -316,8 +314,6 @@ onUnmounted(() => {
 
 <style scoped>
 .icon-picker-menu {
-  background: var(--mg-color-paper);
-  box-shadow: var(--mg-shadow-raised);
   min-width: 0;
   min-height: 0;
   max-width: calc(100vw - 16px);

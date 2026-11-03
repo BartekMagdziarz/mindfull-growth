@@ -490,3 +490,30 @@ porównane przed/po (różnice danych z biegu kontrolnego odjęte). Widoczne: kr
 steppera o 2 px większe, akcje wierszy macierzy bez ledwo widocznego obrysu i w kolorze
 akcentu, nośnik ikony w pustym panelu na tle pola ikony. Dług 349 → 283.
 
+## 2026-11-03 — K2, partia 7: selektor emocji, picker grup, komponenty wspólne
+
+Kontekst: `EmotionSelector` (38 naruszeń, 16 kreatorów ćwiczeń), `components/emotion` (22)
+i `components/shared` (38: picker ikon, picker kolorów, AiActivity, wykresy obciążenia i
+stanu, EntityIcon). Lokalne klasy `neo-emotion-chip`/`neo-quadrant-btn` nie miały mostka.
+Decyzja: lokalne klasy → `es-chip`/`es-quadrant-btn` (ten sam CSS); promienie kart i panelu
+→ `md`, przyciski ćwiartek `rounded-mg-lg` (to samo co dotychczasowe `rounded-2xl`), pasek
+i korpus karty dzielonej = `md` z wyzerowanymi narożnikami jednej krawędzi. Nowa rola
+`--mg-color-veil(-strong)` (biel 55 % / 75 % z przezroczystością) dla papieru kładzionego
+na barwnym tle ćwiartki — kapsuła przełącznika, zwijacz, pasek opisu, plakietka liczby,
+krzyżyki chipów w pickerze grup; nieprzezroczysta mgła/papier ciągnęłaby barwę do nieba.
+Krążki twarzy na `paper` i welonach zamiast czystej bieli. Fokus kart rodzin i kapsuły:
+`--mg-focus-ring` — dotychczasowe `rgb(var(--color-focus))` wskazywało nieistniejącą
+zmienną, więc fokus klawiatury był niewidoczny. Picker ikon i picker kolorów →
+`mg-v2-popover` (tło karty, krawędź i promień anatomii, warstwa dialogu), pole szukania →
+`mg-v2-input`, kafelki ikon → `mg-v2-button--icon` (`--primary` dla wybranej), wyczyść →
+`mg-v2-pill`. Literały pisma → skala (12,5 → `xs`, żeby nazwy rodzin nie zawijały się do
+dwóch linii; 9–11 px w pickerze grup → `xs`; osie i wartości wykresów obciążenia/stanu →
+`chart`); AiActivity bez martwych fallbacków hex.
+Konsekwencje: style obliczone 24 stanów (selektor z i bez wyboru samej rodziny, picker
+grup, formularz obszaru życia z oboma pickerami, kalendarz rytmu, refleksja tygodnia)
+porównane przed/po, szum danych z biegu kontrolnego odjęty. Widoczne: organiczne narożniki
+kart rodzin, etykiety kafli pickera grup 10 → 12 px (kafel o ~5 px wyższy), kafelki
+ikon 40 → 36 px w kolorze akcentu na tle karty (wcześniej papier — odwrócona drabinka),
+popovery z promieniem `md`. Dług 283 → 185; `components/shared`, `components/emotion` i
+`EmotionSelector` = 0.
+
