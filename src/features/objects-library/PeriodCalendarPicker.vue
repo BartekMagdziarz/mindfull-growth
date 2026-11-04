@@ -357,7 +357,7 @@ function onKeydown(event: KeyboardEvent) {
 .period-calendar__panel .mg-v2-button {
   min-height: 2rem;
   padding: 0.35rem 0.65rem;
-  font-size: 0.8125rem;
+  font-size: var(--mg-font-size-sm);
 }
 .period-calendar__panel footer {
   position: sticky;
@@ -379,8 +379,8 @@ function onKeydown(event: KeyboardEvent) {
 .period-calendar__cell {
   padding: 0.4rem 0.35rem;
   border: 1px solid var(--mg-color-border);
-  border-radius: 0.75rem;
-  font-size: 0.875rem;
+  border-radius: var(--mg-radius-sm);
+  font-size: var(--mg-font-size-sm);
 }
 .period-calendar__cell:hover {
   background: var(--mg-color-primary-soft);

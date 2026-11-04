@@ -33,9 +33,9 @@
       </p>
       <AppCard v-if="isLoadingEntry" padding="md">
         <div class="animate-pulse space-y-3">
-          <div class="h-6 bg-surface-variant rounded w-3/4"></div>
-          <div class="h-4 bg-surface-variant rounded w-full"></div>
-          <div class="h-4 bg-surface-variant rounded w-5/6"></div>
+          <div class="h-6 bg-surface-variant rounded-mg-xs w-3/4"></div>
+          <div class="h-4 bg-surface-variant rounded-mg-xs w-full"></div>
+          <div class="h-4 bg-surface-variant rounded-mg-xs w-5/6"></div>
         </div>
       </AppCard>
 
@@ -644,7 +644,6 @@ onMounted(async () => {
   height: 1em;
   margin-left: 0.15em;
   vertical-align: -0.12em;
-  border-radius: 2px;
   background: currentColor;
   animation: streaming-cursor-blink 0.8s steps(1) infinite;
 }

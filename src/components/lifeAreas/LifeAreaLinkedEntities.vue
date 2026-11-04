@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-4">
     <div v-if="latestEntry" class="space-y-4">
-      <div class="rounded-xl border border-neu-border/20 bg-section/40 p-4">
+      <div class="rounded-mg-md border border-neu-border/20 bg-section/40 p-4">
         <div class="flex items-start justify-between gap-3">
           <div>
             <h4 class="text-sm font-semibold text-on-surface">
@@ -33,9 +33,9 @@
 
         <div
           v-if="latestEntry.item.visionSnapshot"
-          class="mt-3 rounded-lg border border-neu-border/20 bg-surface/80 px-3 py-2"
+          class="mt-3 rounded-mg-sm border border-neu-border/20 bg-surface/80 px-3 py-2"
         >
-          <div class="text-[11px] font-semibold uppercase tracking-[0.2em] text-on-surface-variant">
+          <div class="text-mg-xs font-semibold uppercase tracking-[0.2em] text-on-surface-variant">
             {{ t('lifeAreas.linkedEntities.visionSnapshot') }}
           </div>
           <p class="mt-1 text-sm text-on-surface-variant">
@@ -52,7 +52,7 @@
           <li
             v-for="entry in historyEntries"
             :key="entry.assessment.id"
-            class="flex items-start justify-between gap-3 rounded-xl border border-neu-border/20 bg-section/30 px-3 py-2"
+            class="flex items-start justify-between gap-3 rounded-mg-md border border-neu-border/20 bg-section/30 px-3 py-2"
           >
             <div class="min-w-0">
               <div class="text-sm font-medium text-on-surface">

@@ -78,9 +78,9 @@ export function quadrantInkCss(quadrant: LoadStateQuadrant): string {
 
 export function toRating(value: number | null | undefined): MaybeRating {
   if (value == null || !Number.isFinite(value)) return null
-  const rounded = Math.round(value)
-  if (rounded < 1 || rounded > 5) return null
-  return rounded as Rating
+  const whole = Math.round(value)
+  if (whole < 1 || whole > 5) return null
+  return whole as Rating
 }
 
 const isLow = (v: Rating) => v <= 2

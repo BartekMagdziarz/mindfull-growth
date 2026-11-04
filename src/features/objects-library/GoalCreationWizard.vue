@@ -12,7 +12,8 @@
           :aria-label="`Step ${idx + 1}: ${label.full}${idx < stepIndex ? ' (completed)' : idx === stepIndex ? ' (current)' : ''}`"
           @click="idx <= stepIndex && goToStep(label.key)"
         >
-          {{ label.short }}
+          <!-- Done steps show the dot (as DsProgressMarker), not the letter. -->
+          <template v-if="idx >= stepIndex">{{ label.short }}</template>
         </button>
       </div>
       <span class="text-xs font-medium text-on-surface-variant">
@@ -203,7 +204,7 @@
                 v-for="option in priorityOptions"
                 :key="option.id"
                 type="button"
-                class="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-medium text-on-surface hover:bg-primary-soft/30"
+                class="flex w-full items-center gap-2 rounded-mg-md px-3 py-2 text-left text-sm font-medium text-on-surface hover:bg-primary-soft/30"
                 @click="togglePriority(option.id)"
               >
                 <AppIcon
@@ -258,7 +259,7 @@
                 v-for="option in lifeAreaOptions"
                 :key="option.id"
                 type="button"
-                class="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-medium text-on-surface hover:bg-primary-soft/30"
+                class="flex w-full items-center gap-2 rounded-mg-md px-3 py-2 text-left text-sm font-medium text-on-surface hover:bg-primary-soft/30"
                 @click="toggleLifeArea(option.id)"
               >
                 <AppIcon
@@ -451,7 +452,7 @@
 
         <p
           v-if="smartCompleteness.missing.length > 0 && smartCompleteness.score < 5"
-          class="rounded-xl bg-warning/10 px-3 py-2 text-xs text-warning"
+          class="mg-v2-block mg-v2-block--warn px-3 py-2 text-xs"
         >
           {{
             t('planning.goalWizard.steps.review.missingHint', {
@@ -803,8 +804,6 @@ onBeforeUnmount(() => {
 
 .wizard-step--done {
   cursor: pointer;
-  /* Match DsProgressMarker: completed steps show the dot, not the letter. */
-  font-size: 0;
 }
 
 .wizard-step--done:hover {

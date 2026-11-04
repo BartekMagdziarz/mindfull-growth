@@ -603,3 +603,22 @@ Konsekwencje: style obliczone 15 stanów (cele i priorytety z osią i menu statu
 katalog ćwiczeń, obszary, nowy obszar z fokusem pól, kroki planu rocznego za dwa lata z
 pustym stanem priorytetów) porównane przed/po z biegiem kontrolnym; jedyne widoczne:
 eyebrow panelu stanu o 1 px większy. Dług 79 → 62.
+
+## 2026-11-04 — K2, partia 12: kreator celu, kalendarz okresów, powiązania obszaru, czat
+
+Kontekst: `GoalCreationWizard`, `PeriodCalendarPicker`, `LifeAreaLinkedEntities`,
+`ChatView` i `domain/loadState.ts` — 17 naruszeń; bez zmian w części wspólnej.
+Decyzja: utility `rounded-xl/-lg/rounded` → `rounded-mg-md/-sm/-xs` (dokładnie to, na co
+mapowały je adaptery — zero zmian kształtu). Notka „Brakuje: S, A, R” w podsumowaniu
+kreatora → `mg-v2-block--warn` (wcześniej `bg-warning/10` na szarym tle szablonu — ledwo
+czytelna). Ukończone kroki kreatora nie renderują już litery zamiast chować ją przez
+`font-size: 0`; zerowy wiersz tekstu spychał kropkę w dół, teraz stoi na środku
+(nazwa kroku dalej w `aria-label`). Komórki kalendarza okresów → `--mg-radius-sm` i 13 px
+(`sm`, było 12 px / 14 px). Kursor strumienia w czacie traci promień 2 px (prostokąt
+0,45 em). Etykieta „Wizja” w powiązaniach obszaru 11 → 12 px. `loadState.ts`: zmienna
+`rounded` → `whole` (fałszywy alarm strażnika).
+Konsekwencje: style obliczone 16 stanów (kreator celu przez wszystkie kroki z menu
+priorytetów i podsumowaniem, kalendarz miesięcy celu z hover i zaznaczeniem, szczegóły
+obszaru na koncie demo) porównane przed/po z biegiem kontrolnym. Kursor czatu i szkielet
+ładowania czatu nie były osiągnięte na żywo; blok „Wizja” nie występuje w danych demo.
+Dług 62 → 44.
