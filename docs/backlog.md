@@ -27,6 +27,38 @@ wracania do rozmowy, w której go znaleziono.
 
 ## Błędy
 
+### B-20 · Karta sesji czatu mówi po angielsku („View”, „Delete”, „1 message”)
+
+`otwarte` · Znaleziono 2026-11-09 (port B2 panelu „Dziennik z AI”) · dziennik, historia / `src/components/ChatSessionCard.vue`
+
+**Objaw.** Pod edytorem wpisu (sekcja „Sesje czatu”) i w Historii karta zapisanej rozmowy
+pokazuje „1 message” / „N messages” oraz przyciski „View” i „Delete”, choć cała reszta
+ekranu jest po polsku.
+
+**Jak odtworzyć.** `npm run dev:verify`, otworzyć wpis dziennika, który ma zapisaną sesję
+czatu (seed E6), przełączyć panel boczny na „AI” i spojrzeć pod kartę wpisu; to samo w
+`/history?type=journal`.
+
+**Przyczyna.** `src/components/ChatSessionCard.vue:16–20` ma literały „View” / „Delete”
+(także w `aria-label`), a `messageCountLabel` (`:52–56`) składa „1 message” /
+„N messages” bez `t()`. Komponent nie używa `t`, tylko `locale` do daty.
+
+**Dlaczego to błąd.** Produkt jest Polish-first (decyzja 2026-10-20); komponent współdzielony
+(`src/components/`) powinien iść przez `t()`, a liczebnik „wiadomość/wiadomości” wymaga
+polskiej odmiany (1 wiadomość, 2–4 wiadomości, 5+ wiadomości).
+
+**Propozycja naprawy.** Klucze `chat.session.view`, `chat.session.delete`,
+`chat.session.messageCount` (pl + en) i `t()` w karcie; liczebnik jak
+`messageCountLabel` w `ReflectionCompanionPanel.vue` (1 → „wiadomość”, inaczej
+„wiadomości”).
+
+**Kryteria akceptacji.** Karta po polsku w edytorze i w Historii; `aria-label` przycisków po
+polsku; `npm run check-locales` zielony; test komponentu sprawdza etykiety i liczebnik.
+
+**Uwagi.** Po B2 nowych sesji czatu nie da się zacząć z edytora (wejście usunięte), karta
+służy tylko do przeglądu i usuwania starych rozmów — jeśli ChatView zniknie w całości,
+wpis staje się bezprzedmiotowy.
+
 ### B-19 · Menu statusu priorytetu w planie rocznym pokazuje surowe klucze tłumaczeń
 
 `otwarte` · Znaleziono 2026-11-03 (K2, partia 10: StatusIconButton) · plan roczny / `src/components/calendar/AnnualPlanningWizard.vue`
