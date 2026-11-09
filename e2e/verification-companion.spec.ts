@@ -189,22 +189,28 @@ test.describe('weekly reflection companion', () => {
       .click()
     await expect(page.getByRole('log')).toContainText('Co pomogło Ci odpocząć?')
     expect(api.count()).toBe(3)
-    await expect(page.getByRole('list', { name: 'Propozycje tematów' })).toBeHidden()
-    await page.getByRole('button', { name: 'Propozycje tematów', exact: true }).click()
-    await page.locator('summary').filter({ hasText: 'Bliskie relacje' }).click()
-    await page
-      .locator('.companion-topic')
-      .filter({ hasText: 'Bliskie relacje' })
-      .getByRole('button', { name: 'Porozmawiaj o tym' })
-      .click()
+    // In a conversation the topic list is gone; the unused topics and the three lenses are
+    // chips in the „Propozycje” field under the composer (Lab B2).
+    await expect(page.getByRole('list', { name: 'Propozycje tematów' })).toHaveCount(0)
+    const tray = page.getByRole('region', { name: 'Propozycje na następny ruch' })
+    await expect(tray.getByRole('button', { name: 'Chwila dla siebie', exact: true })).toHaveCount(
+      0
+    )
+    await expect(tray.getByRole('button', { name: 'Pułapki myślenia', exact: true })).toBeVisible()
+    await expect(tray.locator('.companion-chip')).toHaveCount(4 + 3)
+    await tray.getByRole('button', { name: 'Bliskie relacje', exact: true }).click()
     await expect(page.getByRole('log').locator('article.companion-message').last()).toContainText(
       'Które spotkanie było dla Ciebie ważne?'
     )
     await expect(page.getByRole('log').locator('article.companion-message').last()).toBeInViewport()
-    await expect(
-      page.getByRole('button', { name: 'Propozycje tematów', exact: true })
-    ).toHaveAttribute('aria-expanded', 'false')
+    await expect(tray.getByRole('button', { name: 'Bliskie relacje', exact: true })).toHaveCount(0)
+    await expect(tray.locator('.companion-chip')).toHaveCount(3 + 3)
     await expect(page.getByRole('textbox', { name: 'Twój temat lub wiadomość' })).toBeFocused()
+    // The field folds to its header and gives the room back to the log.
+    await tray.getByRole('button', { name: /^Propozycje/ }).click()
+    await expect(tray.locator('.companion-chip')).toHaveCount(0)
+    await tray.getByRole('button', { name: /^Propozycje/ }).click()
+    await expect(tray.locator('.companion-chip')).toHaveCount(6)
     expect(api.count()).toBe(3)
     await page
       .getByRole('textbox', { name: 'Twój temat lub wiadomość' })
@@ -233,8 +239,26 @@ test.describe('weekly reflection companion', () => {
     await page.getByRole('button', { name: 'Rozpocznij od aktualnych danych', exact: true }).click()
     await page.getByRole('button', { name: 'Rozpocznij ponownie', exact: true }).click()
     await expect(page.getByRole('log')).not.toContainText('Porozmawiajmy o relacjach.')
-    await expect(page.locator('.companion-archive summary')).toBeVisible()
-    await expect(page.locator('.companion-archive article').first()).toBeHidden()
+    // The earlier conversation folds on TOP of the log, before the new topics, with a plural
+    // that fits the count; its messages stay hidden until the fold is opened.
+    const fold = page.locator('.companion-archive .companion-fold')
+    await expect(fold).toBeVisible()
+    await expect(fold).toContainText(/Wcześniejsza rozmowa · \d+ wiadomości/)
+    await expect(page.locator('.companion-archive article')).toHaveCount(0)
+    expect(
+      await page
+        .locator('.companion-scroll')
+        .evaluate(
+          el =>
+            el.querySelector('.companion-archive')!.getBoundingClientRect().bottom <=
+            el.querySelector('.companion-topic-picker')!.getBoundingClientRect().top
+        )
+    ).toBe(true)
+    await fold.click()
+    await expect(page.locator('.companion-archive article').first()).toBeVisible()
+    await expect(page.locator('.companion-archive')).toContainText('Porozmawiajmy o relacjach.')
+    await fold.click()
+    await expect(page.locator('.companion-archive article')).toHaveCount(0)
     await expect(page.locator('.companion-topic summary').first()).toBeVisible()
     await page.getByRole('button', { name: 'Opcje rozmowy', exact: true }).click()
     await page.locator('.companion-scroll').evaluate(el => {
@@ -262,7 +286,7 @@ test.describe('weekly reflection companion', () => {
     await page.getByRole('button', { name: 'Wyczyść rozmowę', exact: true }).click()
     const confirmation = page.getByRole('alertdialog', { name: 'Wyczyścić rozmowę?' })
     await confirmation.getByRole('button', { name: 'Anuluj', exact: true }).click()
-    await expect(page.locator('.companion-archive summary')).toBeVisible()
+    await expect(page.locator('.companion-archive .companion-fold')).toBeVisible()
     await page.getByRole('button', { name: 'Wyczyść rozmowę', exact: true }).click()
     const callsBeforeClear = api.count()
     await confirmation.getByRole('button', { name: 'Usuń wiadomości', exact: true }).click()

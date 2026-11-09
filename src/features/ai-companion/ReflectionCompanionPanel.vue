@@ -2,7 +2,7 @@
   <aside
     class="companion-panel"
     :class="{
-      'companion-panel--conversation': hasConversation && !showTopics && !showOptions,
+      'companion-panel--conversation': hasConversation,
       'companion-panel--nested': nested,
       'mg-v2-surface mg-v2-surface--raised-sm': !nested,
     }"
@@ -23,8 +23,6 @@
         <AppIcon name="settings" />
       </button>
     </header>
-    <!-- Wejście gospodarza nad rozmową (Dziennik: osobny czat z intencją). -->
-    <slot name="intro" />
     <div ref="scrollArea" class="companion-scroll">
       <section
         v-show="showOptions"
@@ -159,6 +157,42 @@
         </button>
       </template>
       <template v-else>
+        <!-- Wcześniejsza rozmowa: zwinięta NA GÓRZE logu (chronologia), pod nią linia nowego kontekstu. -->
+        <div v-if="archivedMessages.length" class="companion-archive">
+          <button
+            type="button"
+            class="companion-fold"
+            :aria-expanded="archiveOpen"
+            @click="archiveOpen = !archiveOpen"
+          >
+            <AppIcon
+              name="expand_more"
+              class="companion-fold-chevron"
+              :class="{ 'is-open': archiveOpen }"
+            />
+            <span>Wcześniejsza rozmowa · {{ messageCountLabel(archivedMessages.length) }}</span>
+          </button>
+          <div
+            v-if="archiveOpen"
+            class="companion-messages companion-messages--dim"
+            aria-label="Wcześniejsza rozmowa"
+          >
+            <article
+              v-for="entry in archivedMessages"
+              :key="entry.id"
+              :class="`companion-message companion-message--${entry.role}`"
+            >
+              <span class="companion-author">{{
+                entry.role === 'user' ? 'Ty' : entry.role === 'assistant' ? 'AI' : 'Rozmowa'
+              }}</span>
+              <h3 v-if="entry.topicTitle">{{ entry.topicTitle }}</h3>
+              <p>{{ entry.text }}</p>
+            </article>
+          </div>
+          <div class="companion-context-line" role="separator" aria-label="Nowy kontekst">
+            <span>Nowy kontekst · AI nie widzi wcześniejszych wiadomości</span>
+          </div>
+        </div>
         <p v-if="!busy && record.pending && record.pending.expiresAt > Date.now()" role="status">
           Rozmowa jest otwarta w innej karcie.
           <button type="button" class="qr-quiet" @click="reload">Sprawdź ponownie</button>
@@ -211,21 +245,8 @@
           label="Sprawdzam propozycje do profilu…"
           @cancel="suggestionController?.abort()"
         />
-        <hr v-if="hasConversation && showTopics" class="mg-v2-hairline companion-hairline" />
-        <button
-          v-if="hasConversation"
-          type="button"
-          class="qr-quiet"
-          :aria-expanded="showTopics"
-          @click="toggleTopics"
-        >
-          {{ showTopics ? 'Ukryj propozycje tematów' : 'Propozycje tematów' }}
-        </button>
-        <section
-          v-if="!hasConversation || showTopics"
-          class="companion-topic-picker"
-          aria-label="Wybierz temat"
-        >
+        <!-- Przed rozmową: lista tematów z zaproszeniami. W rozmowie tematy wracają jako czipy pod polem. -->
+        <section v-if="!hasConversation" class="companion-topic-picker" aria-label="Wybierz temat">
           <p v-if="record.topicNotice" class="companion-introduction">{{ record.topicNotice }}</p>
           <p
             v-if="record.analyzedDraft !== undefined && record.analyzedDraft !== draftSnapshot"
@@ -238,11 +259,7 @@
           </p>
           <ul class="companion-topics" aria-label="Propozycje tematów">
             <li v-for="topic in record.topics" :key="topic.id">
-              <details
-                class="companion-topic"
-                :name="`companion-topic-${periodRef}`"
-                :data-active="activeTopicId === topic.id"
-              >
+              <details class="companion-topic" :name="`companion-topic-${periodRef}`">
                 <summary>
                   <AppIcon name="chat" class="companion-topic-icon" />
                   <span class="companion-topic-title">{{ topic.title }}</span>
@@ -273,18 +290,6 @@
             </li>
           </ul>
         </section>
-        <details v-if="archivedMessages.length" class="companion-archive">
-          <summary>Wcześniejsza rozmowa · {{ archivedMessages.length }} wiadomości</summary>
-          <p class="companion-muted">
-            Te wiadomości pozostają do wglądu. AI nie uwzględnia ich w obecnej rozmowie.
-          </p>
-          <article v-for="entry in archivedMessages" :key="entry.id" class="companion-message">
-            <span class="companion-author">{{
-              entry.role === 'user' ? 'Ty' : entry.role === 'assistant' ? 'AI' : 'Rozmowa'
-            }}</span>
-            <p>{{ entry.text }}</p>
-          </article>
-        </details>
       </template>
       <p v-if="error" role="alert" class="companion-error">
         {{ errorText }}
@@ -360,6 +365,61 @@
         <AppIcon name="arrow_upward" />
       </button>
     </form>
+    <!-- Propozycje na następny ruch: osobne małe pole POD kompozytorem (Lab B2, 3.11.2026).
+         Nieużyte tematy z historii i trzy soczewki tej rozmowy; log styka się wprost z polem. -->
+    <section
+      v-if="record?.enabled && hasConversation"
+      class="companion-tray"
+      aria-label="Propozycje na następny ruch"
+    >
+      <button
+        type="button"
+        class="companion-tray-head"
+        :aria-expanded="trayOpen"
+        @click="trayOpen = !trayOpen"
+      >
+        <AppIcon name="lightbulb" class="companion-tray-icon" />
+        <span class="companion-tray-title">Propozycje</span>
+        <span class="companion-tray-count">{{ unusedTopics.length + LENSES.length }}</span>
+        <AppIcon
+          name="expand_more"
+          class="companion-tray-chevron"
+          :class="{ 'is-open': trayOpen }"
+        />
+      </button>
+      <template v-if="trayOpen">
+        <div class="companion-starters">
+          <button
+            v-for="topic in unusedTopics"
+            :key="topic.id"
+            type="button"
+            class="mg-v2-pill companion-chip"
+            :title="topic.invitation"
+            :disabled="busy"
+            @click="run('conversation', topic.id)"
+          >
+            {{ topic.title }}
+          </button>
+          <button
+            v-for="lens in LENSES"
+            :key="lens.id"
+            type="button"
+            class="mg-v2-pill companion-chip companion-chip--lens"
+            :title="lens.prompt"
+            :disabled="busy"
+            @click="useLens(lens)"
+          >
+            <AppIcon name="auto_awesome" />{{ lens.label }}
+          </button>
+        </div>
+        <p
+          v-if="record.analyzedDraft !== undefined && record.analyzedDraft !== draftSnapshot"
+          class="companion-muted"
+        >
+          Tekst wpisu zmienił się. W opcjach możesz uwzględnić go w propozycjach.
+        </p>
+      </template>
+    </section>
     <p class="sr-only" role="status">{{ insertionNotice }}</p>
   </aside>
 </template>
@@ -424,8 +484,37 @@ const client = companionConversation(props.periodRef, {
   timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 })
 const record = shallowRef<CompanionConversation>()
-const showTopics = ref(false)
 const showOptions = ref(false)
+/** Earlier conversation (before the current context) folded on top of the log. */
+const archiveOpen = ref(false)
+/** The proposals field under the composer; folds to its header. */
+const trayOpen = ref(true)
+/** Soczewki: the former separate-chat intentions, sent as a message in THIS conversation. */
+interface Lens {
+  id: string
+  label: string
+  prompt: string
+}
+const LENSES: Lens[] = [
+  {
+    id: 'perspective',
+    label: 'Inna perspektywa',
+    prompt: 'Spójrz na ten wpis z innej perspektywy niż moja. Co mogłoby umknąć mi samemu?',
+  },
+  {
+    id: 'steps',
+    label: 'Konkretne kroki',
+    prompt: 'Jakie konkretne, małe kroki wynikają z tego wpisu? Zaproponuj jeden lub dwa.',
+  },
+  {
+    id: 'traps',
+    label: 'Pułapki myślenia',
+    prompt: 'Czy w tym wpisie widać jakieś pułapki myślenia? Nazwij je i pokaż, gdzie je widzisz.',
+  },
+]
+function messageCountLabel(count: number): string {
+  return count === 1 ? '1 wiadomość' : `${count} wiadomości`
+}
 const settingsButton = ref<HTMLButtonElement | null>(null)
 function closeOptions() {
   if (showOptions.value) void toggleOptions()
@@ -441,10 +530,6 @@ async function toggleOptions() {
 }
 const confirmClear = ref(false)
 const confirmReset = ref(false)
-function toggleTopics() {
-  closeSource()
-  showTopics.value = !showTopics.value
-}
 const conversationStart = computed(() => {
   const row = record.value
   if (!row) return 0
@@ -465,9 +550,11 @@ const archivedMessages = computed(
 const hasConversation = computed(() => currentMessages.value.some(m => m.role !== 'notice'))
 const messageList = ref<HTMLElement | null>(null)
 const messageInput = ref<HTMLTextAreaElement | null>(null)
-const activeTopicId = computed(
-  () => [...currentMessages.value].reverse().find(m => m.topicId)?.topicId
-)
+/** Topics not yet opened in the current context stay available as chips under the composer. */
+const unusedTopics = computed(() => {
+  const used = new Set(currentMessages.value.map(m => m.topicId).filter(Boolean))
+  return record.value?.topics.filter(topic => !used.has(topic.id)) ?? []
+})
 
 const policy = shallowRef<HistoryAccessPolicy>()
 const savingPolicy = ref(false)
@@ -597,7 +684,7 @@ async function clearConversation() {
   try {
     record.value = await client.clearConversation()
     closeSource()
-    showTopics.value = false
+    archiveOpen.value = false
     confirmClear.value = false
     insertion.value = null
     message.value = ''
@@ -615,7 +702,7 @@ async function resetContext() {
   if (busy.value) return
   try {
     closeSource()
-    showTopics.value = false
+    archiveOpen.value = false
     record.value = await client.resetContext()
     error.value = ''
     await run('topics')
@@ -628,6 +715,11 @@ function onMessageKeydown(event: KeyboardEvent) {
     event.preventDefault()
     if (!busy.value && message.value.trim()) void run('conversation')
   }
+}
+function useLens(lens: Lens) {
+  if (busy.value) return
+  message.value = lens.prompt
+  void run('conversation')
 }
 async function run(mode: 'topics' | 'conversation', topicId?: string) {
   if (busy.value || disposed || !record.value?.enabled) return
@@ -646,7 +738,6 @@ async function run(mode: 'topics' | 'conversation', topicId?: string) {
       createdAt: new Date().toISOString(),
     }
     message.value = ''
-    showTopics.value = false
     showOptions.value = false
     closeSource()
     await nextTick()
@@ -671,7 +762,6 @@ async function run(mode: 'topics' | 'conversation', topicId?: string) {
       record.value = row
       pendingMessage.value = null
       if (mode === 'conversation') {
-        showTopics.value = false
         closeSource()
         await nextTick()
         if (!disposed)
@@ -995,8 +1085,56 @@ summary {
 .companion-text-action:hover {
   color: var(--mg-color-ink);
 }
-.companion-hairline {
-  margin: 0.2rem 0 0;
+/* Earlier conversation: a quiet centred fold on top of the log, dimmed messages,
+   then a hairline „Nowy kontekst” between what AI cannot see and what it can. */
+.companion-archive {
+  display: grid;
+  flex: none;
+  gap: 0.6rem;
+}
+.companion-fold {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  justify-self: center;
+  padding: 0.3rem 0.7rem 0.3rem 0.45rem;
+  border: 0;
+  border-radius: var(--mg-radius-pill);
+  background: transparent;
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-xs);
+  font-weight: var(--mg-weight-label);
+  cursor: pointer;
+}
+.companion-fold:hover {
+  background: var(--cp-field);
+  color: var(--mg-color-ink);
+}
+.companion-fold-chevron,
+.companion-tray-chevron {
+  font-size: var(--mg-font-size-md);
+  transition: transform 180ms ease;
+}
+.companion-fold-chevron.is-open,
+.companion-tray-chevron.is-open {
+  transform: rotate(180deg);
+}
+.companion-messages--dim .companion-message {
+  opacity: 0.62;
+}
+.companion-context-line {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-xs);
+}
+.companion-context-line::before,
+.companion-context-line::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: color-mix(in srgb, var(--mg-color-muted) 30%, transparent);
 }
 
 /* Topics */
@@ -1025,9 +1163,6 @@ summary {
 .companion-topic[open] {
   background: var(--cp-inner);
   padding-bottom: 0.8rem;
-}
-.companion-topic[data-active='true'] {
-  border-color: var(--mg-color-primary);
 }
 .companion-topic > summary {
   display: flex;
@@ -1109,6 +1244,73 @@ summary {
   min-height: 2.25rem;
 }
 
+/* Proposals: a small field under the composer — mist container, paper chips inside,
+   header folds it to one line (measured in the Lab: 152 px open, 41 px folded). */
+.companion-tray {
+  display: grid;
+  flex: none;
+  gap: 0.5rem;
+  padding: 0.45rem 0.6rem 0.6rem;
+  border-radius: var(--mg-radius-md);
+  background: var(--cp-field);
+}
+.companion-tray-head {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  padding: 0.2rem 0.1rem;
+  border: 0;
+  background: transparent;
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-xs);
+  font-weight: var(--mg-weight-label);
+  text-align: left;
+  cursor: pointer;
+}
+.companion-tray-head:hover {
+  color: var(--mg-color-ink);
+}
+.companion-tray-icon {
+  font-size: var(--mg-font-size-lg);
+  color: var(--mg-color-primary);
+}
+.companion-tray-title {
+  flex: 1;
+}
+.companion-tray-count {
+  font-weight: var(--mg-weight-body);
+}
+.companion-starters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mg-space-2);
+}
+/* Full pill anatomy restated: host resets such as `.quiet-ritual button { border: 0; font: inherit }`
+   outrank the shared .mg-v2-pill rule, and the chip must stay a cloud in every host. */
+.companion-panel .companion-chip {
+  min-height: 1.75rem;
+  padding: 0.3rem 0.65rem;
+  border: 1px solid var(--cp-line);
+  border-radius: var(--mg-radius-pill);
+  background: var(--cp-inner);
+  box-shadow: var(--mg-shadow-raised-sm);
+  color: var(--mg-color-ink);
+  font-size: var(--mg-font-size-xs);
+  font-weight: var(--mg-weight-label);
+  line-height: 1.3;
+  cursor: pointer;
+}
+.companion-chip:not(:disabled):hover {
+  color: var(--mg-color-primary-strong);
+}
+.companion-chip--lens {
+  color: var(--mg-color-primary-strong);
+}
+.companion-chip--lens :deep(.material-symbols-outlined) {
+  font-size: var(--mg-font-size-sm);
+}
+
 /* Buttons: quiet = bare text that gains the field tone on hover,
    primary = filled product accent. Class names stay for the e2e specs. */
 .companion-actions,
@@ -1172,7 +1374,9 @@ summary {
 
 @media (prefers-reduced-motion: reduce) {
   .companion-topic,
-  .companion-topic-chevron {
+  .companion-topic-chevron,
+  .companion-fold-chevron,
+  .companion-tray-chevron {
     transition: none;
   }
 }

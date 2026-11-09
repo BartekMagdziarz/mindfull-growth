@@ -199,44 +199,7 @@
             :draft="body"
             :ritual-context="companionEntryContext"
             @insert="insertCompanionText"
-          >
-            <!-- Drugie wejście do AI mieszka przy pierwszym: osobny czat z intencją. -->
-            <template #intro>
-              <div class="journal-v2__chat-entry">
-                <!-- Chmura, nie wypełnienie: jedyna wypełniona kontrolka widoku to „Zapisz”. -->
-                <button
-                  type="button"
-                  class="mg-v2-button"
-                  :disabled="!canStartChat"
-                  :aria-label="t('journal.editor.startChatLabel')"
-                  :aria-expanded="showChatIntents"
-                  @click="showChatIntents = !showChatIntents"
-                >
-                  <AppIcon name="forum" />
-                  {{
-                    isStartingChat ? t('journal.editor.starting') : t('journal.editor.chatSeparate')
-                  }}
-                </button>
-                <div
-                  v-if="showChatIntents"
-                  class="journal-v2__chat-intents"
-                  role="group"
-                  :aria-label="t('journal.editor.chatDropdownPrompt')"
-                >
-                  <button
-                    v-for="option in chatIntentionOptions"
-                    :key="option.value"
-                    type="button"
-                    class="mg-v2-pill"
-                    :title="option.description"
-                    @click="handleIntentionSelection(option.value)"
-                  >
-                    {{ option.label }}
-                  </button>
-                </div>
-              </div>
-            </template>
-          </ReflectionCompanionPanel>
+          />
           <div v-show="sideSection === 'emotions'" class="flex flex-col gap-4">
             <section
               class="mg-v2-surface mg-v2-surface--raised-sm px-5 py-4 flex flex-col gap-3"
@@ -379,53 +342,6 @@
         </DsButton>
       </div>
     </AppDialog>
-
-    <!-- Custom Prompt Dialog -->
-    <Teleport to="body">
-      <Transition name="dialog">
-        <div
-          v-if="showCustomPromptDialog"
-          class="mg-design-v2 mg-v2-overlay"
-          @click.self="closeCustomPromptDialog"
-        >
-          <!-- Backdrop -->
-          <div class="mg-v2-overlay__scrim" aria-hidden="true"></div>
-
-          <!-- Dialog Card -->
-          <div
-            role="dialog"
-            aria-labelledby="custom-prompt-title"
-            class="dialog-panel mg-v2-surface mg-v2-surface--raised relative z-10 p-6 max-w-md w-full mx-4"
-          >
-            <!-- Title -->
-            <h2 id="custom-prompt-title" class="text-xl font-semibold text-on-surface mb-4">
-              {{ t('journal.editor.customPromptTitle') }}
-            </h2>
-
-            <!-- Textarea -->
-            <label for="custom-prompt-input" class="sr-only">{{
-              t('journal.editor.customPromptLabel')
-            }}</label>
-            <textarea
-              id="custom-prompt-input"
-              v-model="customPromptInput"
-              :placeholder="t('journal.editor.customPromptPlaceholder')"
-              class="mg-v2-field w-full min-h-[120px] text-on-surface placeholder:text-on-surface-variant resize-y"
-            />
-
-            <!-- Actions -->
-            <div class="flex gap-3 justify-end mt-6">
-              <DsButton variant="quiet" @click="closeCustomPromptDialog">{{
-                t('common.buttons.cancel')
-              }}</DsButton>
-              <DsButton @click="handleCustomPromptConfirm" :disabled="!customPromptInput.trim()">
-                {{ t('journal.editor.startChat') }}
-              </DsButton>
-            </div>
-          </div>
-        </div>
-      </Transition>
-    </Teleport>
   </div>
 </template>
 
@@ -455,8 +371,7 @@ import type { Quadrant } from '@/domain/emotion'
 import { getQuadrantTintStyle } from '@/domain/emotion'
 import type { EmotionGroupSelection as EmotionSelection } from '@/domain/emotionGroups'
 import { legacyToGroupSelections, groupSelectionsToFamilyIds } from '@/domain/emotionGroups'
-import type { ChatIntention, ChatSession } from '@/domain/chatSession'
-import { CHAT_INTENTIONS } from '@/domain/chatSession'
+import type { ChatSession } from '@/domain/chatSession'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import { reportError } from '@/utils/reportError'
@@ -483,10 +398,6 @@ const selectedContextTagIds = ref<string[]>([])
 const isEmotionDataLoading = ref(false)
 const arePeopleTagsLoading = ref(false)
 const areContextTagsLoading = ref(false)
-const showChatIntents = ref(false)
-const isStartingChat = ref(false)
-const showCustomPromptDialog = ref(false)
-const customPromptInput = ref('')
 const showDeleteChatDialog = ref(false)
 const chatSessionToDelete = ref<ChatSession | null>(null)
 
@@ -571,11 +482,7 @@ const isEmotionSectionLoading = computed(() => {
 })
 
 const canSaveEntry = computed(() => {
-  return body.value.trim().length > 0 && !isSaving.value && !isStartingChat.value
-})
-
-const canStartChat = computed(() => {
-  return body.value.trim().length > 0 && !isSaving.value && !isStartingChat.value
+  return body.value.trim().length > 0 && !isSaving.value
 })
 
 const formattedTimestamp = computed(() => {
@@ -630,35 +537,6 @@ const hasChatSessions = computed(() => {
 const chatSessionsForEntry = computed(() => {
   return currentEntry.value?.chatSessions ?? []
 })
-
-// Chat intention options for dropdown
-const chatIntentionOptions = computed(() => [
-  {
-    value: CHAT_INTENTIONS.REFLECT,
-    label: t('journal.editor.intentions.reflect'),
-    description: t('journal.editor.intentions.reflectDescription'),
-  },
-  {
-    value: CHAT_INTENTIONS.HELP_SEE_DIFFERENTLY,
-    label: t('journal.editor.intentions.helpSeeDifferently'),
-    description: t('journal.editor.intentions.helpSeeDifferentlyDescription'),
-  },
-  {
-    value: CHAT_INTENTIONS.PROACTIVE,
-    label: t('journal.editor.intentions.proactive'),
-    description: t('journal.editor.intentions.proactiveDescription'),
-  },
-  {
-    value: CHAT_INTENTIONS.THINKING_TRAPS,
-    label: t('journal.editor.intentions.thinkingTraps'),
-    description: t('journal.editor.intentions.thinkingTrapsDescription'),
-  },
-  {
-    value: CHAT_INTENTIONS.CUSTOM,
-    label: t('journal.editor.intentions.custom'),
-    description: t('journal.editor.intentions.customDescription'),
-  },
-])
 
 const syncEntryToForm = (entry: JournalEntry) => {
   currentEntry.value = entry
@@ -960,75 +838,8 @@ const discardAndLeave = async () => {
   continueLeaving()
 }
 
-const closeChatIntents = () => {
-  showChatIntents.value = false
-}
-
-// Custom prompt dialog functions
-const closeCustomPromptDialog = () => {
-  showCustomPromptDialog.value = false
-  customPromptInput.value = ''
-}
-
-// Intention selection handler
-const handleIntentionSelection = async (intention: ChatIntention) => {
-  closeChatIntents()
-
-  if (intention === CHAT_INTENTIONS.CUSTOM) {
-    showCustomPromptDialog.value = true
-  } else {
-    await startChat(intention)
-  }
-}
-
-// Custom prompt confirmation
-const handleCustomPromptConfirm = async () => {
-  if (!customPromptInput.value.trim()) {
-    snackbarRef.value?.show(t('journal.editor.customPromptRequired'))
-    return
-  }
-
-  const prompt = customPromptInput.value.trim()
-  closeCustomPromptDialog()
-  await startChat(CHAT_INTENTIONS.CUSTOM, prompt)
-}
-
-// Start chat flow: save entry and navigate to chat view
-const startChat = async (intention: ChatIntention, customPrompt?: string) => {
-  // Validation: body must not be empty
-  if (!body.value.trim()) {
-    snackbarRef.value?.show(t('journal.editor.contentBeforeChat'))
-    return
-  }
-
-  isStartingChat.value = true
-
-  try {
-    // Preserve the draft and bind the new companion alongside the legacy chat.
-    companionPanel.value?.cancel()
-    clearTimeout(draftTimer)
-    await persistDraft()
-    draftReady.value = false
-    const savedEntry = await saveEntry()
-
-    // Start chat session
-    await chatStore.startChatSession(savedEntry.id, intention, customPrompt)
-
-    // Navigate to chat view
-    leaveApproved.value = true
-    router.push(`/journal/${savedEntry.id}/chat`)
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : 'Failed to start chat. Please try again.'
-    snackbarRef.value?.show(errorMessage)
-    reportError('JournalEditorView.startChat', error)
-  } finally {
-    draftReady.value = true
-    isStartingChat.value = false
-  }
-}
-
-// Chat session view/delete handlers
+// Chat session view/delete handlers (existing separate chats stay readable; new ones are not
+// started from the editor since the companion panel took over the intentions as „soczewki”).
 const handleViewChatSession = (sessionId: string) => {
   if (!currentEntry.value) return
   router.push({
@@ -1062,18 +873,6 @@ const handleConfirmDeleteChatSession = async () => {
 const handleCancelDeleteChatSession = () => {
   showDeleteChatDialog.value = false
   chatSessionToDelete.value = null
-}
-
-// Escape key handler for dropdown
-const handleEscapeKey = (event: KeyboardEvent) => {
-  if (event.key === 'Escape') {
-    if (showChatIntents.value) {
-      closeChatIntents()
-    }
-    if (showCustomPromptDialog.value) {
-      closeCustomPromptDialog()
-    }
-  }
 }
 
 const sideSection = ref<'emotions' | 'ai'>('emotions')
@@ -1232,7 +1031,6 @@ watch(
 
 // Load entry data if in edit mode
 onMounted(async () => {
-  document.addEventListener('keydown', handleEscapeKey)
   applyGuidedPromptSeedForCreateMode()
   if (!isEditMode.value) customCreatedAt.value = entryDateFromDay(route.query?.day)
   const dataPromises = [ensureEmotionData(), ensurePeopleTags(), ensureContextTags()]
@@ -1258,8 +1056,6 @@ onMounted(async () => {
 onUnmounted(() => {
   clearTimeout(draftTimer)
   void persistDraft()
-  // Clean up event listeners
-  document.removeEventListener('keydown', handleEscapeKey)
 })
 </script>
 
@@ -1289,29 +1085,6 @@ onUnmounted(() => {
 
 .journal-v2__sections {
   width: 9.5rem;
-}
-
-.journal-v2__chat-entry {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--mg-space-2);
-  padding-bottom: var(--mg-space-2);
-  border-bottom: 1px solid var(--mg-color-border-subtle);
-}
-
-.journal-v2__chat-intents {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--mg-space-2);
-}
-
-.journal-v2__chat-intents .mg-v2-pill {
-  cursor: pointer;
-}
-
-.journal-v2__chat-intents .mg-v2-pill:hover {
-  background: var(--mg-color-paper);
 }
 
 .dialog-enter-active,
