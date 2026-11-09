@@ -107,7 +107,7 @@
             v-for="option in lifeAreaOptions"
             :key="option.id"
             type="button"
-            class="flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-left text-[11px] font-medium text-on-surface hover:bg-primary-soft/30"
+            class="flex w-full items-center gap-2 rounded-mg-sm px-3 py-1.5 text-left text-mg-xs font-medium text-on-surface hover:bg-primary-soft/30"
             @click="emitFieldChange('toggleLifeArea', option.id)"
           >
             <AppIcon

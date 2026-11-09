@@ -989,8 +989,8 @@ function submitValueDraft(event: Event): void {
 .ndi__day small,
 .ndi__today {
   color: var(--mg-color-muted);
-  font-size: 0.66rem;
-  font-weight: 700;
+  font-size: var(--mg-font-size-chart);
+  font-weight: var(--mg-weight-strong);
   line-height: 1;
 }
 
@@ -1265,7 +1265,7 @@ function submitValueDraft(event: Event): void {
 }
 
 .ndi__well--dot .material-symbols-outlined {
-  font-size: 1rem;
+  font-size: var(--mg-font-size-icon-sm);
   line-height: 1;
 }
 

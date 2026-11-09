@@ -680,8 +680,8 @@ function markRead(key: string): void {
 }
 .path-view__sign small {
   color: var(--mg-color-muted);
-  font-size: 0.66rem;
-  font-weight: 800;
+  font-size: var(--mg-font-size-xs);
+  font-weight: var(--mg-weight-title);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -752,7 +752,7 @@ function markRead(key: string): void {
   color: var(--mg-color-primary-strong);
 }
 .path-view__closed-icon .material-symbols-outlined {
-  font-size: 24px;
+  font-size: var(--mg-font-size-icon-xl);
 }
 .path-view__closed-copy {
   display: grid;

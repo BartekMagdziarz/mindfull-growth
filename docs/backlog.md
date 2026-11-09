@@ -59,6 +59,36 @@ polsku; `npm run check-locales` zielony; test komponentu sprawdza etykiety i lic
 służy tylko do przeglądu i usuwania starych rozmów — jeśli ChatView zniknie w całości,
 wpis staje się bezprzedmiotowy.
 
+### B-20 · W rozwiniętym wierszu „Dzisiaj” przyciski akcji nachodzą na pasek siedmiu dni
+
+`otwarte` · Znaleziono 2026-11-09 (K2, partia 13: NextDayItemRow) · Dzisiaj / `src/features/planning-next/NextDayItemRow.vue`
+
+**Objaw.** Po rozwinięciu wiersza z historią (pasek siedmiu dni) ostatni przycisk akcji
+(„Kontekst” / „Otwórz”) wchodzi pod litery dni: „Kontekst” zasłania „w” i „ś”, tekst
+pigułki i inicjały dni się przenikają. Widać to na 1512 × 982 przy prawej kolumnie
+(kalendarz / Najbliżej) obok listy.
+
+**Jak odtworzyć.** `npm run dev:verify`, `/today`, kliknąć pierwszy wiersz planu dnia
+(np. nawyk z historią) — rozwija się w akcje + pasek dni.
+
+**Przyczyna.** `.ndi--history` (`NextDayItemRow.vue:928`) układa wiersz w siatkę
+`minmax(0, 1fr) auto auto` z obszarami `'main strip entry' / 'actions strip entry'`.
+`.ndi__actions` (`:934–941`) to siatka `repeat(4, max-content)` z wcięciem
+`calc(1.85rem + space-2)`: przyciski nie mogą się zwęzić ani zawinąć, a pierwsza kolumna
+ma minimum 0, więc gdy pasek (`.ndi__strip`, `:972`, 7 stałych komórek) zabiera
+szerokość, akcje wylewają się poza swoją kolumnę pod pasek.
+
+**Dlaczego to błąd.** Etykiety akcji i inicjały dni stają się nieczytelne, a klik w
+„Kontekst” może trafić w komórkę dnia (tooltip) zamiast w przycisk.
+
+**Propozycja naprawy.** Pozwolić akcjom zawinąć się w drugi wiersz
+(`display: flex; flex-wrap: wrap` zamiast siatki `max-content`) albo dać pierwszej
+kolumnie minimum szerokości akcji (`minmax(max-content, 1fr)`) i zwęzić tytuł; FLIP
+(`playFlip`) mierzy pozycje po układzie, więc zawijanie go nie psuje.
+
+**Kryteria akceptacji.** Na 1512 × 982 @2x, z prawą kolumną, żaden przycisk akcji nie
+nachodzi na pasek dni dla wierszy z 3 i 4 akcjami; animacja rozwinięcia bez skoków.
+
 ### B-19 · Menu statusu priorytetu w planie rocznym pokazuje surowe klucze tłumaczeń
 
 `otwarte` · Znaleziono 2026-11-03 (K2, partia 10: StatusIconButton) · plan roczny / `src/components/calendar/AnnualPlanningWizard.vue`

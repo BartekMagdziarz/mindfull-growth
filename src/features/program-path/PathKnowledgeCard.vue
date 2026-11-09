@@ -158,7 +158,7 @@ function markRead() {
   color: var(--mg-color-primary-strong);
 }
 .kn__icon .material-symbols-outlined {
-  font-size: 16px;
+  font-size: var(--mg-font-size-icon-sm);
 }
 .kn__tile.is-read .kn__icon {
   background: var(--mg-color-sky-field);
@@ -192,8 +192,8 @@ function markRead() {
 }
 .drawer h2 {
   margin: 18px 0 10px;
-  font-size: 24px;
-  font-weight: 800;
+  font-size: var(--mg-font-size-xl);
+  font-weight: var(--mg-weight-title);
   line-height: 1.25;
 }
 .drawer p {

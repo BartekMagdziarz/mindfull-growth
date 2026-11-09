@@ -622,3 +622,25 @@ priorytetów i podsumowaniem, kalendarz miesięcy celu z hover i zaznaczeniem, s
 obszaru na koncie demo) porównane przed/po z biegiem kontrolnym. Kursor czatu i szkielet
 ładowania czatu nie były osiągnięte na żywo; blok „Wizja” nie występuje w danych demo.
 Dług 62 → 44.
+
+## 2026-11-09 — K2, partia 13: listy w bibliotece, pasek dni „Dzisiaj”, karty ścieżek, pasek oceny
+
+Kontekst: `GoalLinksDropdown`, `PriorityYearsDropdown`, `ObjectsLibraryPriorityCard`,
+`NextDayItemRow`, `PathKnowledgeCard`, `PathMeasureTracks`, `QuietRatingBar` i
+`ProgramDetailView` — 16 naruszeń, same rozmiary pisma i dwa promienie.
+Decyzja: `text-[11px]` w listach rozwijanych → `text-mg-xs` (bez efektu na przyciskach:
+`.mg-design-v2 button { font: inherit }` i tak wygrywa — B-16). Inicjały paska siedmiu
+dni 0,66 rem → `--mg-font-size-chart` (pasek to mini-oś, 10,56 → 11 px). Eyebrowy
+„Pomiar” i „Mój znak” 0,66 rem / 900 → `xs` / `title` (jak eyebrowy ścieżek z partii 9).
+Glify 16 / 24 px → `icon-sm` / `icon-xl`, tytuł szuflady wiedzy 24 px → `xl`, nagłówek
+kompaktowego paska oceny 18 px → `lg`, końce skali 9 px → `--mg-font-size-mark` (opis
+roli poszerzony o „zawinięte końce skali kompaktowego paska oceny”). Tor pomiaru
+(`.sk__track`, 0,45 rem) 4 px → `--mg-radius-pill` — przy tej wysokości 4 px i tak
+dawało pełne zaokrąglenie.
+Konsekwencje: style obliczone 15 stanów (menu powiązań i lat priorytetu, trzy
+rozwinięte wiersze „Dzisiaj”, trzy widoki ścieżek z szufladą wiedzy, krok ścieżek
+refleksji tygodnia) porównane przed/po z biegiem kontrolnym; stan „po” zbudowany w
+osobnym worktree (HEAD + tylko te pliki), bo równoległa sesja edytowała drzewo. Kompaktowy
+pasek oceny (ścieżka z rodzinami Momentów) nie występuje w seedzie — zmiany tam są
+wartość w wartość. Przy okazji: akcje rozwiniętego wiersza nachodzą na pasek dni — B-20.
+Dług 44 → 28.

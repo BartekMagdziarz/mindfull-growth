@@ -17,7 +17,7 @@
     <button
       v-else-if="!triggerless"
       type="button"
-      class="mg-v2-badge priority-years-v2__trigger gap-1 px-2.5 py-1 text-[11px] transition-colors"
+      class="mg-v2-badge priority-years-v2__trigger gap-1 px-2.5 py-1 text-mg-xs transition-colors"
       :aria-label="buttonLabel"
       @click.stop="open = !open"
     >
@@ -41,7 +41,7 @@
         v-for="year in availableYears"
         :key="year.ref"
         type="button"
-        class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[11px] font-medium text-on-surface hover:bg-primary-soft/30"
+        class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-mg-xs font-medium text-on-surface hover:bg-primary-soft/30"
         @click="toggleYear(year)"
       >
         <AppIcon v-if="year.linked" name="check" class="text-xs flex-shrink-0 text-primary" />

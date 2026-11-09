@@ -120,7 +120,7 @@ function step(delta: number) {
   gap: 8px;
 }
 .qr-axis--compact h2 {
-  font-size: 18px;
+  font-size: var(--mg-font-size-lg);
 }
 /* Five bars side by side: narrower clouds and a smaller value. */
 .qr-axis--compact .qr-bar-body {
@@ -132,7 +132,7 @@ function step(delta: number) {
   right: calc(100% + 6px);
   width: 46px;
   padding: 4px 0;
-  font-size: 9px;
+  font-size: var(--mg-font-size-mark);
   line-height: 1.15;
   white-space: normal;
 }

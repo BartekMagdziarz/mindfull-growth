@@ -145,8 +145,8 @@ const trackTitle = (instrument: OutcomeSeries, track: OutcomeTrack) =>
 }
 .measure__title {
   color: var(--mg-color-muted);
-  font-size: 0.66rem;
-  font-weight: 900;
+  font-size: var(--mg-font-size-xs);
+  font-weight: var(--mg-weight-title);
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -167,7 +167,7 @@ const trackTitle = (instrument: OutcomeSeries, track: OutcomeTrack) =>
   position: relative;
   display: block;
   height: 0.45rem;
-  border-radius: 4px;
+  border-radius: var(--mg-radius-pill);
   background: var(--mg-color-paper);
   box-shadow: var(--mg-shadow-inset-sm);
 }
