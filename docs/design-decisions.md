@@ -642,5 +642,5 @@ rozwinięte wiersze „Dzisiaj”, trzy widoki ścieżek z szufladą wiedzy, kro
 refleksji tygodnia) porównane przed/po z biegiem kontrolnym; stan „po” zbudowany w
 osobnym worktree (HEAD + tylko te pliki), bo równoległa sesja edytowała drzewo. Kompaktowy
 pasek oceny (ścieżka z rodzinami Momentów) nie występuje w seedzie — zmiany tam są
-wartość w wartość. Przy okazji: akcje rozwiniętego wiersza nachodzą na pasek dni — B-20.
+wartość w wartość. Przy okazji: akcje rozwiniętego wiersza nachodzą na pasek dni — B-21.
 Dług 44 → 28.

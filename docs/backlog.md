@@ -59,7 +59,7 @@ polsku; `npm run check-locales` zielony; test komponentu sprawdza etykiety i lic
 służy tylko do przeglądu i usuwania starych rozmów — jeśli ChatView zniknie w całości,
 wpis staje się bezprzedmiotowy.
 
-### B-20 · W rozwiniętym wierszu „Dzisiaj” przyciski akcji nachodzą na pasek siedmiu dni
+### B-21 · W rozwiniętym wierszu „Dzisiaj” przyciski akcji nachodzą na pasek siedmiu dni
 
 `otwarte` · Znaleziono 2026-11-09 (K2, partia 13: NextDayItemRow) · Dzisiaj / `src/features/planning-next/NextDayItemRow.vue`
 
