@@ -96,7 +96,7 @@ const rows = computed(() =>
 }
 .dose__list .material-symbols-outlined {
   color: var(--mg-color-primary-strong);
-  font-size: 18px;
+  font-size: var(--mg-font-size-icon-md);
 }
 .dose__list strong {
   font-size: var(--mg-font-size-sm);

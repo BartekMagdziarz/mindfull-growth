@@ -11,8 +11,8 @@
         >
         <span>{{ t('assessments.common.flow.answeredCount', { n: answeredCount }) }}</span>
       </div>
-      <div class="neo-progress-track">
-        <div class="neo-progress-fill" :style="{ width: `${progressPercent}%` }" />
+      <div class="assessment-progress__track">
+        <div class="assessment-progress__fill" :style="{ width: `${progressPercent}%` }" />
       </div>
     </div>
   </div>
@@ -59,3 +59,20 @@ const progressPercent = computed(() => {
   return Math.max(0, Math.min(100, Math.round((props.answeredCount / props.totalCount) * 100)))
 })
 </script>
+
+<style scoped>
+.assessment-progress__track {
+  height: 0.5rem;
+  overflow: hidden;
+  border-radius: var(--mg-radius-pill);
+  background: var(--mg-color-sky-well);
+  box-shadow: var(--mg-shadow-inset-sm);
+}
+
+.assessment-progress__fill {
+  height: 100%;
+  border-radius: var(--mg-radius-pill);
+  background: var(--mg-color-primary);
+  transition: width var(--mg-duration-base) var(--mg-ease-standard);
+}
+</style>

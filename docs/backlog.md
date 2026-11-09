@@ -59,6 +59,36 @@ polsku; `npm run check-locales` zielony; test komponentu sprawdza etykiety i lic
 służy tylko do przeglądu i usuwania starych rozmów — jeśli ChatView zniknie w całości,
 wpis staje się bezprzedmiotowy.
 
+### B-22 · Klasy rozmiaru na `AppIcon` (`text-xl`, `text-sm`…) nic nie robią
+
+`otwarte` · Znaleziono 2026-11-09 (K2, partia 14: przycisk wstecz w AppShell) · ikony / `src/styles/main.css`
+
+**Objaw.** `<AppIcon class="text-xl" />` renderuje się w rozmiarze pisma rodzica, nie
+20 px: strzałka wstecz w `PageHeader` (`mg-v2-button--icon`) ma 13 px, a w AppShell
+miała 16 px (pismo `body`), choć obie deklarują `text-xl`. Dotyczy 263 użyć w 79 plikach
+(`grep -rnoE '<AppIcon[^>]*class="[^"]*text-' src`).
+
+**Jak odtworzyć.** `npm run dev:verify`, dowolny widok z `PageHeader` i strzałką wstecz →
+DevTools: `.app-icon` ma `font-size: 13px`; reguła `.text-xl` jest przekreślona.
+
+**Przyczyna.** `src/styles/main.css:7–17` deklaruje `.material-symbols-outlined { …
+font-size: inherit; … }` jako zwykły CSS PO `@tailwind utilities` (linia 5). Ta sama
+specyficzność (0,1,0), późniejsza pozycja → wygrywa z każdą utility `text-*` na ikonie
+(od `550561d7`, 2026-03-15).
+
+**Dlaczego to błąd.** Rozmiary ikon w szablonach są fikcją: ikona zależy od tego, w czym
+akurat siedzi (13 px w przycisku V2, 16 px w treści), a autor widoku nie ma jak tego
+zmienić klasą.
+
+**Propozycja naprawy.** Przenieść regułę do `@layer base` (albo usunąć z niej
+`font-size: inherit`, który i tak jest domyślny) — utilities zaczną działać. To zmieni
+wygląd setek ikon naraz (każda dostanie zadeklarowany rozmiar), więc najpierw zrzuty
+głównych widoków przed/po i decyzja, czy deklaracje `text-*` na ikonach nadal są tym, czego
+chcemy; ewentualnie zamienić je na role `text-mg-icon-sm/md/lg/xl`.
+
+**Kryteria akceptacji.** `AppIcon` z `text-mg-icon-lg` ma 22 px w przycisku i w treści;
+zrzuty 1512 × 982 @2x głównych widoków zaakceptowane; strażnik bez nowych naruszeń.
+
 ### B-21 · W rozwiniętym wierszu „Dzisiaj” przyciski akcji nachodzą na pasek siedmiu dni
 
 `otwarte` · Znaleziono 2026-11-09 (K2, partia 13: NextDayItemRow) · Dzisiaj / `src/features/planning-next/NextDayItemRow.vue`

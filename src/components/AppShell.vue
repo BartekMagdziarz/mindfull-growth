@@ -4,11 +4,11 @@
     <button
       v-if="showBackButton && backRoute"
       type="button"
-      class="neo-back-btn neo-focus fixed top-4 left-[122px] z-30 p-2 text-neu-text"
+      class="app-shell__back mg-v2-button mg-v2-button--icon fixed top-4 left-[122px] z-30"
       :aria-label="t('common.buttons.back')"
       @click="router.push(backRoute)"
     >
-      <AppIcon name="arrow_back" class="text-xl" />
+      <AppIcon name="arrow_back" />
     </button>
     <!-- Design V2 root for every routed view: tokens, Nunito, focus ring and
          reduced-motion come from here, so legacy screens are bridged by
@@ -132,3 +132,10 @@ watch(
   }
 )
 </script>
+
+<style scoped>
+/* The glyph inherits the button's font size; size it here (B-22). */
+.app-shell__back .material-symbols-outlined {
+  font-size: var(--mg-font-size-icon-sm);
+}
+</style>

@@ -93,7 +93,7 @@
           </div>
 
           <!-- Warning about password recovery -->
-          <div class="p-3 rounded-lg bg-tertiary-container text-on-tertiary-container text-sm">
+          <div class="p-3 rounded-mg-sm bg-tertiary-container text-on-tertiary-container text-sm">
             <strong>{{ t('auth.signup.offlineWarningNote') }}</strong>
             {{ t('auth.signup.offlineWarning') }}
           </div>

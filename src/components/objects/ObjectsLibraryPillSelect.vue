@@ -7,7 +7,7 @@
         <span
           v-for="selected in selectedOptions"
           :key="selected.id"
-          class="mg-v2-badge gap-1 px-2 py-0.5 text-[11px] font-medium"
+          class="mg-v2-badge gap-1 px-2 py-0.5 text-mg-xs font-medium"
         >
           {{ selected.label }}
           <button

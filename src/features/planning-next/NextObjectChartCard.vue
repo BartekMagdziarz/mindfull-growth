@@ -216,7 +216,7 @@ function pathFor(points: Array<{ x: number; y: number }>, offset = 0): string {
 }
 
 .next-object-card--bare .next-object-card__labels {
-  font-size: 0.6rem;
+  font-size: var(--mg-font-size-chart);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   opacity: 1;

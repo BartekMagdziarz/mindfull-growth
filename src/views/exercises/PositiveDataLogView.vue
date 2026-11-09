@@ -5,7 +5,7 @@
     :back-to="handleBack"
   >
     <!-- Loading state -->
-    <div v-if="positiveDataLogStore.isLoading" class="neo-embedded p-6 text-center">
+    <div v-if="positiveDataLogStore.isLoading" class="mg-v2-block p-6 text-center">
       <p class="text-sm text-on-surface-variant">{{ t('exercises.views.loadingLogs') }}</p>
     </div>
 

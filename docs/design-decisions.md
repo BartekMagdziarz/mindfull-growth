@@ -644,3 +644,37 @@ osobnym worktree (HEAD + tylko te pliki), bo równoległa sesja edytowała drzew
 pasek oceny (ścieżka z rodzinami Momentów) nie występuje w seedzie — zmiany tam są
 wartość w wartość. Przy okazji: akcje rozwiniętego wiersza nachodzą na pasek dni — B-21.
 Dług 44 → 28.
+
+## 2026-11-09 — K2, partia 14: ostatnie 28 naruszeń — strażnik na zerze
+
+Kontekst: 23 pliki z 1–2 naruszeniami (kwestionariusze, ćwiczenia IFS, AppShell,
+snackbar, filtry biblioteki, karty ścieżek, koło energii Self, rejestracja).
+Decyzja:
+- Mostki → anatomie: `neo-embedded`/`neo-surface` → `mg-v2-block`, `neo-input` →
+  `mg-v2-input` (ostatni konsument; `.neo-input` zniknął z `text-field-focus.css`),
+  `neo-checkbox` (zgoda kwestionariusza) → `mg-v2-checkbox` (płaski, kolor wypełnienia
+  zamiast gradientu), `neo-back-btn` w AppShell → `mg-v2-button--icon` jak strzałka w
+  `PageHeader` (36 px chmurka zamiast 42 px owalu, glif w akcencie; rozmiar glifu
+  ustawiony lokalnie na `icon-sm`, bo klasy rozmiaru na `AppIcon` nie działają — B-22).
+- Pasek postępu kwestionariusza: jedyny konsument `neo-progress-*` → własne klasy na
+  tokenach (`sky-well` + `inset-sm`, wypełnienie `primary`) — te same wartości co mostek.
+- Kropka osi czasu w Trailhead → lokalna klasa na tokenach (`mist`, `raised-sm`, koło
+  `icon-field-a`), bo `mg-v2-block` gasi cień utility.
+- Snackbar, `rounded-*` w recenzji i rejestracji → `rounded-mg-*` / `shadow-mg-raised`
+  (dokładne mapowanie adapterów).
+- Pismo: 11 px etykiety filtrów → `xs` + `title` (eyebrow), 0,8 rem → `sm`, etykiety
+  wykresu kart „Dzisiaj” 0,6 rem → `chart`, glify 18 px → `icon-md`, środek konstelacji
+  9 px → `mark` (rola poszerzona o tę etykietę).
+- Koło energii Self: `getQualityRgba` czytał `--self-*` przez `getComputedStyle` i
+  składał `rgba()`; teraz `getQualityColor` zwraca `rgb(var(--self-x) / a)`, a koło
+  podaje go przez `style` (atrybuty prezentacyjne SVG nie rozwiązują `var()`). Zniknął
+  cache i ręczne parsowanie; zmiana motywu przemalowuje koło sama. Zrzut koła identyczny.
+- `RhythmBoard`: zmienna `rounded` → `shown` (fałszywy alarm).
+Konsekwencje: style obliczone 28 stanów (dziennik z przyciskiem wstecz, filtry biblioteki,
+zgoda / pytania / pola liczbowe / przegląd w VLQ, PVQ-40 i ERQ, ćwiczenia IFS, koło Self,
+widoki ścieżek, profil) porównane przed/po z biegiem kontrolnym, stan „po” w osobnym
+worktree. Nieosiągnięte na żywo: snackbar, kropka Trailhead (brak wpisów w seedzie),
+`IntroductionPanel`, licznik w `ObjectsCompactMultiSelect`, `ObjectsLibraryPillSelect`
+(asystent planowania), kart „Dzisiaj” w wariancie bare, dawki i powtórek ścieżki, karta
+intro z datą ostatniej próby, ładowanie dziennika pozytywnych danych. Dług 28 → 0:
+strażnik nie ma już bazy długu — od teraz każde naruszenie to błąd.

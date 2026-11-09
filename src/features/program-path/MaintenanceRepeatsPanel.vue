@@ -129,7 +129,7 @@ async function plan(): Promise<void> {
 }
 .maintenance__list .material-symbols-outlined {
   color: var(--mg-color-primary-strong);
-  font-size: 18px;
+  font-size: var(--mg-font-size-icon-md);
 }
 .maintenance__list small {
   color: var(--mg-color-muted);

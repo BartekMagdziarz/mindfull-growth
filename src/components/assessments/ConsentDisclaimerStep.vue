@@ -8,7 +8,7 @@
       <label class="flex items-start gap-3 text-sm text-on-surface">
         <input
           type="checkbox"
-          class="mt-0.5 neo-checkbox"
+          class="mt-0.5 mg-v2-checkbox"
           :checked="modelValue"
           @change="handleToggle"
         />

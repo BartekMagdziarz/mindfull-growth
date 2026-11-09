@@ -17,7 +17,7 @@
         {{ summary }}
       </span>
       <span class="flex shrink-0 items-center gap-1">
-        <span v-if="selectedIds.length > 0" class="text-[11px] font-extrabold text-primary">
+        <span v-if="selectedIds.length > 0" class="text-mg-xs font-extrabold text-primary">
           {{ selectedIds.length }}
         </span>
         <AppIcon

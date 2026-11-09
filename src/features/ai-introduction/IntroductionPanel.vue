@@ -449,7 +449,7 @@ onBeforeUnmount(() => {
 }
 .introduction-area {
   text-align: center;
-  font-size: 0.8rem;
+  font-size: var(--mg-font-size-sm);
   color: var(--mg-color-muted);
 }
 .introduction-panel .profile-discussion {
@@ -459,7 +459,7 @@ onBeforeUnmount(() => {
 .introduction-sessions summary {
   cursor: pointer;
   color: var(--mg-color-muted);
-  font-size: 0.8rem;
+  font-size: var(--mg-font-size-sm);
 }
 </style>
 

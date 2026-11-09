@@ -27,7 +27,7 @@
                 :min="item.responseMin"
                 :max="item.responseMax"
                 :value="responseValue(item.id, item.responseMin)"
-                class="neo-input w-20 p-2 text-center"
+                class="mg-v2-input w-20 p-2 text-center"
                 @input="onNumberInput(item, $event)"
               />
             </div>

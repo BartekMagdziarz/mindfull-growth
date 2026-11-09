@@ -90,7 +90,7 @@
                 y="104"
                 text-anchor="middle"
                 class="fill-primary"
-                style="font-size: 9px; font-weight: 600"
+                style="font-size: var(--mg-font-size-mark); font-weight: var(--mg-weight-label)"
               >
                 {{ t('exercises.views.selfLabel') }}
               </text>

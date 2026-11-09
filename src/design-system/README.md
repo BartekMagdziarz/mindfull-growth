@@ -160,6 +160,8 @@ Wdrożenie propozycji A z audytu 2026-10-18 (plan i porównanie:
   (9 reguł) i porównuje z `scripts/design-system-baseline.json`; hook
   PostToolUse sprawdza każdy edytowany plik. `--list [--rule x]` wypisuje
   naruszenia, `--update-baseline` zapisuje bazę (tylko gdy dług zmalał).
+  Od 2026-11-09 (K2, partia 14) baza jest pusta: każde naruszenie w `src/` to błąd,
+  nie dług do spłaty.
 - **Skill `design-system`** (`.claude/skills/design-system/SKILL.md`): procedura
   użyj → rozszerz → dodaj rolę; obowiązkowa przy każdej zmianie wyglądu.
 

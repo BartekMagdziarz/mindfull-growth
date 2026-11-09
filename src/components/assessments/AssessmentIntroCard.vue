@@ -13,7 +13,7 @@
       <p class="text-xs text-on-surface-variant">~{{ definition.estimatedMinutes }} min</p>
     </div>
 
-    <div v-if="latestCompletedAt" class="neo-embedded p-3 text-xs text-on-surface-variant">
+    <div v-if="latestCompletedAt" class="mg-v2-block p-3 text-xs text-on-surface-variant">
       <p>
         {{ t('assessments.common.results.completedAt', { date: formatDate(latestCompletedAt) }) }}
       </p>

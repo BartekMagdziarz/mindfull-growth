@@ -37,7 +37,7 @@
             <div v-for="entry in sortedEntries" :key="entry.id" class="relative">
               <!-- Timeline dot -->
               <div
-                class="absolute -left-6 top-3 w-5 h-5 rounded-full neo-surface shadow-neu-raised-sm flex items-center justify-center"
+                class="trailhead-dot absolute -left-6 top-3 w-5 h-5 flex items-center justify-center"
               >
                 <div class="w-2.5 h-2.5 rounded-full bg-status-warn" />
               </div>
@@ -170,3 +170,13 @@ function formatDate(isoString: string): string {
   return formatExerciseDate(isoString, locale.value)
 }
 </script>
+
+<style scoped>
+/* Timeline dot: a small mist cloud carrying the status dot. */
+.trailhead-dot {
+  border: 1px solid var(--mg-color-border-subtle);
+  border-radius: var(--mg-radius-icon-field-a);
+  background: var(--mg-color-mist);
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+</style>

@@ -84,7 +84,7 @@
       </div>
 
       <footer
-        class="mt-2.5 flex items-center justify-between gap-3 text-[11px] text-on-surface-variant"
+        class="mt-2.5 flex items-center justify-between gap-3 text-mg-xs text-on-surface-variant"
       >
         <span>{{ yearHint }}</span>
         <button

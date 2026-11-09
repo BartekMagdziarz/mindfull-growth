@@ -23,7 +23,7 @@
       <div
         v-for="item in unansweredItems"
         :key="item.id"
-        class="flex items-start justify-between gap-3 rounded-lg border border-outline/30 p-3"
+        class="flex items-start justify-between gap-3 rounded-mg-sm border border-outline/30 p-3"
       >
         <p class="text-sm text-on-surface">{{ tg(item.textKey) }}</p>
         <AppButton variant="text" @click="$emit('edit-item', item.id)">

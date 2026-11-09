@@ -7,8 +7,7 @@
           v-for="(quality, index) in qualities"
           :key="quality"
           :d="segmentPath(index, 5)"
-          :fill="segmentColor(quality, 0.15)"
-          :stroke="segmentColor(quality, 0.3)"
+          :style="{ fill: segmentColor(quality, 0.15), stroke: segmentColor(quality, 0.3) }"
           stroke-width="1"
         />
         <!-- Filled segments based on rating -->
@@ -16,8 +15,7 @@
           v-for="(quality, index) in qualities"
           :key="`fill-${quality}`"
           :d="segmentPath(index, ratings[quality] ?? 0)"
-          :fill="segmentColor(quality, 0.5)"
-          :stroke="segmentColor(quality, 0.7)"
+          :style="{ fill: segmentColor(quality, 0.5), stroke: segmentColor(quality, 0.7) }"
           stroke-width="1.5"
           :class="interactive ? 'cursor-pointer' : ''"
           @click="interactive && selectQuality(quality)"
@@ -81,7 +79,7 @@ import { ref, computed } from 'vue'
 import { useT } from '@/composables/useT'
 import { useIfsLabels } from '@/composables/useIfsLabels'
 import type { SelfEnergyQuality } from '@/domain/exercises'
-import { getQualityRgba } from '@/utils/selfEnergyColors'
+import { getQualityColor } from '@/utils/selfEnergyColors'
 
 const { t } = useT()
 
@@ -142,7 +140,7 @@ const maxRadius = computed(() => svgSize.value / 2 - 30)
 const selectedQuality = ref<SelfEnergyQuality | null>(null)
 
 function segmentColor(quality: SelfEnergyQuality, opacity: number): string {
-  return getQualityRgba(quality, opacity)
+  return getQualityColor(quality, opacity)
 }
 
 function segmentPath(index: number, rating: number): string {

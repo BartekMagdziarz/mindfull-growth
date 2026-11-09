@@ -529,11 +529,11 @@ function readoutOf(series: SeriesProjection, point: SeriesPoint): string {
 }
 function boundLabel(series: SeriesProjection, which: 'min' | 'max'): string {
   const v = seriesAxis(series, grainOf(series))[which]
-  const rounded =
+  const shown =
     series.markKind === 'rating-point' || series.markKind === 'bar-target'
       ? Math.round(v)
       : Math.round(v * 10) / 10
-  return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1).replace('.', ',')
+  return Number.isInteger(shown) ? String(shown) : shown.toFixed(1).replace('.', ',')
 }
 
 function unitOf(unitRef: string): TimeUnit | undefined {

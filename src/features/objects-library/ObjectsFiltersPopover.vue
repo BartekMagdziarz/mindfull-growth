@@ -164,8 +164,8 @@ onBeforeUnmount(() => {
 
 .objects-filters__label {
   color: var(--mg-color-muted);
-  font-size: 0.6875rem;
-  font-weight: 800;
+  font-size: var(--mg-font-size-xs);
+  font-weight: var(--mg-weight-title);
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }

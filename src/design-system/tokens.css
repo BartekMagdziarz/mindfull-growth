@@ -25,9 +25,10 @@
      and inside the large board. */
   --mg-font-size-icon-xl: 1.5rem;
   --mg-font-size-icon-2xl: 2.25rem;
-  /* Below the text scale: a count mark on an icon control, the uppercase
-     label of a popover menu section and the wrapped scale ends of a compact
-     rating bar — never for running text. */
+  /* Below the text scale, for annotations in tight spots only: a count mark
+     on an icon control, the uppercase label of a popover menu section, the
+     wrapped scale ends of a compact rating bar and the centre label of the
+     constellation diagram — never for running text. */
   --mg-font-size-mark: 0.5625rem;
   /* Four weights only: body / label (meta, chips, subtitles) / strong
      (buttons, selected labels) / title (headings, eyebrows). */

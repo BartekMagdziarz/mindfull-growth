@@ -2,7 +2,7 @@
   <Transition name="snackbar">
     <div v-if="visible" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
       <div
-        class="bg-gradient-to-r from-primary to-primary-strong text-on-primary px-6 py-3 rounded-2xl shadow-neu-raised min-w-[200px] text-center flex items-center justify-center gap-4"
+        class="bg-gradient-to-r from-primary to-primary-strong text-on-primary px-6 py-3 rounded-mg-lg shadow-mg-raised min-w-[200px] text-center flex items-center justify-center gap-4"
         role="status"
       >
         <span>{{ message }}</span>

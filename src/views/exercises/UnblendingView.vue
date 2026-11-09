@@ -13,10 +13,7 @@
       </div>
 
       <!-- Average shift rating -->
-      <div
-        v-if="sortedSessions.length"
-        class="neo-surface p-3 rounded-lg flex items-center justify-between"
-      >
+      <div v-if="sortedSessions.length" class="mg-v2-block p-3 flex items-center justify-between">
         <span class="text-sm text-on-surface-variant">{{
           t('exercises.views.averageSpaceCreated')
         }}</span>
