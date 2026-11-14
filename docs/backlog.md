@@ -27,74 +27,6 @@ wracania do rozmowy, w której go znaleziono.
 
 ## Błędy
 
-### B-24 · Ptaszek wybranej grupy emocji nachodzi na długą nazwę kafla
-
-`zrobione (2026-11-14, wdrożenie wariantu D pickera — ptaszek usunięty, nazwy z `overflow-wrap: anywhere`; czeka na commit — po nim przenieść do „Zamknięte” z hashem)` · Znaleziono 2026-11-14 (Lab „Wypukły picker emocji”) · emocje / `src/components/emotion/EmotionGroupPicker.vue`
-
-**Objaw.** W ćwiartce „Wysoka energia · przyjemne” zaznaczony kafel „Zaangażowanie” pokazuje
-„ZAANGAŻOWAI” — ostatnie litery chowają się pod ✓, a nazwa jest ucięta bez wielokropka. To
-samo grozi „Determinacji” (ucięte „DETERMINACJA” przy krawędzi kafla).
-
-**Jak odtworzyć.** `npm run dev:verify` → `/emotions` (dziennik emocji), wejść w ćwiartkę
-„Wysoka energia · przyjemne”, zaznaczyć „Zaangażowanie”. Widać też w Labie:
-`ideas/qa/emotion-picker-raised/02-hehp.png` (karta 0 · Obecny).
-
-**Przyczyna.** `.etcheck` (linia ~102 szablonu, styl ~`.etcheck`) jest absolutnie
-pozycjonowany `top: 8px; right: 12px` nad `.ethead`, który nie rezerwuje na niego miejsca.
-`.etname` ma `-webkit-line-clamp: 2`, ale jedno długie słowo wersalikami z
-`letter-spacing: 0.07em` nie mieści się w szerokości kafla (~150–180 px) i nie ma gdzie się
-złamać, więc wychodzi pod ptaszka i jest obcinane przez `overflow: hidden`.
-
-**Dlaczego to błąd.** Nazwa grupy jest jedyną etykietą kafla; ucięta bez sygnału czyta się jak
-literówka.
-
-**Propozycja naprawy.** Zarezerwować miejsce na ptaszek (`padding-inline: 14px` na `.ethead`
-albo ptaszek w rogu poza obszarem tekstu) i dodać `overflow-wrap: anywhere` /
-`hyphens: auto` z `lang="pl"` na `.etname`, albo zmniejszyć `letter-spacing` dla nazw > 11 znaków.
-
-**Kryteria akceptacji.** Wszystkie 45 nazw grup mieści się bez ucięcia przy 3 i 4 kolumnach
-(zrzut 1512 × 982 @2x każdej ćwiartki); ptaszek nie zasłania liter.
-
-**Uwagi.** Do zrobienia razem z wdrożeniem rundy „wypukły picker”, jeśli user ją przyjmie —
-ten sam plik.
-
-### B-23 · Chipy ścieżki `--primary` i `--ghost` wyglądają jak zwykły chip
-
-`zrobione (2026-11-14, czeka na commit — po nim przenieść do „Zamknięte” z hashem)` · Znaleziono 2026-11-14 (wypukłość kontrolek w widoku ścieżki) · ścieżki / `src/features/program-path/program-path.css`
-
-**Objaw.** „Rozpocznij” na kaflu bieżącego kroku, „Zacznij od nowa”, przycisk dawki i
-„Cofnij” wyglądają jak zwykły papierowy chip. Wariant główny nie jest wypełniony akcentem,
-a duch nie jest przezroczysty; główny robi się niebieski dopiero pod kursorem.
-
-**Jak odtworzyć.** `npm run dev:verify`, `/exercises/programs/shame-compassion`: chip
-„Rozpocznij” w otwartym tygodniu ma tło papieru. W konsoli:
-`getComputedStyle(document.querySelector('.pp-chip--primary')).backgroundColor` zwraca kolor
-papieru zamiast `--mg-color-primary-fill`.
-
-**Przyczyna.** Reguła bazowa ma dwa selektory, `.pp-chip, .mg-design-v2 .pp-chip`
-(`program-path.css:70–71`) — drugi dodano, żeby pobić `.mg-design-v2 button { font: inherit }`.
-Podnosi on jednak specyficzność WSZYSTKICH deklaracji do (0,2,0), więc `background`,
-`border-color` i `color` z `.pp-chip--primary` (`:120`) i `.pp-chip--ghost` (`:131`), oba
-(0,1,0), przegrywają. Działa tylko `.pp-chip--primary:not(:disabled):hover` (`:126`).
-
-**Dlaczego to błąd.** README design systemu: akcja główna = wypełnienie `--mg-color-primary-fill`
-z białą etykietą; duch = wyblakła chmura. W widoku ścieżki nie ma dziś żadnej widocznej akcji
-głównej, a przycisk zmienia kolor dopiero po najechaniu.
-
-**Propozycja naprawy.** Zostawić w drugim selektorze tylko to, co musi pobić reset
-(`font`, `font-size`, `font-weight`), albo dać wariantom ten sam podwójny selektor
-(`.pp-chip--primary, .mg-design-v2 .pp-chip--primary`). Po naprawie ustawić cienie wariantów
-zgodnie z sekcją „Wysokość na każdym poziomie”: główny = `--mg-shadow-control`, duch = bez cienia
-i bez uniesienia.
-
-**Kryteria akceptacji.** „Rozpocznij” wypełniony akcentem w spoczynku; „Cofnij” przezroczysty,
-bez cienia; zrzut 1512 × 982 widoku ścieżki ze wstydu i ścieżki części; strażnik design systemu
-zielony.
-
-**Uwagi.** Zmienia wygląd widoku ścieżki, więc wymaga oceny użytkownika — Lab „widok ścieżki v3”
-(runda 7b) czeka na werdykt i może to rozstrzygnąć inaczej. Ta sama pułapka podwójnego
-selektora jest w `.pp-link`, `.ndt__open`, `.ndpath__field` (tam bez wariantów, więc bez skutku).
-
 ### B-20 · Karta sesji czatu mówi po angielsku („View”, „Delete”, „1 message”)
 
 `otwarte` · Znaleziono 2026-11-09 (port B2 panelu „Dziennik z AI”) · dziennik, historia / `src/components/ChatSessionCard.vue`
@@ -156,36 +88,6 @@ chcemy; ewentualnie zamienić je na role `text-mg-icon-sm/md/lg/xl`.
 
 **Kryteria akceptacji.** `AppIcon` z `text-mg-icon-lg` ma 22 px w przycisku i w treści;
 zrzuty 1512 × 982 @2x głównych widoków zaakceptowane; strażnik bez nowych naruszeń.
-
-### B-21 · W rozwiniętym wierszu „Dzisiaj” przyciski akcji nachodzą na pasek siedmiu dni
-
-`otwarte` · Znaleziono 2026-11-09 (K2, partia 13: NextDayItemRow) · Dzisiaj / `src/features/planning-next/NextDayItemRow.vue`
-
-**Objaw.** Po rozwinięciu wiersza z historią (pasek siedmiu dni) ostatni przycisk akcji
-(„Kontekst” / „Otwórz”) wchodzi pod litery dni: „Kontekst” zasłania „w” i „ś”, tekst
-pigułki i inicjały dni się przenikają. Widać to na 1512 × 982 przy prawej kolumnie
-(kalendarz / Najbliżej) obok listy.
-
-**Jak odtworzyć.** `npm run dev:verify`, `/today`, kliknąć pierwszy wiersz planu dnia
-(np. nawyk z historią) — rozwija się w akcje + pasek dni.
-
-**Przyczyna.** `.ndi--history` (`NextDayItemRow.vue:928`) układa wiersz w siatkę
-`minmax(0, 1fr) auto auto` z obszarami `'main strip entry' / 'actions strip entry'`.
-`.ndi__actions` (`:934–941`) to siatka `repeat(4, max-content)` z wcięciem
-`calc(1.85rem + space-2)`: przyciski nie mogą się zwęzić ani zawinąć, a pierwsza kolumna
-ma minimum 0, więc gdy pasek (`.ndi__strip`, `:972`, 7 stałych komórek) zabiera
-szerokość, akcje wylewają się poza swoją kolumnę pod pasek.
-
-**Dlaczego to błąd.** Etykiety akcji i inicjały dni stają się nieczytelne, a klik w
-„Kontekst” może trafić w komórkę dnia (tooltip) zamiast w przycisk.
-
-**Propozycja naprawy.** Pozwolić akcjom zawinąć się w drugi wiersz
-(`display: flex; flex-wrap: wrap` zamiast siatki `max-content`) albo dać pierwszej
-kolumnie minimum szerokości akcji (`minmax(max-content, 1fr)`) i zwęzić tytuł; FLIP
-(`playFlip`) mierzy pozycje po układzie, więc zawijanie go nie psuje.
-
-**Kryteria akceptacji.** Na 1512 × 982 @2x, z prawą kolumną, żaden przycisk akcji nie
-nachodzi na pasek dni dla wierszy z 3 i 4 akcjami; animacja rozwinięcia bez skoków.
 
 ### B-19 · Menu statusu priorytetu w planie rocznym pokazuje surowe klucze tłumaczeń
 
@@ -400,6 +302,104 @@ planowania; Hub priorytetu; klik w licznik karty = filtr.
 ---
 
 ## Zamknięte
+
+### B-24 · Ptaszek wybranej grupy emocji nachodzi na długą nazwę kafla
+
+`zrobione (093795a7, 2026-11-14: wdrożenie wariantu D pickera — ptaszek usunięty, nazwy z `overflow-wrap: anywhere`)` · Znaleziono 2026-11-14 (Lab „Wypukły picker emocji”) · emocje / `src/components/emotion/EmotionGroupPicker.vue`
+
+**Objaw.** W ćwiartce „Wysoka energia · przyjemne” zaznaczony kafel „Zaangażowanie” pokazuje
+„ZAANGAŻOWAI” — ostatnie litery chowają się pod ✓, a nazwa jest ucięta bez wielokropka. To
+samo grozi „Determinacji” (ucięte „DETERMINACJA” przy krawędzi kafla).
+
+**Jak odtworzyć.** `npm run dev:verify` → `/emotions` (dziennik emocji), wejść w ćwiartkę
+„Wysoka energia · przyjemne”, zaznaczyć „Zaangażowanie”. Widać też w Labie:
+`ideas/qa/emotion-picker-raised/02-hehp.png` (karta 0 · Obecny).
+
+**Przyczyna.** `.etcheck` (linia ~102 szablonu, styl ~`.etcheck`) jest absolutnie
+pozycjonowany `top: 8px; right: 12px` nad `.ethead`, który nie rezerwuje na niego miejsca.
+`.etname` ma `-webkit-line-clamp: 2`, ale jedno długie słowo wersalikami z
+`letter-spacing: 0.07em` nie mieści się w szerokości kafla (~150–180 px) i nie ma gdzie się
+złamać, więc wychodzi pod ptaszka i jest obcinane przez `overflow: hidden`.
+
+**Dlaczego to błąd.** Nazwa grupy jest jedyną etykietą kafla; ucięta bez sygnału czyta się jak
+literówka.
+
+**Propozycja naprawy.** Zarezerwować miejsce na ptaszek (`padding-inline: 14px` na `.ethead`
+albo ptaszek w rogu poza obszarem tekstu) i dodać `overflow-wrap: anywhere` /
+`hyphens: auto` z `lang="pl"` na `.etname`, albo zmniejszyć `letter-spacing` dla nazw > 11 znaków.
+
+**Kryteria akceptacji.** Wszystkie 45 nazw grup mieści się bez ucięcia przy 3 i 4 kolumnach
+(zrzut 1512 × 982 @2x każdej ćwiartki); ptaszek nie zasłania liter.
+
+**Uwagi.** Do zrobienia razem z wdrożeniem rundy „wypukły picker”, jeśli user ją przyjmie —
+ten sam plik.
+
+### B-23 · Chipy ścieżki `--primary` i `--ghost` wyglądają jak zwykły chip
+
+`zrobione (d2d3abff, 2026-11-14: drugi selektor `.mg-design-v2 .pp-chip` niesie tylko pismo; `--primary` = wypełnienie akcentu, `--ghost` przezroczysty, bez cienia)` · Znaleziono 2026-11-14 (wypukłość kontrolek w widoku ścieżki) · ścieżki / `src/features/program-path/program-path.css`
+
+**Objaw.** „Rozpocznij” na kaflu bieżącego kroku, „Zacznij od nowa”, przycisk dawki i
+„Cofnij” wyglądają jak zwykły papierowy chip. Wariant główny nie jest wypełniony akcentem,
+a duch nie jest przezroczysty; główny robi się niebieski dopiero pod kursorem.
+
+**Jak odtworzyć.** `npm run dev:verify`, `/exercises/programs/shame-compassion`: chip
+„Rozpocznij” w otwartym tygodniu ma tło papieru. W konsoli:
+`getComputedStyle(document.querySelector('.pp-chip--primary')).backgroundColor` zwraca kolor
+papieru zamiast `--mg-color-primary-fill`.
+
+**Przyczyna.** Reguła bazowa ma dwa selektory, `.pp-chip, .mg-design-v2 .pp-chip`
+(`program-path.css:70–71`) — drugi dodano, żeby pobić `.mg-design-v2 button { font: inherit }`.
+Podnosi on jednak specyficzność WSZYSTKICH deklaracji do (0,2,0), więc `background`,
+`border-color` i `color` z `.pp-chip--primary` (`:120`) i `.pp-chip--ghost` (`:131`), oba
+(0,1,0), przegrywają. Działa tylko `.pp-chip--primary:not(:disabled):hover` (`:126`).
+
+**Dlaczego to błąd.** README design systemu: akcja główna = wypełnienie `--mg-color-primary-fill`
+z białą etykietą; duch = wyblakła chmura. W widoku ścieżki nie ma dziś żadnej widocznej akcji
+głównej, a przycisk zmienia kolor dopiero po najechaniu.
+
+**Propozycja naprawy.** Zostawić w drugim selektorze tylko to, co musi pobić reset
+(`font`, `font-size`, `font-weight`), albo dać wariantom ten sam podwójny selektor
+(`.pp-chip--primary, .mg-design-v2 .pp-chip--primary`). Po naprawie ustawić cienie wariantów
+zgodnie z sekcją „Wysokość na każdym poziomie”: główny = `--mg-shadow-control`, duch = bez cienia
+i bez uniesienia.
+
+**Kryteria akceptacji.** „Rozpocznij” wypełniony akcentem w spoczynku; „Cofnij” przezroczysty,
+bez cienia; zrzut 1512 × 982 widoku ścieżki ze wstydu i ścieżki części; strażnik design systemu
+zielony.
+
+**Uwagi.** Zmienia wygląd widoku ścieżki, więc wymaga oceny użytkownika — Lab „widok ścieżki v3”
+(runda 7b) czeka na werdykt i może to rozstrzygnąć inaczej. Ta sama pułapka podwójnego
+selektora jest w `.pp-link`, `.ndt__open`, `.ndpath__field` (tam bez wariantów, więc bez skutku).
+
+### B-21 · W rozwiniętym wierszu „Dzisiaj” przyciski akcji nachodzą na pasek siedmiu dni
+
+`zrobione (4778fd48, 2026-11-14: akcje wiersza jako słowa, które zawijają się przed paskiem; pasek 2,6 rem; ± z własnym miejscem — decyzja w `docs/design-decisions.md`)` · Znaleziono 2026-11-09 (K2, partia 13: NextDayItemRow) · Dzisiaj / `src/features/planning-next/NextDayItemRow.vue`
+
+**Objaw.** Po rozwinięciu wiersza z historią (pasek siedmiu dni) ostatni przycisk akcji
+(„Kontekst” / „Otwórz”) wchodzi pod litery dni: „Kontekst” zasłania „w” i „ś”, tekst
+pigułki i inicjały dni się przenikają. Widać to na 1512 × 982 przy prawej kolumnie
+(kalendarz / Najbliżej) obok listy.
+
+**Jak odtworzyć.** `npm run dev:verify`, `/today`, kliknąć pierwszy wiersz planu dnia
+(np. nawyk z historią) — rozwija się w akcje + pasek dni.
+
+**Przyczyna.** `.ndi--history` (`NextDayItemRow.vue:928`) układa wiersz w siatkę
+`minmax(0, 1fr) auto auto` z obszarami `'main strip entry' / 'actions strip entry'`.
+`.ndi__actions` (`:934–941`) to siatka `repeat(4, max-content)` z wcięciem
+`calc(1.85rem + space-2)`: przyciski nie mogą się zwęzić ani zawinąć, a pierwsza kolumna
+ma minimum 0, więc gdy pasek (`.ndi__strip`, `:972`, 7 stałych komórek) zabiera
+szerokość, akcje wylewają się poza swoją kolumnę pod pasek.
+
+**Dlaczego to błąd.** Etykiety akcji i inicjały dni stają się nieczytelne, a klik w
+„Kontekst” może trafić w komórkę dnia (tooltip) zamiast w przycisk.
+
+**Propozycja naprawy.** Pozwolić akcjom zawinąć się w drugi wiersz
+(`display: flex; flex-wrap: wrap` zamiast siatki `max-content`) albo dać pierwszej
+kolumnie minimum szerokości akcji (`minmax(max-content, 1fr)`) i zwęzić tytuł; FLIP
+(`playFlip`) mierzy pozycje po układzie, więc zawijanie go nie psuje.
+
+**Kryteria akceptacji.** Na 1512 × 982 @2x, z prawą kolumną, żaden przycisk akcji nie
+nachodzi na pasek dni dla wierszy z 3 i 4 akcjami; animacja rozwinięcia bez skoków.
 
 ### B-14 · Kolejność kluczowych rezultatów na karcie celu jest przypadkowa
 
