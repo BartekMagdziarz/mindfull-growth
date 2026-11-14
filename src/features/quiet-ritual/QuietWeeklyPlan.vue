@@ -1,4 +1,8 @@
 <template>
+  <MeasurementCriteriaDialog
+    :request="criteriaEditor.request.value"
+    @choose="criteriaEditor.choose"
+  />
   <QuietRitualShell
     scale="week"
     eyebrow="Plan tygodnia"
@@ -394,6 +398,12 @@
 </template>
 
 <script setup lang="ts">
+import MeasurementCriteriaDialog from '@/components/objects/MeasurementCriteriaDialog.vue'
+import { useMeasurementCriteriaEditor } from '@/composables/useMeasurementCriteriaEditor'
+import { normalizeWeeklyIntentionPayload } from '@/domain/planning'
+import { weeklyIntentionDexieRepository } from '@/repositories/weeklyIntentionDexieRepository'
+const criteriaEditor = useMeasurementCriteriaEditor()
+
 import { computed, nextTick, onMounted, reactive, ref, toRef, watch } from 'vue'
 import type { DayRef, WeekRef } from '@/domain/period'
 import type { Priority, WeeklyIntention } from '@/domain/planning'
@@ -409,7 +419,6 @@ import {
   deleteWeeklyIntention,
   listWeeklyIntentions,
   setWeekTopPriorities,
-  updateWeeklyIntention,
 } from '@/services/weeklyIntentionService'
 import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
 import {
@@ -786,11 +795,18 @@ async function saveIntention() {
   isSaving.value = true
   try {
     if (editingIntentionId.value) {
-      await updateWeeklyIntention(editingIntentionId.value, {
-        title,
-        target: { kind: 'count', operator: 'min', value: times },
-        priorityIds: [...intentionPriorityIds.value],
-      })
+      const saved = await criteriaEditor.edit(
+        'weeklyIntention',
+        weeklyIntentionDexieRepository,
+        normalizeWeeklyIntentionPayload,
+        editingIntentionId.value,
+        {
+          title,
+          target: { kind: 'count', operator: 'min', value: times },
+          priorityIds: [...intentionPriorityIds.value],
+        }
+      )
+      if (!saved) return
     } else {
       const created = await createWeeklyIntention({
         weekRef: props.weekRef,

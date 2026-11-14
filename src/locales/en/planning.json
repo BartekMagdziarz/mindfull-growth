@@ -1869,5 +1869,21 @@
     "messages": {
       "reopened": "Goal reopened"
     }
+  },
+  "criteria": {
+    "title": "When should the new criteria apply?",
+    "next": "From the start of this period:",
+    "all": "Across the entire history",
+    "date": "From a chosen date",
+    "boundary": "First day of a week or month, matching the object’s cadence",
+    "invalidDate": "Choose the first day of a week or month.",
+    "preview": "Periods with changed results: {changed}. Newly met periods: {gained}.",
+    "overrides": "Individual targets set for specific weeks and months keep their priority.",
+    "legacy": "For older records, the baseline is the criteria known today. Earlier definitions were not saved.",
+    "scheduled": "This also replaces later scheduled criteria. Recorded executions remain unchanged.",
+    "loadError": "Unable to check the impact. Cancel and try again.",
+    "shapeLocked": "This object already has recorded executions. Create a new object to change its entry mode or cadence.",
+    "scheduledFrom": "New criteria from {date}",
+    "rulesFrom": "The displayed criteria apply from {date}"
   }
 }

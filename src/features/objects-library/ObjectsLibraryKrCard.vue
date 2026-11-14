@@ -76,6 +76,8 @@
         <span>{{ sentence }}</span>
       </p>
 
+      <MeasurementCriteriaNote :versions="child.criteriaVersions" />
+
       <!-- Expanded section -->
       <div
         class="transition-all duration-200 ease-in-out"
@@ -155,6 +157,7 @@
 </template>
 
 <script setup lang="ts">
+import MeasurementCriteriaNote from '@/components/objects/MeasurementCriteriaNote.vue'
 import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 import ObjectCardPeriods from '@/features/objects-library/ObjectCardPeriods.vue'
 import PeriodCalendarPicker from '@/features/objects-library/PeriodCalendarPicker.vue'

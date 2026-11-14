@@ -1,3 +1,4 @@
+import { prepareMeasurementUpdate } from './measurementCriteriaUpdate'
 import { userDatabaseOperation } from './userDatabaseOperation'
 import type { CreateTrackerPayload, Tracker, UpdateTrackerPayload } from '@/domain/planning'
 import { normalizeTrackerPayload } from '@/domain/planning'
@@ -49,18 +50,28 @@ class TrackerDexieRepository implements TrackerRepository {
   }
 
   async update(id: string, data: UpdateTrackerPayload): Promise<Tracker> {
-    return userDatabaseOperation('rw', ['trackers', 'priorityLinks'], async db => {
-      try {
-        const existing = requireRecord(await db.trackers.get(id), `Tracker with id ${id} not found`)
-        const updated = updatePlanningRecord(existing, normalizeTrackerPayload(data, existing))
-        await db.trackers.put(toPlain(updated))
-        invalidatePlanningQueryCache()
-        return updated
-      } catch (error) {
-        console.error(`Failed to update tracker with id ${id}:`, error)
-        throw new Error(`Failed to update tracker with id ${id}`)
+    return userDatabaseOperation(
+      'rw',
+      ['trackers', 'dailyMeasurementEntries', 'priorityLinks'],
+      async db => {
+        try {
+          const existing = requireRecord(
+            await db.trackers.get(id),
+            `Tracker with id ${id} not found`
+          )
+          const updated = updatePlanningRecord(
+            existing,
+            await prepareMeasurementUpdate(db, 'tracker', existing, data, normalizeTrackerPayload)
+          )
+          await db.trackers.put(toPlain(updated))
+          invalidatePlanningQueryCache()
+          return updated
+        } catch (error) {
+          console.error(`Failed to update tracker with id ${id}:`, error)
+          throw error
+        }
       }
-    })
+    )
   }
 
   async delete(id: string): Promise<void> {

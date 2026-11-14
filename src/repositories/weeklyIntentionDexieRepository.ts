@@ -1,3 +1,4 @@
+import { prepareMeasurementUpdate } from './measurementCriteriaUpdate'
 import { userDatabaseOperation } from './userDatabaseOperation'
 import type {
   CreateWeeklyIntentionPayload,
@@ -77,26 +78,36 @@ class WeeklyIntentionDexieRepository implements WeeklyIntentionRepository {
   }
 
   async update(id: string, data: UpdateWeeklyIntentionPayload): Promise<WeeklyIntention> {
-    return userDatabaseOperation('rw', ['weeklyIntentions', 'priorityLinks'], async db => {
-      try {
-        const existing = hydrate(
-          requireRecord(
-            await db.weeklyIntentions.get(id),
-            `Weekly intention with id ${id} not found`
+    return userDatabaseOperation(
+      'rw',
+      ['weeklyIntentions', 'dailyMeasurementEntries', 'priorityLinks'],
+      async db => {
+        try {
+          const existing = hydrate(
+            requireRecord(
+              await db.weeklyIntentions.get(id),
+              `Weekly intention with id ${id} not found`
+            )
           )
-        )
-        const updated = updatePlanningRecord(
-          existing,
-          normalizeWeeklyIntentionPayload(data, existing)
-        )
-        await db.weeklyIntentions.put(toPlain(updated))
-        invalidatePlanningQueryCache()
-        return updated
-      } catch (error) {
-        console.error(`Failed to update weekly intention with id ${id}:`, error)
-        throw new Error(`Failed to update weekly intention with id ${id}`)
+          const updated = updatePlanningRecord(
+            existing,
+            await prepareMeasurementUpdate(
+              db,
+              'weeklyIntention',
+              existing,
+              data,
+              normalizeWeeklyIntentionPayload
+            )
+          )
+          await db.weeklyIntentions.put(toPlain(updated))
+          invalidatePlanningQueryCache()
+          return updated
+        } catch (error) {
+          console.error(`Failed to update weekly intention with id ${id}:`, error)
+          throw error
+        }
       }
-    })
+    )
   }
 
   async delete(id: string): Promise<void> {

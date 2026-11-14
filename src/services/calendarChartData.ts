@@ -2,7 +2,11 @@ import type { DayRef, MonthRef, PeriodRef, WeekRef } from '@/domain/period'
 import type { DailyMeasurementEntry, MeasurementSubjectType } from '@/domain/planningState'
 import type { MeasureableSubject } from '@/services/measurementProgress'
 import type { ObjectsLibraryChartPoint } from '@/services/objectsLibraryQueries'
-import { buildMeasurementSummary, multiCompletionDayPoints } from '@/services/measurementProgress'
+import {
+  buildMeasurementSummary,
+  multiCompletionDayPoints,
+  multiCompletionEffectiveThreshold,
+} from '@/services/measurementProgress'
 import {
   getChildPeriods,
   getPeriodBounds,
@@ -110,7 +114,10 @@ export function buildWeekDailyChartPoints(
     return {
       periodRef: dayRef as string,
       actualValue,
-      targetValue: undefined,
+      targetValue:
+        subject.entryMode === 'multi-completion'
+          ? multiCompletionEffectiveThreshold(subject, dayRef as DayRef)
+          : undefined,
       status,
     }
   })
@@ -138,8 +145,6 @@ export function buildMonthlyTrendChartPoints(
     }
   }
 
-  const target = 'target' in subject ? subject.target : undefined
-
   const points = monthRefs.map(monthRef => {
     const summary = buildMeasurementSummary(subject, allEntries, monthRef)
     const isCurrent = monthRef === currentMonthRef && isCurrentMonth
@@ -148,7 +153,7 @@ export function buildMonthlyTrendChartPoints(
       return {
         periodRef: monthRef,
         actualValue: summary.actualValue,
-        targetValue: target?.value,
+        targetValue: summary.target?.value,
         status: summary.actualValue !== undefined ? ('no-target' as const) : ('no-data' as const),
         isCurrent: true,
       }
@@ -157,7 +162,7 @@ export function buildMonthlyTrendChartPoints(
     return {
       periodRef: monthRef,
       actualValue: summary.actualValue,
-      targetValue: target?.value,
+      targetValue: summary.target?.value,
       status: evaluationToStatus(summary.evaluationStatus, summary.actualValue !== undefined),
       isCurrent: false,
     }
@@ -189,8 +194,6 @@ export function buildWeeklyTrendChartPoints(
     }
   }
 
-  const target = 'target' in subject ? subject.target : undefined
-
   const points = weekRefs.map(weekRef => {
     const summary = buildMeasurementSummary(subject, allEntries, weekRef)
     const isCurrent = weekRef === currentWeekRef && isCurrentWeek
@@ -199,7 +202,7 @@ export function buildWeeklyTrendChartPoints(
       return {
         periodRef: weekRef,
         actualValue: summary.actualValue,
-        targetValue: target?.value,
+        targetValue: summary.target?.value,
         status: summary.actualValue !== undefined ? ('no-target' as const) : ('no-data' as const),
         isCurrent: true,
       }
@@ -208,7 +211,7 @@ export function buildWeeklyTrendChartPoints(
     return {
       periodRef: weekRef,
       actualValue: summary.actualValue,
-      targetValue: target?.value,
+      targetValue: summary.target?.value,
       status: evaluationToStatus(summary.evaluationStatus, summary.actualValue !== undefined),
       isCurrent: false,
     }

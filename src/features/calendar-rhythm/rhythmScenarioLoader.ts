@@ -167,6 +167,15 @@ export async function buildRhythmScenario(
       target: result.target,
       evidenceRole: 'action',
       ratingScale: ratingScaleOf(result),
+      activeMonthRefs: monthStates
+        .filter(
+          m =>
+            m.subjectType === 'keyResult' &&
+            m.subjectId === result.id &&
+            m.activityState === 'active'
+        )
+        .map(m => m.monthRef),
+      criteriaVersions: result.criteriaVersions,
       multiItems: result.multiItems,
       multiThreshold: result.multiDailyThreshold,
       icon: goals.find(goal => goal.id === result.goalId)?.icon,
@@ -184,6 +193,12 @@ export async function buildRhythmScenario(
       target: habit.target,
       evidenceRole: 'action',
       ratingScale: ratingScaleOf(habit),
+      activeMonthRefs: monthStates
+        .filter(
+          m => m.subjectType === 'habit' && m.subjectId === habit.id && m.activityState === 'active'
+        )
+        .map(m => m.monthRef),
+      criteriaVersions: habit.criteriaVersions,
       multiItems: habit.multiItems,
       multiThreshold: habit.multiDailyThreshold,
       icon: habit.icon,
@@ -200,6 +215,15 @@ export async function buildRhythmScenario(
       cadence: tracker.cadence,
       evidenceRole: 'observation',
       ratingScale: ratingScaleOf(tracker),
+      activeMonthRefs: monthStates
+        .filter(
+          m =>
+            m.subjectType === 'tracker' &&
+            m.subjectId === tracker.id &&
+            m.activityState === 'active'
+        )
+        .map(m => m.monthRef),
+      criteriaVersions: tracker.criteriaVersions,
       multiItems: tracker.multiItems,
       multiThreshold: tracker.multiDailyThreshold,
       icon: tracker.icon,
@@ -217,6 +241,15 @@ export async function buildRhythmScenario(
       target: intention.target,
       evidenceRole: 'action',
       ratingScale: ratingScaleOf(intention),
+      activeMonthRefs: monthStates
+        .filter(
+          m =>
+            m.subjectType === 'weeklyIntention' &&
+            m.subjectId === intention.id &&
+            m.activityState === 'active'
+        )
+        .map(m => m.monthRef),
+      criteriaVersions: intention.criteriaVersions,
       multiItems: intention.multiItems,
       multiThreshold: intention.multiDailyThreshold,
       weekRef: intention.weekRef,
@@ -243,7 +276,7 @@ export async function buildRhythmScenario(
         scope: { kind: 'month', ref: state.monthRef },
       })
     }
-    if (state.targetOverride) {
+    if (state.targetOverride && state.activityState === 'active') {
       overrides.push({
         objectKey,
         scope: { kind: 'month', ref: state.monthRef },
@@ -264,10 +297,11 @@ export async function buildRhythmScenario(
         scope: { kind: 'week', ref: state.weekRef },
       })
     }
-    if (state.targetOverride) {
+    if (state.targetOverride && state.activityState === 'active') {
       overrides.push({
         objectKey,
         scope: { kind: 'week', ref: state.weekRef },
+        sourceMonthRef: state.sourceMonthRef,
         target: state.targetOverride,
       })
     }

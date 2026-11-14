@@ -1,3 +1,4 @@
+import { resolveMeasurementCriteria } from '@/domain/measurementCriteria'
 import { userDatabaseOperation } from './userDatabaseOperation'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import type { Habit, KeyResult, Tracker, WeeklyIntention } from '@/domain/planning'
@@ -1579,11 +1580,12 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
   private async assertDailyMeasurementEntryAllowed(
     normalized: Omit<DailyMeasurementEntry, 'id' | 'createdAt' | 'updatedAt'>
   ): Promise<void> {
-    const subject = await this.resolveMeasurementSubject(
+    const storedSubject = await this.resolveMeasurementSubject(
       normalized.subjectType,
       normalized.subjectId
     )
 
+    const subject = resolveMeasurementCriteria(storedSubject, normalized.dayRef)
     if (subject.entryMode !== 'multi-completion' && normalized.checkedItemIds !== undefined) {
       throw new Error('checkedItemIds is only supported for multi-completion subjects')
     }

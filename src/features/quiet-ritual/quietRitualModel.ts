@@ -9,7 +9,7 @@ import type {
   MeasurementSubjectType,
 } from '@/domain/planningState'
 import type { MeasureableSubject } from '@/services/measurementProgress'
-import { multiCompletionDayPoints } from '@/services/measurementProgress'
+import { multiCompletionDayPoints, multiCompletionDayMet } from '@/services/measurementProgress'
 import { getChildPeriods, getPeriodBounds } from '@/utils/periods'
 
 /**
@@ -153,6 +153,8 @@ export interface QuietEvidenceCell {
   dayRef: DayRef
   /** null = no entry that day. Never coerced to 0 — a missing record is not a zero. */
   value: number | null
+  /** Execution threshold, distinct from the presence of a partial record. */
+  met?: boolean
   planned: boolean
   future: boolean
 }
@@ -204,6 +206,10 @@ export function buildQuietEvidenceRows(
       return {
         dayRef: day.dayRef,
         value: entry ? entryValue(item.subject, entry) : null,
+        met:
+          item.subject.entryMode === 'multi-completion'
+            ? Boolean(entry && multiCompletionDayMet(item.subject, entry))
+            : undefined,
         planned: assignments.some(
           assignment =>
             assignment.subjectType === item.subjectType &&
@@ -215,7 +221,9 @@ export function buildQuietEvidenceRows(
     })
     const recorded = cells.filter(cell => cell.value !== null).map(cell => cell.value as number)
     const plannedDays = cells.filter(cell => cell.planned).length
-    const doneDays = cells.filter(cell => cell.value !== null && cell.value > 0).length
+    const doneDays = cells.filter(
+      cell => cell.met ?? (cell.value !== null && cell.value > 0)
+    ).length
     return {
       key: item.key,
       subjectType: item.subjectType,

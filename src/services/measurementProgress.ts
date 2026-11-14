@@ -10,10 +10,20 @@ import type {
 } from '@/domain/planning'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import type { DailyMeasurementEntry } from '@/domain/planningState'
-import { getPeriodRefsForDate, getPeriodType } from '@/utils/periods'
+import { getPeriodBounds, getPeriodRefsForDate, getPeriodType } from '@/utils/periods'
 
 export type MeasurementPeriodRef = MonthRef | WeekRef
 export type MeasurementEvaluationStatus = 'met' | 'missed' | 'no-data'
+import { resolveMeasurementCriteria, type CriteriaDefinition } from '@/domain/measurementCriteria'
+
+export interface MeasurementDefinition extends CriteriaDefinition {
+  entryMode: MeasurementEntryMode
+  cadence: PlanningCadence
+  /** Read-only override metadata; never persisted by object normalizers. */
+  measurementTargetOverride?: MeasurementTarget
+}
+export type MeasurementEntry = Pick<DailyMeasurementEntry, 'dayRef' | 'value' | 'checkedItemIds'>
+
 export type MeasureableSubject = KeyResult | Habit | Tracker | WeeklyIntention
 
 export const ON_TRACK_BANDS = {
@@ -46,7 +56,7 @@ export interface MeasurementSummary {
 export function applyMeasurementTargetOverride(
   subject: MeasureableSubject,
   targetOverride?: MeasurementTarget
-): MeasureableSubject {
+): MeasureableSubject & { measurementTargetOverride?: MeasurementTarget } {
   if (!targetOverride || !('target' in subject)) {
     return subject
   }
@@ -54,6 +64,7 @@ export function applyMeasurementTargetOverride(
   return {
     ...subject,
     target: targetOverride,
+    measurementTargetOverride: targetOverride,
   }
 }
 
@@ -67,13 +78,16 @@ export function applyMeasurementTargetCascade(
   subject: MeasureableSubject,
   periodRef: MeasurementPeriodRef,
   overrides: { monthOverride?: MeasurementTarget; weekOverride?: MeasurementTarget }
-): MeasureableSubject {
+): MeasureableSubject & { measurementTargetOverride?: MeasurementTarget } {
   const effectiveOverride =
     getPeriodType(periodRef) === 'week'
       ? (overrides.weekOverride ?? overrides.monthOverride)
       : overrides.monthOverride
 
-  return applyMeasurementTargetOverride(subject, effectiveOverride)
+  return applyMeasurementTargetOverride(
+    resolveMeasurementCriteria(subject, getPeriodBounds(periodRef).start),
+    effectiveOverride
+  )
 }
 
 function filterEntriesForSubjectAndPeriod(
@@ -91,11 +105,11 @@ function filterEntriesForSubjectAndPeriod(
   })
 }
 
-function sumEntryValues(entries: DailyMeasurementEntry[]): number {
+function sumEntryValues(entries: MeasurementEntry[]): number {
   return entries.reduce((sum, entry) => sum + (entry.value ?? 0), 0)
 }
 
-function averageEntryValues(entries: DailyMeasurementEntry[]): number | undefined {
+function averageEntryValues(entries: MeasurementEntry[]): number | undefined {
   if (entries.length === 0) {
     return undefined
   }
@@ -103,7 +117,7 @@ function averageEntryValues(entries: DailyMeasurementEntry[]): number | undefine
   return sumEntryValues(entries) / entries.length
 }
 
-function lastEntryValue(entries: DailyMeasurementEntry[]): number | undefined {
+function lastEntryValue(entries: MeasurementEntry[]): number | undefined {
   if (entries.length === 0) {
     return undefined
   }
@@ -115,8 +129,12 @@ function lastEntryValue(entries: DailyMeasurementEntry[]): number | undefined {
 }
 
 /** Non-archived multi-completion items, in stored order. */
-export function multiCompletionActiveItems(subject: MeasureableSubject): MultiCompletionItem[] {
-  return (subject.multiItems ?? []).filter(item => !item.archived)
+export function multiCompletionActiveItems(
+  subject: CriteriaDefinition,
+  dayRef?: DayRef
+): MultiCompletionItem[] {
+  const effective = dayRef ? resolveMeasurementCriteria(subject, dayRef) : subject
+  return (effective.multiItems ?? []).filter(item => !item.archived)
 }
 
 /**
@@ -125,38 +143,46 @@ export function multiCompletionActiveItems(subject: MeasureableSubject): MultiCo
  * clamped to [1, sum of active weights] so it cannot go stale above the
  * reachable maximum after items are archived or weights lowered.
  */
-export function multiCompletionEffectiveThreshold(subject: MeasureableSubject): number {
-  const activeWeightSum = multiCompletionActiveItems(subject).reduce(
+export function multiCompletionEffectiveThreshold(
+  subject: CriteriaDefinition,
+  dayRef?: DayRef
+): number {
+  const effective = dayRef ? resolveMeasurementCriteria(subject, dayRef) : subject
+  const activeWeightSum = multiCompletionActiveItems(effective).reduce(
     (sum, item) => sum + item.weight,
     0
   )
   const reachableMax = Math.max(activeWeightSum, 1)
-  return Math.min(Math.max(subject.multiDailyThreshold ?? reachableMax, 1), reachableMax)
+  return Math.min(Math.max(effective.multiDailyThreshold ?? reachableMax, 1), reachableMax)
 }
 
 /**
- * Points earned on a day = sum of CURRENT weights of the checked items
- * (live-recompute contract: editing weights re-scores history). Archived items
+ * Points earned on a day use the criteria version effective on that date.
+ * Versionless legacy objects use their current definition. Archived items
  * still resolve; ids no longer present contribute nothing.
  */
 export function multiCompletionDayPoints(
-  subject: MeasureableSubject,
-  entry: DailyMeasurementEntry
+  subject: CriteriaDefinition,
+  entry: MeasurementEntry
 ): number {
-  const weightById = new Map((subject.multiItems ?? []).map(item => [item.id, item.weight]))
+  const effective = resolveMeasurementCriteria(subject, entry.dayRef)
+  const weightById = new Map((effective.multiItems ?? []).map(item => [item.id, item.weight]))
   return (entry.checkedItemIds ?? []).reduce((sum, id) => sum + (weightById.get(id) ?? 0), 0)
 }
 
 export function multiCompletionDayMet(
-  subject: MeasureableSubject,
-  entry: DailyMeasurementEntry
+  subject: CriteriaDefinition,
+  entry: MeasurementEntry
 ): boolean {
-  return multiCompletionDayPoints(subject, entry) >= multiCompletionEffectiveThreshold(subject)
+  return (
+    multiCompletionDayPoints(subject, entry) >=
+    multiCompletionEffectiveThreshold(subject, entry.dayRef)
+  )
 }
 
 function computeActualValue(
-  subject: MeasureableSubject,
-  entries: DailyMeasurementEntry[]
+  subject: MeasurementDefinition,
+  entries: MeasurementEntry[]
 ): number | undefined {
   if (entries.length === 0) {
     return undefined
@@ -168,8 +194,7 @@ function computeActualValue(
     case 'counter':
       return sumEntryValues(entries)
     case 'value': {
-      const aggregation =
-        'target' in subject && subject.target.kind === 'value' ? subject.target.aggregation : 'last'
+      const aggregation = subject.target?.kind === 'value' ? subject.target.aggregation : 'last'
       switch (aggregation) {
         case 'sum':
           return sumEntryValues(entries)
@@ -207,9 +232,9 @@ function compareActualToTarget(actualValue: number, target: MeasurementTarget): 
  * always qualify (an entry exists only with at least one checked item), even
  * when the day stays below the daily threshold.
  */
-function countQualifiedEntryDays(
+export function countQualifiedEntryDays(
   entryMode: MeasurementEntryMode,
-  entries: DailyMeasurementEntry[]
+  entries: MeasurementEntry[]
 ): number {
   if (entryMode === 'counter') {
     return entries.filter(entry => (entry.value ?? 0) >= 1).length
@@ -227,7 +252,7 @@ function compareEntryDays(
 }
 
 export function buildMeasurementSummary(
-  subject: MeasureableSubject,
+  subject: MeasureableSubject & { measurementTargetOverride?: MeasurementTarget },
   allEntries: DailyMeasurementEntry[],
   periodRef: MeasurementPeriodRef,
   asOfDayRef?: DayRef
@@ -246,9 +271,10 @@ export function buildMeasurementSummary(
    * - value uses the target aggregation: sum, average, or last.
    * - rating uses the arithmetic average.
    * - multi-completion counts MET days: entries whose checked-item points
-   *   (current weights) reach the effective daily threshold. Points, threshold
-   *   and thus historical met-status are recomputed live from the subject's
-   *   current multiItems/multiDailyThreshold.
+   *   reach the daily threshold in the criteria version for their date.
+   *   Versionless legacy objects fall back to the current definition.
+   * - Targets and value aggregation use the criteria at the period start;
+   *   explicit period overrides keep priority over the versioned base target.
    * - No period entries produce actualValue undefined.
    * - Subjects with a target evaluate to met, missed, or no-data.
    * - Trackers without a target leave evaluationStatus undefined.
@@ -258,8 +284,24 @@ export function buildMeasurementSummary(
    *   behaviour of targets without the condition.
    */
   const entries = filterEntriesForSubjectAndPeriod(allEntries, subject.id, periodRef, asOfDayRef)
+  return {
+    ...summarizeMeasurementEntries(subject, entries, getPeriodBounds(periodRef).start),
+    periodRef,
+  }
+}
+
+/** Shared evaluation for planners, object charts and calendar projections. */
+export function summarizeMeasurementEntries(
+  definition: MeasurementDefinition,
+  entries: MeasurementEntry[],
+  periodStart: DayRef
+): Omit<MeasurementSummary, 'periodRef'> {
+  const resolved = resolveMeasurementCriteria(definition, periodStart)
+  const subject = definition.measurementTargetOverride
+    ? { ...resolved, target: definition.measurementTargetOverride }
+    : resolved
   const actualValue = computeActualValue(subject, entries)
-  const target = 'target' in subject ? subject.target : undefined
+  const target = subject.target
   const entryDaysCondition = target?.entryDays
   const qualifiedEntryDays = entryDaysCondition
     ? countQualifiedEntryDays(subject.entryMode, entries)
@@ -287,7 +329,6 @@ export function buildMeasurementSummary(
     actualValue,
     evaluationStatus,
     entryCount: entries.length,
-    periodRef,
     primaryMet,
     presenceMet,
     qualifiedEntryDays,

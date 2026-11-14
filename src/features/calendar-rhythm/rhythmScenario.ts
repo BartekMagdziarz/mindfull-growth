@@ -1,5 +1,9 @@
 import type { DayRef, MonthRef, WeekRef, YearRef } from '@/domain/period'
-import type { MeasurementTarget, MultiCompletionItem } from '@/domain/planning'
+import type {
+  MeasurementTarget,
+  MultiCompletionItem,
+  MeasurementCriteriaVersion,
+} from '@/domain/planning'
 import type { MeasurementSubjectType, PriorityVerdict } from '@/domain/planningState'
 
 /**
@@ -42,6 +46,8 @@ export interface RhythmObject {
   ratingScale?: { min: number; max: number }
   multiItems?: MultiCompletionItem[]
   multiThreshold?: number
+  criteriaVersions?: MeasurementCriteriaVersion[]
+  activeMonthRefs?: MonthRef[]
   /** Weekly intentions live only in their own week. */
   weekRef?: WeekRef
   icon?: string
@@ -75,6 +81,7 @@ export interface RhythmEntry {
 export interface RhythmTargetOverride {
   objectKey: string
   scope: { kind: 'week'; ref: WeekRef } | { kind: 'month'; ref: MonthRef }
+  sourceMonthRef?: MonthRef
   target: RhythmTarget
 }
 

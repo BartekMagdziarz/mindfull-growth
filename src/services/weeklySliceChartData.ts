@@ -1,3 +1,4 @@
+import { resolveMeasurementCriteria } from '@/domain/measurementCriteria'
 /**
  * Data builders for the **weekly-slice** chart scope (currently consumed by
  * the weekly reflection grid). Sibling to {@link todayChartData} — uses its
@@ -201,19 +202,30 @@ export function buildMultiCompletionStackData(
   })
 
   const checkedThisWeek = new Set(slots.flatMap(slot => slot.checkedIds))
+  const historicalItems = new Map(
+    [
+      ...(subject.criteriaVersions ?? []).flatMap(v => v.criteria.multiItems ?? []),
+      ...(subject.multiItems ?? []),
+    ].map(i => [i.id, i])
+  )
+  const weekDefinition = resolveMeasurementCriteria(subject, getPeriodBounds(weekRef).start)
   const rows: MultiCompletionStackRow[] = [
-    ...multiCompletionActiveItems(subject).map(item => ({
+    ...multiCompletionActiveItems(weekDefinition).map(item => ({
       id: item.id,
       label: item.label,
       icon: item.icon,
       archived: false,
     })),
-    ...(subject.multiItems ?? [])
-      .filter(item => item.archived && checkedThisWeek.has(item.id))
+    ...[...historicalItems.values()]
+      .filter(
+        item =>
+          !multiCompletionActiveItems(weekDefinition).some(active => active.id === item.id) &&
+          checkedThisWeek.has(item.id)
+      )
       .map(item => ({ id: item.id, label: item.label, icon: item.icon, archived: true })),
   ]
 
-  return { rows, slots, threshold: multiCompletionEffectiveThreshold(subject) }
+  return { rows, slots, threshold: multiCompletionEffectiveThreshold(weekDefinition) }
 }
 
 function resolveWeekdayCompletionState(

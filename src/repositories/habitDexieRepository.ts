@@ -1,3 +1,4 @@
+import { prepareMeasurementUpdate } from './measurementCriteriaUpdate'
 import { userDatabaseOperation } from './userDatabaseOperation'
 import type { CreateHabitPayload, Habit, UpdateHabitPayload } from '@/domain/planning'
 import { normalizeHabitPayload } from '@/domain/planning'
@@ -49,18 +50,25 @@ class HabitDexieRepository implements HabitRepository {
   }
 
   async update(id: string, data: UpdateHabitPayload): Promise<Habit> {
-    return userDatabaseOperation('rw', ['habits', 'priorityLinks'], async db => {
-      try {
-        const existing = requireRecord(await db.habits.get(id), `Habit with id ${id} not found`)
-        const updated = updatePlanningRecord(existing, normalizeHabitPayload(data, existing))
-        await db.habits.put(toPlain(updated))
-        invalidatePlanningQueryCache()
-        return updated
-      } catch (error) {
-        console.error(`Failed to update habit with id ${id}:`, error)
-        throw new Error(`Failed to update habit with id ${id}`)
+    return userDatabaseOperation(
+      'rw',
+      ['habits', 'dailyMeasurementEntries', 'priorityLinks'],
+      async db => {
+        try {
+          const existing = requireRecord(await db.habits.get(id), `Habit with id ${id} not found`)
+          const updated = updatePlanningRecord(
+            existing,
+            await prepareMeasurementUpdate(db, 'habit', existing, data, normalizeHabitPayload)
+          )
+          await db.habits.put(toPlain(updated))
+          invalidatePlanningQueryCache()
+          return updated
+        } catch (error) {
+          console.error(`Failed to update habit with id ${id}:`, error)
+          throw error
+        }
       }
-    })
+    )
   }
 
   async delete(id: string): Promise<void> {

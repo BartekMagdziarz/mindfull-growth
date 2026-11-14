@@ -107,6 +107,29 @@ describe('quietMonthWeeks', () => {
 })
 
 describe('buildQuietEvidenceRows', () => {
+  it('distinguishes a partial checklist record from a met day', () => {
+    const subject = habit({
+      entryMode: 'multi-completion',
+      multiItems: [
+        { id: 'a', label: 'A', weight: 1 },
+        { id: 'b', label: 'B', weight: 1 },
+        { id: 'old', label: 'Archived', weight: 1, archived: true },
+      ],
+    })
+    const [row] = buildQuietEvidenceRows(
+      [{ key: 'habit:habit-1', subjectType: 'habit', subject }],
+      [
+        { ...entry('2026-07-13', null), checkedItemIds: ['a'] },
+        { ...entry('2026-07-14', null), checkedItemIds: ['a', 'b'] },
+      ],
+      [assignment('2026-07-13'), assignment('2026-07-14')],
+      WEEK,
+      TODAY
+    )
+    expect(row.cells.slice(0, 2).map(cell => cell.met)).toEqual([false, true])
+    expect(row.result).toBe('1 / 2 dni')
+  })
+
   it('keeps a day without an entry as "no record" instead of a zero', () => {
     const [row] = buildQuietEvidenceRows(
       [

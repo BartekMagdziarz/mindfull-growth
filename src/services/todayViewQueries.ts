@@ -1,3 +1,4 @@
+import { resolveMeasurementCriteria } from '@/domain/measurementCriteria'
 import type { DayRef, MonthRef, PeriodRef, PeriodRefsForDate } from '@/domain/period'
 import type { Goal } from '@/domain/planning'
 import type {
@@ -189,7 +190,8 @@ function buildMeasurementRecord(
   goalMap: Map<string, Goal>,
   todayEntry: DailyMeasurementEntry | undefined,
   sectionId: TodaySectionId,
-  topPriorityKeys: string[]
+  topPriorityKeys: string[],
+  dayRef: DayRef
 ): TodayMeasurementItem {
   const goal = 'goalId' in item.subject ? goalMap.get(item.subject.goalId) : undefined
   const key = buildMeasurementKey(item.subjectType, item.subject.id)
@@ -199,7 +201,7 @@ function buildMeasurementRecord(
     key,
     panelType: item.subjectType,
     subjectType: item.subjectType,
-    subject: item.subject,
+    subject: resolveMeasurementCriteria(item.subject, dayRef),
     planning: item.planning,
     measurement: item.measurement,
     weekMeasurement: item.weekMeasurement,
@@ -284,7 +286,8 @@ export async function getTodayViewBundleForDay(dayRef: DayRef): Promise<TodayVie
         goalMap,
         todayEntries.get(key),
         sectionId,
-        topPriorityKeys
+        topPriorityKeys,
+        dayRef
       )
       measurementItems.set(
         key,

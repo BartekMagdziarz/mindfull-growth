@@ -55,10 +55,14 @@
                 <span
                   v-if="row.entryMode === 'completion' || row.entryMode === 'multi-completion'"
                   class="qr-record-dot"
-                  :class="{ recorded: cell.value !== null, planned: cell.planned }"
+                  :class="{ recorded: cell.met ?? cell.value !== null, planned: cell.planned }"
                 >
-                  <i v-if="cell.value !== null" /><span class="sr-only">{{
-                    cell.value === null ? 'Brak zapisu' : 'Wykonane'
+                  <i v-if="cell.met ?? cell.value !== null" /><span class="sr-only">{{
+                    cell.value === null
+                      ? 'Brak zapisu'
+                      : cell.met === false
+                        ? 'Częściowe wykonanie'
+                        : 'Wykonane'
                   }}</span>
                 </span>
                 <span

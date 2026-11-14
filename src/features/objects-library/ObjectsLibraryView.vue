@@ -1,4 +1,8 @@
 <template>
+  <MeasurementCriteriaDialog
+    :request="criteriaEditor.request.value"
+    @choose="criteriaEditor.choose"
+  />
   <div class="mg-design-v2 objects-v2 mx-auto w-full max-w-[1600px] px-4 py-6 pb-16">
     <ObjectsLibraryToolbar
       :create-label="createButtonLabel"
@@ -236,6 +240,8 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import MeasurementCriteriaDialog from '@/components/objects/MeasurementCriteriaDialog.vue'
+import { useMeasurementCriteriaEditor } from '@/composables/useMeasurementCriteriaEditor'
 import { useRoute, useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppDialog from '@/components/AppDialog.vue'
@@ -274,7 +280,9 @@ function notify(message: string): void {
   snackbarRef.value?.show(message)
 }
 
+const criteriaEditor = useMeasurementCriteriaEditor()
 const ctx: LibraryContext = {
+  criteriaEditor,
   store,
   t,
   locale,

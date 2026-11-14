@@ -92,6 +92,8 @@
         </span>
       </p>
 
+      <MeasurementCriteriaNote :versions="item.criteriaVersions" />
+
       <!-- The sentence: read as quiet facts, edited as pills in the same place -->
       <section v-if="editing" class="mg-v2-group">
         <MeasurementTargetSentence
@@ -138,6 +140,7 @@
 </template>
 
 <script setup lang="ts">
+import MeasurementCriteriaNote from '@/components/objects/MeasurementCriteriaNote.vue'
 import { computed, nextTick, ref, watch } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import EntityIcon from '@/components/shared/EntityIcon.vue'

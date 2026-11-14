@@ -99,7 +99,7 @@ export interface DailyMeasurementEntry extends PlanningStateRecordBase {
   value: DailyMeasurementEntryValue
   /**
    * Multi-completion only: ids of the subject's `multiItems` checked that day
-   * (source of truth — points/day-met are recomputed from current weights at
+   * (source of truth — points/day-met are recomputed from the criteria version for the entry date at
    * read time; `value` stays null). Non-empty when present: a day with nothing
    * checked is represented by deleting the entry, like completion.
    */

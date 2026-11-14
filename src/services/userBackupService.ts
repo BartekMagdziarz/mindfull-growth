@@ -1,3 +1,4 @@
+import { normalizeMeasurementCriteriaVersions, type MeasurementEntryMode } from '@/domain/planning'
 import type { Table } from 'dexie'
 import { getUserDatabase } from './userDatabaseService'
 import { captureUserSession, invalidateUserSession } from './userSessionScope'
@@ -108,6 +109,17 @@ export function parseUserBackup(json: string): UserBackup {
             (typeof row[field] !== 'string' || !Number.isFinite(Date.parse(row[field])))
           )
             invalid()
+        }
+        if (
+          ['habits', 'keyResults', 'trackers', 'weeklyIntentions'].includes(table.name) &&
+          row.criteriaVersions !== undefined
+        ) {
+          row.criteriaVersions = normalizeMeasurementCriteriaVersions(
+            row.criteriaVersions,
+            row.entryMode as MeasurementEntryMode,
+            table.name !== 'trackers',
+            row.cadence === 'monthly' ? 'monthly' : 'weekly'
+          )
         }
         if (table.name === 'journalEntries' && typeof row.body !== 'string') invalid()
         if (table.name === 'userSettings' && typeof row.value !== 'string') invalid()

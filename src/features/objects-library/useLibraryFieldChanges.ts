@@ -2,6 +2,14 @@ import type { Ref } from 'vue'
 import type { YearRef } from '@/domain/period'
 import {
   createMultiCompletionItem,
+  normalizeKeyResultPayload,
+  normalizeHabitPayload,
+  normalizeTrackerPayload,
+  normalizeWeeklyIntentionPayload,
+  type UpdateKeyResultPayload,
+  type UpdateHabitPayload,
+  type UpdateTrackerPayload,
+  type UpdateWeeklyIntentionPayload,
   type MeasurementEntryDaysCondition,
   type MeasurementEntryMode,
   type MeasurementTarget,
@@ -12,7 +20,7 @@ import { habitDexieRepository } from '@/repositories/habitDexieRepository'
 import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
 import { priorityDexieRepository } from '@/repositories/priorityDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
-import { updateWeeklyIntention } from '@/services/weeklyIntentionService'
+import { weeklyIntentionDexieRepository } from '@/repositories/weeklyIntentionDexieRepository'
 import {
   buildTargetForEntryMode,
   normalizeOptionalText,
@@ -53,6 +61,26 @@ function targetFieldOf(field: string): TargetField | null {
 /** Auto-saved card edits for key results, habits/trackers, priorities and intentions. */
 export function useLibraryFieldChanges(ctx: LibraryContext, periods: LibraryPeriodHooks) {
   const { store, t, notify, notifyError, newIds } = ctx
+  const saveKr = (id: string, data: UpdateKeyResultPayload) =>
+    ctx.criteriaEditor.edit(
+      'keyResult',
+      keyResultDexieRepository,
+      normalizeKeyResultPayload,
+      id,
+      data
+    )
+  const saveHabit = (id: string, data: UpdateHabitPayload) =>
+    ctx.criteriaEditor.edit('habit', habitDexieRepository, normalizeHabitPayload, id, data)
+  const saveTracker = (id: string, data: UpdateTrackerPayload) =>
+    ctx.criteriaEditor.edit('tracker', trackerDexieRepository, normalizeTrackerPayload, id, data)
+  const saveIntention = (id: string, data: UpdateWeeklyIntentionPayload) =>
+    ctx.criteriaEditor.edit(
+      'weeklyIntention',
+      weeklyIntentionDexieRepository,
+      normalizeWeeklyIntentionPayload,
+      id,
+      data
+    )
 
   /** Default single item for objects switched to multi-completion without a configured list. */
   function defaultMultiItemsFor(title: string): MultiCompletionItem[] {
@@ -77,31 +105,31 @@ export function useLibraryFieldChanges(ctx: LibraryContext, periods: LibraryPeri
           targetField,
           value as string | number | MeasurementEntryDaysCondition | undefined
         )
-        await keyResultDexieRepository.update(krId, { target: updated })
+        await saveKr(krId, { target: updated })
       } else {
         switch (field) {
           case 'title':
-            await keyResultDexieRepository.update(krId, { title: (value as string).trim() })
+            await saveKr(krId, { title: (value as string).trim() })
             needsReload = false
             break
           case 'description':
-            await keyResultDexieRepository.update(krId, {
+            await saveKr(krId, {
               description: normalizeOptionalText(value as string),
             })
             needsReload = false
             break
           case 'cadence':
-            await keyResultDexieRepository.update(krId, { cadence: value as 'weekly' | 'monthly' })
+            await saveKr(krId, { cadence: value as 'weekly' | 'monthly' })
             break
           case 'status':
-            await keyResultDexieRepository.update(krId, {
+            await saveKr(krId, {
               status: value as 'open' | 'completed' | 'dropped',
             })
             break
           case 'entryMode': {
             const newEntryMode = value as MeasurementEntryMode
             const newTarget = buildTargetForEntryMode(newEntryMode, child.target)
-            await keyResultDexieRepository.update(krId, {
+            await saveKr(krId, {
               entryMode: newEntryMode,
               target: newTarget,
               // Switching to multi-completion requires items; seed a single default
@@ -114,17 +142,17 @@ export function useLibraryFieldChanges(ctx: LibraryContext, periods: LibraryPeri
           }
           case 'multiConfig': {
             const config = value as { items: MultiCompletionItem[]; threshold: number | undefined }
-            await keyResultDexieRepository.update(krId, {
+            await saveKr(krId, {
               multiItems: config.items,
               multiDailyThreshold: config.threshold,
             })
             break
           }
           case 'ratingScaleMin':
-            await keyResultDexieRepository.update(krId, { ratingScaleMin: value as number })
+            await saveKr(krId, { ratingScaleMin: value as number })
             break
           case 'ratingScale':
-            await keyResultDexieRepository.update(krId, { ratingScale: value as number })
+            await saveKr(krId, { ratingScale: value as number })
             break
         }
       }
@@ -140,7 +168,7 @@ export function useLibraryFieldChanges(ctx: LibraryContext, periods: LibraryPeri
     try {
       const child = store.items.flatMap(item => item.childPreviews ?? []).find(c => c.id === krId)
       if (!child) return
-      await keyResultDexieRepository.update(krId, { isActive: !child.isActive })
+      await saveKr(krId, { isActive: !child.isActive })
       notify(
         child.isActive
           ? t('planning.objects.messages.archived')
@@ -175,28 +203,34 @@ export function useLibraryFieldChanges(ctx: LibraryContext, periods: LibraryPeri
             targetField,
             value as string | number | MeasurementEntryDaysCondition | undefined
           )
-          await habitDexieRepository.update(id, { target: updated })
+          await saveHabit(id, { target: updated })
         }
       } else {
         switch (field) {
           case 'title':
-            await repo.update(id, { title: (value as string).trim() })
+            await (isHabit ? saveHabit : saveTracker)(id, { title: (value as string).trim() })
             if (newIds.measurement.value === id) newIds.measurement.value = null
             needsReload = false
             break
           case 'icon':
-            await repo.update(id, { icon: (value as string | undefined) ?? undefined })
+            await (isHabit ? saveHabit : saveTracker)(id, {
+              icon: (value as string | undefined) ?? undefined,
+            })
             break
           case 'description':
-            await repo.update(id, { description: normalizeOptionalText(value as string) })
+            await (isHabit ? saveHabit : saveTracker)(id, {
+              description: normalizeOptionalText(value as string),
+            })
             needsReload = false
             break
           case 'status':
-            await repo.update(id, { status: value as 'open' | 'retired' | 'dropped' })
+            await (isHabit ? saveHabit : saveTracker)(id, {
+              status: value as 'open' | 'retired' | 'dropped',
+            })
             break
           case 'cadence': {
             const newCadence = value as 'weekly' | 'monthly'
-            await repo.update(id, { cadence: newCadence })
+            await (isHabit ? saveHabit : saveTracker)(id, { cadence: newCadence })
             if (periods.expandedMeasurementId.value === id) {
               await periods.loadMeasurementPeriods(id, item.panelType, newCadence)
             }
@@ -215,40 +249,44 @@ export function useLibraryFieldChanges(ctx: LibraryContext, periods: LibraryPeri
                 newEntryMode,
                 item.target ?? { kind: 'count', operator: 'min', value: 1 }
               )
-              await habitDexieRepository.update(id, {
+              await saveHabit(id, {
                 entryMode: newEntryMode,
                 target: newTarget,
                 ...multiSeed,
               })
             } else {
-              await trackerDexieRepository.update(id, { entryMode: newEntryMode, ...multiSeed })
+              await saveTracker(id, { entryMode: newEntryMode, ...multiSeed })
             }
             break
           }
           case 'multiConfig': {
             const config = value as { items: MultiCompletionItem[]; threshold: number | undefined }
-            await repo.update(id, {
+            await (isHabit ? saveHabit : saveTracker)(id, {
               multiItems: config.items,
               multiDailyThreshold: config.threshold,
             })
             break
           }
           case 'ratingScaleMin':
-            await repo.update(id, { ratingScaleMin: value as number })
+            await (isHabit ? saveHabit : saveTracker)(id, { ratingScaleMin: value as number })
             break
           case 'ratingScale':
-            await repo.update(id, { ratingScale: value as number })
+            await (isHabit ? saveHabit : saveTracker)(id, { ratingScale: value as number })
             break
           case 'togglePriority': {
             const current = await repo.getById(id)
             if (!current) break
-            await repo.update(id, { priorityIds: toggleId(current.priorityIds, value as string) })
+            await (isHabit ? saveHabit : saveTracker)(id, {
+              priorityIds: toggleId(current.priorityIds, value as string),
+            })
             break
           }
           case 'toggleLifeArea': {
             const current = await repo.getById(id)
             if (!current) break
-            await repo.update(id, { lifeAreaIds: toggleId(current.lifeAreaIds, value as string) })
+            await (isHabit ? saveHabit : saveTracker)(id, {
+              lifeAreaIds: toggleId(current.lifeAreaIds, value as string),
+            })
             break
           }
         }
@@ -416,7 +454,7 @@ export function useLibraryFieldChanges(ctx: LibraryContext, periods: LibraryPeri
     }
   ): Promise<void> {
     try {
-      await updateWeeklyIntention(id, payload)
+      await saveIntention(id, payload)
       if (newIds.intention.value === id) newIds.intention.value = null
       await store.loadBundle()
     } catch (err) {

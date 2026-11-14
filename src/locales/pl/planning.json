@@ -1869,5 +1869,21 @@
     "messages": {
       "reopened": "Cel otwarty ponownie"
     }
+  },
+  "criteria": {
+    "title": "Od kiedy stosować nowe zasady?",
+    "next": "Od początku okresu:",
+    "all": "Dla całej historii",
+    "date": "Od wybranej daty",
+    "boundary": "Pierwszy dzień tygodnia lub miesiąca zgodnie z rytmem obiektu",
+    "invalidDate": "Wybierz pierwszy dzień tygodnia lub miesiąca.",
+    "preview": "Zmienione okresy: {changed}. Dodatkowo zaliczone: {gained}.",
+    "overrides": "Indywidualne cele ustawione dla konkretnych tygodni i miesięcy zachowają pierwszeństwo.",
+    "legacy": "Dla starszych wpisów punktem odniesienia są znane dziś zasady. Wcześniejsze wersje nie były zapisywane.",
+    "scheduled": "Zmiana zastąpi także późniejsze zaplanowane zasady. Same wpisy wykonań pozostaną bez zmian.",
+    "loadError": "Nie udało się sprawdzić wpływu zmiany. Anuluj i spróbuj ponownie.",
+    "shapeLocked": "Ten obiekt ma już zapisane wykonania. Aby zmienić tryb wpisów lub częstotliwość, utwórz nowy obiekt.",
+    "scheduledFrom": "Nowe zasady od {date}",
+    "rulesFrom": "Pokazane zasady obowiązują od {date}"
   }
 }

@@ -187,6 +187,8 @@
         </div>
       </div>
 
+      <MeasurementCriteriaNote :versions="item.criteriaVersions" />
+
       <!-- Measurement field: quiet facts + chart as ONE thing, the same
            anatomy as a KR inside a goal card (a habit reads like a goal with
            a single KR). Facts collapse when expanded — the target sentence
@@ -225,6 +227,7 @@
 </template>
 
 <script setup lang="ts">
+import MeasurementCriteriaNote from '@/components/objects/MeasurementCriteriaNote.vue'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import PeriodCalendarPicker from '@/features/objects-library/PeriodCalendarPicker.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'

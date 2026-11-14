@@ -1,3 +1,4 @@
+import { prepareMeasurementUpdate } from './measurementCriteriaUpdate'
 import { userDatabaseOperation } from './userDatabaseOperation'
 import type { CreateKeyResultPayload, KeyResult, UpdateKeyResultPayload } from '@/domain/planning'
 import { normalizeKeyResultPayload } from '@/domain/planning'
@@ -56,23 +57,33 @@ class KeyResultDexieRepository implements KeyResultRepository {
   }
 
   async update(id: string, data: UpdateKeyResultPayload): Promise<KeyResult> {
-    return userDatabaseOperation('rw', ['keyResults', 'priorityLinks', 'goals'], async db => {
-      try {
-        const existing = requireRecord(
-          await db.keyResults.get(id),
-          `Key result with id ${id} not found`
-        )
-        const normalized = normalizeKeyResultPayload(data, existing)
-        await this.assertGoalExists(normalized.goalId)
-        const updated = updatePlanningRecord(existing, normalized)
-        await db.keyResults.put(toPlain(updated))
-        invalidatePlanningQueryCache()
-        return updated
-      } catch (error) {
-        console.error(`Failed to update key result with id ${id}:`, error)
-        throw new Error(`Failed to update key result with id ${id}`)
+    return userDatabaseOperation(
+      'rw',
+      ['keyResults', 'dailyMeasurementEntries', 'priorityLinks', 'goals'],
+      async db => {
+        try {
+          const existing = requireRecord(
+            await db.keyResults.get(id),
+            `Key result with id ${id} not found`
+          )
+          const normalized = await prepareMeasurementUpdate(
+            db,
+            'keyResult',
+            existing,
+            data,
+            normalizeKeyResultPayload
+          )
+          await this.assertGoalExists(normalized.goalId)
+          const updated = updatePlanningRecord(existing, normalized)
+          await db.keyResults.put(toPlain(updated))
+          invalidatePlanningQueryCache()
+          return updated
+        } catch (error) {
+          console.error(`Failed to update key result with id ${id}:`, error)
+          throw error
+        }
       }
-    })
+    )
   }
 
   async delete(id: string): Promise<void> {

@@ -40,6 +40,16 @@ import type {
   RhythmWeeklyReflection,
 } from './rhythmScenario'
 
+import { resolveMeasurementCriteria } from '@/domain/measurementCriteria'
+import {
+  summarizeMeasurementEntries,
+  multiCompletionDayMet,
+  countQualifiedEntryDays,
+  type MeasurementDefinition,
+  type MeasurementEntry,
+  type MeasurementEvaluationStatus,
+} from '@/services/measurementProgress'
+
 export type Scale = 'year' | 'month' | 'week'
 export type TimeState = 'past' | 'current' | 'future'
 export type Presence = 'recorded' | 'planned-only' | 'empty'
@@ -399,6 +409,7 @@ export interface SeriesPoint {
   sourceIds: string[]
   entryDays: number
   readout: string
+  evaluationStatus?: MeasurementEvaluationStatus
 }
 
 export interface SeriesProjection {
@@ -414,7 +425,12 @@ export interface SeriesProjection {
   markKind: MarkKind
   evidenceRole: RhythmObject['evidenceRole']
   /** Σ — tylko gdy wartość okresu jest agregatem komórek (kadencja miesięczna w skali miesiąca). */
-  periodTotal?: { value: number | null; target: number | null; readout: string }
+  periodTotal?: {
+    value: number | null
+    target: number | null
+    readout: string
+    evaluationStatus?: MeasurementEvaluationStatus
+  }
   /**
    * Plan przypisany do całego oglądanego okresu (tydzień w skali tygodnia, miesiąc w skali miesiąca):
    * nie „bez dnia”, lecz „na cały tydzień” — pokazywany w kolumnie Σ jako sam ułamek (pełne zdanie w tooltipie). Pomijany, gdy Σ już mówi to samo.
@@ -511,57 +527,107 @@ function aggregationOf(object: RhythmObject): SeriesProjection['aggregation'] {
   return 'last'
 }
 
+function definitionOf(object: RhythmObject): MeasurementDefinition {
+  return {
+    entryMode: object.entryMode,
+    cadence: object.cadence,
+    target: object.target,
+    multiItems: object.multiItems,
+    multiDailyThreshold: object.multiThreshold,
+    criteriaVersions: object.criteriaVersions,
+  }
+}
+
+function overrideFor(
+  s: RhythmScenario,
+  object: RhythmObject,
+  monthRef: MonthRef,
+  weekRef?: WeekRef
+): RhythmTarget | undefined {
+  if (weekRef && object.cadence === 'weekly') {
+    const overlaps = getWeekOverlappingMonths(weekRef)
+    monthRef = object.activeMonthRefs?.filter(m => overlaps.includes(m)).sort()[0] ?? monthRef
+  }
+  const weeks = weekRef
+    ? s.overrides.filter(
+        o => o.objectKey === object.key && o.scope.kind === 'week' && o.scope.ref === weekRef
+      )
+    : []
+  const week =
+    object.cadence === 'weekly'
+      ? weeks.find(o => !o.sourceMonthRef)
+      : (weeks.find(o => o.sourceMonthRef === monthRef) ?? weeks.find(o => !o.sourceMonthRef))
+  return (
+    week?.target ??
+    s.overrides.find(
+      o => o.objectKey === object.key && o.scope.kind === 'month' && o.scope.ref === monthRef
+    )?.target
+  )
+}
+
 export function effectiveTarget(
   s: RhythmScenario,
   object: RhythmObject,
   monthRef: MonthRef,
   weekRef?: WeekRef
 ): RhythmTarget | undefined {
-  const week = weekRef
-    ? s.overrides.find(
-        o => o.objectKey === object.key && o.scope.kind === 'week' && o.scope.ref === weekRef
-      )
-    : undefined
-  if (week) return week.target
-  const month = s.overrides.find(
-    o => o.objectKey === object.key && o.scope.kind === 'month' && o.scope.ref === monthRef
+  return (
+    overrideFor(s, object, monthRef, weekRef) ??
+    resolveMeasurementCriteria(definitionOf(object), getPeriodBounds(weekRef ?? monthRef).start)
+      .target
   )
-  return month?.target ?? object.target
 }
 
-function multiThreshold(object: RhythmObject): number {
-  const items = object.multiItems ?? []
-  const max = items.reduce((sum, i) => sum + i.weight, 0)
-  const t = object.multiThreshold ?? max
-  return Math.min(Math.max(1, t), Math.max(1, max))
+function measurementFor(
+  s: RhythmScenario,
+  object: RhythmObject,
+  entries: RhythmEntry[],
+  monthRef: MonthRef,
+  weekRef?: WeekRef,
+  start?: DayRef
+) {
+  return summarizeMeasurementEntries(
+    {
+      ...definitionOf(object),
+      measurementTargetOverride: overrideFor(s, object, monthRef, weekRef),
+    },
+    measurementEntries(entries),
+    start ?? getPeriodBounds(weekRef ?? monthRef).start
+  )
 }
-function multiPoints(object: RhythmObject, entry: RhythmEntry): number {
-  const weights = new Map((object.multiItems ?? []).map(i => [i.id, i.weight]))
-  return (entry.checkedItemIds ?? []).reduce((sum, id) => sum + (weights.get(id) ?? 0), 0)
+
+function measurementEntries(entries: RhythmEntry[]): MeasurementEntry[] {
+  return entries
+    .filter(e => !e.skipped)
+    .map(e => ({ dayRef: e.dayRef, value: e.value ?? null, checkedItemIds: e.checkedItemIds }))
 }
+
 export function multiDayMet(object: RhythmObject, entry: RhythmEntry): boolean {
-  return multiPoints(object, entry) >= multiThreshold(object)
+  return multiCompletionDayMet(definitionOf(object), {
+    dayRef: entry.dayRef,
+    value: entry.value ?? null,
+    checkedItemIds: entry.checkedItemIds,
+  })
 }
 
 function fmt(n: number): string {
   return Number.isInteger(n) ? String(n) : n.toFixed(1).replace('.', ',')
 }
 
-function aggregate(object: RhythmObject, entries: RhythmEntry[]): number | null {
-  const recorded = entries.filter(e => !e.skipped).sort((a, b) => a.dayRef.localeCompare(b.dayRef))
-  const agg = aggregationOf(object)
-  if (agg === 'count') {
-    // brak wpisów = brak zapisu (null), nie zero wykonań
-    if (!recorded.length) return null
-    if (object.entryMode === 'multi-completion')
-      return recorded.filter(e => multiDayMet(object, e)).length
-    return recorded.length
-  }
-  const values = recorded.filter(e => typeof e.value === 'number').map(e => e.value as number)
-  if (!values.length) return null
-  if (agg === 'sum') return values.reduce((a, b) => a + b, 0)
-  if (agg === 'average') return values.reduce((a, b) => a + b, 0) / values.length
-  return values[values.length - 1]
+function aggregate(
+  object: RhythmObject,
+  entries: RhythmEntry[],
+  start?: DayRef,
+  targetOverride?: RhythmTarget
+): number | null {
+  if (!entries.length) return null
+  return (
+    summarizeMeasurementEntries(
+      { ...definitionOf(object), measurementTargetOverride: targetOverride },
+      measurementEntries(entries),
+      start ?? entries[0].dayRef
+    ).actualValue ?? null
+  )
 }
 
 function daySlotsFor(
@@ -670,9 +736,17 @@ export function seriesFor(
   const points: SeriesPoint[] = units.map(unit => {
     const entries = allEntries.filter(e => entryInUnit(e, unit))
     const assignments = allAssignments.filter(a => assignmentPlansUnit(a, unit))
-    const value = unit.state === 'future' ? null : aggregate(object, entries)
+    const measurement = measurementFor(
+      s,
+      object,
+      entries,
+      unit.monthRef,
+      unit.weekRef,
+      unit.fullBounds.start
+    )
+    const value = unit.state === 'future' ? null : (measurement.actualValue ?? null)
     const target = targetValueFor(object, s, unit, scale)
-    const entryDays = new Set(entries.filter(isRecorded).map(e => e.dayRef)).size
+    const entryDays = countQualifiedEntryDays(object.entryMode, measurementEntries(entries))
     const planned = assignments.length > 0
     const point: SeriesPoint = {
       unitRef: unit.ref,
@@ -684,6 +758,7 @@ export function seriesFor(
       sourceIds: [...entries.map(e => e.id), ...assignments.map(a => a.id)],
       entryDays,
       readout: '',
+      evaluationStatus: measurement.evaluationStatus,
     }
     if (markKind === 'slots') {
       const done = value ?? 0
@@ -715,11 +790,19 @@ export function seriesFor(
             ? null
             : aggregate(
                 object,
-                entries.filter(e => inBounds(e.dayRef, slice.bounds))
+                entries.filter(e => inBounds(e.dayRef, slice.bounds)),
+                unit.fullBounds.start,
+                overrideFor(s, object, unit.monthRef, unit.weekRef)
               ),
       }))
     }
-    point.readout = readoutFor(object, value, target, point, operator)
+    point.readout = readoutFor(
+      { ...object, target: measurement.target },
+      value,
+      target,
+      point,
+      measurement.target?.operator
+    )
     return point
   })
 
@@ -728,21 +811,22 @@ export function seriesFor(
     const monthRef = focusRef as MonthRef
     const bounds = getPeriodBounds(monthRef)
     const monthEntries = allEntries.filter(e => inBounds(e.dayRef, bounds))
-    const value = aggregate(object, monthEntries)
+    const measurement = measurementFor(s, object, monthEntries, monthRef)
+    const value = measurement.actualValue ?? null
     const target = effectiveTarget(s, object, monthRef)?.value ?? null
     const readout = readoutFor(
-      object,
+      { ...object, target: measurement.target },
       value,
       target,
       {
         partial: false,
         planned: allAssignments.some(a => a.scope.kind === 'month' && a.scope.ref === monthRef),
-        entryDays: new Set(monthEntries.map(e => e.dayRef)).size,
+        entryDays: countQualifiedEntryDays(object.entryMode, measurementEntries(monthEntries)),
         state: timeState(bounds, s.clock),
       },
-      operator
+      measurement.target?.operator
     )
-    periodTotal = { value, target, readout }
+    periodTotal = { value, target, readout, evaluationStatus: measurement.evaluationStatus }
   }
 
   let periodPlan: SeriesProjection['periodPlan']
@@ -756,22 +840,20 @@ export function seriesFor(
         scale === 'month'
           ? (focusRef as MonthRef)
           : getPeriodRefsForDate(addDaysToDayRef(bounds.start, 3)).month
-      const value = aggregate(
+      const measurement = measurementFor(
+        s,
         object,
-        allEntries.filter(e => inBounds(e.dayRef, bounds))
+        allEntries.filter(e => inBounds(e.dayRef, bounds)),
+        monthRef,
+        scale === 'week' ? (focusRef as WeekRef) : undefined
       )
-      // cel okresu tylko, gdy kadencja obiektu odpowiada skali (jak w komórkach)
+      const value = measurement.actualValue ?? null
       const target = (scale === 'week' ? object.cadence === 'weekly' : object.cadence === 'monthly')
-        ? (effectiveTarget(
-            s,
-            object,
-            monthRef,
-            scale === 'week' ? (focusRef as WeekRef) : undefined
-          )?.value ?? null)
+        ? (measurement.target?.value ?? null)
         : null
       const state = timeState(bounds, s.clock)
-      const limit = operator === 'max' || operator === 'lte'
-      const met = value !== null && (target === null || (limit ? value <= target : value >= target))
+      const limit = measurement.target?.operator === 'max' || measurement.target?.operator === 'lte'
+      const met = value !== null && (target === null || measurement.evaluationStatus === 'met')
       const status: PeriodPlanStatus =
         value === null
           ? state === 'past'
@@ -1283,11 +1365,6 @@ export interface PeriodStats {
   reflections: Ratio | null
 }
 
-function targetMet(value: number | null, target: number | null, operator?: string): boolean | null {
-  if (value === null || target === null) return null
-  return operator === 'max' || operator === 'lte' ? value <= target : value >= target
-}
-
 /** Pełny tydzień jako jednostka skali miesiąca (cel tygodniowy rozwiązywany jak w kolumnie miesiąca). */
 function fullWeekUnit(weekRef: WeekRef, clock: DayRef): TimeUnit {
   const bounds = getPeriodBounds(weekRef)
@@ -1321,8 +1398,6 @@ export function objectCompletion(
 ): { ratio: Ratio; basis: CompletionBasis } {
   const bounds = getPeriodBounds(ref as PeriodRef)
   const clock = s.clock
-  const operator =
-    object.target?.kind === 'count' ? object.target.operator : object.target?.operator
   if (object.target) {
     let met = 0
     let checked = 0
@@ -1347,7 +1422,7 @@ export function objectCompletion(
         const p = series.points[0]
         if (p.target === null || (!p.planned && p.value === null)) continue
         checked++
-        if (targetMet(p.value, p.target, series.operator)) met++
+        if (p.evaluationStatus === 'met') met++
       }
     } else {
       const monthRefs: MonthRef[] =
@@ -1377,7 +1452,7 @@ export function objectCompletion(
         )
           continue
         checked++
-        if (targetMet(t.value, t.target, operator)) met++
+        if (t.evaluationStatus === 'met') met++
       }
     }
     if (checked) return { ratio: { done: met, total: checked }, basis: 'targets' }

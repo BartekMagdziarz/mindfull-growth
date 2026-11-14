@@ -1,3 +1,5 @@
+import { measurementPeriodOverrides } from '@/services/measurementPeriodOverrides'
+import { resolveMeasurementCriteria } from '@/domain/measurementCriteria'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import type {
   Goal,
@@ -498,7 +500,13 @@ async function loadMonthPlanningDependencies(
     objects,
   ] = await Promise.all([
     planningStateDexieRepository.listGoalMonthStatesForMonths([monthRef]),
-    planningStateDexieRepository.listMeasurementMonthStatesForMonths([monthRef]),
+    planningStateDexieRepository.listMeasurementMonthStatesForMonths([
+      ...new Set([
+        monthRef,
+        getPeriodRefsForDate(monthEntryBounds.start).month,
+        getPeriodRefsForDate(monthEntryBounds.end).month,
+      ]),
+    ]),
     planningStateDexieRepository.listMeasurementWeekStatesForWeeks(
       getChildPeriods(monthRef) as WeekRef[]
     ),
@@ -631,8 +639,14 @@ export async function getMonthPlanningBundle(monthRef: MonthRef): Promise<MonthP
         continue
       }
 
-      const effectiveSubject = applyMeasurementTargetOverride(subject, monthState.targetOverride)
+      const effectiveSubject = applyMeasurementTargetOverride(
+        resolveMeasurementCriteria(subject, getPeriodBounds(monthRef).start),
+        monthState.targetOverride
+      )
       const subjectWeekStates = weekStatesBySubject.get(key) ?? []
+      const subjectMonthContexts = deps.measurementMonthStates.filter(
+        m => buildSubjectKey(m.subjectType, m.subjectId) === key
+      )
       const subjectDayAssignments = dayAssignmentsBySubject.get(key) ?? []
       const subjectEntries = entriesBySubject.get(key) ?? []
       const measurementPeriodRef = resolveMonthMeasurementPeriod(
@@ -675,10 +689,17 @@ export async function getMonthPlanningBundle(monthRef: MonthRef): Promise<MonthP
         },
         measurement: measurementPeriodRef
           ? buildMeasurementSummary(
-              applyMeasurementTargetCascade(subject, measurementPeriodRef, {
-                monthOverride: monthState.targetOverride,
-                weekOverride: weekTargetOverrides[measurementPeriodRef as WeekRef],
-              }),
+              applyMeasurementTargetCascade(
+                subject,
+                measurementPeriodRef,
+                measurementPeriodOverrides(
+                  measurementPeriodRef,
+                  subject.cadence,
+                  subjectMonthContexts,
+                  subjectWeekStates,
+                  monthRef
+                )
+              ),
               allEntriesBySubject.get(key) ?? [],
               measurementPeriodRef
             )
@@ -693,10 +714,17 @@ export async function getMonthPlanningBundle(monthRef: MonthRef): Promise<MonthP
                 weekRef,
                 planned: plannedWeekRefs.includes(weekRef),
                 measurement: buildMeasurementSummary(
-                  applyMeasurementTargetCascade(subject, weekRef, {
-                    monthOverride: monthState.targetOverride,
-                    weekOverride: weekTargetOverrides[weekRef],
-                  }),
+                  applyMeasurementTargetCascade(
+                    subject,
+                    weekRef,
+                    measurementPeriodOverrides(
+                      weekRef,
+                      subject.cadence,
+                      subjectMonthContexts,
+                      subjectWeekStates,
+                      monthRef
+                    )
+                  ),
                   allEntriesBySubject.get(key) ?? [],
                   weekRef
                 ),
@@ -902,7 +930,7 @@ export async function getWeekRelevantObjects(
               entry => getPeriodRefsForDate(entry.dayRef).month === monthRef
             )
             const effectiveSubject = applyMeasurementTargetOverride(
-              subject,
+              resolveMeasurementCriteria(subject, getPeriodBounds(monthRef).start),
               monthState.targetOverride
             )
             const weekMeasurement = weekState?.targetOverride
@@ -951,7 +979,9 @@ export async function getWeekRelevantObjects(
           continue
         }
 
-        const activeMonthState = monthStates.find(state => state.activityState === 'active')
+        const activeMonthState = [...monthStates]
+          .filter(state => state.activityState === 'active')
+          .sort((a, b) => a.monthRef.localeCompare(b.monthRef))[0]
         if (!activeMonthState) {
           continue
         }

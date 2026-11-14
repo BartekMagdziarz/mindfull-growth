@@ -1,3 +1,5 @@
+import type { MeasurementCriteriaVersion } from '@/domain/planning'
+import { measurementPeriodOverrides } from '@/services/measurementPeriodOverrides'
 import type { LifeArea } from '@/domain/lifeArea'
 import type { PeriodRef, WeekRef, YearRef } from '@/domain/period'
 import type {
@@ -38,7 +40,6 @@ import { isGoalOpen } from '@/services/planningVisibility'
 import {
   getPeriodRefsForDate,
   getPeriodType,
-  getWeekOverlappingMonths,
   isPeriodRef,
   periodIntersectsPeriod,
 } from '@/utils/periods'
@@ -82,6 +83,7 @@ export interface ObjectsLibraryChildPreview {
   ratingScale?: number
   multiItems?: MultiCompletionItem[]
   multiDailyThreshold?: number
+  criteriaVersions?: MeasurementCriteriaVersion[]
   status: string
   goalId: string
   isActive: boolean
@@ -134,6 +136,7 @@ export interface ObjectsLibraryListItem {
   ratingScale?: number
   multiItems?: MultiCompletionItem[]
   multiDailyThreshold?: number
+  criteriaVersions?: MeasurementCriteriaVersion[]
   target?: MeasurementTarget
   chartData?: ObjectsLibraryChartPoint[]
   /** Habits/trackers: every assigned (active) period, past and future. */
@@ -167,6 +170,7 @@ export interface ObjectsLibraryDetailRecord {
     target?: MeasurementTarget
     multiItems?: MultiCompletionItem[]
     multiDailyThreshold?: number
+    criteriaVersions?: MeasurementCriteriaVersion[]
     years?: YearRef[]
     order?: number
     whyNow?: string
@@ -614,26 +618,11 @@ function buildChartData(
     if (!hasTarget) {
       return subject
     }
-    if (subject.cadence === 'monthly') {
-      const monthState = subjectMonthStates.find(
-        state => state.monthRef === periodRef && state.activityState === 'active'
-      )
-      return applyMeasurementTargetCascade(subject, periodRef, {
-        monthOverride: monthState?.targetOverride,
-      })
-    }
-    const weekRef = periodRef as WeekRef
-    const weekState =
-      subjectWeekStates.find(state => state.weekRef === weekRef && !state.sourceMonthRef) ??
-      subjectWeekStates.find(state => state.weekRef === weekRef)
-    const overlappingMonthRefs = getWeekOverlappingMonths(weekRef)
-    const activeMonthState = subjectMonthStates.find(
-      state => state.activityState === 'active' && overlappingMonthRefs.includes(state.monthRef)
+    return applyMeasurementTargetCascade(
+      subject,
+      periodRef,
+      measurementPeriodOverrides(periodRef, subject.cadence, subjectMonthStates, subjectWeekStates)
     )
-    return applyMeasurementTargetCascade(subject, weekRef, {
-      monthOverride: activeMonthState?.targetOverride,
-      weekOverride: weekState?.targetOverride,
-    })
   }
 
   if (activePeriodRefs.length === 0) {
@@ -642,7 +631,7 @@ function buildChartData(
 
   const currentRefs = getPeriodRefsForDate(new Date())
   const currentRef = subject.cadence === 'monthly' ? currentRefs.month : currentRefs.week
-  const sortedRefs = [...activePeriodRefs]
+  const sortedRefs = [...new Set(activePeriodRefs)]
     .filter(ref => ref <= currentRef)
     .sort((a, b) => a.localeCompare(b))
 
@@ -657,9 +646,7 @@ function buildChartData(
       allEntries,
       periodRef as MeasurementPeriodRef
     )
-    const targetValue = hasTarget
-      ? (effectiveSubject as { target: { value: number } }).target.value
-      : undefined
+    const targetValue = summary.target?.value
 
     let status: ObjectsLibraryChartPoint['status']
     if (summary.entryCount === 0) {
@@ -953,6 +940,7 @@ function buildGoalListItem(
         ratingScale: item.ratingScale,
         multiItems: item.multiItems,
         multiDailyThreshold: item.multiDailyThreshold,
+        criteriaVersions: item.criteriaVersions,
         status: item.status,
         goalId: goal.id,
         isActive: item.isActive,
@@ -1016,6 +1004,7 @@ function buildHabitListItem(
     ratingScale: habit.ratingScale,
     multiItems: habit.multiItems,
     multiDailyThreshold: habit.multiDailyThreshold,
+    criteriaVersions: habit.criteriaVersions,
     target: habit.target,
     chartData: buildChartData(
       habit,
@@ -1057,6 +1046,7 @@ function buildTrackerListItem(
     ratingScale: tracker.ratingScale,
     multiItems: tracker.multiItems,
     multiDailyThreshold: tracker.multiDailyThreshold,
+    criteriaVersions: tracker.criteriaVersions,
     chartData: buildChartData(
       tracker,
       'tracker',
@@ -1084,6 +1074,7 @@ function buildWeeklyIntentionListItem(intention: WeeklyIntention): ObjectsLibrar
     ratingScale: intention.ratingScale,
     multiItems: intention.multiItems,
     multiDailyThreshold: intention.multiDailyThreshold,
+    criteriaVersions: intention.criteriaVersions,
     target: intention.target,
   }
 }
@@ -1152,6 +1143,7 @@ function buildKeyResultPanel(
       target: keyResult.target,
       multiItems: keyResult.multiItems,
       multiDailyThreshold: keyResult.multiDailyThreshold,
+      criteriaVersions: keyResult.criteriaVersions,
     },
   }
 }
@@ -1173,6 +1165,7 @@ function buildHabitPanel(habit: Habit): ObjectsLibraryDetailRecord {
       target: habit.target,
       multiItems: habit.multiItems,
       multiDailyThreshold: habit.multiDailyThreshold,
+      criteriaVersions: habit.criteriaVersions,
     },
   }
 }
@@ -1193,6 +1186,7 @@ function buildTrackerPanel(tracker: Tracker): ObjectsLibraryDetailRecord {
       entryMode: tracker.entryMode,
       multiItems: tracker.multiItems,
       multiDailyThreshold: tracker.multiDailyThreshold,
+      criteriaVersions: tracker.criteriaVersions,
     },
   }
 }

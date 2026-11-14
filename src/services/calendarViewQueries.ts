@@ -1,3 +1,4 @@
+import { measurementPeriodOverrides } from '@/services/measurementPeriodOverrides'
 import type { MonthRef, WeekRef, YearRef } from '@/domain/period'
 import type { KeyResult, Habit, Tracker, WeeklyIntention } from '@/domain/planning'
 import type {
@@ -163,7 +164,13 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
       periodPlanDexieRepository.listMonthPlans(),
       reflectionDexieRepository.listPeriodReflections(),
       planningStateDexieRepository.listGoalMonthStatesForMonths(monthRefs),
-      planningStateDexieRepository.listMeasurementMonthStatesForMonths(monthRefs),
+      planningStateDexieRepository.listMeasurementMonthStatesForMonths([
+        ...new Set([
+          ...monthRefs,
+          getPeriodRefsForDate(entryStart).month,
+          getPeriodRefsForDate(entryEnd).month,
+        ]),
+      ]),
       weeklyIntentionDexieRepository.listAll(),
       loadPlanningCoreObjects(),
       planningStateDexieRepository.listDailyMeasurementEntriesForDayRange(entryStart, entryEnd),
@@ -263,12 +270,16 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
       )
       const tally = tallyWeekStates(
         weekRefs.map(weekRef => {
-          const effective = applyMeasurementTargetCascade(subject, weekRef, {
-            monthOverride: monthState?.targetOverride,
-            weekOverride: weekStates.find(
-              state => state.weekRef === weekRef && !state.sourceMonthRef
-            )?.targetOverride,
-          })
+          const effective = applyMeasurementTargetCascade(
+            subject,
+            weekRef,
+            measurementPeriodOverrides(
+              weekRef,
+              subject.cadence,
+              measurementMonthStates.filter(isSubject),
+              weekStates
+            )
+          )
           const summary = buildMeasurementSummary(effective, entries, weekRef)
           return classifyWeek(weekRef, planned.has(weekRef), summary.evaluationStatus, todayRef)
         })

@@ -1,4 +1,5 @@
-import type { WeekRef, YearRef } from '@/domain/period'
+import { criteriaPeriodStart } from '@/domain/measurementCriteria'
+import type { DayRef, WeekRef, YearRef } from '@/domain/period'
 import { getPeriodType, isPeriodRef } from '@/utils/periods'
 import {
   isLegacyInitiativeSubjectType,
@@ -46,7 +47,7 @@ export interface MeasurementEntryDaysCondition {
 /**
  * One checkable element of a multi-completion subject. Checked ids are the
  * source of truth on daily entries; points and day-met status are always
- * recomputed from the CURRENT items (weights, archived flags) at read time.
+ * recomputed from the criteria version for the entry date at read time.
  * Items that ever appeared in an entry must be archived, never removed —
  * history keeps rendering through their id.
  */
@@ -248,7 +249,35 @@ export interface Goal extends PlanningObjectBase {
   closingDeferredUntil?: string
 }
 
+/** Evaluation rules, independent of recorded executions. */
+export interface MeasurementCriteria {
+  target?: MeasurementTarget
+  multiItems?: MultiCompletionItem[]
+  multiDailyThreshold?: number
+  ratingScaleMin?: number
+  ratingScale?: number
+}
+
+export interface MeasurementCriteriaVersion {
+  effectiveFrom: DayRef
+  criteria: MeasurementCriteria
+  /** Legacy means the earliest known definition, not reconstructed history. */
+  origin: 'legacy' | 'user'
+}
+
+export interface MeasurementCriteriaChange {
+  scope: 'all-history' | 'from-date'
+  effectiveFrom?: DayRef
+  /** Reject an edit prepared against a definition that changed while choosing. */
+  expectedSignature?: string
+}
+
+interface CriteriaUpdateField {
+  criteriaChange?: MeasurementCriteriaChange
+}
+
 export interface KeyResult extends PlanningObjectBase {
+  criteriaVersions?: MeasurementCriteriaVersion[]
   periodAssignmentMode?: 'automatic' | 'custom'
   goalId: string
   entryMode: MeasurementEntryMode
@@ -265,6 +294,7 @@ export interface KeyResult extends PlanningObjectBase {
 }
 
 export interface Habit extends PlanningObjectBase {
+  criteriaVersions?: MeasurementCriteriaVersion[]
   /** Available indefinitely; period links still come only from actual planning. */
   isPermanent?: boolean
   icon?: string
@@ -284,6 +314,7 @@ export interface Habit extends PlanningObjectBase {
 }
 
 export interface Tracker extends PlanningObjectBase {
+  criteriaVersions?: MeasurementCriteriaVersion[]
   icon?: string
   priorityIds: string[]
   lifeAreaIds: string[]
@@ -307,6 +338,7 @@ export interface Tracker extends PlanningObjectBase {
  * structural discriminator (no other measureable subject carries it).
  */
 export interface WeeklyIntention extends PlanningObjectBase {
+  criteriaVersions?: MeasurementCriteriaVersion[]
   icon?: string
   weekRef: WeekRef
   entryMode: MeasurementEntryMode
@@ -422,22 +454,26 @@ export type CreateKeyResultPayload = Omit<KeyResult, 'id' | 'createdAt' | 'updat
 export type UpdateKeyResultPayload = Partial<
   Omit<KeyResult, 'id' | 'createdAt' | 'updatedAt' | 'rhythm'>
 > &
-  RhythmUpdateField
+  RhythmUpdateField &
+  CriteriaUpdateField
 
 export type CreateHabitPayload = Omit<Habit, 'id' | 'createdAt' | 'updatedAt'>
 export type UpdateHabitPayload = Partial<Omit<Habit, 'id' | 'createdAt' | 'updatedAt' | 'rhythm'>> &
-  RhythmUpdateField
+  RhythmUpdateField &
+  CriteriaUpdateField
 
 export type CreateTrackerPayload = Omit<Tracker, 'id' | 'createdAt' | 'updatedAt'>
 export type UpdateTrackerPayload = Partial<
   Omit<Tracker, 'id' | 'createdAt' | 'updatedAt' | 'rhythm'>
 > &
-  RhythmUpdateField
+  RhythmUpdateField &
+  CriteriaUpdateField
 
 export type CreateWeeklyIntentionPayload = Omit<WeeklyIntention, 'id' | 'createdAt' | 'updatedAt'>
 export type UpdateWeeklyIntentionPayload = Partial<
   Omit<WeeklyIntention, 'id' | 'createdAt' | 'updatedAt'>
->
+> &
+  CriteriaUpdateField
 
 interface PlanningPayloadLike {
   title?: unknown
@@ -1384,6 +1420,55 @@ export function normalizeGoalPayload(
   }
 }
 
+export function normalizeMeasurementCriteriaVersions(
+  value: unknown,
+  entryMode: MeasurementEntryMode,
+  hasTarget: boolean,
+  cadence?: PlanningCadence
+): MeasurementCriteriaVersion[] | undefined {
+  if (value === undefined) return undefined
+  if (!(ENTRY_MODES as readonly string[]).includes(entryMode))
+    throw new Error('Invalid criteria entry mode')
+  if (!Array.isArray(value) || value.length === 0) throw new Error('Invalid criteria versions')
+  if (value[0]?.effectiveFrom !== '0001-01-01') throw new Error('Criteria history needs a baseline')
+  let previous = ''
+  return value.map(version => {
+    if (
+      !isPlainObject(version) ||
+      typeof version.effectiveFrom !== 'string' ||
+      !/^\d{4}-\d{2}-\d{2}$/.test(version.effectiveFrom) ||
+      !Number.isFinite(Date.parse(version.effectiveFrom)) ||
+      new Date(version.effectiveFrom).toISOString().slice(0, 10) !== version.effectiveFrom ||
+      version.effectiveFrom <= previous ||
+      !isPlainObject(version.criteria) ||
+      (version.origin !== 'legacy' && version.origin !== 'user')
+    ) {
+      throw new Error('Invalid criteria version')
+    }
+    if (
+      cadence &&
+      version.effectiveFrom !== '0001-01-01' &&
+      criteriaPeriodStart(cadence, version.effectiveFrom as DayRef) !== version.effectiveFrom
+    )
+      throw new Error('Criteria version is not on a period boundary')
+    previous = version.effectiveFrom
+    const c = version.criteria
+    if (!hasTarget && c.target !== undefined)
+      throw new Error('Tracker criteria cannot have a target')
+    return {
+      effectiveFrom: version.effectiveFrom as DayRef,
+      origin: version.origin,
+      criteria: {
+        ...(hasTarget ? { target: normalizeMeasurementTarget(entryMode, c.target) } : {}),
+        multiItems: normalizeMultiCompletionItems(entryMode, c.multiItems),
+        multiDailyThreshold: normalizeMultiDailyThreshold(entryMode, c.multiDailyThreshold),
+        ratingScaleMin: normalizeOptionalPositiveInt(c.ratingScaleMin, 'ratingScaleMin'),
+        ratingScale: normalizeOptionalPositiveInt(c.ratingScale, 'ratingScale'),
+      },
+    }
+  })
+}
+
 export function normalizeKeyResultPayload(
   data: CreateKeyResultPayload | UpdateKeyResultPayload,
   existing?: KeyResult
@@ -1419,6 +1504,12 @@ export function normalizeKeyResultPayload(
       existing?.periodAssignmentMode ?? 'custom'
     ),
     goalId,
+    criteriaVersions: normalizeMeasurementCriteriaVersions(
+      data.criteriaVersions ?? existing?.criteriaVersions,
+      entryMode,
+      true,
+      cadence
+    ),
     entryMode,
     cadence,
     target: normalizeMeasurementTarget(entryMode, data.target, existing?.target),
@@ -1469,6 +1560,12 @@ export function normalizeHabitPayload(
     icon: normalizeOptionalText(data.icon, 'icon', existing?.icon),
     priorityIds: normalizeIdArray(data.priorityIds, 'priorityIds', existing?.priorityIds),
     lifeAreaIds: normalizeIdArray(data.lifeAreaIds, 'lifeAreaIds', existing?.lifeAreaIds),
+    criteriaVersions: normalizeMeasurementCriteriaVersions(
+      data.criteriaVersions ?? existing?.criteriaVersions,
+      entryMode,
+      true,
+      cadence
+    ),
     entryMode,
     cadence,
     target: normalizeMeasurementTarget(entryMode, data.target, existing?.target),
@@ -1543,6 +1640,12 @@ export function normalizeWeeklyIntentionPayload(
     ...base,
     icon: normalizeOptionalText(data.icon, 'icon', existing?.icon),
     weekRef: normalizeWeekRef(data.weekRef, existing?.weekRef),
+    criteriaVersions: normalizeMeasurementCriteriaVersions(
+      data.criteriaVersions ?? existing?.criteriaVersions,
+      entryMode,
+      true,
+      'weekly'
+    ),
     entryMode,
     cadence: 'weekly',
     target: normalizeMeasurementTarget(entryMode, data.target, existing?.target),
@@ -1607,6 +1710,12 @@ export function normalizeTrackerPayload(
     icon: normalizeOptionalText(data.icon, 'icon', existing?.icon),
     priorityIds: normalizeIdArray(data.priorityIds, 'priorityIds', existing?.priorityIds),
     lifeAreaIds: normalizeIdArray(data.lifeAreaIds, 'lifeAreaIds', existing?.lifeAreaIds),
+    criteriaVersions: normalizeMeasurementCriteriaVersions(
+      data.criteriaVersions ?? existing?.criteriaVersions,
+      entryMode,
+      false,
+      cadence
+    ),
     entryMode,
     cadence,
     ratingScaleMin: normalizeOptionalPositiveInt(
