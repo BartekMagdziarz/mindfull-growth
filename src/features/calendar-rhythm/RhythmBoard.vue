@@ -251,10 +251,10 @@
           </div>
         </div>
 
-        <!-- obszar: obciążenie i stan jako wstęga; komórki pod nią zostają strefami zoomu -->
+        <!-- rok · obszar: w komórce miesiąca stos słupków jego tygodni (słupek = obciążenie, kropka = stan) -->
         <div
           v-else-if="row.kind === 'reflection-area'"
-          class="rb-row rb-series rb-series--plot rb-series--ribbon"
+          class="rb-row rb-series rb-series--plot rb-series--ls"
           role="row"
         >
           <span class="rb-name rb-name--series" :title="row.label">
@@ -263,23 +263,25 @@
           </span>
           <div class="rb-series__cells" :style="{ '--cols': units.length }">
             <button
-              v-for="unit in units"
+              v-for="(unit, u) in units"
               :key="unit.ref"
               type="button"
               class="rb-cell rb-cell--series"
               :class="{ future: unit.state === 'future' }"
-              :title="openTitle(unit)"
               :aria-label="`${row.label}, ${unitLabel(unit.ref)} · ${openTitle(unit)}`"
               @click="emit('open-unit', unit.ref)"
-            />
-            <div class="rb-ribbon">
-              <LoadStateRibbon
-                :points="row.points"
-                :label="row.label"
-                :height="scale === 'year' ? 110 : 92"
-                @select="ref => emit('open-unit', ref)"
-              />
-            </div>
+            >
+              <span class="rb-ls">
+                <LoadStateTrack
+                  v-for="point in row.groups[u]"
+                  :key="point.weekRef"
+                  :load="point.load"
+                  :state="point.state"
+                  :subject="`${row.label} · tydzień od ${point.label}`"
+                  size="xs"
+                />
+              </span>
+            </button>
           </div>
           <span v-if="hasSigma" class="rb-sigma" />
         </div>
@@ -290,10 +292,7 @@
           class="rb-row rb-series rb-series--ratings"
           role="row"
         >
-          <span class="rb-name rb-name--series"
-            >{{ scale === 'month' ? 'Tygodnie' : 'Miesiące'
-            }}<small> · {{ scale === 'month' ? 'obciążenie i stan' : 'kompas' }}</small></span
-          >
+          <span class="rb-name rb-name--series">Miesiące<small> · kompas</small></span>
           <div class="rb-series__cells" :style="{ '--cols': units.length }">
             <button
               v-for="r in row.cells"
@@ -304,8 +303,7 @@
               :aria-label="`Refleksja, ${unitLabel(r.unitRef)}${r.exists ? '' : ': brak refleksji'} · ${openTitle(unitOf(r.unitRef))}`"
               @click="emit('open-unit', r.unitRef)"
             >
-              <RhythmRatingsMini v-if="r.weekly" :load="r.weekly.load" :state="r.weekly.state" />
-              <RhythmCompassMini v-else-if="r.monthly" :values="r.monthly.compass" compact />
+              <RhythmCompassMini v-if="r.monthly" :values="r.monthly.compass" compact />
               <RhythmEvidenceMark v-else presence="empty" label="Brak refleksji" />
             </button>
           </div>
@@ -358,12 +356,11 @@
 import { computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
-import LoadStateRibbon from '@/components/shared/charts/LoadStateRibbon.vue'
+import LoadStateTrack from '@/components/shared/charts/LoadStateTrack.vue'
 import RhythmCompassMini from './RhythmCompassMini.vue'
 import RhythmEntrySlots from './RhythmEntrySlots.vue'
 import RhythmEvidenceMark from './RhythmEvidenceMark.vue'
 import RhythmSeriesLine from './RhythmSeriesLine.vue'
-import RhythmRatingsMini from './RhythmRatingsMini.vue'
 import RhythmSeriesMark from './RhythmSeriesMark.vue'
 import {
   isLineKind,
@@ -917,26 +914,17 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
 .rb-series--plot .rb-cell--series:hover {
   background: var(--cp-field);
 }
-/* wstęga nad komórkami: własne strefy hover (tooltip + zoom), komórki pod spodem dają tło i fokus klawiatury */
-.rb-series--ribbon .rb-series__cells {
-  grid-template-rows: 1fr;
+/* rok · obciążenie i stan: stos słupków tygodni w komórce miesiąca; klik w komórkę otwiera miesiąc */
+.rb-series--ls .rb-cell--series {
+  /* miesiące mają 4–5 tygodni: stosy równamy do góry, żeby pierwsze tygodnie stały w jednej linii */
+  place-items: start stretch;
+  min-height: 0;
+  padding: 6px 5px;
 }
-.rb-series--ribbon .rb-cell--series {
-  grid-row: 1;
-  min-height: 116px;
-}
-.rb-series--ribbon .rb-ribbon {
-  grid-row: 1;
-  grid-column: 1 / -1;
-  align-self: center;
-  padding: 0 2px;
-  pointer-events: none;
-}
-.rb-series--ribbon .rb-ribbon :deep(.ls-ribbon__hit) {
-  pointer-events: auto;
-}
-.rb-series--ribbon .rb-ribbon :deep(.ls-ribbon__tip) {
-  pointer-events: none;
+.rb-ls {
+  display: grid;
+  gap: 3px;
+  width: 100%;
 }
 .rb-plot-missing {
   position: absolute;

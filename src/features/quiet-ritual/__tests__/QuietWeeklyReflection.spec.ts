@@ -77,12 +77,17 @@ describe('QuietWeeklyReflection · area step (load + state)', () => {
   it('loads the nine preceding weeks and draws the tail with the current week appended', async () => {
     const wrapper = await mountOnBodyStep()
     expect(listWeeklyByRefs).toHaveBeenCalledWith(previousRefs)
-    const ribbon = wrapper.find('.qr-tail .ls-ribbon')
-    expect(ribbon.exists()).toBe(true)
-    expect(ribbon.findAll('.ls-ribbon__hit')).toHaveLength(10)
-    // one gap in history + unrated current week → history splits into two runs
-    expect(ribbon.findAll('.ls-ribbon__line--state')).toHaveLength(2)
-    // the ribbon header carries the area name only — no week count, no "drawn at the end" aside
+    const tail = wrapper.find('.qr-tail .ls-matrix')
+    expect(tail.exists()).toBe(true)
+    // one column for this area: ten weeks as rows, no area header, nothing to click
+    expect(tail.findAll('.ls-matrix__week')).toHaveLength(10)
+    expect(tail.findAll('.ls-track')).toHaveLength(10)
+    expect(tail.findAll('.ls-matrix__area')).toHaveLength(0)
+    expect(tail.findAll('button')).toHaveLength(0)
+    // one gap in history + the unrated current week stay as empty rails
+    expect(tail.findAll('.ls-track__rail--empty')).toHaveLength(2)
+    expect(tail.findAll('.ls-track__bar')).toHaveLength(8)
+    // the tail header carries the area name only — no week count, no "drawn at the end" aside
     expect(wrapper.find('.qr-tail header small').exists()).toBe(false)
     expect(wrapper.find('.qr-tail header').text()).not.toMatch(/tygodni|weeks|oceny/)
     wrapper.unmount()
@@ -99,7 +104,9 @@ describe('QuietWeeklyReflection · area step (load + state)', () => {
     expect(ratingRefsByKey.energyRating.value).toBe(5)
     await flushPromises()
     expect(wrapper.findAll('.qr-bars .qr-axis')[1].classes()).toContain('qr-axis--paired')
-    expect(wrapper.find('.qr-tail .ls-ribbon__hit').exists()).toBe(true)
+    // the current week is the last row of the tail and is now drawn with the pair 4 · 5
+    const rows = wrapper.findAll('.qr-tail .ls-track')
+    expect(rows[rows.length - 1].attributes('aria-label')).toContain('obciążenie 4, stan 5')
     wrapper.unmount()
   })
 

@@ -30,55 +30,40 @@
     </header>
 
     <div class="ps__grid">
-      <!-- główny element: ocena własna okresu -->
+      <!-- tydzień: ocena własna jako cztery kafle obszarów w kolorze pary ocen; klik = spojrzenie „Refleksja” -->
+      <RhythmAreaTiles
+        v-if="scale === 'week'"
+        :areas="areaRatings"
+        :active="view === 'reflection'"
+        :draft="rating.status === 'draft'"
+        @open="emit('focus', 'reflection')"
+      />
+      <!-- miesiąc i rok: ocena własna okresu jako pole z kompasem -->
       <div
+        v-else
         class="ps__hero"
         :class="{ 'ps__hero--empty': !rating.exists, 'is-active': view === 'ratings' }"
       >
         <span class="ps__eyebrow"
-          >{{
-            scale === 'week'
-              ? 'Ocena tygodnia'
-              : scale === 'month'
-                ? 'Ocena miesiąca'
-                : 'Ocena roku'
+          >{{ scale === 'month' ? 'Ocena miesiąca' : 'Ocena roku'
           }}<small v-if="rating.status === 'draft'"> · szkic</small></span
         >
-        <!-- skrót: oceny podokresów w tabeli (główna droga to lista w rogu tabeli) -->
+        <!-- skrót: oceny miesięcy w tabeli (główna droga to lista w rogu tabeli); w miesiącu
+             tygodnie są w polu obok, więc skrótu nie ma -->
         <button
-          v-if="scale !== 'week'"
+          v-if="scale === 'year'"
           type="button"
           class="ps__drill"
           :aria-pressed="view === 'ratings'"
-          :title="`Pokaż w tabeli: ${scale === 'month' ? 'oceny tygodni' : 'oceny miesięcy'}`"
+          title="Pokaż w tabeli: oceny miesięcy"
           @click="emit('focus', 'ratings')"
         >
           <AppIcon name="table_rows" />
         </button>
-        <div class="ps__hero-cols" :class="{ 'ps__hero-cols--split': !!multiples }">
+        <div class="ps__hero-cols">
           <div class="ps__own">
-            <!-- tydzień: zawsze 4 pary słupków Obciążenie/Stan per obszar (stan w kolorze ćwiartki; bez refleksji puste) -->
-            <template v-if="scale === 'week'">
-              <ul class="ps__bars ps__bars--pairs" aria-label="Obciążenie i Stan per obszar">
-                <li v-for="(col, i) in bars" :key="i" :title="col.title">
-                  <span class="ps__col" aria-hidden="true">
-                    <i
-                      v-for="(v, j) in col.values"
-                      :key="j"
-                      :class="[j === 0 ? 'l' : 's', { none: v === null }]"
-                      :style="{
-                        height: `${pct(v)}%`,
-                        background: j === 1 && v !== null ? col.stateColor : undefined,
-                      }"
-                      ><b>{{ fmt1(v) }}</b></i
-                    >
-                  </span>
-                  <small>{{ col.label }}</small>
-                </li>
-              </ul>
-            </template>
             <!-- miesiąc (zawsze, bez refleksji puste) i rok: słupek per oś kompasu (rok = średnia refleksji miesięcy) -->
-            <template v-else-if="rating.exists || scale === 'month'">
+            <template v-if="rating.exists || scale === 'month'">
               <ul
                 class="ps__bars"
                 :class="{ 'ps__bars--tall': scale === 'month' }"
@@ -106,23 +91,17 @@
               {{ future ? 'Okres jeszcze się nie zaczął.' : 'Brak refleksji miesięcy.' }}
             </p>
           </div>
-          <!-- miesiąc: tygodnie miesiąca jako wstęgi obszarów, 2 × 2 -->
-          <div v-if="multiples" class="ps__multiples" :aria-label="multiples.caption">
-            <span class="ps__eyebrow ps__multiples-cap">{{ multiples.caption }}</span>
-            <div v-for="cell in multiples.cells" :key="cell.area" class="ps__multiple">
-              <span><AppIcon :name="cell.icon" />{{ cell.label }}</span>
-              <LoadStateRibbon
-                :points="cell.points"
-                :label="cell.label"
-                :height="58"
-                :show-axis="cell.axis"
-                :tick-every="cell.points.length > 4 ? 2 : 1"
-                quiet
-                @select="ref => emit('open-week', ref)"
-              />
-            </div>
-          </div>
         </div>
+      </div>
+
+      <!-- miesiąc: obciążenie i stan tygodni jako osobne pole — tygodnie w wierszach, obszary w kolumnach -->
+      <div v-if="weekSeries" class="ps__hero ps__ls">
+        <span class="ps__eyebrow">Obciążenie i stan</span>
+        <LoadStateMatrix
+          :series="weekSeries"
+          :areas="LOAD_STATE_AREAS"
+          @open-week="ref => emit('open-week', ref)"
+        />
       </div>
 
       <!-- wykonanie per rodzina: pełna nazwa i procent w pierścieniu; ułamek i podstawa w podpowiedzi -->
@@ -141,8 +120,7 @@
             :title="`${tile.title}${tile.total ? ` · ${tile.done} / ${tile.total}` : ''} · pokaż w tabeli`"
             @click="emit('focus', FAMILY_VIEW[tile.id])"
           />
-          <span class="ps__tile-label">{{ tile.label }}</span>
-          <!-- pierścień wypełniony zgodnie z procentem -->
+          <!-- pierścień wypełniony zgodnie z procentem, podpis pod nim -->
           <span
             class="ps__ring"
             :style="{ '--fill': `${tile.total ? tile.percent : 0}%` }"
@@ -153,6 +131,7 @@
               <strong v-else class="ps__pct ps__dash">–</strong>
             </span>
           </span>
+          <span class="ps__tile-label">{{ tile.label }}</span>
         </li>
       </ul>
     </div>
@@ -174,14 +153,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
-import LoadStateRibbon from '@/components/shared/charts/LoadStateRibbon.vue'
-import { pairColor, toRating } from '@/domain/loadState'
+import LoadStateMatrix from '@/components/shared/charts/LoadStateMatrix.vue'
+import { toRating } from '@/domain/loadState'
 import {
-  AREAS,
-  AREA_ICONS,
-  AREA_KEYS,
   COMPASS,
   FAMILY_GROUPS,
+  LOAD_STATE_AREAS,
   areaSeriesFor,
   directionsForPeriod,
   periodRating,
@@ -193,12 +170,14 @@ import {
   type TimeUnit,
 } from './rhythmProjections'
 import type { RhythmScenario } from './rhythmScenario'
+import RhythmAreaTiles, { type AreaRating } from './RhythmAreaTiles.vue'
 import { FAMILY_VIEW } from './rhythmRows'
 import type { PeriodRef, WeekRef } from '@/domain/period'
 import { getPeriodBounds } from '@/utils/periods'
 
 /**
- * Podsumowanie okresu: ocena własna i wykonanie per rodzina. Rytuały (plan / refleksja) są w nagłówku kalendarza.
+ * Podsumowanie okresu: ocena własna i wykonanie per rodzina. W tygodniu ocena to cztery kafle
+ * obszarów (`RhythmAreaTiles`), w miesiącu i roku — pole z kompasem. Rytuały (plan / refleksja) są w nagłówku kalendarza.
  * Tydzień i miesiąc nie mają nagłówka karty ani „Więcej” — fokus i treść refleksji okresu to spojrzenia tabeli.
  * Rok zostaje przy chipach fokusu i motywie roku (rozwijany „Więcej”).
  */
@@ -214,7 +193,9 @@ const props = defineProps<{
 const emit = defineEmits<{
   toggle: []
   focus: [row: string]
-  /** Klik w tydzień wstęgi: zoom w ten tydzień. */ 'open-week': [weekRef: WeekRef]
+  /** Klik w komórkę pola „Obciążenie i stan”: zoom w ten tydzień. */ 'open-week': [
+    weekRef: WeekRef,
+  ]
 }>()
 
 const title = computed(() => periodTitle(props.scale, props.periodRef))
@@ -259,47 +240,29 @@ const focusItems = computed(() => {
   return priorities.map(p => ({ ...p, row: `dir:${p.key}` }))
 })
 
-/** Kolumny wykresu oceny: tydzień = 4 obszary × [Obciążenie, Stan] (stan w kolorze ćwiartki pary; bez refleksji puste); miesiąc/rok = 5 osi kompasu. */
-const bars = computed(() => {
-  const r = rating.value
-  if (props.scale === 'week') {
-    return AREAS.map((area, i) => {
-      const load = r.load?.[i] ?? null
-      const state = r.state?.[i] ?? null
-      return {
-        label: area,
-        values: [load, state],
-        stateColor: pairColor(toRating(load), toRating(state)),
-        title: `${area}: obciążenie ${load ?? '–'}, stan ${state ?? '–'}`,
-      }
-    })
-  }
-  return COMPASS.map((axis, i) => ({
+/** Kolumny kompasu: miesiąc — ocena własna, rok — średnia refleksji miesięcy. */
+const bars = computed(() =>
+  COMPASS.map((axis, i) => ({
     label: axis,
-    values: [r.compass?.[i] ?? null],
-    stateColor: undefined,
-    title: `${axis} ${fmt1(r.compass?.[i] ?? null)} / 5`,
+    values: [rating.value.compass?.[i] ?? null],
+    title: `${axis} ${fmt1(rating.value.compass?.[i] ?? null)} / 5`,
   }))
-})
+)
 
-/** Wstęgi obszarów w karcie oceny: tylko miesiąc (tygodnie miesiąca); tydzień pokazuje wyłącznie siebie, rok ma wstęgi w tabeli. */
-const multiples = computed(() => {
+/** Tydzień: własne oceny obciążenia i stanu per obszar — kafle `RhythmAreaTiles`. */
+const areaRatings = computed<AreaRating[]>(() =>
+  LOAD_STATE_AREAS.map((area, i) => ({
+    ...area,
+    load: toRating(rating.value.load?.[i] ?? null),
+    state: toRating(rating.value.state?.[i] ?? null),
+  }))
+)
+
+/** Obciążenie i stan tygodni miesiąca dla pola obok oceny; tydzień pokazuje wyłącznie siebie, rok ma tygodnie w tabeli. */
+const weekSeries = computed(() => {
   if (props.scale !== 'month') return null
   const weekRefs = unitWeekRefs(props.units)
-  if (!weekRefs.length) return null
-  const series = areaSeriesFor(props.scenario, weekRefs)
-  const anyRated = AREA_KEYS.some(area => series[area].some(p => p.load != null && p.state != null))
-  if (!anyRated) return null
-  return {
-    caption: 'Tygodnie · obciążenie i stan',
-    cells: AREA_KEYS.map((area, i) => ({
-      area,
-      label: AREAS[i],
-      icon: AREA_ICONS[i],
-      points: series[area],
-      axis: i >= 2,
-    })),
-  }
+  return weekRefs.length ? areaSeriesFor(props.scenario, weekRefs) : null
 })
 function fmt1(value: number | null): string {
   return value === null
@@ -404,19 +367,34 @@ function pct(value: number | null): number {
   margin: 0;
 }
 
-/* ocena bierze szerszą kolumnę (rating-first); rodziny mieszczą się w węższej jako 2 × 2 */
+/* ocena bierze resztę szerokości (rating-first); rodziny to wąska siatka 2 × 2 po prawej */
 .ps__grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 14px;
   align-items: stretch;
 }
-/* tydzień: bez wstęg obok oceny, więc ocena zwęża się na rzecz kafli wykonania */
-.ps--week .ps__grid {
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+/* miesiąc: trzy pola — kompas (szerokość z treści), obciążenie i stan (reszta), wykonanie */
+.ps--month .ps__grid {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+/* miesiąc: pola mają nagłówek u góry, a treść wyśrodkowaną w pionie */
+.ps--month .ps__hero {
+  grid-template-rows: auto 1fr;
+}
+.ps--month .ps__hero-cols,
+.ps__ls > .ls-matrix {
+  align-self: center;
+}
+.ps__ls {
+  gap: 8px;
+}
+/* rok: ocena bierze całą resztę karty, ale wykres nie rozjeżdża się na jej szerokość */
+.ps--year .ps__bars {
+  max-width: 38rem;
 }
 
-/* ocena: wgłębienie w papierze, jak dołek w widoku Dzisiaj */
+/* ocena: blok zagnieżdżony w karcie podsumowania — mgła z połową cienia karty */
 .ps__hero {
   position: relative;
   display: grid;
@@ -425,6 +403,7 @@ function pct(value: number | null): number {
   padding: 14px 18px;
   border-radius: var(--mg-radius-md);
   background: var(--cp-field);
+  box-shadow: var(--mg-shadow-nested);
 }
 .ps__hero.is-active,
 .ps__tile.is-active {
@@ -486,28 +465,7 @@ function pct(value: number | null): number {
   transform: rotate(1deg);
   border-radius: var(--mg-radius-sketch-b);
 }
-.ps__bars--pairs {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  grid-auto-flow: row;
-  margin-top: 14px;
-}
-.ps__bars--pairs li {
-  gap: 8px;
-}
-.ps__bars--pairs .ps__col {
-  gap: 7px;
-  height: 104px;
-}
-.ps__bars--pairs .ps__col i {
-  width: 26px;
-}
-.ps__bars--pairs .ps__col i.none b {
-  color: var(--mg-color-muted);
-}
-.ps__bars.ps__bars--pairs small {
-  font-size: var(--mg-font-size-xs);
-}
-/* miesiąc: kompas w tej samej wysokości co pary tygodnia */
+/* miesiąc: wyższy kompas obok pola obciążenia i stanu */
 .ps__bars--tall {
   margin-top: 14px;
 }
@@ -523,9 +481,6 @@ function pct(value: number | null): number {
 .ps__bars.ps__bars--tall small {
   font-size: var(--mg-font-size-xs);
 }
-.ps__col .l {
-  background: var(--mg-color-data-ink);
-}
 .ps__col .s,
 .ps__legend .s {
   background: var(--cp-accent);
@@ -534,38 +489,6 @@ function pct(value: number | null): number {
   display: grid;
   gap: 10px 26px;
   align-items: start;
-}
-.ps__hero-cols--split {
-  grid-template-columns: auto minmax(0, 1fr);
-}
-.ps__hero-cols--split .ps__own {
-  padding-top: 18px;
-}
-.ps__multiples {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px 18px;
-  min-width: 0;
-}
-.ps__multiples-cap {
-  grid-column: 1 / -1;
-}
-.ps__multiple {
-  display: grid;
-  gap: 2px;
-  min-width: 0;
-}
-.ps__multiple > span {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--mg-color-muted);
-  font-size: var(--mg-font-size-xs);
-  font-weight: 800;
-}
-.ps__multiple > span .material-symbols-outlined {
-  font-size: var(--mg-font-size-md);
-  color: var(--cp-mark);
 }
 .ps__col i.none {
   background: var(--cp-inner);
@@ -610,10 +533,11 @@ function pct(value: number | null): number {
   align-content: start;
 }
 
-/* rodziny: cztery kafle 2 × 2 — pełna nazwa i procent w organicznym pierścieniu */
+/* rodziny: cztery wąskie kafle 2 × 2 — procent w organicznym pierścieniu u góry, nazwa pod nim
+   (jak kafle kompasu w „Dzisiaj”) */
 .ps__fam {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(2, 106px);
   grid-auto-rows: 1fr;
   gap: 10px;
   margin: 0;
@@ -628,20 +552,35 @@ function pct(value: number | null): number {
   background: transparent;
   cursor: pointer;
 }
-.ps__tile:hover {
-  background: var(--cp-inner);
-}
+/* kafel to kontrolka (przełącza widok tabeli): chmura w spoczynku, wyżej pod
+   kursorem, wklęsła, gdy jej widok jest wybrany */
 .ps__tile {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  column-gap: 12px;
+  justify-items: center;
+  align-content: center;
+  gap: 8px;
   min-width: 0;
-  min-height: 74px;
-  padding: 10px 14px 10px 18px;
+  min-height: 104px;
+  padding: 12px 6px;
   border-radius: var(--mg-radius-md);
   background: var(--cp-field);
+  box-shadow: var(--mg-shadow-control);
+  transition:
+    background var(--mg-duration-fast) var(--mg-ease-standard),
+    box-shadow var(--mg-duration-fast) var(--mg-ease-standard),
+    translate var(--mg-duration-fast) var(--mg-ease-standard);
+}
+.ps__tile:hover {
+  background: var(--cp-inner);
+  box-shadow: var(--mg-shadow-control-hover);
+  translate: 0 var(--mg-lift-hover);
+}
+.ps__tile.is-active,
+.ps__tile.is-active:hover,
+.ps__tile:has(> .ps__tile-hit:active) {
+  box-shadow: var(--mg-shadow-inset-sm);
+  translate: none;
 }
 .ps__tile:nth-child(even) {
   border-radius: var(--mg-radius-md);
@@ -651,15 +590,15 @@ function pct(value: number | null): number {
 }
 .ps__tile-label {
   color: var(--mg-color-ink);
-  font-size: var(--mg-font-size-md);
+  font-size: var(--mg-font-size-sm);
   font-weight: 800;
   letter-spacing: 0.01em;
 }
 .ps__ring {
   display: grid;
   place-items: center;
-  width: 48px;
-  height: 48px;
+  width: 60px;
+  height: 60px;
   border-radius: var(--mg-radius-organic-a);
   background: conic-gradient(var(--cp-accent) var(--fill), var(--cp-inner) 0);
   transform: rotate(-4deg);
@@ -667,8 +606,8 @@ function pct(value: number | null): number {
 .ps__ring-in {
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
+  width: 46px;
+  height: 46px;
   border-radius: inherit;
   background: var(--cp-field);
   transform: rotate(4deg);
@@ -689,7 +628,7 @@ function pct(value: number | null): number {
   align-items: baseline;
   white-space: nowrap;
   color: var(--mg-color-ink);
-  font-size: var(--mg-font-size-xs);
+  font-size: var(--mg-font-size-sm);
   font-weight: 900;
   font-variant-numeric: tabular-nums;
 }

@@ -96,14 +96,15 @@ test.describe('verification environment', () => {
     ).toBeVisible()
     await expect(ritual.locator('.qr-day-head')).toHaveCount(7)
     await ritual.getByRole('button', { name: 'Następny krok' }).click()
-    // Area step (D10): two axes — load and state — with the ten-week ribbon tail above the bars.
+    // Area step (D10): two axes — load and state — with the area's last ten weeks above the bars
+    // (one lying bar per week: length = load, dot = state).
     await expect(ritual.getByRole('radiogroup', { name: 'Obciążenie', exact: true })).toBeVisible()
     await expect(ritual.getByRole('radiogroup', { name: 'Stan', exact: true })).toBeVisible()
     await expect(ritual.getByRole('radiogroup', { name: 'Działania', exact: true })).toHaveCount(0)
-    const tail = ritual.locator('.qr-tail .ls-ribbon')
+    const tail = ritual.locator('.qr-tail .ls-matrix')
     await expect(tail).toBeVisible()
-    await expect(tail.locator('.ls-ribbon__hit')).toHaveCount(10)
-    // Rating both axes colours the state bar by the pair's quadrant and appends the week to the tail.
+    await expect(tail.locator('.ls-track')).toHaveCount(10)
+    // Rating both axes colours the state bar by the pair and draws the week as the tail's last row.
     // Seeded weeks already carry ratings; a click on the current value toggles it off, so press until set.
     for (const axis of ['Obciążenie', 'Stan']) {
       const step = ritual
@@ -114,35 +115,42 @@ test.describe('verification environment', () => {
       await expect(step).toHaveAttribute('aria-checked', 'true')
     }
     await expect(ritual.locator('.qr-bars .qr-axis--paired')).toHaveCount(1)
-    // The tail's last hit zone is this week: once both axes are rated its tooltip reads the pair.
-    await tail.locator('.ls-ribbon__hit').last().hover()
-    await expect(tail.locator('.ls-ribbon__tip')).toContainText('obciążenie 4 · stan 4')
+    // The tail's last row is this week: once both axes are rated its description reads the pair.
+    await expect(tail.locator('.ls-track').last()).toHaveAttribute(
+      'aria-label',
+      /obciążenie 4, stan 4/
+    )
+    await expect(tail.locator('.ls-track').last().locator('.ls-track__bar')).toBeVisible()
     await ritual.getByRole('button', { name: 'Poprzedni krok' }).click()
     await expect(ritual.getByRole('heading', { name: 'Co wydarzyło się naprawdę?' })).toBeVisible()
   })
 
-  test('rhythm calendar: ratings view draws four area ribbons and the summary shows week ribbons', async ({
+  test('rhythm calendar: the month card shows the load & state matrix, the year ratings view four area rows', async ({
     page,
   }) => {
     test.setTimeout(120_000)
     await bootSeededApp(page)
 
+    // Month: the weeks' load & state are a field of the summary card — weeks as rows, the four
+    // areas as columns. The table has no ratings lens here, so an old link falls back to the focus.
     await page.goto(`/calendar/month/${prevMonth}?view=ratings`)
+    const field = page.locator('.ps__ls')
+    await expect(field).toBeVisible()
+    await expect(field.locator('.ls-matrix__area')).toHaveCount(4)
+    const weekRows = await field.locator('.ls-matrix__week').count()
+    expect(weekRows).toBeGreaterThanOrEqual(4)
+    await expect(field.locator('.ls-matrix__cell')).toHaveCount(weekRows * 4)
+    await expect(field.locator('.ls-track__bar').first()).toBeVisible()
+    await expect(page.locator('.rb-series--ls')).toHaveCount(0)
+
+    // Year: the ratings lens has one row per area; every month cell stacks its weeks' bars.
+    await page.goto(`/calendar/year/${prevMonth.slice(0, 4)}?view=ratings`)
     const board = page.locator('.rb-board')
     await expect(board).toBeVisible()
-    await expect(board.locator('.rb-series--ribbon')).toHaveCount(4)
-    // The state line is drawn: attached and with a real path. Not `toBeVisible()` — two weeks with
-    // the same state give a flat path whose bounding box has zero height, which Playwright reports
-    // as hidden even though the line is on screen (B-13: the seed is relative to today).
-    const stateLine = board
-      .locator('.rb-series--ribbon')
-      .first()
-      .locator('.ls-ribbon__line--state')
-      .first()
-    await expect(stateLine).toBeAttached()
-    await expect(stateLine).toHaveAttribute('d', /^M[\d.]+,[\d.]+ C/)
-    // The rating card of the month carries the weeks as 2 × 2 area ribbons.
-    await expect(page.locator('.ps__multiple')).toHaveCount(4)
+    const areaRows = board.locator('.rb-series--ls')
+    await expect(areaRows).toHaveCount(4)
+    await expect(areaRows.first().locator('.rb-cell--series')).toHaveCount(12)
+    await expect(areaRows.first().locator('.ls-track__bar').first()).toBeVisible()
   })
 
   test('today: explicit selection, history strip, move/add with undo and compass pin', async ({
@@ -175,7 +183,7 @@ test.describe('verification environment', () => {
       .first()
     const movedTitle = (await movableRow.locator('.ndi__label strong').textContent())!
     await movableRow.locator('button.ndi__label').click()
-    await rail.locator('.ndi--staged').getByRole('button', { name: 'Jutro', exact: true }).click()
+    await rail.locator('.ndi--staged').getByRole('button', { name: 'jutro', exact: true }).click()
     await expect(rail.getByRole('status')).toContainText('Przeniesiono')
     await expect(rail.locator('.ndi', { hasText: movedTitle })).toHaveCount(0)
     await rail.locator('.snackbar__action').click()

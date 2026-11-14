@@ -377,33 +377,15 @@
 
         <section v-if="weeklyExcerpts.length || weekSeriesRated" class="qr-ctx">
           <h3>Z tygodni</h3>
-          <div
+          <!-- tygodnie w wierszach, obszary w kolumnach — ta sama macierz co w karcie miesiąca kalendarza -->
+          <LoadStateMatrix
             v-if="weekSeriesRated"
             class="qm-ctx-weeks"
-            aria-label="Obciążenie i stan w tygodniach miesiąca"
-          >
-            <div v-for="area in AREAS" :key="area.key" class="qm-ctx-weeks__row">
-              <span class="qm-ctx-weeks__area"
-                ><b>{{ t(areaTitleKey(area.key)) }}</b
-                ><AppIcon :name="area.icon"
-              /></span>
-              <LoadStateRibbon
-                :points="weekSeries[area.key]"
-                :label="t(areaTitleKey(area.key))"
-                :height="56"
-                quiet
-                @select="weekRef => emit('open-week', weekRef)"
-              />
-            </div>
-            <div class="qm-ctx-weeks__row qm-ctx-weeks__axis" aria-hidden="true">
-              <span />
-              <span class="qm-ctx-weeks__dates"
-                ><span v-for="week in weekAxis" :key="week.weekRef">{{
-                  week.dateLabel
-                }}</span></span
-              >
-            </div>
-          </div>
+            :series="weekSeries"
+            :areas="matrixAreas"
+            size="sm"
+            @open-week="weekRef => emit('open-week', weekRef)"
+          />
           <ul v-if="weeklyExcerpts.length" class="qr-ctx-quotes">
             <li v-for="excerpt in weeklyExcerpts" :key="excerpt.weekRef">
               <button
@@ -495,7 +477,7 @@ import {
   quietMonthWeeks,
   serializeTags,
 } from './quietRitualModel'
-import LoadStateRibbon from '@/components/shared/charts/LoadStateRibbon.vue'
+import LoadStateMatrix from '@/components/shared/charts/LoadStateMatrix.vue'
 import { useT } from '@/composables/useT'
 import { REFLECTION_MATRIX_AREAS, areaTitleKey } from '@/domain/reflectionMatrix'
 
@@ -645,6 +627,9 @@ const weeks = computed(() => quietMonthWeeks(props.monthRef))
 const AREAS = REFLECTION_MATRIX_AREAS
 const weekSeries = computed(() =>
   quietMonthAreaSeries(weeks.value, dataBundle.value?.weeklyReflectionDetails ?? [])
+)
+const matrixAreas = computed(() =>
+  AREAS.map(area => ({ key: area.key, label: t(areaTitleKey(area.key)), icon: area.icon }))
 )
 const weekSeriesRated = computed(() =>
   AREAS.some(area =>

@@ -261,8 +261,11 @@ describe('Month scale · focus lens, reflection lens and day discs', () => {
     expect(ids[0]).toBe('focus=Fokus miesiąca')
     expect(ids).toContain('focus-units=Fokus tygodni')
     expect(ids).toContain('reflection=Refleksja miesiąca')
-    expect(ids).toContain('ratings=Oceny tygodni')
+    // the weeks' load & state live in the summary card, so the month table has no ratings lens
+    expect(ids.some(id => id.startsWith('ratings='))).toBe(false)
     expect(resolveView(state, 'month', MONTH, monthUnits(), null)).toBe('focus')
+    // an old `?view=ratings` link falls back to the month focus
+    expect(resolveView(state, 'month', MONTH, monthUnits(), 'ratings')).toBe('focus')
     // the year has no focus or reflection of its own in the table
     const yearIds = viewOptions(state, 'year', '2026', unitsFor('year', '2026', CLOCK)).map(
       o => o.id
@@ -353,9 +356,9 @@ describe('Month scale · focus lens, reflection lens and day discs', () => {
   })
 })
 
-describe('RhythmBoard · reflection view as area ribbons', () => {
-  it('shows four area rows with a ribbon each in the month scale and zooms into a week on click', async () => {
-    const units = unitsFor('month', MONTH, CLOCK)
+describe('RhythmBoard · year ratings view as area rows', () => {
+  it('shows four area rows in the year scale: a stack of week bars in every month cell', async () => {
+    const units = unitsFor('year', '2026', CLOCK)
     const state = scenario({
       weeklyReflections: [
         {
@@ -367,34 +370,39 @@ describe('RhythmBoard · reflection view as area ribbons', () => {
         },
       ],
     })
-    const rows = buildRows(state, 'month', MONTH, units, 'ratings', { moreSeries: null })
-    expect(rows.map(r => r.kind)).toEqual([
-      'reflection-area',
-      'reflection-area',
-      'reflection-area',
-      'reflection-area',
-    ])
+    const rows = buildRows(state, 'year', '2026', units, 'ratings', { moreSeries: null })
+    const area = rows.find(row => row.kind === 'reflection-area')
+    const groups = area?.kind === 'reflection-area' ? area.groups : []
+    expect(groups).toHaveLength(units.length)
     const wrapper = mount(RhythmBoard, {
       props: {
         rows,
         units,
-        scale: 'month' as const,
+        scale: 'year' as const,
         objects: state.objects,
         fine: [],
         view: 'ratings',
-        options: viewOptions(state, 'month', MONTH, units),
+        options: viewOptions(state, 'year', '2026', units),
       },
     })
-    expect(wrapper.findAll('.rb-series--ribbon')).toHaveLength(4)
+    const areaRows = wrapper.findAll('.rb-series--ls')
+    expect(areaRows).toHaveLength(4)
     expect(wrapper.text()).toContain('Zadania')
     expect(wrapper.text()).toContain('Bliscy')
-    const hits = wrapper.findAll('.rb-series--ribbon')[0].findAll('.ls-ribbon__hit')
-    expect(hits).toHaveLength(units.length)
-    await hits[0].trigger('click')
-    expect(wrapper.emitted('open-unit')?.[0]).toEqual([units[0].ref])
+    // every month cell stacks one bar per week of that month; only the rated week is drawn
+    const cells = areaRows[0].findAll('.rb-cell--series')
+    expect(cells).toHaveLength(units.length)
+    expect(cells.map(cell => cell.findAll('.ls-track').length)).toEqual(groups.map(g => g.length))
+    expect(areaRows[0].findAll('.ls-track__bar')).toHaveLength(1)
+    const month = groups.findIndex(group => group.some(point => point.weekRef === WEEK))
+    expect(cells[month].find('.ls-track__bar').exists()).toBe(true)
+    expect(wrapper.findAll('.ls-ribbon')).toHaveLength(0)
+    // the cell opens its month
+    await cells[month].trigger('click')
+    expect(wrapper.emitted('open-unit')?.[0]).toEqual([units[month].ref])
   })
 
-  it('adds the monthly compass row after the area ribbons in the year scale', () => {
+  it('adds the monthly compass row after the area rows in the year scale', () => {
     const rows = buildRows(scenario(), 'year', '2026', unitsFor('year', '2026', CLOCK), 'ratings', {
       moreSeries: null,
     })
@@ -409,7 +417,7 @@ describe('RhythmBoard · reflection view as area ribbons', () => {
 })
 
 describe('RhythmPeriodSummary · load/state', () => {
-  it('draws load and state pairs for the week alone — no header, no ribbons, no "Więcej"', () => {
+  it('draws load and state for the week alone as four area tiles — no header, no "Więcej"', async () => {
     const state = scenario({
       weeklyReflections: [
         {
@@ -426,20 +434,35 @@ describe('RhythmPeriodSummary · load/state', () => {
     const wrapper = mount(RhythmPeriodSummary, {
       props: { scenario: state, scale: 'week' as const, periodRef: WEEK, units, open: false },
     })
-    expect(wrapper.findAll('.ps__bars--pairs li')).toHaveLength(4)
+    // four area tiles instead of a rating field: one mark each, no field eyebrow
+    const tiles = wrapper.findAll('.rat__tile')
+    expect(tiles.map(tile => tile.find('.rat__name').text())).toEqual([
+      'Ciało',
+      'Emocje',
+      'Zadania',
+      'Bliscy',
+    ])
+    expect(wrapper.findAll('.rat .ls-track__bar')).toHaveLength(4)
+    expect(tiles[3].find('.ls-track').attributes('aria-label')).toContain('obciążenie 1, stan 5')
+    expect(wrapper.find('.ps__hero').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('Ocena tygodnia')
+    // a tile is a shortcut to the reflection lens of the table
+    await tiles[0].trigger('click')
+    expect(wrapper.emitted('focus')).toEqual([['reflection']])
     expect(wrapper.find('.ps__head').exists()).toBe(false)
-    expect(wrapper.findAll('.ps__multiple')).toHaveLength(0)
+    expect(wrapper.findAll('.ls-ribbon')).toHaveLength(0)
     expect(wrapper.text()).not.toContain('Więcej')
     expect(wrapper.text()).not.toContain('Dobry sen')
   })
 
-  it('keeps four empty pairs for a week without a reflection', () => {
+  it('keeps four empty rails for a week without a reflection', () => {
     const units = unitsFor('week', WEEK, CLOCK)
     const wrapper = mount(RhythmPeriodSummary, {
       props: { scenario: scenario(), scale: 'week' as const, periodRef: WEEK, units, open: false },
     })
-    expect(wrapper.findAll('.ps__bars--pairs li')).toHaveLength(4)
-    expect(wrapper.findAll('.ps__col i.none')).toHaveLength(8)
+    expect(wrapper.findAll('.rat__tile--empty .ls-track')).toHaveLength(4)
+    expect(wrapper.findAll('.rat .ls-track__rail--empty')).toHaveLength(4)
+    expect(wrapper.findAll('.rat__more')).toHaveLength(0)
     expect(wrapper.text()).not.toContain('Brak oceny')
   })
 
@@ -453,7 +476,7 @@ describe('RhythmPeriodSummary · load/state', () => {
     expect(habits.text()).not.toMatch(/\d+\s*\/\s*\d+/)
   })
 
-  it('shows the weeks of the month as ribbons under the month rating', () => {
+  it('shows the weeks of the month as a load & state matrix in a field of its own', async () => {
     const units = unitsFor('month', MONTH, CLOCK)
     const state = scenario({
       weeklyReflections: [
@@ -478,7 +501,48 @@ describe('RhythmPeriodSummary · load/state', () => {
     const wrapper = mount(RhythmPeriodSummary, {
       props: { scenario: state, scale: 'month' as const, periodRef: MONTH, units, open: false },
     })
-    expect(wrapper.text()).toContain('Tygodnie · obciążenie i stan')
-    expect(wrapper.findAll('.ps__multiple')).toHaveLength(4)
+    const field = wrapper.find('.ps__ls')
+    expect(field.text()).toContain('Obciążenie i stan')
+    expect(field.findAll('.ls-matrix__area').map(node => node.text())).toEqual([
+      'Ciało',
+      'Emocje',
+      'Zadania',
+      'Bliscy',
+    ])
+    // one row per week of the month, four bars each; only the rated week is drawn
+    const weeks = units.filter(unit => unit.kind === 'week')
+    expect(field.findAll('.ls-matrix__week')).toHaveLength(weeks.length)
+    expect(field.findAll('.ls-matrix__cell')).toHaveLength(weeks.length * 4)
+    expect(field.findAll('.ls-track__bar')).toHaveLength(4)
+    expect(field.findAll('.ls-track__rail--empty')).toHaveLength((weeks.length - 1) * 4)
+    // the ribbons and the table shortcut are gone from the month card
+    expect(wrapper.findAll('.ls-ribbon')).toHaveLength(0)
+    expect(wrapper.find('.ps__drill').exists()).toBe(false)
+    await field.find('.ls-track__bar').element.closest('button')!.click()
+    expect(wrapper.emitted('open-week')).toEqual([[WEEK]])
+  })
+
+  it('has no load & state field in the week and year scales; the year keeps its table shortcut', () => {
+    const week = mount(RhythmPeriodSummary, {
+      props: {
+        scenario: scenario(),
+        scale: 'week' as const,
+        periodRef: WEEK,
+        units: unitsFor('week', WEEK, CLOCK),
+        open: false,
+      },
+    })
+    expect(week.find('.ps__ls').exists()).toBe(false)
+    const year = mount(RhythmPeriodSummary, {
+      props: {
+        scenario: scenario(),
+        scale: 'year' as const,
+        periodRef: '2026',
+        units: unitsFor('year', '2026', CLOCK),
+        open: false,
+      },
+    })
+    expect(year.find('.ps__ls').exists()).toBe(false)
+    expect(year.find('.ps__drill').exists()).toBe(true)
   })
 })

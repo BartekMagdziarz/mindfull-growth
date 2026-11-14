@@ -176,18 +176,25 @@
       </details>
     </section>
 
-    <!-- 2–5 · Obszary życia — Obciążenie i Stan, jeden obszar naraz; ostatnie tygodnie jako wstęga nad słupkami -->
+    <!-- 2–5 · Obszary życia — Obciążenie i Stan, jeden obszar naraz; nad słupkami ostatnie tygodnie tego obszaru (słupek = obciążenie, kropka = stan) -->
     <section v-else-if="activeArea" class="qr-ratings">
       <div class="qr-tail">
         <header>
           <AppIcon :name="activeArea.icon" />
           <span>{{ t(areaTitleKey(activeArea.key)) }}</span>
         </header>
-        <LoadStateRibbon
-          :points="tailPoints"
-          :label="t(areaTitleKey(activeArea.key))"
-          :height="60"
-          show-axis
+        <LoadStateMatrix
+          :series="{ [activeArea.key]: tailPoints }"
+          :areas="[
+            {
+              key: activeArea.key,
+              label: t(areaTitleKey(activeArea.key)),
+              icon: activeArea.icon,
+            },
+          ]"
+          size="xs"
+          :show-areas="false"
+          :interactive="false"
         />
       </div>
       <div class="qr-bars">
@@ -213,7 +220,7 @@
           :hint="tg(cellQuestionKey(activeArea.key, 'state'))"
           :high-label="t(cellAnchorKey(activeArea.key, 'state', 'high'))"
           :low-label="t(cellAnchorKey(activeArea.key, 'state', 'low'))"
-          :fill-color="currentPairRated ? pairColor(currentPair.load, currentPair.state) : null"
+          :fill-color="currentPairTone?.mark ?? null"
           @update:model-value="setRating(activeArea.fields.state, $event)"
         >
           <QuietTagField
@@ -714,9 +721,11 @@
           <ul class="qr-ctx-ratings">
             <li v-for="(area, index) in AREAS" :key="area.key">
               <span class="qr-ctx-pair" aria-hidden="true">
-                <LoadStateBars
+                <LoadStateTrack
                   :load="toRating(ratingValue(area.fields.demands))"
                   :state="toRating(ratingValue(area.fields.state))"
+                  :subject="t(areaTitleKey(area.key))"
+                  size="sm"
                 />
               </span>
               <button type="button" class="qr-ctx-area" @click="go(index + 1)">
@@ -841,9 +850,10 @@ import {
   cellQuestionKey,
 } from '@/domain/reflectionMatrix'
 import AppIcon from '@/components/shared/AppIcon.vue'
-import LoadStateBars from '@/components/shared/charts/LoadStateBars.vue'
-import LoadStateRibbon from '@/components/shared/charts/LoadStateRibbon.vue'
-import { pairColor, toRating } from '@/domain/loadState'
+import LoadStateMatrix from '@/components/shared/charts/LoadStateMatrix.vue'
+import LoadStateTrack from '@/components/shared/charts/LoadStateTrack.vue'
+import { toRating } from '@/domain/loadState'
+import { loadStateTone } from '@/domain/loadStateTone'
 import {
   buildAreaSeries,
   trailingWeekRefs,
@@ -944,7 +954,7 @@ function toggleSidePanel(panel: 'context' | 'ai') {
   }
 }
 const saved = ref(false)
-/** Load/state history of the preceding weeks (the ribbon's tail); the current week is appended live. */
+/** Load/state history of the preceding weeks (the tail above the bars); the current week is appended live. */
 const TAIL_WEEKS = 10
 const tailHistory = ref<AreaSeries | null>(null)
 /** The user's own earlier tags per axis (newest first) — the re-use pool; '' = the legacy undivided list. */
@@ -1055,8 +1065,9 @@ const currentPair = computed(() => {
     state: toRating(ratingValue(area.fields.state)),
   }
 })
-const currentPairRated = computed(
-  () => currentPair.value.load != null && currentPair.value.state != null
+/** Kolor pary bieżącego tygodnia — słupek stanu bierze go, gdy obie osie są ocenione. */
+const currentPairTone = computed(() =>
+  loadStateTone(currentPair.value.load, currentPair.value.state)
 )
 const tailPoints = computed<WeekPoint[]>(() => {
   const area = activeArea.value
@@ -1079,7 +1090,7 @@ const companionRitualContext = computed(() =>
 )
 
 onMounted(async () => {
-  // The ribbon's tail: the preceding weeks; the current week is appended live from the bars.
+  // The tail above the bars: the preceding weeks; the current week is appended live from the bars.
   const previousRefs = trailingWeekRefs(props.weekRef, TAIL_WEEKS).slice(0, -1)
   tailHistory.value = buildAreaSeries(
     await structuredReflectionDexieRepository.listWeeklyByRefs(previousRefs),

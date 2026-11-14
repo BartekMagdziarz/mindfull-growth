@@ -77,15 +77,42 @@ Na prośbę użytkownika aplikacja używa zatwierdzonej rodziny 293 SVG z UX Lab
 
 Klasa `material-symbols-outlined` pozostaje tymczasowo jako istniejący selektor rozmiaru/koloru; nie renderuje już tekstu fontu. Produkcyjny HTML nie pobiera fontu Material Symbols. Nie dodawać surowych spanów z nazwą symbolu. Zmiany geometrii sprawdzać w Labie w 16/20/24/32 px i uruchamiać jego eksport.
 
-## Obciążenie i stan (2026-09-20)
+## Obciążenie i stan (2026-09-20, przerysowane 2026-11-14)
 
-Oceny tygodnia per obszar to dwie osie: **obciążenie** (atrament, `rgb(var(--sky-800))`,
-krycie rośnie z poziomem) i **stan** w kolorze ćwiartki pary — tokeny ćwiartek emocji
-(`--color-quadrant-*`) plus `--sky-600` dla „ciężko · dobrze” i `--sky-500` dla środka.
-Reguła koloru mieszka w `src/domain/loadState.ts` (`pairColor`, `pairInk`, `loadInkCss`);
-wstęga serii to `src/components/shared/charts/LoadStateRibbon.vue`. Różowa rodzina
-`--mg-color-effort*` należy do starej osi Działania (klasyczny wizard) i **nie** oznacza
-obciążenia — w nowych widokach jej nie używać.
+Oceny tygodnia per obszar to dwie osie: **obciążenie** i **stan**. Wszędzie rysuje je ten
+sam znak — leżący, płaski słupek na torze skali 1–5 (wykresy danych nie mają cienia):
+**długość = obciążenie, położenie kropki = stan, kolor = para.**
+
+- Komponenty: `src/components/shared/charts/LoadStateTrack.vue` (jedna para; rozmiary
+  `md` 22 px, `sm` 16 px, `xs` 10 px) i `LoadStateMatrix.vue` (tygodnie w wierszach, obszary
+  w kolumnach o wspólnej skali — stan obszaru czyta się w dół po kropkach, nazwy i daty są
+  raz). Jeden obszar daje kolumnę tygodni, jeden tydzień — wiersz obszarów.
+- Gdzie: karta podsumowania kalendarza (miesiąc: osobne pole z macierzą; tydzień: jeden
+  wiersz), tabela roku „Oceny miesięcy” (stos `xs` tygodni w komórce miesiąca), refleksja
+  tygodnia (ostatnie 10 tygodni obszaru nad słupkami oceny; „Oceny” w kontekście dziennika),
+  refleksja miesiąca („Z tygodni”).
+- Kolor pary to drabinki `--mg-color-load-*` w konwencji ćwiartek emocji: `good-1…5`
+  (stan zwykły lub dobry, tydzień od lekkiego do ciężkiego), `strain-1…4` (słaby stan przy
+  obciążeniu 3–5), `low-1…2` (słaby stan przy lekkim tygodniu). Fiolet znaczy „mało energii
+  i słabo”, róż „dużo energii i słabo” — tak samo jak w pickerze emocji; nie używać fioletu
+  jako neutralnego środka. Najmocniejszy stopień drabinki należy tylko do pary narożnej
+  (5 · 5, 5 · 1).
+- Stan 3 to przejście wzdłuż słupka: od własnego błękitu w stronę koloru wiersza niżej,
+  wyraźnie tylko przy obciążeniu 1 i 5. Reguła mieszka w `src/domain/loadStateTone.ts`;
+  miesza przeglądarka (`color-mix` w oklab na tokenach), więc w widokach nie ma literałów.
+  Ten sam plik daje kolor słupka stanu w `QuietRatingBar`, gdy obie osie są ocenione.
+- Kropka stanu to studnia wykonania (`mg-well mg-well--done`) przekolorowana zmiennymi
+  `--mg-well-field` / `--mg-well-mark`. Te dwie zmienne są dla wykresów danych; w „Planie
+  dnia” zostają wartości domyślne.
+- W karcie podsumowania **tygodnia** ocena to cztery kafle obszarów
+  (`features/calendar-rhythm/RhythmAreaTiles.vue`): ikona, nazwa i ten sam znak, a cały kafel w
+  barwie pary ocen (`loadStateTone(...).field`). Pod kursorem i w fokusie kafel odsłania obie
+  oceny jako kropki 1–5 — studnie `mg-well` w rozmiarze 12 px, pełne do oceny, puste dalej; bez
+  liczb i bez słów oceniających. Kafel jest kontrolką (klik = spojrzenie „Refleksja”). Barwa na
+  powierzchni kafla to wyjątek zapisany w decyzjach (2026-11-14) — nie przenoś go na inne kafle.
+- Wstęga `LoadStateRibbon`, pary `LoadStateBars` i `pairColor` zostały usunięte. Różowa
+  rodzina `--mg-color-effort*` należy do starej osi Działania i **nie** oznacza obciążenia —
+  słaby stan przy dużym obciążeniu to `--mg-color-load-strain-*`.
 
 ## Design system A „Cirrus” (2026-10-20)
 

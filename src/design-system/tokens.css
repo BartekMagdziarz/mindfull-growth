@@ -104,9 +104,22 @@
   /* Chart ink (value lines, the load axis) and its faint form for outlines. */
   --mg-color-data-ink: rgb(var(--sky-800));
   --mg-color-data-ink-soft: color-mix(in srgb, var(--mg-color-data-ink) 38%, transparent);
-  /* Load/state pair (D10): the neutral state midpoint and heavy·good recovery. */
-  --mg-color-load-neutral: rgb(var(--sky-500));
-  --mg-color-load-recovery: rgb(var(--sky-600));
+  /* Load & state bars (D10, redrawn 2026-11-14): the emotion-quadrant
+     convention as ladders — hue follows the state, intensity the load.
+     good = ordinary or good state (light → heavy week), strain = poor state
+     in a busy week, low = poor state in a light week. The strongest step of
+     each ladder belongs to the corner pair only (5 · 5 and 5 · 1). */
+  --mg-color-load-good-1: rgb(var(--sky-200));
+  --mg-color-load-good-2: rgb(var(--sky-300));
+  --mg-color-load-good-3: rgb(var(--sky-400));
+  --mg-color-load-good-4: rgb(var(--sky-500));
+  --mg-color-load-good-5: rgb(var(--sky-600));
+  --mg-color-load-strain-1: rgb(var(--rose-200));
+  --mg-color-load-strain-2: rgb(var(--rose-300));
+  --mg-color-load-strain-3: rgb(var(--rose-400));
+  --mg-color-load-strain-4: rgb(var(--rose-500));
+  --mg-color-load-low-1: var(--color-quadrant-low-energy-low-pleasantness-bottom);
+  --mg-color-load-low-2: var(--color-quadrant-low-energy-low-pleasantness);
   --mg-color-effort-fill: rgb(var(--rose-300) / 0.85);
   --mg-color-data-target: rgb(var(--sky-600) / 0.45);
   --mg-color-lavender: rgb(155 110 195);

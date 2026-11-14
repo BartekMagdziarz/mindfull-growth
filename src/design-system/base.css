@@ -86,16 +86,19 @@
   box-shadow: var(--mg-shadow-inset-sm);
 }
 
+/* Field and mark can be recoloured by a data chart (--mg-well-field /
+   --mg-well-mark, e.g. the state dot of the load & state bars); the defaults
+   are the completion colours of "Plan dnia". */
 .mg-well--done {
   border-color: transparent;
-  background: var(--mg-color-sky-field);
+  background: var(--mg-well-field, var(--mg-color-sky-field));
 }
 
 .mg-well--done::after {
   width: 62%;
   aspect-ratio: 1;
   border-radius: var(--mg-radius-organic-c);
-  background: var(--mg-color-state);
+  background: var(--mg-well-mark, var(--mg-color-state));
   content: '';
   transform: rotate(-2deg);
 }

@@ -772,3 +772,84 @@ przeniesiony do `EmotionGroupPicker.css`, bo plik był ponad limitem rozmiaru.
 `QUADRANT_STYLES` / `EGP_DEFAULT_ACCENT` z `domain/emotionGroups.ts` nie mają już
 konsumenta w produkcie, korzysta z nich tylko scena Labu. `EmotionSelector` (siedem
 kreatorów ćwiczeń) nadal tintuje kartę: to osobny komponent, poza tą decyzją.
+
+## 2026-11-14 — Obciążenie i stan w miesiącu: macierz słupków zamiast wstęg
+
+Kontekst: wstęga `LoadStateRibbon` (ołówek, akwarela z filtrem szumu, papier w linie) była
+jedynym rysunkowym elementem widoku miesiąca i po „wysokości na każdym poziomie” przestała
+pasować do karty. Osiem rund w UX Labie (`/concepts/load-state-clouds`, zrzuty
+`ideas/qa/load-state-clouds/`). Odrzucone po drodze: słupki wypukłe / wklęsłe (wykresy
+danych zostają płaskie), wysokość = stan (trudny tydzień wychodził niski i blady), przebieg
+na końcu wiersza i nić łącząca kropki (kolejny element psuje spokój), fiolet jako środek
+skali (łamie znaczenie kolorów z pickera emocji), przyciemniony środek kropki.
+Decyzja:
+- karta podsumowania miesiąca ma trzy pola: kompas · „Obciążenie i stan” · wykonanie.
+  Nowe pole to macierz: tygodnie w wierszach, obszary w kolumnach o wspólnej skali, więc
+  stan obszaru czyta się w dół po kropkach, a nazwy obszarów i daty są tylko raz;
+- słupek leży na torze skali 1–5: długość = obciążenie, kropka = stan, tydzień bez
+  refleksji = pusty tor. Kropka to studnia wykonania z „Dzisiaj” w kolorze słupka
+  (`--mg-well-field` / `--mg-well-mark` w `base.css`), bez przyciemniania;
+- kolor trzyma konwencję ćwiartek emocji w całej aplikacji: błękity = stan zwykły lub
+  dobry, fiolet = słaby stan przy lekkim tygodniu, róż = słaby stan przy ciężkim. Nowe role
+  `--mg-color-load-good-1…5`, `-strain-1…4`, `-low-1…2`; natężenie = obciążenie + skrajność
+  stanu, najmocniejszy stopień tylko dla par 5 · 5 i 5 · 1;
+- stan 3 to przejście w słupku od błękitu do koloru wiersza niżej, o zasięgu
+  70 · 30 · 16 · 36 · 70 % dla obciążenia 1…5. Zwykły tydzień (3 · 3) zostaje bladym
+  błękitem i czyta się lekko pozytywnie. Zmierzona cena (różnica koloru w oklab): krok 3→2
+  przy obciążeniu 3 wynosi 8,0 wobec 8,7 przy ostrej granicy; przy obciążeniu 5 spada z 17,7
+  do 11,6. Przyjęte świadomie — między „zwykle i w porządku” a „zwykle i słabo” jest
+  granica znaczenia;
+- kafle wykonania są wąskie (2 × 106 px) we wszystkich skalach: pierścień 60 px u góry,
+  nazwa pod nim, jak kafle kompasu w „Dzisiaj”;
+- w skali miesiąca tabela nie ma już spojrzenia „Oceny tygodni” ani skrótu do niego
+  (pokazywałyby to samo co pole); stary link `?view=ratings` przechodzi na fokus miesiąca.
+  Rok zachowuje „Oceny miesięcy” ze wstęgami.
+
+- **ten sam znak wszędzie** (decyzja usera po obejrzeniu miesiąca: „uspójniamy ten komponent
+  wszędzie tam, gdzie występuje obecnie”): ocena tygodnia w karcie to jeden wiersz macierzy;
+  tabela roku „Oceny miesięcy” ma w komórce miesiąca stos małych słupków jego tygodni; w
+  refleksji tygodnia nad słupkami oceny stoi kolumna ostatnich 10 tygodni obszaru, a „Oceny”
+  w kontekście dziennika to cztery słupki; „Z tygodni” w refleksji miesiąca to ta sama
+  macierz co w kalendarzu. Słupek stanu w `QuietRatingBar` bierze kolor pary z nowej reguły.
+
+Konsekwencje: reguła koloru mieszka w `src/domain/loadStateTone.ts`, a znak w
+`components/shared/charts/LoadStateTrack.vue` i `LoadStateMatrix.vue`. Usunięte:
+`LoadStateRibbon`, `LoadStateBars`, `RhythmRatingsMini`, `utils/sketchPaths.ts`, `pairColor` /
+`pairInk` / `loadInkCss` / `verdictSentence` z `domain/loadState.ts` oraz tokeny
+`--mg-color-load-neutral` i `-recovery`. W tabeli roku klik w komórkę otwiera miesiąc (wstęga
+otwierała tydzień), a miesiące bez refleksji pokazują same puste tory. Pole oceny w skali roku
+ma po zwężeniu kafli wolne miejsce po prawej (kompas ograniczony do 38 rem). Wersje w
+tygodniu, roku i rytuałach nie przechodziły przez Lab — user poprawia je w miarę używania.
+
+## 2026-11-14 — Ocena tygodnia jako kafle obszarów; oceny pod kursorem jako kropki
+
+Kontekst: po przejściu na macierz karta podsumowania tygodnia pokazywała jeden jej wiersz —
+cztery leżące słupki (wykres 736 × 57 px) w polu 854 × 232 px, a w bieżącym tygodniu, przed
+niedzielną refleksją, cztery puste tory. Dwie rundy w UX Labie (`/concepts/week-rating-field`,
+zrzuty `ideas/qa/week-rating-field/`). Runda 1 — sześć kierunków: ciasny pas, macierz na tle
+czterech wcześniejszych tygodni, kafle obszarów, emocje tygodnia obok oceny, zdania z refleksji
+obok oceny, mapa obciążenie × stan. User wybrał kafle. Runda 2 — odrzucone słowa pod znakiem
+(„dużo · źle”); z trzech wersji hovera (kropki, legenda z liczbami, znak rozłożony na dwa
+tory) wybrane kropki.
+Decyzja:
+- w skali tygodnia ocena własna to cztery kafle obszarów (`RhythmAreaTiles`) obok czterech
+  kafli wykonania; pole „Ocena tygodnia” i jego nagłówek znikają — nazwy obszarów wystarczają;
+- kafel ma ikonę w kole, nazwę i wspólny znak (`LoadStateTrack`: słupek = obciążenie, kropka =
+  stan). **Cały kafel bierze barwę pary ocen** (`loadStateTone(...).field`, czyli papier
+  zabarwiony w 24 % kolorem słupka), żeby trudny obszar było widać z daleka. To świadome
+  odstępstwo od „głębiej = bielej”: w dobrym tygodniu kafle są nieco ciemniejsze od karty;
+- pod kursorem i w fokusie kafel odsłania pod znakiem dwa wiersze po pięć kropek —
+  „obciążenie” i „stan”. Kropka to studnia wykonania (`mg-well`, 12 px): pełna do oceny,
+  pusta dalej. Bez liczb i bez słów oceniających; liczby są tylko w opisie dla czytników;
+- kafel jest kontrolką jak kafle wykonania: cień kontrolki, wyżej pod kursorem, wklęsły, gdy
+  jego spojrzenie jest wybrane. Klik otwiera spojrzenie „Refleksja” w tabeli;
+- tydzień bez refleksji: kafle w kolorze mgły z pustym torem, pod kursorem nic się nie
+  odsłania; klik nadal prowadzi do „Refleksji”.
+
+Konsekwencje: miesiąc i rok zostają przy polu z kompasem i macierzy — kafle są wyłącznie w
+tygodniu, więc ten sam znak stoi tam na kolorowej powierzchni, a w miesiącu na mgle. Kropki
+skali to trzeci konsument języka „kółko w kółku” (natężenie w pickerze emocji, zadania ścieżki);
+tu żyją w CSS komponentu na anatomii `mg-well` — przy kolejnym konsumencie skala 1–5 z kropek
+powinna trafić do części wspólnej. Informacja „szkic” przy nagłówku pola przeszła do opisu
+kafla. Odsłonięcie wymaga kursora albo fokusu — zgodnie z zasadą „tylko przeglądarka desktopowa”.
+

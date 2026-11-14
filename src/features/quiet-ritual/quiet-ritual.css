@@ -1439,12 +1439,10 @@
   gap: 4px;
   min-width: 0;
 }
+/* jeden leżący słupek na obszar: długość = obciążenie, kropka = stan */
 .qr-ctx-pair {
-  display: flex;
-  align-items: end;
-  padding: 3px 8px;
-  background: var(--qr-inner);
-  border-radius: var(--mg-radius-xs);
+  display: block;
+  width: 100%;
 }
 .qr-ctx-area {
   display: flex;
@@ -2166,40 +2164,9 @@
 .qm-ctx-more:hover {
   background: var(--qr-inner);
 }
-/* „Z tygodni”: wstęgi obszarów nad tygodniami miesiąca (kolumna jest wąska, więc wysokie i jedna pod drugą) */
+/* „Z tygodni”: macierz obciążenia i stanu — tygodnie w wierszach, obszary w kolumnach */
 .qm-ctx-weeks {
-  display: grid;
-  gap: 4px;
   margin: 4px 0 12px;
-}
-.qm-ctx-weeks__row {
-  display: grid;
-  grid-template-columns: 64px minmax(0, 1fr);
-  align-items: center;
-  column-gap: 8px;
-}
-.qm-ctx-weeks__area {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  color: var(--qr-muted);
-  font-size: var(--mg-font-size-chart);
-  font-weight: 800;
-  text-align: center;
-}
-.qm-ctx-weeks__area .material-symbols-outlined {
-  font-size: var(--mg-font-size-icon-sm);
-  color: var(--qr-accent-strong);
-}
-.qm-ctx-weeks__dates {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 1fr;
-  color: var(--qr-muted);
-  font-size: var(--mg-font-size-chart);
-  text-align: center;
-  white-space: nowrap;
 }
 .qm-ai {
   padding: 18px;
@@ -2389,6 +2356,10 @@
 .qr-tail > header .material-symbols-outlined {
   font-size: var(--mg-font-size-icon-md);
   color: var(--qr-accent-strong);
+}
+/* ostatnie tygodnie obszaru: wąska kolumna słupków, nie na całą szerokość pola */
+.qr-tail > .ls-matrix {
+  max-width: 22rem;
 }
 .qr-ai {
   display: grid;

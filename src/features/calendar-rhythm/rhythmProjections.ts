@@ -72,6 +72,12 @@ export const SCALES: { id: Scale; label: string }[] = [
 export const AREAS = ['Ciało', 'Emocje', 'Zadania', 'Bliscy'] as const
 export const AREA_KEYS = REFLECTION_MATRIX_AREAS.map(area => area.key) as readonly LifeAreaKey[]
 export const AREA_ICONS = REFLECTION_MATRIX_AREAS.map(area => area.icon) as readonly string[]
+/** The same four areas as `{ key, label, icon }` — the columns of the load & state matrix. */
+export const LOAD_STATE_AREAS = AREA_KEYS.map((key, i) => ({
+  key,
+  label: AREAS[i],
+  icon: AREA_ICONS[i],
+}))
 /* Compass labels are the product's own (the Lab proposed "Zasady / Wpływ";
    the stored keys and meaning are unchanged, so that rename is a separate call). */
 export const COMPASS = ['Balans', 'Sens', 'Rozwój', 'Zasady', 'Wpływ'] as const
@@ -1613,19 +1619,18 @@ export function unitWeekRefs(units: TimeUnit[]): WeekRef[] {
   return units.filter(u => u.kind === 'week').map(u => (u.weekRef ?? u.ref) as WeekRef)
 }
 
-/** Wszystkie tygodnie roku, bez powtórzeń, w porządku czasu. */
-export function yearWeekRefs(yearRef: string): WeekRef[] {
+/** Tygodnie roku pogrupowane miesiącami (w kolejności miesięcy), bez powtórzeń między grupami. */
+export function yearWeekGroups(yearRef: string): WeekRef[][] {
   const seen = new Set<WeekRef>()
-  const out: WeekRef[] = []
-  for (const monthRef of getChildPeriods(yearRef as YearRef)) {
+  return getChildPeriods(yearRef as YearRef).map(monthRef => {
+    const group: WeekRef[] = []
     for (const weekRef of getChildPeriods(monthRef)) {
-      if (!seen.has(weekRef)) {
-        seen.add(weekRef)
-        out.push(weekRef)
-      }
+      if (seen.has(weekRef)) continue
+      seen.add(weekRef)
+      group.push(weekRef)
     }
-  }
-  return out
+    return group
+  })
 }
 
 /** Deduplikacja po id zapisu — obiekt widoczny pod dwoma priorytetami liczy się raz. */

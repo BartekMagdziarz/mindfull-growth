@@ -253,9 +253,9 @@ describe('periodStats and periodRating', () => {
   })
 })
 
-describe('areaSeriesFor · load/state ribbons', () => {
+describe('areaSeriesFor · load/state series', () => {
   it('maps each area to its load/state pair per week and leaves gaps for missing reflections', async () => {
-    const { areaSeriesFor, unitWeekRefs, yearWeekRefs } = await import('../rhythmProjections')
+    const { areaSeriesFor, unitWeekRefs, yearWeekGroups } = await import('../rhythmProjections')
     const units = unitsFor('month', MONTH, CLOCK)
     const weekRefs = unitWeekRefs(units)
     expect(weekRefs.length).toBeGreaterThan(3)
@@ -275,8 +275,12 @@ describe('areaSeriesFor · load/state ribbons', () => {
     expect(series.closeOnes[0]).toMatchObject({ load: 2, state: 5 })
     expect(series.body[1]).toMatchObject({ load: null, state: null })
     expect(series.body[0].label).toMatch(/^\d{1,2}\.\d{2}$/)
-    const year = yearWeekRefs('2026')
+    // the year groups its weeks by month: twelve groups, every week once
+    const groups = yearWeekGroups('2026')
+    expect(groups).toHaveLength(12)
+    const year = groups.flat()
     expect(year.length).toBeGreaterThanOrEqual(52)
     expect(new Set(year).size).toBe(year.length)
+    expect(groups.every(group => group.length >= 3 && group.length <= 6)).toBe(true)
   })
 })

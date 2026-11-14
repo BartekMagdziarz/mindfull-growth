@@ -249,6 +249,12 @@ month → open week. UX for this chain (length, skippability) is an open topic.
   diverging rose↔sky scale with inverted Demands. Concept and decisions: UX Lab
   `/concepts/week-load-state` and `/concepts/week-load-state-places`; plan in
   `ideas/html-plans/2026-09-20-load-state-two-axes-implementation.html`.
+  *Addendum 2026-11-14:* the ribbon and the pair bars are gone. Everywhere a pair is one
+  lying bar on the 1–5 scale — length = load, dot = state, colour = the pair in the
+  emotion-quadrant convention (`src/domain/loadStateTone.ts`, `LoadStateTrack` /
+  `LoadStateMatrix`, `docs/design-decisions.md`). The month summary card has a matrix of
+  weeks × areas in a field of its own and the month table lost its "Oceny tygodni" lens;
+  the week card, the year table and both reflection rituals use the same mark.
 
 ## 8. Mapping to the existing data model (reuse, not rebuild)
 

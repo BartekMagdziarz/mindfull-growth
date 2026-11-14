@@ -205,14 +205,12 @@
   transform: rotate(0.8deg);
 }
 .cp .compass-mini__axis i,
-.cp .compass-bars i,
-.cp .ratings-mini__pair i {
+.cp .compass-bars i {
   border-radius: var(--mg-radius-sketch-b);
   transform: rotate(-1.1deg);
 }
 .cp .compass-mini__axis i:nth-child(even),
-.cp .compass-bars i:nth-child(even),
-.cp .ratings-mini__state {
+.cp .compass-bars i:nth-child(even) {
   transform: rotate(1deg);
 }
 .cp .rb-board--year .rb-name--series {

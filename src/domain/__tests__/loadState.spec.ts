@@ -1,12 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  classifyPair,
-  pairColor,
-  pairInk,
-  toRating,
-  verdictSentence,
-  type Rating,
-} from '../loadState'
+import { classifyPair, toRating, type Rating } from '../loadState'
 
 const R = [1, 2, 3, 4, 5] as Rating[]
 
@@ -40,31 +33,6 @@ describe('loadState · classifyPair', () => {
   })
 })
 
-describe('loadState · colours', () => {
-  it('uses sky-600 for recovery and sky-500 for the midpoint', () => {
-    expect(pairColor(5, 5)).toBe('rgb(var(--sky-600))')
-    expect(pairColor(2, 3)).toBe('rgb(var(--sky-500))')
-  })
-
-  it('uses the emotion quadrant tokens for the other quadrants', () => {
-    expect(pairColor(5, 1)).toContain('high-energy-low-pleasantness')
-    expect(pairColor(1, 5)).toContain('low-energy-high-pleasantness')
-    expect(pairColor(1, 1)).toContain('low-energy-low-pleasantness')
-  })
-
-  it('mixes neighbours for load = 3', () => {
-    expect(pairColor(3, 5)).toMatch(
-      /^color-mix\(in oklab, var\(--color-quadrant-low-energy-high-pleasantness\) 50%, rgb\(var\(--sky-600\)\)\)$/
-    )
-    expect(pairInk(3, 5)).toBe('rgb(var(--sky-800))')
-  })
-
-  it('gives readable ink per quadrant', () => {
-    expect(pairInk(5, 5)).toBe('white')
-    expect(pairInk(5, 1)).toContain('-text)')
-  })
-})
-
 describe('loadState · helpers', () => {
   it('toRating clamps to 1–5 integers or null', () => {
     expect(toRating(undefined)).toBeNull()
@@ -73,11 +41,5 @@ describe('loadState · helpers', () => {
     expect(toRating(6)).toBeNull()
     expect(toRating(3.4)).toBe(3)
     expect(toRating(5)).toBe(5)
-  })
-
-  it('verdictSentence stays neutral in tone', () => {
-    expect(verdictSentence('Ciało', 5, 5)).toMatch(/ciężki tydzień, a kończysz go w dobrym stanie/)
-    expect(verdictSentence('Ciało', null, 5)).toMatch(/brak pełnej oceny/)
-    expect(verdictSentence('Ciało', 4, 3)).toMatch(/bez wyraźnego wychylenia/)
   })
 })

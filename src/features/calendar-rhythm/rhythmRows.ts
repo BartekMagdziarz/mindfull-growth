@@ -12,8 +12,7 @@ import {
   AREA_KEYS,
   ENTRY_KINDS,
   areaSeriesFor,
-  unitWeekRefs,
-  yearWeekRefs,
+  yearWeekGroups,
   FAMILY_LABEL,
   TYPE_ORDER,
   activeInPeriod,
@@ -68,14 +67,15 @@ export type BoardRow =
   /** Tydzień / miesiąc: treść refleksji okresu zamiast wierszy — oś jednostek się wtedy nie rysuje. */
   | { kind: 'reflection-own'; id: string; reflection: ReflectionProjection; future: boolean }
   | { kind: 'reflection-units'; id: string; cells: ReflectionProjection[] }
-  /** Obciążenie i stan jednego obszaru jako wstęga nad tygodniami okresu. */
+  /** Rok: obciążenie i stan jednego obszaru — w komórce miesiąca stos słupków jego tygodni. */
   | {
       kind: 'reflection-area'
       id: string
       area: LifeAreaKey
       label: string
       icon: string
-      points: WeekPoint[]
+      /** Tygodnie pogrupowane jednostkami tabeli (miesiącami), w ich kolejności. */
+      groups: WeekPoint[][]
     }
   | {
       kind: 'entries-kind'
@@ -150,13 +150,10 @@ export function viewOptions(
       icon: 'history_edu',
       group: 'Okres',
     })
-  if (scale !== 'week')
-    out.push({
-      id: 'ratings',
-      label: scale === 'month' ? 'Oceny tygodni' : 'Oceny miesięcy',
-      icon: 'monitoring',
-      group: 'Okres',
-    })
+  // Oceny podokresów w tabeli ma tylko rok; w miesiącu tygodnie pokazuje pole
+  // „Obciążenie i stan” w karcie podsumowania (2026-11-14), więc spojrzenie by je powtarzało.
+  if (scale === 'year')
+    out.push({ id: 'ratings', label: 'Oceny miesięcy', icon: 'monitoring', group: 'Okres' })
   out.push({ id: 'entries', label: 'Wpisy', icon: 'edit_note', group: 'Okres' })
   return out
 }
@@ -349,23 +346,29 @@ export function buildRows(
     ]
   }
   if (view === 'ratings') {
-    // Obszary jako wstęgi (miesiąc: tygodnie kolumn; rok: wszystkie tygodnie roku na całej szerokości), rok dodatkowo kompas miesięcy.
-    const weekRefs = scale === 'month' ? unitWeekRefs(units) : yearWeekRefs(ref)
-    const series = areaSeriesFor(s, weekRefs)
-    const rows: BoardRow[] = AREA_KEYS.map((area, i) => ({
-      kind: 'reflection-area',
-      id: `ratings:${area}`,
-      area,
-      label: AREAS[i],
-      icon: AREA_ICONS[i],
-      points: series[area],
-    }))
-    if (scale === 'year')
-      rows.push({
-        kind: 'reflection-units',
-        id: 'ratings:units',
-        cells: units.map(u => reflectionForUnit(s, u)),
-      })
+    // Tylko rok: w komórce miesiąca stos słupków obciążenia i stanu jego tygodni; pod spodem kompas miesięcy.
+    const weekGroups = yearWeekGroups(ref)
+    const series = areaSeriesFor(s, weekGroups.flat())
+    const rows: BoardRow[] = AREA_KEYS.map((area, i) => {
+      let offset = 0
+      return {
+        kind: 'reflection-area',
+        id: `ratings:${area}`,
+        area,
+        label: AREAS[i],
+        icon: AREA_ICONS[i],
+        groups: weekGroups.map(group => {
+          const points = series[area].slice(offset, offset + group.length)
+          offset += group.length
+          return points
+        }),
+      }
+    })
+    rows.push({
+      kind: 'reflection-units',
+      id: 'ratings:units',
+      cells: units.map(u => reflectionForUnit(s, u)),
+    })
     return rows
   }
   const entries = units.map(u => entriesForUnit(s, u))
