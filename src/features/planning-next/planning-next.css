@@ -152,6 +152,7 @@
   border: 1px solid var(--mg-color-border);
   border-radius: var(--mg-radius-md);
   background: var(--mg-color-paper);
+  box-shadow: var(--mg-shadow-nested);
 }
 
 .next-day-rail__hidden {
@@ -229,15 +230,23 @@
   border-radius: var(--mg-radius-md);
   color: var(--mg-color-ink);
   background: var(--pn-card, var(--mg-color-paper));
+  box-shadow: var(--mg-shadow-control);
   cursor: pointer;
   transition:
     background var(--mg-duration-fast) var(--mg-ease-standard),
-    box-shadow var(--mg-duration-fast) var(--mg-ease-standard);
+    box-shadow var(--mg-duration-fast) var(--mg-ease-standard),
+    translate var(--mg-duration-fast) var(--mg-ease-standard);
 }
 
 .next-day-entries__tile:hover {
-  background: var(--mg-color-mist);
-  box-shadow: var(--mg-shadow-raised-sm);
+  background: var(--mg-color-paper);
+  box-shadow: var(--mg-shadow-control-hover);
+  translate: 0 var(--mg-lift-hover);
+}
+
+.next-day-entries__tile:active {
+  box-shadow: var(--mg-shadow-inset-sm);
+  translate: none;
 }
 
 .next-day-entries__tile small {
@@ -621,22 +630,30 @@
   border-radius: var(--mg-radius-md);
   color: var(--mg-color-ink);
   background: var(--pn-card, var(--mg-color-paper));
+  box-shadow: var(--mg-shadow-control);
   text-align: center;
   cursor: pointer;
   transition:
     background var(--mg-duration-fast) var(--mg-ease-standard),
-    box-shadow var(--mg-duration-fast) var(--mg-ease-standard);
+    box-shadow var(--mg-duration-fast) var(--mg-ease-standard),
+    translate var(--mg-duration-fast) var(--mg-ease-standard);
 }
 
 .next-day-compass__tile:hover {
-  background: var(--mg-color-mist);
-  box-shadow: var(--mg-shadow-raised-sm);
+  background: var(--mg-color-paper);
+  box-shadow: var(--mg-shadow-control-hover);
+  translate: 0 var(--mg-lift-hover);
+}
+
+.next-day-compass__tile:active,
+.next-day-compass__tile.is-selected {
+  box-shadow: var(--mg-shadow-inset-sm);
+  translate: none;
 }
 
 .next-day-compass__tile.is-selected {
   border-color: var(--mg-color-state-soft);
   background: var(--mg-color-sky-well);
-  box-shadow: var(--mg-shadow-inset-sm);
 }
 
 .next-day-compass__tile small {
@@ -1275,14 +1292,17 @@ main:has(> .planning-next--today) {
   border: 1px solid transparent;
   border-radius: var(--mg-radius-md);
   background: var(--mg-color-mist);
+  box-shadow: var(--mg-shadow-control);
   transition:
     background var(--mg-duration-fast) var(--mg-ease-standard),
-    box-shadow var(--mg-duration-fast) var(--mg-ease-standard);
+    box-shadow var(--mg-duration-fast) var(--mg-ease-standard),
+    translate var(--mg-duration-fast) var(--mg-ease-standard);
 }
 
 .ndt:has(> .ndt__open:hover) {
   background: var(--mg-color-paper);
-  box-shadow: var(--mg-shadow-raised-sm);
+  box-shadow: var(--mg-shadow-control-hover);
+  translate: 0 var(--mg-lift-hover);
 }
 
 .ndt:has(> .ndt__open:focus-visible) {
@@ -1361,10 +1381,16 @@ main:has(> .planning-next--today) {
   color: var(--mg-color-rose);
 }
 
+/* „Dziś”: the ring is the mark; the lift underneath is the same as every tile's,
+   so a hovered tile (paper, no ring) never reads as today's. */
 .ndt--today {
   border-color: var(--mg-color-primary-soft);
   background: var(--mg-color-paper);
-  box-shadow: var(--mg-shadow-current-ring);
+  box-shadow: var(--mg-shadow-current-ring), var(--mg-shadow-control);
+}
+
+.ndt--today:has(> .ndt__open:hover) {
+  box-shadow: var(--mg-shadow-current-ring), var(--mg-shadow-control-hover);
 }
 
 .ndt--today .ndt__title {
@@ -1479,6 +1505,7 @@ main:has(> .planning-next--today) {
   padding: var(--mg-space-2) var(--mg-space-3) var(--mg-space-3);
   border-radius: var(--mg-radius-md);
   background: var(--mg-color-mist);
+  box-shadow: var(--mg-shadow-nested);
 }
 
 .ndpath--no-task {
@@ -1526,10 +1553,25 @@ main:has(> .planning-next--today) {
   border: 0;
   border-radius: var(--mg-radius-md);
   background: var(--mg-color-paper);
+  box-shadow: var(--mg-shadow-control);
   color: var(--mg-color-ink);
   font: inherit;
   text-align: left;
   text-decoration: none;
+  transition:
+    box-shadow var(--mg-duration-fast) var(--mg-ease-standard),
+    translate var(--mg-duration-fast) var(--mg-ease-standard);
+}
+
+/* Every field of the block is a control: under the cursor it rises. */
+.ndpath__field:hover {
+  box-shadow: var(--mg-shadow-control-hover);
+  translate: 0 var(--mg-lift-hover);
+}
+
+.ndpath__field:active {
+  box-shadow: var(--mg-shadow-inset-sm);
+  translate: none;
 }
 
 /* The path field: the title up, the phase down; a link to the path view whose
@@ -1540,11 +1582,6 @@ main:has(> .planning-next--today) {
   align-content: space-between;
   gap: var(--mg-space-2);
   cursor: pointer;
-  transition: box-shadow var(--mg-duration-fast) var(--mg-ease-standard);
-}
-
-.ndpath__path:hover {
-  box-shadow: var(--mg-shadow-raised-sm);
 }
 
 .ndpath__path:focus-visible {
@@ -1601,11 +1638,6 @@ main:has(> .planning-next--today) {
 
 .ndpath__action {
   cursor: pointer;
-  transition: box-shadow var(--mg-duration-fast) var(--mg-ease-standard);
-}
-
-.ndpath__action:hover {
-  box-shadow: var(--mg-shadow-raised-sm);
 }
 
 .ndpath__action:hover .ndpath__text {

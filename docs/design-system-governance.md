@@ -195,7 +195,7 @@ wpięcia w `CLAUDE.md` po akceptacji:
 
 ## 9. Słownik
 
-canvas — tło strony (niebo) · surface — karta, jedyny poziom z cieniem ·
+canvas — tło strony (niebo) · surface — karta ·
 mist — pole/chip (mgła) · paper — wnętrze/hover (papier) · ink — atrament
 treści · muted — atrament meta · primary / primary-strong / primary-fill —
 akcent / etykieta interaktywna / wypełnienie akcji głównej · raised /

@@ -64,7 +64,7 @@ button.exercise-pill:hover:not(:disabled) {
 .exercise-option:hover:not(:disabled) {
   transform: none;
   background: var(--mg-color-paper);
-  box-shadow: var(--mg-shadow-raised-sm);
+  box-shadow: var(--mg-shadow-control-hover);
 }
 
 .exercise-option--active {

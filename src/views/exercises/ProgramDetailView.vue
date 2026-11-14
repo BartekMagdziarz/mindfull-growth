@@ -741,6 +741,7 @@ function markRead(key: string): void {
   padding: var(--mg-space-3);
   border-radius: var(--mg-radius-md);
   background: var(--mg-color-mist);
+  box-shadow: var(--mg-shadow-nested);
 }
 .path-view__closed-icon {
   display: grid;

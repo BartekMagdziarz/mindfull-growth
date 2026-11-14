@@ -426,6 +426,7 @@ async function decline(): Promise<void> {
   padding: var(--mg-space-3);
   border-radius: var(--mg-radius-md);
   background: var(--mg-color-mist);
+  box-shadow: var(--mg-shadow-nested);
 }
 .pp-world .pp-chips {
   margin-top: var(--mg-space-1);

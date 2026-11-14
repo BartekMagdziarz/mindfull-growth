@@ -426,11 +426,13 @@ function confirmRestart(): void {
 .wk--open:not(.wk--single) {
   margin-bottom: var(--mg-space-2);
   background: var(--mg-color-mist);
+  box-shadow: var(--mg-shadow-nested);
 }
 .wk--open:not(.wk--single) > .wk__field {
   margin: 0;
   padding-top: 0;
   background: transparent;
+  box-shadow: none;
 }
 .wk--return {
   margin-top: var(--mg-space-3);
@@ -481,6 +483,7 @@ function confirmRestart(): void {
   padding: var(--mg-space-2);
   border-radius: var(--mg-radius-md);
   background: var(--mg-color-mist);
+  box-shadow: var(--mg-shadow-nested);
 }
 .wk__why {
   margin: 0;
@@ -515,8 +518,16 @@ function confirmRestart(): void {
 .wk--wrap .wk__body .pp-tile--focus {
   grid-column: auto;
 }
+/* A step tile that opens on click is a control: it rises under the cursor. */
 .wk__body .pp-tile:not(.pp-tile--focus) {
   cursor: pointer;
+}
+.wk__body .pp-tile:not(.pp-tile--focus):hover {
+  box-shadow: var(--mg-shadow-control-hover);
+  translate: 0 var(--mg-lift-hover);
+}
+.wk__body .pp-tile--current:not(.pp-tile--focus):hover {
+  box-shadow: var(--mg-shadow-current-ring), var(--mg-shadow-control-hover);
 }
 /* One sentence, whole where it fits; three lines is the safety net. */
 .wk__body .pp-tile:not(.pp-tile--focus) .pp-tile__what {

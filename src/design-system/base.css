@@ -122,6 +122,7 @@
 
 .mg-v2-surface--flat {
   background: var(--mg-color-mist);
+  box-shadow: var(--mg-shadow-nested);
 }
 
 .mg-v2-button {
@@ -135,14 +136,21 @@
   border-radius: var(--mg-radius-md);
   color: var(--mg-color-primary-strong);
   background: var(--mg-color-mist);
-  box-shadow: var(--mg-shadow-raised-sm);
+  box-shadow: var(--mg-shadow-control);
   font-size: var(--mg-font-size-sm);
   font-weight: 800;
   cursor: pointer;
+  transition:
+    background var(--mg-duration-fast) var(--mg-ease-standard),
+    box-shadow var(--mg-duration-fast) var(--mg-ease-standard),
+    translate var(--mg-duration-fast) var(--mg-ease-standard);
 }
 
+/* Hover = one step whiter, a higher shadow and a 1px rise; pressed = concave. */
 .mg-v2-button:not(:disabled):hover {
   background: var(--mg-color-paper);
+  box-shadow: var(--mg-shadow-control-hover);
+  translate: 0 var(--mg-lift-hover);
 }
 
 /* Primary action = filled with the product primary-strong and a white label. */
@@ -169,6 +177,8 @@
 
 .mg-v2-button--quiet:not(:disabled):hover {
   background: var(--mg-color-mist);
+  box-shadow: none;
+  translate: none;
 }
 
 /* Icons inside controls follow the app accent — never ink/grey. On a filled
@@ -214,8 +224,10 @@
 }
 
 .mg-v2-button:not(:disabled):active,
-.mg-v2-button[aria-pressed='true'] {
+.mg-v2-button[aria-pressed='true'],
+.mg-v2-button[aria-pressed='true']:not(:disabled):hover {
   box-shadow: var(--mg-shadow-inset-sm);
+  translate: none;
 }
 
 /* Compact field: chip-height (2rem) variant for toolbars, where the field
@@ -338,7 +350,7 @@ input[type='number'].mg-v2-input::-webkit-outer-spin-button {
   border-radius: var(--mg-radius-md);
   color: var(--mg-color-ink);
   background: var(--mg-color-mist);
-  box-shadow: none;
+  box-shadow: var(--mg-shadow-nested);
 }
 
 /* A block that must be noticed (a save error, content the AI will not see):
@@ -684,9 +696,34 @@ input[type='number'].mg-v2-input::-webkit-outer-spin-button {
   border-radius: var(--mg-radius-pill);
   color: var(--mg-color-muted);
   background: var(--mg-color-mist);
-  box-shadow: var(--mg-shadow-raised-sm);
+  box-shadow: var(--mg-shadow-control);
   font-size: var(--mg-font-size-xs);
   font-weight: 800;
+  transition:
+    background var(--mg-duration-fast) var(--mg-ease-standard),
+    box-shadow var(--mg-duration-fast) var(--mg-ease-standard),
+    translate var(--mg-duration-fast) var(--mg-ease-standard);
+}
+
+/* A chip you can click rises like a button; a status chip (a span) just rests. */
+:is(button, a).mg-v2-pill:not(:disabled, .mg-v2-pill--selected):hover {
+  box-shadow: var(--mg-shadow-control-hover);
+  translate: 0 var(--mg-lift-hover);
+}
+
+:is(button, a).mg-v2-pill:not(
+    :disabled,
+    .mg-v2-pill--selected,
+    .mg-v2-pill--success,
+    .mg-v2-pill--warning,
+    .mg-v2-pill--danger
+  ):hover {
+  background: var(--mg-color-paper);
+}
+
+:is(button, a).mg-v2-pill:not(:disabled):active {
+  box-shadow: var(--mg-shadow-inset-sm);
+  translate: none;
 }
 
 .mg-v2-pill--primary {
@@ -1276,21 +1313,25 @@ input[type='number'].mg-v2-input::-webkit-outer-spin-button {
   border-radius: var(--mg-radius-md);
   color: var(--mg-color-ink);
   background: var(--mg-color-surface);
-  box-shadow: var(--mg-shadow-raised-sm);
+  box-shadow: var(--mg-shadow-control);
   text-align: left;
   cursor: pointer;
   transition:
     background var(--mg-duration-fast) ease,
-    box-shadow var(--mg-duration-normal) var(--mg-ease-standard);
+    box-shadow var(--mg-duration-normal) var(--mg-ease-standard),
+    translate var(--mg-duration-fast) var(--mg-ease-standard);
 }
 
-.mg-v2-tile:not(:disabled):hover {
-  background: var(--mg-color-mist);
+.mg-v2-tile:not(:disabled, .mg-v2-tile--static):hover {
+  background: var(--mg-color-paper);
+  box-shadow: var(--mg-shadow-control-hover);
+  translate: 0 var(--mg-lift-hover);
 }
 
-.mg-v2-tile:not(:disabled):active,
+.mg-v2-tile:not(:disabled, .mg-v2-tile--static):active,
 .mg-v2-tile[aria-pressed='true'] {
   box-shadow: var(--mg-shadow-inset-sm);
+  translate: none;
 }
 
 .mg-v2-tile--static {
@@ -1536,7 +1577,7 @@ input[type='number'].mg-v2-input::-webkit-outer-spin-button {
 .mg-v2-sentence .mg-v2-sentence__pill {
   border-color: transparent;
   color: var(--mg-color-ink);
-  box-shadow: var(--mg-shadow-raised-sm);
+  box-shadow: var(--mg-shadow-control);
   cursor: pointer;
   font-size: var(--mg-font-size-xs);
 }
@@ -1546,8 +1587,10 @@ input[type='number'].mg-v2-input::-webkit-outer-spin-button {
   background: var(--mg-color-paper);
 }
 
-.mg-v2-sentence .mg-v2-sentence__pill[aria-expanded='true'] {
+.mg-v2-sentence .mg-v2-sentence__pill[aria-expanded='true'],
+.mg-v2-sentence .mg-v2-sentence__pill[aria-expanded='true']:not(:disabled):hover {
   box-shadow: var(--mg-shadow-inset-sm);
+  translate: none;
 }
 
 .mg-v2-sentence .mg-v2-sentence__pill:disabled {
@@ -1675,6 +1718,7 @@ button:focus-visible > .mg-v2-icon-ghost {
   padding: var(--mg-space-3);
   border-radius: var(--mg-radius-md);
   background: var(--mg-color-mist);
+  box-shadow: var(--mg-shadow-nested);
 }
 
 .mg-v2-surface--flat .mg-v2-group,

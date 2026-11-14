@@ -678,3 +678,57 @@ worktree. Nieosiągnięte na żywo: snackbar, kropka Trailhead (brak wpisów w s
 (asystent planowania), kart „Dzisiaj” w wariancie bare, dawki i powtórek ścieżki, karta
 intro z datą ostatniej próby, ładowanie dziennika pozytywnych danych. Dług 28 → 0:
 strażnik nie ma już bazy długu — od teraz każde naruszenie to błąd.
+
+## 2026-11-14 — Wysokość na każdym poziomie drabinki: kontrolki-chmury i uniesione bloki
+
+Kontekst: w Cirrus kontrolki były płaskie (`--mg-shadow-control: none`), a cień miała
+tylko karta; kafelki „Dzisiaj” dostawały cień dopiero pod kursorem. Użytkownikowi
+podobał się właśnie ten stan hover („Dziennik”, „Emocje”) i chciał go mieć stale, plus
+trochę wysokości dla pól leżących jedno na drugim. Cztery warianty (A Mgiełka,
+B Chmura, C Piętra, D Piętra mocne) sprawdzone jako nakładki CSS na koncie demo
+(`ideas/design-experiments/elevation-2026-11/`, strona porównawcza + przełącznik na żywo).
+Decyzja użytkownika: kontrolki z B (spoczynek = cień karty, hover wyżej) + pola z C
+(zagnieżdżony blok = pół cienia karty). D odrzucony — przy pełnym cieniu na blokach
+karta przestaje być głównym poziomem.
+- Tokeny: `--mg-shadow-control` = `--mg-shadow-raised-sm`; nowe `--mg-shadow-control-hover`
+  (między kartą a nakładką), `--mg-shadow-nested` (pół cienia karty), `--mg-lift-hover` (−1 px).
+- Anatomie: `mg-v2-button`, `mg-v2-pill`, `mg-v2-tile` biorą `control`; hover = papier +
+  `control-hover` + `translate`; wciśnięte / `aria-pressed` / otwarta pigułka zdania =
+  `inset-sm` bez uniesienia. `mg-v2-surface--flat`, `mg-v2-group`, `mg-v2-block` i mostek
+  `neo-panel/-embedded/-inset/-surface` biorą `nested`.
+- Adapter „Flat controls” zniknął (zostaje tylko wybrany segment): wymuszał `control` na
+  przyciskach i chipach podwojoną klasą, przez co stan wciśnięty i `--selected` były
+  nadpisywane. Teraz reguły stanów żyją w `base.css`. `mg-v2-badge` i `--quiet` płaskie.
+- „Dzisiaj”: kafelki wpisów, kompasu, „Najbliżej” i pola bloku ścieżki = kontrolki;
+  grupy planu dnia i blok ścieżki = `nested`. Kafelek „dziś” = pierścień nad cieniem
+  kontrolki (kolizja z nowym hoverem: oba były papierem z cieniem).
+- `exercise-option`: hover `raised-sm` → `control-hover`.
+- Kalendarz (uwaga użytkownika po pierwszym przebiegu: „nie mamy takich samych pól
+  wypukłych”): podsumowanie okresu `RhythmPeriodSummary` miało własne klasy poza
+  anatomiami. `.ps__hero` (ocena tygodnia / miesiąca / roku) = `nested`; kafle rodzin
+  `.ps__tile` = kontrolki (`control`, hover `control-hover` + uniesienie, wybrany widok
+  = `inset-sm`). Komentarz „wgłębienie w papierze” przy `.ps__hero` był nieaktualny.
+Konsekwencje: zdanie „karta to jedyny poziom z cieniem” przestaje obowiązywać (README,
+governance, skill poprawione). Zrzuty 1512 × 982 @2x na 5199 po zmianie: Dzisiaj (hover na
+wpisach, kompasie, „Najbliżej”), Cele, Nawyki, Ćwiczenia, Dziennik, Emocje, Kalendarz,
+kreator wartości, Historia, Kalendarz tydzień / miesiąc / rok (hover i wybrany kafel) — bez
+błędów konsoli; spis cieni obliczonych zgodny z rolami
+(znaczniki emocji w Historii mają własny cień inline z `domain/emotion.ts`, sprzed zmiany).
+Nieobjęte, do osobnej decyzji: akcje rozwiniętego wiersza planu dnia (`.ndi__actions`),
+usuwanie sygnału w rytuale priorytetu, przyciski `planning-assistant` (dziedziczą
+`control` w spoczynku, hover własny) oraz ćwiartki emocji (`.qbtn`).
+- Widok ścieżki (na prośbę użytkownika, ten sam dzień): bloki = `nested` (otwarty tydzień
+  `.wk--open`, pole ścieżki bez faz `.wk__field`, `.pp-block`, `.pp-quote`, `.pp-world`,
+  `.pp-confirm`, `.path-view__closed`); płytki `.pp-tile` = `control` (jak
+  `mg-v2-tile--static`: cień zawsze, uniesienie tylko tam, gdzie płytka otwiera się kliknięciem
+  — kroki w tygodniu); bieżący krok = pierścień nad cieniem kontrolki; chipy `.pp-chip` =
+  `control`, pod kursorem atrament akcentu + `control-hover` + uniesienie (chip jest już
+  papierem, więc nie bieleje — dawny hover w tonie studni został tylko dla `.is-active` i
+  wciśnięcia, razem z `inset-sm`); kafle „Warto wiedzieć” `.kn__tile` i karty wyboru Momentu =
+  kontrolki. Wiersz zamkniętego tygodnia (`.wk__row`) zostaje wierszem listy: mgła pod kursorem,
+  bez cienia. Zrzuty 5199: ścieżka wstydu (pełna strona, hover na kroku) i ścieżka części.
+  Przy okazji naprawione B-23: drugi selektor `.mg-design-v2 .pp-chip` niesie już tylko
+  pismo, więc warianty znów działają — `--primary` = wypełnienie akcentu z białą etykietą na
+  `control` (pod kursorem ciemniejsze wypełnienie + uniesienie), `--ghost` = przezroczysty,
+  bez cienia i bez uniesienia, ton studni pod kursorem. Sprawdzone w stylach obliczonych i
+  na zrzutach („Rozpocznij”, pasek „Od nowa”, zamknięcie szuflady wiedzy).

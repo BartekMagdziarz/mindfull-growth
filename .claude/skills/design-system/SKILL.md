@@ -36,11 +36,14 @@ dla użytkownika:
 
 ## Zasady niezmienne (skrót)
 
-- Drabinka: niebo → karta (jedyny poziom z cieniem) → mgła (pole/chip) →
+- Drabinka: niebo → karta → mgła (pole/chip) →
   papier (wnętrze/hover). Głębiej = bielej, nigdy czysta biel, nigdy z powrotem
   w niebieski.
-- Jedna rodzina cieni: `--mg-shadow-raised` (nakładka), `-raised-sm` (karta),
-  `-control` (chip/przycisk), `-inset(-sm)` (tylko kontrolki).
+- Jedna rodzina cieni, wysokość na każdym poziomie (2026-11-14):
+  `--mg-shadow-raised` (nakładka), `-raised-sm` (karta), `-nested` (blok
+  zagnieżdżony w karcie), `-control` (chip/przycisk/kafelek w spoczynku),
+  `-control-hover` + `--mg-lift-hover` (pod kursorem), `-inset(-sm)` (wciśnięte /
+  wybrane kontrolki). Pola tekstowe i badge są płaskie.
 - Typografia: `--mg-font-size-xs…2xl` (12/13/15/18/24/32) + `--mg-font-size-chart`;
   wagi `--mg-weight-body/label/strong/title` (400/600/700/800). Zakaz
   `text-[Npx]`, px/rem w `font-size`, wag 500/650/750/850/900.

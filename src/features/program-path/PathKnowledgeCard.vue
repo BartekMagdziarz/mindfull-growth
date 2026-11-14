@@ -134,14 +134,24 @@ function markRead() {
   border: 0;
   border-radius: var(--mg-radius-md);
   background: var(--mg-color-mist);
+  box-shadow: var(--mg-shadow-control);
   color: inherit;
   font: inherit;
   text-align: left;
   cursor: pointer;
-  transition: background var(--mg-duration-fast) var(--mg-ease-standard);
+  transition:
+    background var(--mg-duration-fast) var(--mg-ease-standard),
+    box-shadow var(--mg-duration-fast) var(--mg-ease-standard),
+    translate var(--mg-duration-fast) var(--mg-ease-standard);
 }
 .kn__tile:hover {
   background: var(--mg-color-paper);
+  box-shadow: var(--mg-shadow-control-hover);
+  translate: 0 var(--mg-lift-hover);
+}
+.kn__tile:active {
+  box-shadow: var(--mg-shadow-inset-sm);
+  translate: none;
 }
 .kn__tile strong {
   font-size: var(--mg-font-size-xs);

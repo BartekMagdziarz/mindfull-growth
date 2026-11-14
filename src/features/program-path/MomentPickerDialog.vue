@@ -102,13 +102,24 @@ function pick(entryId: string | null) {
   border: 1px solid var(--mg-color-border);
   border-radius: var(--mg-radius-md);
   background: var(--mg-color-mist);
+  box-shadow: var(--mg-shadow-control);
   color: var(--mg-color-ink);
   font: inherit;
   text-align: left;
   cursor: pointer;
+  transition:
+    background var(--mg-duration-fast) var(--mg-ease-standard),
+    box-shadow var(--mg-duration-fast) var(--mg-ease-standard),
+    translate var(--mg-duration-fast) var(--mg-ease-standard);
 }
 .moment-picker__card:hover {
   background: var(--mg-color-paper);
+  box-shadow: var(--mg-shadow-control-hover);
+  translate: 0 var(--mg-lift-hover);
+}
+.moment-picker__card:active {
+  box-shadow: var(--mg-shadow-inset-sm);
+  translate: none;
 }
 .moment-picker__date {
   color: var(--mg-color-muted);

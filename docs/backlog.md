@@ -27,6 +27,43 @@ wracania do rozmowy, w której go znaleziono.
 
 ## Błędy
 
+### B-23 · Chipy ścieżki `--primary` i `--ghost` wyglądają jak zwykły chip
+
+`zrobione (2026-11-14, czeka na commit — po nim przenieść do „Zamknięte” z hashem)` · Znaleziono 2026-11-14 (wypukłość kontrolek w widoku ścieżki) · ścieżki / `src/features/program-path/program-path.css`
+
+**Objaw.** „Rozpocznij” na kaflu bieżącego kroku, „Zacznij od nowa”, przycisk dawki i
+„Cofnij” wyglądają jak zwykły papierowy chip. Wariant główny nie jest wypełniony akcentem,
+a duch nie jest przezroczysty; główny robi się niebieski dopiero pod kursorem.
+
+**Jak odtworzyć.** `npm run dev:verify`, `/exercises/programs/shame-compassion`: chip
+„Rozpocznij” w otwartym tygodniu ma tło papieru. W konsoli:
+`getComputedStyle(document.querySelector('.pp-chip--primary')).backgroundColor` zwraca kolor
+papieru zamiast `--mg-color-primary-fill`.
+
+**Przyczyna.** Reguła bazowa ma dwa selektory, `.pp-chip, .mg-design-v2 .pp-chip`
+(`program-path.css:70–71`) — drugi dodano, żeby pobić `.mg-design-v2 button { font: inherit }`.
+Podnosi on jednak specyficzność WSZYSTKICH deklaracji do (0,2,0), więc `background`,
+`border-color` i `color` z `.pp-chip--primary` (`:120`) i `.pp-chip--ghost` (`:131`), oba
+(0,1,0), przegrywają. Działa tylko `.pp-chip--primary:not(:disabled):hover` (`:126`).
+
+**Dlaczego to błąd.** README design systemu: akcja główna = wypełnienie `--mg-color-primary-fill`
+z białą etykietą; duch = wyblakła chmura. W widoku ścieżki nie ma dziś żadnej widocznej akcji
+głównej, a przycisk zmienia kolor dopiero po najechaniu.
+
+**Propozycja naprawy.** Zostawić w drugim selektorze tylko to, co musi pobić reset
+(`font`, `font-size`, `font-weight`), albo dać wariantom ten sam podwójny selektor
+(`.pp-chip--primary, .mg-design-v2 .pp-chip--primary`). Po naprawie ustawić cienie wariantów
+zgodnie z sekcją „Wysokość na każdym poziomie”: główny = `--mg-shadow-control`, duch = bez cienia
+i bez uniesienia.
+
+**Kryteria akceptacji.** „Rozpocznij” wypełniony akcentem w spoczynku; „Cofnij” przezroczysty,
+bez cienia; zrzut 1512 × 982 widoku ścieżki ze wstydu i ścieżki części; strażnik design systemu
+zielony.
+
+**Uwagi.** Zmienia wygląd widoku ścieżki, więc wymaga oceny użytkownika — Lab „widok ścieżki v3”
+(runda 7b) czeka na werdykt i może to rozstrzygnąć inaczej. Ta sama pułapka podwójnego
+selektora jest w `.pp-link`, `.ndt__open`, `.ndpath__field` (tam bez wariantów, więc bez skutku).
+
 ### B-20 · Karta sesji czatu mówi po angielsku („View”, „Delete”, „1 message”)
 
 `otwarte` · Znaleziono 2026-11-09 (port B2 panelu „Dziennik z AI”) · dziennik, historia / `src/components/ChatSessionCard.vue`

@@ -47,9 +47,10 @@
 
   /* Tonal ladder (decision 2026-09-07, shared with UX Lab calendar/ritual):
      one direction only — the deeper a surface is nested, the WHITER it gets,
-     from canvas (page) → surface (card, the only level with a
-     shadow) → mist (field) → paper (inner). Hover = one step whiter. Inset
-     shadows are reserved for controls (segmented switches, pressed states). */
+     from canvas (page) → surface (card) → mist (field) → paper (inner).
+     Hover = one step whiter. Since 2026-11-14 every level also has a height
+     (see the shadow family below); inset shadows are reserved for controls
+     (segmented switches, pressed states). */
   --mg-color-canvas: rgb(var(--color-background));
   --mg-color-surface: rgb(var(--sky-100));
   /* Exact Lab steps (sketch.css --cp-field / --cp-inner): small, equal steps. */
@@ -124,14 +125,24 @@
   --mg-color-inverse-ink: rgb(var(--color-surface-container));
   --mg-color-scrim: rgb(var(--overlay-scrim) / 0.5);
 
-  /* One shadow family: raised = overlay, raised-sm = first-level card,
-     control = chips/buttons (flat in Cirrus), inset(-sm) = controls only. */
+  /* One shadow family, one light (white from top-left, sky from bottom-right).
+     Every level of the ladder has a height (decision 2026-11-14):
+     raised = overlay · raised-sm = first-level card · nested = a block nested
+     in a card (half a card's lift) · control = a chip/button/tile at rest (a
+     card's lift) · control-hover = the control under the cursor (between card
+     and overlay) · inset(-sm) = pressed / selected controls only. */
   --mg-shadow-raised:
     -4px -4px 10px rgb(255 255 255 / 0.7), 4px 6px 14px rgb(var(--sky-700) / 0.12);
   --mg-shadow-raised-md: var(--mg-shadow-raised);
   --mg-shadow-raised-sm:
     -2px -2px 5px rgb(255 255 255 / 0.6), 2px 3px 7px rgb(var(--sky-700) / 0.1);
-  --mg-shadow-control: none;
+  --mg-shadow-nested: -1px -1px 3px rgb(255 255 255 / 0.55), 1px 2px 4px rgb(var(--sky-700) / 0.08);
+  --mg-shadow-control: var(--mg-shadow-raised-sm);
+  --mg-shadow-control-hover:
+    -3px -3px 8px rgb(255 255 255 / 0.66), 3px 5px 11px rgb(var(--sky-700) / 0.12);
+  /* How far a control rises under the cursor (the `translate` property, so it
+     never fights a component's own `transform`). */
+  --mg-lift-hover: -1px;
   --mg-shadow-inset: inset 0 2px 4px rgb(var(--sky-700) / 0.12);
   --mg-shadow-inset-sm: inset 0 1px 2px rgb(var(--sky-700) / 0.1);
   /* Paper halo around the current stepper dot (sketch marker on a sheet). */

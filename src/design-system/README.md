@@ -30,8 +30,8 @@ z tokenów lub danych domenowych, nigdy z surowych kolorów w pliku.
 
 Jeden kierunek tonu i jeden kierunek głębi:
 
-- `--mg-color-canvas` (strona) → `--mg-color-surface` (karta, JEDYNY poziom z cieniem `--mg-shadow-raised*`) → `--mg-color-mist` (pole = biel 45 %: `.mg-v2-field`, `.mg-v2-editor-canvas`, `.mg-v2-pill`, `.mg-v2-button`, `.mg-v2-badge`, zagnieżdżone karty `.mg-v2-surface--flat`) → `--mg-color-paper` (wnętrze = biel 80 %: hover, aktywny segment, zaznaczony chip, oraz automatycznie każde pole/chip/przycisk WEWNĄTRZ bloku `--flat`). Tło strony ma wyraźniejszy błękit, a kroki wewnątrz kart pozostają małe; im głębiej, tym bielej, nigdy z powrotem w niebieski („paski”) i nigdy do czystej bieli.
-- Karty pierwszego poziomu = `mg-v2-surface mg-v2-surface--raised-sm` (bez `--paper`); karty zagnieżdżone = `--flat` bez cienia.
+- `--mg-color-canvas` (strona) → `--mg-color-surface` (karta, cień `--mg-shadow-raised*`; od 2026-11-14 wysokość ma każdy poziom — sekcja „Wysokość na każdym poziomie”) → `--mg-color-mist` (pole = biel 45 %: `.mg-v2-field`, `.mg-v2-editor-canvas`, `.mg-v2-pill`, `.mg-v2-button`, `.mg-v2-badge`, zagnieżdżone karty `.mg-v2-surface--flat`) → `--mg-color-paper` (wnętrze = biel 80 %: hover, aktywny segment, zaznaczony chip, oraz automatycznie każde pole/chip/przycisk WEWNĄTRZ bloku `--flat`). Tło strony ma wyraźniejszy błękit, a kroki wewnątrz kart pozostają małe; im głębiej, tym bielej, nigdy z powrotem w niebieski („paski”) i nigdy do czystej bieli.
+- Karty pierwszego poziomu = `mg-v2-surface mg-v2-surface--raised-sm` (bez `--paper`); karty zagnieżdżone = `--flat` z cieniem `--mg-shadow-nested`.
 - Pola i edytory są treścią, nie kontrolkami: płaskie, w tonie pola, z cienką krawędzią `--mg-color-field-border`, bez `inset`; fokus = ramka akcentu, bez rozjaśniania tła. Wklęsłość (`--mg-shadow-inset*`) tylko dla kontrolek: `.mg-v2-segmented`, stan wciśnięty przycisku, zaznaczony checkbox.
 - Akcja główna = `.mg-v2-button--primary`: wypełnienie `--mg-color-primary-fill` (surowy `--color-primary-strong`) z białą etykietą. Pozostałe przyciski i chipy = wnętrze z małym cieniem; ikony w kontrolkach mają kolor akcentu `--mg-color-primary`, nigdy atramentu.
 - Zaznaczone chipy (`.mg-v2-pill--primary`, `--selected`) = cienki obrys akcentu, płasko — bez wklęsłości i bez niebieskiej wypełnienia.
@@ -99,7 +99,7 @@ Wdrożenie propozycji A z audytu 2026-10-18 (plan i porównanie:
 - **Nowe role:** `--mg-weight-body/label/strong/title` (400/600/700/800 — jedyne
   dozwolone wagi), `--mg-font-size-chart` (11 px, tylko osie wykresów),
   `--mg-radius-xs` (8 px), `--mg-radius-button` (= `md`; każdy przycisk tekstowy),
-  `--mg-shadow-control` (chipy/przyciski — w Cirrus `none`), `--mg-shadow-raised-md`,
+  `--mg-shadow-control` (chipy/przyciski — w Cirrus `none`, od 2026-11-14 cień karty), `--mg-shadow-raised-md`,
   `--mg-duration-base`, `--mg-color-text` (aliasy dla istniejących odwołań).
 - **Skala:** `--mg-font-size-xs` = 12 px (było 11). `--mg-color-muted` =
   `rgb(var(--color-on-surface-variant))` — jedyny wyciszony atrament.
@@ -235,3 +235,40 @@ Kolor i gęstość przez zmienne `--ds-rating-fill`, `--ds-rating-bar-width`,
 `QuietRatingBar` (obciążenie = atrament, stan = kolor pary, wysiłek = róż, kompas
 kompaktowy) i krótkie skale w `MicroExerciseRunner`. Rzędy 1–5 (`layout="row"`) i
 skale 6–11 (`ExerciseScaleRow`) to osobne anatomie.
+
+## Wysokość na każdym poziomie (2026-11-14)
+
+Decyzja użytkownika po porównaniu czterech wariantów na żywej aplikacji
+(`ideas/design-experiments/elevation-2026-11/`): drabinka tonalna zostaje, a
+każdy jej poziom dostaje też wysokość. Jedno światło (biel z lewej-góry, niebo
+z prawej-dołu), cztery stopnie:
+
+| Rola | Token | Gdzie |
+|---|---|---|
+| karta | `--mg-shadow-raised-sm` | `mg-v2-surface--raised-sm` |
+| blok zagnieżdżony w karcie | `--mg-shadow-nested` (pół cienia karty) | `mg-v2-surface--flat`, `mg-v2-group`, `mg-v2-block`, grupy planu dnia, blok ścieżki, ocena okresu w Kalendarzu |
+| kontrolka w spoczynku | `--mg-shadow-control` (= cień karty) | `mg-v2-button`, `mg-v2-pill`, `mg-v2-tile`, kafelki „Dzisiaj”, kafle rodzin w Kalendarzu, `exercise-option` |
+| kontrolka pod kursorem | `--mg-shadow-control-hover` + `translate: 0 var(--mg-lift-hover)` | te same |
+
+- **Trzy stany kontrolki:** spoczynek = chmura (`control`), hover = o stopień
+  bielej (papier) + wyższy cień + 1 px w górę, wciśnięta / wybrana = wklęsła
+  (`--mg-shadow-inset-sm`, bez uniesienia). Uniesienie to właściwość `translate`,
+  nie `transform`, żeby nie gryzło się z przekręceniem płytek.
+- **Kontrolka to to, w co się klika.** Chip-status (`span.mg-v2-pill`) odpoczywa
+  na cieniu, ale nie reaguje na kursor; `mg-v2-badge` to fakt, nie kontrolka —
+  płaski. `mg-v2-button--quiet` i zaznaczony chip (`--selected`) zostają płaskie.
+  Duch (`mg-v2-ghost`) w spoczynku nie ma cienia („jeszcze nie”), budzi się na hover.
+- **Pola tekstowe i edytory są treścią** — dalej płaskie (`mg-v2-field`,
+  `mg-v2-input`, `mg-v2-editor-canvas`). `--mg-shadow-nested` jest dla bloków
+  grupujących, nie dla pól.
+- **„Dziś” w „Najbliżej”** = pierścień `--mg-shadow-current-ring` nad zwykłym
+  cieniem kontrolki; kafelek pod kursorem nie ma pierścienia, więc się nie myli.
+- Nowa kontrolka w feature CSS bierze `--mg-shadow-control` / `-control-hover` /
+  `--mg-lift-hover`, nigdy `--mg-shadow-raised-sm` „na hover”.
+- **Wyjątek: kafel wybierany kolorem (2026-11-14).** Gdy zaznaczenie pokazuje
+  wypełnienie w kolorze domenowym (kafle grup w `EmotionGroupPicker`), wybrany kafel
+  zostaje wypukły (`control`, uniesienie pod kursorem), a jego ramka przyjmuje kolor
+  wypełnienia. Wklęsły kolorowy kafel czytał się jak płaska plama z konturem. Picker
+  ma anatomię kafla Kompasu (mgła w spoczynku, papier pod kursorem, `--mg-color-border` + `control`, ikona w polu
+  `--mg-radius-icon-field-a`), kolor ćwiartki tylko w polu ikony, kropkach natężenia
+  i wypełnieniu wybranego kafla; karta-gospodarz się nie tintuje.

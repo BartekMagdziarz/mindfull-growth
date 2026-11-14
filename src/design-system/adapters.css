@@ -340,7 +340,7 @@ select {
   box-shadow: var(--mg-shadow-raised);
 }
 
-/* Legacy nested blocks → field tone, flat. */
+/* Legacy nested blocks → field tone with the nested lift (like .mg-v2-block). */
 .neo-panel.neo-panel,
 .neo-embedded.neo-embedded,
 .neo-inset.neo-inset,
@@ -349,7 +349,7 @@ select {
   background-image: none;
   border: 1px solid var(--mg-color-border-subtle);
   border-radius: var(--mg-radius-md);
-  box-shadow: none;
+  box-shadow: var(--mg-shadow-nested);
 }
 
 .neo-input.neo-input,
@@ -361,7 +361,7 @@ select {
   box-shadow: none;
 }
 
-/* Legacy controls → flat V2 controls. */
+/* Legacy controls → V2 controls (clouds on --mg-shadow-control). */
 .neo-control.neo-control,
 .neo-pill.neo-pill,
 .neo-selector.neo-selector,
@@ -499,10 +499,9 @@ select {
   font-weight: var(--mg-weight-label);
 }
 
-/* Flat controls: chips and buttons carry no shadow in Cirrus. */
-.mg-v2-button.mg-v2-button:not(.mg-v2-button--primary),
-.mg-v2-pill.mg-v2-pill,
-.mg-v2-badge.mg-v2-badge,
+/* The picked segment is a control resting in the well. Buttons and chips take
+   --mg-shadow-control in base.css (with hover and pressed states); badges are
+   facts, not controls, and stay flat. */
 .mg-v2-segmented.mg-v2-segmented button[aria-selected='true'] {
   box-shadow: var(--mg-shadow-control);
 }
