@@ -144,6 +144,7 @@ export const navGroups: LabNavGroup[] = [
     items: [
       { id: 'today-tiles', label: 'Prawa kolumna jako kafle', kicker: 'Runda 2 · WDROŻONE do produktu 11.10.2026 (plan dnia „Praktyki”, kafle Najbliżej, kafle postępu ścieżek)', icon: 'grid_view', path: '/concepts/today-tiles', kind: 'concept' },
       { id: 'today-row-expansion', label: 'Rozwinięty wiersz planu dnia', kicker: 'Eksperyment · dysk „dziś” kończy wstęgę 7 dni · jedno przejście z tacki do akcji', icon: 'unfold_more', path: '/concepts/today-row-expansion', kind: 'concept' },
+      { id: 'today-row-actions', label: 'Akcje wiersza planu dnia', kicker: 'WDROŻONE do produktu 14.11.2026 (sam tekst) · rozwinięty wiersz bez pigułek · ± z własnym miejscem', icon: 'edit_calendar', path: '/concepts/today-row-actions', kind: 'concept' },
     ],
   },
   {
@@ -151,6 +152,7 @@ export const navGroups: LabNavGroup[] = [
     label: 'Ścieżki',
     items: [
       { id: 'path-week-reflection', label: 'Krok „Ścieżka” w refleksji tygodnia', kicker: 'Wdrożone 11.10.2026 · zadanie liczy zadanie, dopisz moment (≤2), jedna kolumna z trzema sekcjami · runda 3b', icon: 'route', path: '/concepts/path-week-reflection', kind: 'concept' },
+      { id: 'path-view-v3', label: 'Widok ścieżki · runda 7', kicker: 'Propozycja · fazy poziomo na całą szerokość, otwarta faza rozlana w pole, opis tylko bieżącego kroku, praktyki jako dyski', icon: 'route', path: '/concepts/path-view-v3', kind: 'concept' },
       { id: 'path-view-v2', label: 'Widok ścieżki · runda 6', kicker: 'Propozycja · numer po lewej, dysk po prawej, kafle kroków, „co i po co”, reset', icon: 'route', path: '/concepts/path-view-v2', kind: 'concept' },
       { id: 'shame-path', label: 'Ze wstydu do współczucia', kicker: 'P2 · runda 5 · WDROŻONE do produktu 05.10.2026 (ProgramDetailView, refleksja, Dzisiaj)', icon: 'route', path: '/concepts/shame-path', kind: 'concept' },
       { id: 'today-path-panel', label: 'Pole „Ścieżki”', kicker: 'Eksperyment · małe pole w Dzisiaj + dashboard widoku ścieżki · runda 2', icon: 'route', path: '/concepts/today-path-panel', kind: 'concept' },
@@ -176,6 +178,7 @@ export const navGroups: LabNavGroup[] = [
     id: 'journal-concepts',
     label: 'Dziennik',
     items: [
+      { id: 'journal-ai-panel', label: 'Panel „Dziennik z AI” w rozmowie', kicker: 'Propozycja · osobny czat, propozycje tematów i wcześniejsza rozmowa · runda 1', icon: 'forum', path: '/concepts/journal-ai-panel', kind: 'concept' },
       { id: 'journal-editor-actions', label: 'Przyciski edytora i przełącznik Emocje/AI', kicker: 'Wariant D WDROŻONY 2026-10-27 · Zapisz w płótnie, kapsułka przy dacie, bez Anuluj, Czat w AI · A/B/C do porównania', icon: 'edit_note', path: '/concepts/journal-editor-actions', kind: 'concept' },
     ],
   },
@@ -183,6 +186,7 @@ export const navGroups: LabNavGroup[] = [
     id: 'emotion-concepts',
     label: 'Emocje',
     items: [
+      { id: 'emotion-picker-raised', label: 'Wypukły picker emocji', kicker: 'Propozycja · D: kafle Kompasu, kropki natężenia pod nazwą · runda 4', icon: 'layers', path: '/concepts/emotion-picker-raised', kind: 'concept' },
       { id: 'emotion-picker', label: 'Styl pickera emocji', kicker: 'Eksperyment · 3 nowe kierunki i 4 wcześniejsze skórki', icon: 'palette', path: '/concepts/emotion-picker', kind: 'concept' },
     ],
   },
@@ -190,6 +194,8 @@ export const navGroups: LabNavGroup[] = [
     id: 'reflection-concepts',
     label: 'Refleksja',
     items: [
+      { id: 'week-rating-field', label: 'Pole oceny tygodnia', kicker: 'Kafle obszarów (kierunek C), hover C1: kropki pod znakiem · WDROŻONE do produktu 14.11.2026 · runda 2', icon: 'view_week', path: '/concepts/week-rating-field', kind: 'concept' },
+      { id: 'load-state-clouds', label: 'Obciążenie i stan jako chmury', kicker: 'Propozycja · tygodnie w wierszach, obszary w kolumnach; słupek = obciążenie, kropka w kolorze słupka = stan; WDROŻONE do produktu 14.11.2026 (kalendarz i refleksje; macierz tydzień × obszar, przejście w słupku dla stanu 3) · runda 8', icon: 'cloud', path: '/concepts/load-state-clouds', kind: 'concept' },
       { id: 'week-load-state', label: 'Obciążenie i stan tygodnia', kicker: 'Eksperyment · jeden kolor na parę ocen', icon: 'blur_circular', path: '/concepts/week-load-state', kind: 'concept' },
       { id: 'week-load-state-places', label: 'Wstęga w miejscu', kicker: 'Eksperyment · wstęga osadzona w kalendarzu, podsumowaniu i rytuałach', icon: 'space_dashboard', path: '/concepts/week-load-state-places', kind: 'concept' },
     ],
