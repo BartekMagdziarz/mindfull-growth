@@ -353,7 +353,7 @@
       "clearEntry": "Wyczyść wpis",
       "hideForToday": "Ukryj na dziś",
       "restore": "Przywróć",
-      "moveToDay": "Przenieś na dzień",
+      "moveToDay": "Przenieś na inny dzień",
       "clearToday": "Usuń z dziś",
       "showHiddenSection": "Pokaż ukryte",
       "hideHiddenSection": "Ukryj listę",
@@ -467,12 +467,13 @@
       "nowNext": "Najbliższy krok {date}: {step}"
     },
     "stage": {
-      "tomorrow": "Jutro",
-      "day": "Dzień",
-      "hide": "Ukryj",
-      "clearToday": "Usuń z dziś",
-      "open": "Otwórz",
-      "context": "Kontekst",
+      "tomorrow": "jutro",
+      "day": "inny dzień",
+      "notToday": "nie dziś",
+      "open": "otwórz",
+      "context": "kontekst",
+      "delete": "usuń",
+      "skip": "pomiń",
       "actionsLabel": "Akcje: {title}"
     },
     "completedCount": "Wykonane ({n})",

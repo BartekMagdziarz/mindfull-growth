@@ -353,7 +353,7 @@
       "clearEntry": "Clear entry",
       "hideForToday": "Hide for today",
       "restore": "Restore",
-      "moveToDay": "Move to day",
+      "moveToDay": "Move to another day",
       "clearToday": "Clear today",
       "showHiddenSection": "Show hidden",
       "hideHiddenSection": "Hide hidden",
@@ -467,12 +467,13 @@
       "nowNext": "Next step {date}: {step}"
     },
     "stage": {
-      "tomorrow": "Tomorrow",
-      "day": "Day",
-      "hide": "Hide",
-      "clearToday": "Clear today",
-      "open": "Open",
-      "context": "Context",
+      "tomorrow": "tomorrow",
+      "day": "another day",
+      "notToday": "not today",
+      "open": "open",
+      "context": "context",
+      "delete": "delete",
+      "skip": "skip",
       "actionsLabel": "Actions: {title}"
     },
     "completedCount": "Completed ({n})",

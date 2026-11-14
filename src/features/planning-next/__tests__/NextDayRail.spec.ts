@@ -192,22 +192,25 @@ describe('NextDayRail — inline stage', () => {
       .find('button.ndi__label')
       .trigger('click')
     expect(wrapper.findAll('.ndi--staged .ndi__actions button').map(labelOf)).toEqual([
-      'Jutro',
-      'Dzień',
-      'Ukryj',
-      'Kontekst',
+      'jutro',
+      'inny dzień',
+      'nie dziś',
+      'kontekst',
     ])
     const scheduledRow = wrapper.findAll('.ndi').find(row => row.text().includes('Rozciąganie'))!
-    expect(
-      scheduledRow.findAll('.ndi__tray button').map(button => button.attributes('title'))
-    ).toEqual(['Przenieś na jutro', 'Przenieś na dzień', 'Usuń z dziś', 'Otwórz obiekt', 'Usuń'])
+    expect(scheduledRow.findAll('.ndi__tray button').map(labelOf)).toEqual([
+      'jutro',
+      'inny dzień',
+      'nie dziś',
+      'otwórz',
+    ])
     expect(scheduledRow.find('button.ndi__well--button').exists()).toBe(true)
   })
 
   it('clears the assignment through the quick action on a past day', async () => {
     vi.setSystemTime(new Date('2026-03-20T12:00:00'))
     const wrapper = await mountRail([openHabit])
-    await wrapper.find('.ndi__tray button[title="Usuń z dziś"]').trigger('click')
+    await wrapper.find('.ndi__tray button[data-flip="not-today"]').trigger('click')
     await flushPromises()
     expect(actions.clearTodayMeasurementAssignment).toHaveBeenCalledWith(
       expect.objectContaining({ key: openHabit.key }),
@@ -233,10 +236,10 @@ describe('NextDayRail — inline stage', () => {
     expect(staged[0].find('.ndi__strip').exists()).toBe(true)
     expect(staged[0].findAll('.ndi__day')).toHaveLength(6)
     expect(staged[0].findAll('.ndi__actions button').map(labelOf)).toEqual([
-      'Jutro',
-      'Dzień',
-      'Ukryj',
-      'Kontekst',
+      'jutro',
+      'inny dzień',
+      'nie dziś',
+      'kontekst',
     ])
 
     const habitRow = wrapper.findAll('.ndi').find(row => row.text().includes('Rozciąganie'))!
@@ -245,10 +248,11 @@ describe('NextDayRail — inline stage', () => {
     expect(restaged).toHaveLength(1)
     expect(restaged[0].text()).toContain('Rozciąganie')
     expect(restaged[0].findAll('.ndi__actions button').map(labelOf)).toEqual([
-      'Jutro',
-      'Dzień',
-      'Usuń z dziś',
-      'Otwórz',
+      'jutro',
+      'inny dzień',
+      'nie dziś',
+      'otwórz',
+      'usuń',
     ])
 
     // Clicking the expanded row again folds it — no row has to stay open.
@@ -296,7 +300,7 @@ describe('NextDayRail — inline stage', () => {
 
       await wrapper
         .findAll('.ndi--staged .ndi__actions button')
-        .find(button => labelOf(button) === 'Ukryj')!
+        .find(button => labelOf(button) === 'nie dziś')!
         .trigger('click')
       await flushPromises()
       expect(actions.hideTodayItem).toHaveBeenCalledWith(
@@ -344,7 +348,7 @@ describe('NextDayRail — inline stage', () => {
 
     await wrapper
       .findAll('.ndi--staged .ndi__actions button')
-      .find(button => labelOf(button) === 'Jutro')!
+      .find(button => labelOf(button) === 'jutro')!
       .trigger('click')
     await flushPromises()
     expect(actions.rescheduleContextItem).toHaveBeenCalledWith(
@@ -480,7 +484,7 @@ describe('Today calendar integration', () => {
     const rail = mount(NextDayRail, { props: { dayRef: DAY, calendarContext: true } })
     await flushPromises()
     const calendar = mount(NextDayPlanCalendar, { props: { dayRef: DAY, expanded: false } })
-    await rail.find('.ndi__tray button[title="Przenieś na dzień"]').trigger('click')
+    await rail.find('.ndi__tray button[data-flip="day"]').trigger('click')
     const cells = calendar.findAll('.day-plan-calendar__days button')
     expect(cells[3].attributes('disabled')).toBeDefined()
     await cells[0].trigger('click')

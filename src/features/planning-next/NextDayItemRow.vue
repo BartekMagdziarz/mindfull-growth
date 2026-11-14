@@ -5,6 +5,7 @@
     :class="{
       'ndi--staged': staged,
       'ndi--history': staged && Boolean(history),
+      'ndi--stepper': isStepperMode,
       'ndi--settling': settling,
       'ndi--lit': lit,
       'ndi--dim': dim,
@@ -12,7 +13,7 @@
     @click="emit('select')"
   >
     <!-- Row = one object for this day. Clicking the row (or its title) brings it onto
-         the stage in one motion: the tray icons fly left and grow their labels under
+         the stage in one motion: the tray words fly left to their line under
          the title, the entry disc drops onto the axis of the last seven days, and the
          six history dots fan out of it. Nothing is ever drawn twice: the disc is the
          same element in both states (grid area changes, FLIP animates the move). -->
@@ -43,9 +44,10 @@
           <strong>{{ title }}</strong>
         </button>
 
-        <!-- Icon tray: an overlay on the title's right edge, quiet until hover or
-             keyboard focus, so titles keep their full width. The staged row carries the
-             same actions as labelled buttons inside its expansion instead. -->
+        <!-- Word tray: an overlay on the title's right edge, quiet until hover or
+             keyboard focus, so titles keep their full width. Plain words, never
+             icons mixed with text; the staged row carries the same words under
+             its title. -->
         <span
           v-if="!staged"
           ref="trayRef"
@@ -57,107 +59,24 @@
           @keydown.right.prevent="moveTrayFocus(1)"
           @keydown.esc.stop.prevent="leaveTray"
         >
-          <template v-if="canReschedule">
-            <button
-              v-if="canTomorrow"
-              type="button"
-              tabindex="-1"
-              class="ndi__action"
-              data-flip="tomorrow"
-              :title="t('planning.today.actions.moveToTomorrow')"
-              :aria-label="`${t('planning.today.actions.moveToTomorrow')}: ${title}`"
-              @click="emit('move-tomorrow')"
-            >
-              <AppIcon name="east" />
-            </button>
-            <button
-              type="button"
-              tabindex="-1"
-              class="ndi__action"
-              data-flip="day"
-              :title="t('planning.today.actions.moveToDay')"
-              :aria-label="`${t('planning.today.actions.moveToDay')}: ${title}`"
-              @click="emit('pick-day')"
-            >
-              <AppIcon name="calendar_month" />
-            </button>
-          </template>
           <button
-            v-if="item.isScheduledToday"
+            v-for="action in trayActions"
+            :key="action.id"
             type="button"
             tabindex="-1"
-            class="ndi__action"
-            data-flip="clear-today"
-            :title="t('planning.today.actions.clearToday')"
-            :aria-label="`${t('planning.today.actions.clearToday')}: ${title}`"
-            @click="emit('clear-schedule')"
+            class="nd-word"
+            :data-flip="action.id"
+            :aria-label="`${action.name}: ${title}`"
+            @click="action.run()"
           >
-            <AppIcon name="event_busy" />
-          </button>
-          <button
-            v-else-if="item.canHide"
-            type="button"
-            tabindex="-1"
-            class="ndi__action"
-            data-flip="hide"
-            :title="t('planning.today.actions.hideForToday')"
-            :aria-label="`${t('planning.today.actions.hideForToday')}: ${title}`"
-            @click="emit('hide')"
-          >
-            <AppIcon name="visibility_off" />
-          </button>
-          <button
-            v-if="item.kind === 'measurement' && item.todayEntry"
-            type="button"
-            tabindex="-1"
-            class="ndi__action"
-            :title="t('planning.today.actions.clearEntry')"
-            :aria-label="`${t('planning.today.actions.clearEntry')}: ${title}`"
-            @click="emit('clear-entry')"
-          >
-            <AppIcon name="ink_eraser" />
-          </button>
-          <button
-            v-if="canOpenObject"
-            type="button"
-            tabindex="-1"
-            class="ndi__action"
-            data-flip="open"
-            :title="t('planning.objects.actions.open')"
-            :aria-label="`${t('planning.objects.actions.open')}: ${title}`"
-            @click="emit('open-object')"
-          >
-            <AppIcon name="open_in_new" />
-          </button>
-          <button
-            v-else
-            type="button"
-            tabindex="-1"
-            class="ndi__action"
-            data-flip="context"
-            :title="t('planning.today.actions.openContext')"
-            :aria-label="`${t('planning.today.actions.openContext')}: ${title}`"
-            @click="emit('open-context')"
-          >
-            <AppIcon name="event" />
-          </button>
-          <button
-            v-if="item.isScheduledToday"
-            type="button"
-            tabindex="-1"
-            class="ndi__action ndi__action--danger"
-            :title="t('common.buttons.delete')"
-            :aria-label="`${t('common.buttons.delete')}: ${title}`"
-            @click="emit('request-delete')"
-          >
-            <AppIcon name="delete" />
+            {{ action.label }}
           </button>
         </span>
       </div>
     </div>
 
-    <!-- Staged: the tray's actions as labelled buttons under the title. Same data-flip
-         keys as the tray icons, so each icon has a destination to fly to. -->
+    <!-- Staged: the same words under the title, plus the rare "usuń". Same
+         data-flip keys as the tray, so each word has a destination to fly to. -->
     <div
       v-if="staged"
       class="ndi__actions"
@@ -165,41 +84,20 @@
       :aria-label="t('planning.today.stage.actionsLabel', { title })"
       @click.stop
     >
-      <template v-if="canReschedule">
-        <button
-          v-if="canTomorrow"
-          type="button"
-          data-flip="tomorrow"
-          @click="emit('move-tomorrow')"
-        >
-          <AppIcon name="east" /><span>{{ t('planning.today.stage.tomorrow') }}</span>
-        </button>
-        <button
-          type="button"
-          data-flip="day"
-          :class="{ 'is-active': targeting }"
-          :aria-pressed="targeting"
-          @click="emit('pick-day')"
-        >
-          <AppIcon name="calendar_month" /><span>{{ t('planning.today.stage.day') }}</span>
-        </button>
-      </template>
       <button
-        v-if="item.isScheduledToday"
+        v-for="action in rowActions"
+        :key="action.id"
         type="button"
-        data-flip="clear-today"
-        @click="emit('clear-schedule')"
+        class="nd-word"
+        :class="{
+          'nd-word--danger': action.danger,
+          'is-active': action.id === 'day' && targeting,
+        }"
+        :data-flip="action.id"
+        :aria-pressed="action.id === 'day' ? targeting : undefined"
+        @click="action.run()"
       >
-        <AppIcon name="event_busy" /><span>{{ t('planning.today.stage.clearToday') }}</span>
-      </button>
-      <button v-else-if="item.canHide" type="button" data-flip="hide" @click="emit('hide')">
-        <AppIcon name="visibility_off" /><span>{{ t('planning.today.stage.hide') }}</span>
-      </button>
-      <button v-if="canOpenObject" type="button" data-flip="open" @click="emit('open-object')">
-        <AppIcon name="open_in_new" /><span>{{ t('planning.today.stage.open') }}</span>
-      </button>
-      <button v-else type="button" data-flip="context" @click="emit('open-context')">
-        <AppIcon name="event" /><span>{{ t('planning.today.stage.context') }}</span>
+        {{ action.label }}
       </button>
     </div>
 
@@ -407,7 +305,7 @@ const props = withDefaults(
     allDayAssignments: MeasurementDayAssignment[]
     dragEnabled?: boolean
     isPending?: boolean
-    /** This row is the current stage: labelled actions + history strip shown, icon tray hidden. */
+    /** This row is the current stage: action words + history strip shown, hover tray hidden. */
     staged?: boolean
     /** The "Dzień" action is armed (calendar waits for a destination). */
     targeting?: boolean
@@ -472,6 +370,77 @@ const canOpenObject = computed(
 // Scheduled rows move; week/month measurement rows can be re-homed on another day (hidden here).
 const canReschedule = computed(() => canRescheduleItem(props.item))
 const canTomorrow = computed(() => canMoveToTomorrow(props.item, props.todayDayRef))
+
+// One list of actions for both places, always as words. The tray carries the
+// everyday ones; "usuń" waits in the staged row. "Nie dziś" is one word for two
+// mutually exclusive moves: a scheduled row leaves this day, a context row is
+// hidden for today. Clearing an entry is the disc's own job (click it again,
+// step down to zero, empty the field), so it has no word here.
+interface RowAction {
+  id: 'tomorrow' | 'day' | 'not-today' | 'open' | 'context' | 'delete'
+  /** The visible word. */
+  label: string
+  /** Full name for assistive tech in the tray, where the row title follows it. */
+  name: string
+  danger?: boolean
+  run: () => void
+}
+const rowActions = computed<RowAction[]>(() => {
+  const list: RowAction[] = []
+  const notToday = t('planning.today.stage.notToday')
+  if (canReschedule.value) {
+    if (canTomorrow.value) {
+      list.push({
+        id: 'tomorrow',
+        label: t('planning.today.stage.tomorrow'),
+        name: t('planning.today.actions.moveToTomorrow'),
+        run: () => emit('move-tomorrow'),
+      })
+    }
+    list.push({
+      id: 'day',
+      label: t('planning.today.stage.day'),
+      name: t('planning.today.actions.moveToDay'),
+      run: () => emit('pick-day'),
+    })
+  }
+  if (props.item.isScheduledToday) {
+    list.push({
+      id: 'not-today',
+      label: notToday,
+      name: notToday,
+      run: () => emit('clear-schedule'),
+    })
+  } else if (props.item.canHide) {
+    list.push({ id: 'not-today', label: notToday, name: notToday, run: () => emit('hide') })
+  }
+  if (canOpenObject.value) {
+    list.push({
+      id: 'open',
+      label: t('planning.today.stage.open'),
+      name: t('planning.objects.actions.open'),
+      run: () => emit('open-object'),
+    })
+  } else {
+    list.push({
+      id: 'context',
+      label: t('planning.today.stage.context'),
+      name: t('planning.today.actions.openContext'),
+      run: () => emit('open-context'),
+    })
+  }
+  if (props.item.isScheduledToday) {
+    list.push({
+      id: 'delete',
+      label: t('planning.today.stage.delete'),
+      name: t('common.buttons.delete'),
+      danger: true,
+      run: () => emit('request-delete'),
+    })
+  }
+  return list
+})
+const trayActions = computed(() => rowActions.value.filter(action => action.id !== 'delete'))
 const isCompletionToggle = computed(() => viz.entryMode.value === 'completion')
 const completionDone = computed(() =>
   viz.completionSlots.value.some(slot => slot.state === 'today-done')
@@ -598,9 +567,9 @@ function clearTip(): void {
 onBeforeUnmount(clearTip)
 
 // ---------------------------------------------------------------------------
-// Stage transition. Everything marked data-flip (the four actions, the disc) is
+// Stage transition. Everything marked data-flip (the action words, the disc) is
 // measured before the DOM changes and animated from its old box to its new one
-// once it has settled. Tray icon → labelled button are different nodes with the
+// once it has settled. Tray word → staged word are different nodes with the
 // same key; the disc is the same node changing grid area.
 const FLIP_MS = 300
 const FLIP_EASE = 'cubic-bezier(.2, .7, .2, 1)'
@@ -635,18 +604,6 @@ function playFlip(root: HTMLElement, before: Map<string, DOMRect>): void {
       duration: FLIP_MS,
       easing: FLIP_EASE,
     })
-    // A label that appears mid-flight: the icon leads, the word follows.
-    const label = el.matches('.ndi__actions > button')
-      ? el.querySelector<HTMLElement>(':scope > span')
-      : null
-    label?.animate(
-      [
-        { opacity: 0, transform: 'translateX(-4px)' },
-        { opacity: 0, offset: 0.35 },
-        { opacity: 1, transform: 'none' },
-      ],
-      { duration: FLIP_MS + 80, easing: 'ease-out' }
-    )
   })
 }
 
@@ -659,7 +616,7 @@ watch(
     if (!root || !motionAllowed()) return
     const before = snapshotFlip(root)
     if (!next) {
-      // Folding: keep the tray visible while the labelled buttons fly back into it.
+      // Folding: keep the tray visible while the words fly back into it.
       settling.value = true
       if (settleTimer) clearTimeout(settleTimer)
       settleTimer = setTimeout(() => {
@@ -713,7 +670,7 @@ const historyDays = computed<HistoryDay[]>(() => {
   const numericScale = isRating.value
     ? viz.ratingScale.value
     : Math.max(1, ...points.map(point => Math.max(point.target ?? 0, point.value ?? 0)))
-  const multiThreshold =
+  const fallbackMultiThreshold =
     props.item.kind === 'measurement' && mode === 'multi-completion'
       ? multiCompletionEffectiveThreshold(props.item.subject)
       : 0
@@ -730,6 +687,7 @@ const historyDays = computed<HistoryDay[]>(() => {
     if (mode === 'completion') return { ...base, state: missed ? 'missed' : 'done' }
     const value = point.value ?? 0
     if (mode === 'multi-completion') {
+      const multiThreshold = point.target ?? fallbackMultiThreshold
       if (multiThreshold > 0 && value >= multiThreshold) return { ...base, state: 'done' }
       if (value <= 0) return { ...base, state: missed ? 'missed' : 'empty' }
       const share = Math.min(100, Math.round((value / Math.max(multiThreshold, value)) * 100))
@@ -872,7 +830,7 @@ function submitValueDraft(event: Event): void {
 
 <style scoped>
 .ndi {
-  --ndi-cell: 3.2rem;
+  --ndi-cell: 2.6rem;
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -915,12 +873,18 @@ function submitValueDraft(event: Event): void {
   min-height: 2.1rem;
 }
 
-/* Staged: actions take a second row under the title. With history the strip
+/* Counter and rating: ± sit in the last stretch of the title column, beside
+   the disc. The title and its tray end before them, so the two never touch. */
+.ndi--stepper:not(.ndi--history) .ndi__main {
+  padding-right: calc(1.25rem + var(--mg-space-1));
+}
+
+/* Staged: the words take a second row under the title. With history the strip
    spans both rows on the right and the disc joins it as the last cell, so it
    lands lower than in the collapsed row — the intended drop. */
 .ndi--staged {
   grid-template-areas: 'main entry' 'actions actions';
-  row-gap: var(--mg-space-2);
+  row-gap: var(--mg-space-1);
   padding-bottom: var(--mg-space-2);
   cursor: default;
 }
@@ -931,41 +895,19 @@ function submitValueDraft(event: Event): void {
   column-gap: var(--mg-space-1);
 }
 
+/* The words start on the title's left edge (their own padding is subtracted).
+   They wrap rather than ever reach the strip. */
 .ndi__actions {
   grid-area: actions;
-  display: grid;
-  grid-template-columns: repeat(4, max-content);
-  gap: var(--mg-space-1);
-  justify-content: start;
-  padding-left: calc(1.85rem + var(--mg-space-2));
-}
-
-.ndi--history .ndi__actions {
-  padding-right: var(--mg-space-3);
-}
-
-.ndi__actions > button {
-  display: inline-flex;
-  gap: var(--mg-space-1);
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  padding: 3px var(--mg-space-2);
-  border: 1px solid var(--mg-color-border);
-  border-radius: var(--mg-radius-organic-b);
-  color: var(--mg-color-muted);
-  background: var(--mg-color-paper);
-  font-size: var(--mg-font-size-xs);
-  font-weight: 800;
-  cursor: pointer;
+  min-width: 0;
+  padding-left: calc(1.85rem + var(--mg-space-2) - var(--nd-word-pad));
 }
 
-.ndi__actions > button:hover,
-.ndi__actions > button.is-active {
-  color: var(--mg-color-primary-strong);
-  background: var(--mg-color-sky-well);
-}
-
-.ndi__actions .material-symbols-outlined {
-  font-size: var(--mg-font-size-sm);
+.ndi__actions .nd-word--danger {
+  margin-left: var(--mg-space-1);
 }
 
 /* The strip: fixed cells, never stretched with the row. */
@@ -1091,7 +1033,7 @@ function submitValueDraft(event: Event): void {
   animation-delay: calc(var(--idx, 0) * 24ms);
 }
 
-/* Folding in flight: the tray stays visible while the labelled buttons fly back. */
+/* Folding in flight: the tray stays visible while the words fly back. */
 .ndi--settling .ndi__tray {
   opacity: 1;
   pointer-events: auto;
@@ -1432,7 +1374,6 @@ function submitValueDraft(event: Event): void {
   top: 50%;
   right: 0;
   display: inline-flex;
-  gap: 2px;
   padding-left: var(--mg-space-3);
   background: linear-gradient(to right, transparent, var(--mg-color-mist) var(--mg-space-3));
   opacity: 0;
@@ -1449,33 +1390,6 @@ function submitValueDraft(event: Event): void {
 
 .ndi--lit .ndi__tray {
   background: linear-gradient(to right, transparent, var(--mg-color-sky-field) var(--mg-space-3));
-}
-
-.ndi__action {
-  display: grid;
-  place-items: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  border: 1px solid transparent;
-  border-radius: var(--mg-radius-organic-a);
-  color: var(--mg-color-muted);
-  background: transparent;
-  cursor: pointer;
-}
-
-.ndi__action .material-symbols-outlined {
-  font-size: var(--mg-font-size-sm);
-}
-
-.ndi__action:hover {
-  color: var(--mg-color-primary-strong);
-  background: var(--mg-color-surface);
-  box-shadow: var(--mg-shadow-raised-sm);
-}
-
-.ndi__action--danger,
-.ndi__action--danger:hover {
-  color: var(--mg-color-rose);
 }
 
 .ndi__well:disabled,

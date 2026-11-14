@@ -853,3 +853,40 @@ tu żyją w CSS komponentu na anatomii `mg-well` — przy kolejnym konsumencie s
 powinna trafić do części wspólnej. Informacja „szkic” przy nagłówku pola przeszła do opisu
 kafla. Odsłonięcie wymaga kursora albo fokusu — zgodnie z zasadą „tylko przeglądarka desktopowa”.
 
+
+## 2026-11-14 — Akcje wiersza planu dnia jako słowa; plus i minus poza tacką
+
+Kontekst: w „Dzisiaj” (1512 px) rozwinięty wiersz planu dnia miał cztery podpisane pigułki z
+obrysem, które potrzebowały 353 px przy lewej kolumnie 243 px — ostatnia kończyła się 106 px w
+głąb wstęgi siedmiu dni. Tacka ikon kończyła się 8 px przed dyskiem, a ± licznika leżały
+absolutnie w tych samych 24 px (nakładka 16 px). „Jutro”, „dzień” i „usuń z dziś” rysowały się
+jako szewron i dwa kalendarze, których user nie odróżniał bez dymka. Trzy rundy: makiety w
+czacie (słowa w wypukłych pigułkach, menu pod „⋯”, druga oś następnych dni, wstęga na całą
+szerokość) odrzucone jako ciężkie; scena `/concepts/today-row-actions` z jedną ikoną
+„Przenieś” rozsuwaną w słowa odrzucona za mieszanie ikon z tekstem; z dwóch czystych wariantów
+(sam tekst, same ikony) user wybrał sam tekst.
+Decyzja:
+- akcje wiersza to wyłącznie słowa, małą literą: `jutro · inny dzień · nie dziś · otwórz`
+  (dla intencji tygodnia `kontekst`). W jednej grupie akcji nie mieszamy ikon z tekstem;
+- słowo w spoczynku jest samym tekstem w `--mg-color-muted` (xs, waga `strong`); pod kursorem
+  bierze atrament akcentu i staje się chmurką (papier + `--mg-shadow-control`); uzbrojone
+  „inny dzień” jest wklęsłe. Klasa `.nd-word` w `planning-next.css`;
+- „nie dziś” zastępuje „Usuń z dziś” i „Ukryj” — w wierszu nigdy nie występują razem, a dla
+  użytkownika znaczą to samo; kod nadal rozróżnia `clear-schedule` i `hide`;
+- tacka pod kursorem i rozwinięty wiersz pokazują te same słowa; rozwinięty dokłada różowe
+  `usuń` (tylko pozycje zaplanowane na ten dzień). Pigułki z obrysem znikają;
+- „Wyczyść wpis” nie ma własnej akcji: wpis czyści dysk (ponowny klik, minus do zera, puste
+  pole, odznaczenie wszystkich pozycji checklisty);
+- wstęga siedmiu dni ma pola 2,6 rem (było 3,2 rem), żeby słowa mieściły się obok niej; linia
+  słów zawija się, zanim sięgnie wstęgi;
+- w wierszach z licznikiem i oceną tytuł i tacka kończą się przed ± (`.ndi--stepper`), więc
+  jedno nie wchodzi na drugie;
+- tacka wierszy „Praktyki” mówi tym samym językiem: `jutro · inny dzień · pomiń`.
+
+Konsekwencje: tacka słów jest szersza od tacki ikon (ok. 220 px zamiast 150 px) i przy bardzo
+długich tytułach zasłania ich koniec. „Usuń” wymaga rozwinięcia wiersza. Etykiety dla
+czytników zostają pełne („Przenieś na jutro: tytuł”), więc nazwa zawiera widoczne słowo.
+Klucze `planning.today.actions.clearToday`, `hideForToday` i `clearEntry` nie mają już
+konsumenta w wierszu. Wzorzec „akcja jako słowo” żyje na razie w CSS obszaru (dwóch
+konsumentów w jednym planie dnia); przy konsumencie spoza „Dzisiaj” powinien trafić do
+`base.css`.

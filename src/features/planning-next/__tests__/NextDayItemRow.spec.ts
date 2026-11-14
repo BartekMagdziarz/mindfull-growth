@@ -217,30 +217,28 @@ describe('NextDayItemRow — stage, tray and highlight (inline-stage port)', () 
     expect(wrapper.find('button.ndi__label').attributes('aria-pressed')).toBe('false')
   })
 
-  it('shows the icon tray for a context item (hide + open) and the scheduling tray for a scheduled one', async () => {
+  it('shows the same four words in the tray of a context item and of a scheduled one', async () => {
+    const words = ['jutro', 'inny dzień', 'nie dziś', 'otwórz']
     const context = mountRow(makeItem('completion'))
-    const contextLabels = context
-      .findAll('.ndi__tray button')
-      .map(button => button.attributes('title'))
-    expect(contextLabels).toEqual([
-      'Przenieś na jutro',
-      'Przenieś na dzień',
-      'Ukryj na dziś',
-      'Otwórz obiekt',
+    expect(context.findAll('.ndi__tray button').map(button => button.text())).toEqual(words)
+    // Words only: no icons in the tray, and the full name stays available to assistive tech.
+    expect(context.find('.ndi__tray .app-icon').exists()).toBe(false)
+    expect(
+      context.findAll('.ndi__tray button').map(button => button.attributes('aria-label'))
+    ).toEqual([
+      'Przenieś na jutro: Habit completion',
+      'Przenieś na inny dzień: Habit completion',
+      'nie dziś: Habit completion',
+      'Otwórz obiekt: Habit completion',
     ])
 
+    // A scheduled row with an entry: clearing is the disc's job and "usuń" waits in the staged row.
     const scheduled = mountRow(makeScheduledItem(makeEntry('habit-completion', null)))
-    const scheduledLabels = scheduled
-      .findAll('.ndi__tray button')
-      .map(button => button.attributes('title'))
-    expect(scheduledLabels).toEqual([
-      'Przenieś na jutro',
-      'Przenieś na dzień',
-      'Usuń z dziś',
-      'Wyczyść wpis',
-      'Otwórz obiekt',
-      'Usuń',
-    ])
+    expect(scheduled.findAll('.ndi__tray button').map(button => button.text())).toEqual(words)
+    await context.findAll('.ndi__tray button')[2].trigger('click')
+    await scheduled.findAll('.ndi__tray button')[2].trigger('click')
+    expect(context.emitted('hide')).toHaveLength(1)
+    expect(scheduled.emitted('clear-schedule')).toHaveLength(1)
 
     await scheduled.findAll('.ndi__tray button')[0].trigger('click')
     await scheduled.findAll('.ndi__tray button')[1].trigger('click')
@@ -251,7 +249,7 @@ describe('NextDayItemRow — stage, tray and highlight (inline-stage port)', () 
     expect(scheduled.find('input[type="date"]').exists()).toBe(false)
   })
 
-  it('staged: labelled actions replace the tray, the entry control stays, no strip without history', () => {
+  it('staged: the words move under the title, the entry control stays, no strip without history', async () => {
     const wrapper = mount(NextDayItemRow, {
       props: {
         item: makeItem('completion'),
@@ -265,14 +263,36 @@ describe('NextDayItemRow — stage, tray and highlight (inline-stage port)', () 
     expect(wrapper.classes()).toContain('ndi--staged')
     expect(wrapper.classes()).not.toContain('ndi--history')
     expect(wrapper.findAll('.ndi__actions button').map(button => button.text())).toEqual([
-      'Jutro',
-      'Dzień',
-      'Ukryj',
-      'Otwórz',
+      'jutro',
+      'inny dzień',
+      'nie dziś',
+      'otwórz',
     ])
     expect(
       wrapper.findAll('.ndi__actions button').map(button => button.attributes('data-flip'))
-    ).toEqual(['tomorrow', 'day', 'hide', 'open'])
+    ).toEqual(['tomorrow', 'day', 'not-today', 'open'])
+    expect(wrapper.find('.ndi__actions .app-icon').exists()).toBe(false)
+
+    // Only a row scheduled on this day can be deleted, and only from the staged row.
+    const scheduled = mount(NextDayItemRow, {
+      props: {
+        item: makeScheduledItem(),
+        todayDayRef: TODAY,
+        rawEntries: [],
+        allDayAssignments: [],
+        staged: true,
+      },
+    })
+    const scheduledWords = scheduled.findAll('.ndi__actions button')
+    expect(scheduledWords.map(button => button.text())).toEqual([
+      'jutro',
+      'inny dzień',
+      'nie dziś',
+      'otwórz',
+      'usuń',
+    ])
+    await scheduledWords[4].trigger('click')
+    expect(scheduled.emitted('request-delete')).toHaveLength(1)
     expect(wrapper.find('.ndi__tray').exists()).toBe(false)
     expect(wrapper.find('.ndi__strip').exists()).toBe(false)
     expect(wrapper.find('button.ndi__well--button').exists()).toBe(true)

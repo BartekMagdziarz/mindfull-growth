@@ -4,7 +4,8 @@
        that are due today or overdue, plus the ones finished today. Lead icon,
        title, the well on the right: a play glyph launches the exercise, its
        completion fills the well (plan items auto-complete, never by hand).
-       The reschedule tray sits right after the title, on hover. -->
+       The reschedule tray sits right after the title, on hover — words, as in
+       the day-plan rows. -->
   <section
     v-if="rows.length"
     class="next-day-rail__group next-day-practices"
@@ -45,27 +46,27 @@
           >
             <button
               type="button"
-              :title="t('planning.today.wellness.plannedMoveTomorrow')"
+              class="nd-word"
               :aria-label="`${t('planning.today.wellness.plannedMoveTomorrow')}: ${row.title}`"
               @click="moveToTomorrow(row.id)"
             >
-              <AppIcon name="redo" />
+              {{ t('planning.today.stage.tomorrow') }}
             </button>
             <button
               type="button"
-              :title="t('planning.today.wellness.plannedPickDate')"
-              :aria-label="`${t('planning.today.wellness.plannedPickDate')}: ${row.title}`"
+              class="nd-word"
+              :aria-label="`${t('planning.today.actions.moveToDay')}: ${row.title}`"
               @click="openDatePicker(row.id)"
             >
-              <AppIcon name="edit_calendar" />
+              {{ t('planning.today.stage.day') }}
             </button>
             <button
               type="button"
-              :title="t('planning.today.wellness.plannedSkip')"
+              class="nd-word"
               :aria-label="`${t('planning.today.wellness.plannedSkip')}: ${row.title}`"
               @click="skip(row.id)"
             >
-              <AppIcon name="close" />
+              {{ t('planning.today.stage.skip') }}
             </button>
           </span>
         </div>
