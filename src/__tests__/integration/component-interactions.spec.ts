@@ -1,5 +1,5 @@
 import { describe, it, beforeEach, expect, vi } from 'vitest'
-import { render, screen, waitFor, within } from '@testing-library/vue'
+import { render, screen, waitFor } from '@testing-library/vue'
 import userEvent from '@testing-library/user-event'
 import { ref } from 'vue'
 import JournalEditorView from '@/views/JournalEditorView.vue'
@@ -171,18 +171,17 @@ describe('Component interactions', () => {
     expect(saveButton).toBeDisabled()
 
     // Drill into the pleasant quadrant -> pick „Radość" at intensity 4
-    // (keyboard on the slider thumb — jsdom has no layout for pointer math)
+    // (arrow keys on the focused tile — jsdom has no layout for pointer math)
     await user.click(screen.getByTestId('egp-quadrant-high-energy-high-pleasantness'))
     const joyTile = await screen.findByTestId('egp-tile-radosc')
-    const joyThumb = within(joyTile).getAllByRole('button')[1]
-    joyThumb.focus()
+    joyTile.focus()
     await user.keyboard('{ArrowRight}{ArrowRight}{ArrowRight}{ArrowRight}')
+    expect(joyTile).toHaveAttribute('aria-pressed', 'true')
 
-    await screen.findByRole('button', { name: /Remove Joy/i })
-
-    // Switch quadrants via the mini switcher; selection persists.
+    // Switch quadrants via the mini switcher; selection persists and is listed
+    // as a removable badge once back on the quadrant overview.
     await user.click(await screen.findByTestId('egp-quadrant-mini-high-energy-low-pleasantness'))
-    // Selection persists across the round-trip
+    await user.click(screen.getByTestId('egp-home'))
     await screen.findByRole('button', { name: /Remove Joy/i })
 
     // Add people tag
@@ -237,10 +236,10 @@ describe('Component interactions', () => {
 
     await user.click(screen.getByTestId('egp-quadrant-high-energy-high-pleasantness'))
     const logJoyTile = await screen.findByTestId('egp-tile-radosc')
-    const logJoyThumb = within(logJoyTile).getAllByRole('button')[1]
-    logJoyThumb.focus()
+    logJoyTile.focus()
     await user.keyboard('{ArrowRight}{ArrowRight}{ArrowRight}{ArrowRight}')
     expect(saveButton).toBeEnabled()
+    await user.click(screen.getByTestId('egp-home'))
     await screen.findByRole('button', { name: /Remove Joy/i })
 
     // Add tags then save

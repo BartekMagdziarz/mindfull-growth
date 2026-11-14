@@ -198,6 +198,7 @@
     "removeSelection": "Remove {name}",
     "intensityOf": "{name}, intensity {level} of 5",
     "selectGroup": "{name}, select without intensity",
-    "isNew": "new group"
+    "isNew": "new group",
+    "describeGroup": "What is {name}?"
   }
 }

@@ -85,10 +85,7 @@
            notatka + tagi (zwinięte do kilku rzędów) + akcje po prawej -->
       <div class="grid grid-cols-1 gap-4 md:grid-cols-[2fr_1fr] items-stretch">
         <!-- Lewa kolumna: koło emocji -->
-        <section
-          class="mg-v2-surface mg-v2-surface--raised-sm px-5 py-4 flex flex-col gap-4"
-          :style="emotionCardStyle"
-        >
+        <section class="mg-v2-surface mg-v2-surface--raised-sm px-5 py-4 flex flex-col gap-4">
           <div
             v-if="isEmotionSectionLoading"
             class="emotions-v2__placeholder p-3 text-center text-xs text-on-surface-variant"
@@ -190,7 +187,6 @@ import { emotionLogDexieRepository } from '@/repositories/emotionLogDexieReposit
 import { formatEntryDate } from '@/utils/dateFormat'
 import type { EmotionLog } from '@/domain/emotionLog'
 import type { Quadrant } from '@/domain/emotion'
-import { getQuadrantTintStyle } from '@/domain/emotion'
 import type { EmotionGroupSelection as EmotionSelection } from '@/domain/emotionGroups'
 import { legacyToGroupSelections, groupSelectionsToFamilyIds } from '@/domain/emotionGroups'
 import AppIcon from '@/components/shared/AppIcon.vue'
@@ -227,8 +223,6 @@ const arePeopleTagsLoading = ref(false)
 const areContextTagsLoading = ref(false)
 const hasLoadedPeopleTags = ref(tagStore.peopleTags.length > 0)
 const hasLoadedContextTags = ref(tagStore.contextTags.length > 0)
-
-const emotionCardStyle = computed(() => getQuadrantTintStyle(activeEmotionQuadrant.value))
 
 // Date/time picker state
 const showDateTimePicker = ref(false)

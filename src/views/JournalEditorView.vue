@@ -201,10 +201,7 @@
             @insert="insertCompanionText"
           />
           <div v-show="sideSection === 'emotions'" class="flex flex-col gap-4">
-            <section
-              class="mg-v2-surface mg-v2-surface--raised-sm px-5 py-4 flex flex-col gap-3"
-              :style="emotionCardStyle"
-            >
+            <section class="mg-v2-surface mg-v2-surface--raised-sm px-5 py-4 flex flex-col gap-3">
               <div
                 v-if="isEmotionSectionLoading"
                 class="journal-v2__placeholder p-3 text-center text-xs text-on-surface-variant"
@@ -368,7 +365,6 @@ import { journalDexieRepository } from '@/repositories/journalDexieRepository'
 import { formatEntryDate } from '@/utils/dateFormat'
 import type { JournalEntry } from '@/domain/journal'
 import type { Quadrant } from '@/domain/emotion'
-import { getQuadrantTintStyle } from '@/domain/emotion'
 import type { EmotionGroupSelection as EmotionSelection } from '@/domain/emotionGroups'
 import { legacyToGroupSelections, groupSelectionsToFamilyIds } from '@/domain/emotionGroups'
 import type { ChatSession } from '@/domain/chatSession'
@@ -392,7 +388,6 @@ const isLoading = ref(false)
 const currentEntry = ref<JournalEntry | null>(null)
 const wheelSelections = ref<EmotionSelection[]>([])
 const activeEmotionQuadrant = ref<Quadrant | null>(null)
-const emotionCardStyle = computed(() => getQuadrantTintStyle(activeEmotionQuadrant.value))
 const selectedPeopleTagIds = ref<string[]>([])
 const selectedContextTagIds = ref<string[]>([])
 const isEmotionDataLoading = ref(false)

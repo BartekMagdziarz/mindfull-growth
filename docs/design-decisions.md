@@ -732,3 +732,43 @@ usuwanie sygnału w rytuale priorytetu, przyciski `planning-assistant` (dziedzic
   `control` (pod kursorem ciemniejsze wypełnienie + uniesienie), `--ghost` = przezroczysty,
   bez cienia i bez uniesienia, ton studni pod kursorem. Sprawdzone w stylach obliczonych i
   na zrzutach („Rozpocznij”, pasek „Od nowa”, zamknięcie szuflady wiedzy).
+
+## 2026-11-14 — Picker emocji jako kafle Kompasu; wybrany kafel zostaje wypukły
+
+Kontekst: `EmotionGroupPicker` nie stosował „wysokości na każdym poziomie” (ćwiartki i
+kafle płaskie, wyjątek zapisany w poprzednim wpisie), a po wejściu w ćwiartkę kafle ledwo
+odcinały się od karty tintowanej kolorem ćwiartki. Cztery rundy w UX Labie
+(`/concepts/emotion-picker-raised`, zrzuty `ideas/qa/emotion-picker-raised/`): A bielej w
+górę, B ciemniej w górę, C karta bez tintu, B2 spokojniejsze B, D kafle Kompasu. User
+wybrał D.
+Decyzja:
+- kafle ćwiartek i grup mają anatomię kafla Kompasu z Dzisiaj: cienka ramka
+  `--mg-color-border`, `--mg-shadow-control`, uniesienie pod kursorem, ikona w okrągłym polu
+  nad nazwą. Ton spoczynku to mgła, jak pole tekstowe obok, bo kontrolka leży wprost na
+  karcie. Pod kursorem kafel jest papierem, a puste miejsca na kropki mają ton niezrobionej
+  kropki zadania. Kolor ćwiartki (tokeny `--color-quadrant-*-top/bottom/selected/text`) ma tylko
+  pole ikony, kropki i wypełnienie wybranego kafla. Karty-gospodarze (dziennik emocji,
+  edytor dziennika, Momenty) przestają się tintować;
+- natężenie to kropki pod nazwą w języku kropek zadania (1 rem, wypełnienie 56 %), a nie
+  suwak. Zewnętrzne kółko ma jasny pastel ćwiartki, jaśniejszy niż wybrany kafel, i taki
+  sam kolor mają puste miejsca na hover. Na hover lub fokus kafla pojawia się pięć pustych miejsc i klik ustawia poziom.
+  Strzałki ←/→ działają z klawiatury. Zaznaczenie bez natężenia zostaje;
+- **wybrany kafel zostaje wypukły**, bez `inset`, a ramka bierze kolor wypełnienia.
+  To świadomy wyjątek od „wybrana kontrolka = wklęsła”, bo wklęsły kolorowy kafel
+  wyglądał płasko i rysował kontur. README, sekcja „Wysokość na każdym poziomie”;
+- pole „Wybrane” znika: wybrane są płaskimi badge obok tytułu na przeglądzie, a licznik
+  ćwiartki to kropki. Kropka na mini-przycisku mówi o wyborach w innej ćwiartce.
+  Niewybrany kafel pokazuje kursywą dwa przykładowe słowa;
+- opis grupy (ocena i słowa) nie jest już ciemnym dymkiem pokazywanym przy każdym
+  najechaniu. Pod kursorem lub przy fokusie w prawym górnym rogu kafla pojawia się cichy
+  „?”. Klik otwiera jasną notkę w tonie papieru z cieniem `raised-sm`, w tym samym języku
+  co `ExerciseStepWhy` w krokach ćwiczeń. Zamyka ją klik poza notką, Esc albo zmiana
+  ćwiartki. Klik w „?” nie zaznacza kafla. Cicha linia pod siatką była próbą pośrednią,
+  odrzuconą tego samego dnia;
+- 4 kolumny kafli od 600 px szerokości pickera (dziennik emocji, ~685 px), 3 poniżej
+  (edytor dziennika, ~503 px). Wcześniejszy próg 700 px dawał 3 kolumny wszędzie.
+Konsekwencje: B-24 (ptaszek na długich nazwach) znika razem z ptaszkiem. CSS pickera
+przeniesiony do `EmotionGroupPicker.css`, bo plik był ponad limitem rozmiaru.
+`QUADRANT_STYLES` / `EGP_DEFAULT_ACCENT` z `domain/emotionGroups.ts` nie mają już
+konsumenta w produkcie, korzysta z nich tylko scena Labu. `EmotionSelector` (siedem
+kreatorów ćwiczeń) nadal tintuje kartę: to osobny komponent, poza tą decyzją.

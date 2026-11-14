@@ -4,7 +4,7 @@
     enter-active-class="transition-opacity duration-200"
     enter-from-class="opacity-0"
   >
-    <AppCard :key="currentStep.key" padding="lg" class="micro-card" :style="cardStyle">
+    <AppCard :key="currentStep.key" padding="lg" class="micro-card">
       <!-- Progress: quiet accent dots, the current one drawn out; done dots lead back.
            Hidden until the first answer reveals the branch (a lone pill reads as loading). -->
       <nav
@@ -253,7 +253,7 @@ import { useT } from '@/composables/useT'
 import { getCatalogEntry } from '@/data/exerciseCatalog'
 import { getMicroExercise } from '@/data/microExercises'
 import { getProgramDefinition } from '@/data/programCatalog'
-import { getQuadrantTintStyle, type Quadrant } from '@/domain/emotion'
+import type { Quadrant } from '@/domain/emotion'
 import type { EmotionGroupSelection } from '@/domain/emotionGroups'
 import type {
   MicroExerciseDefinition,
@@ -477,13 +477,8 @@ const steps = computed(() =>
   visibleMicroSteps(props.definition.steps, choiceAnswers.value, props.preset)
 )
 const currentStep = computed(() => steps.value[Math.min(stepIndex.value, steps.value.length - 1)]!)
-/** An open quadrant tints the card, as in the emotion log editor. */
-const cardStyle = computed(() => {
-  const step = currentStep.value
-  return step.type === 'emotionPick'
-    ? getQuadrantTintStyle(emotionStates[step.key]?.quadrant ?? null)
-    : undefined
-})
+// The emotion picker no longer tints its host card (ADR 2026-11-14): the quadrant
+// colour lives on the picker's icon fields and selected tiles.
 const isLastStep = computed(
   () =>
     !hasStepsAfter(props.definition.steps, currentStep.value.key, choiceAnswers.value, props.preset)

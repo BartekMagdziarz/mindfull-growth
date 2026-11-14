@@ -198,6 +198,7 @@
     "removeSelection": "Usuń {name}",
     "intensityOf": "{name}, natężenie {level} z 5",
     "selectGroup": "{name}, zaznacz bez natężenia",
-    "isNew": "nowa grupa"
+    "isNew": "nowa grupa",
+    "describeGroup": "Co znaczy {name}?"
   }
 }

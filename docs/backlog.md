@@ -27,6 +27,37 @@ wracania do rozmowy, w której go znaleziono.
 
 ## Błędy
 
+### B-24 · Ptaszek wybranej grupy emocji nachodzi na długą nazwę kafla
+
+`zrobione (2026-11-14, wdrożenie wariantu D pickera — ptaszek usunięty, nazwy z `overflow-wrap: anywhere`; czeka na commit — po nim przenieść do „Zamknięte” z hashem)` · Znaleziono 2026-11-14 (Lab „Wypukły picker emocji”) · emocje / `src/components/emotion/EmotionGroupPicker.vue`
+
+**Objaw.** W ćwiartce „Wysoka energia · przyjemne” zaznaczony kafel „Zaangażowanie” pokazuje
+„ZAANGAŻOWAI” — ostatnie litery chowają się pod ✓, a nazwa jest ucięta bez wielokropka. To
+samo grozi „Determinacji” (ucięte „DETERMINACJA” przy krawędzi kafla).
+
+**Jak odtworzyć.** `npm run dev:verify` → `/emotions` (dziennik emocji), wejść w ćwiartkę
+„Wysoka energia · przyjemne”, zaznaczyć „Zaangażowanie”. Widać też w Labie:
+`ideas/qa/emotion-picker-raised/02-hehp.png` (karta 0 · Obecny).
+
+**Przyczyna.** `.etcheck` (linia ~102 szablonu, styl ~`.etcheck`) jest absolutnie
+pozycjonowany `top: 8px; right: 12px` nad `.ethead`, który nie rezerwuje na niego miejsca.
+`.etname` ma `-webkit-line-clamp: 2`, ale jedno długie słowo wersalikami z
+`letter-spacing: 0.07em` nie mieści się w szerokości kafla (~150–180 px) i nie ma gdzie się
+złamać, więc wychodzi pod ptaszka i jest obcinane przez `overflow: hidden`.
+
+**Dlaczego to błąd.** Nazwa grupy jest jedyną etykietą kafla; ucięta bez sygnału czyta się jak
+literówka.
+
+**Propozycja naprawy.** Zarezerwować miejsce na ptaszek (`padding-inline: 14px` na `.ethead`
+albo ptaszek w rogu poza obszarem tekstu) i dodać `overflow-wrap: anywhere` /
+`hyphens: auto` z `lang="pl"` na `.etname`, albo zmniejszyć `letter-spacing` dla nazw > 11 znaków.
+
+**Kryteria akceptacji.** Wszystkie 45 nazw grup mieści się bez ucięcia przy 3 i 4 kolumnach
+(zrzut 1512 × 982 @2x każdej ćwiartki); ptaszek nie zasłania liter.
+
+**Uwagi.** Do zrobienia razem z wdrożeniem rundy „wypukły picker”, jeśli user ją przyjmie —
+ten sam plik.
+
 ### B-23 · Chipy ścieżki `--primary` i `--ghost` wyglądają jak zwykły chip
 
 `zrobione (2026-11-14, czeka na commit — po nim przenieść do „Zamknięte” z hashem)` · Znaleziono 2026-11-14 (wypukłość kontrolek w widoku ścieżki) · ścieżki / `src/features/program-path/program-path.css`
