@@ -27,6 +27,43 @@ wracania do rozmowy, w której go znaleziono.
 
 ## Błędy
 
+### B-25 · Refleksja tygodnia pokazuje „0 wpisów” dziennika, choć w wierszu są wpisy
+
+`otwarte` · Znaleziono 2026-11-16 (słupki i kropki w kroku „Przegląd” refleksji tygodnia) · refleksja tygodnia / `src/services/reflectionDataQueries.ts`
+
+**Objaw.** W kroku 1 „Przegląd” wiersz „Dziennik” ma ikony wpisów przy trzech dniach, a w
+kolumnie „Wynik” stoi „0 wpisów”. Wiersz „Emocje” obok liczy poprawnie.
+
+**Jak odtworzyć.** `npm run dev:verify`, wejść BEZPOŚREDNIO (świeże załadowanie strony) na
+`http://127.0.0.1:5199/calendar/week/2026-W45?action=reflect` i przewinąć tabelę na dół.
+Po wejściu z innego widoku, który wcześniej załadował dziennik, licznik bywa poprawny.
+
+**Przyczyna.** `getWeeklyReflectionDataBundle` (`src/services/reflectionDataQueries.ts:914`)
+woła `buildJournalSummary(startDate, endDate)` PRZED
+`await getReflectionEntrySources(...)` (linia 917), a dopiero ta druga robi
+`journalStore.ensureLoaded()` (linia 356). `buildJournalSummary` (linia 463) czyta
+`journalStore.sortedEntries` synchronicznie, więc przy niezaładowanym store dostaje pustą
+listę i `totalEntries = 0`. `buildEmotionSummary` i rozbicie dzienne (linia 722) powstają
+już po `await`, stąd poprawne ikony dni i poprawny licznik emocji. Wynik trafia do
+`weeklySummary.totalJournalEntries` (linia 837) i do `journalCount` w
+`src/features/quiet-ritual/QuietWeeklyReflection.vue:1025`.
+
+**Dlaczego to błąd.** Ten sam wiersz podaje dwie sprzeczne liczby; „Przegląd” ma pokazywać
+fakty tygodnia. `journalSummary` idzie też do pakietu danych dla podsumowania AI.
+
+**Propozycja naprawy.** Przenieść `buildJournalSummary` za `await
+getReflectionEntrySources(...)` (albo dodać `await journalStore.ensureLoaded()` na początku
+funkcji). Sprawdzić, czy wariant miesięczny (okolice linii 1184) i inne wywołania
+`build*Summary` nie mają tej samej kolejności.
+
+**Kryteria akceptacji.** Po bezpośrednim wejściu na trasę refleksji licznik „Dziennik”
+równa się liczbie ikon w wierszu. Test jednostkowy `reflectionDataQueries`: store dziennika
+niezaładowany przed wywołaniem, wpisy w repozytorium → `weeklySummary.totalJournalEntries`
+> 0.
+
+**Uwagi.** Znalezione przez sondę DOM na 5199; nie sprawdzano, czy błąd dotyka też
+refleksji miesiąca.
+
 ### B-20 · Karta sesji czatu mówi po angielsku („View”, „Delete”, „1 message”)
 
 `otwarte` · Znaleziono 2026-11-09 (port B2 panelu „Dziennik z AI”) · dziennik, historia / `src/components/ChatSessionCard.vue`
