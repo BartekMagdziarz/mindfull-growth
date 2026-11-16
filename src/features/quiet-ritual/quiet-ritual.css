@@ -736,54 +736,58 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 38px;
+  height: 46px;
   color: var(--qr-muted);
 }
+/* Completion = the app's disc (.mg-well, as in „Plan dnia” and the calendar):
+   empty well = planned, blot = recorded, soft field = partial record. A day
+   with neither plan nor record keeps the quiet dash. */
 .qr-record-dot {
+  --mg-well-size: 1.5rem;
   display: grid;
   place-items: center;
-  height: 23px;
-  width: 24px;
-  border-radius: var(--mg-radius-organic-a);
 }
-.qr-record-dot:not(.planned):not(.recorded):after {
+.qr-record-dot:not(.mg-well)::after {
   content: '—';
   color: var(--qr-muted);
   opacity: 0.55;
   font-size: var(--mg-font-size-xs);
 }
-.qr-record-dot.planned {
-  border: 1px solid var(--qr-line-mid);
-  background: var(--qr-inner);
+.qr-record-dot.partial {
+  border-color: transparent;
+  background: var(--mg-color-sky-field);
 }
-.qr-record-dot.recorded {
-  background: var(--qr-inner);
-}
-.qr-record-dot.recorded i {
-  width: 10px;
-  height: 11px;
-  border-radius: var(--mg-radius-organic-b);
-  background: var(--qr-accent);
-}
+/* Numbers = one week chart per row: flat bars on the row's shared floor, the
+   value above its bar; a day without a record is a stub of that floor. */
 .qr-numeric {
+  --qr-bar-max: 30px;
   display: flex;
-  align-items: end;
-  gap: 4px;
-  height: 31px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: end;
+  gap: 2px;
+  height: 100%;
 }
 .qr-numeric i {
-  width: 7px;
-  background: var(--qr-accent);
+  width: 22px;
+  height: calc(var(--qr-bar, 0) * var(--qr-bar-max));
+  min-height: 2px;
+  background: var(--mg-color-data-fill);
   border-radius: var(--mg-radius-sketch-a);
-  opacity: 0.55;
-  transform: rotate(-2deg);
 }
 .qr-numeric b {
   font-size: var(--mg-font-size-xs);
-  font-weight: 650;
+  font-weight: var(--mg-weight-label);
+  line-height: 1;
 }
 .qr-numeric--rating i {
-  background: var(--mg-color-state);
+  background: color-mix(in srgb, var(--mg-color-state) 55%, transparent);
+}
+.qr-numeric--none i {
+  width: 14px;
+  height: 2px;
+  background: color-mix(in srgb, var(--qr-muted) 40%, transparent);
+  border-radius: var(--mg-radius-pill);
 }
 .qr-result {
   text-align: center;
@@ -795,8 +799,18 @@
   padding-top: 10px;
   padding-bottom: 10px;
 }
+/* Days sit close enough to read as one week: fixed day columns, the name takes
+   the slack, and the whole table is a centred column like the other steps. */
+.qr-evidence {
+  width: min(100%, 880px);
+  margin-inline: auto;
+}
+.qr-evidence .qr-table {
+  min-width: 760px;
+}
 .qr-evidence .qr-table-head,
 .qr-evidence .qr-table-row {
+  grid-template-columns: minmax(200px, 1fr) repeat(7, 48px) 120px;
   padding-right: 36px;
 }
 .qr-evidence .qr-table-head {

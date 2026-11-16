@@ -5,7 +5,7 @@
     :period-title="periodTitle"
     :steps="steps"
     :current="current"
-    :wide="currentStepId === 'review' || currentStepId === 'journal'"
+    :wide="currentStepId === 'journal'"
     :saving="isSaving"
     :finished="saved"
     :closing-period-start="getPeriodBounds(weekRef).start"
@@ -52,12 +52,18 @@
                 :class="{ 'qr-col-selected': selectedDay === index }"
                 :title="cellTitle(cell, index)"
               >
+                <!-- wykonanie = dysk z „Planu dnia” (.mg-well): pusty = plan, z kleksem = zapis -->
                 <span
                   v-if="row.entryMode === 'completion' || row.entryMode === 'multi-completion'"
                   class="qr-record-dot"
-                  :class="{ recorded: cell.met ?? cell.value !== null, planned: cell.planned }"
+                  :class="{
+                    'mg-well': cell.planned || cell.value !== null,
+                    'mg-well--done recorded': cell.met ?? cell.value !== null,
+                    partial: cell.value !== null && cell.met === false,
+                    planned: cell.planned,
+                  }"
                 >
-                  <i v-if="cell.met ?? cell.value !== null" /><span class="sr-only">{{
+                  <span class="sr-only">{{
                     cell.value === null
                       ? 'Brak zapisu'
                       : cell.met === false
@@ -65,16 +71,18 @@
                         : 'Wykonane'
                   }}</span>
                 </span>
+                <!-- liczby = słupki tygodnia na wspólnej podstawie wiersza; dzień bez zapisu to kreska podstawy -->
                 <span
                   v-else-if="cell.value !== null"
                   class="qr-numeric"
                   :class="{ 'qr-numeric--rating': row.entryMode === 'rating' }"
                 >
-                  <i
-                    :style="{ height: `${Math.min(28, (cell.value / row.cellMax) * 28)}px` }"
-                  /><b>{{ formatQuietNumber(cell.value) }}</b>
+                  <b>{{ formatQuietNumber(cell.value) }}</b
+                  ><i :style="{ '--qr-bar': barShare(cell.value, row.cellMax) }" />
                 </span>
-                <span v-else aria-label="Brak zapisu">—</span>
+                <span v-else class="qr-numeric qr-numeric--none" aria-label="Brak zapisu"
+                  ><i
+                /></span>
               </span>
               <span class="qr-result">{{ row.result }}</span>
             </div>
@@ -1534,6 +1542,11 @@ function journalTitles(dayIndex: number): string[] {
 function dayEmotions(dayIndex: number): Array<{ name: string; quadrant: Quadrant }> {
   return dataBundle.value?.dailyBreakdown[dayIndex]?.emotions.items ?? []
 }
+/** Udział słupka dnia w wysokości wiersza (0–1) względem sufitu skali wiersza. */
+function barShare(value: number, cellMax: number): number {
+  return Math.max(0, Math.min(1, value / Math.max(cellMax, 1)))
+}
+
 function cellTitle(cell: QuietEvidenceCell, index: number): string {
   const value = cell.value === null ? 'Brak zapisu' : formatQuietNumber(cell.value)
   return `${days.value[index]?.shortLabel}: ${value}${cell.planned ? ' · zaplanowane' : ''}`
