@@ -11,13 +11,13 @@ const CLOCK = '2026-07-15' as DayRef
 const MONTH = '2026-07' as MonthRef
 const WEEK = '2026-W28' as WeekRef
 
-async function createHabit(title = 'Rozciąganie') {
+async function createHabit(title = 'Rozciąganie', cadence: 'weekly' | 'monthly' = 'weekly') {
   const habit = await habitDexieRepository.create({
     title,
     isActive: true,
     priorityIds: [],
     lifeAreaIds: [],
-    cadence: 'weekly',
+    cadence,
     entryMode: 'completion',
     target: { kind: 'count', operator: 'min', value: 3 },
     status: 'open',
@@ -50,7 +50,7 @@ describe('buildRhythmScenario', () => {
   })
 
   it('reads an active month state without placements as covering the whole month', async () => {
-    const habitId = await createHabit()
+    const habitId = await createHabit('Rozciąganie', 'monthly')
     await planningStateDexieRepository.upsertMeasurementMonthState({
       monthRef: MONTH,
       subjectType: 'habit',
@@ -74,6 +74,23 @@ describe('buildRhythmScenario', () => {
         scope: { kind: 'month', ref: MONTH },
       }),
     ])
+  })
+
+  it("does not read a weekly object's active-unassigned month state as a month cover", async () => {
+    // A weekly object belongs only to its assigned weeks; the month state is a
+    // side effect of a week placement (a boundary week activates both months).
+    const habitId = await createHabit()
+    await planningStateDexieRepository.upsertMeasurementMonthState({
+      monthRef: MONTH,
+      subjectType: 'habit',
+      subjectId: habitId,
+      activityState: 'active',
+      scheduleScope: 'unassigned',
+    })
+
+    const scenario = await buildRhythmScenario('week', WEEK, CLOCK)
+
+    expect(scenario.assignments).toEqual([])
   })
 
   it('keeps a paused month state out of the placements', async () => {

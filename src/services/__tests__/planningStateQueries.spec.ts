@@ -13,6 +13,7 @@ import {
   getWeekRelevantObjects,
 } from '@/services/planningStateQueries'
 import {
+  linkMeasurementPeriod,
   toggleMeasurementWeekAssignment,
   updateMeasurementWeekTargetOverride,
 } from '@/services/planningMutations'
@@ -495,11 +496,86 @@ describe('planningStateQueries', () => {
         .scheduledDayRefs
     ).toEqual([dayRef])
     expect(reflectionBundle.periodReflection?.note).toBe('Strong execution week')
-    expect(reflectionBundle.relevant.goalItems).toHaveLength(1)
+    // The weekly KR is only active in the month — planning offers it as unassigned,
+    // but it is not assigned to this week and has no entries, so the week's
+    // reflection (and its goal list) leaves it out.
+    expect(reflectionBundle.relevant.goalItems).toHaveLength(0)
+    expect(
+      reflectionBundle.relevant.measurementItems.some(item => item.subject.id === keyResult.id)
+    ).toBe(false)
     expect(
       reflectionBundle.relevant.measurementItems.find(item => item.subject.id === habit.id)
         ?.hasEntries
     ).toBe(true)
+  })
+
+  it('keeps a weekly KR out of the reflection of weeks it was not assigned to after a boundary week', async () => {
+    // A goal ending on Sunday 1 Nov: its last KR week (26 Oct – 1 Nov) touches
+    // November, so the KR gets an active November month state too. That must not
+    // pull the KR into the other November weeks' reflections.
+    const october = parsePeriodRef('2026-10') as MonthRef
+    const november = parsePeriodRef('2026-11') as MonthRef
+    const boundaryWeek = getPeriodRefsForDate('2026-10-26').week
+    const laterWeek = getPeriodRefsForDate('2026-11-09').week
+    const goal = await goalDexieRepository.create({
+      title: 'Blok treningowy',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      status: 'completed',
+    })
+    const keyResult = await keyResultDexieRepository.create({
+      title: 'Trening cardio',
+      isActive: true,
+      goalId: goal.id,
+      cadence: 'weekly',
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 3 },
+      status: 'completed',
+    })
+    for (const monthRef of [october, november]) {
+      await planningStateDexieRepository.upsertGoalMonthState({
+        monthRef,
+        goalId: goal.id,
+        activityState: 'active',
+      })
+    }
+    await linkMeasurementPeriod({
+      periodRef: boundaryWeek,
+      cadence: 'weekly',
+      subjectType: 'keyResult',
+      subjectId: keyResult.id,
+    })
+    expect(
+      await planningStateDexieRepository.getMeasurementMonthState(
+        november,
+        'keyResult',
+        keyResult.id
+      )
+    ).toMatchObject({ activityState: 'active' })
+
+    const inBoundary = await getWeekRelevantObjects(boundaryWeek)
+    expect(inBoundary.reflection.measurementItems.map(item => item.subject.id)).toEqual([
+      keyResult.id,
+    ])
+    expect(inBoundary.reflection.measurementItems[0]?.isScheduled).toBe(true)
+    expect(inBoundary.reflection.goalItems.map(item => item.goal.id)).toEqual([goal.id])
+
+    const later = await getWeekRelevantObjects(laterWeek)
+    expect(later.reflection.measurementItems).toEqual([])
+    expect(later.reflection.goalItems).toEqual([])
+
+    // An entry in an unassigned week still shows what happened — as unscheduled.
+    await planningStateDexieRepository.upsertDailyMeasurementEntry({
+      subjectType: 'keyResult',
+      subjectId: keyResult.id,
+      dayRef: parsePeriodRef('2026-11-10') as DayRef,
+      value: null,
+    })
+    const withEntry = await getWeekRelevantObjects(laterWeek)
+    expect(withEntry.reflection.measurementItems).toEqual([
+      expect.objectContaining({ hasEntries: true, isScheduled: false }),
+    ])
   })
 
   it('ignores orphaned week state records that no longer have valid month context', async () => {

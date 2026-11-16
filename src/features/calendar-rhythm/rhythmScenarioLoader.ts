@@ -263,13 +263,18 @@ export async function buildRhythmScenario(
   const assignments: RhythmAssignment[] = []
   const overrides: RhythmTargetOverride[] = []
 
+  const cadenceByKey = new Map(objects.map(object => [object.key, object.cadence]))
   for (const state of monthStates) {
     const objectKey = measurableKey(state.subjectType, state.subjectId)
-    // Active without explicit placement behaves exactly like whole-month cover.
-    if (
-      state.activityState === 'active' &&
-      (state.scheduleScope === 'whole-month' || state.scheduleScope === 'unassigned')
-    ) {
+    // Active without explicit placement behaves exactly like whole-month cover —
+    // for monthly cadence. A weekly object belongs only to its assigned weeks
+    // (resolvePlannedWeekRefs): its active-unassigned month state is a side
+    // effect of a week placement (a boundary week activates both months), not
+    // a cover of every week of the month.
+    const monthCover =
+      state.scheduleScope === 'whole-month' ||
+      (state.scheduleScope === 'unassigned' && cadenceByKey.get(objectKey) !== 'weekly')
+    if (state.activityState === 'active' && monthCover) {
       assignments.push({
         id: `${objectKey}@${state.monthRef}`,
         objectKey,

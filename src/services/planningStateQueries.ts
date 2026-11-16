@@ -803,10 +803,13 @@ function buildWeeklyReflectionItem(
   periodRef: WeekRef | MonthRef,
   sourceMonthRef?: MonthRef,
   asOfDayRef?: DayRef,
-  weekMeasurement?: MeasurementSummary
+  weekMeasurement?: MeasurementSummary,
+  /** False when the week is not assigned to the object (weekly cadence). */
+  assignedToWeek = true
 ): WeekMeasurementReflectionItem | undefined {
   const planning = buildPlanningSummary(monthState, weekState, dayAssignments)
   const isScheduled = Boolean(
+    assignedToWeek &&
     placementFromState(planning.scheduleScope, dayAssignments.length > 0) &&
     planning.activityState === 'active'
   )
@@ -986,6 +989,24 @@ export async function getWeekRelevantObjects(
           continue
         }
 
+        // Reflection (what happened) judges weekly cadence week by week: the
+        // object belongs to this week only when it is assigned to it — the same
+        // rule as resolvePlannedWeekRefs (calendar, goal closing). An active month
+        // state alone is not an assignment: a boundary week of another month (a
+        // goal ending on 1 Nov) activates the next month too and must not pull the
+        // object into every week of that month; such weeks keep it only for its
+        // entries. Planning (Today, „Pozostałe”) still offers it as unassigned.
+        const plannedInWeek = isWeeklySubjectPlannedInWeek(
+          weekRef,
+          monthStates.some(
+            state => state.activityState === 'active' && state.scheduleScope === 'whole-month'
+          )
+            ? 'whole-month'
+            : activeMonthState.scheduleScope,
+          weekStates,
+          dayAssignments
+        )
+
         const weekState = weekStates.find(state => !state.sourceMonthRef)
         const effectiveSubject = applyMeasurementTargetCascade(subject, weekRef, {
           monthOverride: activeMonthState.targetOverride,
@@ -1017,7 +1038,9 @@ export async function getWeekRelevantObjects(
           dayAssignments,
           weekRef,
           undefined,
-          asOfDayRef
+          asOfDayRef,
+          undefined,
+          plannedInWeek
         )
         if (reflectionItem) {
           reflectionItems.push(reflectionItem)
