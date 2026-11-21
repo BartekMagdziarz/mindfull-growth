@@ -140,7 +140,7 @@
               id="body"
               v-model="body"
               :placeholder="t('journal.editor.bodyPlaceholder')"
-              class="w-full flex-1 bg-transparent text-base leading-relaxed text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-0 resize-none min-h-[240px]"
+              class="journal-v2__body w-full flex-1 bg-transparent text-base leading-relaxed text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-0 resize-none min-h-[240px]"
             />
             <!-- Jedyna wypełniona kontrolka w widoku, tuż za treścią. Wyjście = strzałka
                  wstecz powłoki (pyta o niezapisane zmiany). -->
@@ -1069,6 +1069,35 @@ onUnmounted(() => {
   border: 1px dashed var(--mg-color-border);
   border-radius: var(--mg-radius-md);
   background: var(--mg-color-mist);
+}
+
+.journal-v2__body {
+  padding-inline-end: var(--mg-space-4);
+  scrollbar-gutter: stable;
+}
+
+@media (forced-colors: none) {
+  .journal-v2__body {
+    --journal-scroll-thumb: var(--mg-color-field-border);
+    scrollbar-width: thin;
+    scrollbar-color: var(--journal-scroll-thumb) transparent;
+  }
+
+  .journal-v2__body:is(:hover, :focus) {
+    --journal-scroll-thumb: color-mix(in srgb, var(--mg-color-primary) 52%, transparent);
+  }
+
+  @supports not (scrollbar-color: auto) {
+    .journal-v2__body::-webkit-scrollbar {
+      width: var(--mg-space-2);
+      background: transparent;
+    }
+
+    .journal-v2__body::-webkit-scrollbar-thumb {
+      border-radius: var(--mg-radius-pill);
+      background: var(--journal-scroll-thumb);
+    }
+  }
 }
 
 .journal-v2__canvas-foot {
