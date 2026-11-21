@@ -60,12 +60,8 @@
               <button
                 v-for="option in awarenessOptions"
                 :key="option.value"
-                class="w-full mg-v2-block p-4 text-left transition-all hover:-translate-y-px"
-                :class="
-                  awarenessChoice === option.value
-                    ? 'exercise-option--active ring-2 ring-primary'
-                    : ''
-                "
+                class="w-full exercise-option p-4 text-left"
+                :class="awarenessChoice === option.value ? 'exercise-option--active' : ''"
                 @click="handleAwarenessChoice(option.value)"
               >
                 <div class="flex items-center gap-3">
@@ -126,10 +122,8 @@
 
             <div class="space-y-3">
               <button
-                class="w-full mg-v2-block p-4 text-left transition-all hover:-translate-y-px"
-                :class="
-                  selfEnergyPresent === true ? 'exercise-option--active ring-2 ring-primary' : ''
-                "
+                class="w-full exercise-option p-4 text-left"
+                :class="selfEnergyPresent === true ? 'exercise-option--active' : ''"
                 @click="handleMagicAnswer(true)"
               >
                 <div class="flex items-center gap-3">
@@ -140,10 +134,8 @@
                 </div>
               </button>
               <button
-                class="w-full mg-v2-block p-4 text-left transition-all hover:-translate-y-px"
-                :class="
-                  selfEnergyPresent === false ? 'exercise-option--active ring-2 ring-primary' : ''
-                "
+                class="w-full exercise-option p-4 text-left"
+                :class="selfEnergyPresent === false ? 'exercise-option--active' : ''"
                 @click="handleMagicAnswer(false)"
               >
                 <div class="flex items-center gap-3">
@@ -217,7 +209,7 @@
                 </p>
                 <div class="space-y-3">
                   <button
-                    class="w-full mg-v2-block p-4 text-left transition-all hover:-translate-y-px"
+                    class="w-full exercise-option p-4 text-left"
                     @click="confirmSelfEnergyAndContinue"
                   >
                     <div class="flex items-center gap-3">
@@ -228,7 +220,7 @@
                     </div>
                   </button>
                   <button
-                    class="w-full mg-v2-block p-4 text-left transition-all hover:-translate-y-px"
+                    class="w-full exercise-option p-4 text-left"
                     :class="stillReactive ? 'ring-2 ring-status-warn' : ''"
                     @click="stillReactive = true"
                   >

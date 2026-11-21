@@ -230,7 +230,7 @@ async function saveAttempt(rung: ExposureItem): Promise<void> {
   list-style: none;
 }
 
-/* Nested inside the ladder card: flat field-tone blocks (no shadow, no stripe). */
+/* Rows group each rung with its attempt form. */
 .exposure-log__rung {
   display: grid;
   gap: var(--mg-space-3);

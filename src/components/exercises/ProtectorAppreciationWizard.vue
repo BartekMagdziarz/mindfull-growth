@@ -102,7 +102,7 @@
                   :class="
                     behaviors.includes(b.value)
                       ? 'bg-primary/20 text-primary exercise-pill--primary'
-                      : 'bg-neu-base text-on-surface-variant hover:-translate-y-px'
+                      : 'text-on-surface-variant'
                   "
                   @click="toggleBehavior(b.value)"
                 >
@@ -244,7 +244,7 @@
               </p>
               <ExerciseStepWhy :text="tg('exerciseWizards.protectorAppreciation.response.why')" />
               <button
-                class="w-full mg-v2-block p-4 text-left transition-all hover:-translate-y-px"
+                class="w-full exercise-option p-4 text-left"
                 @click="handleResponseMode('ai')"
               >
                 <div class="flex items-center gap-3">
@@ -263,7 +263,7 @@
                 <ProfileContextToggle v-model="useProfileResponse" />
               </div>
               <button
-                class="w-full mg-v2-block p-4 text-left transition-all hover:-translate-y-px"
+                class="w-full exercise-option p-4 text-left"
                 @click="handleResponseMode('self')"
               >
                 <div class="flex items-center gap-3">
@@ -440,7 +440,7 @@
                 :class="
                   commitment === chip
                     ? 'bg-primary/20 text-primary exercise-pill--primary'
-                    : 'bg-neu-base text-on-surface-variant hover:-translate-y-px'
+                    : 'text-on-surface-variant'
                 "
                 @click="commitment = chip"
               >
@@ -506,12 +506,8 @@
               <button
                 v-for="freq in frequencyOptions"
                 :key="freq.value ?? 'none'"
-                class="w-full mg-v2-block p-4 text-left transition-all hover:-translate-y-px"
-                :class="
-                  checkInFrequency === freq.value
-                    ? 'exercise-option--active ring-2 ring-primary'
-                    : ''
-                "
+                class="w-full exercise-option p-4 text-left"
+                :class="checkInFrequency === freq.value ? 'exercise-option--active' : ''"
                 @click="checkInFrequency = freq.value"
               >
                 <span class="text-sm text-on-surface">{{ freq.label }}</span>
@@ -614,7 +610,7 @@
               </p>
 
               <label v-if="hasCardDiscoveries" class="flex items-start gap-2 pt-2 cursor-pointer">
-                <input v-model="updatePartCard" type="checkbox" class="mt-0.5" />
+                <input v-model="updatePartCard" type="checkbox" class="mg-v2-checkbox mt-0.5" />
                 <span class="text-xs text-on-surface">
                   {{ t('exerciseWizards.protectorAppreciation.summary.updatePartLabel') }}
                   <span class="block text-on-surface-variant">{{

@@ -13,6 +13,7 @@
         v-for="n in values"
         :key="n"
         type="button"
+        class="exercise-chip"
         role="radio"
         :class="{ 'is-on': n === modelValue }"
         :aria-checked="n === modelValue"
@@ -75,37 +76,11 @@ function shift(delta: number): void {
   gap: var(--mg-space-2);
 }
 
-/* Tiles one tone lighter than the card; the picked one is the only filled shape. */
-.exercise-scale__row button {
+.exercise-scale__row .exercise-chip {
+  align-items: center;
   height: 2.75rem;
   padding: 0;
-  border: 0;
-  border-radius: var(--mg-radius-sm);
-  background: var(--mg-color-paper);
-  color: var(--mg-color-ink);
-  font: inherit;
   font-size: var(--mg-font-size-md);
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    background var(--mg-duration-fast) ease,
-    color var(--mg-duration-fast) ease;
-}
-
-.exercise-scale__row button:hover {
-  background: var(--mg-color-sky-well);
-  color: var(--mg-color-primary-strong);
-}
-
-.exercise-scale__row button.is-on,
-.exercise-scale__row button.is-on:hover {
-  background: var(--mg-color-primary-fill);
-  color: var(--mg-color-on-primary);
-}
-
-.exercise-scale__row button:focus-visible {
-  outline: 2px solid var(--mg-color-focus);
-  outline-offset: 2px;
 }
 
 .exercise-scale__ends {

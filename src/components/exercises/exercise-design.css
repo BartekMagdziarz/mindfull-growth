@@ -1,5 +1,25 @@
-/* Exercise-only compatibility layer. Keep domain colors on badges, while
-   replacing the old gradient pills and their raised hover states. */
+/* The exercise variants use the same tonal and elevation tokens as Today. */
+.exercise-page :is(.mg-v2-block, .mg-v2-group, .mg-v2-surface--flat, .exercise-note) {
+  --exercise-inner-tone: var(--mg-color-paper);
+}
+
+.exercise-page
+  :is(.mg-v2-block, .mg-v2-group, .mg-v2-surface--flat, .exercise-note)
+  :where(
+    .mg-v2-block:not(.mg-v2-block--warn),
+    .exercise-note,
+    .mg-v2-group,
+    .mg-v2-surface--flat,
+    .mg-v2-input,
+    .mg-v2-field,
+    .mg-v2-button--quiet:not(:disabled):hover,
+    .mg-v2-badge,
+    .mg-v2-pill:not(.mg-v2-pill--success, .mg-v2-pill--warning, .mg-v2-pill--danger),
+    .mg-v2-button:not(.mg-v2-button--primary, .mg-v2-button--danger, .mg-v2-button--quiet)
+  ) {
+  background: var(--mg-color-paper);
+}
+
 .exercise-pill {
   display: inline-flex;
   align-items: center;
@@ -7,15 +27,10 @@
   border: 1px solid var(--mg-color-border);
   border-radius: var(--mg-radius-pill);
   line-height: 1.4;
-  box-shadow: none;
 }
 
-.exercise-pill:not([class*='bg-']) {
-  background: var(--mg-color-mist);
-}
-
-button.exercise-pill:hover:not(:disabled) {
-  border-color: var(--mg-color-primary);
+.exercise-pill:where(:not([class*='bg-'])) {
+  background: var(--exercise-inner-tone, var(--mg-color-mist));
 }
 
 .exercise-pill.exercise-pill--primary {
@@ -24,63 +39,13 @@ button.exercise-pill:hover:not(:disabled) {
   background: var(--mg-color-paper);
 }
 
-.exercise-pill.exercise-pill--success {
-  color: var(--mg-color-good-on);
-  background: var(--mg-color-good-soft);
-}
-
-.exercise-pill.exercise-pill--warning {
-  color: var(--mg-color-warn-on);
-  background: var(--mg-color-warn-soft);
-}
-
-.exercise-pill.exercise-pill--danger {
-  color: var(--mg-color-rose);
-  background: var(--mg-color-rose-soft);
-}
-
-/* ── Exercise option card (K2, 2026-11-02). Fields and nested blocks use the
-   shared .mg-v2-input / .mg-v2-block (base.css). ── */
-
-/* Fields nested inside a block take the next step in the tonal ladder. */
-.exercise-page .mg-v2-block .mg-v2-input {
-  background: var(--mg-color-paper);
-}
-
-/* Option card (a choice with a description, a category capsule): mist capsule,
-   hover = paper with a small lift, the picked one = accent edge on the well tint. */
+/* A long answer or a tile has an inset selected state, with an accent edge.
+   Compact answer chips retain the filled selection used in the exercises. */
 .exercise-option {
   border: 1px solid var(--mg-color-border);
-  border-radius: var(--mg-radius-pill);
+  border-radius: var(--mg-radius-md);
   color: var(--mg-color-ink);
-  background: var(--mg-color-mist);
-  box-shadow: var(--mg-shadow-control);
-  transition:
-    box-shadow var(--mg-duration-normal) ease,
-    border-color var(--mg-duration-normal) ease,
-    background-color var(--mg-duration-normal) ease;
-}
-
-.exercise-option:hover:not(:disabled) {
-  transform: none;
-  background: var(--mg-color-paper);
-  box-shadow: var(--mg-shadow-control-hover);
-}
-
-.exercise-option--active {
-  border-color: var(--mg-color-primary);
-  background: var(--mg-color-paper);
-  box-shadow: none;
-}
-
-.exercise-page .exercise-option--active {
-  background: var(--mg-color-sky-well);
-}
-
-.exercise-option--active:hover:not(:disabled) {
-  border-color: var(--mg-color-primary);
-  background: var(--mg-color-paper);
-  box-shadow: none;
+  background: var(--exercise-inner-tone, var(--mg-color-mist));
 }
 
 .exercise-page :where(input, textarea, select) {
@@ -109,9 +74,7 @@ button.exercise-pill:hover:not(:disabled) {
   cursor: default;
 }
 
-/* Answer chips (micro runner, repeat planning): the Today chip — px radius,
-   mist, no lift; the picked one filled in the accent as in the week
-   reflection's "Dopisz" form. */
+/* Answer chips keep their compact layout and optional second line. */
 .exercise-chip {
   display: inline-flex;
   flex-direction: column;
@@ -122,44 +85,99 @@ button.exercise-pill:hover:not(:disabled) {
   padding: 3px var(--mg-space-3);
   border: 1px solid var(--mg-color-border);
   border-radius: var(--mg-radius-sm);
-  background: var(--mg-color-mist);
+  background: var(--exercise-inner-tone, var(--mg-color-mist));
   color: var(--mg-color-ink);
-  box-shadow: none;
   font: inherit;
   font-size: var(--mg-font-size-sm);
-  font-weight: 700;
+  font-weight: var(--mg-weight-strong);
   line-height: 1.2;
   text-align: left;
-  cursor: pointer;
-  transition:
-    background var(--mg-duration-fast) ease,
-    color var(--mg-duration-fast) ease;
 }
 
-.exercise-chip:hover:not(:disabled) {
-  background: var(--mg-color-sky-well);
+:where(.exercise-page) button.exercise-pill {
+  border-color: var(--mg-color-border);
+  border-radius: var(--mg-radius-sm);
+  background: var(--exercise-inner-tone, var(--mg-color-mist));
+  color: var(--mg-color-ink);
+  font-weight: var(--mg-weight-strong);
+}
+
+.exercise-add-tile {
+  border: 1px solid var(--mg-color-border);
+  background: var(--exercise-inner-tone, var(--mg-color-mist));
   color: var(--mg-color-primary-strong);
 }
 
+:is(.exercise-option, .exercise-chip, .exercise-add-tile, .exercise-pill):where(
+  button,
+  [draggable='true']
+) {
+  box-shadow: var(--mg-shadow-control);
+  cursor: pointer;
+  transition:
+    background var(--mg-duration-fast) var(--mg-ease-standard),
+    box-shadow var(--mg-duration-fast) var(--mg-ease-standard),
+    translate var(--mg-duration-fast) var(--mg-ease-standard);
+}
+
+:is(.exercise-option, .exercise-chip, .exercise-add-tile, .exercise-pill):where(
+    button,
+    [draggable='true']
+  ):not(:disabled, .exercise-chip--ghost):hover {
+  background: var(--mg-color-paper);
+  box-shadow: var(--mg-shadow-control-hover);
+  translate: 0 var(--mg-lift-hover);
+}
+
+:is(.exercise-option, .exercise-chip, .exercise-add-tile, .exercise-pill):where(
+    button,
+    [draggable='true']
+  ):not(:disabled):active,
+.exercise-option--active,
+.exercise-option--active:not(:disabled):hover,
 .exercise-chip.is-on,
-.exercise-chip.is-on:hover:not(:disabled) {
+.exercise-chip.is-on:not(:disabled):hover,
+.exercise-page
+  button.exercise-pill:is(.exercise-pill--primary, [aria-pressed='true'], [aria-checked='true']),
+.exercise-page
+  button.exercise-pill:is(
+    .exercise-pill--primary,
+    [aria-pressed='true'],
+    [aria-checked='true']
+  ):not(:disabled):hover {
+  box-shadow: var(--mg-shadow-inset-sm);
+  translate: none;
+}
+
+.exercise-option--active,
+.exercise-option--active:not(:disabled):hover {
+  border-color: var(--mg-color-primary);
+  background: var(--mg-color-paper);
+}
+
+.exercise-chip.is-on,
+.exercise-chip.is-on:not(:disabled):hover,
+.exercise-page
+  button.exercise-pill:is(.exercise-pill--primary, [aria-pressed='true'], [aria-checked='true']),
+.exercise-page
+  button.exercise-pill:is(
+    .exercise-pill--primary,
+    [aria-pressed='true'],
+    [aria-checked='true']
+  ):not(:disabled):hover {
   border-color: transparent;
   background: var(--mg-color-primary-fill);
   color: var(--mg-color-on-primary);
 }
 
-.exercise-chip:focus-visible {
-  outline: 2px solid var(--mg-color-focus);
-  outline-offset: 2px;
-  box-shadow: none;
+:is(.exercise-option, .exercise-chip, .exercise-add-tile, .exercise-pill):where(
+    button,
+    [draggable='true']
+  ):disabled {
+  opacity: 0.46;
+  cursor: not-allowed;
 }
 
-.exercise-chip:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
-/* One tone lighter: a suggested answer that is not yet picked. */
 .exercise-chip--soft {
   background: var(--mg-color-paper);
 }
@@ -168,11 +186,19 @@ button.exercise-pill:hover:not(:disabled) {
   border-color: transparent;
   background: transparent;
   color: var(--mg-color-muted);
+  box-shadow: none;
 }
 
-.exercise-chip--ghost:hover:not(:disabled) {
-  background: var(--mg-color-mist);
-  color: var(--mg-color-ink);
+.exercise-chip--ghost:not(:disabled):hover {
+  background: var(--exercise-inner-tone, var(--mg-color-mist));
+}
+
+.exercise-option[draggable='true'] {
+  cursor: grab;
+}
+
+.exercise-option[draggable='true']:active {
+  cursor: grabbing;
 }
 
 /* A verb under the answer ("napraw"): the way forward, not a second label. */
@@ -180,11 +206,6 @@ button.exercise-pill:hover:not(:disabled) {
   font-size: var(--mg-font-size-xs);
   font-weight: 600;
   opacity: 0.8;
-}
-
-/* Footer actions inside the step card sit flat; only the primary one is filled. */
-.micro-footer .mg-v2-button:not(.mg-v2-button--primary) {
-  box-shadow: none;
 }
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -249,7 +270,7 @@ button.exercise-pill:hover:not(:disabled) {
   margin-left: calc(-1 * var(--mg-space-4));
 }
 
-/* ── Fields: md type, a real minimum height, focus that does not whiten ── */
+/* ── Fields: md type and a minimum height based on the requested rows ── */
 .exercise-page .mg-v2-input {
   font-size: var(--mg-font-size-md);
   line-height: 1.6;
@@ -286,40 +307,6 @@ button.exercise-pill:hover:not(:disabled) {
 }
 .exercise-page textarea.mg-v2-input[rows='12'] {
   min-height: calc(12 * 1.6em + 1.5rem + 2px);
-}
-
-/* ── Chips: the Today chip; the picked one filled in the accent ── */
-.exercise-page button.exercise-pill {
-  border-color: var(--mg-color-border);
-  border-radius: var(--mg-radius-sm);
-  background: var(--mg-color-mist);
-  color: var(--mg-color-ink);
-  font-weight: 700;
-  box-shadow: none;
-  transition:
-    background var(--mg-duration-fast) ease,
-    color var(--mg-duration-fast) ease;
-}
-
-.exercise-page button.exercise-pill:hover:not(:disabled) {
-  border-color: var(--mg-color-border);
-  background: var(--mg-color-sky-well);
-  color: var(--mg-color-primary-strong);
-}
-
-.exercise-page button.exercise-pill.exercise-pill--primary,
-.exercise-page button.exercise-pill[aria-pressed='true'],
-.exercise-page button.exercise-pill[aria-checked='true'],
-.exercise-page button.exercise-pill.exercise-pill--primary:hover:not(:disabled) {
-  border-color: transparent;
-  background: var(--mg-color-primary-fill);
-  color: var(--mg-color-on-primary);
-}
-
-.exercise-page button.exercise-pill:focus-visible {
-  outline: 2px solid var(--mg-color-focus);
-  outline-offset: 2px;
-  box-shadow: none;
 }
 
 /* ── Native controls in the V2 control language ── */
@@ -383,10 +370,12 @@ button.exercise-pill:hover:not(:disabled) {
   outline-offset: 2px;
 }
 
-.exercise-page input[type='checkbox']:not(.mg-v2-checkbox) {
-  width: 1.1rem;
-  height: 1.1rem;
-  accent-color: var(--mg-color-primary);
+.exercise-page .mg-v2-checkbox:not(:checked) {
+  background: var(--exercise-inner-tone, var(--mg-color-mist));
+}
+
+.exercise-page .exercise-option[draggable='true'] .mg-v2-button {
+  background: var(--mg-color-paper);
 }
 
 /* ── History under a wizard: an eyebrow and quiet rows, as in the micro view ── */
@@ -409,10 +398,7 @@ button.exercise-pill:hover:not(:disabled) {
 .exercise-page .mg-v2-section-head ~ div > .mg-v2-surface {
   margin-top: var(--mg-space-2);
   padding: var(--mg-space-2) var(--mg-space-3);
-  border: 1px solid var(--mg-color-border);
   border-radius: var(--mg-radius-md);
-  background: var(--mg-color-mist);
-  box-shadow: none;
 }
 
 /* ── A quiet note (safety guidance, hints): the field tone, no alarm colour ── */
@@ -422,6 +408,7 @@ button.exercise-pill:hover:not(:disabled) {
   border: 1px solid var(--mg-color-border);
   border-radius: var(--mg-radius-md);
   background: var(--mg-color-mist);
+  box-shadow: var(--mg-shadow-nested);
 }
 
 .exercise-note__icon {
@@ -464,22 +451,6 @@ button.exercise-pill:hover:not(:disabled) {
   font-size: var(--mg-font-size-xs);
   line-height: 1.5;
   overflow-wrap: anywhere;
-}
-
-/* ── "Add" tiles: a plain line in the border tone, never dashed ── */
-.exercise-add-tile {
-  border: 1px solid var(--mg-color-border);
-  background: var(--mg-color-mist);
-  color: var(--mg-color-muted);
-  transition:
-    background var(--mg-duration-fast) ease,
-    color var(--mg-duration-fast) ease;
-}
-
-.exercise-add-tile:hover {
-  border-color: var(--mg-color-border);
-  background: var(--mg-color-sky-well);
-  color: var(--mg-color-primary-strong);
 }
 
 /* ── A quote from an earlier step: context of the question, so plain text —

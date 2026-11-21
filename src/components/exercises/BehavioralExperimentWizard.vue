@@ -303,7 +303,7 @@
         </AppCard>
 
         <!-- Planned vs. Complete choice -->
-        <AppCard variant="flat" padding="md" class="space-y-3">
+        <AppCard padding="md" class="space-y-3">
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.behavioralExperiment.safety.saveChoiceDescription') }}
           </p>

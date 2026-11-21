@@ -80,6 +80,8 @@
       "selectionHint": "Wybrano: {count}. Wybierz co najmniej 5 i maksymalnie 10."
     },
     "rank": {
+      "moveUp": "Przesuń w górę",
+      "moveDown": "Przesuń w dół",
       "title": "Ułóż wybrane wartości w kolejności",
       "description": "Przeciągnij karty albo użyj strzałek. Na górę daj to, co wybierzesz, gdy dwie wartości się zderzą. Trzy pierwsze to twoje wartości rdzeniowe.",
       "why": "Ranking pokazuje, co ma pierwszeństwo, gdy nie da się mieć wszystkiego. Trzy pierwsze wartości trafiają do twojego profilu jako rdzeń, z którego korzysta asystent.",

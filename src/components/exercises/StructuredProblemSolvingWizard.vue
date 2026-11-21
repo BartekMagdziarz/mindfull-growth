@@ -160,7 +160,8 @@
               </span>
               <button
                 type="button"
-                class="p-1 rounded-mg-xs text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
+                class="mg-v2-button mg-v2-button--quiet mg-v2-button--icon mg-v2-button--icon-xs hover:text-error opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+                :aria-label="t('common.buttons.remove')"
                 @click="removeSolution(sol.id)"
               >
                 <AppIcon name="close" class="text-base" />

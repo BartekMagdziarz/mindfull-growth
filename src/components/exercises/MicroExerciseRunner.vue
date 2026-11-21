@@ -72,8 +72,7 @@
             v-model="textValues[currentStep.key]"
             :rows="currentStep.minLength ? 7 : 5"
             :placeholder="tg(stepKey(currentStep, 'placeholder'))"
-            class="micro-field"
-            :class="{ 'micro-field--long': currentStep.minLength }"
+            class="mg-v2-input micro-field"
           />
           <!-- Soft minimum: a counter and a gentle note, never a block. -->
           <p v-if="currentStep.minLength" class="micro-minlength" data-testid="micro-minlength">
@@ -94,7 +93,7 @@
             v-model="listValues[currentStep.key]![index]"
             type="text"
             :placeholder="tg(stepKey(currentStep, 'placeholder'))"
-            class="micro-field"
+            class="mg-v2-input micro-field"
           />
         </div>
 
@@ -189,8 +188,8 @@
             v-for="entry in pickable"
             :key="entry.id"
             type="button"
-            class="micro-pick__card"
-            :class="{ 'is-selected': pickValues[currentStep.key] === entry.id }"
+            class="exercise-option micro-pick__card"
+            :class="{ 'exercise-option--active': pickValues[currentStep.key] === entry.id }"
             role="radio"
             :aria-checked="pickValues[currentStep.key] === entry.id"
             @click="togglePick(currentStep.key, entry.id)"
@@ -890,7 +889,6 @@ function leaveTooMuch(): void {
   font-size: var(--mg-font-size-md);
 }
 
-/* Fields keep the field tone on focus; the ring carries the state. */
 .micro-text,
 .micro-list {
   display: grid;
@@ -900,33 +898,10 @@ function leaveTooMuch(): void {
 .micro-field {
   width: 100%;
   padding: var(--mg-space-3) var(--mg-space-4);
-  border: 1px solid var(--mg-color-field-border);
-  border-radius: var(--mg-radius-md);
-  background: var(--mg-color-mist);
-  color: var(--mg-color-ink);
   font: inherit;
   font-size: var(--mg-font-size-md);
   line-height: 1.6;
   resize: none;
-}
-
-/* Global `field-sizing: content` ignores `rows`; the minimum is set in lines here. */
-textarea.micro-field {
-  min-height: calc(5 * 1.6em + 2 * var(--mg-space-3) + 2px);
-}
-
-textarea.micro-field--long {
-  min-height: calc(7 * 1.6em + 2 * var(--mg-space-3) + 2px);
-}
-
-.micro-field::placeholder {
-  color: var(--mg-color-muted);
-}
-
-.micro-field:focus-visible {
-  outline: none;
-  border-color: color-mix(in srgb, var(--mg-color-data-fill) 60%, transparent);
-  box-shadow: var(--mg-focus-ring);
 }
 
 .micro-minlength {
@@ -1017,28 +992,7 @@ textarea.micro-field--long {
   gap: 2px;
   text-align: left;
   padding: var(--mg-space-2) var(--mg-space-3);
-  border: 1px solid var(--mg-color-border);
-  border-radius: var(--mg-radius-md);
-  background: var(--mg-color-mist);
-  color: var(--mg-color-ink);
   font: inherit;
-  cursor: pointer;
-  transition: background var(--mg-duration-fast) ease;
-}
-
-.micro-pick__card:hover {
-  background: var(--mg-color-sky-well);
-}
-
-.micro-pick__card.is-selected {
-  border-color: var(--mg-color-primary);
-  outline: 1px solid var(--mg-color-primary);
-  outline-offset: -1px;
-}
-
-.micro-pick__card:focus-visible {
-  outline: 2px solid var(--mg-color-focus);
-  outline-offset: 2px;
 }
 
 .micro-pick__date {

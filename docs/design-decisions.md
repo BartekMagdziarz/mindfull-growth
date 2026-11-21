@@ -906,3 +906,15 @@ Decyzja:
   dom ze strzałką powrotu, plansza z trójkątem „odtwórz”, koło sterowe, strzałka do postaci.
 Konsekwencje: `IconPicker` pokazuje 329 ikon; każdy kolejny cytat wielopolowy używa
 `hintFrom.steps` i etykiet `hintFields.*`, bez własnych stylów.
+
+## 2026-11-21 — Powierzchnie i kontrolki w ćwiczeniach
+
+Kreatory i mikroćwiczenia używały wspólnych kart, ale część lokalnych klas
+przycisków i zagnieżdżonych bloków tworzyła płaskie powierzchnie o tym samym
+odcieniu. Warstwa ćwiczeń korzysta z tych samych odcieni i stopni cienia co
+„Dzisiaj”. Blok wewnątrz karty ma kolor mgły i cień zagnieżdżony. Jego pola
+i neutralne przyciski mają kolor papieru. Pola tekstowe pozostają płaskie,
+a kafle wyboru i odpowiedzi używają cienia kontrolki, uniesienia pod kursorem
+i wklęsłości po zaznaczeniu. Krótkie zaznaczone odpowiedzi zachowują
+wypełnienie akcentem. Wskazówki, skale i przyciski ikon korzystają
+z dostępnych stylów systemu.

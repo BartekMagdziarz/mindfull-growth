@@ -247,10 +247,8 @@
 
             <div class="space-y-3">
               <button
-                class="w-full mg-v2-block p-4 text-left transition-all hover:-translate-y-px"
-                :class="
-                  selfCheckPassed === true ? 'exercise-option--active ring-2 ring-primary' : ''
-                "
+                class="w-full exercise-option p-4 text-left"
+                :class="selfCheckPassed === true ? 'exercise-option--active' : ''"
                 @click="markSelfCheckPassed"
               >
                 <div class="flex items-center gap-3">
@@ -261,7 +259,7 @@
                 </div>
               </button>
               <button
-                class="w-full mg-v2-block p-4 text-left transition-all hover:-translate-y-px"
+                class="w-full exercise-option p-4 text-left"
                 :class="selfCheckReactive ? 'ring-2 ring-status-warn' : ''"
                 @click="markSelfCheckReactive"
               >
@@ -293,7 +291,7 @@
                 </p>
                 <div class="w-full space-y-2">
                   <button
-                    class="w-full mg-v2-block p-4 text-left transition-all hover:-translate-y-px"
+                    class="w-full exercise-option p-4 text-left"
                     @click="confirmSelfCheckAndContinue"
                   >
                     <div class="flex items-center gap-3">
@@ -303,10 +301,7 @@
                       }}</span>
                     </div>
                   </button>
-                  <button
-                    class="w-full mg-v2-block p-4 text-left transition-all hover:-translate-y-px"
-                    @click="leaveForToday()"
-                  >
+                  <button class="w-full exercise-option p-4 text-left" @click="leaveForToday()">
                     <div class="flex items-center gap-3">
                       <AppIcon name="bedtime" class="text-xl text-on-surface-variant shrink-0" />
                       <span class="text-sm text-on-surface">{{
@@ -391,7 +386,7 @@
               <button
                 v-for="chip in compassionChips"
                 :key="chip"
-                class="exercise-pill px-3 py-1.5 text-sm bg-rose-50 text-rose-700 hover:-translate-y-px transition-all"
+                class="exercise-pill px-3 py-1.5 text-sm bg-rose-50 text-rose-700"
                 @click="insertCompassionChip(chip)"
               >
                 {{ chip }}
@@ -470,7 +465,7 @@
                 <button
                   v-for="chip in promiseChips"
                   :key="chip"
-                  class="exercise-pill px-3 py-1.5 text-sm bg-rose-50 text-rose-700 hover:-translate-y-px transition-all"
+                  class="exercise-pill px-3 py-1.5 text-sm bg-rose-50 text-rose-700"
                   @click="insertPromiseChip(chip)"
                 >
                   {{ chip }}
@@ -595,7 +590,7 @@
             </div>
 
             <label class="flex items-start gap-2 cursor-pointer">
-              <input v-model="updatePartCard" type="checkbox" class="mt-0.5" />
+              <input v-model="updatePartCard" type="checkbox" class="mg-v2-checkbox mt-0.5" />
               <span class="text-xs text-on-surface">
                 {{ t('exerciseWizards.exileWitnessing.reflection.updatePartLabel') }}
                 <span class="block text-on-surface-variant">{{

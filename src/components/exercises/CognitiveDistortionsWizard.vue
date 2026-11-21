@@ -275,10 +275,9 @@
             v-for="d in distortions"
             :key="d.id"
             type="button"
-            class="text-left p-4 transition-all"
-            :class="
-              appliedDraft.selectedIds.has(d.id) ? 'exercise-option--active' : 'exercise-option'
-            "
+            class="exercise-option text-left p-4"
+            :class="{ 'exercise-option--active': appliedDraft.selectedIds.has(d.id) }"
+            :aria-pressed="appliedDraft.selectedIds.has(d.id)"
             @click="toggleAppliedDistortion(d.id)"
           >
             <p class="text-sm font-semibold text-on-surface">{{ d.name }}</p>

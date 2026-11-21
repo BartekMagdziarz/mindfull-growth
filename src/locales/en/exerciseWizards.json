@@ -80,6 +80,8 @@
       "selectionHint": "Selected: {count}. Choose at least 5 and at most 10."
     },
     "rank": {
+      "moveUp": "Move up",
+      "moveDown": "Move down",
       "title": "Rank your selected values",
       "description": "Drag the cards or use the arrows. Put on top what you'd choose when two values collide. The top three are your core values.",
       "why": "A ranking shows what comes first when you can't have everything. Your top three go into your profile as the core the assistant draws on.",

@@ -98,10 +98,6 @@ const { t, tg } = useT()
   margin-top: var(--mg-space-1);
 }
 
-.exercise-saved__actions .mg-v2-button:not(.mg-v2-button--primary) {
-  box-shadow: none;
-}
-
 .exercise-saved__actions > :first-child.mg-v2-button--quiet {
   margin-left: calc(-1 * var(--mg-space-4));
 }

@@ -37,54 +37,51 @@
 
         <!-- Log cards -->
         <div v-if="!showSetupWizard" class="space-y-3">
-          <AppCard
+          <button
+            type="button"
             v-for="log in positiveDataLogStore.sortedLogs"
             :key="log.id"
-            padding="md"
-            class="cursor-pointer hover:-translate-y-px transition-transform"
+            class="mg-v2-tile positive-log-tile"
             @click="selectedLogId = log.id"
           >
-            <div class="flex justify-between items-start">
-              <div class="flex-1 space-y-1">
-                <p class="text-sm font-medium text-on-surface line-clamp-2 italic">
-                  "{{ log.targetBelief }}"
-                </p>
-                <div class="flex items-center gap-3 text-xs text-on-surface-variant">
-                  <span
-                    >{{ log.entries.length }}
-                    {{ log.entries.length === 1 ? 'entry' : 'entries' }}</span
-                  >
-                  <span>&middot;</span>
-                  <span>{{ formatDate(log.updatedAt) }}</span>
-                </div>
-                <div class="flex items-center gap-2 mt-1">
-                  <span class="text-xs text-on-surface-variant">Believability:</span>
-                  <span class="text-xs font-semibold text-on-surface"
-                    >{{ log.believabilityInitial }}%</span
-                  >
-                  <AppIcon
-                    name="arrow_forward"
-                    class="text-xs text-on-surface-variant flex-shrink-0"
-                  />
-                  <span
-                    class="text-xs font-semibold"
-                    :class="
-                      (log.believabilityLatest ?? log.believabilityInitial) <
-                      log.believabilityInitial
-                        ? 'text-success'
-                        : 'text-on-surface'
-                    "
-                  >
-                    {{ log.believabilityLatest ?? log.believabilityInitial }}%
-                  </span>
-                </div>
-              </div>
-              <AppIcon
-                name="chevron_right"
-                class="text-xl text-on-surface-variant flex-shrink-0 mt-1"
-              />
-            </div>
-          </AppCard>
+            <span class="min-w-0 space-y-1">
+              <span class="text-sm font-medium text-on-surface line-clamp-2 italic">
+                "{{ log.targetBelief }}"
+              </span>
+              <span class="flex items-center gap-3 text-xs text-on-surface-variant">
+                <span
+                  >{{ log.entries.length }}
+                  {{ log.entries.length === 1 ? 'entry' : 'entries' }}</span
+                >
+                <span>&middot;</span>
+                <span>{{ formatDate(log.updatedAt) }}</span>
+              </span>
+              <span class="flex items-center gap-2 mt-1">
+                <span class="text-xs text-on-surface-variant">Believability:</span>
+                <span class="text-xs font-semibold text-on-surface"
+                  >{{ log.believabilityInitial }}%</span
+                >
+                <AppIcon
+                  name="arrow_forward"
+                  class="text-xs text-on-surface-variant flex-shrink-0"
+                />
+                <span
+                  class="text-xs font-semibold"
+                  :class="
+                    (log.believabilityLatest ?? log.believabilityInitial) < log.believabilityInitial
+                      ? 'text-success'
+                      : 'text-on-surface'
+                  "
+                >
+                  {{ log.believabilityLatest ?? log.believabilityInitial }}%
+                </span>
+              </span>
+            </span>
+            <AppIcon
+              name="chevron_right"
+              class="text-xl text-on-surface-variant flex-shrink-0 mt-1"
+            />
+          </button>
         </div>
       </div>
     </template>
@@ -209,3 +206,9 @@ function formatDate(iso: string): string {
   return formatExerciseDate(iso, locale.value)
 }
 </script>
+
+<style scoped>
+.positive-log-tile {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+</style>

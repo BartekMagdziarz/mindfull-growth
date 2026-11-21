@@ -59,12 +59,10 @@
         <button
           v-for="n in 5"
           :key="n"
-          class="w-8 h-8 rounded-full transition-all"
-          :class="[
-            (ratings[selectedQuality] ?? 0) >= n
-              ? 'mg-v2-block bg-primary/30 text-primary'
-              : 'mg-v2-block text-on-surface-variant/40',
-          ]"
+          type="button"
+          class="exercise-chip h-8 w-8 items-center px-0"
+          :class="{ 'is-on': (ratings[selectedQuality] ?? 0) >= n }"
+          :aria-pressed="ratings[selectedQuality] === n"
           @click="setRating(selectedQuality, n)"
         >
           {{ n }}

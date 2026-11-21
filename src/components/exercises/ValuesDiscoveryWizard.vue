@@ -28,7 +28,7 @@
             />
             <button
               type="button"
-              class="p-2 rounded-mg-sm text-on-surface-variant hover:text-error hover:bg-section transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+              class="mg-v2-button mg-v2-button--quiet mg-v2-button--icon mg-v2-button--icon-xs hover:text-error opacity-0 group-hover:opacity-100 focus:opacity-100 focus-visible:opacity-100"
               @click="draft.admirablePeople.splice(index, 1)"
               :aria-label="t('exerciseWizards.valuesDiscovery.admirablePeople.removePerson')"
             >
@@ -53,7 +53,8 @@
               />
               <button
                 type="button"
-                class="p-1 rounded-mg-xs text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
+                class="mg-v2-button mg-v2-button--quiet mg-v2-button--icon mg-v2-button--icon-xs hover:text-error opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+                :aria-label="t('common.buttons.remove')"
                 @click="person.qualities.splice(qi, 1)"
               >
                 <AppIcon name="close" class="text-xs" />
@@ -100,16 +101,12 @@
         <ExerciseStepWhy :text="tg('exerciseWizards.valuesDiscovery.coreValues.why')" />
 
         <!-- Show qualities summary -->
-        <div class="p-3 rounded-mg-sm bg-section">
+        <div class="mg-v2-block p-3">
           <p class="text-xs font-medium text-on-surface-variant mb-2">
             {{ tg('exerciseWizards.valuesDiscovery.coreValues.qualitiesSummaryLabel') }}
           </p>
           <div class="flex flex-wrap gap-1.5">
-            <span
-              v-for="quality in allQualities"
-              :key="quality"
-              class="px-2 py-0.5 rounded-full bg-chip text-on-surface text-xs border border-chip-border"
-            >
+            <span v-for="quality in allQualities" :key="quality" class="mg-v2-badge">
               {{ quality }}
             </span>
           </div>
@@ -132,7 +129,8 @@
             />
             <button
               type="button"
-              class="p-1 rounded-mg-xs text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
+              class="mg-v2-button mg-v2-button--quiet mg-v2-button--icon mg-v2-button--icon-xs hover:text-error opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+              :aria-label="t('common.buttons.remove')"
               @click="draft.coreValues.splice(index, 1)"
             >
               <AppIcon name="close" class="text-base" />

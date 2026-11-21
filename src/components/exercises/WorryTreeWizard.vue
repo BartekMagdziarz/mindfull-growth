@@ -325,7 +325,7 @@
           </div>
         </AppCard>
 
-        <AppCard variant="flat" padding="md">
+        <AppCard padding="md">
           <p class="text-sm text-on-surface-variant italic leading-relaxed">
             {{ tg('exerciseWizards.worryTree.schedule.encouragement') }}
           </p>

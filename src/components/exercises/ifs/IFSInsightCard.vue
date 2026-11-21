@@ -10,7 +10,8 @@
         </span>
       </div>
       <button
-        class="text-on-surface-variant/40 hover:text-error transition-colors rounded-full p-1 shrink-0"
+        class="mg-v2-button mg-v2-button--quiet mg-v2-button--icon mg-v2-button--icon-xs hover:text-error shrink-0"
+        :aria-label="t('common.buttons.remove')"
         @click="$emit('delete')"
       >
         <AppIcon name="close" class="text-base" />

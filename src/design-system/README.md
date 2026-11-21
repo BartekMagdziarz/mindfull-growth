@@ -54,6 +54,14 @@ Od portu „reszty aplikacji” korzeń `.mg-design-v2` siedzi na `<main>` w `Ap
 - Nić `.mg-v2-thread` (2026-10-25): pionowy stepper dla stosu kart wypełnianych po kolei (kwestionariusze, `LikertItemList`). `ol.mg-v2-thread > li.mg-v2-thread__item(--done|--current) > span.mg-v2-thread__dot + karta`; kropki w gramatyce steppera, szew ołówkiem → akcentem po zrobieniu. `--mg-thread-dot-top` wyrównuje kropkę z pierwszą linią karty. Nie dla list bez kolejności i nie jako dekoracja.
 - Ćwiczenia: każdy widok trasy używa `ExercisePage.vue` (PageContainer reading + PageHeader z powrotem do katalogu); katalog trzyma zakładkę w `?tab=`.
 
+Kroki ćwiczeń korzystają z `mg-v2-block` do grupowania odpowiedzi. Kontrolki
+i pola w takim bloku biorą papier, również wewnątrz karty `--flat`. Zagnieżdżenie
+i warianty odpowiedzi obsługuje `components/exercises/exercise-design.css`.
+`exercise-option` to wybór z opisem lub kafel do przeciągania, a
+`exercise-chip` i interaktywne `exercise-pill` to krótkie odpowiedzi.
+Wszystkie trzy rodzaje korzystają z cieni kontrolek. Odczytowe etykiety
+i pola tekstowe są płaskie.
+
 ## Wspólne tło strony (2026-09-11)
 
 Wybrany wariant: bardziej błękitne, jednolite niebo. Domyślne

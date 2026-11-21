@@ -184,7 +184,7 @@
                   :class="
                     currentPartRole === role.value
                       ? `${role.activeClass} exercise-pill--primary`
-                      : 'bg-neu-base text-on-surface-variant hover:-translate-y-px'
+                      : 'text-on-surface-variant'
                   "
                   @click="currentPartRole = role.value"
                 >
@@ -323,7 +323,7 @@
               <AppCard
                 v-for="(part, idx) in identifiedParts"
                 :key="idx"
-                variant="raised"
+                variant="inset"
                 padding="sm"
                 class="flex items-start justify-between gap-2"
               >
@@ -351,7 +351,8 @@
                     <AppIcon name="edit" class="text-base" />
                   </button>
                   <button
-                    class="rounded-full p-1 text-on-surface-variant hover:text-error"
+                    class="mg-v2-button mg-v2-button--quiet mg-v2-button--icon mg-v2-button--icon-xs hover:text-error"
+                    :aria-label="t('common.buttons.remove')"
                     @click="removePart(idx)"
                   >
                     <AppIcon name="delete" class="text-base" />
@@ -469,7 +470,7 @@
                 <button
                   v-for="relType in relationshipTypes"
                   :key="relType.value"
-                  class="exercise-pill px-3 py-1 text-xs hover:-translate-y-px transition-all"
+                  class="exercise-pill px-3 py-1 text-xs"
                   @click="createRelationship(relType.value)"
                 >
                   {{ relType.label }}
@@ -495,7 +496,8 @@
                   {{ getPartName(rel.toPartId) }}
                 </span>
                 <button
-                  class="rounded-full p-1 text-on-surface-variant hover:text-error"
+                  class="mg-v2-button mg-v2-button--quiet mg-v2-button--icon mg-v2-button--icon-xs hover:text-error"
+                  :aria-label="t('common.buttons.remove')"
                   @click="removeRelationship(idx)"
                 >
                   <AppIcon name="close" class="text-sm" />
@@ -589,7 +591,7 @@
                     :class="
                       isLifeAreaSelected(idx, area.id)
                         ? 'bg-primary/20 text-primary exercise-pill--primary'
-                        : 'bg-neu-base text-on-surface-variant hover:-translate-y-px'
+                        : 'text-on-surface-variant'
                     "
                     @click="toggleLifeArea(idx, area.id)"
                   >

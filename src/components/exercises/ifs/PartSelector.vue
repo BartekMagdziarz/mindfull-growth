@@ -60,7 +60,7 @@
             :class="[
               newPartRole === role.value
                 ? `${role.activeClass} exercise-pill--primary`
-                : 'bg-neu-base text-on-surface-variant hover:-translate-y-px',
+                : 'text-on-surface-variant',
             ]"
             @click="newPartRole = role.value"
           >

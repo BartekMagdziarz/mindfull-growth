@@ -24,23 +24,15 @@
           v-for="key in commonBeliefKeys"
           :key="key"
           type="button"
-          class="px-3 py-1.5 rounded-full text-xs font-medium transition-colors border"
-          :class="
-            isCommonSelected(key)
-              ? 'bg-primary/20 text-primary border-primary/40'
-              : 'bg-chip text-on-surface border-chip-border hover:bg-section'
-          "
+          class="exercise-pill px-3 py-1.5 text-xs"
+          :aria-pressed="isCommonSelected(key)"
           @click="toggleCommonBelief(key)"
         >
           {{ commonLabel(key) }}
         </button>
       </div>
 
-      <button
-        type="button"
-        class="flex items-center gap-2 text-sm text-primary hover:text-primary-strong transition-colors"
-        @click="addCustomBelief"
-      >
+      <button type="button" class="mg-v2-button" @click="addCustomBelief">
         <AppIcon name="add" class="text-base" />
         {{ t('exerciseWizards.shadowBeliefs.beliefs.addCustom') }}
       </button>
@@ -53,11 +45,7 @@
       </p>
       <ExerciseStepWhy :text="tg('exerciseWizards.shadowBeliefs.beliefs.why')" />
       <div class="space-y-4">
-        <div
-          v-for="(entry, index) in draft.beliefs"
-          :key="index"
-          class="rounded-mg-md border border-chip-border p-3 space-y-3"
-        >
+        <div v-for="(entry, index) in draft.beliefs" :key="index" class="mg-v2-block p-3 space-y-3">
           <div class="flex items-center gap-2">
             <span class="text-primary">&#8226;</span>
             <span v-if="entry.commonKey" class="flex-1 p-2 text-sm font-medium text-on-surface">{{
@@ -73,7 +61,8 @@
             />
             <button
               type="button"
-              class="p-1 rounded-mg-xs text-on-surface-variant hover:text-error transition-colors"
+              class="mg-v2-button mg-v2-button--icon mg-v2-button--icon-xs hover:text-error"
+              :aria-label="t('common.buttons.remove')"
               @click="removeBelief(index)"
             >
               <AppIcon name="close" class="text-base" />
@@ -132,11 +121,7 @@
       </p>
       <ExerciseStepWhy :text="tg('exerciseWizards.shadowBeliefs.advice.why')" />
       <div class="space-y-4">
-        <div
-          v-for="(item, index) in draft.advice"
-          :key="index"
-          class="rounded-mg-md border border-chip-border p-3 space-y-3"
-        >
+        <div v-for="(item, index) in draft.advice" :key="index" class="mg-v2-block p-3 space-y-3">
           <div class="flex items-center gap-2">
             <span class="text-primary">&#8226;</span>
             <input
@@ -148,7 +133,8 @@
             />
             <button
               type="button"
-              class="p-1 rounded-mg-xs text-on-surface-variant hover:text-error transition-colors"
+              class="mg-v2-button mg-v2-button--icon mg-v2-button--icon-xs hover:text-error"
+              :aria-label="t('common.buttons.remove')"
               @click="draft.advice.splice(index, 1)"
             >
               <AppIcon name="close" class="text-base" />
@@ -165,12 +151,8 @@
                   v-for="opt in followOptions"
                   :key="opt"
                   type="button"
-                  class="px-3 py-1 rounded-full text-xs font-medium transition-colors border"
-                  :class="
-                    item.followsSelf === opt
-                      ? 'bg-primary/20 text-primary border-primary/40'
-                      : 'bg-chip text-on-surface border-chip-border hover:bg-section'
-                  "
+                  class="exercise-pill px-3 py-1 text-xs"
+                  :aria-pressed="item.followsSelf === opt"
                   @click="item.followsSelf = item.followsSelf === opt ? '' : opt"
                 >
                   {{ t(`exerciseWizards.shadowBeliefs.advice.follow.${opt}`) }}
@@ -195,11 +177,7 @@
             </div>
           </div>
         </div>
-        <button
-          type="button"
-          class="flex items-center gap-2 text-sm text-primary hover:text-primary-strong transition-colors"
-          @click="addAdvice"
-        >
+        <button type="button" class="mg-v2-button" @click="addAdvice">
           <AppIcon name="add" class="text-base" />
           {{ t('exerciseWizards.shadowBeliefs.advice.addAdvice') }}
         </button>

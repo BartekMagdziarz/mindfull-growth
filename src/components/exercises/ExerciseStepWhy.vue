@@ -7,7 +7,7 @@
   >
     <button
       type="button"
-      class="exercise-step-why__disc"
+      class="mg-v2-button mg-v2-button--icon mg-v2-button--icon-xs exercise-step-why__disc"
       :aria-expanded="open"
       :aria-label="t('exerciseWizards.shared.whyLabel')"
       :title="t('exerciseWizards.shared.whyLabel')"
@@ -16,7 +16,12 @@
     >
       <AppIcon name="help" class="exercise-step-why__icon" />
     </button>
-    <p v-if="open" role="note" class="exercise-step-why__note" data-testid="step-why-note">
+    <p
+      v-if="open"
+      role="note"
+      class="mg-v2-popover exercise-step-why__note"
+      data-testid="step-why-note"
+    >
       {{ text }}
     </p>
   </div>
@@ -25,7 +30,7 @@
       <AppIcon name="help" class="exercise-step-why__icon" />
       {{ t('exerciseWizards.shared.whyLabel') }}
     </summary>
-    <p>{{ text }}</p>
+    <p class="mg-v2-block">{{ text }}</p>
   </details>
 </template>
 
@@ -105,8 +110,6 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', onPointerDown)
 .exercise-step-why > p {
   margin-top: var(--mg-space-2);
   padding: var(--mg-space-3) var(--mg-space-4);
-  border-radius: var(--mg-radius-sm);
-  background: var(--mg-color-mist);
   font-size: var(--mg-font-size-sm);
   line-height: 1.55;
   color: var(--mg-color-muted);
@@ -118,38 +121,14 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', onPointerDown)
   display: inline-grid;
 }
 
-.exercise-step-why__disc {
-  display: grid;
-  place-items: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  padding: 0;
-  border: 1px solid var(--mg-color-border);
-  border-radius: 50%;
-  background: var(--mg-color-mist);
-  color: var(--mg-color-muted);
-  cursor: pointer;
-  transition:
-    background var(--mg-duration-fast) ease,
-    color var(--mg-duration-fast) ease;
-}
-
-.exercise-step-why__disc:hover {
-  background: var(--mg-color-sky-well);
-  color: var(--mg-color-primary-strong);
-}
-
-.exercise-step-why__disc[aria-expanded='true'] {
+/* An open note keeps the disc pressed. */
+.exercise-step-why__disc[aria-expanded='true'],
+.exercise-step-why__disc[aria-expanded='true']:hover {
   background: var(--mg-color-paper);
-  color: var(--mg-color-primary-strong);
+  box-shadow: var(--mg-shadow-inset-sm);
+  translate: none;
 }
 
-.exercise-step-why__disc:focus-visible {
-  outline: 2px solid var(--mg-color-focus);
-  outline-offset: 2px;
-}
-
-/* The note floats under the disc, flush with its right edge: a lighter cloud over the card. */
 .exercise-step-why__note {
   position: absolute;
   top: calc(100% + var(--mg-space-2));
@@ -159,9 +138,7 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', onPointerDown)
   max-width: 70vw;
   margin: 0;
   padding: var(--mg-space-3) var(--mg-space-4);
-  border-radius: var(--mg-radius-md);
   background: var(--mg-color-paper);
-  box-shadow: var(--mg-shadow-raised-sm);
   color: var(--mg-color-muted);
   font-size: var(--mg-font-size-sm);
   line-height: 1.55;

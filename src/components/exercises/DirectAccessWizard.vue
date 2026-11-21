@@ -71,8 +71,8 @@
 
             <div class="space-y-3">
               <button
-                class="w-full mg-v2-block p-4 text-left transition-all hover:-translate-y-px"
-                :class="selfCheckPassed ? 'exercise-option--active ring-2 ring-primary' : ''"
+                class="w-full exercise-option p-4 text-left"
+                :class="selfCheckPassed ? 'exercise-option--active' : ''"
                 @click="handleSelfCheck(true)"
               >
                 <div class="flex items-center gap-3">
@@ -83,7 +83,7 @@
                 </div>
               </button>
               <button
-                class="w-full mg-v2-block p-4 text-left transition-all hover:-translate-y-px"
+                class="w-full exercise-option p-4 text-left"
                 :class="showBreathing ? 'ring-2 ring-status-warn' : ''"
                 @click="handleSelfCheck(false)"
               >
@@ -131,7 +131,7 @@
                 >
                   <div v-if="breathingDone" class="w-full space-y-2">
                     <button
-                      class="w-full mg-v2-block p-4 text-left transition-all hover:-translate-y-px"
+                      class="w-full exercise-option p-4 text-left"
                       @click="confirmSelfCheckAndContinue"
                     >
                       <div class="flex items-center gap-3">
@@ -144,10 +144,7 @@
                         }}</span>
                       </div>
                     </button>
-                    <button
-                      class="w-full mg-v2-block p-4 text-left transition-all hover:-translate-y-px"
-                      @click="leaveForToday()"
-                    >
+                    <button class="w-full exercise-option p-4 text-left" @click="leaveForToday()">
                       <div class="flex items-center gap-3">
                         <AppIcon name="bedtime" class="text-xl text-on-surface-variant shrink-0" />
                         <span class="text-sm text-on-surface">{{
@@ -284,7 +281,7 @@
                   :class="
                     insightTag === tag.value
                       ? `${tag.activeClass} exercise-pill--primary`
-                      : 'bg-neu-base text-on-surface-variant hover:-translate-y-px'
+                      : 'text-on-surface-variant'
                   "
                   @click="insightTag = tag.value"
                 >
@@ -490,7 +487,7 @@
                   {{ partNeedDiscovered }}
                 </p>
                 <label class="flex items-start gap-2 pt-2 cursor-pointer">
-                  <input v-model="updatePartCard" type="checkbox" class="mt-0.5" />
+                  <input v-model="updatePartCard" type="checkbox" class="mg-v2-checkbox mt-0.5" />
                   <span class="text-xs text-on-surface">
                     {{ t('exerciseWizards.directAccess.save.updatePartLabel') }}
                     <span class="block text-on-surface-variant">{{

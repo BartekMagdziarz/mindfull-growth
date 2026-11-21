@@ -62,7 +62,7 @@
                 :class="
                   intention === chip
                     ? 'bg-primary/20 text-primary exercise-pill--primary'
-                    : 'bg-neu-base text-on-surface-variant hover:-translate-y-px'
+                    : 'text-on-surface-variant'
                 "
                 @click="intention = chip"
               >
@@ -88,7 +88,7 @@
                   :class="
                     selfCheckPassed === true
                       ? 'bg-primary/20 text-primary exercise-pill--primary'
-                      : 'bg-neu-base text-on-surface-variant hover:-translate-y-px'
+                      : 'text-on-surface-variant'
                   "
                   @click="selfCheckPassed = true"
                 >
@@ -99,7 +99,7 @@
                   :class="
                     selfCheckPassed === false
                       ? 'bg-status-warn-soft text-status-warn-on exercise-pill--primary'
-                      : 'bg-neu-base text-on-surface-variant hover:-translate-y-px'
+                      : 'text-on-surface-variant'
                   "
                   @click="selfCheckPassed = false"
                 >
@@ -135,30 +135,19 @@
             <!-- Speaker toggle -->
             <div class="flex gap-2">
               <button
-                class="flex-1 rounded-mg-md py-2 text-sm font-medium transition-all"
-                :class="
-                  currentSpeaker === 'self'
-                    ? 'mg-v2-block bg-primary/10 text-primary'
-                    : 'mg-v2-block text-on-surface-variant hover:-translate-y-px'
-                "
+                type="button"
+                class="exercise-option flex-1 py-2 text-sm font-medium"
+                :class="{ 'exercise-option--active': currentSpeaker === 'self' }"
+                :aria-pressed="currentSpeaker === 'self'"
                 @click="currentSpeaker = 'self'"
               >
                 {{ t('exerciseWizards.partsDialogue.dialogue.speakers.self') }}
               </button>
               <button
-                class="flex-1 rounded-mg-md py-2 text-sm font-medium transition-all"
-                :class="
-                  currentSpeaker === 'part'
-                    ? 'mg-v2-block text-on-surface' +
-                      (selectedPartRole === 'manager'
-                        ? ' bg-ifs-manager-soft'
-                        : selectedPartRole === 'firefighter'
-                          ? ' bg-ifs-firefighter-soft'
-                          : selectedPartRole === 'exile'
-                            ? ' bg-ifs-exile-soft'
-                            : ' bg-neu-base')
-                    : 'mg-v2-block text-on-surface-variant hover:-translate-y-px'
-                "
+                type="button"
+                class="exercise-option flex-1 py-2 text-sm font-medium"
+                :class="{ 'exercise-option--active': currentSpeaker === 'part' }"
+                :aria-pressed="currentSpeaker === 'part'"
                 @click="currentSpeaker = 'part'"
               >
                 {{
@@ -337,7 +326,7 @@
                     :class="
                       insightTag === tag.value
                         ? `${tag.activeClass} exercise-pill--primary`
-                        : 'bg-neu-base text-on-surface-variant hover:-translate-y-px'
+                        : 'text-on-surface-variant'
                     "
                     @click="insightTag = tag.value"
                   >

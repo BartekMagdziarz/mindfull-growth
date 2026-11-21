@@ -47,7 +47,7 @@
           {{ t('exerciseWizards.transformativePurpose.intersection.description') }}
         </p>
         <ExerciseStepWhy :text="tg('exerciseWizards.transformativePurpose.intersection.why')" />
-        <div class="p-3 rounded-mg-sm bg-section">
+        <div class="mg-v2-block p-3">
           <p class="text-xs font-medium text-on-surface-variant mb-2">
             {{ t('exerciseWizards.transformativePurpose.intersection.curiositiesLabel') }}
           </p>

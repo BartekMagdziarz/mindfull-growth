@@ -223,7 +223,7 @@
                   'max-w-[80%] rounded-mg-sm px-4 py-2',
                   message.role === 'user'
                     ? 'bg-gradient-to-br from-primary to-primary-strong text-on-primary'
-                    : 'bg-surface-variant text-on-surface-variant',
+                    : 'mg-v2-block text-on-surface-variant',
                 ]"
               >
                 <p class="whitespace-pre-wrap break-words text-sm">{{ message.content }}</p>
@@ -232,9 +232,7 @@
 
             <!-- Loading indicator -->
             <div v-if="isLlmLoading" class="flex justify-start">
-              <div
-                class="max-w-[80%] rounded-mg-sm px-4 py-2 bg-surface-variant text-on-surface-variant"
-              >
+              <div class="max-w-[80%] rounded-mg-sm px-4 py-2 mg-v2-block text-on-surface-variant">
                 <div class="flex items-center gap-2">
                   <div
                     class="animate-spin w-4 h-4 border-2 border-on-surface-variant border-t-transparent rounded-full"

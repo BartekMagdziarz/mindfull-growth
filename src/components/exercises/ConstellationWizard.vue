@@ -168,7 +168,7 @@
                   :class="
                     getRelationship(pair.partAId, pair.partBId)?.type === relType.value
                       ? `${relType.activeClass} exercise-pill--primary`
-                      : 'bg-neu-base text-on-surface-variant hover:-translate-y-px'
+                      : 'text-on-surface-variant'
                   "
                   @click="setRelationshipType(pair.partAId, pair.partBId, relType.value)"
                 >

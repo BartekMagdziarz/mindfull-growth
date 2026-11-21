@@ -13,11 +13,7 @@
       </div>
 
       <div class="grid grid-cols-2 gap-3">
-        <div
-          v-for="item in startHighlights"
-          :key="item.icon"
-          class="rounded-mg-sm border border-neu-border/20 bg-section p-4"
-        >
+        <div v-for="item in startHighlights" :key="item.icon" class="mg-v2-block p-4">
           <AppIcon :name="item.icon" class="mb-2 text-xl text-primary" />
           <p class="text-sm font-medium text-on-surface">{{ item.title }}</p>
           <p class="mt-1 text-xs leading-5 text-on-surface-variant">{{ item.body }}</p>
@@ -47,7 +43,7 @@
         <section
           v-for="category in importanceCategories"
           :key="category.id"
-          class="min-h-[420px] rounded-mg-sm border border-neu-border/20 bg-section p-3"
+          class="min-h-[420px] mg-v2-surface mg-v2-surface--raised-sm p-3"
           @dragover.prevent
           @drop="handleDrop(category.id)"
         >
@@ -61,11 +57,11 @@
             <article
               v-for="value in valuesByCategory[category.id]"
               :key="value.id"
-              class="mg-v2-surface mg-v2-surface--flat group relative w-full px-3 pb-4 pt-3 text-left"
+              class="exercise-option group relative w-full px-3 py-3 text-left"
               draggable="true"
               @dragstart="draggedValueId = value.id"
             >
-              <p class="text-sm font-semibold text-on-surface">{{ value.label }}</p>
+              <p class="pr-8 text-sm font-semibold text-on-surface">{{ value.label }}</p>
               <Transition
                 enter-active-class="transition-all duration-200 ease-out"
                 enter-from-class="max-h-0 opacity-0"
@@ -83,12 +79,13 @@
               </Transition>
               <button
                 type="button"
-                class="absolute -bottom-2 left-1/2 z-10 inline-flex h-5 w-7 -translate-x-1/2 items-center justify-center rounded-full border border-neu-border/40 bg-neu-base text-on-surface-variant shadow-mg-raised-sm transition-all duration-200 hover:text-primary"
+                class="mg-v2-button mg-v2-button--icon mg-v2-button--icon-xs absolute right-2 top-2"
                 :class="
                   isValueExpanded(value.id)
                     ? 'opacity-100'
                     : 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'
                 "
+                :aria-expanded="isValueExpanded(value.id)"
                 :aria-label="
                   isValueExpanded(value.id)
                     ? t('exerciseWizards.valueMap.sort.collapseDescription')
@@ -120,11 +117,11 @@
           <article
             v-for="value in unsortedValues"
             :key="value.id"
-            class="group relative rounded-mg-sm border border-neu-border/20 bg-section px-3 pb-4 pt-3"
+            class="exercise-option group relative px-3 py-3"
             draggable="true"
             @dragstart="draggedValueId = value.id"
           >
-            <p class="text-sm font-semibold text-on-surface">{{ value.label }}</p>
+            <p class="pr-8 text-sm font-semibold text-on-surface">{{ value.label }}</p>
             <Transition
               enter-active-class="transition-all duration-200 ease-out"
               enter-from-class="max-h-0 opacity-0"
@@ -142,12 +139,13 @@
             </Transition>
             <button
               type="button"
-              class="absolute -bottom-2 left-1/2 z-10 inline-flex h-5 w-7 -translate-x-1/2 items-center justify-center rounded-full border border-neu-border/40 bg-neu-base text-on-surface-variant shadow-mg-raised-sm transition-all duration-200 hover:text-primary"
+              class="mg-v2-button mg-v2-button--icon mg-v2-button--icon-xs absolute right-2 top-2"
               :class="
                 isValueExpanded(value.id)
                   ? 'opacity-100'
                   : 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'
               "
+              :aria-expanded="isValueExpanded(value.id)"
               :aria-label="
                 isValueExpanded(value.id)
                   ? t('exerciseWizards.valueMap.sort.collapseDescription')
@@ -194,15 +192,12 @@
         <ExerciseStepWhy :text="tg('exerciseWizards.valueMap.narrow.why')" />
       </div>
 
-      <div
-        v-if="topCandidateValues.length < 5"
-        class="rounded-mg-sm border border-warning/30 bg-warning/10 p-3 text-sm text-on-surface"
-      >
+      <div v-if="topCandidateValues.length < 5" class="mg-v2-block mg-v2-block--warn p-3 text-sm">
         {{ t('exerciseWizards.valueMap.narrow.tooFewCandidates') }}
       </div>
       <div
         v-else-if="selectedTopIds.length < 5 || selectedTopIds.length > 10"
-        class="rounded-mg-sm border border-neu-border/20 bg-section p-3 text-sm text-on-surface"
+        class="mg-v2-block p-3 text-sm text-on-surface"
       >
         {{ t('exerciseWizards.valueMap.narrow.selectionHint', { count: selectedTopIds.length }) }}
       </div>
@@ -212,10 +207,9 @@
           v-for="value in topCandidateValues"
           :key="value.id"
           type="button"
-          class="exercise-option border p-3 text-left transition"
-          :class="
-            selectedTopIds.includes(value.id) ? 'exercise-option--active' : 'border-neu-border/20'
-          "
+          class="exercise-option p-3 text-left"
+          :class="{ 'exercise-option--active': selectedTopIds.includes(value.id) }"
+          :aria-pressed="selectedTopIds.includes(value.id)"
           @click="toggleSelectedTop(value.id)"
         >
           <span class="block text-sm font-semibold text-on-surface">{{ value.label }}</span>
@@ -241,7 +235,7 @@
         <div
           v-for="(valueId, index) in rankedIds"
           :key="valueId"
-          class="grid grid-cols-[3rem_1fr_auto] items-center gap-3 rounded-mg-sm border border-neu-border/20 bg-section p-3"
+          class="grid grid-cols-[3rem_1fr_auto] items-center gap-3 exercise-option p-3"
           draggable="true"
           @dragstart="draggedRankId = valueId"
           @dragover.prevent
@@ -260,14 +254,18 @@
           </div>
           <div class="flex items-center gap-1">
             <button
-              class="rounded-mg-xs p-2 text-on-surface-variant hover:bg-neu-base"
+              type="button"
+              class="mg-v2-button mg-v2-button--icon mg-v2-button--icon-sm"
+              :aria-label="t('exerciseWizards.valueMap.rank.moveUp')"
               :disabled="index === 0"
               @click="moveRank(index, -1)"
             >
               <AppIcon name="keyboard_arrow_up" />
             </button>
             <button
-              class="rounded-mg-xs p-2 text-on-surface-variant hover:bg-neu-base"
+              type="button"
+              class="mg-v2-button mg-v2-button--icon mg-v2-button--icon-sm"
+              :aria-label="t('exerciseWizards.valueMap.rank.moveDown')"
               :disabled="index === rankedIds.length - 1"
               @click="moveRank(index, 1)"
             >
@@ -316,13 +314,9 @@
         <ExerciseStepWhy :text="tg('exerciseWizards.valueMap.conflicts.why')" />
       </div>
 
-      <div
-        v-for="valueId in coreRankedIds"
-        :key="valueId"
-        class="rounded-mg-sm border border-neu-border/20 bg-section p-4"
-      >
+      <div v-for="valueId in coreRankedIds" :key="valueId" class="mg-v2-block p-4">
         <label class="flex items-center gap-2 text-sm font-semibold text-on-surface">
-          <input v-model="conflictEnabled[valueId]" type="checkbox" />
+          <input v-model="conflictEnabled[valueId]" type="checkbox" class="mg-v2-checkbox" />
           {{
             t('exerciseWizards.valueMap.conflicts.itemQuestion', { value: getValueLabel(valueId) })
           }}
@@ -374,7 +368,9 @@
             :placeholder="t('exerciseWizards.valueMap.conflicts.notePlaceholder')"
           />
           <button
-            class="rounded-mg-sm p-2 text-on-surface-variant hover:bg-section hover:text-error"
+            type="button"
+            class="mg-v2-button mg-v2-button--icon hover:text-error"
+            :aria-label="t('common.buttons.remove')"
             @click="extraConflicts.splice(index, 1)"
           >
             <AppIcon name="close" />
@@ -409,7 +405,7 @@
 
       <div
         v-if="lifeAreaStore.activeLifeAreas.length === 0"
-        class="rounded-mg-sm bg-section p-4 text-sm text-on-surface-variant"
+        class="mg-v2-block p-4 text-sm text-on-surface-variant"
       >
         {{ t('exerciseWizards.valueMap.areas.empty') }}
       </div>
@@ -417,7 +413,7 @@
       <div
         v-for="area in lifeAreaStore.activeLifeAreas"
         :key="area.id"
-        class="space-y-3 rounded-mg-sm border border-neu-border/20 bg-section p-4"
+        class="space-y-3 mg-v2-block p-4"
       >
         <h3 class="text-sm font-semibold text-on-surface">{{ area.name }}</h3>
         <div class="flex flex-wrap gap-2">
@@ -425,7 +421,7 @@
             v-for="valueId in areaAssignments[area.id] ?? []"
             :key="valueId"
             type="button"
-            class="rounded-full bg-chip px-3 py-1 text-xs text-on-surface"
+            class="mg-v2-pill"
             @click="removeAreaValue(area.id, valueId)"
           >
             {{ getValueLabel(valueId) }} x
@@ -454,7 +450,7 @@
         </div>
 
         <label class="flex items-center gap-2 text-sm text-on-surface">
-          <input v-model="areaTensionEnabled[area.id]" type="checkbox" />
+          <input v-model="areaTensionEnabled[area.id]" type="checkbox" class="mg-v2-checkbox" />
           {{ t('exerciseWizards.valueMap.areas.tensionQuestion') }}
         </label>
         <div v-if="areaTensionEnabled[area.id]" class="grid grid-cols-[1fr_1fr_1.4fr] gap-2">
@@ -500,11 +496,7 @@
           {{ t('exerciseWizards.valueMap.summary.core') }}
         </h3>
         <div class="flex flex-wrap gap-2">
-          <span
-            v-for="id in coreRankedIds"
-            :key="id"
-            class="rounded-full bg-primary/15 px-3 py-1 text-sm text-primary"
-          >
+          <span v-for="id in coreRankedIds" :key="id" class="mg-v2-badge text-primary">
             {{ getValueLabel(id) }}
           </span>
         </div>
@@ -515,11 +507,7 @@
           {{ t('exerciseWizards.valueMap.summary.supporting') }}
         </h3>
         <div class="flex flex-wrap gap-2">
-          <span
-            v-for="id in supportingRankedIds"
-            :key="id"
-            class="rounded-full bg-chip px-3 py-1 text-sm text-on-surface"
-          >
+          <span v-for="id in supportingRankedIds" :key="id" class="mg-v2-badge">
             {{ getValueLabel(id) }}
           </span>
         </div>
@@ -535,7 +523,7 @@
         <div
           v-for="conflict in compiledGlobalConflicts"
           :key="`${conflict.valueId}-${conflict.conflictingValueId}`"
-          class="rounded-mg-sm bg-section p-3 text-sm"
+          class="mg-v2-block p-3 text-sm"
         >
           <span class="font-medium text-on-surface">{{ getValueLabel(conflict.valueId) }}</span>
           <span class="text-on-surface-variant"> ↔ </span>
@@ -555,7 +543,7 @@
         <div
           v-for="assignment in compiledLifeAreaAssignments"
           :key="assignment.lifeAreaId"
-          class="rounded-mg-sm bg-section p-3"
+          class="mg-v2-block p-3"
         >
           <p class="text-sm font-medium text-on-surface">
             {{ getLifeAreaName(assignment.lifeAreaId) }}

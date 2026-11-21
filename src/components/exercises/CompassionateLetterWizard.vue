@@ -294,7 +294,7 @@
               <label class="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
-                  class="mt-0.5"
+                  class="mg-v2-checkbox mt-0.5"
                   :checked="checklist.includes(item)"
                   @change="toggleChecklist(item)"
                 />

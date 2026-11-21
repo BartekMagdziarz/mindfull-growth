@@ -83,7 +83,7 @@
                   :class="
                     lowestQuality === q
                       ? 'bg-primary/15 text-primary font-semibold exercise-pill--primary'
-                      : 'bg-neu-base text-on-surface-variant hover:-translate-y-px'
+                      : 'text-on-surface-variant'
                   "
                   @click="chosenGap = q"
                 >

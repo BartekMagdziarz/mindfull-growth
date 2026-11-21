@@ -11,11 +11,7 @@
     </div>
 
     <div v-else class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-      <article
-        v-for="assessment in assessmentCards"
-        :key="assessment.id"
-        class="rounded-mg-lg border border-neu-border/20 bg-section/35 p-3"
-      >
+      <article v-for="assessment in assessmentCards" :key="assessment.id" class="mg-v2-block p-3">
         <div class="mb-2 flex items-start justify-between gap-2">
           <div class="min-w-0">
             <div class="truncate text-xs font-semibold text-on-surface">
@@ -31,14 +27,14 @@
           <div class="flex shrink-0 items-center gap-1">
             <button
               type="button"
-              class="rounded-mg-sm px-2 py-1 text-mg-xs font-medium text-primary transition-colors hover:bg-primary-soft"
+              class="mg-v2-button mg-v2-button--quiet"
               @click="$emit('edit', assessment.id)"
             >
               {{ t('exerciseWizards.wheelOfLife.timeline.editSelected') }}
             </button>
             <button
               type="button"
-              class="rounded-mg-sm px-2 py-1 text-mg-xs font-medium text-error transition-colors hover:bg-error/10"
+              class="mg-v2-button mg-v2-button--quiet text-error"
               @click="$emit('delete', assessment.id)"
             >
               {{ t('common.buttons.delete') }}
