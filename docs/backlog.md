@@ -27,6 +27,40 @@ wracania do rozmowy, w której go znaleziono.
 
 ## Błędy
 
+### B-26 · Uniesienie o 1px na hover drga, gdy kursor stoi na dolnej krawędzi kontrolki
+
+`otwarte` · Znaleziono 2026-11-19 (skaczące przyciski opisu w Mapie wartości) · system wizualny / `src/design-system/base.css`, `src/components/exercises/exercise-design.css`
+
+**Objaw.** Kontrolka (przycisk, kafel odpowiedzi, przeciągalna karta wartości) „drży”,
+gdy kursor stoi dokładnie na jej dolnej krawędzi. Jeśli od hovera zależy coś jeszcze (np.
+przycisk pokazywany przez `group-hover`), to ten element miga.
+
+**Jak odtworzyć.** `npm run dev:verify`, `/exercises/value-map`, „Kontynuuj”, przeciągnąć
+wartość do kolumny i postawić kursor na ostatnim pikselu dolnej krawędzi karty. Skan
+Playwrighta (próbkowanie `getBoundingClientRect` co klatkę przy nieruchomym kursorze)
+pokazuje 8 różnych pozycji `y` w 0,3 s, a przy `group-hover` do 9 przełączeń `opacity`.
+
+**Przyczyna.** Stan hover przesuwa element o `--mg-lift-hover` (−1px) właściwością
+`translate` (`base.css:156`, `:714`, `:1331`; `exercise-design.css:155`). `translate`
+przesuwa też obszar trafienia, więc dolny pas 1px wychodzi spod kursora → hover znika →
+element opada → hover wraca → pętla.
+
+**Dlaczego to błąd.** Decyzja „elevation on every level” (2026-11-14) zakłada spokojne
+uniesienie, a nie migotanie. Mapa wartości miała ten efekt mocno widoczny (dysk wystawał
+poza kartę) — naprawione 2026-11-19 przeniesieniem dysku do środka karty; zostaje pas 1px.
+
+**Propozycja naprawy.** We wspólnej warstwie utrzymać nieruchomy obszar trafienia: np.
+`::after` z `inset: 0 0 var(--mg-lift-hover) 0` (sięga 1px pod element tylko w stanie
+hover) dla anatomii z uniesieniem — sprawdzić, które z nich już używają `::before/::after`
+i `position`. Alternatywa: uniesienie na wewnętrznym elemencie wizualnym.
+
+**Kryteria akceptacji.** Ten sam skan przy dolnej krawędzi `mg-v2-button` i
+`.exercise-option[draggable]` daje 1 pozycję `y` i 0 przełączeń. `check:design-system` OK,
+zrzuty 1512 × 982 bez zmian wyglądu.
+
+**Uwagi.** Dotyka wszystkich kontrolek — zmiana tylko we wspólnej warstwie, wpis w
+`docs/design-decisions.md`.
+
 ### B-25 · Refleksja tygodnia pokazuje „0 wpisów” dziennika, choć w wierszu są wpisy
 
 `otwarte` · Znaleziono 2026-11-16 (słupki i kropki w kroku „Przegląd” refleksji tygodnia) · refleksja tygodnia / `src/services/reflectionDataQueries.ts`
