@@ -27,6 +27,71 @@ wracania do rozmowy, w której go znaleziono.
 
 ## Błędy
 
+### B-28 · Scena Labu „Widok ścieżki · runda 7" czyta usunięte zadania tygodnia — typecheck i build Labu są czerwone
+
+`otwarte` · Znaleziono 2026-11-21 (scena `/concepts/path-view-v4`, bramki przed commitem) · UX Lab / `ux-lab/app/src/lab/pathViewV3.ts`
+
+**Objaw.** `npx vue-tsc --noEmit` w `ux-lab/app` kończy się błędem
+`pathViewV3.ts(152,27): TS2339: Property 'tasks' does not exist…`, więc `npm run build` Labu
+nie przechodzi. `pathViewV3.spec.ts` nie ładuje się w ogóle
+(`TypeError: Cannot read properties of undefined (reading 'nameShame')`), a trasa
+`/concepts/path-view-v3` wywala się przy wejściu.
+
+**Jak odtworzyć.** `cd ux-lab/app && npx vue-tsc --noEmit` oraz
+`npx vitest run --config vitest.config.ts src/__tests__/pathViewV3.spec.ts`.
+
+**Przyczyna.** Commit `b0b86ea0` usunął zadania tygodnia („W świecie") z produktu, w tym
+`programs.shame-compassion.tasks` z `src/locales/pl/programs.json`. Lab importuje ten plik
+(`ux-lab/app/src/lab/shamePath.ts:5,11`), a `pathViewV3.ts:152` rzutuje `pathCopy.tasks` na
+słownik i w liniach 156–165 buduje z niego `taskDefs` przy ładowaniu modułu. Korzystają z tego
+`PathViewV3Scenario.vue:16,85` (pigułka zadania tygodnia) i `pathViewV3.spec.ts:3,42–48`.
+
+**Dlaczego to błąd.** Kontrole Labu przed przekazaniem (`ux-lab/README.md`: `npm run test`,
+`npm run build`) mają być zielone; scena jest zapisem rundy 7b i powinna się otwierać.
+
+**Propozycja naprawy.** Zadania tygodnia nie wrócą (decyzja usera 2026-11-17), więc usunąć je
+ze sceny v3: `taskCopy`, `taskPhases`, `taskDefs`, `tasksFor` z `pathViewV3.ts`, pigułkę i dysk
+zadania oraz listę wyboru z `PathViewV3Scenario.vue`, test „weekly tasks have copy…" ze specu.
+Alternatywa do decyzji usera: usunąć całą scenę v3 (zastąpiona przez `/concepts/path-view-v4`)
+razem z wpisami w `registry.ts`, `router/index.ts`, `content.ts` i `ux-lab/README.md`.
+
+**Kryteria akceptacji.** `npx vue-tsc --noEmit` w `ux-lab/app` bez błędów; `pathViewV3.spec.ts`
+przechodzi (albo znika razem ze sceną); `/concepts/path-view-v3` otwiera się bez błędów w konsoli.
+
+**Uwagi.** `pathViewV4.ts` celowo nie importuje `pathViewV3.ts`. Sprawdzić przy okazji
+`ux-lab/app/src/lab/shamePath.ts` i scenę `/concepts/shame-path` — też czytają
+`programs.json`, dziś bez pola `tasks`.
+
+### B-27 · Kontrakt katalogu ikon UX Labu oczekuje 325 ikon, a jest 329
+
+`otwarte` · Znaleziono 2026-11-21 (scena `/concepts/path-view-v4`, bramki przed commitem) · UX Lab / `ux-lab/app/src/lab/iconCatalogContract.ts`
+
+**Objaw.** `organicIcons.spec.ts` → „matches the approved catalogue contract": `expected […]
+to have a length of 325 but got 329`. Pełny zestaw Labu: 203 testy przechodzą, ten jeden pada.
+
+**Jak odtworzyć.** `cd ux-lab/app && npx vitest run --config vitest.config.ts src/__tests__/organicIcons.spec.ts`.
+
+**Przyczyna.** Commit `b377a90a` dodał do `src/design-system/icons/organicIcons.ts` cztery
+ikony praktyk faz (`exercise-safe-place-return`, `exercise-response-rehearsal`,
+`exercise-critic-handover`, `exercise-step-toward-people`, okolice linii 1807–1833), a
+kontrakt Labu nie został podniesiony: `iconCatalogContract.ts:23` ma
+`APPROVED_ICON_COUNT = 325`, a nowych identyfikatorów nie ma w `APPROVED_ADDITIONS` (linia 26)
+ani w `APPROVED_COLLECTION_COUNTS` (linia 16).
+
+**Dlaczego to błąd.** Kontrakt z B-9 istnieje po to, żeby każde dodanie ikony było świadomie
+zatwierdzone w jednym miejscu; teraz spec jest czerwony na `main`.
+
+**Propozycja naprawy.** W `iconCatalogContract.ts`: dopisać cztery identyfikatory do
+`APPROVED_ADDITIONS` z datą 2026-11-17 i kolekcją, w której leżą w `organicIcons.ts`,
+podnieść licznik tej kolekcji i `APPROVED_ICON_COUNT` do 329. Jeśli `public/icon-library/`
+jest generowany, uruchomić `npm run export:icons` w `ux-lab/app`.
+
+**Kryteria akceptacji.** `organicIcons.spec.ts` zielony (4/4); katalog `/concepts/icons`
+pokazuje cztery nowe ikony.
+
+**Uwagi.** Geometria ikon nie była oglądana w Labie w 16/20/24/32 px (zasada z
+`src/design-system/README.md`, sekcja o ikonach) — warto to zrobić przy podnoszeniu kontraktu.
+
 ### B-26 · Uniesienie o 1px na hover drga, gdy kursor stoi na dolnej krawędzi kontrolki
 
 `otwarte` · Znaleziono 2026-11-19 (skaczące przyciski opisu w Mapie wartości) · system wizualny / `src/design-system/base.css`, `src/components/exercises/exercise-design.css`
