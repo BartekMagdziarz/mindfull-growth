@@ -28,12 +28,10 @@
             </div>
 
             <div class="space-y-2">
-              <EmotionSelector
+              <EmotionGroupPicker
                 :label="t('exerciseWizards.unblending.checkIn.emotionLabel')"
-                v-model="beforeEmotionIds"
+                v-model="beforeEmotions"
                 v-model:quadrant="activeEmotionQuadrantBefore"
-                v-model:families="beforeEmotionFamilyIds"
-                :allow-family-only="true"
               />
             </div>
           </AppCard>
@@ -409,18 +407,16 @@
             </h2>
 
             <div class="space-y-2">
-              <EmotionSelector
+              <EmotionGroupPicker
                 :label="t('exerciseWizards.unblending.postCheck.emotionLabel')"
-                v-model="afterEmotionIds"
+                v-model="afterEmotions"
                 v-model:quadrant="activeEmotionQuadrantAfter"
-                v-model:families="afterEmotionFamilyIds"
-                :allow-family-only="true"
               />
             </div>
 
             <!-- Before/After comparison -->
             <div
-              v-if="beforeEmotionIds.length || afterEmotionIds.length"
+              v-if="beforeEmotions.length || afterEmotions.length"
               class="grid grid-cols-2 gap-4"
             >
               <div class="space-y-2">
@@ -429,13 +425,13 @@
                 </p>
                 <div class="flex flex-wrap gap-1">
                   <span
-                    v-for="eid in beforeEmotionIds"
+                    v-for="{ emotionId: eid } in beforeEmotions"
                     :key="eid"
                     class="exercise-pill text-xs px-2 py-0.5 bg-neu-base text-on-surface-variant"
                   >
                     {{ getEmotionName(eid) }}
                   </span>
-                  <span v-if="!beforeEmotionIds.length" class="text-xs text-on-surface-variant"
+                  <span v-if="!beforeEmotions.length" class="text-xs text-on-surface-variant"
                     >—</span
                   >
                 </div>
@@ -446,13 +442,13 @@
                 </p>
                 <div class="flex flex-wrap gap-1">
                   <span
-                    v-for="eid in afterEmotionIds"
+                    v-for="{ emotionId: eid } in afterEmotions"
                     :key="eid"
                     class="exercise-pill text-xs px-2 py-0.5 bg-primary/10 text-primary"
                   >
                     {{ getEmotionName(eid) }}
                   </span>
-                  <span v-if="!afterEmotionIds.length" class="text-xs text-on-surface-variant"
+                  <span v-if="!afterEmotions.length" class="text-xs text-on-surface-variant"
                     >—</span
                   >
                 </div>
@@ -504,12 +500,11 @@ import { ref, computed, onUnmounted } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
-import EmotionSelector from '@/components/EmotionSelector.vue'
+import EmotionGroupPicker from '@/components/emotion/EmotionGroupPicker.vue'
 import RatingSlider from '@/components/exercises/RatingSlider.vue'
 import PartSelector from '@/components/exercises/ifs/PartSelector.vue'
 import { useUnblendingWizard, type UnblendingStep } from '@/composables/useUnblendingWizard'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
-import { useEmotionStore } from '@/stores/emotion.store'
 import { useT } from '@/composables/useT'
 import type { Quadrant } from '@/domain/emotion'
 
@@ -520,7 +515,6 @@ const emit = defineEmits<{
 const { t, tg } = useT()
 
 const partStore = useIFSPartStore()
-const emotionStore = useEmotionStore()
 
 const STEPS: UnblendingStep[] = [
   'check-in',
@@ -548,10 +542,8 @@ const {
   nextStep,
   prevStep,
   goToStep,
-  beforeEmotionIds,
-  beforeEmotionFamilyIds,
-  afterEmotionIds,
-  afterEmotionFamilyIds,
+  beforeEmotions,
+  afterEmotions,
   blendedPartId,
   secondaryPartId,
   selfEnergyPresent,
@@ -682,7 +674,7 @@ function startCountdown() {
 
 // Emotion name lookup
 function getEmotionName(id: string): string {
-  return emotionStore.getEmotionById(id)?.name ?? id
+  return t(`emotionGroups.groups.${id}.name`)
 }
 
 // Save

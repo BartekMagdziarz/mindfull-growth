@@ -1,3 +1,5 @@
+import { useT } from '@/composables/useT'
+import { resolveGroupSlug } from '@/domain/emotionGroups'
 import { createStoreSessionScope } from '@/services/userSessionScope'
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
@@ -23,6 +25,7 @@ const scatterCoordMap = scatterCoords as Record<string, EmotionScatterCoord>
 
 export const useEmotionStore = defineStore('emotion', () => {
   const sessionScope = createStoreSessionScope()
+  const { t } = useT()
   const prefsStore = useUserPreferencesStore()
 
   // State
@@ -71,6 +74,12 @@ export const useEmotionStore = defineStore('emotion', () => {
     return emotions.value.find(emotion => emotion.id === id)
   }
 
+  /** Exercise history contains both group slugs and older word IDs. */
+  function getEmotionName(id: string): string | undefined {
+    const group = resolveGroupSlug(id)
+    return group ? t(`emotionGroups.groups.${group}.name`) : getEmotionById(id)?.name
+  }
+
   // Współrzędne scatter (ułamkowe) dla układu pola w EmotionSelector.
   function getScatterCoord(id: string): EmotionScatterCoord | undefined {
     return scatterCoordMap[id]
@@ -97,6 +106,7 @@ export const useEmotionStore = defineStore('emotion', () => {
     getAllEmotions,
     getEmotionsByQuadrant,
     getEmotionById,
+    getEmotionName,
     getScatterCoord,
     // Reset
     reset,

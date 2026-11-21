@@ -1,3 +1,4 @@
+import { groupSelectionsToFamilyIds, type EmotionGroupSelection } from '@/domain/emotionGroups'
 import { ref, computed } from 'vue'
 import type {
   IFSPartRole,
@@ -36,8 +37,7 @@ export interface DraftPart {
   name: string
   role: IFSPartRole
   bodyLocations: IFSBodyLocation[]
-  emotionIds: string[]
-  emotionFamilyIds: string[]
+  emotions: EmotionGroupSelection[]
   lifeAreaIds: string[]
   positiveIntention: string
   fears: string
@@ -57,17 +57,14 @@ export function usePartsMappingWizard() {
 
   // Trailhead fields
   const trailheadSituation = ref('')
-  const trailheadEmotionIds = ref<string[]>([])
-  const trailheadEmotionFamilyIds = ref<string[]>([])
+  const trailheadEmotions = ref<EmotionGroupSelection[]>([])
   // BodyLocationPicker works on arrays; the map stores a single location
   const trailheadBodyLocations = ref<IFSBodyLocation[]>([])
   const trailheadThoughts = ref('')
 
   // Emotion tracking
-  const beforeEmotionIds = ref<string[]>([])
-  const beforeEmotionFamilyIds = ref<string[]>([])
-  const afterEmotionIds = ref<string[]>([])
-  const afterEmotionFamilyIds = ref<string[]>([])
+  const beforeEmotions = ref<EmotionGroupSelection[]>([])
+  const afterEmotions = ref<EmotionGroupSelection[]>([])
 
   // Parts
   const identifiedParts = ref<DraftPart[]>([])
@@ -77,8 +74,7 @@ export function usePartsMappingWizard() {
   const currentPartName = ref('')
   const currentPartRole = ref<IFSPartRole>('unknown')
   const currentPartBodyLocations = ref<IFSBodyLocation[]>([])
-  const currentPartEmotionIds = ref<string[]>([])
-  const currentPartEmotionFamilyIds = ref<string[]>([])
+  const currentPartEmotions = ref<EmotionGroupSelection[]>([])
   const currentPartPositiveIntention = ref('')
   const currentPartFears = ref('')
   // Exile-specific: what it carries and what it needs (protector questions don't apply)
@@ -142,9 +138,8 @@ export function usePartsMappingWizard() {
       if (!currentPartBodyLocations.value.length) {
         currentPartBodyLocations.value = [...trailheadBodyLocations.value]
       }
-      if (!currentPartEmotionIds.value.length && !currentPartEmotionFamilyIds.value.length) {
-        currentPartEmotionIds.value = [...trailheadEmotionIds.value]
-        currentPartEmotionFamilyIds.value = [...trailheadEmotionFamilyIds.value]
+      if (!currentPartEmotions.value.length) {
+        currentPartEmotions.value = [...trailheadEmotions.value]
       }
     }
 
@@ -173,8 +168,7 @@ export function usePartsMappingWizard() {
       name: currentPartName.value.trim(),
       role: currentPartRole.value,
       bodyLocations: [...currentPartBodyLocations.value],
-      emotionIds: [...currentPartEmotionIds.value],
-      emotionFamilyIds: [...currentPartEmotionFamilyIds.value],
+      emotions: [...currentPartEmotions.value],
       lifeAreaIds: [],
       positiveIntention:
         currentPartRole.value === 'exile' ? '' : currentPartPositiveIntention.value.trim(),
@@ -201,8 +195,7 @@ export function usePartsMappingWizard() {
     currentPartName.value = ''
     currentPartRole.value = 'unknown'
     currentPartBodyLocations.value = []
-    currentPartEmotionIds.value = []
-    currentPartEmotionFamilyIds.value = []
+    currentPartEmotions.value = []
     currentPartPositiveIntention.value = ''
     currentPartFears.value = ''
     currentPartBurden.value = ''
@@ -217,8 +210,7 @@ export function usePartsMappingWizard() {
     currentPartName.value = part.name
     currentPartRole.value = part.role
     currentPartBodyLocations.value = [...part.bodyLocations]
-    currentPartEmotionIds.value = [...part.emotionIds]
-    currentPartEmotionFamilyIds.value = [...part.emotionFamilyIds]
+    currentPartEmotions.value = [...part.emotions]
     currentPartPositiveIntention.value = part.positiveIntention
     currentPartFears.value = part.fears
     currentPartBurden.value = part.burden
@@ -279,7 +271,8 @@ export function usePartsMappingWizard() {
         name: p.name,
         role: p.role,
         bodyLocations: p.bodyLocations,
-        emotionIds: p.emotionIds,
+        emotionIds: [],
+        emotions: p.emotions,
         lifeAreaIds: p.lifeAreaIds,
         positiveIntention: p.positiveIntention || undefined,
         fears: p.fears || undefined,
@@ -317,8 +310,9 @@ export function usePartsMappingWizard() {
           name: draft.name,
           role: draft.role,
           bodyLocations: draft.bodyLocations,
-          emotionIds: draft.emotionIds,
-          emotionFamilyIds: draft.emotionFamilyIds.length ? draft.emotionFamilyIds : undefined,
+          emotionIds: [],
+          emotions: draft.emotions,
+          emotionFamilyIds: groupSelectionsToFamilyIds(draft.emotions),
           lifeAreaIds: partLifeAreaIds.value[i] ?? [],
           positiveIntention: draft.positiveIntention || undefined,
           fears: draft.fears || undefined,
@@ -344,22 +338,14 @@ export function usePartsMappingWizard() {
         partIds: createdPartIds,
         relationships: realRelationships,
         trailheadSituation: trailheadSituation.value.trim() || undefined,
-        trailheadEmotionIds: trailheadEmotionIds.value.length
-          ? trailheadEmotionIds.value
-          : undefined,
-        trailheadEmotionFamilyIds: trailheadEmotionFamilyIds.value.length
-          ? trailheadEmotionFamilyIds.value
-          : undefined,
+        trailheadEmotions: trailheadEmotions.value,
+        trailheadEmotionFamilyIds: groupSelectionsToFamilyIds(trailheadEmotions.value),
         trailheadBodyLocation: trailheadBodyLocations.value[0],
         trailheadThoughts: trailheadThoughts.value.trim() || undefined,
-        beforeEmotionIds: beforeEmotionIds.value.length ? [...beforeEmotionIds.value] : undefined,
-        beforeEmotionFamilyIds: beforeEmotionFamilyIds.value.length
-          ? [...beforeEmotionFamilyIds.value]
-          : undefined,
-        afterEmotionIds: afterEmotionIds.value.length ? [...afterEmotionIds.value] : undefined,
-        afterEmotionFamilyIds: afterEmotionFamilyIds.value.length
-          ? [...afterEmotionFamilyIds.value]
-          : undefined,
+        beforeEmotions: beforeEmotions.value,
+        beforeEmotionFamilyIds: groupSelectionsToFamilyIds(beforeEmotions.value),
+        afterEmotions: afterEmotions.value,
+        afterEmotionFamilyIds: groupSelectionsToFamilyIds(afterEmotions.value),
         reflection: reflection.value.trim() || undefined,
         llmInsight: llmInsight.value ?? undefined,
         llmAssistUsed: !!llmInsight.value,
@@ -381,14 +367,11 @@ export function usePartsMappingWizard() {
   function reset() {
     currentStep.value = 'intro'
     trailheadSituation.value = ''
-    trailheadEmotionIds.value = []
-    trailheadEmotionFamilyIds.value = []
+    trailheadEmotions.value = []
     trailheadBodyLocations.value = []
     trailheadThoughts.value = ''
-    beforeEmotionIds.value = []
-    beforeEmotionFamilyIds.value = []
-    afterEmotionIds.value = []
-    afterEmotionFamilyIds.value = []
+    beforeEmotions.value = []
+    afterEmotions.value = []
     identifiedParts.value = []
     editingPartIndex.value = null
     resetCurrentPart()
@@ -412,16 +395,13 @@ export function usePartsMappingWizard() {
 
     // Trailhead
     trailheadSituation,
-    trailheadEmotionIds,
-    trailheadEmotionFamilyIds,
+    trailheadEmotions,
     trailheadBodyLocations,
     trailheadThoughts,
 
     // Emotions
-    beforeEmotionIds,
-    beforeEmotionFamilyIds,
-    afterEmotionIds,
-    afterEmotionFamilyIds,
+    beforeEmotions,
+    afterEmotions,
 
     // Parts
     identifiedParts,
@@ -429,12 +409,11 @@ export function usePartsMappingWizard() {
     currentPartName,
     currentPartRole,
     currentPartBodyLocations,
-    currentPartEmotionIds,
+    currentPartEmotions,
     currentPartPositiveIntention,
     currentPartFears,
     currentPartBurden,
     currentPartNeeds,
-    currentPartEmotionFamilyIds,
     editPart,
     removePart,
     addAnotherPart,

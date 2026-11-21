@@ -29,12 +29,10 @@
             <p class="text-xs text-on-surface-variant mt-1">— Viktor Frankl</p>
           </div>
           <div class="space-y-2">
-            <EmotionSelector
+            <EmotionGroupPicker
               :label="t('exerciseWizards.dereflection.intro.emotionLabel')"
-              v-model="emotionIdsBefore"
+              v-model="emotionsBefore"
               v-model:quadrant="activeEmotionQuadrantBefore"
-              v-model:families="emotionFamilyIdsBefore"
-              :allow-family-only="true"
             />
           </div>
         </AppCard>
@@ -342,12 +340,10 @@
 
           <!-- After emotions -->
           <div class="space-y-2">
-            <EmotionSelector
+            <EmotionGroupPicker
               :label="t('exerciseWizards.dereflection.summary.emotionLabel')"
-              v-model="emotionIdsAfter"
+              v-model="emotionsAfter"
               v-model:quadrant="activeEmotionQuadrantAfter"
-              v-model:families="emotionFamilyIdsAfter"
-              :allow-family-only="true"
             />
           </div>
 
@@ -381,7 +377,9 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
-import EmotionSelector from '@/components/EmotionSelector.vue'
+import { exerciseEmotionChange } from '@/domain/exerciseEmotions'
+import type { EmotionGroupSelection } from '@/domain/emotionGroups'
+import EmotionGroupPicker from '@/components/emotion/EmotionGroupPicker.vue'
 import RatingSlider from '@/components/exercises/RatingSlider.vue'
 import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import { useLifeAreaStore } from '@/stores/lifeArea.store'
@@ -445,10 +443,8 @@ function goToStepByIndex(idx: number) {
 }
 
 // ─── Form State ──────────────────────────────────────────────────────────────
-const emotionIdsBefore = ref<string[]>([])
-const emotionIdsAfter = ref<string[]>([])
-const emotionFamilyIdsBefore = ref<string[]>([])
-const emotionFamilyIdsAfter = ref<string[]>([])
+const emotionsBefore = ref<EmotionGroupSelection[]>([])
+const emotionsAfter = ref<EmotionGroupSelection[]>([])
 const activeEmotionQuadrantBefore = ref<Quadrant | null>(null)
 const activeEmotionQuadrantAfter = ref<Quadrant | null>(null)
 const notes = ref('')
@@ -516,12 +512,7 @@ function handleSave() {
     fixationImpact: fixationImpact.value.trim(),
     redirections: toPayloadRedirections(redirections),
     chosenRedirections: [...chosenRedirections.value],
-    emotionIdsBefore: emotionIdsBefore.value.length > 0 ? [...emotionIdsBefore.value] : undefined,
-    emotionFamilyIdsBefore:
-      emotionFamilyIdsBefore.value.length > 0 ? [...emotionFamilyIdsBefore.value] : undefined,
-    emotionIdsAfter: emotionIdsAfter.value.length > 0 ? [...emotionIdsAfter.value] : undefined,
-    emotionFamilyIdsAfter:
-      emotionFamilyIdsAfter.value.length > 0 ? [...emotionFamilyIdsAfter.value] : undefined,
+    ...exerciseEmotionChange(emotionsBefore.value, emotionsAfter.value),
     notes: notes.value.trim() || undefined,
   }
   emit('saved', payload)

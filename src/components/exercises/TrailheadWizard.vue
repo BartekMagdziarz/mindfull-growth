@@ -41,12 +41,10 @@
             </div>
 
             <div class="space-y-2">
-              <EmotionSelector
+              <EmotionGroupPicker
                 :label="t('exerciseWizards.trailhead.trigger.emotionsLabel')"
-                v-model="emotionIds"
+                v-model="emotions"
                 v-model:quadrant="activeEmotionQuadrant"
-                v-model:families="emotionFamilyIds"
-                :allow-family-only="true"
               />
             </div>
 
@@ -314,9 +312,9 @@
                   </p>
                 </div>
               </div>
-              <div v-if="emotionIds.length" class="flex flex-wrap gap-1">
+              <div v-if="emotions.length" class="flex flex-wrap gap-1">
                 <span
-                  v-for="eid in emotionIds"
+                  v-for="{ emotionId: eid } in emotions"
                   :key="eid"
                   class="exercise-pill text-xs px-2 py-0.5 bg-primary/10 text-primary"
                 >
@@ -423,7 +421,7 @@ import { ref, watch } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
-import EmotionSelector from '@/components/EmotionSelector.vue'
+import EmotionGroupPicker from '@/components/emotion/EmotionGroupPicker.vue'
 import RatingSlider from '@/components/exercises/RatingSlider.vue'
 import PartSelector from '@/components/exercises/ifs/PartSelector.vue'
 import PartRoleBadge from '@/components/exercises/ifs/PartRoleBadge.vue'
@@ -433,7 +431,6 @@ import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useTrailheadWizard, type TrailheadStep } from '@/composables/useTrailheadWizard'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
 import { useIFSTrailheadStore } from '@/stores/ifsTrailhead.store'
-import { useEmotionStore } from '@/stores/emotion.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import { useIfsLabels } from '@/composables/useIfsLabels'
@@ -457,7 +454,6 @@ const { t, tg, tp } = useT()
 const { formatBodyLocation: formatLocation, unknownPartName } = useIfsLabels()
 const partStore = useIFSPartStore()
 const trailheadStore = useIFSTrailheadStore()
-const emotionStore = useEmotionStore()
 const userPreferencesStore = useUserPreferencesStore()
 const useProfileAnalysis = ref(userPreferencesStore.profileContextDefault)
 
@@ -493,8 +489,7 @@ const {
   prevStep,
   goToStep,
   triggerDescription,
-  emotionIds,
-  emotionFamilyIds,
+  emotions,
   intensity,
   bodyLocations,
   thoughts,
@@ -533,7 +528,7 @@ watch(
 )
 
 function getEmotionName(id: string): string {
-  return emotionStore.getEmotionById(id)?.name ?? id
+  return t(`emotionGroups.groups.${id}.name`)
 }
 
 function getPartName(id: string): string {

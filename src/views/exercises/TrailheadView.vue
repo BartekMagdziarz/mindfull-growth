@@ -57,16 +57,19 @@
                 <p class="text-sm text-on-surface line-clamp-2">{{ entry.triggerDescription }}</p>
 
                 <!-- Emotion dots -->
-                <div v-if="entry.emotionIds.length" class="flex flex-wrap gap-1">
+                <div v-if="entry.displayEmotionIds.length" class="flex flex-wrap gap-1">
                   <span
-                    v-for="eid in entry.emotionIds.slice(0, 4)"
+                    v-for="eid in entry.displayEmotionIds.slice(0, 4)"
                     :key="eid"
                     class="exercise-pill text-xs px-1.5 py-0.5 bg-primary/10 text-primary"
                   >
                     {{ getEmotionName(eid) }}
                   </span>
-                  <span v-if="entry.emotionIds.length > 4" class="text-xs text-on-surface-variant">
-                    +{{ entry.emotionIds.length - 4 }}
+                  <span
+                    v-if="entry.displayEmotionIds.length > 4"
+                    class="text-xs text-on-surface-variant"
+                  >
+                    +{{ entry.displayEmotionIds.length - 4 }}
                   </span>
                 </div>
 
@@ -105,6 +108,7 @@
 </template>
 
 <script setup lang="ts">
+import { exerciseEmotionIds } from '@/domain/exerciseEmotions'
 import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import ExercisePage from '@/components/exercises/ExercisePage.vue'
@@ -147,7 +151,12 @@ onMounted(() => {
   emotionStore.loadEmotions()
 })
 
-const sortedEntries = computed(() => trailheadStore.sortedEntries)
+const sortedEntries = computed(() =>
+  trailheadStore.sortedEntries.map(entry => ({
+    ...entry,
+    displayEmotionIds: exerciseEmotionIds(entry.emotionIds, entry.emotionFamilyIds),
+  }))
+)
 
 function handleSaved() {
   saved.value = true
@@ -155,7 +164,7 @@ function handleSaved() {
 }
 
 function getEmotionName(id: string): string {
-  return emotionStore.getEmotionById(id)?.name ?? id
+  return emotionStore.getEmotionName(id) ?? id
 }
 
 function getPartName(id: string): string {

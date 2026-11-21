@@ -178,12 +178,15 @@
                 {{ g.wordIds.map(w => t(`emotions.${w}.name`)).join(' · ') }}
               </span>
             </div>
-            <span class="ct-disc" :style="{ '--fi': faceMask(g.slug) }">
+            <span class="ct-disc" :style="{ '--fi': groupFaceMask(g.slug) }">
               <span class="fico"></span>
             </span>
             <span class="ct-name">{{ shortName(g.slug) }}</span>
 
-            <span v-if="open !== g.slug && !(g.slug in selMap)" class="ct-aux">
+            <span
+              v-if="props.selectionOnly || (open !== g.slug && !(g.slug in selMap))"
+              class="ct-aux"
+            >
               {{ auxLine(g) }}
             </span>
             <div v-else class="ct-dots" @mouseleave="slotHover = 0">
@@ -215,6 +218,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { groupFaceMask } from './groupFaceMask'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import boltIcon from '@/assets/emotion-quadrants/bolt.svg'
@@ -229,7 +233,12 @@ import {
   type GroupIntensity,
 } from '@/domain/emotionGroups'
 
-const props = defineProps<{ label?: string }>()
+const props = defineProps<{
+  label?: string
+  /** The exercise rates intensity separately, on its own scale. */
+  selectionOnly?: boolean
+  single?: boolean
+}>()
 const selections = defineModel<EmotionGroupSelection[]>({ default: () => [] })
 const activeQuad = defineModel<Quadrant | null>('quadrant', { default: null })
 const { t } = useT()
@@ -250,12 +259,6 @@ const quadrantIcons: Record<Quadrant, string> = {
 }
 function quadrantMask(q: Quadrant): string {
   return `url("${quadrantIcons[q]}")`
-}
-// twarze grup: assets/emotion-faces/<slug>.svg jako maski CSS.
-// UWAGA: małe SVG Vite inlinuje jako data: URI z SUROWYMI apostrofami w środku,
-// więc wartość url() MUSI być w cudzysłowach (zdiagnozowane 2026-07-11).
-function faceMask(slug: string): string {
-  return `url("${new URL(`../../assets/emotion-faces/${slug}.svg`, import.meta.url).href}")`
 }
 /** Paleta ćwiartki z tokenów (src/styles/tokens.css) jako lokalne zmienne --q-*. */
 function quadVars(q: Quadrant | null): Record<string, string> {
@@ -290,6 +293,10 @@ function writeSel(slug: string, lvl: number | null) {
   }
   const entry: EmotionGroupSelection =
     lvl > 0 ? { emotionId: slug, intensity: lvl as GroupIntensity } : { emotionId: slug }
+  if (props.single) {
+    selections.value = [entry]
+    return
+  }
   const idx = selections.value.findIndex(s => s.emotionId === slug)
   selections.value =
     idx >= 0 ? selections.value.map(s => (s.emotionId === slug ? entry : s)) : [...rest, entry]
@@ -308,6 +315,7 @@ function dotClick(slug: string, i: number) {
   writeSel(slug, i === level(slug) ? i - 1 : i)
 }
 function nudge(slug: string, delta: number) {
+  if (props.selectionOnly) return
   const cur = level(slug)
   const next = Math.max(0, Math.min(5, cur + delta))
   if (next === cur) return

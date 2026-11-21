@@ -53,14 +53,14 @@
 
           <!-- Before/After emotions -->
           <div
-            v-if="session.beforeEmotionIds.length || session.afterEmotionIds.length"
+            v-if="session.displayBeforeEmotionIds.length || session.displayAfterEmotionIds.length"
             class="flex gap-4"
           >
-            <div v-if="session.beforeEmotionIds.length" class="space-y-1">
+            <div v-if="session.displayBeforeEmotionIds.length" class="space-y-1">
               <p class="text-xs text-on-surface-variant">{{ t('exercises.views.before') }}</p>
               <div class="flex flex-wrap gap-1">
                 <span
-                  v-for="eid in session.beforeEmotionIds.slice(0, 3)"
+                  v-for="eid in session.displayBeforeEmotionIds.slice(0, 3)"
                   :key="eid"
                   class="exercise-pill text-xs px-1.5 py-0.5 bg-neu-base text-on-surface-variant"
                 >
@@ -68,11 +68,11 @@
                 </span>
               </div>
             </div>
-            <div v-if="session.afterEmotionIds.length" class="space-y-1">
+            <div v-if="session.displayAfterEmotionIds.length" class="space-y-1">
               <p class="text-xs text-on-surface-variant">{{ t('exercises.views.after') }}</p>
               <div class="flex flex-wrap gap-1">
                 <span
-                  v-for="eid in session.afterEmotionIds.slice(0, 3)"
+                  v-for="eid in session.displayAfterEmotionIds.slice(0, 3)"
                   :key="eid"
                   class="exercise-pill text-xs px-1.5 py-0.5 bg-primary/10 text-primary"
                 >
@@ -96,6 +96,7 @@
 </template>
 
 <script setup lang="ts">
+import { exerciseEmotionIds } from '@/domain/exerciseEmotions'
 import { computed, onMounted, ref } from 'vue'
 import ExercisePage from '@/components/exercises/ExercisePage.vue'
 import AppCard from '@/components/AppCard.vue'
@@ -120,7 +121,19 @@ onMounted(() => {
   emotionStore.loadEmotions()
 })
 
-const sortedSessions = computed(() => unblendingStore.sortedSessions)
+const sortedSessions = computed(() =>
+  unblendingStore.sortedSessions.map(session => ({
+    ...session,
+    displayBeforeEmotionIds: exerciseEmotionIds(
+      session.beforeEmotionIds,
+      session.beforeEmotionFamilyIds
+    ),
+    displayAfterEmotionIds: exerciseEmotionIds(
+      session.afterEmotionIds,
+      session.afterEmotionFamilyIds
+    ),
+  }))
+)
 
 const averageShift = computed(() => {
   if (!sortedSessions.value.length) return '—'
@@ -142,7 +155,7 @@ function getPartRole(id: string) {
 }
 
 function getEmotionName(id: string): string {
-  return emotionStore.getEmotionById(id)?.name ?? id
+  return emotionStore.getEmotionName(id) ?? id
 }
 
 function formatDate(isoString: string): string {

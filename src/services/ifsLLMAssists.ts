@@ -1,3 +1,4 @@
+import { exerciseEmotionIds } from '@/domain/exerciseEmotions'
 /**
  * LLM Assist functions for IFS (Internal Family Systems) exercises.
  *
@@ -149,7 +150,7 @@ function buildTrailheadAnalysisContext(
       `${labels.trigger}: ${e.triggerDescription}`,
       `${labels.intensity}: ${e.intensity}/10`,
     ]
-    const emotionNames = e.emotionIds
+    const emotionNames = exerciseEmotionIds(e.emotionIds, e.emotionFamilyIds)
       .map(id => params.emotionNames?.[id])
       .filter((name): name is string => !!name)
     if (emotionNames.length) details.push(`${labels.emotions}: ${emotionNames.join(', ')}`)

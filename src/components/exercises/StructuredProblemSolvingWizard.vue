@@ -95,13 +95,7 @@
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.structuredProblemSolving.problem.emotionsDescription') }}
             </p>
-            <EmotionSelector
-              v-model="emotionIds"
-              v-model:families="emotionFamilyIds"
-              v-model:quadrant="activeEmotionQuadrantBefore"
-              :show-selected-section="true"
-              :allow-family-only="true"
-            />
+            <EmotionGroupPicker v-model="emotions" v-model:quadrant="activeEmotionQuadrantBefore" />
           </div>
         </AppCard>
 
@@ -662,12 +656,9 @@
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.structuredProblemSolving.review.emotionsAfterDescription') }}
           </p>
-          <EmotionSelector
-            v-model="emotionIdsAfter"
-            v-model:families="emotionFamilyIdsAfter"
+          <EmotionGroupPicker
+            v-model="emotionsAfter"
             v-model:quadrant="activeEmotionQuadrantAfter"
-            :show-selected-section="true"
-            :allow-family-only="true"
           />
         </AppCard>
 
@@ -704,12 +695,16 @@
           </div>
 
           <!-- Emotions Before -->
-          <div v-if="emotionIds.length > 0" class="space-y-1">
+          <div v-if="emotions.length > 0" class="space-y-1">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('exerciseWizards.structuredProblemSolving.summary.emotionsBefore') }}
             </p>
             <div class="flex flex-wrap gap-1.5">
-              <span v-for="id in emotionIds" :key="id" class="exercise-pill px-2.5 py-0.5 text-xs">
+              <span
+                v-for="{ emotionId: id } in emotions"
+                :key="id"
+                class="exercise-pill px-2.5 py-0.5 text-xs"
+              >
                 {{ getEmotionName(id) }}
               </span>
             </div>
@@ -808,13 +803,13 @@
           </div>
 
           <!-- Emotion shift -->
-          <div v-if="markCompleted && emotionIdsAfter.length > 0" class="space-y-1">
+          <div v-if="markCompleted && emotionsAfter.length > 0" class="space-y-1">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('exerciseWizards.structuredProblemSolving.summary.emotionsAfter') }}
             </p>
             <div class="flex flex-wrap gap-1.5">
               <span
-                v-for="id in emotionIdsAfter"
+                v-for="{ emotionId: id } in emotionsAfter"
                 :key="id"
                 class="exercise-pill px-2.5 py-0.5 text-xs"
               >
@@ -878,9 +873,9 @@ import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import AiErrorNote from '@/components/exercises/AiErrorNote.vue'
-import EmotionSelector from '@/components/EmotionSelector.vue'
+import { groupSelectionsToFamilyIds, type EmotionGroupSelection } from '@/domain/emotionGroups'
+import EmotionGroupPicker from '@/components/emotion/EmotionGroupPicker.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
-import { useEmotionStore } from '@/stores/emotion.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import type { Quadrant } from '@/domain/emotion'
@@ -890,7 +885,6 @@ const emit = defineEmits<{
   saved: [data: CreateStructuredProblemSolvingPayload]
 }>()
 
-const emotionStore = useEmotionStore()
 const { t, tg, locale } = useT()
 const userPreferencesStore = useUserPreferencesStore()
 const useProfileBrainstorm = ref(userPreferencesStore.profileContextDefault)
@@ -933,8 +927,7 @@ function goToStepByIndex(idx: number) {
 
 // ─── Form State ──────────────────────────────────────────────────────────────
 const problemStatement = ref('')
-const emotionIds = ref<string[]>([])
-const emotionFamilyIds = ref<string[]>([])
+const emotions = ref<EmotionGroupSelection[]>([])
 const activeEmotionQuadrantBefore = ref<Quadrant | null>(null)
 const solutions = reactive<SolutionOption[]>([])
 const newSolutionText = ref('')
@@ -944,14 +937,13 @@ const actionSteps = reactive<string[]>([''])
 const targetDate = ref('')
 const markCompleted = ref(false)
 const outcome = ref('')
-const emotionIdsAfter = ref<string[]>([])
-const emotionFamilyIdsAfter = ref<string[]>([])
+const emotionsAfter = ref<EmotionGroupSelection[]>([])
 const activeEmotionQuadrantAfter = ref<Quadrant | null>(null)
 const notes = ref('')
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function getEmotionName(emotionId: string): string {
-  return emotionStore.getEmotionById(emotionId)?.name ?? t('common.unknown')
+  return t(`emotionGroups.groups.${emotionId}.name`)
 }
 
 function addSolution() {
@@ -1009,9 +1001,7 @@ async function handleBrainstormAssist() {
   brainstormError.value = null
   try {
     const { brainstormSolutions } = await import('@/services/cbtLLMAssists')
-    const emotionNames = emotionIds.value
-      .map(id => emotionStore.getEmotionById(id)?.name)
-      .filter((n): n is string => !!n)
+    const emotionNames = emotions.value.map(({ emotionId }) => getEmotionName(emotionId))
     brainstormResponse.value = await brainstormSolutions({
       problemStatement: problemStatement.value,
       emotions: emotionNames.length > 0 ? emotionNames : undefined,
@@ -1063,8 +1053,9 @@ function handleSave() {
 
   const payload: CreateStructuredProblemSolvingPayload = {
     problemStatement: problemStatement.value.trim(),
-    emotionIds: [...emotionIds.value],
-    emotionFamilyIds: [...emotionFamilyIds.value],
+    emotionIds: [],
+    emotions: emotions.value,
+    emotionFamilyIds: groupSelectionsToFamilyIds(emotions.value),
     solutions: solutions.map(s => ({
       id: s.id,
       description: s.description,
@@ -1080,14 +1071,10 @@ function handleSave() {
     targetDate: targetDate.value || undefined,
     status: markCompleted.value ? 'completed' : 'in-progress',
     outcome: markCompleted.value && outcome.value.trim() ? outcome.value.trim() : undefined,
-    emotionIdsAfter:
-      markCompleted.value && emotionIdsAfter.value.length > 0
-        ? [...emotionIdsAfter.value]
-        : undefined,
-    emotionFamilyIdsAfter:
-      markCompleted.value && emotionFamilyIdsAfter.value.length > 0
-        ? [...emotionFamilyIdsAfter.value]
-        : undefined,
+    emotionsAfter: markCompleted.value ? emotionsAfter.value : undefined,
+    emotionFamilyIdsAfter: markCompleted.value
+      ? groupSelectionsToFamilyIds(emotionsAfter.value)
+      : undefined,
     llmAssistUsed: llmAssistsUsed.size > 0 ? [...llmAssistsUsed] : undefined,
     notes: notes.value.trim() || undefined,
   }

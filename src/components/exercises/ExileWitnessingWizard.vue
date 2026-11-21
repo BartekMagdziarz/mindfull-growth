@@ -206,12 +206,10 @@
 
             <!-- Emotions -->
             <div class="space-y-2">
-              <EmotionSelector
+              <EmotionGroupPicker
                 :label="t('exerciseWizards.exileWitnessing.approach.emotionLabel')"
-                v-model="emotionIds"
+                v-model="emotions"
                 v-model:quadrant="activeEmotionQuadrant"
-                v-model:families="emotionFamilyIds"
-                :allow-family-only="true"
               />
             </div>
 
@@ -649,7 +647,7 @@ import IFSSafetyBanner from '@/components/exercises/ifs/IFSSafetyBanner.vue'
 import PartSelector from '@/components/exercises/ifs/PartSelector.vue'
 import PartRoleBadge from '@/components/exercises/ifs/PartRoleBadge.vue'
 import BodyLocationPicker from '@/components/exercises/ifs/BodyLocationPicker.vue'
-import EmotionSelector from '@/components/EmotionSelector.vue'
+import EmotionGroupPicker from '@/components/emotion/EmotionGroupPicker.vue'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
 import {
   useExileWitnessingWizard,
@@ -707,8 +705,7 @@ const {
   exilePartId,
   bodyLocation,
   feltAge,
-  emotionIds,
-  emotionFamilyIds,
+  emotions,
   selfCheckPassed,
   exileMessage,
   exileBelief,

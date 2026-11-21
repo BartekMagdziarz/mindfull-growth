@@ -1,3 +1,5 @@
+import { exerciseEmotionIds } from '@/domain/exerciseEmotions'
+import { groupSelectionsToFamilyIds, type EmotionGroupSelection } from '@/domain/emotionGroups'
 import { ref, computed } from 'vue'
 import type {
   IFSBodyLocation,
@@ -44,8 +46,7 @@ export function useTrailheadWizard() {
 
   // Trigger capture
   const triggerDescription = ref('')
-  const emotionIds = ref<string[]>([])
-  const emotionFamilyIds = ref<string[]>([])
+  const emotions = ref<EmotionGroupSelection[]>([])
   const intensity = ref(5)
   const bodyLocations = ref<IFSBodyLocation[]>([])
 
@@ -75,10 +76,7 @@ export function useTrailheadWizard() {
   const canAdvance = computed(() => {
     switch (currentStep.value) {
       case 'trigger':
-        return (
-          triggerDescription.value.trim().length > 0 &&
-          (emotionIds.value.length > 0 || emotionFamilyIds.value.length > 0)
-        )
+        return triggerDescription.value.trim().length > 0 && emotions.value.length > 0
       case 'thoughts':
         return thoughts.value.trim().length > 0
       case 'sensations':
@@ -141,10 +139,9 @@ export function useTrailheadWizard() {
       }
       const emotionNames: Record<string, string> = {}
       for (const entry of trailheadStore.entries) {
-        for (const eid of entry.emotionIds) {
+        for (const eid of exerciseEmotionIds(entry.emotionIds, entry.emotionFamilyIds)) {
           if (!emotionNames[eid]) {
-            const emotion = emotionStore.getEmotionById(eid)
-            if (emotion) emotionNames[eid] = emotion.name
+            emotionNames[eid] = emotionStore.getEmotionName(eid) ?? eid
           }
         }
       }
@@ -171,8 +168,9 @@ export function useTrailheadWizard() {
     try {
       const payload: CreateIFSTrailheadPayload = {
         triggerDescription: triggerDescription.value.trim(),
-        emotionIds: [...emotionIds.value],
-        emotionFamilyIds: [...emotionFamilyIds.value],
+        emotionIds: [],
+        emotions: emotions.value,
+        emotionFamilyIds: groupSelectionsToFamilyIds(emotions.value),
         intensity: intensity.value,
         bodyLocation: bodyLocations.value[0],
         thoughts: thoughts.value.trim(),
@@ -199,8 +197,7 @@ export function useTrailheadWizard() {
   function reset() {
     currentStep.value = 'trigger'
     triggerDescription.value = ''
-    emotionIds.value = []
-    emotionFamilyIds.value = []
+    emotions.value = []
     intensity.value = 5
     bodyLocations.value = []
     thoughts.value = ''
@@ -228,8 +225,7 @@ export function useTrailheadWizard() {
 
     // Trigger
     triggerDescription,
-    emotionIds,
-    emotionFamilyIds,
+    emotions,
     intensity,
     bodyLocations,
 

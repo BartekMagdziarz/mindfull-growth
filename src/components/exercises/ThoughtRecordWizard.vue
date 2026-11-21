@@ -84,10 +84,10 @@
           {{ t('exerciseWizards.thoughtRecord.emotions.description') }}
         </p>
         <ExerciseStepWhy :text="tg('exerciseWizards.thoughtRecord.emotions.why')" />
-        <EmotionSelector
-          :model-value="selectedEmotionIds"
+        <EmotionGroupPicker
+          v-model="selectedEmotions"
+          selection-only
           v-model:quadrant="activeEmotionQuadrant"
-          @update:model-value="handleEmotionSelectionChange"
         />
         <!-- Intensity sliders for selected emotions -->
         <div v-if="emotionsBefore.length > 0" class="space-y-3 mt-4">
@@ -640,9 +640,9 @@ import { ref, reactive, computed } from 'vue'
 import type { EmotionRating, CreateThoughtRecordPayload } from '@/domain/exercises'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
-import EmotionSelector from '@/components/EmotionSelector.vue'
+import EmotionGroupPicker from '@/components/emotion/EmotionGroupPicker.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
-import { useEmotionStore } from '@/stores/emotion.store'
+import type { EmotionGroupSelection } from '@/domain/emotionGroups'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
@@ -657,7 +657,6 @@ const emit = defineEmits<{
   saved: [data: CreateThoughtRecordPayload]
 }>()
 
-const emotionStore = useEmotionStore()
 const userPreferencesStore = useUserPreferencesStore()
 const { t, tg, locale } = useT()
 
@@ -692,22 +691,19 @@ const situationDate = ref('')
 const emotionsBefore = reactive<EmotionRating[]>([])
 const activeEmotionQuadrant = ref<Quadrant | null>(null)
 
-const selectedEmotionIds = computed(() => emotionsBefore.map(er => er.emotionId))
-
-function handleEmotionSelectionChange(ids: string[]) {
-  // Add new emotions
-  for (const id of ids) {
-    if (!emotionsBefore.find(er => er.emotionId === id)) {
-      emotionsBefore.push({ emotionId: id, intensity: 50 })
-    }
-  }
-  // Remove deselected emotions
-  for (let i = emotionsBefore.length - 1; i >= 0; i--) {
-    if (!ids.includes(emotionsBefore[i].emotionId)) {
-      emotionsBefore.splice(i, 1)
-    }
-  }
-}
+const selectedEmotions = computed<EmotionGroupSelection[]>({
+  get: () => emotionsBefore.map(({ emotionId }) => ({ emotionId })),
+  set: selections => {
+    const ratings = selections.map(
+      ({ emotionId }) =>
+        emotionsBefore.find(rating => rating.emotionId === emotionId) ?? {
+          emotionId,
+          intensity: 50,
+        }
+    )
+    emotionsBefore.splice(0, emotionsBefore.length, ...ratings)
+  },
+})
 
 function updateEmotionIntensity(emotionId: string, intensity: number) {
   const er = emotionsBefore.find(e => e.emotionId === emotionId)
@@ -715,7 +711,7 @@ function updateEmotionIntensity(emotionId: string, intensity: number) {
 }
 
 function getEmotionName(emotionId: string): string {
-  return emotionStore.getEmotionById(emotionId)?.name ?? 'Unknown'
+  return t(`emotionGroups.groups.${emotionId}.name`)
 }
 
 // --- Step 4: Automatic Thoughts ---
@@ -762,7 +758,7 @@ const identifyError = ref<unknown>(null)
 
 const emotionNamesWithIntensity = computed(() =>
   emotionsBefore.map(er => ({
-    name: emotionStore.getEmotionById(er.emotionId)?.name ?? 'Unknown',
+    name: getEmotionName(er.emotionId),
     intensity: er.intensity,
   }))
 )
@@ -878,11 +874,10 @@ const emotionsAfter = reactive<EmotionRating[]>([])
 
 // Initialize emotionsAfter when entering step 8
 function initEmotionsAfter() {
-  if (emotionsAfter.length === 0) {
-    for (const er of emotionsBefore) {
-      emotionsAfter.push({ emotionId: er.emotionId, intensity: er.intensity })
-    }
-  }
+  const ratings = emotionsBefore.map(
+    before => emotionsAfter.find(after => after.emotionId === before.emotionId) ?? { ...before }
+  )
+  emotionsAfter.splice(0, emotionsAfter.length, ...ratings)
 }
 
 // Watch step to initialize emotionsAfter

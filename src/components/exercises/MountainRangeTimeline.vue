@@ -144,6 +144,7 @@
 import { computed } from 'vue'
 import type { MountainRangeEvent } from '@/domain/exercises'
 import { useEmotionStore } from '@/stores/emotion.store'
+import { getGroup } from '@/domain/emotionGroups'
 import { getQuadrant } from '@/domain/emotion'
 import { useT } from '@/composables/useT'
 
@@ -207,6 +208,9 @@ function eventToY(event: MountainRangeEvent, indexInType: number): number {
 }
 
 function getEventColor(event: MountainRangeEvent): string {
+  const groupId = event.emotions?.[0]?.emotionId ?? event.emotionFamilyIds?.[0]
+  const group = groupId && getGroup(groupId)
+  if (group) return `var(--color-quadrant-${group.quadrant})`
   if (event.emotionIds && event.emotionIds.length > 0) {
     const emotion = emotionStore.getEmotionById(event.emotionIds[0])
     if (emotion) {

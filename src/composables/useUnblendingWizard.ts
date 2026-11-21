@@ -1,3 +1,4 @@
+import { groupSelectionsToFamilyIds, type EmotionGroupSelection } from '@/domain/emotionGroups'
 import { ref, computed } from 'vue'
 import type { CreateIFSUnblendingPayload } from '@/domain/exercises'
 import { useIFSUnblendingStore } from '@/stores/ifsUnblending.store'
@@ -30,10 +31,8 @@ export function useUnblendingWizard() {
   const stepIndex = computed(() => STEP_ORDER.indexOf(currentStep.value))
 
   // Emotion tracking
-  const beforeEmotionIds = ref<string[]>([])
-  const beforeEmotionFamilyIds = ref<string[]>([])
-  const afterEmotionIds = ref<string[]>([])
-  const afterEmotionFamilyIds = ref<string[]>([])
+  const beforeEmotions = ref<EmotionGroupSelection[]>([])
+  const afterEmotions = ref<EmotionGroupSelection[]>([])
 
   // Part references
   const blendedPartId = ref<string | null>(null)
@@ -106,10 +105,12 @@ export function useUnblendingWizard() {
     isSaving.value = true
     try {
       const payload: CreateIFSUnblendingPayload = {
-        beforeEmotionIds: [...beforeEmotionIds.value],
-        beforeEmotionFamilyIds: [...beforeEmotionFamilyIds.value],
-        afterEmotionIds: [...afterEmotionIds.value],
-        afterEmotionFamilyIds: [...afterEmotionFamilyIds.value],
+        beforeEmotionIds: [],
+        beforeEmotions: beforeEmotions.value,
+        beforeEmotionFamilyIds: groupSelectionsToFamilyIds(beforeEmotions.value),
+        afterEmotionIds: [],
+        afterEmotions: afterEmotions.value,
+        afterEmotionFamilyIds: groupSelectionsToFamilyIds(afterEmotions.value),
         blendedPartId: blendedPartId.value ?? undefined,
         secondaryPartId: secondaryPartId.value ?? undefined,
         selfEnergyPresent: selfEnergyPresent.value === true,
@@ -131,10 +132,8 @@ export function useUnblendingWizard() {
 
   function reset() {
     currentStep.value = 'check-in'
-    beforeEmotionIds.value = []
-    beforeEmotionFamilyIds.value = []
-    afterEmotionIds.value = []
-    afterEmotionFamilyIds.value = []
+    beforeEmotions.value = []
+    afterEmotions.value = []
     blendedPartId.value = null
     secondaryPartId.value = null
     selfEnergyPresent.value = null
@@ -155,10 +154,8 @@ export function useUnblendingWizard() {
     goToStep,
 
     // Emotions
-    beforeEmotionIds,
-    beforeEmotionFamilyIds,
-    afterEmotionIds,
-    afterEmotionFamilyIds,
+    beforeEmotions,
+    afterEmotions,
 
     // Parts
     blendedPartId,

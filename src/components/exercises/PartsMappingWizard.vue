@@ -68,12 +68,10 @@
             </div>
 
             <div class="space-y-2">
-              <EmotionSelector
+              <EmotionGroupPicker
                 :label="t('exerciseWizards.partsMapping.intro.emotionLabel')"
-                v-model="beforeEmotionIds"
-                v-model:families="beforeEmotionFamilyIds"
+                v-model="beforeEmotions"
                 v-model:quadrant="activeEmotionQuadrantIntro"
-                :allow-family-only="true"
               />
             </div>
           </AppCard>
@@ -111,12 +109,10 @@
             </div>
 
             <div class="space-y-2">
-              <EmotionSelector
+              <EmotionGroupPicker
                 :label="t('exerciseWizards.partsMapping.trailhead.emotionsLabel')"
-                v-model="trailheadEmotionIds"
-                v-model:families="trailheadEmotionFamilyIds"
+                v-model="trailheadEmotions"
                 v-model:quadrant="activeEmotionQuadrantTrailhead"
-                :allow-family-only="true"
               />
             </div>
 
@@ -698,12 +694,10 @@
             </div>
 
             <div class="space-y-2">
-              <EmotionSelector
+              <EmotionGroupPicker
                 :label="t('exerciseWizards.partsMapping.summary.emotionLabel')"
-                v-model="afterEmotionIds"
-                v-model:families="afterEmotionFamilyIds"
+                v-model="afterEmotions"
                 v-model:quadrant="activeEmotionQuadrantSummary"
-                :allow-family-only="true"
               />
             </div>
 
@@ -743,7 +737,7 @@ import { ref, computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
-import EmotionSelector from '@/components/EmotionSelector.vue'
+import EmotionGroupPicker from '@/components/emotion/EmotionGroupPicker.vue'
 import PartRoleBadge from '@/components/exercises/ifs/PartRoleBadge.vue'
 import BodyLocationPicker from '@/components/exercises/ifs/BodyLocationPicker.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
@@ -807,14 +801,11 @@ const {
   prevStep,
   goToStep,
   trailheadSituation,
-  trailheadEmotionIds,
-  trailheadEmotionFamilyIds,
+  trailheadEmotions,
   trailheadBodyLocations,
   trailheadThoughts,
-  beforeEmotionIds,
-  beforeEmotionFamilyIds,
-  afterEmotionIds,
-  afterEmotionFamilyIds,
+  beforeEmotions,
+  afterEmotions,
   identifiedParts,
   editingPartIndex,
   currentPartName,

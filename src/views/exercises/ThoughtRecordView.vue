@@ -92,7 +92,7 @@ async function handleSaved(data: CreateThoughtRecordPayload) {
 }
 
 function getEmotionName(emotionId: string): string {
-  return emotionStore.getEmotionById(emotionId)?.name ?? t('exercises.views.unknown')
+  return emotionStore.getEmotionName(emotionId) ?? t('exercises.views.unknown')
 }
 
 function formatDate(iso: string): string {

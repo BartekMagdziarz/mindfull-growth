@@ -40,12 +40,13 @@
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.worryTree.capture.emotionsDescription') }}
           </p>
-          <EmotionSelector
-            v-model="selectedEmotionIds"
+          <EmotionGroupPicker
+            v-model="selectedEmotions"
+            selection-only
+            single
             v-model:quadrant="activeEmotionQuadrant"
-            :show-selected-section="true"
           />
-          <div v-if="selectedEmotionIds.length > 0" class="space-y-2">
+          <div v-if="selectedEmotions.length > 0" class="space-y-2">
             <label class="text-sm font-medium text-on-surface">
               {{
                 t('exerciseWizards.worryTree.capture.intensityLabel', {
@@ -469,8 +470,8 @@ import ExerciseStepper from './ExerciseStepper.vue'
 import { ref, computed } from 'vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
-import EmotionSelector from '@/components/EmotionSelector.vue'
-import { useEmotionStore } from '@/stores/emotion.store'
+import EmotionGroupPicker from '@/components/emotion/EmotionGroupPicker.vue'
+import type { EmotionGroupSelection } from '@/domain/emotionGroups'
 import { useT } from '@/composables/useT'
 import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import type { Quadrant } from '@/domain/emotion'
@@ -484,7 +485,6 @@ const emit = defineEmits<{
   saved: [data: CreateWorryTreeEntryPayload]
 }>()
 
-const emotionStore = useEmotionStore()
 const { t, tg } = useT()
 
 // ─── Step State ──────────────────────────────────────────────────────────────
@@ -495,7 +495,7 @@ const currentStep = ref<Step>('capture')
 
 // ─── Form State ──────────────────────────────────────────────────────────────
 const worry = ref('')
-const selectedEmotionIds = ref<string[]>([])
+const selectedEmotions = ref<EmotionGroupSelection[]>([])
 const activeEmotionQuadrant = ref<Quadrant | null>(null)
 const emotionBeforeIntensity = ref(50)
 const emotionAfterIntensity = ref(50)
@@ -537,15 +537,12 @@ const lettingGoTechniques = computed<
 
 // ─── Computed ────────────────────────────────────────────────────────────────
 const emotionBeforeName = computed(() => {
-  if (selectedEmotionIds.value.length === 0) return null
-  const emotion = emotionStore.getEmotionById(selectedEmotionIds.value[0])
-  return emotion?.name ?? null
+  if (selectedEmotions.value.length === 0) return null
+  return t(`emotionGroups.groups.${selectedEmotions.value[0].emotionId}.name`)
 })
 
 const canAdvanceFromCapture = computed(() => {
-  // WorryTree ocenia intensywność JEDNEJ konkretnej emocji (EmotionRating), więc
-  // wymaga wskazania emocji — wybór samej rodziny tu nie wystarcza.
-  return worry.value.trim().length > 0 && selectedEmotionIds.value.length > 0
+  return worry.value.trim().length > 0 && selectedEmotions.value.length > 0
 })
 
 const intensityDelta = computed(() => {
@@ -621,12 +618,12 @@ function goBackFromRecheck() {
 
 function handleSave() {
   const emotionBefore: EmotionRating = {
-    emotionId: selectedEmotionIds.value[0],
+    emotionId: selectedEmotions.value[0].emotionId,
     intensity: emotionBeforeIntensity.value,
   }
 
   const emotionAfter: EmotionRating = {
-    emotionId: selectedEmotionIds.value[0],
+    emotionId: selectedEmotions.value[0].emotionId,
     intensity: emotionAfterIntensity.value,
   }
 

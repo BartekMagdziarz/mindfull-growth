@@ -55,12 +55,10 @@
             </div>
           </div>
           <div class="space-y-2">
-            <EmotionSelector
+            <EmotionGroupPicker
               :label="t('exerciseWizards.mountainRange.intro.emotionLabel')"
-              v-model="emotionIdsBefore"
-              v-model:families="emotionFamilyIdsBefore"
+              v-model="emotionsBefore"
               v-model:quadrant="activeEmotionQuadrantIntro"
-              :allow-family-only="true"
             />
           </div>
         </AppCard>
@@ -140,22 +138,17 @@
                         : t('exerciseWizards.mountainRange.peaks.addEmotions')
                     }}
                     <span
-                      v-if="
-                        !openEmotions.has(event.id) &&
-                        event.emotionIds.length + event.emotionFamilyIds.length > 0
-                      "
+                      v-if="!openEmotions.has(event.id) && event.emotions.length > 0"
                       class="text-xs text-on-surface-variant"
                     >
-                      ({{ event.emotionIds.length + event.emotionFamilyIds.length }})
+                      ({{ event.emotions.length }})
                     </span>
                   </button>
-                  <EmotionSelector
+                  <EmotionGroupPicker
                     v-if="openEmotions.has(event.id)"
                     :label="t('exerciseWizards.mountainRange.peaks.emotionLabel')"
-                    v-model="event.emotionIds"
-                    v-model:families="event.emotionFamilyIds"
+                    v-model="event.emotions"
                     v-model:quadrant="event.activeQuadrant"
-                    :allow-family-only="true"
                   />
                 </div>
               </div>
@@ -260,22 +253,17 @@
                         : t('exerciseWizards.mountainRange.peaks.addEmotions')
                     }}
                     <span
-                      v-if="
-                        !openEmotions.has(event.id) &&
-                        event.emotionIds.length + event.emotionFamilyIds.length > 0
-                      "
+                      v-if="!openEmotions.has(event.id) && event.emotions.length > 0"
                       class="text-xs text-on-surface-variant"
                     >
-                      ({{ event.emotionIds.length + event.emotionFamilyIds.length }})
+                      ({{ event.emotions.length }})
                     </span>
                   </button>
-                  <EmotionSelector
+                  <EmotionGroupPicker
                     v-if="openEmotions.has(event.id)"
                     :label="t('exerciseWizards.mountainRange.peaks.emotionLabel')"
-                    v-model="event.emotionIds"
-                    v-model:families="event.emotionFamilyIds"
+                    v-model="event.emotions"
                     v-model:quadrant="event.activeQuadrant"
-                    :allow-family-only="true"
                   />
                 </div>
               </div>
@@ -476,12 +464,10 @@
           </AppButton>
 
           <div class="space-y-2">
-            <EmotionSelector
+            <EmotionGroupPicker
               :label="t('exerciseWizards.mountainRange.future.emotionLabel')"
-              v-model="emotionIdsAfter"
-              v-model:families="emotionFamilyIdsAfter"
+              v-model="emotionsAfter"
               v-model:quadrant="activeEmotionQuadrantFuture"
-              :allow-family-only="true"
             />
           </div>
 
@@ -514,7 +500,9 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
-import EmotionSelector from '@/components/EmotionSelector.vue'
+import { exerciseEmotionChange } from '@/domain/exerciseEmotions'
+import { groupSelectionsToFamilyIds, type EmotionGroupSelection } from '@/domain/emotionGroups'
+import EmotionGroupPicker from '@/components/emotion/EmotionGroupPicker.vue'
 import MountainRangeTimeline from '@/components/exercises/MountainRangeTimeline.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
@@ -569,10 +557,8 @@ function goToStepByIndex(idx: number) {
 }
 
 // ─── Form State ──────────────────────────────────────────────────────────────
-const emotionIdsBefore = ref<string[]>([])
-const emotionFamilyIdsBefore = ref<string[]>([])
-const emotionIdsAfter = ref<string[]>([])
-const emotionFamilyIdsAfter = ref<string[]>([])
+const emotionsBefore = ref<EmotionGroupSelection[]>([])
+const emotionsAfter = ref<EmotionGroupSelection[]>([])
 const activeEmotionQuadrantIntro = ref<Quadrant | null>(null)
 const activeEmotionQuadrantFuture = ref<Quadrant | null>(null)
 const notes = ref('')
@@ -583,8 +569,7 @@ interface EditableEvent {
   type: 'peak' | 'valley'
   description: string
   ageOrYear: number
-  emotionIds: string[]
-  emotionFamilyIds: string[]
+  emotions: EmotionGroupSelection[]
   reflection: string
   activeQuadrant: Quadrant | null
 }
@@ -595,8 +580,7 @@ function createEvent(type: 'peak' | 'valley'): EditableEvent {
     type,
     description: '',
     ageOrYear: 0,
-    emotionIds: [],
-    emotionFamilyIds: [],
+    emotions: [],
     reflection: '',
     activeQuadrant: null,
   }
@@ -659,8 +643,8 @@ const allFilledEvents = computed<MountainRangeEvent[]>(() => {
     type: e.type,
     description: e.description.trim(),
     ageOrYear: e.ageOrYear,
-    emotionIds: e.emotionIds.length > 0 ? [...e.emotionIds] : undefined,
-    emotionFamilyIds: e.emotionFamilyIds.length > 0 ? [...e.emotionFamilyIds] : undefined,
+    emotions: e.emotions,
+    emotionFamilyIds: groupSelectionsToFamilyIds(e.emotions),
     reflection: e.reflection.trim() || undefined,
   }))
 })
@@ -708,12 +692,7 @@ function handleSave() {
     valleyToPeakConnection: valleyToPeakConnection.value.trim() || undefined,
     llmSynthesis: llmSynthesis.value || undefined,
     futurePeaks: filledFuturePeaks.length > 0 ? filledFuturePeaks : undefined,
-    emotionIdsBefore: emotionIdsBefore.value.length > 0 ? [...emotionIdsBefore.value] : undefined,
-    emotionFamilyIdsBefore:
-      emotionFamilyIdsBefore.value.length > 0 ? [...emotionFamilyIdsBefore.value] : undefined,
-    emotionIdsAfter: emotionIdsAfter.value.length > 0 ? [...emotionIdsAfter.value] : undefined,
-    emotionFamilyIdsAfter:
-      emotionFamilyIdsAfter.value.length > 0 ? [...emotionFamilyIdsAfter.value] : undefined,
+    ...exerciseEmotionChange(emotionsBefore.value, emotionsAfter.value),
     notes: notes.value.trim() || undefined,
   }
   emit('saved', payload)

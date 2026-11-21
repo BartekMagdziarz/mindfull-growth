@@ -1,3 +1,4 @@
+import { groupSelectionsToFamilyIds, type EmotionGroupSelection } from '@/domain/emotionGroups'
 import { ref, computed } from 'vue'
 import type {
   IFSBodyLocation,
@@ -47,8 +48,7 @@ export function useExileWitnessingWizard() {
   const exilePartId = ref<string | null>(null)
   const bodyLocation = ref<IFSBodyLocation | null>(null)
   const feltAge = ref<number | null>(null)
-  const emotionIds = ref<string[]>([])
-  const emotionFamilyIds = ref<string[]>([])
+  const emotions = ref<EmotionGroupSelection[]>([])
 
   // Self check (magic question toward the exile): null = unanswered
   const selfCheckPassed = ref<boolean | null>(null)
@@ -86,9 +86,7 @@ export function useExileWitnessingWizard() {
         return protectorPermission.value !== null && protectorPermission.value !== 'blocking'
       case 'approach':
         return (
-          exilePartId.value !== null &&
-          bodyLocation.value !== null &&
-          (emotionIds.value.length > 0 || emotionFamilyIds.value.length > 0)
+          exilePartId.value !== null && bodyLocation.value !== null && emotions.value.length > 0
         )
       case 'self-check':
         return selfCheckPassed.value === true
@@ -192,8 +190,9 @@ export function useExileWitnessingWizard() {
           'okay' | 'nervous-but-willing' | 'blocking',
         bodyLocation: bodyLocation.value,
         feltAge: feltAge.value ?? undefined,
-        emotionIds: [...emotionIds.value],
-        emotionFamilyIds: [...emotionFamilyIds.value],
+        emotionIds: [],
+        emotions: emotions.value,
+        emotionFamilyIds: groupSelectionsToFamilyIds(emotions.value),
         exileMessage: exileMessage.value.trim(),
         exileBelief: exileBelief.value.trim(),
         compassionMessage: compassionMessage.value.trim(),
@@ -230,8 +229,7 @@ export function useExileWitnessingWizard() {
     exilePartId.value = null
     bodyLocation.value = null
     feltAge.value = null
-    emotionIds.value = []
-    emotionFamilyIds.value = []
+    emotions.value = []
     exileMessage.value = ''
     exileBelief.value = ''
     compassionMessage.value = ''
@@ -267,8 +265,7 @@ export function useExileWitnessingWizard() {
     exilePartId,
     bodyLocation,
     feltAge,
-    emotionIds,
-    emotionFamilyIds,
+    emotions,
 
     // Self check
     selfCheckPassed,

@@ -126,13 +126,7 @@
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.compassionateLetter.emotions.description') }}
           </p>
-          <EmotionSelector
-            v-model="selectedEmotionIds"
-            v-model:families="selectedEmotionFamilyIds"
-            v-model:quadrant="activeEmotionQuadrant"
-            :show-selected-section="true"
-            :allow-family-only="true"
-          />
+          <EmotionGroupPicker v-model="emotions" v-model:quadrant="activeEmotionQuadrant" />
         </AppCard>
 
         <div class="flex justify-between">
@@ -141,7 +135,7 @@
           }}</AppButton>
           <AppButton
             variant="filled"
-            :disabled="selectedEmotionIds.length === 0 && selectedEmotionFamilyIds.length === 0"
+            :disabled="emotions.length === 0"
             @click="currentStep = 'critic'"
           >
             {{ t('common.buttons.next') }}
@@ -412,7 +406,7 @@
             </p>
             <div class="flex flex-wrap gap-1.5">
               <span
-                v-for="id in selectedEmotionIds"
+                v-for="{ emotionId: id } in emotions"
                 :key="id"
                 class="exercise-pill px-2.5 py-0.5 text-xs font-medium"
                 :style="getEmotionChipStyle(id)"
@@ -484,14 +478,18 @@ import { ref, reactive, computed, watch } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
-import EmotionSelector from '@/components/EmotionSelector.vue'
+import {
+  getGroup,
+  groupSelectionsToFamilyIds,
+  type EmotionGroupSelection,
+} from '@/domain/emotionGroups'
+import EmotionGroupPicker from '@/components/emotion/EmotionGroupPicker.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
-import { useEmotionStore } from '@/stores/emotion.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import AiErrorNote from '@/components/exercises/AiErrorNote.vue'
-import { getQuadrant, getQuadrantChipStyle } from '@/domain/emotion'
+import { getQuadrantChipStyle } from '@/domain/emotion'
 import type { Quadrant } from '@/domain/emotion'
 import type { CreateCompassionateLetterPayload } from '@/domain/exercises'
 
@@ -502,7 +500,6 @@ const emit = defineEmits<{
   saved: [data: CreateCompassionateLetterPayload]
 }>()
 
-const emotionStore = useEmotionStore()
 const userPreferencesStore = useUserPreferencesStore()
 const { t, tg, locale } = useT()
 const useProfileCompassionate = ref(userPreferencesStore.profileContextDefault)
@@ -547,8 +544,7 @@ function goToStepByIndex(idx: number) {
 
 // ─── Form State ──────────────────────────────────────────────────────────────
 const situation = ref('')
-const selectedEmotionIds = ref<string[]>([])
-const selectedEmotionFamilyIds = ref<string[]>([])
+const emotions = ref<EmotionGroupSelection[]>([])
 const activeEmotionQuadrant = ref<Quadrant | null>(null)
 const selfCriticalThoughts = reactive<string[]>([''])
 const compassionateResponse = ref('')
@@ -603,14 +599,13 @@ const filledTakeaways = computed(() => takeaways.filter(t => t.trim().length > 0
 
 // ─── Emotion Helpers ─────────────────────────────────────────────────────────
 function getEmotionName(id: string): string {
-  const emotion = emotionStore.getEmotionById(id)
-  return emotion?.name ?? t('common.unknown')
+  return t(`emotionGroups.groups.${id}.name`)
 }
 
 function getEmotionChipStyle(id: string): Record<string, string> {
-  const emotion = emotionStore.getEmotionById(id)
-  if (!emotion) return {}
-  return getQuadrantChipStyle(getQuadrant(emotion))
+  const group = getGroup(id)
+  if (!group) return {}
+  return getQuadrantChipStyle(group.quadrant)
 }
 
 // ─── LLM Assist ──────────────────────────────────────────────────────────────
@@ -624,13 +619,12 @@ async function handleCompassionateAssist() {
   llmError.value = null
   try {
     const { guideCompassionateResponse } = await import('@/services/cbtLLMAssists')
-    const emotions = selectedEmotionIds.value.map(id => {
-      const emotion = emotionStore.getEmotionById(id)
-      return { name: emotion?.name ?? t('common.unknown') }
-    })
+    const emotionNames = emotions.value.map(({ emotionId }) => ({
+      name: getEmotionName(emotionId),
+    }))
     llmResponse.value = await guideCompassionateResponse({
       situation: situation.value,
-      emotions,
+      emotions: emotionNames,
       selfCriticalThoughts: filledSelfCriticalThoughts.value,
       locale: locale.value,
       useProfile: useProfileCompassionate.value,
@@ -647,8 +641,9 @@ async function handleCompassionateAssist() {
 function handleSave() {
   const payload: CreateCompassionateLetterPayload = {
     situation: situation.value.trim(),
-    emotionIds: [...selectedEmotionIds.value],
-    emotionFamilyIds: [...selectedEmotionFamilyIds.value],
+    emotionIds: [],
+    emotions: emotions.value,
+    emotionFamilyIds: groupSelectionsToFamilyIds(emotions.value),
     selfCriticalThoughts: filledSelfCriticalThoughts.value,
     compassionateResponse: compassionateResponse.value.trim(),
     takeaways: filledTakeaways.value,
