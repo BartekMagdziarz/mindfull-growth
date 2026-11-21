@@ -1,6 +1,7 @@
 import { computed, ref } from 'vue'
 import { useJournalStore } from '@/stores/journal.store'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
+import { legacyToGroupSelections } from '@/domain/emotionGroups'
 import type { UnifiedEntry } from '@/domain/unifiedEntry'
 
 export type DateRangeFilter = 'all' | 'today' | 'week' | 'month'
@@ -25,8 +26,7 @@ export function useUnifiedEntries() {
       title: entry.title,
       body: entry.body,
       chatSessions: entry.chatSessions,
-      emotionIds: entry.emotionIds ?? [],
-      emotionFamilyIds: entry.emotionFamilyIds ?? [],
+      emotions: legacyToGroupSelections(entry),
       peopleTagIds: entry.peopleTagIds ?? [],
       contextTagIds: entry.contextTagIds ?? [],
     }))
@@ -40,8 +40,7 @@ export function useUnifiedEntries() {
       createdAt: log.createdAt,
       updatedAt: log.updatedAt,
       note: log.note,
-      emotionIds: log.emotionIds,
-      emotionFamilyIds: log.emotionFamilyIds ?? [],
+      emotions: legacyToGroupSelections(log),
       peopleTagIds: log.peopleTagIds ?? [],
       contextTagIds: log.contextTagIds ?? [],
     }))

@@ -197,6 +197,7 @@ const router = createRouter({
     {
       path: '/history',
       name: 'history',
+      meta: { responsive: true },
       component: () => import('@/views/HistoryView.vue'),
     },
     {

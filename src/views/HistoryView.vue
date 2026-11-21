@@ -28,17 +28,16 @@
       <DsState v-if="filteredEntries.length === 0" icon="inbox" :title="emptyStateMessage" />
 
       <!-- Entries List -->
-      <div v-else class="grid gap-4 md:grid-cols-2 items-start">
+      <AppCard v-else class="history-entries">
         <HistoryEntryCard
           v-for="entry in filteredEntries"
           :key="`${entry.type}-${entry.id}`"
           :entry="entry"
           :is-deleting="isDeleting && deletingEntryId === entry.id"
-          @click="handleEntryClick(entry)"
           @delete="handleDeleteClick(entry)"
           @view-chats="handleViewChats(entry)"
         />
-      </div>
+      </AppCard>
     </div>
 
     <!-- Delete Confirmation Dialog -->
@@ -105,6 +104,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import PageContainer from '@/components/layout/PageContainer.vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
@@ -115,14 +115,12 @@ import ChatSessionCard from '@/components/ChatSessionCard.vue'
 import HistoryFilters from '@/components/history/HistoryFilters.vue'
 import HistoryEntryCard from '@/components/history/HistoryEntryCard.vue'
 import { useUnifiedEntries, type TypeFilter } from '@/composables/useUnifiedEntries'
-import { useEmotionStore } from '@/stores/emotion.store'
 import { useTagStore } from '@/stores/tag.store'
 import { useT } from '@/composables/useT'
 import type { UnifiedEntry } from '@/domain/unifiedEntry'
 
 const router = useRouter()
 const route = useRoute()
-const emotionStore = useEmotionStore()
 const tagStore = useTagStore()
 const { t } = useT()
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
@@ -160,14 +158,6 @@ const emptyStateMessage = computed(() => {
 
 function showSnackbar(message: string) {
   snackbarRef.value?.show(message)
-}
-
-function handleEntryClick(entry: UnifiedEntry) {
-  if (entry.type === 'journal') {
-    router.push(`/journal/${entry.id}/edit`)
-  } else {
-    router.push(`/emotions/${entry.id}/edit`)
-  }
 }
 
 function handleDeleteClick(entry: UnifiedEntry) {
@@ -241,10 +231,6 @@ watch(
 onMounted(async () => {
   const loadPromises: Promise<unknown>[] = [loadAllEntries()]
 
-  if (!emotionStore.isLoaded) {
-    loadPromises.push(emotionStore.loadEmotions())
-  }
-
   if (tagStore.peopleTags.length === 0) {
     loadPromises.push(tagStore.loadPeopleTags())
   }
@@ -262,6 +248,58 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.history-entries {
+  container: history / inline-size;
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--mg-space-3);
+}
+.history-entries > .history-card {
+  flex: 0 0 100%;
+}
+
+/* Each share includes one gutter. Taking it off the final card width leaves
+   exactly enough room for the gaps between adjacent cards. */
+@container history (min-width: 37rem) {
+  .history-entries > .history-card {
+    --gap: var(--mg-space-3);
+    --share: 0.46;
+    --limit: 0.56;
+    flex: var(--growth, 2) 0 calc((100% + var(--gap)) * var(--share) - var(--gap));
+    max-width: calc((100% + var(--gap)) * var(--limit) - var(--gap));
+  }
+  .history-entries > [data-size='long-journal'] {
+    --growth: 4;
+  }
+  .history-entries > [data-size='log'] {
+    --growth: 1;
+    --share: calc(1 / 3);
+    --limit: 0.45;
+  }
+  .history-entries > [data-size='detailed-log'] {
+    --share: 0.4;
+    --limit: 0.5;
+  }
+}
+
+@container history (min-width: 58rem) {
+  /* Eight equal shares: a short log takes two, a journal three. The remaining
+     space is distributed only within this row, keeping time and tab order intact. */
+  .history-entries > .history-card {
+    --share: 0.375;
+    --limit: 0.55;
+  }
+  .history-entries > [data-size='log'] {
+    --share: 0.25;
+    --limit: calc(1 / 3);
+  }
+  .history-entries > [data-size='detailed-log'] {
+    --share: calc(1 / 3);
+    --limit: 0.4;
+  }
+}
+
 .dialog-enter-active,
 .dialog-leave-active {
   transition: opacity 0.2s ease;

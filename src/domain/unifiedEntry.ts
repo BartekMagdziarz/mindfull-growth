@@ -1,4 +1,5 @@
 import type { ChatSession } from './chatSession'
+import type { EmotionGroupSelection } from './emotionGroups'
 
 export type UnifiedEntryType = 'journal' | 'emotion-log'
 
@@ -14,8 +15,7 @@ export interface UnifiedEntry {
   // Emotion-log-specific fields
   note?: string
   // Shared fields
-  emotionIds: string[]
-  emotionFamilyIds?: string[]
+  emotions: EmotionGroupSelection[]
   peopleTagIds: string[]
   contextTagIds: string[]
 }

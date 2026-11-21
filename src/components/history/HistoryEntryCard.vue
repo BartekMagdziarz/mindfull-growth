@@ -1,175 +1,147 @@
 <template>
-  <AppCard
-    padding="none"
-    class="group/card py-3 px-4 cursor-pointer transition-all duration-200"
-    @click="$emit('click')"
+  <DsSurface
+    tag="article"
+    elevation="flat"
+    class="history-card group/card min-w-0"
+    :data-size="cardSize"
   >
-    <div class="space-y-2">
-      <!-- Type Badge + Date Row -->
-      <div class="flex items-center justify-between gap-2">
-        <!-- Quiet facts line: type · date -->
-        <p class="mg-v2-meta">
-          <span class="mg-v2-meta__status">
-            <AppIcon :name="typeIcon" class="text-sm history-card__type-icon" />
-            {{ typeLabel }}
-          </span>
-          <span>{{ formatEntryDate(entry.createdAt, locale) }}</span>
-        </p>
-        <!-- Actions tray: visible on hover / focus -->
-        <div class="mg-v2-card-tray group-hover/card:opacity-100">
-          <button
-            type="button"
-            :disabled="isDeleting"
-            :aria-label="deleteAriaLabel"
-            class="mg-v2-button mg-v2-button--quiet mg-v2-button--icon mg-v2-button--icon-sm"
-            @click.stop="$emit('delete')"
-          >
-            <AppIcon v-if="!isDeleting" name="delete" class="text-base" />
-            <span v-else class="text-sm">...</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Title (journal only) -->
-      <h3
-        v-if="entry.type === 'journal' && entry.title"
-        class="text-base font-extrabold text-on-surface"
-      >
+    <RouterLink
+      :to="{ name: isJournal ? 'journal-edit-id' : 'emotions-edit-id', params: { id: entry.id } }"
+      class="history-card__entry block space-y-2 p-4"
+    >
+      <p class="mg-v2-meta pr-8">
+        <span class="mg-v2-meta__status">
+          <AppIcon :name="isJournal ? 'menu_book' : 'favorite'" class="history-card__type-icon" />
+          {{ isJournal ? t('history.card.journal') : t('history.card.emotion') }}
+        </span>
+        <time :datetime="entry.createdAt">{{ formatEntryDate(entry.createdAt, locale) }}</time>
+      </p>
+      <h3 v-if="isJournal && entry.title" class="text-base font-extrabold text-on-surface">
         {{ entry.title }}
       </h3>
-
-      <!-- Body/Note Preview -->
       <p v-if="contentPreview" class="text-on-surface-variant line-clamp-2">
         {{ contentPreview }}
       </p>
 
-      <!-- Chat indicator (journal only) -->
-      <div
-        v-if="entry.type === 'journal' && entry.chatSessions && entry.chatSessions.length > 0"
-        class="flex items-center"
-      >
-        <button
-          type="button"
-          class="mg-v2-pill mg-v2-pill--primary mg-v2-pill--selected history-card__chats"
-          @click.stop="$emit('viewChats')"
-          :aria-label="t('history.card.viewChats', { count: entry.chatSessions.length })"
+      <div v-if="emotionBadges.length" class="flex flex-wrap gap-2">
+        <span
+          v-for="badge in emotionBadges"
+          :key="badge.slug"
+          class="mg-v2-badge history-card__emotion"
+          :style="{ color: badge.ink, background: badge.fill }"
+          :title="badge.description"
         >
-          <AppIcon name="chat_bubble" class="text-sm" />
-          <span>
-            {{
-              entry.chatSessions.length > 1
-                ? t('history.card.chatCountPlural', { count: entry.chatSessions.length })
-                : t('history.card.chatCount', { count: entry.chatSessions.length })
-            }}
+          <span
+            class="history-card__face"
+            :style="{ maskImage: groupFaceMask(badge.slug) }"
+            aria-hidden="true"
+          ></span>
+          <span aria-hidden="true">{{ badge.name }}</span>
+          <span v-if="badge.intensity" class="inline-flex gap-0.5" aria-hidden="true">
+            <i v-for="n in badge.intensity" :key="n" class="h-1 w-1 rounded-full bg-current"></i>
           </span>
-        </button>
-      </div>
-
-      <!-- Emotion Chips -->
-      <div v-if="entry.emotionIds.length > 0" class="flex flex-wrap gap-2">
-        <span
-          v-for="emotionId in entry.emotionIds"
-          :key="`emotion-${emotionId}`"
-          v-show="getEmotionName(emotionId)"
-          :style="getEmotionChipStyle(emotionId)"
-          class="mg-v2-badge text-on-surface"
-        >
-          {{ getEmotionName(emotionId) }}
+          <span class="sr-only">{{ badge.description }}</span>
         </span>
       </div>
 
-      <!-- Family Chips (rodzina-only) — bez rodzin „wchłoniętych" przez wybraną emocję -->
-      <div v-if="displayedFamilyIds.length > 0" class="flex flex-wrap gap-2">
-        <span
-          v-for="familyId in displayedFamilyIds"
-          :key="`family-${familyId}`"
-          :style="getFamilyChipStyle(familyId)"
-          class="mg-v2-badge text-on-surface"
-        >
-          <AppIcon name="category" class="text-sm opacity-80" />
-          {{ getFamilyName(familyId) }}
+      <div v-if="peopleTags.length || contextTags.length" class="flex flex-wrap gap-2">
+        <span v-for="tag in peopleTags" :key="tag.id" class="mg-v2-badge">{{ tag.name }}</span>
+        <span v-for="tag in contextTags" :key="tag.id" class="mg-v2-badge history-card__context">
+          {{ tag.name }}
         </span>
       </div>
+    </RouterLink>
 
-      <!-- People & Context Tags -->
-      <div v-if="hasTags" class="flex flex-wrap gap-2">
-        <!-- People Tags -->
-        <span
-          v-for="peopleTagId in entry.peopleTagIds"
-          :key="`people-${peopleTagId}`"
-          v-show="getPeopleTagName(peopleTagId)"
-          class="mg-v2-badge"
-        >
-          {{ getPeopleTagName(peopleTagId) }}
-        </span>
-
-        <!-- Context Tags -->
-        <span
-          v-for="contextTagId in entry.contextTagIds"
-          :key="`context-${contextTagId}`"
-          v-show="getContextTagName(contextTagId)"
-          class="mg-v2-badge history-card__context"
-        >
-          {{ getContextTagName(contextTagId) }}
-        </span>
-      </div>
+    <div class="mg-v2-card-tray absolute right-2 top-2 group-hover/card:opacity-100">
+      <button
+        type="button"
+        :disabled="isDeleting"
+        :aria-label="deleteAriaLabel"
+        class="mg-v2-button mg-v2-button--quiet mg-v2-button--icon mg-v2-button--icon-sm"
+        @click="$emit('delete')"
+      >
+        <AppIcon v-if="!isDeleting" name="delete" class="text-base" />
+        <span v-else class="text-sm">...</span>
+      </button>
     </div>
-  </AppCard>
+    <button
+      v-if="isJournal && chatCount"
+      type="button"
+      class="mg-v2-button history-card__chats"
+      :aria-label="t('history.card.viewChats', { count: chatCount })"
+      @click="$emit('viewChats')"
+    >
+      <AppIcon name="chat_bubble" />
+      {{
+        t(chatCount > 1 ? 'history.card.chatCountPlural' : 'history.card.chatCount', {
+          count: chatCount,
+        })
+      }}
+    </button>
+  </DsSurface>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import AppCard from '@/components/AppCard.vue'
+import { RouterLink } from 'vue-router'
+import { DsSurface } from '@/design-system/components'
 import AppIcon from '@/components/shared/AppIcon.vue'
-import { useEmotionStore } from '@/stores/emotion.store'
+import { groupFaceMask } from '@/components/emotion/groupFaceMask'
 import { useTagStore } from '@/stores/tag.store'
 import { useT } from '@/composables/useT'
 import { formatEntryDate } from '@/utils/dateFormat'
 import { getDisplayTitle } from '@/domain/journal'
+import { getGroup } from '@/domain/emotionGroups'
 import type { UnifiedEntry } from '@/domain/unifiedEntry'
-import { getQuadrant, getQuadrantChipStyle } from '@/domain/emotion'
-import { getFamilyById, familyOfEmotionId } from '@/domain/emotionFamily'
 
-interface Props {
-  entry: UnifiedEntry
-  isDeleting?: boolean
-}
+const props = defineProps<{ entry: UnifiedEntry; isDeleting?: boolean }>()
+defineEmits<{ delete: []; viewChats: [] }>()
 
-const props = withDefaults(defineProps<Props>(), {
-  isDeleting: false,
-})
-
-defineEmits<{
-  click: []
-  delete: []
-  viewChats: []
-}>()
-
-const emotionStore = useEmotionStore()
 const tagStore = useTagStore()
 const { t, locale } = useT()
+const isJournal = computed(() => props.entry.type === 'journal')
+const contentPreview = computed(() => (isJournal.value ? props.entry.body : props.entry.note))
+const chatCount = computed(() => props.entry.chatSessions?.length ?? 0)
+const peopleTags = computed(() =>
+  props.entry.peopleTagIds.map(tagStore.getPeopleTagById).filter(tag => !!tag)
+)
+const contextTags = computed(() =>
+  props.entry.contextTagIds.map(tagStore.getContextTagById).filter(tag => !!tag)
+)
 
-const typeIcon = computed<string>(() => {
-  return props.entry.type === 'journal' ? 'edit' : 'favorite'
-})
-
-const typeLabel = computed(() => {
-  return props.entry.type === 'journal' ? t('history.card.journal') : t('history.card.emotion')
-})
-
-const contentPreview = computed(() => {
-  if (props.entry.type === 'journal') {
-    return props.entry.body
+// Width reflects the visible preview and badges. Longer prose is capped at two lines.
+const cardSize = computed(() => {
+  const entry = props.entry
+  const badgeCount = entry.emotions.length + peopleTags.value.length + contextTags.value.length
+  if (!isJournal.value) {
+    return (entry.note?.trim().length ?? 0) > 90 || badgeCount >= 4 ? 'detailed-log' : 'log'
   }
-  return props.entry.note
+  const textLength = (entry.title?.trim().length ?? 0) + (entry.body?.trim().length ?? 0)
+  return textLength > 160 || badgeCount >= 4 ? 'long-journal' : 'journal'
 })
 
-const hasTags = computed(() => {
-  return props.entry.peopleTagIds.length > 0 || props.entry.contextTagIds.length > 0
-})
+const emotionBadges = computed(() =>
+  props.entry.emotions.flatMap(({ emotionId, intensity }) => {
+    const group = getGroup(emotionId)
+    if (!group) return []
+    const name = t(`emotionGroups.groups.${emotionId}.name`)
+    return [
+      {
+        slug: emotionId,
+        name: name.split(' · ')[0],
+        intensity,
+        description: intensity
+          ? t('emotionGroups.ui.intensityOf', { name, level: intensity })
+          : name,
+        ink: `var(--color-quadrant-${group.quadrant}-text)`,
+        fill: `var(--color-quadrant-${group.quadrant}-tint)`,
+      },
+    ]
+  })
+)
 
 const deleteAriaLabel = computed(() => {
-  if (props.entry.type === 'journal') {
+  if (isJournal.value) {
     const title = getDisplayTitle(props.entry)
     return title ? t('history.card.deleteJournal', { title }) : t('history.card.deleteUntitled')
   }
@@ -177,57 +149,45 @@ const deleteAriaLabel = computed(() => {
     date: formatEntryDate(props.entry.createdAt, locale.value),
   })
 })
-
-function getEmotionName(id: string): string | undefined {
-  return emotionStore.getEmotionById(id)?.name
-}
-
-function getEmotionChipStyle(id: string): Record<string, string> {
-  const emotion = emotionStore.getEmotionById(id)
-  if (!emotion) return {}
-  return getQuadrantChipStyle(getQuadrant(emotion))
-}
-
-function getFamilyName(id: string): string {
-  return t(`emotionFamilies.${id}.name`)
-}
-
-function getFamilyChipStyle(id: string): Record<string, string> {
-  const family = getFamilyById(id)
-  if (!family) return {}
-  return getQuadrantChipStyle(family.quadrant)
-}
-
-// Reguła „wchłonięcia": nie pokazuj rodziny, jeśli wpis ma już konkretną emocję
-// z tej rodziny (emocja ją reprezentuje) — spójnie z pickerem.
-const displayedFamilyIds = computed(() => {
-  const families = props.entry.emotionFamilyIds ?? []
-  if (families.length === 0) return []
-  const emotionFamilies = new Set(
-    (props.entry.emotionIds ?? []).map(id => familyOfEmotionId(id)).filter(Boolean)
-  )
-  return families.filter(fid => !emotionFamilies.has(fid))
-})
-
-function getPeopleTagName(id: string): string | undefined {
-  return tagStore.getPeopleTagById(id)?.name
-}
-
-function getContextTagName(id: string): string | undefined {
-  return tagStore.getContextTagById(id)?.name
-}
 </script>
 
 <style scoped>
-.history-card__type-icon {
-  color: var(--mg-color-primary);
+.history-card {
+  display: flex;
+  flex-direction: column;
+  overflow-wrap: anywhere;
 }
-
-.history-card__chats {
-  cursor: pointer;
+.history-card__entry {
+  flex: 1;
+  border-radius: inherit;
 }
-
+.history-card[data-size$='log'] .history-card__entry {
+  padding: var(--mg-space-3);
+}
+.history-card__entry:hover {
+  background: var(--mg-color-paper);
+}
+.history-card__type-icon,
 .history-card__context {
   color: var(--mg-color-primary-strong);
+}
+.history-card__emotion {
+  border: 0;
+  padding-block: var(--mg-space-1);
+}
+.history-card__face {
+  width: 1.3rem;
+  height: 1.3rem;
+  background: currentColor;
+  mask: center / contain no-repeat;
+}
+.history-card__chats {
+  align-self: flex-start;
+  margin: 0 var(--mg-space-4) var(--mg-space-3);
+}
+@media (hover: none) {
+  .history-card .mg-v2-card-tray {
+    opacity: 1;
+  }
 }
 </style>
