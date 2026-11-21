@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { MICRO_EXERCISES } from '@/data/microExercises'
+import { getProgramDefinition } from '@/data/programCatalog'
 import { conditionList } from '@/utils/microExerciseFlow'
 import enWizards from '@/locales/en/exerciseWizards.json'
 import plWizards from '@/locales/pl/exerciseWizards.json'
@@ -112,6 +113,32 @@ describe('micro exercise definitions', () => {
           ).toBe(true)
         }
       })
+    }
+  })
+
+  it('gated options name real options, each in one group, on real week phases of a real path', () => {
+    for (const definition of MICRO_EXERCISES) {
+      for (const step of definition.steps) {
+        if (step.type !== 'choice' || !step.unlockByPhase) continue
+        const label = `${definition.slug}.${step.key}`
+        const program = getProgramDefinition(step.unlockByPhase.program)
+        expect(program, `${label} gates on unknown ${step.unlockByPhase.program}`).toBeDefined()
+        const seen = new Set<string>()
+        for (const group of step.unlockByPhase.groups) {
+          const phase = program!.phases?.find(candidate => candidate.key === group.phase)
+          expect(phase?.week, `${label} phase ${group.phase}`).toBeDefined()
+          for (const option of group.options) {
+            expect(step.options, `${label} unlocks ${option}`).toContain(option)
+            expect(seen.has(option), `${label} unlocks ${option} twice`).toBe(false)
+            seen.add(option)
+          }
+        }
+        // Something must stay answerable before any phase is reached.
+        expect(
+          step.options.some(option => !seen.has(option)),
+          label
+        ).toBe(true)
+      }
     }
   })
 

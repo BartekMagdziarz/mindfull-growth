@@ -159,6 +159,26 @@ export function handedOverPractices(
 }
 
 /**
+ * Phases the enrollment has reached, in path order — by the same rule as
+ * the phase practices: a phase counts once its first step is done, the
+ * first phase from the start; a closed path has reached all of them.
+ * (The Moment moves that appear as the path progresses.)
+ */
+export function reachedPhaseKeys(
+  program: Pick<ProgramDefinition, 'phases'>,
+  enrollment: Pick<ProgramEnrollment, 'status' | 'currentStepIndex'>
+): string[] {
+  return (program.phases ?? [])
+    .filter(
+      (phase, index) =>
+        enrollment.status === 'completed' ||
+        index === 0 ||
+        enrollment.currentStepIndex > phase.fromStepIndex
+    )
+    .map(phase => phase.key)
+}
+
+/**
  * `practiceOverrides` key for "every practice the path hands over from now
  * on": the mid-path dose decision must outlive the phase it was taken in.
  */

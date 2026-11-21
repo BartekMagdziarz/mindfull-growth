@@ -529,3 +529,36 @@ catalog's practice list of `shame-compassion` is now Momenty plus one practice p
   (E4, to land with the path view port from Lab `/concepts/path-view-v4`). Until then an
   on-demand practice is opened from the exercise catalog.
 
+**P13 (2026-11-21) — phase practices, stage E3: the Moment moves grow with the phases.** The
+phase practice trains a move when calm; Momenty record whether it showed up in life. On the
+shame path "Jak odpowiedziałeś na wstyd?" therefore offers only the moves of the phases
+reached so far, newest phase first, "Nic, tym razem" last:
+
+| From phase | Moves |
+|---|---|
+| w1 | named · breath |
+| w2 | **place** · gesture · sentence |
+| w3 | unblend · question · contact · repair |
+| w4 | **break** · test · kindAct |
+| w5 | thanked |
+| w6 | defend |
+| w7 | stayed |
+| w8 | **shown** |
+
+- `SHAME_MOVE_UNLOCK` in `src/domain/momentFamilies.ts` (one source: the Momenty step's
+  `unlockByPhase` and the family's `responseUnlock`); each group starts with the move of the
+  phase's own practice. Three new answers: `place` (Powrót do miejsca), `break` (Przerwa na
+  współczucie), `shown` (Pokazanie się mimo wstydu).
+- A phase counts as reached by the same rule as its practice — its first step done, the
+  first phase from the start (`reachedPhaseKeys` in `src/domain/program.ts`), so a move
+  appears together with the practice that trains it. `unlockedOptions`
+  (`microExerciseFlow.ts`) orders and hides; a move not reached yet is hidden, not greyed.
+- Without an open enrollment of the path (Momenty used on their own, a closed path) every
+  move shows in definition order, as before. Anger and anxiety are not gated.
+- "Dopisz" in the weekly reflection filters the family's short list (`backfillResponses`)
+  through the same gate. Earlier entries and the charts are untouched — the stored answers
+  did not change.
+- Guards: `microExercises.spec` (gated options are real, each in one group, on week phases),
+  `unlockedOptions.spec` (order, the real path week by week, the backfill list),
+  `MicroExerciseRunner.spec` (the list at week 2).
+

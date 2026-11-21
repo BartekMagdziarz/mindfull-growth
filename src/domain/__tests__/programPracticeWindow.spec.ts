@@ -3,6 +3,7 @@ import {
   handedOverPractices,
   isPracticeWindowOpen,
   practiceStepWindow,
+  reachedPhaseKeys,
   type ProgramDefinition,
   type ProgramEnrollment,
 } from '@/domain/program'
@@ -100,5 +101,18 @@ describe('handedOverPractices', () => {
 
   it('a closed path has handed over everything', () => {
     expect(slugs(7, 'completed')).toEqual(['log', 'first', 'second', 'third'])
+  })
+})
+
+describe('reachedPhaseKeys', () => {
+  it('a phase counts once its first step is done; the first one from the start', () => {
+    expect(reachedPhaseKeys(program, at(0))).toEqual(['w1'])
+    expect(reachedPhaseKeys(program, at(2))).toEqual(['w1'])
+    expect(reachedPhaseKeys(program, at(3))).toEqual(['w1', 'w2'])
+    expect(reachedPhaseKeys(program, at(6))).toEqual(['w1', 'w2', 'w3'])
+  })
+
+  it('a closed path has reached every phase', () => {
+    expect(reachedPhaseKeys(program, at(7, 'completed'))).toEqual(['w1', 'w2', 'w3', 'return'])
   })
 })

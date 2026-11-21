@@ -263,7 +263,7 @@ import { getCatalogEntry } from '@/data/exerciseCatalog'
 import { getMicroExercise } from '@/data/microExercises'
 import { getProgramDefinition } from '@/data/programCatalog'
 import type { Quadrant } from '@/domain/emotion'
-import { handedOverPractices, isDeliveringEnrollment } from '@/domain/program'
+import { handedOverPractices, isDeliveringEnrollment, reachedPhaseKeys } from '@/domain/program'
 import type { EmotionGroupSelection } from '@/domain/emotionGroups'
 import type {
   MicroExerciseDefinition,
@@ -283,6 +283,7 @@ import {
   isMicroStepOptional,
   type MicroChoiceAnswers,
   pickableEntries,
+  unlockedOptions,
   visibleMicroSteps,
 } from '@/utils/microExerciseFlow'
 
@@ -422,7 +423,11 @@ onMounted(() => {
   if (props.definition.steps.some(step => step.type === 'choice' && step.labelsFromParts)) {
     void partStore.loadParts()
   }
-  if (props.definition.steps.some(step => step.type === 'choice' && step.optionsFrom)) {
+  if (
+    props.definition.steps.some(
+      step => step.type === 'choice' && (step.optionsFrom || step.unlockByPhase)
+    )
+  ) {
     void enrollmentStore.ensureLoaded()
   }
 })
@@ -460,13 +465,35 @@ function catalogTitle(slug: string): string {
   return entry ? t(`exercises.cards.${entry.i18nKey}.title`) : slug
 }
 
+/**
+ * The step's own options; a gated step (`unlockByPhase`) shows what the
+ * user's open enrollment of that path has reached, newest phase first.
+ */
+function shownOptions(step: Extract<MicroExerciseStep, { type: 'choice' }>): string[] {
+  const unlock = step.unlockByPhase
+  if (!unlock) return step.options
+  const program = getProgramDefinition(unlock.program)
+  const enrollment = [...enrollmentStore.enrollments]
+    .filter(
+      item =>
+        item.programSlug === unlock.program &&
+        (item.status === 'active' || item.status === 'paused')
+    )
+    .sort((a, b) => b.startedAt.localeCompare(a.startedAt))[0]
+  return unlockedOptions(
+    step.options,
+    unlock,
+    program && enrollment ? reachedPhaseKeys(program, enrollment) : null
+  )
+}
+
 function choiceOptions(step: MicroExerciseStep): ChoiceOption[] {
   if (step.type !== 'choice') return []
   const dynamic: ChoiceOption[] =
     step.optionsFrom === 'programPractices'
       ? programPracticeSlugs.value.map(slug => ({ id: slug, label: catalogTitle(slug), hint: '' }))
       : []
-  const statics: ChoiceOption[] = step.options.map(option => {
+  const statics: ChoiceOption[] = shownOptions(step).map(option => {
     const fallback = tg(stepKey(step, `options.${option}`))
     const tag = step.labelsFromParts?.[option]
     const part = tag ? partStore.parts.find(candidate => candidate.tags?.includes(tag)) : undefined

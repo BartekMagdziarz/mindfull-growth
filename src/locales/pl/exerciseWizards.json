@@ -3735,7 +3735,10 @@
           "thanked": "Podziękowanie Krytykowi",
           "nothing": "Nic, tym razem",
           "unblend": "„To część, nie ja”",
-          "defend": "Zdanie w swojej obronie"
+          "defend": "Zdanie w swojej obronie",
+          "place": "Powrót do miejsca",
+          "break": "Przerwa na współczucie",
+          "shown": "Pokazanie się mimo wstydu"
         }
       },
       "body": {

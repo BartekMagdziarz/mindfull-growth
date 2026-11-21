@@ -3735,7 +3735,10 @@
           "thanked": "Thanking the Critic",
           "nothing": "Nothing, this time",
           "unblend": "\"That's a part, not me\"",
-          "defend": "A sentence in my own defence"
+          "defend": "A sentence in my own defence",
+          "place": "Returning to my place",
+          "break": "Self-compassion break",
+          "shown": "Showing up despite shame"
         }
       },
       "body": {

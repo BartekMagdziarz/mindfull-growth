@@ -7,6 +7,7 @@
  */
 
 import type { MicroExerciseDefinition } from '@/domain/microExercises'
+import { SHAME_MOVE_UNLOCK } from '@/domain/momentFamilies'
 
 export const MICRO_EXERCISES: MicroExerciseDefinition[] = [
   {
@@ -164,7 +165,8 @@ export const MICRO_EXERCISES: MicroExerciseDefinition[] = [
         key: 'response',
         type: 'choice',
         multiple: true,
-        // kindAct · gesture · stayed · thanked: the week tasks' own moves (2026-10-11), so a task counts a day only when it happened.
+        // On the shame path the list grows with the phases (`unlockByPhase`); place ·
+        // break · shown are the moves of the phase practices (2026-11-21).
         options: [
           'breath',
           'named',
@@ -179,8 +181,12 @@ export const MICRO_EXERCISES: MicroExerciseDefinition[] = [
           'gesture',
           'stayed',
           'thanked',
+          'place',
+          'break',
+          'shown',
           'nothing',
         ],
+        unlockByPhase: SHAME_MOVE_UNLOCK,
         showWhen: [
           { step: 'kind', in: ['shame'] },
           { step: 'hadMoment', in: ['yes'] },

@@ -10,6 +10,7 @@ import type {
   MicroExerciseEntry,
   MicroExerciseStep,
   MicroHintSource,
+  MicroOptionUnlock,
   MicroPrefillRule,
   MicroPreset,
   MicroStepCondition,
@@ -279,4 +280,25 @@ export function buildAfterSavePrefill(
     }
   }
   return prefill
+}
+
+/**
+ * The options of a gated choice step for a user whose path has reached
+ * `reachedPhases` (`null` = no open enrollment of that path: everything,
+ * in definition order). Gated options show once their phase is reached,
+ * newest phase first; options outside every group follow in definition
+ * order ("Nic, tym razem" stays last).
+ */
+export function unlockedOptions(
+  options: readonly string[],
+  unlock: MicroOptionUnlock | undefined,
+  reachedPhases: readonly string[] | null
+): string[] {
+  if (!unlock || reachedPhases === null) return [...options]
+  const gated = new Set(unlock.groups.flatMap(group => group.options))
+  const reached = unlock.groups.filter(group => reachedPhases.includes(group.phase))
+  return [
+    ...[...reached].reverse().flatMap(group => group.options.filter(o => options.includes(o))),
+    ...options.filter(option => !gated.has(option)),
+  ]
 }

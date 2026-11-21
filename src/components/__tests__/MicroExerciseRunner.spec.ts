@@ -530,6 +530,42 @@ describe('MicroExerciseRunner v3 features', () => {
     expect(labels()).toContain('A step towards people')
   })
 
+  it('the shame moves grow with the path: reached phases only, newest first', async () => {
+    const { useProgramEnrollmentStore } = await import('@/stores/programEnrollment.store')
+    useProgramEnrollmentStore().enrollments = [
+      {
+        id: 'shame',
+        programSlug: 'shame-compassion',
+        status: 'active',
+        startedAt: '2026-09-01T10:00:00.000Z',
+        // The safe place is built, the plan for a hard moment is still ahead: weeks 1–2.
+        currentStepIndex: 6,
+        completedSteps: [],
+        createdAt: '2026-09-01T10:00:00.000Z',
+        updatedAt: '2026-09-01T10:00:00.000Z',
+      },
+    ]
+    renderMicro('moments', { kind: 'shame' })
+    await fireEvent.click(screen.getByRole('radio', { name: 'Yes' }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → compass
+    await fireEvent.click(screen.getByRole('radio', { name: /The Hider/ }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → noticed
+    await fireEvent.click(screen.getByRole('radio', { name: 'Hours later' }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → response
+    const labels = screen
+      .getAllByRole('button')
+      .filter(b => b.classList.contains('micro-choice__option'))
+      .map(b => b.textContent?.trim())
+    expect(labels).toEqual([
+      'Returning to my place',
+      'Hand on my heart',
+      'The sentence from my image',
+      'Naming the shame',
+      'Breath',
+      'Nothing, this time',
+    ])
+  })
+
   it('a full hint quotes the whole letter in "Powrót"', async () => {
     const long = 'A'.repeat(400)
     seedEntries([
@@ -658,7 +694,7 @@ describe('MicroExerciseRunner v3 features', () => {
     ).toBe('4')
     expect(container.querySelector('.micro-choice--pair')).toBeNull()
     await fireEvent.click(screen.getByRole('radio', { name: 'Hours later' }))
-    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → response (14)
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → response (17 outside a path)
     expect(
       container.querySelector<HTMLElement>('.micro-choice')!.style.getPropertyValue('--micro-cols')
     ).toBe('2')

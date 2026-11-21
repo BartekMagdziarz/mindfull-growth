@@ -11,6 +11,8 @@
  * "self" key — the pattern the path works toward — drawn as the sky.
  */
 
+import type { MicroOptionUnlock } from '@/domain/microExercises'
+
 export type MomentFamilyKind = 'shame' | 'anger' | 'anxiety'
 
 export interface MomentFamilyConfig {
@@ -33,6 +35,30 @@ export interface MomentFamilyConfig {
   backfillResponses: readonly string[]
   /** Catalog slug of the Momenty variant that logs this kind. */
   variantSlug: string
+  /**
+   * The moves that appear as the path progresses (plan 2026-11-17 §5): the
+   * phase practice trains a move when calm, Momenty record whether it showed
+   * up in life. Absent = every move from the first Moment on.
+   */
+  responseUnlock?: MicroOptionUnlock
+}
+
+/**
+ * Shame moves by the phase that hands them over. Each group starts with the
+ * move of the phase's own practice; "nothing" is in no group (always there).
+ */
+export const SHAME_MOVE_UNLOCK: MicroOptionUnlock = {
+  program: 'shame-compassion',
+  groups: [
+    { phase: 'w1', options: ['named', 'breath'] },
+    { phase: 'w2', options: ['place', 'gesture', 'sentence'] },
+    { phase: 'w3', options: ['unblend', 'question', 'contact', 'repair'] },
+    { phase: 'w4', options: ['break', 'test', 'kindAct'] },
+    { phase: 'w5', options: ['thanked'] },
+    { phase: 'w6', options: ['defend'] },
+    { phase: 'w7', options: ['stayed'] },
+    { phase: 'w8', options: ['shown'] },
+  ],
 }
 
 export const MOMENT_FAMILIES: Readonly<Record<MomentFamilyKind, MomentFamilyConfig>> = {
@@ -52,6 +78,7 @@ export const MOMENT_FAMILIES: Readonly<Record<MomentFamilyKind, MomentFamilyConf
     },
     backfillResponses: ['breath', 'unblend', 'kindAct', 'contact', 'nothing'],
     variantSlug: 'moment-shame',
+    responseUnlock: SHAME_MOVE_UNLOCK,
   },
   // Pauza · Milczenie (inward, light) · Na siebie (inward, deep) · Ostrzej (outward, light) · Wybuch (outward, deep)
   anger: {

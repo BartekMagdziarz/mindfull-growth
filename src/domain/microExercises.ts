@@ -112,6 +112,14 @@ export type MicroExerciseStep = MicroStepBase &
          * Ukrywający · Krytyk · Agresor · Odwracający uwagę, renameable).
          */
         labelsFromParts?: Record<string, string>
+        /**
+         * Options that appear as a path progresses (the Moment moves grow
+         * with the phases). While the user has an open enrollment of
+         * `program`, an option shows once its phase is reached — newest
+         * phase first, options outside every group last. Without an open
+         * enrollment all options show in definition order.
+         */
+        unlockByPhase?: MicroOptionUnlock
       }
     | {
         type: 'breathTimer'
@@ -135,6 +143,13 @@ export type MicroExerciseStep = MicroStepBase &
         days?: number
       }
   )
+
+export interface MicroOptionUnlock {
+  /** Program slug whose phases gate the options. */
+  program: string
+  /** Phase key → the options it adds, in display order. */
+  groups: readonly { phase: string; options: readonly string[] }[]
+}
 
 /**
  * Answers fixed before the run starts (catalog variants, e.g. "Moment

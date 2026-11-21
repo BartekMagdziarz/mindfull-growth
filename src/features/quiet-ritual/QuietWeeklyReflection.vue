@@ -444,7 +444,7 @@
                     :aria-label="tg('programs.week.backfill.response')"
                   >
                     <button
-                      v-for="key in familyOf(block)!.backfillResponses"
+                      v-for="key in backfillMoves(block)"
                       :key="key"
                       type="button"
                       :aria-pressed="backfillForm.response.includes(key)"
@@ -819,6 +819,8 @@ import {
   responsesOf,
   type MomentFamilyConfig,
 } from '@/domain/momentFamilies'
+import { reachedPhaseKeys } from '@/domain/program'
+import { unlockedOptions } from '@/utils/microExerciseFlow'
 import {
   momentsProgress,
   UNLOGGED_BUCKETS,
@@ -1185,6 +1187,16 @@ function weekSectionLabel(block: ReflectionPathBlock): string {
 function familyOf(block: ReflectionPathBlock): MomentFamilyConfig | null {
   const kind = block.program.momentKind
   return isMomentFamilyKind(kind) ? momentFamily(kind) : null
+}
+/** The moves "Dopisz" offers: the family's short list, limited to what the path has handed over so far. */
+function backfillMoves(block: ReflectionPathBlock): string[] {
+  const family = familyOf(block)
+  if (!family) return []
+  return unlockedOptions(
+    family.backfillResponses,
+    family.responseUnlock,
+    reachedPhaseKeys(block.program, block.enrollment)
+  )
 }
 const partStyle = (part: ReactionKey) => ({ '--part': partColor(part) })
 function partLabel(block: ReflectionPathBlock, part: ReactionKey): string {
