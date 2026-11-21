@@ -38,6 +38,8 @@ playwright-report/
 /.month-v2-*.png
 ux-lab/app/qa/
 ux-lab/audit/
+# Local agent working files (screenshots, audit runs); durable findings go to docs/.
+work/
 # Redundant working copies; the Lab serves the canonical files from app/public.
 ux-lab/assets/
 
