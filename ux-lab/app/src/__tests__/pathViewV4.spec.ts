@@ -3,9 +3,13 @@ import { describe, expect, it } from 'vitest'
 import {
   flatSteps,
   MAIN_STEPS,
+  momentsState,
   onDemandPractices,
+  phasePracticeDefs,
+  phasePracticeState,
   phaseSteps,
   practiceTiles,
+  runningPhasePractice,
   RETURN_WEEK,
   sceneStates,
   shortTitle,
@@ -67,39 +71,81 @@ describe('path view v4 (round 8)', () => {
 
   it('every phase shows exactly two practices, Momenty first', () => {
     for (let phase = 0; phase <= RETURN_WEEK; phase += 1) {
-      const tiles = practiceTiles(phase, 3)
+      const tiles = practiceTiles(phase, 10)
       expect(tiles).toHaveLength(2)
       expect(tiles[0]!.def.title).toBe('Momenty')
     }
   })
 
-  it('every phase brings one new practice; Momenty stay', () => {
-    const second = Array.from({ length: 8 }, (_, phase) => practiceTiles(phase, phase)[1]!.def.slug)
-    expect(new Set(second).size).toBe(8)
-    expect(second).toEqual(['paced-breathing', 'safe-place-return', 'response-rehearsal', 'self-compassion-break', 'critic-handover', 'shame-writing', 'positive-data-log', 'step-toward-people'])
-    for (const tile of Array.from({ length: 8 }, (_, phase) => practiceTiles(phase, phase)).flat()) expect(tile.def.title.length, tile.def.slug).toBeGreaterThan(3)
+  it('every phase brings one new practice, with a name and an icon', () => {
+    expect(phasePracticeDefs.map(p => p.slug)).toEqual(['paced-breathing', 'safe-place-return', 'response-rehearsal', 'self-compassion-break', 'critic-handover', 'shame-writing', 'positive-data-log', 'step-toward-people'])
+    for (const def of phasePracticeDefs) expect(def.title.length, def.slug).toBeGreaterThan(3)
   })
 
-  it('practice tiles: in rhythm now, on demand once handed over, not yet for a later phase', () => {
-    expect(practiceTiles(3, 3).map(t => [t.def.title, t.rhythm, t.state])).toEqual([
-      ['Momenty', 'co 2 dni', 'now'],
-      ['Przerwa na współczucie', 'co 2 dni', 'now'],
-    ])
-    expect(practiceTiles(1, 3).map(t => [t.def.slug, t.rhythm, t.state])).toEqual([
-      ['moment-shame', 'co 2 dni', 'now'],
-      ['safe-place-return', 'na żądanie', 'demand'],
-    ])
-    expect(practiceTiles(5, 3).map(t => t.state)).toEqual(['later', 'later'])
-    expect(practiceTiles(RETURN_WEEK, RETURN_WEEK).map(t => [t.def.slug, t.state])).toEqual([
-      ['moment-shame', 'demand'],
-      ['self-compassion-break', 'now'],
-    ])
+  // The table of docs/problem-focused-paths.md P12, counted in steps done (= the current step index).
+  it('practice windows follow the shipped rule', () => {
+    const open = (phase: number) => Array.from({ length: MAIN_STEPS }, (_, done) => done).filter(done => phasePracticeState(phase, done) === 'now')
+    expect(open(0)).toEqual([0, 1, 2, 3, 4]) // steps 1–5
+    expect(open(1)).toEqual([5, 6, 7]) // steps 6–8
+    expect(open(2)).toEqual([8, 9]) // steps 9–10
+    expect(open(3)).toEqual([10, 11, 12]) // steps 11–13
+    expect(open(7)).toEqual([21, 22, 23]) // steps 22–24
+    // Exactly one phase practice runs at any step of the main run; none once the path is closed.
+    for (let done = 0; done < MAIN_STEPS; done += 1) expect(phasePracticeDefs.filter((_, phase) => phasePracticeState(phase, done) === 'now'), String(done)).toHaveLength(1)
+    expect(runningPhasePractice(MAIN_STEPS)).toBe(-1)
+    // Momenty: after the map (three steps done) to the close.
+    expect([0, 2, 3, 23, 24].map(momentsState)).toEqual(['later', 'later', 'now', 'now', 'demand'])
   })
 
-  it('the lower card is the growing collection: what the path handed over and no longer asks for', () => {
+  it('first day: the breath runs from the enrollment, Momenty are not handed over yet', () => {
+    expect(practiceTiles(0, 0).map(t => [t.def.slug, t.state])).toEqual([
+      ['moment-shame', 'later'],
+      ['paced-breathing', 'now'],
+    ])
     expect(onDemandPractices(0)).toEqual([])
-    expect(onDemandPractices(3).map(p => p.slug)).toEqual(['paced-breathing', 'safe-place-return', 'response-rehearsal'])
-    expect(onDemandPractices(RETURN_WEEK)).toHaveLength(7)
+  })
+
+  it('at the start of a phase the field shows the practice still running, not the phase’s own', () => {
+    // Seven steps done: phase 3 is current, its first step is ahead — "Wracam do miejsca" keeps running.
+    expect(practiceTiles(2, 7).map(t => [t.def.slug, t.state])).toEqual([
+      ['moment-shame', 'now'],
+      ['safe-place-return', 'now'],
+    ])
+    // After that first step the phase's own practice takes over and the earlier one joins the collection.
+    expect(practiceTiles(2, 8).map(t => [t.def.slug, t.state])).toEqual([
+      ['moment-shame', 'now'],
+      ['response-rehearsal', 'now'],
+    ])
+    expect(onDemandPractices(7).map(p => p.slug)).toEqual(['paced-breathing'])
+    expect(onDemandPractices(8).map(p => p.slug)).toEqual(['paced-breathing', 'safe-place-return'])
+  })
+
+  it('looking into other phases shows their own practice in its real state', () => {
+    expect(practiceTiles(3, 10).map(t => [t.def.title, t.state])).toEqual([
+      ['Momenty', 'now'],
+      ['Przerwa na współczucie', 'now'],
+    ])
+    expect(practiceTiles(1, 10).map(t => [t.def.slug, t.state])).toEqual([
+      ['moment-shame', 'now'],
+      ['safe-place-return', 'demand'],
+    ])
+    expect(practiceTiles(5, 10).map(t => [t.def.slug, t.state])).toEqual([
+      ['moment-shame', 'now'],
+      ['shame-writing', 'later'],
+    ])
+    expect(practiceTiles(RETURN_WEEK, 10).map(t => [t.def.slug, t.state])).toEqual([
+      ['moment-shame', 'now'],
+      ['maintenance-plan', 'later'],
+    ])
+  })
+
+  it('a closed path asks for nothing: everything is on demand, Powrót holds the maintenance plan', () => {
+    expect(practiceTiles(RETURN_WEEK, MAIN_STEPS).map(t => [t.def.slug, t.state])).toEqual([
+      ['moment-shame', 'demand'],
+      ['maintenance-plan', 'now'],
+    ])
+    expect(practiceTiles(7, MAIN_STEPS)[1]).toEqual({ def: phasePracticeDefs[7], state: 'demand' })
+    expect(onDemandPractices(MAIN_STEPS).map(p => p.slug)).toEqual(['moment-shame', ...phasePracticeDefs.map(p => p.slug)])
   })
 
   it('scene states stay inside the main run', () => {

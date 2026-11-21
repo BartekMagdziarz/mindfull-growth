@@ -12,6 +12,7 @@ import {
   phaseSteps,
   phaseTitle,
   phaseWhy,
+  practiceStateWord,
   practiceTiles,
   RETURN_ON,
   RETURN_WEEK,
@@ -116,10 +117,10 @@ const openSteps = computed(() =>
     return { step, state, icon: stepIcon(step), word: stepStateWord[state], name: withSoftHyphens(shortTitle(step)) }
   })
 )
-const tiles = computed(() => practiceTiles(open.value, currentPhase.value))
+const tiles = computed(() => practiceTiles(open.value, done.value))
 
 /* Lower row */
-const onDemand = computed(() => onDemandPractices(currentPhase.value))
+const onDemand = computed(() => onDemandPractices(done.value))
 const dataSample = computed<Sample>(() => (done.value === 0 ? 'start' : closed.value ? 'completed' : 'mid'))
 const stats = computed(() => statsFor(dataSample.value))
 const hasMoments = computed(() => stats.value.some(week => week.total > 0))
@@ -299,11 +300,11 @@ function simulate(what: string) {
                 <component
                   :is="tile.state === 'later' ? 'div' : 'button'"
                   v-for="tile in tiles"
-                  :key="tile.key"
+                  :key="tile.def.slug"
                   :type="tile.state === 'later' ? undefined : 'button'"
                   class="ptile"
                   :class="`ptile--${tile.state}`"
-                  :aria-label="tile.state === 'later' ? undefined : `${tile.def.action}: ${tile.def.title}, ${tile.rhythm}`"
+                  :aria-label="tile.state === 'later' ? undefined : `${tile.def.action}: ${tile.def.title}, ${practiceStateWord[tile.state]}`"
                   @click="tile.state !== 'later' && simulate(`${tile.def.action}: ${tile.def.title}`)"
                 >
                   <span class="mg-v2-icon-board ptile__icon"><AppIcon :name="tile.def.icon" /></span>
@@ -317,16 +318,12 @@ function simulate(what: string) {
         <div class="pv__lower">
           <div class="pv__col">
             <!-- What the path handed over earlier and does not ask for right now -->
-            <section v-if="onDemand.length || closed" class="mg-v2-surface mg-v2-surface--raised-sm card" :aria-label="closed ? 'Zostaje z Tobą' : 'Na żądanie'">
+            <section v-if="onDemand.length" class="mg-v2-surface mg-v2-surface--raised-sm card" :aria-label="closed ? 'Zostaje z Tobą' : 'Na żądanie'">
               <header class="card__head"><span class="card__eyebrow">{{ closed ? 'Zostaje z Tobą' : 'Na żądanie' }}</span></header>
               <div class="od">
                 <button v-for="def in onDemand" :key="def.slug" type="button" class="ptile ptile--tool" :aria-label="`${def.action}: ${def.title}`" @click="simulate(`${def.action}: ${def.title}`)">
                   <span class="mg-v2-icon-board ptile__icon"><AppIcon :name="def.icon" /></span>
                   <strong class="ptile__name">{{ def.title }}</strong>
-                </button>
-                <button v-if="closed" type="button" class="ptile ptile--tool" @click="simulate('Plan podtrzymania')">
-                  <span class="mg-v2-icon-board ptile__icon"><AppIcon name="mg-exercise-maintenance-plan" /></span>
-                  <strong class="ptile__name">Plan podtrzymania</strong>
                 </button>
               </div>
             </section>

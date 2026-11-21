@@ -159,8 +159,9 @@ export function threadAxis(currentPhase: number, closed: boolean) {
   return { left, width, solidTo: last, reachedTo: reached, solid: ((last - left) / width) * 100, reached: ((reached - left) / width) * 100 }
 }
 
-/* ── Practices: two per phase, never more. Decision 2026-11-21 (user): Momenty stay through the
-   whole path and every phase brings ONE new practice (plan v2 of 2026-11-17; names from the catalog). ── */
+/* ── Practices: Momenty through the whole path and ONE new practice per phase (user, 2026-11-21).
+   The states mirror the shipped rule (`practiceStepWindow` / `isPracticeWindowOpen` in
+   src/domain/program.ts, docs P12) — the path decides by steps done, not by the open phase. ── */
 
 export interface PracticeDef {
   slug: string
@@ -172,48 +173,75 @@ export interface PracticeDef {
 const cardTitles = plExercises.cards as Record<string, { title: string }>
 const practice = (slug: string, card: string, action = 'Otwórz'): PracticeDef => ({ slug, title: cardTitles[card]?.title ?? slug, icon: `mg-exercise-${slug}`, action })
 
-export const practiceDefs: Record<string, PracticeDef> = {
-  moments: { slug: 'moment-shame', title: 'Momenty', icon: 'mg-exercise-shame-log', action: 'Zapisz' },
-  breath: practice('paced-breathing', 'pacedBreathing'),
-  place: practice('safe-place-return', 'safePlaceReturn'),
-  rehearsal: practice('response-rehearsal', 'responseRehearsal'),
-  pause: practice('self-compassion-break', 'selfCompassionBreak'),
-  handover: practice('critic-handover', 'criticHandover'),
-  writing: practice('shame-writing', 'shameWriting'),
-  evidence: practice('positive-data-log', 'positiveDataLog', 'Dopisz'),
-  people: practice('step-toward-people', 'stepTowardPeople'),
-}
+export const momentsDef: PracticeDef = { slug: 'moment-shame', title: 'Momenty', icon: 'mg-exercise-shame-log', action: 'Zapisz' }
+/** The user's own rhythm after the close: the second tile of Powrót. */
+export const maintenanceDef: PracticeDef = { slug: 'maintenance-plan', title: 'Plan podtrzymania', icon: 'mg-exercise-maintenance-plan', action: 'Otwórz' }
+/** The new practice of each phase 1–8, in catalog order (`shame-compassion.practices`, `phaseKey` w1…w8). */
+export const phasePracticeDefs: PracticeDef[] = [
+  practice('paced-breathing', 'pacedBreathing'),
+  practice('safe-place-return', 'safePlaceReturn'),
+  practice('response-rehearsal', 'responseRehearsal'),
+  practice('self-compassion-break', 'selfCompassionBreak'),
+  practice('critic-handover', 'criticHandover'),
+  practice('shame-writing', 'shameWriting'),
+  practice('positive-data-log', 'positiveDataLog', 'Dopisz'),
+  practice('step-toward-people', 'stepTowardPeople'),
+]
 
-const ON_DEMAND = 'na żądanie'
-/** The new practice of each phase (1–8); on the return the path asks again for the compassion break. Rhythms are illustrative (plan D2 is open). */
-const second: [string, string][] = [['breath', 'codziennie'], ['place', 'co 2 dni'], ['rehearsal', 'co 2 dni'], ['pause', 'co 2 dni'], ['handover', 'co 2 dni'], ['writing', 'co 2 dni'], ['evidence', 'co 2 dni'], ['people', 'co 2 dni'], ['pause', 'co 3 dni']]
-/** Momenty stay first through the whole path; on the return they are on demand. */
-export const phasePractices: [string, string][][] = second.map((item, phase) => [['moments', phase === RETURN_WEEK ? ON_DEMAND : 'co 2 dni'], item])
-
-/** now = the path asks for it in its rhythm · demand = handed over earlier, no longer asked for · later = the phase is still ahead. */
+/** now = the path puts it into the day plan · demand = handed over, no longer asked for · later = not handed over yet. */
 export type PracticeTileState = 'now' | 'demand' | 'later'
+export const practiceStateWord: Record<PracticeTileState, string> = { now: 'w rytmie', demand: 'na żądanie', later: 'jeszcze nie' }
 export interface PracticeTile {
-  key: string
   def: PracticeDef
-  rhythm: string
   state: PracticeTileState
 }
 
-export function practiceTiles(open: number, currentPhase: number): PracticeTile[] {
-  const now = new Map(phasePractices[currentPhase]!)
-  const ahead = open > currentPhase
-  return phasePractices[open]!.map(([key, rhythm]) => {
-    const shown = ahead ? rhythm : (now.get(key) ?? ON_DEMAND)
-    return { key, def: practiceDefs[key]!, rhythm: shown, state: ahead ? 'later' : shown === ON_DEMAND ? 'demand' : 'now' }
-  })
+/** Momenty start after the shame map (catalog `startsAfterStep: 2`: the current step index must be beyond 2). */
+export const MOMENTS_AFTER_STEP = 2
+const phaseStart = (phase: number) => phaseSteps(phase)[0]!.index
+
+/** Momenty: not yet → in rhythm from the fourth step on → on demand once the path is closed. */
+export function momentsState(done: number): PracticeTileState {
+  if (done >= MAIN_STEPS) return 'demand'
+  return done > MOMENTS_AFTER_STEP ? 'now' : 'later'
 }
 
-/** Lower card: what the path has already handed over and does not ask for right now (so nothing shows twice). */
-export function onDemandPractices(currentPhase: number): PracticeDef[] {
-  const now = new Set(phasePractices[currentPhase]!.map(([key]) => key))
-  const handed: string[] = []
-  phasePractices.slice(0, currentPhase + 1).forEach(list => list.forEach(([key]) => !handed.includes(key) && handed.push(key)))
-  return handed.filter(key => !now.has(key)).map(key => practiceDefs[key]!)
+/**
+ * A phase practice opens once ITS phase's first step is done and closes once the NEXT phase's first
+ * step is done; the first phase's practice runs from the enrollment. So while the first step of
+ * phase n is still ahead, the practice of phase n − 1 keeps running. A closed path asks for nothing.
+ */
+export function phasePracticeState(phase: number, done: number): PracticeTileState {
+  if (done >= MAIN_STEPS) return 'demand'
+  if (phase > 0 && done <= phaseStart(phase)) return 'later'
+  return done > phaseStart(phase + 1) ? 'demand' : 'now'
+}
+
+/** The phase practice the path is asking for right now (none once closed). */
+export function runningPhasePractice(done: number): number {
+  return phasePracticeDefs.findIndex((_, phase) => phasePracticeState(phase, done) === 'now')
+}
+
+/**
+ * The two tiles of the "Praktyki" field. Momenty are always first, in their real state. The second
+ * tile is the open phase's own practice — except in the CURRENT phase before its first step, where
+ * the field shows what the path asks for now: the previous phase's practice, still running.
+ * Powrót has no practice of its own; its second tile is the maintenance plan.
+ */
+export function practiceTiles(open: number, done: number): PracticeTile[] {
+  const moments: PracticeTile = { def: momentsDef, state: momentsState(done) }
+  if (open === RETURN_WEEK) return [moments, { def: maintenanceDef, state: done >= MAIN_STEPS ? 'now' : 'later' }]
+  const own = phasePracticeState(open, done)
+  const running = runningPhasePractice(done)
+  const isCurrent = done < MAIN_STEPS && flatSteps[done]!.week === open
+  if (isCurrent && own === 'later' && running >= 0) return [moments, { def: phasePracticeDefs[running]!, state: 'now' }]
+  return [moments, { def: phasePracticeDefs[open]!, state: own }]
+}
+
+/** The collection ("Na żądanie" / "Zostaje z Tobą"): every practice handed over and not asked for now, in catalog order. */
+export function onDemandPractices(done: number): PracticeDef[] {
+  const list = phasePracticeDefs.filter((_, phase) => phasePracticeState(phase, done) === 'demand')
+  return momentsState(done) === 'demand' ? [momentsDef, ...list] : list
 }
 
 export { flatSteps, MAIN_STEPS, RETURN_WEEK }
