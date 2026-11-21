@@ -152,6 +152,7 @@ export const navGroups: LabNavGroup[] = [
     label: 'Ścieżki',
     items: [
       { id: 'path-week-reflection', label: 'Krok „Ścieżka” w refleksji tygodnia', kicker: 'Wdrożone 11.10.2026 · zadanie liczy zadanie, dopisz moment (≤2), jedna kolumna z trzema sekcjami · runda 3b', icon: 'route', path: '/concepts/path-week-reflection', kind: 'concept' },
+      { id: 'path-view-v4', label: 'Widok ścieżki · runda 8e', kicker: 'Propozycja · nić stacji, kafle kroków ze studnią i ikoną, rozwinięty krok = ten sam kafel + zdanie, „Rozpocznij” wyrasta ze studni', icon: 'route', path: '/concepts/path-view-v4', kind: 'concept' },
       { id: 'path-view-v3', label: 'Widok ścieżki · runda 7', kicker: 'Propozycja · fazy poziomo na całą szerokość, otwarta faza rozlana w pole, opis tylko bieżącego kroku, praktyki jako dyski', icon: 'route', path: '/concepts/path-view-v3', kind: 'concept' },
       { id: 'path-view-v2', label: 'Widok ścieżki · runda 6', kicker: 'Propozycja · numer po lewej, dysk po prawej, kafle kroków, „co i po co”, reset', icon: 'route', path: '/concepts/path-view-v2', kind: 'concept' },
       { id: 'shame-path', label: 'Ze wstydu do współczucia', kicker: 'P2 · runda 5 · WDROŻONE do produktu 05.10.2026 (ProgramDetailView, refleksja, Dzisiaj)', icon: 'route', path: '/concepts/shame-path', kind: 'concept' },

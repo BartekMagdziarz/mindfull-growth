@@ -21,6 +21,7 @@ const TodayTilesScenario = () => import('~lab/scenarios/TodayTilesScenario.vue')
 const ShamePathScenario = () => import('~lab/scenarios/ShamePathScenario.vue')
 const PathViewV2Scenario = () => import('~lab/scenarios/PathViewV2Scenario.vue')
 const PathViewV3Scenario = () => import('~lab/scenarios/PathViewV3Scenario.vue')
+const PathViewV4Scenario = () => import('~lab/scenarios/PathViewV4Scenario.vue')
 const PathWeekReflectionScenario = () => import('~lab/scenarios/PathWeekReflectionScenario.vue')
 const WorkbenchScenario = () => import('~lab/scenarios/WorkbenchScenario.vue')
 const ReplicaPreviewScenario = () => import('~lab/scenarios/ReplicaPreviewScenario.vue')
@@ -49,6 +50,8 @@ export default createRouter({
     { path: '/preview/path-view-v2', component: PathViewV2Scenario, meta: { scenarioId: 'path-view-v2', standalone: true } },
     { path: '/concepts/path-view-v3', component: PathViewV3Scenario, meta: { scenarioId: 'path-view-v3' } },
     { path: '/preview/path-view-v3', component: PathViewV3Scenario, meta: { scenarioId: 'path-view-v3', standalone: true } },
+    { path: '/concepts/path-view-v4', component: PathViewV4Scenario, meta: { scenarioId: 'path-view-v4' } },
+    { path: '/preview/path-view-v4', component: PathViewV4Scenario, meta: { scenarioId: 'path-view-v4', standalone: true } },
     { path: '/concepts/path-week-reflection', component: PathWeekReflectionScenario, meta: { scenarioId: 'path-week-reflection' } },
     { path: '/preview/path-week-reflection', component: PathWeekReflectionScenario, meta: { scenarioId: 'path-week-reflection', standalone: true } },
     { path: '/research', component: ResearchScenario, meta: { scenarioId: 'research' } },
