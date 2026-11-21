@@ -5,7 +5,7 @@
       :title="title"
       :description="subtitle"
       :icon="icon"
-      :back-to="backTo"
+      :back-to="backTo ?? '/exercises'"
     >
       <template v-if="$slots.meta" #meta><slot name="meta" /></template>
       <template v-if="$slots.actions" #actions><slot name="actions" /></template>
@@ -36,7 +36,11 @@ withDefaults(
     backTo?: RouteLocationRaw | (() => void)
     width?: PageContainerWidth
   }>(),
-  { subtitle: '', eyebrow: '', icon: '', backTo: () => '/exercises', width: 'reading' }
+  // No default for `backTo`: it accepts a handler, so Vue compiles it as a
+  // Function prop and would pass a function default through as the value
+  // (`() => '/exercises'` was called on click and navigated nowhere). The
+  // catalog route is filled in in the template instead.
+  { subtitle: '', eyebrow: '', icon: '', backTo: undefined, width: 'reading' }
 )
 
 const { t } = useT()
