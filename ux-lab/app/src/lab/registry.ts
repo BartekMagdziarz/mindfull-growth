@@ -195,6 +195,7 @@ export const navGroups: LabNavGroup[] = [
     id: 'reflection-concepts',
     label: 'Refleksja',
     items: [
+      { id: 'area-rating-step', label: 'Krok obszaru: obciążenie i stan', kicker: 'Propozycja · runda 3: znak z kalendarza jako duży, żywy element kroku, a kontrolka na samym znaku — uchwyt „Stan” nad kropką, „Obciążenie” pod końcem słupka (strzałki, klik w miejsce skali z podglądem, przeciąganie) · rundy 2 i 1 jako zapis', icon: 'tune', path: '/concepts/area-rating-step', kind: 'concept' },
       { id: 'week-rating-field', label: 'Pole oceny tygodnia', kicker: 'Kafle obszarów (kierunek C), hover C1: kropki pod znakiem · WDROŻONE do produktu 14.11.2026 · runda 2', icon: 'view_week', path: '/concepts/week-rating-field', kind: 'concept' },
       { id: 'load-state-clouds', label: 'Obciążenie i stan jako chmury', kicker: 'Propozycja · tygodnie w wierszach, obszary w kolumnach; słupek = obciążenie, kropka w kolorze słupka = stan; WDROŻONE do produktu 14.11.2026 (kalendarz i refleksje; macierz tydzień × obszar, przejście w słupku dla stanu 3) · runda 8', icon: 'cloud', path: '/concepts/load-state-clouds', kind: 'concept' },
       { id: 'week-load-state', label: 'Obciążenie i stan tygodnia', kicker: 'Eksperyment · jeden kolor na parę ocen', icon: 'blur_circular', path: '/concepts/week-load-state', kind: 'concept' },
