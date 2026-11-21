@@ -8,6 +8,11 @@ export interface UXNote {
 }
 
 export const uxNotesByScenario: Record<string, UXNote[]> = {
+  'value-map-sort': [
+    { id: 1, tone: 'problem', title: 'Karty znikają pod zgięciem', body: 'W obecnym kroku instrukcja ma własną kartę, a pięć grup ma po 420 px minimalnej wysokości. Dopiero pod nimi zaczyna się katalog 94 wartości.' },
+    { id: 2, tone: 'decision', title: 'Kolejka uzupełnia się po ruchu', body: 'Instrukcja i postęp są przy najbliższych kartach. Zmiana układu zachowuje przypisania. Etapy „W trakcie” i „Końcówka” wstawiają nierówno zapełnione grupy do sprawdzenia przenoszenia i przeglądania kart.' },
+    { id: 3, tone: 'decision', title: 'Trzy sposoby dostępu do grup', body: 'Stosy pokazują po kilka kart pod nagłówkami, rzędy mieszczą je obok nazw grup, a cele z podglądem rozdzielają miejsce odkładania kart od przeglądu zawartości. Każda grupa pozwala otworzyć pełną listę.' },
+  ],
   'planning-assistant': [
     { id: 1, tone: 'decision', title: 'Rozmowa i jeden aktualny szkic', body: 'Konsultacja Claude Fable 5.1: koncepcja, następnie pełne wizualne review czterech screenów za zgodą użytkownika. Rozmowa obok jednej kartki szkicu; aktualizujemy tę samą propozycję. Po review: checkboxy produktu z ptaszkiem, ikony w polach, spokojna typografia i przyklejona akcja.' },
     { id: 2, tone: 'decision', title: 'Minimum na powierzchni', body: 'Tytuł, glif i jedna linia targetu. Pomiar, opis i terminy dopiero po rozwinięciu. Bez osobnego pola jednostki — decyzja użytkownika 25.10.2026. Tracker nie ma targetu; intencja tygodniowa go zachowuje.' },

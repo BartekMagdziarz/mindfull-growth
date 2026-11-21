@@ -1,0 +1,306 @@
+.vms-board {
+  container-type: inline-size;
+  color: var(--mg-color-ink);
+  display: grid;
+  gap: 12px;
+}
+
+.vms-queue {
+  padding: 15px 17px 9px;
+  background: var(--mg-color-mist);
+  border: 1px solid var(--mg-color-paper);
+  border-radius: var(--mg-radius-lg);
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+
+.vms-queue-head, .vms-inspector-head, .vms-queue-foot, .vms-selection {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.vms-queue-head, .vms-inspector-head {
+  justify-content: space-between;
+}
+
+.vms-queue-head h2, .vms-inspector-head h3 {
+  font-weight: 750;
+  line-height: 1.2;
+}
+
+.vms-queue-head h2 { font-size: 1rem; }
+.vms-inspector-head h3 { font-size: .875rem; }
+.vms-inspector-head h3 span { color: var(--mg-color-muted); font-weight: 600; }
+
+.vms-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  font-size: .75rem;
+  color: var(--mg-color-muted);
+  font-variant-numeric: tabular-nums;
+}
+.vms-progress progress {
+  appearance: none;
+  display: block;
+  width: 64px;
+  height: 5px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--mg-color-sky-field);
+  overflow: hidden;
+}
+.vms-progress progress::-webkit-progress-bar { background: var(--mg-color-sky-field); }
+.vms-progress progress::-webkit-progress-value { background: var(--mg-color-primary-strong); }
+.vms-progress progress::-moz-progress-bar { background: var(--mg-color-primary-strong); }
+
+.vms-hint, .vms-empty-queue, .vms-empty-group {
+  color: var(--mg-color-muted);
+  font-size: .8125rem;
+  line-height: 1.35;
+}
+.vms-hint { margin: 5px 0 10px; }
+.vms-empty-queue { padding: 6px 0; }
+
+.vms-queue-cards {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 7px;
+  align-items: stretch;
+}
+
+.vms-board .vms-value {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  min-height: 34px;
+  padding: 5px 9px;
+  border: 1px solid var(--mg-color-field-border);
+  border-radius: var(--mg-radius-md);
+  background: var(--mg-color-paper);
+  color: var(--mg-color-ink);
+  font-size: .8125rem;
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: grab;
+}
+
+.vms-board .vms-value:hover { border-color: var(--mg-color-focus); }
+.vms-board .vms-value[aria-pressed="true"] {
+  border-color: var(--mg-color-focus);
+  background: var(--mg-color-sky-field);
+}
+.vms-board .vms-queue-cards .vms-value {
+  min-height: 44px;
+  font-size: .875rem;
+}
+
+.vms-grip { color: var(--mg-color-muted); font-size: 1rem; flex: none; }
+.vms-queue-foot {
+  justify-content: space-between;
+  color: var(--mg-color-muted);
+  font-size: .75rem;
+  min-height: 30px;
+  padding-top: 2px;
+}
+.vms-queue-foot .vms-text-action { margin-inline-start: auto; }
+
+.vms-text-action {
+  padding: 3px 5px;
+  min-height: 26px;
+  color: var(--mg-color-primary-strong);
+  font-size: .75rem;
+  font-weight: 750;
+}
+.vms-text-action:hover { text-decoration: underline; }
+.vms-selection {
+  margin: 5px 0 10px;
+  font-size: .8125rem;
+  line-height: 1.3;
+}
+.vms-selection > div { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.vms-selection p { color: var(--mg-color-muted); }
+.vms-selection button { flex-shrink: 0; }
+
+.vms-custom {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-bottom: 7px;
+}
+.vms-custom input {
+  flex: 1;
+  max-width: 300px;
+  min-width: 0;
+  padding: 6px 10px;
+  border: 1px solid var(--mg-color-field-border);
+  border-radius: var(--mg-radius-sm);
+  background: var(--mg-color-paper);
+  font-size: .875rem;
+}
+
+.vms-workspace { display: grid; gap: 8px; }
+.vms-groups { display: grid; gap: 7px; align-items: start; }
+.vms-group {
+  min-width: 0;
+  border: 1px solid var(--mg-color-field-border);
+  border-radius: var(--mg-radius-md);
+  background: var(--mg-color-mist);
+}
+.vms-group--empty {
+  background: rgb(var(--sky-100) / .54);
+  border-style: dashed;
+}
+.vms-group--open {
+  background: var(--mg-color-mist);
+  border-style: solid;
+  border-color: var(--mg-color-focus);
+}
+.vms-board--choosing .vms-group-button:hover {
+  background: var(--mg-color-sky-field);
+}
+.vms-board .vms-drop {
+  border-color: var(--mg-color-focus);
+  border-style: solid;
+  background: var(--mg-color-sky-field);
+  box-shadow: inset 0 0 0 1px var(--mg-color-focus);
+}
+
+.vms-group-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  min-width: 0;
+  width: 100%;
+  min-height: 44px;
+  padding: 4px 9px;
+  border-radius: var(--mg-radius-md);
+  color: var(--mg-color-ink);
+  font-size: .875rem;
+  line-height: 1.12;
+  text-align: left;
+}
+.vms-group-button:hover { background: rgb(255 255 255 / .34); }
+.vms-group-button strong { font-weight: 800; }
+.vms-group-button span {
+  flex: none;
+  display: grid;
+  place-items: center;
+  min-width: 1.45rem;
+  min-height: 1.4rem;
+  border-radius: 12px;
+  background: var(--mg-color-paper);
+  color: var(--mg-color-muted);
+  font-size: .75rem;
+  font-variant-numeric: tabular-nums;
+}
+.vms-group-preview {
+  display: flex;
+  gap: 4px;
+  min-width: 0;
+}
+.vms-more {
+  padding: 4px 7px;
+  align-self: flex-start;
+  min-height: 30px;
+  border-radius: var(--mg-radius-sm);
+  color: var(--mg-color-primary-strong);
+  font-size: .75rem;
+  font-weight: 800;
+}
+.vms-more:hover { background: var(--mg-color-paper); }
+
+.vms-board--a .vms-groups { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.vms-board--a .vms-group-preview { flex-direction: column; padding: 0 6px 6px; }
+
+.vms-board--b .vms-group {
+  display: grid;
+  align-items: center;
+  grid-template-columns: 160px minmax(0, 1fr);
+}
+.vms-board--b .vms-group-preview {
+  flex-wrap: wrap;
+  padding: 4px 5px;
+}
+.vms-board--b .vms-more { align-self: center; }
+
+.vms-board--c .vms-workspace,
+.vms-board--b .vms-workspace--inspecting {
+  grid-template-columns: minmax(0, 215px) minmax(0, 1fr);
+  align-items: start;
+}
+
+.vms-board--b .vms-workspace--inspecting .vms-group { grid-template-columns: minmax(0, 1fr); }
+
+.vms-inspector {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--mg-color-field-border);
+  border-radius: var(--mg-radius-md);
+  background: var(--mg-color-mist);
+}
+.vms-inspector-cards {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  align-items: flex-start;
+  gap: 5px;
+  max-height: 128px;
+  margin-top: 6px;
+  padding: 3px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+:is(.vms-board--b, .vms-board--c) .vms-inspector-cards { max-height: 185px; }
+.vms-empty-group { padding: 5px 0 0; }
+
+.vms-board :is(button, input, [tabindex]):focus-visible {
+  outline: 2px solid var(--mg-color-focus);
+  outline-offset: 1px;
+}
+
+@container (width < 850px) {
+  .vms-queue-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .vms-board--c .vms-workspace,
+  .vms-board--b .vms-workspace--inspecting { grid-template-columns: minmax(0, 175px) minmax(0, 1fr); }
+}
+
+@container (width < 600px) {
+  .vms-board--a .vms-groups, .vms-board--c .vms-groups {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 5px;
+  }
+  :is(.vms-board--a, .vms-board--c) .vms-group { grid-column: span 2; }
+  :is(.vms-board--a, .vms-board--c) .vms-group:nth-child(n+4) { grid-column: span 3; }
+  .vms-board--a .vms-group-preview { padding-inline: 4px; }
+  .vms-board--a .vms-more { padding-block: 0; min-height: 22px; }
+  .vms-board--c .vms-workspace,
+  .vms-board--b .vms-workspace--inspecting { grid-template-columns: minmax(0, 1fr); }
+  :is(.vms-board--b, .vms-board--c) .vms-inspector-cards { max-height: 104px; }
+}
+
+@media (max-height: 700px) and (min-width: 900px) {
+  .vms-queue { padding-block: 10px 4px; }
+  .vms-hint, .vms-selection { margin-bottom: 7px; }
+  .vms-board .vms-queue-cards .vms-value { min-height: 38px; }
+  .vms-group-button { min-height: 37px; }
+  .vms-board--b .vms-group-preview { padding-block: 2px; }
+}
+
+@container (width < 480px) {
+  .vms-queue { padding: 11px 10px 5px; }
+  .vms-queue-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
+  .vms-progress progress { width: 35px; }
+  .vms-group-button { font-size: .75rem; padding-inline: 5px; }
+  .vms-group-button span { min-width: 1.2rem; }
+  .vms-board--b .vms-group { grid-template-columns: minmax(96px, 36%) minmax(0, 1fr); }
+  .vms-board--b .vms-groups { gap: 4px; }
+  .vms-board--b .vms-group-preview { flex-wrap: nowrap; }
+  .vms-board--b .vms-group-preview .vms-value { flex: 0 1 auto; }
+  .vms-inspector-cards { max-height: 103px; }
+}

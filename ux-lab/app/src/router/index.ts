@@ -12,6 +12,7 @@ const WeekLoadStatePlacesScenario = () => import('~lab/scenarios/WeekLoadStatePl
 const LoadStateCloudsScenario = () => import('~lab/scenarios/LoadStateCloudsScenario.vue')
 const WeekRatingFieldScenario = () => import('~lab/scenarios/WeekRatingFieldScenario.vue')
 const AreaRatingStepScenario = () => import('~lab/scenarios/AreaRatingStepScenario.vue')
+const ValueMapSortScenario = () => import('~lab/scenarios/ValueMapSortScenario.vue')
 const LabGuideScenario = () => import('~lab/scenarios/LabGuideScenario.vue')
 const ObjectCardsScenario = () => import('~lab/scenarios/ObjectCardsScenario.vue')
 const ObjectCardFieldsScenario = () => import('~lab/scenarios/ObjectCardFieldsScenario.vue')
@@ -73,6 +74,8 @@ export default createRouter({
     { path: '/preview/week-rating-field', component: WeekRatingFieldScenario, meta: { scenarioId: 'week-rating-field', standalone: true } },
     { path: '/concepts/area-rating-step', component: AreaRatingStepScenario, meta: { scenarioId: 'area-rating-step' } },
     { path: '/preview/area-rating-step', component: AreaRatingStepScenario, meta: { scenarioId: 'area-rating-step', standalone: true } },
+    { path: '/concepts/value-map-sort', component: ValueMapSortScenario, meta: { scenarioId: 'value-map-sort' } },
+    { path: '/preview/value-map-sort', component: ValueMapSortScenario, meta: { scenarioId: 'value-map-sort', standalone: true } },
     { path: '/views/:viewId', component: WorkbenchScenario, meta: { scenarioId: 'workbench' } },
     { path: '/preview/:viewId/:variantId/:presetId', component: ReplicaPreviewScenario, meta: { standalone: true } },
     { path: '/guide', component: LabGuideScenario, meta: { scenarioId: 'guide' } },

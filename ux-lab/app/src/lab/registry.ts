@@ -160,6 +160,13 @@ export const navGroups: LabNavGroup[] = [
     ],
   },
   {
+    id: 'exercise-concepts',
+    label: 'Ćwiczenia',
+    items: [
+      { id: 'value-map-sort', label: 'Mapa wartości · sortowanie', kicker: 'Propozycja · krok 2 · trzy układy do wypróbowania', icon: 'sort', path: '/concepts/value-map-sort', kind: 'concept' },
+    ],
+  },
+  {
     id: 'objects-concepts',
     label: 'Obiekty',
     items: [
