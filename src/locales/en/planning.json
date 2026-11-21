@@ -558,16 +558,9 @@
     "paths": {
       "nextStep": "Next step",
       "overdue": "overdue",
-      "task": "Week task",
-      "taskDays": {
-        "one": "{done} of {n} day",
-        "few": "{done} of {n} days",
-        "many": "{done} of {n} days"
-      },
       "doseHint": "After the dose check, a calmer rhythm is waiting for your decision.",
       "doseSee": "See",
       "ariaStep": "Start: {step}, {when}",
-      "ariaTask": "Week task: {title}, {days}",
       "momentWhen": "any time"
     }
   },

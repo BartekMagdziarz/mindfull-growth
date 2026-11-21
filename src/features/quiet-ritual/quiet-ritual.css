@@ -2390,69 +2390,11 @@
   align-content: start;
 }
 
-/* Program path proposal (weekly real-world task) in the week focus step.
-   Same anatomy as a focus choice: field tone, organic radius, no stripe;
-   the task rows inside come from ProgramTaskChoice (paper when chosen). */
-.qr-path-proposals {
-  display: grid;
-  gap: 12px;
-  margin-bottom: 14px;
-}
-.qr-path-card {
-  display: grid;
-  gap: 12px;
-  padding: 18px;
-  border-radius: var(--mg-radius-md);
-  background: var(--qr-field);
-  border: 1px solid transparent;
-}
-.qr-path-card__head {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 0 2px;
-  color: var(--qr-muted);
-  font-size: var(--mg-font-size-sm);
-  font-weight: 700;
-}
-.qr-path-card__head .material-symbols-outlined,
-.qr-path-card__head svg {
-  color: var(--qr-accent);
-  font-size: var(--mg-font-size-icon-lg);
-}
-.qr-path-card__title {
-  font-size: var(--mg-font-size-md);
-  font-weight: 750;
-  line-height: 1.35;
-  color: var(--qr-ink);
-}
-.qr-path-card__why,
-.qr-path-card__meta {
-  margin: 0;
-  color: var(--qr-muted);
-  font-size: var(--mg-font-size-sm);
-}
-/* Decision row: one filled action at the tile's scale, the rest quiet. */
-.qr-path-card__actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-  padding-left: 2px;
-}
-.qr-path-card__actions .qr-primary {
-  min-height: 38px;
-  padding: 8px 15px;
-  font-size: var(--mg-font-size-sm) !important;
-  border-radius: var(--mg-radius-sm);
-}
-
-/* Weekly reflection "Ścieżka" step: one field-tone block per program; the
-   task line and the text fields sit one step whiter (inner). */
-/* ── Ścieżka step: one reading column, three sections (Lab /concepts/path-week-reflection, 2026-10-11) ──
-   Tones go one way: card → block (field) → section (62 % white) → tile / field (inner). Nothing in the
-   block stretches across the card; the chart has fixed columns, chips and the scale sit next to their
-   question, the only edge element is the task's state disc. */
+/* ── Ścieżka step: one reading column, two sections — the Moments and the week on the path
+   (Lab /concepts/path-week-reflection, 2026-10-11; the task section left on 2026-11-17) ──
+   Tones go one way: card → block (field) → section (62 % white) → field (inner). Nothing in the
+   block stretches across the card; the chart has fixed columns, chips and the scale sit next to
+   their question. */
 .qr-path-step {
   display: grid;
   gap: 16px;
@@ -2510,92 +2452,6 @@
 }
 .qr-path-block__field textarea {
   min-height: 3.9rem;
-}
-
-/* the task tile: title, the state disc at the edge, the counted days on hover / focus */
-.qr-path-task {
-  display: grid;
-  gap: 3px;
-  padding: 10px 12px 11px;
-  border-radius: var(--mg-radius-sm);
-  background: var(--qr-inner);
-  outline: none;
-}
-.qr-path-task:focus-visible {
-  box-shadow: var(--mg-focus-ring);
-}
-.qr-path-task__row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 12px;
-  align-items: start;
-}
-.qr-path-task__title {
-  font-size: var(--mg-font-size-sm);
-  font-weight: 700;
-  line-height: 1.35;
-  color: var(--qr-ink);
-}
-.qr-path-task__disc {
-  --mg-well-size: 2.1rem;
-  background: linear-gradient(
-    to right,
-    color-mix(in srgb, var(--mg-color-primary) 34%, var(--mg-color-paper)) var(--fill, 0%),
-    var(--mg-color-canvas) var(--fill, 0%)
-  );
-  color: var(--mg-color-primary-strong);
-  font-size: var(--mg-font-size-chart);
-  font-weight: 800;
-  line-height: 1;
-}
-.qr-path-task__disc i {
-  font-size: var(--mg-font-size-chart);
-  font-style: normal;
-  font-weight: 700;
-  opacity: 0.75;
-}
-.qr-path-task__disc.mg-well--done {
-  background: var(--mg-color-sky-field);
-}
-.qr-path-task__note {
-  display: none;
-  gap: 1px;
-  margin: 0;
-  font-size: var(--mg-font-size-xs);
-  line-height: 1.45;
-  color: var(--qr-muted);
-}
-.qr-path-task:hover .qr-path-task__note,
-.qr-path-task:focus-within .qr-path-task__note,
-.qr-path-task:focus .qr-path-task__note {
-  display: grid;
-}
-.qr-path-task__note--empty {
-  font-style: italic;
-}
-.qr-path-block .qr-path-stay {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  width: fit-content;
-  min-height: 1.7rem;
-  padding: 2px 10px;
-  border-radius: var(--mg-radius-sm);
-  background: transparent;
-  color: var(--qr-muted);
-  font-size: var(--mg-font-size-xs);
-  font-weight: 700;
-}
-.qr-path-block .qr-path-stay:hover {
-  background: var(--qr-inner);
-  color: var(--qr-ink);
-}
-.qr-path-block .qr-path-stay[aria-pressed='true'] {
-  background: var(--qr-inner);
-  color: var(--qr-accent-strong);
-}
-.qr-path-block .qr-path-stay .material-symbols-outlined {
-  font-size: var(--mg-font-size-icon-sm);
 }
 
 /* a quiet rating in a row: the question in the first column, the scale right after it (never at the far edge), no field tint */

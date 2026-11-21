@@ -47,7 +47,6 @@ import { journalDexieRepository } from '@/repositories/journalDexieRepository'
 import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
 import { lifeAreaDexieRepository } from '@/repositories/lifeAreaDexieRepository'
 import { microExerciseEntryDexieRepository } from '@/repositories/microExerciseEntryDexieRepository'
-import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { priorityDexieRepository } from '@/repositories/priorityDexieRepository'
 import { priorityLinkDexieRepository } from '@/repositories/priorityLinkDexieRepository'
 import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'
@@ -1596,10 +1595,8 @@ export async function seedVerificationData(): Promise<void> {
   // experiment, minGapDays 4) is due TODAY. Practices: worry postponement
   // daily with a history of ten evenings (the "still matters" slider falls)
   // and yesterday's occurrence still pending (overdue by one day); paced
-  // breathing done today, next one in two days. Two closed weeks carry an
-  // accepted real-world task (weekly intention with programLink) and a
-  // weekly-reflection "Ścieżka" answer (severity 4 → 3); the current week
-  // has no decision, so the weekly plan shows a fresh proposal.
+  // breathing done today, next one in two days. Two closed weeks carry a
+  // weekly-reflection "Ścieżka" answer (severity 4 → 3).
   const anxietyStart = addDaysToDayRef(todayRef, -16)
   const anxietyEnrollment = await programEnrollmentDexieRepository.create({
     programSlug: 'anxiety-approach',
@@ -1839,54 +1836,16 @@ export async function seedVerificationData(): Promise<void> {
     })),
   })
 
-  // Two closed weeks with an accepted real-world task + reflection answers.
+  // Two closed weeks with the reflection's "Ścieżka" answers.
   const pathWeeks = [
-    {
-      daysAgo: 14,
-      taskKey: 'noticeAvoidance',
-      title: 'Zauważ sytuacje, w których coś omijasz albo się zabezpieczasz',
-      times: 3,
-      done: [13, 11],
-      severity: '4',
-    },
-    {
-      daysAgo: 7,
-      taskKey: 'predictionCheck',
-      title: 'Zapisz przewidywanie przed trudną sytuacją i sprawdź je po niej',
-      times: 2,
-      done: [6, 4],
-      severity: '3',
-    },
+    { daysAgo: 14, severity: '4', phase: 'Najczęściej unikam telefonów do urzędów.' },
+    { daysAgo: 7, severity: '3', phase: 'Sprawdziły się może w jednej trzeciej.' },
   ] as const
-  const weekLog = []
   for (const week of pathWeeks) {
     const weekRef = getPeriodRefsForDate(
       new Date(`${addDaysToDayRef(todayRef, -week.daysAgo)}T12:00:00`)
     ).week
     if (weekRef === refs.week) continue
-    const intention = await createWeeklyIntention({
-      weekRef,
-      title: week.title,
-      entryMode: 'completion',
-      target: { kind: 'count', operator: 'min', value: week.times },
-      programLink: { enrollmentId: anxietyEnrollment.id, taskKey: week.taskKey },
-    })
-    for (const daysAgo of week.done) {
-      const dayRef = addDaysToDayRef(todayRef, -daysAgo)
-      if (getPeriodRefsForDate(new Date(`${dayRef}T12:00:00`)).week !== weekRef) continue
-      await planningStateDexieRepository.upsertDailyMeasurementEntry({
-        subjectType: 'weeklyIntention',
-        subjectId: intention.id,
-        dayRef,
-        value: null,
-      })
-    }
-    weekLog.push({
-      weekRef,
-      taskKey: week.taskKey,
-      decision: 'accepted' as const,
-      intentionId: intention.id,
-    })
     const reflection = await structuredReflectionDexieRepository.getWeekly(weekRef)
     if (reflection) {
       await structuredReflectionDexieRepository.upsertWeekly({
@@ -1894,19 +1853,11 @@ export async function seedVerificationData(): Promise<void> {
         promptResponses: {
           ...reflection.promptResponses,
           [`program.${anxietyEnrollment.id}.severity`]: week.severity,
-          [`program.${anxietyEnrollment.id}.outcome`]:
-            week.taskKey === 'noticeAvoidance'
-              ? 'Zauważyłem, że odkładam telefony i sprawdzam maile po kilka razy.'
-              : 'Przewidywałem katastrofę na spotkaniu. Było trudno, ale nikt nie zauważył mojego stresu.',
-          [`program.${anxietyEnrollment.id}.phase`]:
-            week.taskKey === 'noticeAvoidance'
-              ? 'Najczęściej unikam telefonów do urzędów.'
-              : 'Sprawdziły się może w jednej trzeciej.',
+          [`program.${anxietyEnrollment.id}.phase`]: week.phase,
         },
       })
     }
   }
-  await programEnrollmentDexieRepository.update(anxietyEnrollment.id, { weekLog })
 
   // An earlier fear ladder with a few attempts, so the attempt log and the
   // "continue the ladder" mode (/exercises/graded-exposure?continue=latest)
@@ -2162,33 +2113,6 @@ export async function seedVerificationData(): Promise<void> {
       ...(index === 0 ? { recordId: angerBaseline.id } : {}),
       ...(index === 3 ? { recordId: pausePlanEntry.id } : {}),
     })),
-  })
-  // This week's accepted task: "recall another thought" 2×; yesterday's Moment (altThought) counts as its first day.
-  const angerIntention = await createWeeklyIntention({
-    weekRef: refs.week,
-    title: 'Przypomnij sobie inną myśl',
-    entryMode: 'completion',
-    target: { kind: 'count', operator: 'min', value: 2 },
-    programLink: { enrollmentId: angerEnrollment.id, taskKey: 'altThought' },
-  })
-  const angerYesterday = addDaysToDayRef(todayRef, -1)
-  if (getPeriodRefsForDate(new Date(`${angerYesterday}T12:00:00`)).week === refs.week) {
-    await planningStateDexieRepository.upsertDailyMeasurementEntry({
-      subjectType: 'weeklyIntention',
-      subjectId: angerIntention.id,
-      dayRef: angerYesterday,
-      value: null,
-    })
-  }
-  await programEnrollmentDexieRepository.update(angerEnrollment.id, {
-    weekLog: [
-      {
-        weekRef: refs.week,
-        taskKey: 'altThought',
-        decision: 'accepted',
-        intentionId: angerIntention.id,
-      },
-    ],
   })
   console.log(
     `[verificationSeed] Created 1 problem-path enrollment (anger-signal v2, step 7/19, ${angerMomentIds.length} moments)`
@@ -2491,34 +2415,6 @@ export async function seedVerificationData(): Promise<void> {
       ...(index === 1 ? { recordId: shameFscrs.id } : {}),
       ...(index === 7 ? { recordId: shameResponseEntry.id } : {}),
     })),
-  })
-  // This week's accepted task: "use your shame response" 3×; the moment
-  // from yesterday counts as its first day.
-  const shameIntention = await createWeeklyIntention({
-    weekRef: refs.week,
-    title: 'Użyj swojej odpowiedzi na wstyd, gdy się pojawi',
-    entryMode: 'completion',
-    target: { kind: 'count', operator: 'min', value: 3 },
-    programLink: { enrollmentId: shameEnrollment.id, taskKey: 'useResponse' },
-  })
-  const yesterday = addDaysToDayRef(todayRef, -1)
-  if (getPeriodRefsForDate(new Date(`${yesterday}T12:00:00`)).week === refs.week) {
-    await planningStateDexieRepository.upsertDailyMeasurementEntry({
-      subjectType: 'weeklyIntention',
-      subjectId: shameIntention.id,
-      dayRef: yesterday,
-      value: null,
-    })
-  }
-  await programEnrollmentDexieRepository.update(shameEnrollment.id, {
-    weekLog: [
-      {
-        weekRef: refs.week,
-        taskKey: 'useResponse',
-        decision: 'accepted',
-        intentionId: shameIntention.id,
-      },
-    ],
   })
   console.log(
     `[verificationSeed] Created 1 problem-path enrollment (shame-compassion v3, step 10/27, ${shameMomentIds.length} moments)`

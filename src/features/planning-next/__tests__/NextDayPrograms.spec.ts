@@ -10,7 +10,6 @@ const push = vi.fn()
 const launch = vi.fn()
 const enrollments = ref<ProgramEnrollment[]>([])
 const entries = ref<MicroExerciseEntry[]>([])
-const weekTaskState = vi.fn()
 
 vi.mock('vue-router', () => ({
   useRouter: () => ({ push }),
@@ -53,9 +52,6 @@ vi.mock('@/features/program-path/useStepLauncher', () => ({
     launch,
     picked: vi.fn(),
   }),
-}))
-vi.mock('@/services/programWeekService', () => ({
-  weekTaskState: (...args: unknown[]) => weekTaskState(...args),
 }))
 
 import { getProgramDefinition } from '@/data/programCatalog'
@@ -111,8 +107,6 @@ describe('NextDayPrograms', () => {
     push.mockReset()
     launch.mockReset()
     entries.value = []
-    weekTaskState.mockReset()
-    weekTaskState.mockResolvedValue({ intention: null, doneCount: 0, doneDays: [] })
   })
 
   it('renders nothing without an active path, and skips paused and closed ones', async () => {
@@ -171,17 +165,7 @@ describe('NextDayPrograms', () => {
     expect(wrapper.find('[data-testid="today-path-moment"]').exists()).toBe(false)
   })
 
-  it('shows the accepted week task as dots with the fraction in the title only, and the rhythm proposal after a heavy dose check', async () => {
-    weekTaskState.mockResolvedValue({
-      intention: {
-        id: 'i1',
-        title: 'Nazwij wstyd w chwili, gdy się pojawia',
-        target: { kind: 'count', operator: 'min', value: 3 },
-      },
-      task: { key: 'useResponse', times: 3 },
-      doneCount: 2,
-      doneDays: [],
-    })
+  it('has no week-task row, and shows the rhythm proposal after a heavy dose check', async () => {
     entries.value = [
       {
         id: 'd1',
@@ -199,14 +183,7 @@ describe('NextDayPrograms', () => {
     const tiles = wrapper.findAll('[data-testid="today-path-tile"]')
     expect(tiles).toHaveLength(2)
 
-    const task = tiles[0].find('[data-testid="today-path-task"]')
-    expect(task.find('.ndpath__task-text .ndpath__text').text()).toBe(
-      'Nazwij wstyd w chwili, gdy się pojawia'
-    )
-    expect(task.findAll('.ndpath__task-dots > i')).toHaveLength(3)
-    expect(task.findAll('.ndpath-dots > i.is-done')).toHaveLength(2)
-    expect(task.attributes('title')).toBe('taskDays:2/3')
-    expect(task.text()).not.toContain('2')
+    expect(tiles[0].find('[data-testid="today-path-task"]').exists()).toBe(false)
 
     expect(tiles[0].find('[data-testid="today-path-dose"]').exists()).toBe(true)
     // Every path field is the link to its path view, with the floating label.

@@ -1,14 +1,14 @@
 <template>
   <!-- "Ścieżki" (2026-10-17, round 6): one block per ACTIVE path, the card's
-       width, a 3-column grid two rows tall. Left, both rows: the path (title,
-       the phase's name, the week/step dots — no numbers; the field opens the
-       path, its label floats in on hover). Top middle + right: two
-       ACTION tiles in the grammar of "Najbliżej" (centred icon field, title, a
-       quiet line; the eyebrow lives in the tooltip) — the next step and
-       "Zapisz moment", both lead into an exercise. Bottom
-       middle + right: the week task — title left, its state as dots right. The
-       dots are the day plan's marks (chart grammar). No fractions in text. The letter and the return live in "Najbliżej";
-       paused paths show nothing here. -->
+       width, three columns in one row. Left: the path (title, the phase's
+       name, the week/step dots — no numbers; the field opens the path, its
+       label floats in on hover). Middle + right: two ACTION tiles in the
+       grammar of "Najbliżej" (centred icon field, title, a quiet line; the
+       eyebrow lives in the tooltip) — the next step and "Zapisz moment", both
+       lead into an exercise. The dots are the day plan's marks (chart
+       grammar). No fractions in text. The letter and the return live in
+       "Najbliżej"; paused paths show nothing here. The week-task row was
+       removed on 2026-11-17. -->
   <DsSurface
     v-if="isToday && rows.length"
     elevation="raised-sm"
@@ -25,7 +25,6 @@
       :class="{
         'ndpath--no-step': !row.step,
         'ndpath--no-moment': !row.moment,
-        'ndpath--no-task': !row.task,
       }"
       :aria-label="row.title"
       data-testid="today-path-tile"
@@ -90,25 +89,6 @@
         <span class="ndpath__when">{{ t('planning.today.paths.momentWhen') }}</span>
       </RouterLink>
 
-      <RouterLink
-        v-if="row.task"
-        :to="detailRoute(row.slug)"
-        class="ndpath__field ndpath__action ndpath__task"
-        :title="row.task.days"
-        :aria-label="
-          t('planning.today.paths.ariaTask', { title: row.task.title, days: row.task.days })
-        "
-        data-testid="today-path-task"
-      >
-        <span class="ndpath__task-text">
-          <span class="ndpath__eyebrow">{{ t('planning.today.paths.task') }}</span>
-          <span class="ndpath__text">{{ row.task.title }}</span>
-        </span>
-        <span class="ndpath-dots ndpath__task-dots" aria-hidden="true">
-          <i v-for="n in row.task.target" :key="n" :class="{ 'is-done': n <= row.task.done }" />
-        </span>
-      </RouterLink>
-
       <p v-if="row.dose" class="ndpath__hint" data-testid="today-path-dose">
         {{ t('planning.today.paths.doseHint') }}
         <RouterLink :to="detailRoute(row.slug)" class="ndt-link">{{
@@ -125,7 +105,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, toRef, watch } from 'vue'
+import { computed, onMounted, toRef } from 'vue'
 import { RouterLink, type RouteLocationRaw } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
@@ -144,12 +124,10 @@ import {
 } from '@/features/program-path/pathModel'
 import { useStepLauncher } from '@/features/program-path/useStepLauncher'
 import { deriveStepStates, isPracticeItem } from '@/services/programSchedulerService'
-import { weekTaskState } from '@/services/programWeekService'
 import { useExercisePlanStore } from '@/stores/exercisePlan.store'
 import { useMicroExerciseEntryStore } from '@/stores/microExerciseEntry.store'
-import { useTodayStore } from '@/stores/today.store'
 import { programStepTitle } from '@/utils/programStepTitle'
-import { addDaysToDayRef, getPeriodRefsForDate } from '@/utils/periods'
+import { addDaysToDayRef } from '@/utils/periods'
 import { useDayWellness } from './useDayWellness'
 
 interface PathRow {
@@ -166,21 +144,13 @@ interface PathRow {
   step?: { title: string; what: string; when: string; launch: () => void }
   /** "Zapisz moment" with the moment variant's title as its eyebrow ("Moment wstydu"). */
   moment?: { route: RouteLocationRaw; eyebrow: string }
-  task?: { title: string; done: number; target: number; days: string }
   dose: boolean
 }
 
-interface TaskState {
-  title: string
-  done: number
-  target: number
-}
-
 const props = defineProps<{ dayRef: DayRef }>()
-const { t, tp, locale } = useT()
+const { t, locale } = useT()
 const planStore = useExercisePlanStore()
 const entryStore = useMicroExerciseEntryStore()
-const todayStore = useTodayStore()
 const launcher = useStepLauncher()
 const { isToday, activeEnrollments, ensureLoaded } = useDayWellness(toRef(props, 'dayRef'))
 
@@ -188,9 +158,6 @@ onMounted(() => {
   void ensureLoaded()
   void entryStore.loadEntries()
 })
-
-/** This week's accepted task per enrollment (null = none), loaded asynchronously. */
-const tasks = reactive<Record<string, TaskState | null>>({})
 
 // Only open paths: the closed ones live in "Najbliżej" (letter, return) and the day plan; paused ones show nothing.
 const openEnrollments = computed(() =>
@@ -211,15 +178,6 @@ function whenLabel(dayRef: DayRef): string {
     day: 'numeric',
     month: 'short',
   })
-}
-
-function taskDays(done: number, target: number): string {
-  return tp(
-    target,
-    'planning.today.paths.taskDays.one',
-    'planning.today.paths.taskDays.few',
-    'planning.today.paths.taskDays.many'
-  ).replace('{done}', String(done))
 }
 
 function buildRow(enrollment: ProgramEnrollment, program: ProgramDefinition): PathRow {
@@ -290,10 +248,6 @@ function buildRow(enrollment: ProgramEnrollment, program: ProgramDefinition): Pa
           : t('programs.ui.logMoment'),
       }
     : undefined
-  const taskState = tasks[enrollment.id]
-  const task = taskState
-    ? { ...taskState, days: taskDays(taskState.done, taskState.target) }
-    : undefined
   const dose = doseProposal(program, enrollment, entryStore.entries) !== null
 
   return {
@@ -306,7 +260,6 @@ function buildRow(enrollment: ProgramEnrollment, program: ProgramDefinition): Pa
     progressLabel,
     ...(step ? { step } : {}),
     ...(moment ? { moment } : {}),
-    ...(task ? { task } : {}),
     dose,
   }
 }
@@ -316,52 +269,5 @@ const rows = computed<PathRow[]>(() =>
     const program = getProgramDefinition(enrollment.programSlug)
     return program ? [buildRow(enrollment, program)] : []
   })
-)
-
-async function loadTask(enrollment: ProgramEnrollment, program: ProgramDefinition): Promise<void> {
-  if (!program.weeklyTasks?.length) {
-    tasks[enrollment.id] = null
-    return
-  }
-  try {
-    const state = await weekTaskState(
-      program,
-      enrollment,
-      getPeriodRefsForDate(new Date(`${props.dayRef}T12:00:00`)).week
-    )
-    tasks[enrollment.id] = state.intention
-      ? {
-          title: state.intention.title,
-          done: state.doneCount,
-          target: state.intention.target.value ?? state.task?.times ?? 1,
-        }
-      : null
-  } catch (err) {
-    console.error('Failed to read the week task:', err)
-    tasks[enrollment.id] = null
-  }
-}
-
-// The task's counted days change with plan checks and with Moments (the bridge),
-// so the state reloads with the enrollments, the Moments and the day bundle.
-watch(
-  () => [
-    openEnrollments.value
-      .map(
-        enrollment =>
-          `${enrollment.id}:${enrollment.currentStepIndex}:${enrollment.weekLog?.length ?? 0}`
-      )
-      .join('|'),
-    entryStore.entries.length,
-    todayStore.bundle,
-    props.dayRef,
-  ],
-  () => {
-    for (const enrollment of openEnrollments.value) {
-      const program = getProgramDefinition(enrollment.programSlug)
-      if (program) void loadTask(enrollment, program)
-    }
-  },
-  { immediate: true }
 )
 </script>

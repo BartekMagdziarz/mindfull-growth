@@ -8,8 +8,12 @@ Original plan and research notes: `ideas/html-plans/2026-09-23-problem-focused-p
 
 Code: `src/data/programCatalog.ts` (definitions), `src/locales/{pl,en}/programs.json`
 (copy: title, description with limits, `phases.<key>.{title,question}`,
-`steps.stepN.intro`, `practices.<slug>.intro`, `tasks.<key>.{title,why}`,
-`reflection.severity`, shared `ui.*` / `week.*`).
+`steps.stepN.intro`, `practices.<slug>.intro`, `reflection.severity`, shared
+`ui.*` / `week.*`).
+
+> **2026-11-17 — the weekly real-world task ("W świecie") is gone** (see P10 at the
+> end). Sections P1–P9 below describe it where it existed; read those passages as
+> history.
 
 ## Shared structure
 
@@ -17,10 +21,12 @@ Code: `src/data/programCatalog.ts` (definitions), `src/locales/{pl,en}/programs.
   last-but-one step; the path view shows "Na początku" / "Na końcu".
 - **Map of the problem** (micro, 5–7 min) → **phases** → **plan podtrzymania**.
 - **Practices** alongside the steps (≤ 2 at once), 3–5 min, daily or every other day.
-- **Weekly real-world task** per phase, proposed in the quiet weekly plan, reviewed in
-  the quiet weekly reflection's "Ścieżka" step (severity 1–5 + phase question).
-- **No knowledge cards** (user decision 2026-09-23): psychoeducation alone is weak
-  (d≈0.36 in the anger meta-analysis); each task carries one "why" sentence only.
+- **Weekly reflection "Ścieżka" step** for paths with `weeklyReflection`: the week's
+  Momenty, severity 1–5 and the phase question. (Until 2026-11-17 a weekly real-world
+  task per phase was proposed in the quiet weekly plan and reviewed here — removed,
+  P10.)
+- **No knowledge cards as steps** (user decision 2026-09-23): psychoeducation alone is
+  weak (d≈0.36 in the anger meta-analysis).
 
 ## Anger — `anger-signal` "Złość jako sygnał" (6 weeks + Powrót, 19 steps, content v2)
 
@@ -45,11 +51,7 @@ and **Powrót** 56 days later (`afterCompletion`). v1 enrollments are re-mapped 
 | 18–19 | anger-barometer (+56 d) · path-return (`kind=anger`) — `afterCompletion` | Powrót |
 
 Practices (never more than two at once): `paced-breathing` every 2 days until the dose
-check; `moment-anger` every 2 days from the map to the letter. Weekly tasks 2–3 per week,
-every one anchored on `moment-anger` with a `countRule` over the anger moves (noticeSigns ·
-noticeCost · pauseInConversation · announceReturn · breathBefore · altThought · factOnly ·
-requestNotReproach · nameNeed · returnToTalk · applySolution · calmRequest · sayNoCalmly ·
-repairRelationship · keepPause). Knowledge cards: angerPause (w2) · angerRumination (w3) ·
+check; `moment-anger` every 2 days from the map to the letter. Knowledge cards: angerPause (w2) · angerRumination (w3) ·
 angerNeed (w4) · angerRepair (w6) · angerSafety (pinned). `scaleLabels.total` =
 "Natężenie złości". "Moje słowa" (`PathSentencesCard` with `kind: 'anger'`) collects the
 requests from "Potrzeba i prośba" and the return promises from the pause plan.
@@ -78,11 +80,7 @@ because both instruments have a `total`).
 
 Practices: `paced-breathing` every 2 days until the worry tree; `worry-postponement` daily from
 the worry tree to the second exposure; `moment-anxiety` every 2 days from the map to the
-activation step (the breath cannot return later — one window per slug). Weekly tasks 2 per
-week: noticeAvoidance · noticeUrge (`part: 'check'`) · postponeWorry (`worry-postponement`) ·
-sortWorry · predictionCheck · uncertainDecisions · firstStep · leaveOneUnknown · exposureLow
-(`graded-exposure`) · stayAMinute · exposureNext · doItAnyway · meaningfulAct · attentionOut ·
-planApproach · keepWorryTime. Knowledge cards: anxietySmallSteps (pinned) · anxietyWorry
+activation step (the breath cannot return later — one window per slug). Knowledge cards: anxietySmallSteps (pinned) · anxietyWorry
 (pinned, w2) · anxietyUncertainty (w3–w4) · anxietyLearning (w5–w6) · anxietySafety (w1, w5).
 GAD-7 ≥ 10 keeps the calm note about professional help.
 
@@ -148,8 +146,7 @@ na innych lub ukryciem, i wracać do kontaktu" + the user's own "Mój znak" (`si
 Practices (never more than two at once): `paced-breathing` daily until step 7;
 `moment-shame` every 2 days steps 4–14; `self-compassion-break` every 2 days from step 7 to
 the close; `shame-writing` every 2 days in week 6; `positive-data-log` (frame `demand`) every
-2 days from step 18 to the close. Weekly tasks 2–3 per week (new: receiveKindness ·
-unblendSay · sayNo · readAloud · defendSelf); the follow-up phase has none.
+2 days from step 18 to the close.
 
 **Momenty v3** (shame branch): five taps first — `compass` (part, incl. `none`), `noticed`
 (during / soon / hours / later), `response` (+ `unblend`, `defend`), `strength` 1–5 — then
@@ -422,3 +419,39 @@ were removed. Seed: a second, closed shame enrollment (close −50 d → Powrót
 written with "za 4 tygodnie" → waiting for 23 days). E2E: the Today and Najbliżej tests in
 `verification-shame-v3.spec.ts`; unit: `NextDayPrograms.spec`, `dayUpcomingQueries.spec`,
 `dayViewModels.spec`, `NextDayUpcoming.spec`.
+
+**P10 (2026-11-17) — the weekly real-world task is removed.** The user never used "W
+świecie": the proposal in the weekly plan's Fokus step, the weekly intention with a
+`programLink`, the task tile in "Praktyki", the task row of the Today "Ścieżki" block and the
+ZADANIE TYGODNIA section of the reflection's "Ścieżka" step. All of it is gone, for the three
+problem paths at once:
+
+- **Catalog and domain**: `ProgramDefinition.weeklyTasks`, `ProgramWeeklyTask`,
+  `TaskCountRule`, `ProgramWeekEntry`, `ProgramEnrollment.weekLog`,
+  `WeeklyIntention.programLink` and `MicroExerciseEntry.programRef` no longer exist in the
+  types. No Dexie version: the fields were never indexed; rows written before simply keep
+  them unread, and an intention accepted from a path stays as a plain weekly intention.
+- **Services**: `programTaskBridgeService` is deleted (a Moment no longer ticks an
+  intention's day; `recordCompletion` and `backfillMoment` lost the hook).
+  `programWeekService` keeps `currentPhase`, the reflection keys (`severity`, `phase`,
+  `unlogged`; `outcome` is no longer written), `unloggedSeries`, `severitySeries` and
+  `loadReflectionPathBlocks`. A block now appears when the selected approach is active, was
+  closed no earlier than that week, or the week's reflection already holds its answers; the
+  phase of a past week comes from the steps completed by its end (`phaseInWeek`).
+- **UI**: `ProgramTaskChoice` is deleted. `QuietWeeklyPlan` has no path proposals.
+  `QuietWeeklyReflection`'s "Ścieżka" block is two sections — MOMENTY and TYDZIEŃ n · faza;
+  the step's question is "Co działo się na ścieżce?". `PathPracticesCard` tiles = practices +
+  Momenty. `NextDayPrograms` is one row: the path field, "Następny krok", "Zapisz moment".
+- **Moment answers stay**: `kindAct`, `gesture`, `stayed`, `thanked` and the other moves
+  remain answers of Momenty — they describe what the user did, with or without a task.
+- **Copy**: `programs.<slug>.tasks.*`, the task keys of `programs.week.*`,
+  `planning.today.paths.{task,taskDays,ariaTask}` removed in both locales.
+- **Seeds and tests**: verification seed `RICH_SCENARIO_VERSION` 12 (no task intentions; the
+  anxiety weeks keep their severity and phase answers); the demo keeps Julia's path-week
+  intentions as plain intentions. E2E specs assert the absence (`path-world`,
+  `today-path-task`, `.qr-path-task`, `.qr-path-card` all count 0).
+
+What replaces the weekly commitment (planned, not built): Momenty as the constant practice
+of every phase, one new practice per phase that joins a growing on-demand collection, and a
+list of Moment moves that grows with the phases — plan
+`ideas/html-plans/2026-11-17-shame-path-phase-practices.html` (version 2).

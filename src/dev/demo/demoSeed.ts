@@ -845,7 +845,6 @@ export async function seedDemoData(): Promise<void> {
         ...(task && intentionId
           ? {
               [`program.${shame.enrollmentId}.severity`]: task.severity,
-              [`program.${shame.enrollmentId}.outcome`]: task.outcome,
               [`program.${shame.enrollmentId}.phase`]: task.phase,
             }
           : {}),
@@ -1462,9 +1461,9 @@ async function seedShamePath(
     source: 'repeat',
   })
 
-  // Weekly real-world tasks, accepted in the planning ritual.
+  // Julia's own weekly intentions along the path (plain intentions — the
+  // path's weekly task feature was removed on 2026-11-17).
   const taskIntentionByWeek = new Map<WeekRef, string>()
-  const weekLog = []
   for (const task of DEMO_SHAME_TASK_WEEKS) {
     const weekRef = ctx.closedWeeks.find(week => ctx.storyIdx.get(week) === task.storyIndex)
     if (!weekRef) continue
@@ -1473,7 +1472,6 @@ async function seedShamePath(
       title: task.title,
       entryMode: task.times > 1 ? 'counter' : 'completion',
       target: { kind: 'count', operator: 'min', value: task.times },
-      programLink: { enrollmentId: enrollment.id, taskKey: task.taskKey },
     })
     for (const offset of [0, 2, 4].slice(0, task.done)) {
       const dayRef = addDaysToDayRef(getPeriodBounds(weekRef).start, offset)
@@ -1485,12 +1483,6 @@ async function seedShamePath(
       })
     }
     taskIntentionByWeek.set(weekRef, intention.id)
-    weekLog.push({
-      weekRef,
-      taskKey: task.taskKey,
-      decision: 'accepted' as const,
-      intentionId: intention.id,
-    })
   }
 
   // Closed path: the "Powrót" follow-up (SCS-SF retest) waits 56 days after the close.
@@ -1510,7 +1502,6 @@ async function seedShamePath(
             },
           ]
     ),
-    weekLog,
     futureLetter: { entryId: letter.id, showAt: addDaysToDayRef(ago(56), 56) },
   })
   await backdate('programEnrollments', enrollment.id, {
@@ -1526,7 +1517,7 @@ async function seedShamePath(
     programStepIndex: 24,
   })
   console.log(
-    `[demoSeed] Shame path completed (${DEMO_SHAME_MOMENTS.length} moments, ${weekLog.length} weekly tasks)`
+    `[demoSeed] Shame path completed (${DEMO_SHAME_MOMENTS.length} moments, ${taskIntentionByWeek.size} path-week intentions)`
   )
   return { enrollmentId: enrollment.id, taskIntentionByWeek }
 }

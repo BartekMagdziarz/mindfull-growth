@@ -99,7 +99,7 @@ exports[`dev seeds produce the same data as before (table digests) > demo seed (
     "rows": 8,
   },
   "programEnrollments": {
-    "digest": "5588217ade5ec80a",
+    "digest": "e4f773ff2b12de21",
     "rows": 2,
   },
   "trackers": {
@@ -119,11 +119,11 @@ exports[`dev seeds produce the same data as before (table digests) > demo seed (
     "rows": 29,
   },
   "weeklyIntentions": {
-    "digest": "fc0a3d55282a866d",
+    "digest": "0fbbd26c72eb7f41",
     "rows": 68,
   },
   "weeklyReflections": {
-    "digest": "701d749a816df63b",
+    "digest": "5e603dde59e0f1fa",
     "rows": 28,
   },
 }
@@ -140,8 +140,8 @@ exports[`dev seeds produce the same data as before (table digests) > verificatio
     "rows": 46,
   },
   "dailyMeasurementEntries": {
-    "digest": "b6c135ecc7bba78f",
-    "rows": 971,
+    "digest": "0785f11319a6811b",
+    "rows": 967,
   },
   "drafts": {
     "digest": "f223ed96513113d4",
@@ -196,12 +196,12 @@ exports[`dev seeds produce the same data as before (table digests) > verificatio
     "rows": 301,
   },
   "measurementMonthStates": {
-    "digest": "e5298761a0be67b3",
-    "rows": 143,
+    "digest": "8a0bf31ef9759ae5",
+    "rows": 138,
   },
   "measurementWeekStates": {
-    "digest": "88a8a641608f04c9",
-    "rows": 351,
+    "digest": "85378a1fb21f5b1d",
+    "rows": 347,
   },
   "microExerciseEntries": {
     "digest": "e29fda2846a82c5d",
@@ -228,7 +228,7 @@ exports[`dev seeds produce the same data as before (table digests) > verificatio
     "rows": 5,
   },
   "programEnrollments": {
-    "digest": "077d84de81628e57",
+    "digest": "9880c0698316d596",
     "rows": 5,
   },
   "trackers": {
@@ -240,11 +240,11 @@ exports[`dev seeds produce the same data as before (table digests) > verificatio
     "rows": 17,
   },
   "weeklyIntentions": {
-    "digest": "ae1b43517cee025d",
-    "rows": 32,
+    "digest": "fc4b2d499032b713",
+    "rows": 28,
   },
   "weeklyReflections": {
-    "digest": "8159d071054a3ce2",
+    "digest": "a62e58ae3b5dad0c",
     "rows": 15,
   },
 }

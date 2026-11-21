@@ -7,7 +7,6 @@ import {
   DEMO_JOURNAL,
   DEMO_MONTH_STORIES,
   DEMO_SHAME_MOMENTS,
-  DEMO_SHAME_TASK_WEEKS,
   DEMO_WEEK_STORIES,
 } from '../demoStory'
 import { DEMO_SHAME_STEP_SLUGS, SHAME_STEP_DAYS, priorityForIntention } from '../demoSeed'
@@ -66,9 +65,7 @@ describe('demo story', () => {
     }
   })
 
-  it('uses real weekly task keys and moment options', () => {
-    const taskKeys = new Set(shame.weeklyTasks!.map(task => task.key))
-    expect(DEMO_SHAME_TASK_WEEKS.filter(task => !taskKeys.has(task.taskKey))).toEqual([])
+  it('uses real moment options', () => {
     for (const moment of DEMO_SHAME_MOMENTS) {
       expect(optionsOf('compass')).toContain(moment.compass)
       expect(optionsOf('noticed')).toContain(moment.noticed)

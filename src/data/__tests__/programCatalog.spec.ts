@@ -239,49 +239,6 @@ describe('program catalog', () => {
     }
   })
 
-  it('weekly tasks: unique keys, real phases, a task in every non-optional phase, copy in both locales', () => {
-    for (const program of PROGRAM_CATALOG) {
-      const tasks = program.weeklyTasks ?? []
-      if (tasks.length === 0 && !program.weeklyReflection) continue
-      const phaseKeys = new Set((program.phases ?? []).map(phase => phase.key))
-      const keys = tasks.map(task => task.key)
-      expect(new Set(keys).size, program.slug).toBe(keys.length)
-      for (const task of tasks) {
-        const label = `${program.slug}: task ${task.key}`
-        expect(phaseKeys.has(task.phaseKey), label).toBe(true)
-        expect(task.times, label).toBeGreaterThanOrEqual(1)
-        if (task.entryMode === 'completion') expect(task.times, label).toBe(1)
-        if (task.linkSlug) expect(getCatalogEntry(task.linkSlug), label).toBeDefined()
-        for (const locale of [enPrograms, plPrograms]) {
-          const node = (
-            locale as unknown as Record<
-              string,
-              { tasks?: Record<string, { title?: unknown; why?: unknown }> }
-            >
-          )[program.slug]
-          expect(node?.tasks?.[task.key]?.title, `${label} title`).toBeTruthy()
-          expect(node?.tasks?.[task.key]?.why, `${label} why`).toBeTruthy()
-        }
-      }
-      // A phase made only of optional steps, or a follow-up phase (no week in a
-      // week-based path), may go without a task.
-      const weekBased = (program.phases ?? []).some(phase => phase.week !== undefined)
-      for (const phase of program.phases ?? []) {
-        const next = (program.phases ?? []).find(other => other.fromStepIndex > phase.fromStepIndex)
-        const phaseSteps = program.steps.slice(
-          phase.fromStepIndex,
-          next?.fromStepIndex ?? program.steps.length
-        )
-        if (phaseSteps.every(step => step.optional)) continue
-        if (weekBased && phase.week === undefined) continue
-        expect(
-          tasks.some(task => task.phaseKey === phase.key),
-          `${program.slug}: no task for ${phase.key}`
-        ).toBe(true)
-      }
-    }
-  })
-
   it('weekly reflection copy: severity question and one question per phase', () => {
     for (const program of PROGRAM_CATALOG.filter(p => p.weeklyReflection)) {
       for (const locale of [enPrograms, plPrograms]) {
@@ -383,10 +340,6 @@ describe('program catalog', () => {
         )
         for (const phase of program.phases ?? [])
           expect(node?.phases?.[phase.key]?.why, `${program.slug} ${phase.key}.why`).toBeTruthy()
-      }
-      for (const task of program.weeklyTasks ?? []) {
-        if (task.linkSlug === `moment-${program.momentKind}`)
-          expect(task.countRule, `${program.slug} ${task.key}`).toBeDefined()
       }
     }
   })

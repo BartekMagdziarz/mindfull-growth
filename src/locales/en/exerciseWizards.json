@@ -2672,7 +2672,7 @@
     "handover": {
       "title": "Taking the wheel (optional)",
       "description": "One sentence to thank this part when it speaks up and let it know you are driving now.",
-      "why": "The critic stands guard because it doesn't trust anyone else to. Thanks relieve it without a fight. This sentence returns in the shame path's weekly task.",
+      "why": "The critic stands guard because it doesn't trust anyone else to. Thanks relieve it without a fight.",
       "placeholder": "Thank you for keeping watch. I'm driving now."
     },
     "checkIn": {

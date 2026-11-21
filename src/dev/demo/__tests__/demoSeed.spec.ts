@@ -59,7 +59,6 @@ describe('demo seed', () => {
     expect(shame.status).toBe('completed')
     expect(shame.currentStepIndex).toBe(24)
     expect(shame.completedSteps).toHaveLength(23)
-    expect(shame.weekLog?.length).toBeGreaterThanOrEqual(10)
     expect(shame.futureLetter?.showAt).toBe('2026-10-17')
     const attempts = await db.assessmentAttempts.toArray()
     const scs = attempts

@@ -42,25 +42,10 @@
       >
         <header class="pp-tile__head">
           <strong class="pp-tile__title">{{ tile.title }}</strong>
-          <span
-            v-if="tile.wells"
-            class="pp-wells pp-tile__mark"
-            :aria-label="
-              t('programs.week.doneOf', { done: tile.wells.done, target: tile.wells.target })
-            "
-          >
-            <i
-              v-for="n in tile.wells.target"
-              :key="n"
-              class="mg-well pp-well pp-well--sm"
-              :class="{ 'mg-well--done': n <= tile.wells.done }"
-            />
-          </span>
         </header>
         <p v-if="tile.what" class="pp-tile__what">{{ tile.what }}</p>
-        <footer v-if="mode === 'active' && (tile.action || tile.change)" class="pp-tile__foot">
+        <footer v-if="mode === 'active' && tile.action" class="pp-tile__foot">
           <button
-            v-if="tile.action"
             type="button"
             class="pp-chip"
             :disabled="busy || tile.disabled"
@@ -68,42 +53,8 @@
           >
             {{ tile.action.label }}
           </button>
-          <button
-            v-if="tile.change"
-            type="button"
-            class="pp-link"
-            :aria-expanded="worldOpen"
-            @click="worldOpen = !worldOpen"
-          >
-            {{ worldOpen ? t('programs.ui.keep') : t('programs.ui.change') }}
-          </button>
         </footer>
       </article>
-    </div>
-
-    <div
-      v-if="worldOpen && options && enrollment.status === 'active'"
-      class="pp-world"
-      data-testid="path-world-choice"
-    >
-      <ProgramTaskChoice
-        v-model="chosenKey"
-        :program="program"
-        :current="options.current"
-        :earlier="options.earlier"
-        :suggested-key="options.suggested.key"
-        :repeat="options.repeat"
-        :disabled="busy || worldBusy"
-        :name="`program-task-path-${enrollment.id}`"
-      />
-      <div class="pp-chips">
-        <button type="button" class="pp-chip" :disabled="busy || worldBusy" @click="accept">
-          {{ t('programs.week.addThisWeek') }}
-        </button>
-        <button type="button" class="pp-chip" :disabled="busy || worldBusy" @click="decline">
-          {{ t('programs.week.decline') }}
-        </button>
-      </div>
     </div>
 
     <div v-if="responseOpen && responseEntry" class="pp-quote" data-testid="path-response">
@@ -133,33 +84,23 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
-import ProgramTaskChoice from '@/components/exercises/ProgramTaskChoice.vue'
 import { useT } from '@/composables/useT'
 import { getCatalogEntry } from '@/data/exerciseCatalog'
 import type { MicroExerciseEntry } from '@/domain/microExercises'
-import type { DayRef, WeekRef } from '@/domain/period'
+import type { DayRef } from '@/domain/period'
 import type { ProgramDefinition, ProgramEnrollment } from '@/domain/program'
 import { derivePracticeStates } from '@/services/programSchedulerService'
-import {
-  acceptWeeklyTask,
-  declineWeeklyTask,
-  proposeWeeklyTaskOptions,
-  weekTaskState,
-  type WeekTaskState,
-} from '@/services/programWeekService'
 import { useExercisePlanStore } from '@/stores/exercisePlan.store'
-import { useProgramEnrollmentStore } from '@/stores/programEnrollment.store'
 import { getPeriodRefsForDate } from '@/utils/periods'
 
 /**
  * "Praktyki" (Lab /concepts/path-view-v2, round 6d–6f): what repeats in
  * the active phase next to the steps, as tiles — the practices (micro
- * exercises on a rhythm), Momenty, and the week's real-world task — one
- * category for the user, however the item came to be. Every action is the
- * same quiet chip right after the content; no notes ("dziś", "2× w
- * tygodniu"), no done well. The task's wells are its state (head, right).
+ * exercises on a rhythm) and Momenty. Every action is the same quiet chip
+ * right after the content; no notes ("dziś", "2× w tygodniu"), no done
+ * well. (The week's real-world task tile was removed on 2026-11-17.)
  * Paused: "Gdy wrócisz", the same tiles without actions. On the return:
  * no tiles, "List od Ciebie" and "Mój plan" as links in the head. The
  * personal plan / map disclosure moved here from the old "Teraz" card.
@@ -173,8 +114,6 @@ interface PracticeTile {
   what: string
   action?: { label: string; run: () => void }
   disabled?: boolean
-  change?: boolean
-  wells?: { done: number; target: number }
 }
 
 const props = defineProps<{
@@ -195,7 +134,6 @@ const emit = defineEmits<{ letterOpened: [] }>()
 const router = useRouter()
 const { t, tg } = useT()
 const planStore = useExercisePlanStore()
-const enrollmentStore = useProgramEnrollmentStore()
 const responseOpen = ref(false)
 const letterOpen = ref(Boolean(props.letterOpen && props.letter))
 // Opening the quote is what "reading" means — once per visit is enough for the marker.
@@ -206,8 +144,6 @@ watch(
   },
   { immediate: true }
 )
-const worldOpen = ref(false)
-const worldBusy = ref(false)
 
 const headLabel = computed(() =>
   props.mode === 'paused'
@@ -305,110 +241,10 @@ const momentTile = computed<PracticeTile | null>(() => {
   }
 })
 
-// ── The week's real-world task ──
-const thisWeek = computed<WeekRef>(() => getPeriodRefsForDate(new Date()).week)
-const hasTasks = computed(() => Boolean(props.program.weeklyTasks?.length))
-const options = computed(() =>
-  hasTasks.value ? proposeWeeklyTaskOptions(props.program, props.enrollment, thisWeek.value) : null
-)
-const state = ref<WeekTaskState | null>(null)
-const chosenKey = ref('')
-watch(
-  options,
-  next => {
-    const known =
-      next && [...next.current, ...next.earlier].some(task => task.key === chosenKey.value)
-    if (!known) chosenKey.value = next?.suggested.key ?? ''
-  },
-  { immediate: true }
-)
-const chosenTask = computed(() =>
-  options.value
-    ? ([...options.value.current, ...options.value.earlier].find(
-        task => task.key === chosenKey.value
-      ) ?? options.value.suggested)
-    : null
-)
-async function load(): Promise<void> {
-  if (!hasTasks.value) return
-  state.value = await weekTaskState(props.program, props.enrollment, thisWeek.value)
-}
-onMounted(() => void load())
-watch(
-  () => [props.enrollment.id, props.enrollment.weekLog],
-  () => void load(),
-  { deep: true }
-)
-
-const taskTitle = (key: string) => tg(`${props.program.i18nKey}.tasks.${key}.title`)
-const taskWhy = (key: string) => tg(`${props.program.i18nKey}.tasks.${key}.why`)
-const worldTile = computed<PracticeTile | null>(() => {
-  if (!hasTasks.value) return null
-  const current = state.value
-  if (current?.intention) {
-    return {
-      key: 'world',
-      testId: 'path-world',
-      title: current.intention.title,
-      what: current.task ? taskWhy(current.task.key) : '',
-      wells: {
-        done: current.doneCount,
-        target: current.intention.target.value ?? current.task?.times ?? 1,
-      },
-    }
-  }
-  if (current?.entry) return null
-  const task = chosenTask.value
-  if (!task) return null
-  return {
-    key: 'world',
-    testId: 'path-world',
-    title: taskTitle(task.key),
-    what: taskWhy(task.key),
-    action: { label: t('programs.week.addThisWeek'), run: () => void accept() },
-    change: true,
-  }
-})
 const tiles = computed<PracticeTile[]>(() => {
   if (props.mode === 'return') return []
-  return [
-    ...practiceTiles.value,
-    ...(momentTile.value ? [momentTile.value] : []),
-    ...(worldTile.value ? [worldTile.value] : []),
-  ]
+  return [...practiceTiles.value, ...(momentTile.value ? [momentTile.value] : [])]
 })
-
-async function accept(): Promise<void> {
-  const task = chosenTask.value
-  if (!task) return
-  worldBusy.value = true
-  try {
-    const { enrollment } = await acceptWeeklyTask({
-      enrollmentId: props.enrollment.id,
-      weekRef: thisWeek.value,
-      taskKey: task.key,
-      title: taskTitle(task.key),
-      times: task.times,
-    })
-    enrollmentStore.applyUpdate(enrollment)
-    worldOpen.value = false
-  } finally {
-    worldBusy.value = false
-  }
-}
-async function decline(): Promise<void> {
-  const task = chosenTask.value
-  if (!task) return
-  worldBusy.value = true
-  try {
-    enrollmentStore.applyUpdate(
-      await declineWeeklyTask(props.enrollment.id, thisWeek.value, task.key)
-    )
-    worldOpen.value = false
-  } finally {
-    worldBusy.value = false
-  }
-}
 </script>
 
 <style scoped>
@@ -418,18 +254,6 @@ async function decline(): Promise<void> {
 }
 .pp-link.is-active {
   text-decoration: underline;
-}
-.pp-world {
-  display: grid;
-  gap: var(--mg-space-2);
-  margin-top: var(--mg-space-3);
-  padding: var(--mg-space-3);
-  border-radius: var(--mg-radius-md);
-  background: var(--mg-color-mist);
-  box-shadow: var(--mg-shadow-nested);
-}
-.pp-world .pp-chips {
-  margin-top: var(--mg-space-1);
 }
 .pp-plan {
   display: grid;

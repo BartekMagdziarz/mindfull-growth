@@ -246,8 +246,9 @@
     </section>
 
     <!-- Ścieżka — one block per program with a weekly reflection (plan §5).
-         Layout: one reading column with three sections — the task, the Moments,
-         this week on the path (Lab /concepts/path-week-reflection, 2026-10-11). -->
+         Layout: one reading column with two sections — the Moments and this week
+         on the path (Lab /concepts/path-week-reflection, 2026-10-11; the week-task
+         section was removed on 2026-11-17). -->
     <section v-else-if="currentStepId === 'path'" class="qr-path-step">
       <article v-for="block in pathBlocks" :key="block.enrollment.id" class="qr-path-block">
         <header class="qr-path-block__head">
@@ -261,78 +262,7 @@
           >
         </header>
 
-        <!-- 1 · the week's task -->
-        <section class="qr-path-sec" :aria-label="t('programs.week.sectionTask')">
-          <small class="qr-path-sec__eyebrow" :title="t('programs.week.sectionTaskHint')">{{
-            t('programs.week.sectionTask')
-          }}</small>
-          <template v-if="block.intention">
-            <div
-              class="qr-path-task"
-              tabindex="0"
-              :aria-label="`${block.intention.title}: ${t('programs.week.doneOf', { done: block.doneCount, target: taskTarget(block) })}`"
-            >
-              <div class="qr-path-task__row">
-                <strong class="qr-path-task__title">{{ block.intention.title }}</strong>
-                <span
-                  class="mg-well qr-path-task__disc"
-                  :class="{ 'mg-well--done': block.doneCount >= taskTarget(block) }"
-                  :style="{
-                    '--fill': `${Math.round((Math.min(block.doneCount, taskTarget(block)) / taskTarget(block)) * 100)}%`,
-                  }"
-                  aria-hidden="true"
-                >
-                  <b v-if="block.doneCount < taskTarget(block)"
-                    >{{ block.doneCount }}<i>/{{ taskTarget(block) }}</i></b
-                  >
-                </span>
-              </div>
-              <p
-                class="qr-path-task__note"
-                :class="{ 'qr-path-task__note--empty': !taskNotes(block).length }"
-              >
-                <template v-if="taskNotes(block).length"
-                  ><span v-for="line in taskNotes(block)" :key="line">{{ line }}</span></template
-                >
-                <template v-else>{{ t('programs.week.noDayYet') }}</template>
-              </p>
-            </div>
-            <label class="qr-path-block__field">
-              <span>{{ tg('programs.week.outcomeQuestion') }}</span>
-              <textarea
-                :value="promptResponses[pathKeys(block).outcome] ?? ''"
-                rows="2"
-                @input="setPathAnswer(pathKeys(block).outcome, $event)"
-              />
-            </label>
-            <button
-              v-if="block.entry && block.task"
-              type="button"
-              class="qr-path-stay"
-              :aria-pressed="Boolean(block.entry.stayNextWeek)"
-              :title="t('programs.week.stayHint')"
-              @click="toggleStay(block, !block.entry.stayNextWeek)"
-            >
-              <AppIcon :name="block.entry.stayNextWeek ? 'check' : 'replay'" />{{
-                t('programs.week.stayShort')
-              }}
-            </button>
-          </template>
-          <template v-else>
-            <p class="qr-path-block__task-muted">
-              {{
-                block.entry
-                  ? t('programs.week.declinedThisWeek')
-                  : t('programs.week.noTaskThisWeek')
-              }}
-            </p>
-            <p v-if="block.entry" class="qr-path-block__task-muted">
-              {{ t('programs.week.declinedNext') }}
-            </p>
-          </template>
-        </section>
-
-        <!-- 2 · the week's Moments (paths that log them) -->
+        <!-- 1 · the week's Moments (paths that log them) -->
         <section
           v-if="familyOf(block)"
           class="qr-path-sec"
@@ -613,7 +543,7 @@
           </template>
         </section>
 
-        <!-- 3 · this week on the path: the phase, how much shame weighed, the phase question -->
+        <!-- 2 · this week on the path: the phase, how much shame weighed, the phase question -->
         <section class="qr-path-sec" :aria-label="weekSectionLabel(block)">
           <small
             class="qr-path-sec__eyebrow"
@@ -875,7 +805,6 @@ import { structuredReflectionDexieRepository } from '@/repositories/structuredRe
 import {
   loadReflectionPathBlocks,
   programReflectionKeys,
-  setStayNextWeek,
   severitySeries,
   type ReflectionPathBlock,
 } from '@/services/programWeekService'
@@ -899,7 +828,6 @@ import {
 import PathPartsChart from '@/features/program-path/PathPartsChart.vue'
 import { partColor } from '@/features/program-path/partColors'
 import { BACKFILL_LIMIT, isBackfilledMoment } from '@/services/momentBackfillService'
-import { taskCountsEntry } from '@/services/programTaskBridgeService'
 import { getPreviousPeriod } from '@/utils/periods'
 import { useMicroExerciseEntryStore } from '@/stores/microExerciseEntry.store'
 import QuietEmotionStack from './QuietEmotionStack.vue'
@@ -1245,9 +1173,6 @@ function pathWeeksTotal(block: ReflectionPathBlock): number {
   const phaseWeeks = (block.program.phases ?? []).map(phase => phase.week ?? 0)
   return Math.max(block.program.estimatedWeeks, ...phaseWeeks)
 }
-function taskTarget(block: ReflectionPathBlock): number {
-  return Math.max(1, block.intention?.target.value ?? block.task?.times ?? 1)
-}
 function weekSectionLabel(block: ReflectionPathBlock): string {
   return block.phase
     ? t('programs.week.sectionWeek', {
@@ -1292,9 +1217,6 @@ function responseLabels(moment: MicroExerciseEntry): string {
     .join(', ')
     .toLowerCase()
 }
-function dayLetter(day: DayRef): string {
-  return new Date(`${day}T12:00:00`).toLocaleDateString(locale.value, { weekday: 'short' })
-}
 const DAY_SHORT: Record<string, string[]> = {
   pl: ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'],
   en: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
@@ -1304,26 +1226,6 @@ function dayShort(day: DayRef): string {
   const letters = DAY_SHORT[locale.value] ?? DAY_SHORT.en!
   return letters[(new Date(`${day}T12:00:00`).getDay() + 6) % 7]!
 }
-/** One line per counted day: the Moment that counted it (part · moves), or "ticked in the day plan". */
-function taskNotes(block: ReflectionPathBlock): string[] {
-  const task = block.task
-  return block.doneDays.map(day => {
-    const moment = task
-      ? weekMoments(block).find(
-          entry => momentDayRef(entry) === day && taskCountsEntry(task, entry)
-        )
-      : undefined
-    if (!moment) return `${dayLetter(day)} · ${t('programs.week.countedDayPlain')}`
-    const moves = momentResponses(moment)
-      .filter(key => key !== 'nothing')
-      .map(key => responseLabel(moment, key))
-      .join(', ')
-      .toLowerCase()
-    const later = isBackfilledMoment(moment) ? ` · ${t('programs.week.backfill.tag')}` : ''
-    return `${dayLetter(day)} · ${partLabel(block, momentPart(moment))}${moves ? ` · ${moves}` : ''}${later}`
-  })
-}
-
 // ── Moments written down later (any path with a reaction family) ──
 const BUCKET_OPTIONS = ['few', 'several', 'many'] as const
 const backfillOpen = reactive<Record<string, boolean>>({})
@@ -1506,19 +1408,6 @@ function momentTags(moment: MicroExerciseEntry): string {
   for (const option of momentResponses(moment))
     if (option !== 'nothing') tags.push(responseLabel(moment, option))
   return tags.join(' · ')
-}
-
-async function toggleStay(block: ReflectionPathBlock, stay: boolean) {
-  const updated = await setStayNextWeek(block.enrollment.id, props.weekRef, stay)
-  pathBlocks.value = pathBlocks.value.map(candidate =>
-    candidate.enrollment.id === block.enrollment.id
-      ? {
-          ...candidate,
-          enrollment: updated,
-          entry: updated.weekLog?.find(entry => entry.weekRef === props.weekRef),
-        }
-      : candidate
-  )
 }
 
 function setAnchor(key: string, event: Event) {

@@ -262,7 +262,8 @@ programEnrollments: 'id, programSlug, status'
 >   last; the path view compares the two attempts), `ProgramStep.continueLatest`
 >   (the step opens the latest record — used by graded exposure's attempt log via
 >   `?continue=latest`).
-> - `weeklyTasks[]` + `weeklyReflection` + `ProgramEnrollment.weekLog[]` — see D8.
+> - `weeklyReflection` — see D8. (`weeklyTasks[]` and `ProgramEnrollment.weekLog[]`
+>   existed until 2026-11-17.)
 > - `RepeatPlanPrompt` shows a read-only "your path scheduled the next one" line when the
 >   pending item for the slug belongs to a program.
 
@@ -336,6 +337,9 @@ One version bump per phase, matching trunk-based delivery:
   1–5, the phase question, "stay with this task next week"); answers are stored in the
   reflection's `promptResponses` under `program.<enrollmentId>.{outcome,severity,phase}`.
   A skipped reflection carries nothing over. The classic weekly wizard is untouched.
+  **Removed 2026-11-17** (the user never used it): no proposals, no `programLink`, no
+  task section; the "Ścieżka" step keeps the Moments, severity and the phase question —
+  `docs/problem-focused-paths.md` P10.
 
 ## 7. Phasing
 

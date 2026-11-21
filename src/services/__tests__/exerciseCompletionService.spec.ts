@@ -24,10 +24,6 @@ vi.mock('@/services/exercisePlanService', () => ({
   autoCompleteFor: vi.fn(async () => null),
 }))
 
-vi.mock('@/services/programTaskBridgeService', () => ({
-  recordTaskProgress: vi.fn(async () => ({ intentionIds: [] })),
-}))
-
 vi.mock('@/services/shamePartsService', () => ({
   ensureShamePartsForEntry: vi.fn(async () => []),
 }))

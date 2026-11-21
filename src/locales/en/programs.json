@@ -59,7 +59,6 @@
     "outcomeNote": "Comparing: {scale}. It shows change over time, not a clinical assessment.",
     "phaseLabel": "phase {n} of {total}",
     "momentsTitle": "Moments",
-    "momentsLead": "Log the path's hard moments. A note counts as a day of the weekly task when the task is anchored on it.",
     "momentsRecent": {
       "one": "{n} moment in the last 7 days",
       "few": "{n} moments in the last 7 days",
@@ -119,7 +118,6 @@
     "practicesCard": "Practices",
     "partsTitle": "Parts",
     "logMomentShort": "Log",
-    "change": "Change",
     "returnTitle": "Return",
     "returnNote": "eight weeks later",
     "reactionsTitle": "Reactions",
@@ -297,68 +295,6 @@
       },
       "moment-anger": {
         "intro": "Five taps: what took the wheel, when noticed, what instead, how strong. No need to wait for an outburst or catch up on empty days."
-      }
-    },
-    "tasks": {
-      "noticeSigns": {
-        "title": "Notice a signal in your body",
-        "why": "Noticing and naming is enough. A note in Moments can help you return to the moment."
-      },
-      "noticeCost": {
-        "title": "Notice what came after the reaction",
-        "why": "Without judging. Seeing the effect shows what changing the reaction is for."
-      },
-      "pauseInConversation": {
-        "title": "Try your pause",
-        "why": "Even a short one. Tick it in Moments, even if it came late."
-      },
-      "announceReturn": {
-        "title": "Announce the break and the return",
-        "why": "The other person accepts a pause more easily when they know you will come back."
-      },
-      "breathBefore": {
-        "title": "Take a breath before you answer",
-        "why": "One longer exhale gives the body the second the thought needs."
-      },
-      "altThought": {
-        "title": "Recall another thought",
-        "why": "See whether it gives you a little more choice."
-      },
-      "factOnly": {
-        "title": "Say just the fact, without the addition",
-        "why": "Facts without judgements are easier to hear and harder to argue with."
-      },
-      "requestNotReproach": {
-        "title": "Name a need or boundary",
-        "why": "You can ask for a change without a guarantee that the other person will agree."
-      },
-      "nameNeed": {
-        "title": "Name the need in your head",
-        "why": "You do not have to say it yet. A named need turns anger into information."
-      },
-      "returnToTalk": {
-        "title": "Return to the conversation after the pause",
-        "why": "The return matters more than the pause. It teaches that a break is not an escape."
-      },
-      "applySolution": {
-        "title": "Take one small step",
-        "why": "Choose an action within your control."
-      },
-      "calmRequest": {
-        "title": "Try a calm request",
-        "why": "Notice the response without judging yourself by the outcome."
-      },
-      "sayNoCalmly": {
-        "title": "Say “no” without raising your voice",
-        "why": "A boundary spoken calmly is a boundary. It does not need force."
-      },
-      "repairRelationship": {
-        "title": "Make room for repair",
-        "why": "If it is safe, acknowledge a specific action and offer repair. The other person may need time."
-      },
-      "keepPause": {
-        "title": "Stay with your pause",
-        "why": "Three times a week is enough for the move to outlast the path."
       }
     },
     "goal": "Notice anger earlier, make room for a pause and express what matters without hurting yourself or others.",
@@ -547,72 +483,6 @@
         "intro": "Choose a brief, regular time, away from bedtime. During the day, note a worry and try returning to what you are doing."
       }
     },
-    "tasks": {
-      "noticeAvoidance": {
-        "title": "Notice a moment of withdrawal",
-        "why": "Name it in Moments without judging yourself."
-      },
-      "noticeUrge": {
-        "title": "Notice the urge to check",
-        "why": "Just noticing, before you check. You do not have to give it up yet."
-      },
-      "postponeWorry": {
-        "title": "Postpone a worry to your worry time",
-        "why": "Every worry time counts a day. Three a week is enough."
-      },
-      "sortWorry": {
-        "title": "A worry or a task?",
-        "why": "With one worry, ask: is there a step within my reach? If so, write it down."
-      },
-      "predictionCheck": {
-        "title": "Compare the worry with what happened",
-        "why": "Note a prediction beforehand and an observation afterwards."
-      },
-      "uncertainDecisions": {
-        "title": "Leave a small unknown",
-        "why": "Choose a minor decision without real risk, such as a film without another review."
-      },
-      "firstStep": {
-        "title": "Take one doable step",
-        "why": "Choose an action within your control."
-      },
-      "leaveOneUnknown": {
-        "title": "Do not check a second time",
-        "why": "One check is enough. Notice what happens to the anxiety without the second."
-      },
-      "exposureLow": {
-        "title": "Try an easy rung",
-        "why": "Record what happened. A drop in anxiety is not the only sign of learning."
-      },
-      "stayAMinute": {
-        "title": "Stay a minute longer",
-        "why": "In a situation you would like to leave. A minute is enough."
-      },
-      "exposureNext": {
-        "title": "Repeat or adjust an attempt",
-        "why": "You can stay on the same rung, make it smaller or choose the next one."
-      },
-      "doItAnyway": {
-        "title": "Do it anyway",
-        "why": "One thing from the map you want to return to. Anxiety may come along."
-      },
-      "meaningfulAct": {
-        "title": "Do one small meaningful thing",
-        "why": "Choose something that matters even when anxiety comes along."
-      },
-      "attentionOut": {
-        "title": "Attention on the activity, not on yourself",
-        "why": "When you notice monitoring yourself, return to what you are doing. Twice a week."
-      },
-      "planApproach": {
-        "title": "Plan another small attempt",
-        "why": "Choose a realistic time and scale you would like to return to."
-      },
-      "keepWorryTime": {
-        "title": "Stay with your worry time",
-        "why": "Three times a week is enough for the practice to outlast the path."
-      }
-    },
     "goal": "Make room for uncertainty and take small steps towards what matters, even with anxiety present.",
     "scaleLabels": {
       "gad-7": {
@@ -633,7 +503,7 @@
   },
   "shame-compassion": {
     "title": "From shame to compassion",
-    "description": "Eight weeks of work with shame, based on compassion-focused therapy and the language of parts (IFS). The goal: to notice shame sooner, to answer it with warmth instead of attacking yourself, attacking others or hiding, and to come back into contact. First you recognise which parts take the wheel and build a place you can return to. Then the compassionate side of yourself, a plan for the hot moment and the question what this shame is about. Next you meet the critic as a part, write a letter and learn a voice that takes your side, and in the last weeks you come out of hiding in small, safe steps. Alongside the steps: breath, Moments and short practices, one real-life task a week, a dose check halfway, and a Return eight weeks after the end. This path is no substitute for therapy when shame is tied to violence, abuse or a serious crisis.",
+    "description": "Eight weeks of work with shame, based on compassion-focused therapy and the language of parts (IFS). The goal: to notice shame sooner, to answer it with warmth instead of attacking yourself, attacking others or hiding, and to come back into contact. First you recognise which parts take the wheel and build a place you can return to. Then the compassionate side of yourself, a plan for the hot moment and the question what this shame is about. Next you meet the critic as a part, write a letter and learn a voice that takes your side, and in the last weeks you come out of hiding in small, safe steps. Alongside the steps: breath, Moments and short practices, a dose check halfway, and a Return eight weeks after the end. This path is no substitute for therapy when shame is tied to violence, abuse or a serious crisis.",
     "reflection": {
       "severity": "How much did shame affect this week?"
     },
@@ -846,102 +716,6 @@
         "intro": "Every other day from the beliefs step. You add evidence for the fair demand on yourself."
       }
     },
-    "tasks": {
-      "nameShame": {
-        "title": "Name the shame the moment it appears",
-        "why": "Naming an emotion takes some of its force."
-      },
-      "catchBody": {
-        "title": "Catch shame from the body's signal, before a thought names it",
-        "why": "The body is faster than the critic. An early signal buys time for a response."
-      },
-      "soothingGesture": {
-        "title": "In a moment of shame, put a hand on your heart or belly and take two calm breaths",
-        "why": "Warm touch and a longer exhale calm the threat system faster than thoughts do."
-      },
-      "receiveKindness": {
-        "title": "Receive kindness from someone without deflecting it",
-        "why": "Compassion from others is an easier flow than compassion for yourself. Received, it teaches the body that warmth is safe."
-      },
-      "kindAct": {
-        "title": {
-          "m": "After a hard moment, do for yourself what you'd do for a friend",
-          "f": "After a hard moment, do for yourself what you'd do for a friend"
-        },
-        "why": "Compassion is practised through action, not only words."
-      },
-      "useResponse": {
-        "title": "Use your shame response when shame shows up",
-        "why": "The plan only works once you use it in the heat of the moment. Every attempt counts, even a late one."
-      },
-      "unblendSay": {
-        "title": "In a moment of shame, tell yourself: that's my part, not me",
-        "why": "Unblending leaves someone in you who can hear the part out and stay."
-      },
-      "friendTest": {
-        "title": "At one moment of shame, ask: should someone close to me, in my place, be ashamed of this?",
-        "why": "If not, it's someone else's demand. The question takes its power away."
-      },
-      "stayLonger": {
-        "title": "Stay in the situation a minute longer instead of withdrawing",
-        "why": "Shame says disappear. A minute longer shows nothing happens."
-      },
-      "repairGuilt": {
-        "title": "At one situation of guilt, make a real repair",
-        "why": "Guilt closes through repair, shame through hiding. Choose repair."
-      },
-      "noticeCritic": {
-        "title": "Notice the critic's voice and call it by its name",
-        "why": "A named critic is a part, not the truth about you."
-      },
-      "handOver": {
-        "title": "Thank the critic and tell it you're taking the wheel",
-        "why": "The critic protects. Thanks relieves it of guard duty without a fight."
-      },
-      "sayNo": {
-        "title": "Say one \"no\" without explaining yourself",
-        "why": "The fierce side of compassion: a boundary set without apology tells the body you have the right to take up space."
-      },
-      "readAloud": {
-        "title": "Say one sentence from your letter out loud",
-        "why": "A sentence spoken aloud is heard by the body too. Read silently, it stays in the head."
-      },
-      "defendSelf": {
-        "title": "Use your defending sentence when the critic attacks",
-        "why": "The hated self doesn't weaken from warmth alone. It also needs someone to say \"enough\"."
-      },
-      "collectEvidence": {
-        "title": "Catch evidence for the fair demand in daily life",
-        "why": "The task is noticing. The note goes into the positive data log."
-      },
-      "breakDemand": {
-        "title": "Do one thing that someone else's demand forbids",
-        "why": "A demand weakens when you break it and nothing bad happens. That's your experiment."
-      },
-      "tellSafePerson": {
-        "title": "Tell one safe person about something you're ashamed of",
-        "why": "Being seen by someone kind is what works best on shame."
-      },
-      "showImperfect": {
-        "title": "Show up imperfectly in a small situation",
-        "why": "Unfinished work or admitting \"I don't know\" is a small exposure to being seen."
-      },
-      "askQuestion": {
-        "title": "Ask a question that feels \"stupid\"",
-        "why": "Not knowing is the most common borrowed demand. A question breaks it in ten seconds."
-      },
-      "keepResponse": {
-        "title": "Use your shame response without a reminder from the app",
-        "why": "A habit is when the plan comes by itself."
-      },
-      "askSupport": {
-        "title": {
-          "m": "Ask for support with something you usually handle alone",
-          "f": "Ask for support with something you usually handle alone"
-        },
-        "why": "Shame isolates. Asking for help is a move in the opposite direction."
-      }
-    },
     "scaleLabels": {
       "inadequateSelf": "Feeling I am not enough",
       "hatedSelf": "Dislike of myself",
@@ -999,44 +773,12 @@
     }
   },
   "week": {
-    "proposalsLabel": "Proposals from your paths",
-    "fromPath": "From the path “{title}”",
-    "accept": "Add as intention",
-    "edit": "Edit",
-    "decline": "Not this week",
-    "repeatNote": "same task as last time",
-    "suggestedNote": "suggested",
-    "chooseTask": "Choose this week's task",
-    "earlierTasks": "Earlier tasks ({n})",
-    "hideEarlierTasks": "Hide earlier tasks",
-    "timesPerWeek": {
-      "one": "{n} time a week",
-      "few": "{n} times a week",
-      "many": "{n} times a week"
-    },
     "stepLabel": "Path",
-    "stepQuestion": "How did it go outside the app?",
-    "doneOf": "{done} of {target}",
-    "declinedThisWeek": "The path task was set aside this week",
-    "noTaskThisWeek": "No path task this week",
-    "outcomeQuestion": {
-      "m": "How did this task go? What turned out differently than you expected?",
-      "f": "How did this task go? What turned out differently than you expected?"
-    },
+    "stepQuestion": "What happened on the path?",
     "severityHigh": "very much",
     "severityLow": "not at all",
     "previousWeek": "previous week",
     "severityHistory": "previously: {values}",
-    "stayNextWeek": "Stay with this task next week",
-    "panelTitle": "In real life",
-    "panelLead": "Each week one task to try out in life. You accept it in the weekly plan and review it in the weekly reflection.",
-    "addThisWeek": "Add to this week",
-    "statusAccepted": "accepted",
-    "statusDeclined": "set aside",
-    "statusStay": "accepted · staying for next week",
-    "weekShort": "W{n}",
-    "thisWeek": "For this week",
-    "emptyHistory": "The task history appears after the first week.",
     "momentsThisWeek": "This week's moments ({n})",
     "hideMoments": "Hide moments",
     "unloggedQuestion": {
@@ -1049,17 +791,10 @@
       "several": "3–5",
       "many": "more"
     },
-    "sectionTask": "This week's task",
-    "sectionTaskHint": "One thing to try outside the app, accepted in the week plan.",
     "sectionMoments": "Moments",
     "sectionMomentsHint": "Entries from the “Moments” practice: what took the wheel, last week beside this one.",
     "sectionWeek": "Week {n} · {phase}",
     "weekOfPath": "week {n} of {total}",
-    "stayShort": "Stay with this task",
-    "stayHint": "Next week's plan keeps this task instead of proposing a new one.",
-    "declinedNext": "Next week's plan will bring a new proposal.",
-    "noDayYet": "no day yet",
-    "countedDayPlain": "ticked in the day plan",
     "backfill": {
       "add": "Add one",
       "more": "more, no details",

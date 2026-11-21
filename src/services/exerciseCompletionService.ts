@@ -23,7 +23,6 @@ import {
   type PracticeReconciliation,
   type ProgramAdvancement,
 } from '@/services/programSchedulerService'
-import { recordTaskProgress } from '@/services/programTaskBridgeService'
 import { ensureShamePartsForEntry } from '@/services/shamePartsService'
 import { getPeriodRefsForDate } from '@/utils/periods'
 import { reportError } from '@/utils/reportError'
@@ -36,8 +35,6 @@ export interface RecordCompletionResult {
   programAdvancement: ProgramAdvancement | null
   /** Next occurrence scheduled by this save, when the plan was a program practice. */
   practiceReconciliation?: PracticeReconciliation | null
-  /** Weekly intentions (path tasks) that got this day counted (plan v2 §5). */
-  taskIntentionIds?: string[]
 }
 
 export async function recordCompletion(
@@ -108,16 +105,6 @@ export async function recordCompletion(
   session.assertCurrent()
   const { completion, completedPlan } = saved
   if (saved.duplicate) return { completion, completedPlan: null, programAdvancement: null }
-  let taskIntentionIds: string[] = []
-  try {
-    // A path's weekly task anchored on this exercise gets its day (plan v2 §5).
-    taskIntentionIds = (await recordTaskProgress(slug, dayRef, recordId)).intentionIds
-    session.assertCurrent()
-  } catch (err) {
-    session.assertCurrent()
-    // Task bookkeeping must never block the completion log write.
-    reportError('exerciseCompletionService.recordCompletion', err)
-  }
   if (slug === 'shame-map' && recordId) {
     try {
       // The compass reactions become IFS parts the path works with (plan v3 §4).
@@ -150,7 +137,6 @@ export async function recordCompletion(
     completedPlan,
     programAdvancement,
     ...(practiceReconciliation ? { practiceReconciliation } : {}),
-    ...(taskIntentionIds.length ? { taskIntentionIds } : {}),
   }
 }
 

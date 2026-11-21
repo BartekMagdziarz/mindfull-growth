@@ -59,7 +59,6 @@
     "outcomeNote": "Porównanie wyniku: {scale}. To obraz zmiany w czasie, nie ocena kliniczna.",
     "phaseLabel": "faza {n} z {total}",
     "momentsTitle": "Momenty",
-    "momentsLead": "Zapisuj trudne momenty ścieżki. Zapis liczy się jako dzień zadania tygodnia, gdy zadanie jest na to podpięte.",
     "momentsRecent": {
       "one": "{n} moment w ostatnich 7 dniach",
       "few": "{n} momenty w ostatnich 7 dniach",
@@ -119,7 +118,6 @@
     "practicesCard": "Praktyki",
     "partsTitle": "Części",
     "logMomentShort": "Zapisz",
-    "change": "Zmień",
     "returnTitle": "Powrót",
     "returnNote": "osiem tygodni później",
     "reactionsTitle": "Reakcje",
@@ -297,68 +295,6 @@
       },
       "moment-anger": {
         "intro": "Pięć dotknięć: co przejęło ster, kiedy zauważone, co zamiast, jak silna. Nie trzeba czekać na wybuch ani nadrabiać pustych dni."
-      }
-    },
-    "tasks": {
-      "noticeSigns": {
-        "title": "Zauważ sygnał w ciele",
-        "why": "Wystarczy zauważyć i nazwać. Zapis w Momentach może pomóc wrócić do tej chwili."
-      },
-      "noticeCost": {
-        "title": "Zauważ, co było po reakcji",
-        "why": "Bez oceniania. Samo zauważenie skutku pokazuje, po co zmieniać reakcję."
-      },
-      "pauseInConversation": {
-        "title": "Wypróbuj swoją pauzę",
-        "why": "Choć krótką. Zaznacz ją w Momentach, nawet jeśli przyszła z opóźnieniem."
-      },
-      "announceReturn": {
-        "title": "Zapowiedz przerwę i powrót",
-        "why": "Druga osoba łatwiej przyjmie pauzę, gdy wie, że wrócisz."
-      },
-      "breathBefore": {
-        "title": "Weź oddech, zanim odpowiesz",
-        "why": "Jeden dłuższy wydech daje ciału sekundę, której myśl potrzebuje."
-      },
-      "altThought": {
-        "title": "Przypomnij sobie inną myśl",
-        "why": "Sprawdź, czy zostawia Ci choć trochę więcej wyboru."
-      },
-      "factOnly": {
-        "title": "Powiedz sam fakt, bez dopowiedzenia",
-        "why": "Fakty bez ocen łatwiej usłyszeć drugiej osobie i trudniej się o nie spierać."
-      },
-      "requestNotReproach": {
-        "title": "Nazwij potrzebę lub granicę",
-        "why": "Możesz poprosić o zmianę bez gwarancji, że druga osoba się zgodzi."
-      },
-      "nameNeed": {
-        "title": "Nazwij potrzebę w myślach",
-        "why": "Nie trzeba jej od razu wypowiadać. Nazwana potrzeba zmienia złość w informację."
-      },
-      "returnToTalk": {
-        "title": "Wróć do rozmowy po pauzie",
-        "why": "Powrót jest ważniejszy niż pauza. On uczy, że przerwa nie jest ucieczką."
-      },
-      "applySolution": {
-        "title": "Zrób jeden mały krok",
-        "why": "Wybierz działanie, na które masz wpływ."
-      },
-      "calmRequest": {
-        "title": "Wypróbuj spokojną prośbę",
-        "why": "Zauważ odpowiedź, bez oceniania siebie za wynik rozmowy."
-      },
-      "sayNoCalmly": {
-        "title": "Powiedz „nie” bez podnoszenia głosu",
-        "why": "Granica wypowiedziana spokojnie jest granicą. Nie potrzebuje siły."
-      },
-      "repairRelationship": {
-        "title": "Zrób miejsce na naprawę",
-        "why": "Jeśli to bezpieczne, uznaj konkretny czyn i zaproponuj naprawę. Druga osoba może potrzebować czasu."
-      },
-      "keepPause": {
-        "title": "Zostań przy swojej pauzie",
-        "why": "Trzy razy w tygodniu wystarczą, by ruch został po ścieżce."
       }
     },
     "goal": "Zauważać złość wcześniej, robić pauzę i mówić o tym, co ważne, bez ranienia siebie i innych.",
@@ -547,72 +483,6 @@
         "intro": "Wybierz krótką, stałą porę, nie tuż przed snem. W ciągu dnia zanotuj zmartwienie i spróbuj wrócić do obecnej czynności."
       }
     },
-    "tasks": {
-      "noticeAvoidance": {
-        "title": "Zauważ chwilę wycofania",
-        "why": "Nazwij ją w Momentach bez oceniania siebie."
-      },
-      "noticeUrge": {
-        "title": "Zauważ chęć sprawdzenia",
-        "why": "Samo zauważenie, zanim sprawdzisz. Nie trzeba jeszcze rezygnować."
-      },
-      "postponeWorry": {
-        "title": "Odłóż zmartwienie do swojej pory",
-        "why": "Każda pora na zmartwienia liczy dzień. Trzy w tygodniu wystarczą."
-      },
-      "sortWorry": {
-        "title": "Zmartwienie czy zadanie?",
-        "why": "Przy jednym zmartwieniu zapytaj: jest tu krok w moim zasięgu? Jeśli tak, zapisz go."
-      },
-      "predictionCheck": {
-        "title": "Porównaj obawę z tym, co się stało",
-        "why": "Zapisz przewidywanie przed sytuacją i obserwację po niej."
-      },
-      "uncertainDecisions": {
-        "title": "Zostaw małą niewiadomą",
-        "why": "Wybierz drobną decyzję bez realnego ryzyka, np. wybór filmu bez kolejnej recenzji."
-      },
-      "firstStep": {
-        "title": "Zrób jeden wykonalny krok",
-        "why": "Wybierz działanie, na które masz wpływ."
-      },
-      "leaveOneUnknown": {
-        "title": "Nie sprawdzaj drugi raz",
-        "why": "Jedno sprawdzenie wystarczy. Zauważ, co się dzieje z lękiem, gdy nie ma drugiego."
-      },
-      "exposureLow": {
-        "title": "Wypróbuj łatwy szczebel",
-        "why": "Zapisz, co się wydarzyło. Spadek lęku nie jest jedyną oznaką uczenia się."
-      },
-      "stayAMinute": {
-        "title": "Zostań minutę dłużej",
-        "why": "W sytuacji, z której chciałoby się wyjść. Minuta wystarczy."
-      },
-      "exposureNext": {
-        "title": "Powtórz lub dopasuj próbę",
-        "why": "Możesz zostać na tym samym szczeblu, zmniejszyć krok albo wybrać następny."
-      },
-      "doItAnyway": {
-        "title": "Zrób to mimo lęku",
-        "why": "Jedna rzecz z mapy, do której chcesz wracać. Lęk może iść obok."
-      },
-      "meaningfulAct": {
-        "title": "Zrób małą ważną rzecz",
-        "why": "Wybierz coś, co ma znaczenie także wtedy, gdy towarzyszy temu lęk."
-      },
-      "attentionOut": {
-        "title": "Uwaga na czynność, nie na siebie",
-        "why": "Gdy zauważysz obserwowanie siebie, wróć do tego, co robisz. Dwa razy w tygodniu."
-      },
-      "planApproach": {
-        "title": "Zaplanuj kolejną małą próbę",
-        "why": "Wybierz realny termin i skalę, do której chcesz wrócić."
-      },
-      "keepWorryTime": {
-        "title": "Zostań przy porze na zmartwienia",
-        "why": "Trzy razy w tygodniu wystarczą, by praktyka została po ścieżce."
-      }
-    },
     "goal": "Robić miejsce na niepewność i małymi krokami wracać do tego, co ważne, także z lękiem.",
     "scaleLabels": {
       "gad-7": {
@@ -633,7 +503,7 @@
   },
   "shame-compassion": {
     "title": "Ze wstydu do współczucia",
-    "description": "Osiem tygodni pracy ze wstydem. Cel: zauważać go szybciej, odpowiadać ciepłem zamiast atakiem na siebie, atakiem na innych albo ukryciem, i wracać do kontaktu. Najpierw rozpoznajesz, które części przejmują ster, i budujesz oparcie. Potem układasz plan na trudną chwilę, poznajesz Krytyka, znajdujesz własny głos i w małych krokach wychodzisz z ukrycia. Obok kroków: oddech, Momenty, co tydzień jedno zadanie w życiu, w połowie pytanie, czy nie za dużo, a osiem tygodni po zakończeniu Powrót. Ta ścieżka nie zastąpi terapii, jeśli wstyd wiąże się z przemocą, wykorzystaniem albo kryzysem.",
+    "description": "Osiem tygodni pracy ze wstydem. Cel: zauważać go szybciej, odpowiadać ciepłem zamiast atakiem na siebie, atakiem na innych albo ukryciem, i wracać do kontaktu. Najpierw rozpoznajesz, które części przejmują ster, i budujesz oparcie. Potem układasz plan na trudną chwilę, poznajesz Krytyka, znajdujesz własny głos i w małych krokach wychodzisz z ukrycia. Obok kroków: oddech, Momenty i krótkie praktyki, w połowie pytanie, czy nie za dużo, a osiem tygodni po zakończeniu Powrót. Ta ścieżka nie zastąpi terapii, jeśli wstyd wiąże się z przemocą, wykorzystaniem albo kryzysem.",
     "reflection": {
       "severity": "Jak bardzo wstyd wpływał na ten tydzień?"
     },
@@ -846,102 +716,6 @@
         "intro": "Co drugi dzień od kroku o przekonaniach. Dopisujesz dowody na rozsądne wymaganie wobec siebie."
       }
     },
-    "tasks": {
-      "nameShame": {
-        "title": "Nazwij wstyd w chwili, gdy się pojawia",
-        "why": "Nazwany wstyd traci część siły."
-      },
-      "catchBody": {
-        "title": "Złap wstyd po sygnale z ciała, zanim nazwie go myśl",
-        "why": "Ciało jest szybsze niż krytyk. Wczesny sygnał daje czas na odpowiedź."
-      },
-      "soothingGesture": {
-        "title": "Gdy przyjdzie wstyd, połóż dłoń na sercu i zrób dwa spokojne oddechy",
-        "why": "Ciepły dotyk i dłuższy wydech uspokajają układ zagrożenia szybciej niż myśli."
-      },
-      "receiveKindness": {
-        "title": "Przyjmij od kogoś życzliwość i nie odbijaj jej",
-        "why": "Współczucie od innych to łatwiejszy strumień niż do siebie. Przyjęte, uczy ciało, że ciepło jest bezpieczne."
-      },
-      "kindAct": {
-        "title": {
-          "m": "Po trudnym momencie zrób dla siebie to, co zrobiłbyś dla przyjaciela",
-          "f": "Po trudnym momencie zrób dla siebie to, co zrobiłabyś dla przyjaciela"
-        },
-        "why": "Ciepło do siebie łatwiej zrobić niż powiedzieć."
-      },
-      "useResponse": {
-        "title": "Użyj planu na trudną chwilę, gdy wstyd się pojawi",
-        "why": "Plan działa dopiero wtedy, gdy go użyjesz na gorąco. Liczy się każda próba, także spóźniona."
-      },
-      "unblendSay": {
-        "title": "Powiedz sobie w chwili wstydu: to moja część, nie ja",
-        "why": "Odmieszanie zostawia w tobie kogoś, kto może wysłuchać części i nie odejść."
-      },
-      "friendTest": {
-        "title": "Przy jednym momencie wstydu zapytaj: czy ktoś bliski na moim miejscu też powinien się wstydzić?",
-        "why": "Jeśli nie, to cudze wymaganie. Pytanie odbiera mu władzę."
-      },
-      "stayLonger": {
-        "title": "Zostań w sytuacji minutę dłużej, zamiast się wycofać",
-        "why": "Wstyd każe zniknąć. Minuta dłużej pokazuje, że nic się nie dzieje."
-      },
-      "repairGuilt": {
-        "title": "Przy jednej sytuacji winy zrób realną naprawę",
-        "why": "Wina domyka się przez naprawę, a wstyd przez ukrycie. Wybierz naprawę."
-      },
-      "noticeCritic": {
-        "title": "Zauważ Krytyka i nazwij go po imieniu",
-        "why": "Nazwany Krytyk to część, a nie prawda o tobie."
-      },
-      "handOver": {
-        "title": "Podziękuj Krytykowi i powiedz, że przejmujesz ster",
-        "why": "Krytyk chroni. Podziękowanie zdejmuje z niego wartę bez walki."
-      },
-      "sayNo": {
-        "title": "Powiedz jedno „nie” bez tłumaczenia się",
-        "why": "Stanowcza strona współczucia: granica bez przeprosin mówi ciału, że masz prawo tu być."
-      },
-      "readAloud": {
-        "title": "Powiedz na głos jedno zdanie z listu do siebie",
-        "why": "Zdanie wypowiedziane na głos słyszy też ciało. Czytane po cichu zostaje w głowie."
-      },
-      "defendSelf": {
-        "title": "Gdy Krytyk atakuje, powiedz zdanie w swojej obronie",
-        "why": "Samo ciepło nie wystarczy. Czasem ktoś musi powiedzieć Krytykowi „dość”."
-      },
-      "collectEvidence": {
-        "title": "Zauważ w ciągu dnia dowód na rozsądne wymaganie",
-        "why": "Zadanie polega na zauważaniu. Zapis trafia do dowodów na nowe przekonanie."
-      },
-      "breakDemand": {
-        "title": "Zrób jedną rzecz, której zabrania cudze wymaganie",
-        "why": "Wymaganie słabnie, gdy je złamiesz i nic złego się nie stanie. To twój eksperyment."
-      },
-      "tellSafePerson": {
-        "title": "Powiedz jednej bezpiecznej osobie o czymś, czego się wstydzisz",
-        "why": "Na wstyd najlepiej działa bycie zobaczonym przez kogoś życzliwego."
-      },
-      "showImperfect": {
-        "title": "Pokaż się nieidealnie w małej sytuacji",
-        "why": "Niedokończona praca albo przyznanie „nie wiem” to mała ekspozycja na bycie widzianym."
-      },
-      "askQuestion": {
-        "title": "Zadaj pytanie, które wydaje ci się „głupie”",
-        "why": "Niewiedza to najczęstsze cudze wymaganie. Pytanie łamie je w dziesięć sekund."
-      },
-      "keepResponse": {
-        "title": "Użyj planu na trudną chwilę bez przypomnienia z aplikacji",
-        "why": "Nawyk jest wtedy, gdy plan przychodzi sam."
-      },
-      "askSupport": {
-        "title": {
-          "m": "Poproś o wsparcie w sprawie, z którą zwykle radzisz sobie sam",
-          "f": "Poproś o wsparcie w sprawie, z którą zwykle radzisz sobie sama"
-        },
-        "why": "Wstyd izoluje. Prośba o pomoc to ruch w przeciwną stronę."
-      }
-    },
     "scaleLabels": {
       "inadequateSelf": "Poczucie, że nie wystarczam",
       "hatedSelf": "Niechęć do siebie",
@@ -999,44 +773,12 @@
     }
   },
   "week": {
-    "proposalsLabel": "Propozycje ze ścieżek",
-    "fromPath": "Ze ścieżki „{title}”",
-    "accept": "Dodaj jako intencję",
-    "edit": "Zmień",
-    "decline": "Nie w tym tygodniu",
-    "repeatNote": "to samo zadanie co ostatnio",
-    "suggestedNote": "propozycja",
-    "chooseTask": "Wybierz zadanie na ten tydzień",
-    "earlierTasks": "Wcześniejsze zadania ({n})",
-    "hideEarlierTasks": "Zwiń wcześniejsze zadania",
-    "timesPerWeek": {
-      "one": "{n} raz w tygodniu",
-      "few": "{n} razy w tygodniu",
-      "many": "{n} razy w tygodniu"
-    },
     "stepLabel": "Ścieżka",
-    "stepQuestion": "Jak poszło poza aplikacją?",
-    "doneOf": "{done} z {target}",
-    "declinedThisWeek": "Zadanie ze ścieżki odłożone na ten tydzień",
-    "noTaskThisWeek": "W tym tygodniu bez zadania ze ścieżki",
-    "outcomeQuestion": {
-      "m": "Jak poszło z tym zadaniem? Co wyszło inaczej, niż się spodziewałeś?",
-      "f": "Jak poszło z tym zadaniem? Co wyszło inaczej, niż się spodziewałaś?"
-    },
+    "stepQuestion": "Co działo się na ścieżce?",
     "severityHigh": "bardzo",
     "severityLow": "wcale",
     "previousWeek": "poprzedni tydzień",
     "severityHistory": "poprzednio: {values}",
-    "stayNextWeek": "Zostań przy tym zadaniu w przyszłym tygodniu",
-    "panelTitle": "W świecie",
-    "panelLead": "Co tydzień jedno zadanie do wypróbowania w życiu. Przyjmujesz je w planie tygodnia, a omawiasz w refleksji.",
-    "addThisWeek": "Dodaj do tego tygodnia",
-    "statusAccepted": "przyjęte",
-    "statusDeclined": "odłożone",
-    "statusStay": "przyjęte · zostaje na kolejny tydzień",
-    "weekShort": "T{n}",
-    "thisWeek": "Na ten tydzień",
-    "emptyHistory": "Historia zadań pojawi się po pierwszym tygodniu.",
     "momentsThisWeek": "Momenty z tego tygodnia ({n})",
     "hideMoments": "Zwiń momenty",
     "unloggedQuestion": {
@@ -1049,17 +791,10 @@
       "several": "3–5",
       "many": "więcej"
     },
-    "sectionTask": "Zadanie tygodnia",
-    "sectionTaskHint": "Jedna rzecz do wypróbowania poza aplikacją, przyjęta w planie tygodnia.",
     "sectionMoments": "Momenty",
     "sectionMomentsHint": "Zapisy z praktyki „Momenty”: co przejęło ster, poprzedni tydzień obok tego.",
     "sectionWeek": "Tydzień {n} · {phase}",
     "weekOfPath": "tydzień {n} z {total}",
-    "stayShort": "Zostań przy zadaniu",
-    "stayHint": "W planie następnego tygodnia to zadanie zostanie zamiast nowej propozycji.",
-    "declinedNext": "W planie następnego tygodnia dostaniesz nową propozycję.",
-    "noDayYet": "jeszcze bez dnia",
-    "countedDayPlain": "zaznaczone w planie dnia",
     "backfill": {
       "add": "Dopisz",
       "more": "więcej, bez szczegółów",

@@ -1522,16 +1522,14 @@ main:has(> .planning-next--today) {
 }
 
 /* ─── "Ścieżki" (NextDayPrograms, 2026-10-17 round 6) ───
-   One block per active path: a 3-column grid, two rows. Left (both rows): the
-   path — title, the phase's name and its dots (no numbers). Top middle + right: two action
-   tiles in the grammar of "Najbliżej" (icon field, title, quiet line). Bottom middle +
-   right: the week task with its state as dots. Tones: card → block (mist) →
-   fields (paper). Checked at the canonical viewport (docs/agent-verification.md). */
+   One block per active path: three columns in one row. Left: the path —
+   title, the phase's name and its dots (no numbers). Middle + right: two action
+   tiles in the grammar of "Najbliżej" (icon field, title, quiet line). Tones:
+   card → block (mist) → fields (paper). Checked at the canonical viewport
+   (docs/agent-verification.md). */
 .ndpath {
   display: grid;
-  grid-template-areas:
-    'path step moment'
-    'path task task';
+  grid-template-areas: 'path step moment';
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--mg-space-2);
   align-items: stretch;
@@ -1541,25 +1539,13 @@ main:has(> .planning-next--today) {
   box-shadow: var(--mg-shadow-nested);
 }
 
-.ndpath--no-task {
-  grid-template-areas: 'path step moment';
-}
 .ndpath--no-moment {
-  grid-template-areas: 'path step step' 'path task task';
-}
-.ndpath--no-step {
-  grid-template-areas: 'path moment moment' 'path task task';
-}
-.ndpath--no-moment.ndpath--no-task {
   grid-template-areas: 'path step step';
 }
-.ndpath--no-step.ndpath--no-task {
+.ndpath--no-step {
   grid-template-areas: 'path moment moment';
 }
 .ndpath--no-step.ndpath--no-moment {
-  grid-template-areas: 'path task task';
-}
-.ndpath--no-step.ndpath--no-moment.ndpath--no-task {
   grid-template-areas: 'path path path';
 }
 
@@ -1571,9 +1557,6 @@ main:has(> .planning-next--today) {
 }
 .ndpath__moment {
   grid-area: moment;
-}
-.ndpath__task {
-  grid-area: task;
 }
 
 .ndpath__field,
@@ -1732,14 +1715,6 @@ main:has(> .planning-next--today) {
   font-size: var(--mg-font-size-xs);
 }
 
-.ndpath__eyebrow {
-  color: var(--mg-color-muted);
-  font-size: var(--mg-font-size-xs);
-  font-weight: 850;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
 .ndpath__text {
   display: -webkit-box;
   overflow: hidden;
@@ -1756,21 +1731,7 @@ main:has(> .planning-next--today) {
   font-weight: 700;
 }
 
-/* The week task: text left, its state right. */
-.ndpath__task,
-.mg-design-v2 .ndpath__task {
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: var(--mg-space-3);
-  align-items: center;
-}
-
-.ndpath__task-text {
-  display: grid;
-  gap: 4px;
-  min-width: 0;
-}
-
-/* Dots: the phase's weeks (or steps) and the task's days, in the day plan's
+/* Dots: the phase's weeks (or steps), in the day plan's
    chart grammar (NextObjectChartCard): an organic disc, done = the sky field
    with the state disc inside, current = the dashed pending mark. */
 .ndpath-dots {
@@ -1815,26 +1776,13 @@ main:has(> .planning-next--today) {
   background: transparent;
 }
 
-.ndpath__task-dots {
-  padding-top: 0;
-}
-
-.ndpath__task-dots > i {
-  width: 1rem;
-  height: 1rem;
-}
-
 /* Below ~28rem the three columns starve: stack the fields. */
 @container (max-width: 28rem) {
   .ndpath,
-  .ndpath--no-task,
   .ndpath--no-moment,
   .ndpath--no-step,
-  .ndpath--no-moment.ndpath--no-task,
-  .ndpath--no-step.ndpath--no-task,
-  .ndpath--no-step.ndpath--no-moment,
-  .ndpath--no-step.ndpath--no-moment.ndpath--no-task {
-    grid-template-areas: 'path' 'step' 'moment' 'task';
+  .ndpath--no-step.ndpath--no-moment {
+    grid-template-areas: 'path' 'step' 'moment';
     grid-template-columns: minmax(0, 1fr);
   }
 }

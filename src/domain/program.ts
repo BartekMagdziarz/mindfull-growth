@@ -1,5 +1,3 @@
-import type { WeekRef } from '@/domain/period'
-
 /**
  * Programs ("ścieżki") — curated exercise sequences
  *
@@ -82,42 +80,6 @@ export interface ProgramPractice {
 }
 
 /**
- * One real-world task per phase, proposed as a weekly intention in the
- * weekly planning ritual (never created automatically). Copy at
- * `programs.<slug>.tasks.<key>.{title,why}`.
- */
-export interface ProgramWeeklyTask {
-  /** Stable id, unique within the program. */
-  key: string
-  /** ProgramPhase.key the task belongs to; proposals follow the current step's phase. */
-  phaseKey: string
-  entryMode: 'completion' | 'counter'
-  /** Weekly target count (1 for completion). */
-  times: number
-  /** Where an occurrence is logged, when it has a natural home (graded-exposure attempts…). */
-  linkSlug?: string
-  /**
-   * Which `linkSlug` entries count a day of the task. Without a rule every
-   * completion counts (the original bridge). With one, a Moment counts only
-   * when its answers say the task happened — see `taskCountsEntry`.
-   */
-  countRule?: TaskCountRule
-}
-
-/**
- * How a Moment counts a day of a weekly task (shame path, Lab
- * /concepts/path-week-reflection 2026-10-11):
- * - `any`: any answer to "co zrobiłeś zamiast" other than "nothing";
- * - `options`: at least one of these answers;
- * - `part`: additionally, the part that took the wheel (`compass`).
- */
-export interface TaskCountRule {
-  any?: true
-  options?: string[]
-  part?: string
-}
-
-/**
  * Presentational grouping of steps; copy at
  * `programs.<slug>.phases.<key>.{title,why,question}`. Paths built as
  * "phases = weeks" (shame v3) set `week`; a follow-up phase ("Powrót")
@@ -170,7 +132,6 @@ export interface ProgramDefinition {
    * (`sign`) and main target (`mainTarget`) for the dashboard header.
    */
   signSlug?: string
-  weeklyTasks?: ProgramWeeklyTask[]
   /**
    * The weekly reflection gets a "Ścieżka" step for this program: severity
    * question `programs.<slug>.reflection.severity` + the phase question
@@ -192,17 +153,6 @@ export interface CompletedProgramStep {
   recordId?: string
 }
 
-/** One week's decision about the program's real-world task (weekly planning ritual). */
-export interface ProgramWeekEntry {
-  weekRef: WeekRef
-  taskKey: string
-  decision: 'accepted' | 'declined'
-  /** The weekly intention created on acceptance. */
-  intentionId?: string
-  /** Set in the weekly reflection: propose the same task next week. */
-  stayNextWeek?: boolean
-}
-
 export interface ProgramEnrollment {
   id: string
   programSlug: string
@@ -212,8 +162,6 @@ export interface ProgramEnrollment {
   currentStepIndex: number
   /** Skipped optional steps get no entry — the timeline derives them. */
   completedSteps: CompletedProgramStep[]
-  /** Weekly real-world task decisions, one entry per week at most (absent on older rows). */
-  weekLog?: ProgramWeekEntry[]
   /** `ProgramDefinition.contentVersion` the step indices refer to (absent = 1). */
   contentVersion?: number
   /** Set when the path closed (last step, or the `closesPath` step). */
@@ -261,7 +209,6 @@ export interface UpdateProgramEnrollmentPayload {
   status?: ProgramEnrollmentStatus
   currentStepIndex?: number
   completedSteps?: CompletedProgramStep[]
-  weekLog?: ProgramWeekEntry[]
   contentVersion?: number
   completedAt?: string
   practiceOverrides?: Record<string, { everyDays: number }>

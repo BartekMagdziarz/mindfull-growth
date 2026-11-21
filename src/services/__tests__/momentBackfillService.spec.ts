@@ -3,7 +3,6 @@ import type { CreateMicroExerciseEntryPayload, MicroExerciseEntry } from '@/doma
 import type { DayRef } from '@/domain/period'
 import { microExerciseEntryDexieRepository } from '@/repositories/microExerciseEntryDexieRepository'
 import { backfillMoment, isBackfilledMoment } from '@/services/momentBackfillService'
-import { recordTaskProgress } from '@/services/programTaskBridgeService'
 
 vi.mock('@/repositories/microExerciseEntryDexieRepository', () => ({
   microExerciseEntryDexieRepository: {
@@ -18,16 +17,13 @@ vi.mock('@/repositories/microExerciseEntryDexieRepository', () => ({
     ),
   },
 }))
-vi.mock('@/services/programTaskBridgeService', () => ({
-  recordTaskProgress: vi.fn(async () => ({ intentionIds: [] })),
-}))
 
 const DAY = '2026-09-23' as DayRef
 
 describe('backfillMoment', () => {
   beforeEach(() => vi.clearAllMocks())
 
-  it('writes the Moment on its day as "noticed later", flagged, and counts it towards the task', async () => {
+  it('writes the Moment on its day as "noticed later", flagged', async () => {
     const entry = await backfillMoment({
       kind: 'shame',
       day: DAY,
@@ -49,15 +45,10 @@ describe('backfillMoment', () => {
       new Date(`${DAY}T12:00:00`).toISOString()
     )
     expect(isBackfilledMoment(entry)).toBe(true)
-    expect(recordTaskProgress).toHaveBeenCalledWith('moment-shame', DAY, 'bf-1')
   })
 
-  it('an empty answer list becomes "nothing" and a failing bridge does not lose the Moment', async () => {
-    vi.mocked(recordTaskProgress).mockRejectedValueOnce(new Error('offline'))
-    const spy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+  it('an empty answer list becomes "nothing"', async () => {
     const entry = await backfillMoment({ kind: 'shame', day: DAY, reaction: 'none' })
     expect(entry.responses.response).toEqual(['nothing'])
-    expect(spy).toHaveBeenCalled()
-    spy.mockRestore()
   })
 })

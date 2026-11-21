@@ -53,7 +53,7 @@ describe('groupColumns / groupWraps (B-2)', () => {
 })
 
 describe('pathHasPracticesContent (B-2)', () => {
-  it('is false for the paths without practices, tasks and Momenty', () => {
+  it('is false for the paths without practices and Momenty', () => {
     for (const slug of ['ifs-parts', 'foundation', 'cbt-thoughts']) {
       expect(pathHasPracticesContent(getProgramDefinition(slug)!)).toBe(false)
     }
@@ -64,6 +64,5 @@ describe('pathHasPracticesContent (B-2)', () => {
       expect(pathHasPracticesContent(getProgramDefinition(slug)!)).toBe(true)
     }
     expect(pathHasPracticesContent({ practices: [], momentKind: undefined })).toBe(false)
-    expect(pathHasPracticesContent({ weeklyTasks: [{}] as never })).toBe(true)
   })
 })

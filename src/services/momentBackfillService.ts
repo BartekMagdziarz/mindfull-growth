@@ -3,7 +3,6 @@ import { momentFamily, type MomentFamilyKind } from '@/domain/momentFamilies'
 import { MOMENTS_SLUG } from '@/domain/moments'
 import type { DayRef } from '@/domain/period'
 import { microExerciseEntryDexieRepository } from '@/repositories/microExerciseEntryDexieRepository'
-import { recordTaskProgress } from '@/services/programTaskBridgeService'
 import { captureUserSession } from '@/services/userSessionScope'
 
 /**
@@ -14,8 +13,7 @@ import { captureUserSession } from '@/services/userSessionScope'
  * and `backfilled: 'yes'`, so the charts can hatch it and the "when I
  * notice" statistic files it honestly. It is not an exercise completion:
  * the practice "Momenty" was not done that day, so no completion row and
- * no plan-item auto-complete. The week's task still gets its day when the
- * answers say the task happened (the bridge's rule).
+ * no plan-item auto-complete.
  */
 export interface BackfillMomentInput {
   kind: MomentFamilyKind
@@ -47,19 +45,11 @@ export async function backfillMoment(input: BackfillMomentInput): Promise<MicroE
     backfilled: 'yes',
     ...(input.situation?.trim() ? { situation: input.situation.trim() } : {}),
   }
-  const entry = await session.wait(
+  return session.wait(
     microExerciseEntryDexieRepository.create({
       exerciseSlug: MOMENTS_SLUG,
       responses,
       createdAt: new Date(`${input.day}T12:00:00`).toISOString(),
     })
   )
-  try {
-    await session.wait(recordTaskProgress(`moment-${input.kind}`, input.day, entry.id))
-  } catch (err) {
-    session.assertCurrent()
-    // The Moment is saved; the task day is bookkeeping.
-    console.error('Failed to count the backfilled moment towards a program task:', err)
-  }
-  return entry
 }

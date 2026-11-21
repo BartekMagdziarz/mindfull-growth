@@ -2672,7 +2672,7 @@
     "handover": {
       "title": "Zdanie przejęcia steru (opcjonalne)",
       "description": "Jedno zdanie, którym podziękujesz tej części, gdy się odezwie, i dasz jej znać, że teraz ty prowadzisz.",
-      "why": "Krytyk pilnuje, bo nie wierzy, że ktoś inny to zrobi. Podziękowanie zdejmuje z niego wartę bez walki. To zdanie wraca w zadaniu tygodnia ścieżki wstydu.",
+      "why": "Krytyk pilnuje, bo nie wierzy, że ktoś inny to zrobi. Podziękowanie zdejmuje z niego wartę bez walki.",
       "placeholder": "Dziękuję, że pilnujesz. Teraz ja prowadzę."
     },
     "checkIn": {

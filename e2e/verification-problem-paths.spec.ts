@@ -6,8 +6,7 @@ import type { WeekRef } from '../src/domain/period'
  * Problem paths against the seeded instance (port 5199). Seed §15b:
  * "Lęk: podejść zamiast unikać" v2 at step 8/22 (behavioral experiment due
  * today), worry postponement pending since yesterday, seven anxiety Moments,
- * baseline GAD-7 13/21, two closed weeks with an accepted real-world task
- * and a reflection "Ścieżka" answer; the current week has no decision.
+ * baseline GAD-7 13/21, two closed weeks with "Ścieżka" reflection answers.
  *
  * The spec re-seeds first: other specs mutate the shared instance.
  */
@@ -85,7 +84,7 @@ test.describe('problem paths', () => {
     expectNoAppErrors(consoleErrors)
   })
 
-  test("path view (v2): weeks as rows, the experiment current in week 3, the measure behind Szczegóły, Reakcje, the sign and this week's proposal", async ({
+  test('path view (v2): weeks as rows, the experiment current in week 3, the measure behind Szczegóły, Reakcje, the sign and no week task', async ({
     page,
   }) => {
     test.setTimeout(120_000)
@@ -115,13 +114,11 @@ test.describe('problem paths', () => {
       'Odkładanie',
       'Ja',
     ])
-    // Praktyki: the worry time and Momenty as tiles (the breath ended with the worry tree), the proposal for this week.
+    // Praktyki: the worry time and Momenty as tiles (the breath ended with the worry tree); no week task.
     const practices = page.getByTestId('path-practices')
     await expect(practices.getByTestId('path-practice-tile')).toHaveCount(1)
     await expect(practices.getByTestId('path-moment-tile')).toHaveCount(1)
-    await expect(
-      page.getByTestId('path-world').getByRole('button', { name: 'Dodaj do tego tygodnia' })
-    ).toBeVisible()
+    await expect(page.getByTestId('path-world')).toHaveCount(0)
     // The experiment starts from a Moment: the picker lists the seven anxiety Moments.
     await current.getByRole('button', { name: 'Rozpocznij' }).click()
     const picker = page.getByTestId('moment-picker')
@@ -132,20 +129,13 @@ test.describe('problem paths', () => {
     expectNoAppErrors(consoleErrors)
   })
 
-  test('weekly plan proposes the task; declining closes it for this week', async ({ page }) => {
+  test('weekly plan carries no path proposal', async ({ page }) => {
     test.setTimeout(120_000)
     const consoleErrors = await bootFreshSeed(page)
 
     await page.goto(`/calendar/week/${refs.week}?action=plan`)
-    const card = page.locator('.qr-path-card')
-    await expect(card).toContainText('Ze ścieżki „Lęk: podejść zamiast unikać”')
-    await card.getByRole('button', { name: 'Nie w tym tygodniu' }).click()
-    await expect(card).toHaveCount(0)
-
-    await page.goto('/exercises/programs/anxiety-approach')
-    // A declined week shows no task tile in Praktyki (the tile is the accepted task or the proposal).
-    await expect(page.getByTestId('path-practices')).toBeVisible()
-    await expect(page.getByTestId('path-world')).toHaveCount(0)
+    await expect(page.locator('.qr-focus')).toBeVisible()
+    await expect(page.locator('.qr-path-card')).toHaveCount(0)
     expectNoAppErrors(consoleErrors)
   })
 
@@ -160,18 +150,9 @@ test.describe('problem paths', () => {
     // Two paths with a weekly reflection are enrolled; this test reads the anxiety block.
     const block = page.locator('.qr-path-block', { hasText: 'Lęk: podejść zamiast unikać' })
     await expect(block).toBeVisible()
-    await expect(block.locator('textarea').first()).toHaveValue(/Przewidywałem katastrofę/)
-    // The seeded days (6 and 4 days ago) count only when they fall in the previous week — the same rule the seed applies.
-    const counted = [6, 4].filter(daysAgo => {
-      const day = new Date()
-      day.setDate(day.getDate() - daysAgo)
-      return getPeriodRefsForDate(day).week === prevWeek
-    }).length
-    // The tile's label reads "<task>: done z target"; the disc shows no number once the target is met.
-    await expect(block.locator('.qr-path-task')).toHaveAttribute(
-      'aria-label',
-      new RegExp(`: ${counted} z 2$`)
-    )
+    // The week's only text answer is the phase question (the task section left on 2026-11-17).
+    await expect(block.locator('textarea').first()).toHaveValue(/Sprawdziły się może/)
+    await expect(block.locator('.qr-path-task')).toHaveCount(0)
     expectNoAppErrors(consoleErrors)
   })
 })

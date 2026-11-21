@@ -119,11 +119,11 @@ export function groupColumns(
 
 /**
  * Whether "Praktyki" has anything to tile for this path: practices on a
- * rhythm, Momenty, or a week's real-world task. The view adds the personal
+ * rhythm or Momenty. The view adds the personal
  * response and the letter, which come from the enrollment, not the program.
  */
 export function pathHasPracticesContent(
-  program: Pick<ProgramDefinition, 'practices' | 'weeklyTasks' | 'momentKind'>
+  program: Pick<ProgramDefinition, 'practices' | 'momentKind'>
 ): boolean {
-  return Boolean(program.practices?.length || program.weeklyTasks?.length || program.momentKind)
+  return Boolean(program.practices?.length || program.momentKind)
 }

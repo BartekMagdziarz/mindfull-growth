@@ -1,17 +1,10 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { fireEvent, render, screen } from '@testing-library/vue'
 import { createPinia, setActivePinia } from 'pinia'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { getProgramDefinition } from '@/data/programCatalog'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import PathPracticesCard from '../PathPracticesCard.vue'
-
-vi.mock('@/services/programWeekService', () => ({
-  weekTaskState: vi.fn(async () => ({ intention: null, doneCount: 0 })),
-  proposeWeeklyTaskOptions: vi.fn(() => null),
-  acceptWeeklyTask: vi.fn(),
-  declineWeeklyTask: vi.fn(),
-}))
 
 beforeEach(() => {
   setActivePinia(createPinia())

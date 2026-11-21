@@ -1146,146 +1146,117 @@ export const DEMO_SHAME_MOMENTS: DemoShameMoment[] = [
 export interface DemoIntentionTaskWeek {
   /** Index into DEMO_WEEK_STORIES (0-based, chronological). */
   storyIndex: number
-  taskKey: string
   title: string
   times: number
   done: number
   severity: string
-  outcome: string
   phase: string
-  declined?: boolean
 }
 
-/** Shame path weekly real-world tasks + the „Ścieżka” step of the weekly reflection. */
+/** Julia's weekly intentions along the shame path + the „Ścieżka” step of the weekly reflection. */
 export const DEMO_SHAME_TASK_WEEKS: DemoIntentionTaskWeek[] = [
   {
     storyIndex: 8,
-    taskKey: 'nameShame',
     title: 'Nazwij wstyd, gdy się pojawi',
     times: 3,
     done: 2,
     severity: '4',
-    outcome: 'Nazwałam wstyd dwa razy. Za każdym razem trochę zmalał.',
     phase: 'Najczęściej wstyd przychodzi na spotkaniach z klientem.',
   },
   {
     storyIndex: 9,
-    taskKey: 'soothingGesture',
     title: 'Użyj kojącego gestu w trudnej chwili',
     times: 3,
     done: 3,
     severity: '4',
-    outcome: 'Ręka na sercu przed spotkaniem. Działa szybciej niż myślenie.',
     phase: 'Bezpieczne miejsce: pomost u dziadków.',
   },
   {
     storyIndex: 10,
-    taskKey: 'useResponse',
     title: 'Użyj swojej odpowiedzi na wstyd, gdy się pojawi',
     times: 3,
     done: 2,
     severity: '4',
-    outcome: 'W tygodniu oddawania projektu użyłam odpowiedzi dwa razy, w trakcie.',
     phase: 'Pod presją wracam do starego schematu, ale szybciej go widzę.',
   },
   {
     storyIndex: 11,
-    taskKey: 'friendTest',
     title: 'Zrób test przyjaciela, gdy krytyk się odezwie',
     times: 3,
     done: 3,
     severity: '3',
-    outcome: 'Nigdy nie powiedziałabym Oli tego, co mówię sobie.',
     phase: 'Mój standard: „zawsze wiedzieć, zanim zapytam”.',
   },
   {
     storyIndex: 12,
-    taskKey: 'stayLonger',
     title: 'Zostań w trudnej sytuacji o chwilę dłużej',
     times: 2,
     done: 2,
     severity: '3',
-    outcome: 'Zostałam w rozmowie z mamą, choć chciałam uciec.',
     phase: 'Dyskomfort mija szybciej, niż się spodziewam.',
   },
   {
     storyIndex: 13,
-    taskKey: 'noticeCritic',
     title: 'Zauważ krytyka i nazwij go po imieniu',
     times: 3,
     done: 3,
     severity: '3',
-    outcome: 'Trzy razy złapany. Mówię do niego „Krytyk” i to tworzy dystans.',
     phase: 'Krytyk chce mnie chronić przed odrzuceniem.',
   },
   {
     storyIndex: 14,
-    taskKey: 'handOver',
     title: 'Podziękuj krytykowi i weź ster',
     times: 2,
     done: 1,
     severity: '3',
-    outcome: 'Raz się udało. Za drugim razem krytyk wygrał, ale zauważyłam to wieczorem.',
     phase: 'Podziękowanie zamiast walki zmniejsza napięcie.',
   },
   {
     storyIndex: 15,
-    taskKey: 'sayNo',
     title: 'Powiedz „nie” jednej prośbie',
     times: 1,
     done: 1,
     severity: '3',
-    outcome: 'Odmówiłam dodatkowego projektu. Wyrzuty sumienia minęły po dniu.',
     phase: 'Odmowa to też troska o zespół.',
   },
   {
     storyIndex: 17,
-    taskKey: 'defendSelf',
     title: 'Stań po swojej stronie, gdy ktoś cię umniejsza',
     times: 2,
     done: 2,
     severity: '2',
-    outcome: 'Rozmowa z Tomkiem: spokojnie i konkretnie.',
     phase: 'Obrońca mówi krótko i bez przeprosin.',
   },
   {
     storyIndex: 18,
-    taskKey: 'collectEvidence',
     title: 'Zbieraj dowody przeciw przekonaniu „muszę być bez zarzutu”',
     times: 3,
     done: 3,
     severity: '2',
-    outcome: 'Lista ma już kilkanaście pozycji.',
     phase: 'Przekonanie słabnie, gdy widzę fakty na papierze.',
   },
   {
     storyIndex: 19,
-    taskKey: 'breakDemand',
     title: 'Złam wymaganie wobec siebie na próbę',
     times: 1,
     done: 1,
     severity: '2',
-    outcome: 'Makieta po dwóch rundach poprawek. Klient: „super”.',
     phase: 'Przewidywanie katastrofy sprawdziło się w zero procent.',
   },
   {
     storyIndex: 20,
-    taskKey: 'askQuestion',
     title: 'Zadaj pytanie, którego się wstydzisz',
     times: 2,
     done: 2,
     severity: '2',
-    outcome: 'Dwie osoby podziękowały za moje pytanie.',
     phase: 'Moje pytania pomagają też innym.',
   },
   {
     storyIndex: 21,
-    taskKey: 'keepResponse',
     title: 'Trzymaj się swojej odpowiedzi na wstyd',
     times: 3,
     done: 3,
     severity: '2',
-    outcome: 'Odpowiedź weszła w nawyk. Nie muszę o niej myśleć.',
     phase: 'Zostaję z odpowiedzią i przerwą na współczucie.',
   },
 ]

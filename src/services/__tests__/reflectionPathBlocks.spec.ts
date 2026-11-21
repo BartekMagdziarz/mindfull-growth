@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest'
+import type { WeekRef } from '@/domain/period'
 import type { ProgramEnrollment } from '@/domain/program'
 import { programEnrollmentDexieRepository } from '@/repositories/programEnrollmentDexieRepository'
+import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
 import { loadReflectionPathBlocks } from '@/services/programWeekService'
 import { connectTestDatabase } from '@/test/testDatabase'
 import { getPeriodRefsForDate } from '@/utils/periods'
@@ -16,10 +18,6 @@ function enrollment(overrides: Partial<ProgramEnrollment> = {}): ProgramEnrollme
     startedAt: '2026-09-21T10:00:00.000Z',
     currentStepIndex: 6,
     completedSteps: [],
-    weekLog: [
-      { weekRef: PREVIOUS_WEEK, taskKey: 'nameShame', decision: 'declined' },
-      { weekRef: WEEK, taskKey: 'useResponse', decision: 'declined' },
-    ],
     createdAt: '2026-09-21T10:00:00.000Z',
     updatedAt: '2026-10-11T10:00:00.000Z',
     ...overrides,
@@ -33,7 +31,6 @@ function restarted(overrides: Partial<ProgramEnrollment> = {}): ProgramEnrollmen
     startedAt: '2026-10-11T10:01:00.000Z',
     createdAt: '2026-10-11T10:01:00.000Z',
     currentStepIndex: 0,
-    weekLog: [],
     ...overrides,
   })
 }
@@ -43,15 +40,22 @@ async function save(...enrollments: ProgramEnrollment[]) {
   await db.programEnrollments.bulkPut(enrollments)
 }
 
+/** The week's reflection already holds a "Ścieżka" answer for this enrollment. */
+async function answer(weekRef: WeekRef, enrollmentId: string) {
+  await structuredReflectionDexieRepository.upsertWeekly({
+    weekRef,
+    promptResponses: { [`program.${enrollmentId}.severity`]: '3' },
+  })
+}
+
 describe('loadReflectionPathBlocks after a path restart', () => {
   beforeEach(async () => {
     const db = await connectTestDatabase()
     await db.programEnrollments.clear()
-    await db.dailyMeasurementEntries.clear()
-    await db.weeklyIntentions.clear()
+    await db.weeklyReflections.clear()
   })
 
-  it('shows only the new approach in the restart week and preserves the old log', async () => {
+  it('shows only the new approach in the restart week and leaves the old one untouched', async () => {
     const old = enrollment()
     await save(old, restarted())
 
@@ -59,17 +63,16 @@ describe('loadReflectionPathBlocks after a path restart', () => {
 
     expect(blocks.map(block => block.enrollment.id)).toEqual(['new-shame'])
     expect(blocks[0]?.phase?.week).toBe(1)
-    expect(blocks[0]?.entry).toBeUndefined()
     expect(await programEnrollmentDexieRepository.getById(old.id)).toEqual(old)
   })
 
-  it('reads the earlier approach in a week before the restart, with its historical task phase', async () => {
+  it('reads the earlier approach in a week before the restart when that week was answered', async () => {
     await save(enrollment(), restarted())
+    await answer(PREVIOUS_WEEK, 'old-shame')
 
     const blocks = await loadReflectionPathBlocks(PREVIOUS_WEEK)
 
     expect(blocks.map(block => block.enrollment.id)).toEqual(['old-shame'])
-    expect(blocks[0]?.task?.key).toBe('nameShame')
     expect(blocks[0]?.phase?.week).toBe(1)
   })
 
@@ -96,7 +99,7 @@ describe('loadReflectionPathBlocks after a path restart', () => {
         createdAt: '2026-10-11T11:00:00.000Z',
       }),
       enrollment(),
-      restarted({ status: 'abandoned', weekLog: enrollment().weekLog })
+      restarted({ status: 'abandoned' })
     )
 
     expect((await loadReflectionPathBlocks(WEEK)).map(block => block.enrollment.id)).toEqual([
@@ -104,7 +107,7 @@ describe('loadReflectionPathBlocks after a path restart', () => {
     ])
   })
 
-  it('keeps different paths and a task from a path completed during the week', async () => {
+  it('keeps different paths and a path completed during the week', async () => {
     await save(
       enrollment(),
       restarted(),
@@ -112,13 +115,12 @@ describe('loadReflectionPathBlocks after a path restart', () => {
         id: 'anger',
         programSlug: 'anger-signal',
         status: 'completed',
-        weekLog: [{ weekRef: WEEK, taskKey: 'noticeSigns', decision: 'declined' }],
+        completedAt: '2026-10-08T10:00:00.000Z',
       })
     )
 
     const blocks = await loadReflectionPathBlocks(WEEK)
     expect(blocks.map(block => block.enrollment.id)).toEqual(['anger', 'new-shame'])
-    expect(blocks[0]?.task?.key).toBe('noticeSigns')
   })
 
   it('ignores a restart in the following week when reading this week', async () => {
@@ -129,6 +131,7 @@ describe('loadReflectionPathBlocks after a path restart', () => {
         createdAt: '2026-10-12T10:00:00.000Z',
       })
     )
+    await answer(WEEK, 'old-shame')
 
     expect((await loadReflectionPathBlocks(WEEK)).map(block => block.enrollment.id)).toEqual([
       'old-shame',

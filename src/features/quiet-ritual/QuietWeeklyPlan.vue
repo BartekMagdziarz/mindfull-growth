@@ -23,59 +23,6 @@
   >
     <!-- 1 · Fokus — what deserves attention this week -->
     <div v-if="current === 0" class="qr-focus">
-      <!-- Program paths propose one real-world task per week; the user decides (plan §5). -->
-      <section
-        v-if="proposals.length"
-        class="qr-path-proposals"
-        :aria-label="t('programs.week.proposalsLabel')"
-      >
-        <article v-for="proposal in proposals" :key="proposal.enrollment.id" class="qr-path-card">
-          <header class="qr-path-card__head">
-            <AppIcon :name="proposal.program.icon" />
-            <span>{{
-              t('programs.week.fromPath', { title: t(`${proposal.program.i18nKey}.title`) })
-            }}</span>
-          </header>
-          <!-- 2–3 tasks of the phase to pick from, earlier phases behind a disclosure (plan v2 §4.3). -->
-          <ProgramTaskChoice
-            v-model="chosenTaskKeys[proposal.enrollment.id]"
-            :program="proposal.program"
-            :current="proposal.current"
-            :earlier="proposal.earlier"
-            :suggested-key="proposal.suggested.key"
-            :repeat="proposal.repeat"
-            :disabled="isSaving"
-            :name="`program-task-${proposal.enrollment.id}`"
-          />
-          <div class="qr-path-card__actions">
-            <button
-              type="button"
-              class="qr-primary"
-              :disabled="isSaving"
-              @click="acceptProposal(proposal)"
-            >
-              {{ t('programs.week.accept') }}
-            </button>
-            <button
-              type="button"
-              class="qr-quiet"
-              :disabled="isSaving"
-              @click="editProposal(proposal)"
-            >
-              {{ t('programs.week.edit') }}
-            </button>
-            <button
-              type="button"
-              class="qr-quiet"
-              :disabled="isSaving"
-              @click="declineProposal(proposal)"
-            >
-              {{ t('programs.week.decline') }}
-            </button>
-          </div>
-        </article>
-      </section>
-
       <details v-if="monthSupport.length" class="qr-month-context">
         <summary>Wsparcie z planu miesiąca ({{ monthSupport.length }})</summary>
         <button
@@ -404,12 +351,11 @@ import { normalizeWeeklyIntentionPayload } from '@/domain/planning'
 import { weeklyIntentionDexieRepository } from '@/repositories/weeklyIntentionDexieRepository'
 const criteriaEditor = useMeasurementCriteriaEditor()
 
-import { computed, nextTick, onMounted, reactive, ref, toRef, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, toRef, watch } from 'vue'
 import type { DayRef, WeekRef } from '@/domain/period'
 import type { Priority, WeeklyIntention } from '@/domain/planning'
 import type { WeekTopPriorityRef } from '@/domain/planningState'
 import type { PlannerMeasurementRow } from '@/components/calendar/plannerTypes'
-import ProgramTaskChoice from '@/components/exercises/ProgramTaskChoice.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import { useWeeklyPlannerState } from '@/composables/useWeeklyPlannerState'
@@ -421,14 +367,6 @@ import {
   setWeekTopPriorities,
 } from '@/services/weeklyIntentionService'
 import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
-import {
-  acceptWeeklyTask,
-  declineWeeklyTask,
-  listWeeklyTaskProposals,
-  type ProgramTaskProposal,
-} from '@/services/programWeekService'
-import type { ProgramWeeklyTask } from '@/domain/program'
-import { useProgramEnrollmentStore } from '@/stores/programEnrollment.store'
 import { formatMeasurementTargetSummary } from '@/utils/measurementTargetFormat'
 import { getParentPeriod, getPeriodRefsForDate } from '@/utils/periods'
 import QuietPlanGroups, { type QuietPlanGroupItem } from './QuietPlanGroups.vue'
@@ -438,13 +376,7 @@ import { SUBJECT_ICON, formatDay, plural, quietWeekDays, weekRangeTitle } from '
 const props = defineProps<{ weekRef: WeekRef }>()
 const emit = defineEmits<{ close: []; updated: [] }>()
 
-const { t, tg, locale } = useT()
-const enrollmentStore = useProgramEnrollmentStore()
-const proposals = ref<ProgramTaskProposal[]>([])
-/** Chosen task per enrollment (defaults to the service's suggestion). */
-const chosenTaskKeys = reactive<Record<string, string>>({})
-/** Set while the composer edits a path proposal before accepting it. */
-const pendingProposal = ref<ProgramTaskProposal | null>(null)
+const { t, locale } = useT()
 const current = ref(0)
 const showAll = ref(false)
 const showRest = ref(false)
@@ -622,22 +554,11 @@ watch(
 
 async function load() {
   const monthRef = getParentPeriod(props.weekRef)
-  const [weekPlan, weekIntentions, priorities, pathProposals] = await Promise.all([
+  const [weekPlan, weekIntentions, priorities] = await Promise.all([
     periodPlanDexieRepository.getWeekPlan(props.weekRef),
     listWeeklyIntentions(props.weekRef),
     getActivePrioritiesForMonth(monthRef),
-    listWeeklyTaskProposals(props.weekRef).catch(err => {
-      console.error('Failed to load program task proposals:', err)
-      return [] as ProgramTaskProposal[]
-    }),
   ])
-  proposals.value = pathProposals
-  for (const proposal of pathProposals) {
-    const known = [...proposal.current, ...proposal.earlier].some(
-      task => task.key === chosenTaskKeys[proposal.enrollment.id]
-    )
-    if (!known) chosenTaskKeys[proposal.enrollment.id] = proposal.suggested.key
-  }
   selectedKeys.value = (weekPlan?.topPriorities ?? []).map(
     ref => `${ref.subjectType}:${ref.subjectId}`
   )
@@ -698,76 +619,11 @@ async function onEntryDays(row: PlannerMeasurementRow, event: Event) {
   await planner.handleEntryDaysValueChange(row, value)
 }
 
-/** The task picked in the card (the suggestion until the user changes it). */
-function chosenTask(proposal: ProgramTaskProposal): ProgramWeeklyTask {
-  const key = chosenTaskKeys[proposal.enrollment.id]
-  return (
-    [...proposal.current, ...proposal.earlier].find(task => task.key === key) ?? proposal.suggested
-  )
-}
-
-function taskTitle(proposal: ProgramTaskProposal): string {
-  return tg(`${proposal.program.i18nKey}.tasks.${chosenTask(proposal).key}.title`)
-}
-
-async function afterProposalDecision(): Promise<void> {
-  await persistFocus()
-  await load()
-  await planner.loadPlannerData()
-  emit('updated')
-}
-
-async function acceptProposal(
-  proposal: ProgramTaskProposal,
-  title = taskTitle(proposal),
-  times = chosenTask(proposal).times,
-  priorityIds: string[] = []
-) {
-  isSaving.value = true
-  try {
-    const { intention, enrollment } = await acceptWeeklyTask({
-      enrollmentId: proposal.enrollment.id,
-      weekRef: props.weekRef,
-      taskKey: chosenTask(proposal).key,
-      title,
-      times,
-      priorityIds,
-    })
-    enrollmentStore.applyUpdate(enrollment)
-    // An accepted task is part of this week's focus straight away.
-    selectedKeys.value = [...selectedKeys.value, `weeklyIntention:${intention.id}`]
-  } finally {
-    isSaving.value = false
-  }
-  await afterProposalDecision()
-}
-
-async function editProposal(proposal: ProgramTaskProposal) {
-  await openComposer()
-  pendingProposal.value = proposal
-  intentionTitle.value = taskTitle(proposal)
-  intentionTimes.value = chosenTask(proposal).times
-}
-
-async function declineProposal(proposal: ProgramTaskProposal) {
-  isSaving.value = true
-  try {
-    enrollmentStore.applyUpdate(
-      await declineWeeklyTask(proposal.enrollment.id, props.weekRef, chosenTask(proposal).key)
-    )
-  } finally {
-    isSaving.value = false
-  }
-  await afterProposalDecision()
-}
-
 function closeComposer() {
   composerOpen.value = false
-  pendingProposal.value = null
 }
 
 async function openComposer(intention?: WeeklyIntention) {
-  pendingProposal.value = null
   editingIntentionId.value = intention?.id ?? null
   intentionTitle.value = intention?.title ?? ''
   intentionTimes.value = intention?.target.value ?? 1
@@ -785,13 +641,6 @@ async function saveIntention() {
   const title = intentionTitle.value.trim()
   const times = Math.max(1, Math.round(Number(intentionTimes.value) || 1))
   if (!title || isSaving.value) return
-  if (pendingProposal.value && !editingIntentionId.value) {
-    const proposal = pendingProposal.value
-    const priorityIds = [...intentionPriorityIds.value]
-    closeComposer()
-    await acceptProposal(proposal, title, times, priorityIds)
-    return
-  }
   isSaving.value = true
   try {
     if (editingIntentionId.value) {

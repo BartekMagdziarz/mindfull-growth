@@ -558,16 +558,9 @@
     "paths": {
       "nextStep": "Następny krok",
       "overdue": "zaległy",
-      "task": "Zadanie tygodnia",
-      "taskDays": {
-        "one": "{done} z {n} dnia",
-        "few": "{done} z {n} dni",
-        "many": "{done} z {n} dni"
-      },
       "doseHint": "Po sprawdzeniu dawki czeka propozycja spokojniejszego rytmu.",
       "doseSee": "Zobacz",
       "ariaStep": "Rozpocznij: {step}, {when}",
-      "ariaTask": "Zadanie tygodnia: {title}, {days}",
       "momentWhen": "w każdej chwili"
     }
   },

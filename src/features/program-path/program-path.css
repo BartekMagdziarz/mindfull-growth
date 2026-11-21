@@ -188,11 +188,6 @@
   font-size: var(--mg-font-size-sm);
 }
 
-.pp-wells {
-  display: inline-flex;
-  gap: 4px;
-}
-
 /* A tile inside a card (Lab round 6): the step tile's anatomy — head
    (title + mark), one sentence, an optional footer with the action right
    after the content. Tonal ladder in one direction: card (surface) →

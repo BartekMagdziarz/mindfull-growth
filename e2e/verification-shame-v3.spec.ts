@@ -77,10 +77,10 @@ test.describe('shame path v3', () => {
     await expect(week4.locator('.pp-tile')).toHaveCount(3)
     // The week row: the number well on the left, one state disc on the right reading done/total.
     await expect(week4.locator('.pp-disc--meter')).toHaveAttribute('aria-label', /z 3 kroków/)
-    // Praktyki: the practices, Momenty and the week's task as tiles.
+    // Praktyki: the practices and Momenty as tiles (no week task since 2026-11-17).
     const practices = page.getByTestId('path-practices')
     await expect(practices).toContainText('Przerwa na współczucie')
-    await expect(page.getByTestId('path-world')).toContainText('Użyj swojej odpowiedzi na wstyd')
+    await expect(page.getByTestId('path-world')).toHaveCount(0)
     await expect(
       page.getByTestId('path-moment-tile').getByRole('button', { name: 'Zapisz' })
     ).toBeVisible()
@@ -200,20 +200,14 @@ test.describe('shame path v3', () => {
     await step('Co zrobisz następnym razem?', 'Zapisz')
     await expect(page.locator('textarea')).toHaveCount(0)
 
-    // The reflection: the task's days (the seeded day from yesterday counts only when it is
-    // in this week), this week next to the previous one, the unlogged question.
-    const yesterday = new Date()
-    yesterday.setDate(yesterday.getDate() - 1)
-    const seededDays = getPeriodRefsForDate(yesterday).week === refs.week ? 1 : 0
+    // The reflection: this week next to the previous one, the unlogged question; no task section.
     await page.goto(`/calendar/week/${refs.week}?action=reflect`)
     for (let i = 0; i < 8 && !(await page.locator('.qr-path-step').isVisible()); i += 1) {
       await page.locator('.qr-arrow--next').click()
     }
     const block = page.locator('.qr-path-block', { hasText: 'Ze wstydu do współczucia' })
     await expect(block).toBeVisible()
-    await expect(block).toContainText('Użyj swojej odpowiedzi na wstyd')
-    // The task tile: one disc reading done/target; the counted days only on hover.
-    await expect(block.locator('.qr-path-task__disc')).toHaveText(`${seededDays + 1}/3`)
+    await expect(block.locator('.qr-path-task')).toHaveCount(0)
     const axis = await block.locator('.pc__axis small').filter({ hasText: /./ }).allTextContents()
     expect(axis).toHaveLength(2)
     expect(Number(axis[1]!.slice(1))).toBe(Number(axis[0]!.slice(1)) + 1)
@@ -250,7 +244,7 @@ test.describe('shame path v3', () => {
     await expect(page.getByTestId('micro-hint')).toContainText('Zadałem „głupie” pytanie')
   })
 
-  test('Today: the day plan lists the step and the practice; the paths card is one row — phase with dots, next step, Zapisz moment, the task as dots', async ({
+  test('Today: the day plan lists the step and the practice; the paths card is one row — phase with dots, next step, Zapisz moment', async ({
     page,
   }) => {
     test.setTimeout(120_000)
@@ -275,12 +269,7 @@ test.describe('shame path v3', () => {
     await expect(tile).not.toContainText('z 8')
     await expect(tile).not.toContainText('z 3')
 
-    const task = tile.getByTestId('today-path-task')
-    await expect(task).toContainText('Zadanie tygodnia')
-    await expect(task).toContainText('Użyj swojej odpowiedzi na wstyd')
-    await expect(task.locator('.ndpath__task-dots > i')).toHaveCount(3)
-    await expect(task.locator('.ndpath__task-dots > i.is-done')).toHaveCount(1)
-    await expect(task).toHaveAttribute('title', '1 z 3 dni')
+    await expect(tile.getByTestId('today-path-task')).toHaveCount(0)
 
     await expect(tile.getByTestId('today-path-moment')).toHaveAttribute(
       'href',

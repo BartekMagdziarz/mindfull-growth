@@ -192,9 +192,6 @@ export async function enterReturnScenario(days = 24): Promise<ReturnScenarioResu
         ...backdate(row, cutoffIso),
         completedSteps: kept,
         currentStepIndex: kept.length,
-        weekLog: Array.isArray(row.weekLog)
-          ? (row.weekLog as Row[]).filter(entry => String(entry.weekRef ?? '') <= cutoffRefs.week)
-          : row.weekLog,
       }
       if (typeof row.completedAt === 'string' && row.completedAt > cutoffIso) {
         delete next.completedAt

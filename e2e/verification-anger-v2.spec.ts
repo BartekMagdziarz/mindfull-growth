@@ -71,13 +71,13 @@ test.describe('anger path v2', () => {
     await expect(currentTile).toContainText('Po co:')
     await expect(currentTile.getByRole('button', { name: 'Rozpocznij' })).toBeVisible()
 
-    // Praktyki: the breath, Momenty and the week's accepted task; "Mój plan" quotes the pause plan.
+    // Praktyki: the breath and Momenty (no week task since 2026-11-17); "Mój plan" quotes the pause plan.
     const practices = page.getByTestId('path-practices')
     await expect(practices.getByTestId('path-practice-tile')).toHaveCount(1)
     await expect(
       practices.getByTestId('path-moment-tile').getByRole('button', { name: 'Zapisz' })
     ).toBeVisible()
-    await expect(page.getByTestId('path-world')).toContainText('Przypomnij sobie inną myśl')
+    await expect(page.getByTestId('path-world')).toHaveCount(0)
     await practices.getByRole('button', { name: 'Mój plan' }).click()
     await expect(page.getByTestId('path-response')).toContainText('potrzebuję minuty')
 
@@ -140,22 +140,19 @@ test.describe('anger path v2', () => {
     await expect(page.locator('textarea')).toHaveCount(0)
   })
 
-  test('the weekly reflection: the anger block has the compact chart, the task counted from a Moment and a backfilled Moment', async ({
+  test('the weekly reflection: the anger block has the compact chart, no task section and a backfilled Moment', async ({
     page,
   }) => {
     test.setTimeout(120_000)
     await bootSeededApp(page)
-    const yesterday = new Date()
-    yesterday.setDate(yesterday.getDate() - 1)
-    const seededDays = getPeriodRefsForDate(yesterday).week === refs.week ? 1 : 0
     await page.goto(`/calendar/week/${refs.week}?action=reflect`)
     for (let i = 0; i < 8 && !(await page.locator('.qr-path-step').isVisible()); i += 1) {
       await page.locator('.qr-arrow--next').click()
     }
     const block = page.locator('.qr-path-block', { hasText: 'Złość jako sygnał' })
     await expect(block).toBeVisible()
-    await expect(block).toContainText('Przypomnij sobie inną myśl')
-    await expect(block.locator('.qr-path-task__disc')).toHaveText(`${seededDays}/2`)
+    await expect(block.locator('.qr-path-task')).toHaveCount(0)
+    await expect(block.locator('.qr-path-sec')).toHaveCount(2)
     await expect(block.locator('.pc__legend-name')).toHaveText([
       'Wybuch',
       'Ostrzej',
@@ -178,7 +175,7 @@ test.describe('anger path v2', () => {
     await expect(block.locator('.qr-path-added li')).toHaveCount(0)
   })
 
-  test('Today: the anger path tile shows week dots, the phase, the barometer as the next step, Zapisz moment and the task', async ({
+  test('Today: the anger path tile shows week dots, the phase, the barometer as the next step and Zapisz moment', async ({
     page,
   }) => {
     test.setTimeout(120_000)
@@ -196,7 +193,7 @@ test.describe('anger path v2', () => {
       'href',
       '/exercises/micro/moment-anger'
     )
-    await expect(tile.getByTestId('today-path-task')).toContainText('Przypomnij sobie inną myśl')
+    await expect(tile.getByTestId('today-path-task')).toHaveCount(0)
     await expect(
       page.getByTestId('today-practices').locator('.ndp', { hasText: 'Barometr' })
     ).toBeVisible()
