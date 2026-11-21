@@ -230,7 +230,7 @@
       },
       "step8": {
         "title": "Czy nie za dużo?",
-        "intro": "Powiedz szczerze, ile praktyk naprawdę robisz. Ścieżka zaproponuje spokojniejszy rytm, jeśli trzeba.",
+        "intro": "Powiedz szczerze, ile praktyk naprawdę robisz. Jeśli trzeba, ścieżka zaproponuje, żeby pojawiały się rzadziej.",
         "why": "Ludzie porzucają ścieżki nie dlatego, że robią za mało, tylko dlatego, że ścieżka wygląda na rozczarowaną. Tu nic takiego nie ma."
       },
       "step9": {
@@ -276,7 +276,7 @@
       "step17": {
         "title": "Co zabieram ze sobą",
         "intro": "Wybierz pomocną praktykę, sygnał do pauzy i sposób szukania wsparcia. Nie musisz zachowywać wszystkiego.",
-        "why": "To, co zostaje w rytmie tygodnia, utrzymuje się po ścieżce. Ten krok zamyka ścieżkę i ustawia powtórki."
+        "why": "To, do czego wracasz co tydzień, utrzymuje się po ścieżce. Ten krok zamyka ścieżkę i ustawia powtórki."
       },
       "step18": {
         "title": "Barometr po ośmiu tygodniach",
@@ -413,7 +413,7 @@
       },
       "step11": {
         "title": "Czy nie za dużo?",
-        "intro": "Powiedz szczerze, ile praktyk naprawdę robisz. Ścieżka zaproponuje spokojniejszy rytm, jeśli trzeba.",
+        "intro": "Powiedz szczerze, ile praktyk naprawdę robisz. Jeśli trzeba, ścieżka zaproponuje, żeby pojawiały się rzadziej.",
         "why": "Ludzie porzucają ścieżki nie dlatego, że robią za mało, tylko dlatego, że ścieżka wygląda na rozczarowaną. Tu nic takiego nie ma."
       },
       "step12": {
@@ -459,7 +459,7 @@
       "step20": {
         "title": "Co zabieram ze sobą",
         "intro": "Wybierz pomocną praktykę, małą próbę do powtórzenia i sposób szukania wsparcia. Nie trzeba zachowywać wszystkiego.",
-        "why": "To, co zostaje w rytmie tygodnia, utrzymuje się po ścieżce. Ten krok zamyka ścieżkę i ustawia powtórki."
+        "why": "To, do czego wracasz co tydzień, utrzymuje się po ścieżce. Ten krok zamyka ścieżkę i ustawia powtórki."
       },
       "step21": {
         "title": "Pomiar po ośmiu tygodniach",
@@ -679,9 +679,9 @@
         "why": "Gorsze dni wrócą. List z dobrego dnia działa wtedy, gdy ciepła do siebie akurat brakuje."
       },
       "step24": {
-        "intro": "Zdecyduj, które praktyki zostają z tobą i w jakim rytmie. Ten krok zamyka ścieżkę. Powrót przyjdzie za osiem tygodni.",
+        "intro": "Zdecyduj, które praktyki zostają z tobą i jak często chcesz do nich wracać. Ten krok zamyka ścieżkę. Powrót przyjdzie za osiem tygodni.",
         "title": "Co zostaje ze mną",
-        "why": "Bez decyzji praktyki wygasają. Wybierasz kilka, które zostają, i rytm, który się utrzyma."
+        "why": "Bez decyzji praktyki wygasają. Wybierasz kilka, które zostają, i to, jak często do nich wracasz."
       },
       "step25": {
         "intro": "Powrót po ośmiu tygodniach: pomiar samowspółczucia po raz czwarty.",
@@ -873,7 +873,7 @@
     "applyTooMuch": "Rzadziej",
     "applyNone": "Zostaw tylko oddech",
     "keep": "Zostaw jak jest",
-    "followUp": "Propozycja spokojniejszego rytmu czeka w widoku ścieżki. Jedno kliknięcie.",
+    "followUp": "W widoku ścieżki czeka propozycja rzadszych praktyk. Jedno kliknięcie.",
     "open": "Otwórz ścieżkę"
   },
   "followUp": {

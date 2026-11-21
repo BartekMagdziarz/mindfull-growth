@@ -558,7 +558,7 @@
     "paths": {
       "nextStep": "Następny krok",
       "overdue": "zaległy",
-      "doseHint": "Po sprawdzeniu dawki czeka propozycja spokojniejszego rytmu.",
+      "doseHint": "Po pytaniu „Czy nie za dużo?” czeka propozycja rzadszych praktyk.",
       "doseSee": "Zobacz",
       "ariaStep": "Rozpocznij: {step}, {when}",
       "momentWhen": "w każdej chwili"
@@ -1269,7 +1269,7 @@
       },
       "review": {
         "label": "Start",
-        "title": "Wprowadź kierunek w rytm"
+        "title": "Włącz kierunek do planu"
       }
     },
     "meaning": {
@@ -1343,7 +1343,7 @@
       "iconHint": "Tak zobaczysz ten kierunek w Dzisiaj i w planie miesiąca.",
       "lifeAreasLabel": "Obszary życia",
       "lifeAreasEmpty": "Brak zdefiniowanych obszarów życia — możesz je dodać w Profilu.",
-      "rhythmTitle": "Wejście w rytm",
+      "rhythmTitle": "W planie i refleksji",
       "monthFocusLabel": "Dodaj do fokusu miesiąca: {month}",
       "monthFocusSlots": "Zajęte {count} z {max} miejsc.",
       "monthFocusFull": "Fokus na {month} jest już pełny ({max}). Kierunek dołączy do planu w kolejnym miesiącu.",
@@ -1869,7 +1869,7 @@
     "next": "Od początku okresu:",
     "all": "Dla całej historii",
     "date": "Od wybranej daty",
-    "boundary": "Pierwszy dzień tygodnia lub miesiąca zgodnie z rytmem obiektu",
+    "boundary": "Pierwszy dzień tygodnia lub miesiąca, zgodnie z częstotliwością obiektu",
     "invalidDate": "Wybierz pierwszy dzień tygodnia lub miesiąca.",
     "preview": "Zmienione okresy: {changed}. Dodatkowo zaliczone: {gained}.",
     "overrides": "Indywidualne cele ustawione dla konkretnych tygodni i miesięcy zachowają pierwszeństwo.",

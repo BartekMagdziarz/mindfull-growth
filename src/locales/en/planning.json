@@ -558,7 +558,7 @@
     "paths": {
       "nextStep": "Next step",
       "overdue": "overdue",
-      "doseHint": "After the dose check, a calmer rhythm is waiting for your decision.",
+      "doseHint": "After “Is it too much?”, a proposal to practise less often is waiting.",
       "doseSee": "See",
       "ariaStep": "Start: {step}, {when}",
       "momentWhen": "any time"
@@ -1269,7 +1269,7 @@
       },
       "review": {
         "label": "Start",
-        "title": "Bring the direction into your rhythm"
+        "title": "Add the direction to your plan"
       }
     },
     "meaning": {
@@ -1343,7 +1343,7 @@
       "iconHint": "This is how you'll see the direction in Today and in the month plan.",
       "lifeAreasLabel": "Life areas",
       "lifeAreasEmpty": "No life areas defined yet — you can add them in your Profile.",
-      "rhythmTitle": "Entering the rhythm",
+      "rhythmTitle": "In the plan and the reflection",
       "monthFocusLabel": "Add to this month's focus: {month}",
       "monthFocusSlots": "{count} of {max} slots taken.",
       "monthFocusFull": "The focus for {month} is already full ({max}). The direction will join the plan next month.",

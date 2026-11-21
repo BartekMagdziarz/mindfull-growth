@@ -130,7 +130,7 @@
           v-if="item.kind !== 'weeklyIntention'"
           v-model="item.cadence"
           class="mg-v2-field"
-          aria-label="Rytm"
+          aria-label="Częstotliwość"
           @change="$emit('edit')"
         >
           <option value="weekly">w tygodniu</option>

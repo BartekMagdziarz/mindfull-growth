@@ -230,7 +230,7 @@
       },
       "step8": {
         "title": "Is it too much?",
-        "intro": "Say honestly how many of the practices you really do. The path proposes a calmer rhythm if needed.",
+        "intro": "Say honestly how many of the practices you really do. If needed, the path proposes that they come up less often.",
         "why": "People drop out of paths not because they do too little, but because the path looks disappointed. There is none of that here."
       },
       "step9": {
@@ -276,7 +276,7 @@
       "step17": {
         "title": "What I take with me",
         "intro": "Choose a helpful practice, a signal to pause and a way to seek support. You do not need to keep everything.",
-        "why": "What stays in the week’s rhythm lasts after the path. This step closes the path and sets the repeats."
+        "why": "What you return to every week lasts after the path. This step closes the path and sets the repeats."
       },
       "step18": {
         "title": "The barometer eight weeks on",
@@ -413,7 +413,7 @@
       },
       "step11": {
         "title": "Is it too much?",
-        "intro": "Say honestly how many of the practices you really do. The path proposes a calmer rhythm if needed.",
+        "intro": "Say honestly how many of the practices you really do. If needed, the path proposes that they come up less often.",
         "why": "People drop out of paths not because they do too little, but because the path looks disappointed. There is none of that here."
       },
       "step12": {
@@ -459,7 +459,7 @@
       "step20": {
         "title": "What I take with me",
         "intro": "Choose a helpful practice, a small attempt to repeat and a way to seek support. You do not need to keep everything.",
-        "why": "What stays in the week’s rhythm lasts after the path. This step closes the path and sets the repeats."
+        "why": "What you return to every week lasts after the path. This step closes the path and sets the repeats."
       },
       "step21": {
         "title": "The measure eight weeks on",
@@ -679,9 +679,9 @@
         "why": "Worse days will come back. A letter from a good day works when warmth toward yourself is just missing."
       },
       "step24": {
-        "intro": "Decide which practices stay with you and in what rhythm. This step closes the path; the Return comes in eight weeks.",
+        "intro": "Decide which practices stay with you and how often you want to return to them. This step closes the path; the Return comes in eight weeks.",
         "title": "What stays with me",
-        "why": "Without a decision the practices fade. You choose a few that stay and a rhythm that will hold."
+        "why": "Without a decision the practices fade. You choose a few that stay and how often you return to them."
       },
       "step25": {
         "intro": "The Return after eight weeks: the self-compassion scale for the fourth time.",
@@ -873,7 +873,7 @@
     "applyTooMuch": "Less often",
     "applyNone": "Keep only the breath",
     "keep": "Leave as is",
-    "followUp": "A calmer rhythm is proposed in the path view. One click.",
+    "followUp": "The path view proposes practising less often. One click.",
     "open": "Open the path"
   },
   "followUp": {

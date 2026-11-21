@@ -132,7 +132,7 @@
       </form>
     </div>
 
-    <!-- 2 · Rytm — where the focus lands in the seven days -->
+    <!-- 2 · Dni (step id `rhythm`) — where the focus lands in the seven days -->
     <section v-else-if="current === 1" class="qr-planner">
       <div class="qr-table-scroll">
         <div class="qr-table">
@@ -399,7 +399,7 @@ const planner = useWeeklyPlannerState(weekRefRef, locale, () => emit('updated'))
 
 const steps: QuietRitualStep[] = [
   { id: 'focus', label: 'Fokus', question: 'Na czym chcesz się skupić?' },
-  { id: 'rhythm', label: 'Rytm', question: 'Kiedy znajdziesz na to miejsce?' },
+  { id: 'rhythm', label: 'Dni', question: 'Kiedy znajdziesz na to miejsce?' },
   { id: 'review', label: 'Przegląd', question: 'Czy ten plan jest dla Ciebie?' },
 ]
 

@@ -4369,7 +4369,7 @@
       "keep": {
         "title": "Które praktyki zostają z tobą?",
         "description": "Wybierz te z tej ścieżki, które chcesz utrzymać, i dodaj swój plan na trudną chwilę.",
-        "why": "Efekty utrzymują się lepiej, gdy kilka praktyk zostaje w rytmie tygodnia. Nawyk potrzebuje więcej niż ośmiu tygodni.",
+        "why": "Efekty utrzymują się lepiej, gdy do kilku praktyk wracasz regularnie także po ścieżce. Nawyk potrzebuje więcej niż ośmiu tygodni.",
         "options": {
           "response": "Mój plan na trudną chwilę"
         }
@@ -4387,7 +4387,7 @@
       },
       "rhythm": {
         "title": "Jak często?",
-        "description": "Jeden rytm dla wybranych praktyk. Lepiej rzadziej, a regularnie.",
+        "description": "To samo dla wszystkich wybranych praktyk. Lepiej rzadziej, a regularnie.",
         "why": "Liczy się częstotliwość, nie długość. Cztery krótkie kontakty w tygodniu działają lepiej niż jeden długi.",
         "options": {
           "daily": "Codziennie",

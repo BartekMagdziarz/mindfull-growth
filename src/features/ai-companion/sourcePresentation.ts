@@ -37,7 +37,7 @@ const labels: Record<string, string> = {
   value: 'Zapisana wartość',
   letter: 'List',
   target: 'Cel pomiaru',
-  cadence: 'Rytm',
+  cadence: 'Częstotliwość',
   activityState: 'Stan planu',
   status: 'Status',
 }

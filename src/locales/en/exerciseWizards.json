@@ -4369,7 +4369,7 @@
       "keep": {
         "title": "Which practices stay with you?",
         "description": "Pick the ones from this path you want to keep, and add your plan for a hard moment.",
-        "why": "Progress lasts better when a few practices stay in your weekly rhythm. A habit needs more than eight weeks.",
+        "why": "Progress lasts better when you keep returning to a few practices after the path. A habit needs more than eight weeks.",
         "options": {
           "response": "My plan for a hard moment"
         }
@@ -4387,7 +4387,7 @@
       },
       "rhythm": {
         "title": "How often?",
-        "description": "One rhythm for the chosen practices. Less often but regular beats a burst.",
+        "description": "The same for all the chosen practices. Less often but regular beats a burst.",
         "why": "Frequency matters more than length. Four short touches a week work better than one long one.",
         "options": {
           "daily": "Every day",
