@@ -482,3 +482,50 @@ plan card, a missing entry, the record quote, the "none today" branch),
 `exerciseCatalog.spec` (CBT tab 36, catalog 80). Four icons joined the organic family
 (`exercise-safe-place-return`, `-response-rehearsal`, `-critic-handover`,
 `-step-toward-people`).
+
+**P12 (2026-11-21) — phase practices, stage E2: the shame path hands them over.** The
+catalog's practice list of `shame-compassion` is now Momenty plus one practice per week phase:
+
+| Phase | Practice | In the day plan while the current step is |
+|---|---|---|
+| — | `moment-shame`, every 2 days | after the map (step 3) → the close |
+| w1 Rozpoznanie | `paced-breathing`, daily | steps 1–5 |
+| w2 Oparcie | `safe-place-return` | steps 6–8 |
+| w3 Plan na trudną chwilę | `response-rehearsal` | steps 9–10 |
+| w4 Inne spojrzenie | `self-compassion-break` | steps 11–13 |
+| w5 Krytyk | `critic-handover` | steps 14–16 |
+| w6 Własny głos | `shame-writing` | steps 17–18 |
+| w7 Wyjście z ukrycia | `positive-data-log` | steps 19–21 |
+| w8 Utrwalenie | `step-toward-people` | steps 22–24 |
+
+- **The window rule** (`ProgramPractice.phaseKey`, `practiceStepWindow` in
+  `src/domain/program.ts`): a phase practice opens once its phase's FIRST step is done and
+  closes once the NEXT phase's first step is done; the first phase's practice runs from the
+  enrollment. Reason: in weeks 2, 3 and 7 the first step creates what the practice rehearses
+  (the safe place, the plan, the new belief), and the wait before a phase's first step would
+  otherwise be the practice's main stretch. So while phase n's first step is still ahead, the
+  practice of phase n−1 keeps running. A practice with `phaseKey` carries no step indices.
+- **On demand**: `derivePracticeStates` returns `upcoming` · `active` · `onDemand` (was
+  `ended`); a closed path has every practice on demand. `handedOverPractices` (running or on
+  demand, not the ones still ahead) feeds `optionsFrom: 'programPractices'` — the dose check,
+  the maintenance plan and Powrót no longer list practices the user has not met.
+- **Dose check**: "za dużo" → every open practice that comes up more often than every third
+  day goes to every third day; "nie robię ich" → every open practice goes weekly (the "only
+  the breath stays" rule is gone — the breath is never open at the dose check). Accepting
+  writes `doseOverrides(proposal)`: the listed practices plus `PRACTICE_OVERRIDE_ALL` (`'*'`),
+  which `practiceEveryDays` applies to the practices of later phases (never faster than the
+  definition; a practice's own override wins).
+- **No content-version bump**: the step list did not change, and `runProgramScheduler`
+  reconciles practices on every Today load — an open enrollment drops the pending occurrence
+  of a practice whose window closed and gets the one of its phase; Momenty return for
+  enrollments past the Critic phase. History and closed enrollments are untouched.
+- Pure window logic lives in the domain now (`isPracticeWindowOpen`, `practiceEveryDays`);
+  the scheduler and `programFollowUp.ts` share it instead of two copies.
+- Seed `RICH_SCENARIO_VERSION` 13: the shame enrollment (step 10 due) has "Próba planu" due
+  today, Momenty tomorrow, one earlier entry of "Wracam do miejsca" and "Próba planu". Specs:
+  `programPracticeWindow.spec` (domain), `programPhasePractices.spec` (the real path, step by
+  step), `programFollowUp.spec` (dose), `programCatalog.spec` (one practice per week phase).
+- Not in this stage: the growing Moment moves (E3) and the collection in the "Praktyki" card
+  (E4, to land with the path view port from Lab `/concepts/path-view-v4`). Until then an
+  on-demand practice is opened from the exercise catalog.
+

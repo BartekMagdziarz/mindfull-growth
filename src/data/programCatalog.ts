@@ -567,42 +567,65 @@ export const PROGRAM_CATALOG: readonly ProgramDefinition[] = [
       { key: 'w8', fromStepIndex: 20, week: 8 },
       { key: 'return', fromStepIndex: 24 },
     ],
-    // Never more than two at once: breath → breath + Momenty → Momenty +
-    // break → break + writing → break + positive data (plan §1.4).
+    // Momenty are the constant practice (from the map to the close); every
+    // phase adds ONE practice that the path puts into the day plan from the
+    // phase's first step to the next phase's first step and that stays on
+    // demand afterwards — never more than two at once (plan
+    // ideas/html-plans/2026-11-17-shame-path-phase-practices.html §3).
     practices: [
-      {
-        exerciseSlug: 'paced-breathing',
-        everyDays: 1,
-        endsAfterStep: 6,
-        introKey: 'programs.shame-compassion.practices.paced-breathing.intro',
-      },
       {
         exerciseSlug: 'moment-shame',
         everyDays: 2,
         startsAfterStep: 2,
-        endsAfterStep: 13,
         introKey: 'programs.shame-compassion.practices.moment-shame.intro',
+      },
+      {
+        exerciseSlug: 'paced-breathing',
+        everyDays: 1,
+        phaseKey: 'w1',
+        introKey: 'programs.shame-compassion.practices.paced-breathing.intro',
+      },
+      {
+        exerciseSlug: 'safe-place-return',
+        everyDays: 2,
+        phaseKey: 'w2',
+        introKey: 'programs.shame-compassion.practices.safe-place-return.intro',
+      },
+      {
+        exerciseSlug: 'response-rehearsal',
+        everyDays: 2,
+        phaseKey: 'w3',
+        introKey: 'programs.shame-compassion.practices.response-rehearsal.intro',
       },
       {
         exerciseSlug: 'self-compassion-break',
         everyDays: 2,
-        startsAfterStep: 6,
-        endsAfterStep: 23,
+        phaseKey: 'w4',
         introKey: 'programs.shame-compassion.practices.self-compassion-break.intro',
+      },
+      {
+        exerciseSlug: 'critic-handover',
+        everyDays: 2,
+        phaseKey: 'w5',
+        introKey: 'programs.shame-compassion.practices.critic-handover.intro',
       },
       {
         exerciseSlug: 'shame-writing',
         everyDays: 2,
-        startsAfterStep: 14,
-        endsAfterStep: 16,
+        phaseKey: 'w6',
         introKey: 'programs.shame-compassion.practices.shame-writing.intro',
       },
       {
         exerciseSlug: 'positive-data-log',
         everyDays: 2,
-        startsAfterStep: 17,
-        endsAfterStep: 23,
+        phaseKey: 'w7',
         introKey: 'programs.shame-compassion.practices.positive-data-log.intro',
+      },
+      {
+        exerciseSlug: 'step-toward-people',
+        everyDays: 2,
+        phaseKey: 'w8',
+        introKey: 'programs.shame-compassion.practices.step-toward-people.intro',
       },
     ],
   },

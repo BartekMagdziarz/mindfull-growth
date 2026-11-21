@@ -263,6 +263,7 @@ import { getCatalogEntry } from '@/data/exerciseCatalog'
 import { getMicroExercise } from '@/data/microExercises'
 import { getProgramDefinition } from '@/data/programCatalog'
 import type { Quadrant } from '@/domain/emotion'
+import { handedOverPractices, isDeliveringEnrollment } from '@/domain/program'
 import type { EmotionGroupSelection } from '@/domain/emotionGroups'
 import type {
   MicroExerciseDefinition,
@@ -435,12 +436,19 @@ interface ChoiceOption {
   hint: string
 }
 
-/** Practice slugs of the user's open paths, in path order, de-duplicated. */
+/**
+ * Practices the user's paths have handed over so far, in path order,
+ * de-duplicated: open paths, and closed ones still waiting for "Powrót"
+ * (its "what stayed" question is asked after the close).
+ */
 const programPracticeSlugs = computed<string[]>(() => {
   const slugs: string[] = []
   for (const enrollment of enrollmentStore.enrollments) {
-    if (enrollment.status !== 'active' && enrollment.status !== 'paused') continue
-    for (const practice of getProgramDefinition(enrollment.programSlug)?.practices ?? []) {
+    const program = getProgramDefinition(enrollment.programSlug)
+    if (!program) continue
+    const open = enrollment.status === 'active' || enrollment.status === 'paused'
+    if (!open && !isDeliveringEnrollment(program, enrollment)) continue
+    for (const practice of handedOverPractices(program, enrollment)) {
       if (!slugs.includes(practice.exerciseSlug)) slugs.push(practice.exerciseSlug)
     }
   }

@@ -503,7 +503,7 @@
   },
   "shame-compassion": {
     "title": "From shame to compassion",
-    "description": "Eight weeks of work with shame, based on compassion-focused therapy and the language of parts (IFS). The goal: to notice shame sooner, to answer it with warmth instead of attacking yourself, attacking others or hiding, and to come back into contact. First you recognise which parts take the wheel and build a place you can return to. Then the compassionate side of yourself, a plan for the hot moment and the question what this shame is about. Next you meet the critic as a part, write a letter and learn a voice that takes your side, and in the last weeks you come out of hiding in small, safe steps. Alongside the steps: breath, Moments and short practices, a dose check halfway, and a Return eight weeks after the end. This path is no substitute for therapy when shame is tied to violence, abuse or a serious crisis.",
+    "description": "Eight weeks of work with shame, based on compassion-focused therapy and the language of parts (IFS). The goal: to notice shame sooner, to answer it with warmth instead of attacking yourself, attacking others or hiding, and to come back into contact. First you recognise which parts take the wheel and build a place you can return to. Then the compassionate side of yourself, a plan for the hot moment and the question what this shame is about. Next you meet the critic as a part, write a letter and learn a voice that takes your side, and in the last weeks you come out of hiding in small, safe steps. Alongside the steps: Moments and one new short practice in every phase, a dose check halfway, and a Return eight weeks after the end. This path is no substitute for therapy when shame is tied to violence, abuse or a serious crisis.",
     "reflection": {
       "severity": "How much did shame affect this week?"
     },
@@ -619,7 +619,7 @@
         "why": "The second point shows the direction before you reach the end. It is a picture, not a grade."
       },
       "step12": {
-        "intro": "Let's check the dose, not the result. If there are too many practices, fewer will stay; if you're doing none, the smallest one stays.",
+        "intro": "Let's check the dose, not the result. If there are too many practices, they will come up less often; if you're doing none, once a week stays.",
         "title": "Is it too much?",
         "why": "The path has to fit into life. Better less and regular than a lot and never."
       },
@@ -700,20 +700,32 @@
       }
     },
     "practices": {
-      "paced-breathing": {
-        "intro": "Every day for the first two weeks, from day one. Two or three minutes of exhaling longer than you inhale. The foundation for everything that follows; after the compassionate self, the self-compassion break takes over."
-      },
       "moment-shame": {
-        "intro": "Every other day from the shame map to the end of the critic work. Five taps: which part took the wheel, when you noticed, what you did instead, how strong. The rest is optional. Afterwards Moments stay on demand."
+        "intro": "Every other day, from the shame map to the end of the path. Five taps: which part took the wheel, when you noticed, what you did instead, how strong."
+      },
+      "paced-breathing": {
+        "intro": "Every day in the first phase. Two or three minutes of exhaling longer than you inhale. The foundation for everything that follows."
+      },
+      "safe-place-return": {
+        "intro": "Every other day once you have your safe place. A minute of breath and a short return to the place and its anchors."
+      },
+      "response-rehearsal": {
+        "intro": "Every other day once you have your plan for a hard moment. You walk through it in your mind: the signal, two sentences, a small step."
       },
       "self-compassion-break": {
-        "intro": "Every other day, from the compassionate self to the end of the path. Twenty seconds of breath and three steps: mindfulness, common humanity, kindness."
+        "intro": "Every other day in the phase of another look. Twenty seconds of breath and three steps: mindfulness, common humanity, kindness."
+      },
+      "critic-handover": {
+        "intro": "Every other day in the Critic phase. What it said, what it was trying to protect you from, then the sentence that thanks it and takes the wheel."
       },
       "shame-writing": {
-        "intro": "Every other day in the week of the new voice. After a moment of shame, three paragraphs: common humanity, kindness to yourself, distance. From research: this writing lowers shame-proneness when it's longer than a note."
+        "intro": "Every other day in the phase of your own voice. After a moment of shame, three paragraphs: common humanity, kindness to yourself, distance. It works when it is longer than a note."
       },
       "positive-data-log": {
-        "intro": "Every other day from the beliefs step. You add evidence for the fair demand on yourself."
+        "intro": "Every other day once you have the new belief. You add evidence for the fair demand on yourself."
+      },
+      "step-toward-people": {
+        "intro": "Every other day in the last phase. You write down one small step where shame told you to hide, and how it went."
       }
     },
     "scaleLabels": {
@@ -866,12 +878,12 @@
       "f": "You wrote that the practices are too much. Less often works too — regularity counts, not quantity."
     },
     "leadNone": {
-      "m": "You wrote that you are not doing them. No reproach. Let us keep only the smallest thing: the breath. The rest once a week, until there is room again.",
-      "f": "You wrote that you are not doing them. No reproach. Let us keep only the smallest thing: the breath. The rest once a week, until there is room again."
+      "m": "You wrote that you are not doing them. No reproach. Let them come up once a week, until there is room again.",
+      "f": "You wrote that you are not doing them. No reproach. Let them come up once a week, until there is room again."
     },
     "cardHint": "The card “{card}” is worth a read.",
     "applyTooMuch": "Less often",
-    "applyNone": "Keep only the breath",
+    "applyNone": "Once a week",
     "keep": "Leave as is",
     "followUp": "The path view proposes practising less often. One click.",
     "open": "Open the path"

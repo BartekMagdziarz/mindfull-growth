@@ -2123,10 +2123,11 @@ export async function seedVerificationData(): Promise<void> {
   // place, image, compassionate self, response, "O czym jest ten wstyd?"),
   // the tenth (thought record, week 4) due today. Two tagged compass parts
   // from the map, eight moments with the v3 quick taps (part · noticed ·
-  // response · strength), one calm-day note, the self-compassion break due
-  // today and Momenty tomorrow, and an accepted task for the current week
-  // (useResponse, 1 of 3 days done via a moment) so the task↔exercise
-  // bridge and the choice card have data.
+  // response · strength), one calm-day note. Practices (2026-11-17): Momenty
+  // tomorrow and the practice of week 3 — "Próba planu" — due today (a phase
+  // practice runs from its phase's first step to the next phase's first
+  // step, and week 4's thought record is still ahead); one earlier entry of
+  // "Wracam do miejsca" and one of "Próba planu".
   const shameStart = addDaysToDayRef(todayRef, -24)
   const shameEnrollment = await programEnrollmentDexieRepository.create({
     programSlug: 'shame-compassion',
@@ -2400,11 +2401,26 @@ export async function seedVerificationData(): Promise<void> {
     programRole: 'practice',
   })
   await exercisePlanDexieRepository.create({
-    exerciseSlug: 'self-compassion-break',
+    exerciseSlug: 'response-rehearsal',
     dayRef: todayRef,
     source: 'program',
     sourceRef: shameEnrollment.id,
     programRole: 'practice',
+  })
+  // The phase practices already handed over: one return to the safe place, one rehearsal of the plan.
+  await microExerciseEntryDexieRepository.create({
+    exerciseSlug: 'safe-place-return',
+    createdAt: `${addDaysToDayRef(todayRef, -14)}T08:00:00.000Z`,
+    responses: {
+      breath: { completedSeconds: 60, phaseSeconds: [4, 0, 6, 0], totalSeconds: 60 },
+      noticed: 'Dziś było tam cicho, tylko woda o pomost.',
+      helpful: 4,
+    },
+  })
+  await microExerciseEntryDexieRepository.create({
+    exerciseSlug: 'response-rehearsal',
+    createdAt: `${addDaysToDayRef(todayRef, -9)}T08:00:00.000Z`,
+    responses: { situation: 'work', said: ['unblend', 'kind'], move: 'ask', ready: 3 },
   })
   await programEnrollmentDexieRepository.update(shameEnrollment.id, {
     currentStepIndex: 9,

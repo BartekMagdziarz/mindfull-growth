@@ -75,6 +75,15 @@ export interface ProgramPractice {
   startsAfterStep?: number
   /** 0-based step index; the practice ends once that step is done or skipped. Absent = until the path ends. */
   endsAfterStep?: number
+  /**
+   * The practice of one phase (plan 2026-11-17, shame path): the path hands
+   * it over once the phase's FIRST step is done — that step creates what the
+   * practice rehearses — and keeps it in the day plan until the next phase's
+   * first step is done. The first phase's practice runs from the enrollment.
+   * Afterwards it stays available on demand. Replaces the two step indices
+   * (see `practiceStepWindow`).
+   */
+  phaseKey?: string
   /** `programs.<slug>.practices.<exerciseSlug>.intro`. */
   introKey?: string
 }
@@ -91,6 +100,83 @@ export interface ProgramPhase {
   fromStepIndex: number
   /** 1-based week number shown on the phase card; absent = not a week. */
   week?: number
+}
+
+/**
+ * The practice's window in steps. A phase practice (`phaseKey`) opens after
+ * its phase's first step and closes after the next phase's first step; the
+ * first phase's practice is open from the enrollment. Other practices carry
+ * their own indices.
+ */
+export function practiceStepWindow(
+  program: Pick<ProgramDefinition, 'phases'>,
+  practice: ProgramPractice
+): { startsAfterStep?: number; endsAfterStep?: number } {
+  const phases = program.phases ?? []
+  const index = practice.phaseKey ? phases.findIndex(phase => phase.key === practice.phaseKey) : -1
+  if (index < 0) {
+    return { startsAfterStep: practice.startsAfterStep, endsAfterStep: practice.endsAfterStep }
+  }
+  return {
+    startsAfterStep: index === 0 ? undefined : phases[index]!.fromStepIndex,
+    endsAfterStep: phases[index + 1]?.fromStepIndex,
+  }
+}
+
+/**
+ * Whether the path puts the practice into the day plan at the enrollment's
+ * current step. Windows are expressed in steps, not dates: an index is
+ * passed once the enrollment moves beyond it (done or skipped alike).
+ */
+export function isPracticeWindowOpen(
+  program: Pick<ProgramDefinition, 'phases' | 'steps'>,
+  practice: ProgramPractice,
+  enrollment: Pick<ProgramEnrollment, 'status' | 'currentStepIndex'>
+): boolean {
+  if (enrollment.status !== 'active') return false
+  const index = enrollment.currentStepIndex
+  if (index >= program.steps.length) return false
+  const { startsAfterStep, endsAfterStep } = practiceStepWindow(program, practice)
+  if (startsAfterStep !== undefined && index <= startsAfterStep) return false
+  if (endsAfterStep !== undefined && index > endsAfterStep) return false
+  return true
+}
+
+/**
+ * Practices the path has already handed over — running now or available on
+ * demand after their window — in definition order. A closed path has handed
+ * over all of them. (Lists in the dose check, the maintenance plan, Powrót.)
+ */
+export function handedOverPractices(
+  program: Pick<ProgramDefinition, 'phases' | 'practices'>,
+  enrollment: Pick<ProgramEnrollment, 'status' | 'currentStepIndex'>
+): ProgramPractice[] {
+  return (program.practices ?? []).filter(practice => {
+    if (enrollment.status === 'completed') return true
+    const { startsAfterStep } = practiceStepWindow(program, practice)
+    return startsAfterStep === undefined || enrollment.currentStepIndex > startsAfterStep
+  })
+}
+
+/**
+ * `practiceOverrides` key for "every practice the path hands over from now
+ * on": the mid-path dose decision must outlive the phase it was taken in.
+ */
+export const PRACTICE_OVERRIDE_ALL = '*'
+
+/**
+ * How often the practice comes up for this enrollment: its own override,
+ * else the path-wide one (never faster than the definition), else the
+ * definition.
+ */
+export function practiceEveryDays(
+  practice: ProgramPractice,
+  enrollment: Pick<ProgramEnrollment, 'practiceOverrides'>
+): number {
+  const own = enrollment.practiceOverrides?.[practice.exerciseSlug]
+  if (own && own.everyDays > 0) return own.everyDays
+  const all = enrollment.practiceOverrides?.[PRACTICE_OVERRIDE_ALL]
+  return all && all.everyDays > practice.everyDays ? all.everyDays : practice.everyDays
 }
 
 export interface ProgramDefinition {
@@ -166,7 +252,7 @@ export interface ProgramEnrollment {
   contentVersion?: number
   /** Set when the path closed (last step, or the `closesPath` step). */
   completedAt?: string
-  /** Practice rhythm overridden by the user (mid-path dose check / dashboard). */
+  /** How often practices come up, overridden by the user (mid-path dose check); `PRACTICE_OVERRIDE_ALL` covers later ones. */
   practiceOverrides?: Record<string, { everyDays: number }>
   /** "List do siebie na później": the micro entry, the day it resurfaces, and when it was opened. */
   futureLetter?: { entryId: string; showAt: string; readAt?: string }

@@ -156,7 +156,7 @@ exports[`dev seeds produce the same data as before (table digests) > verificatio
     "rows": 64,
   },
   "exercisePlanItems": {
-    "digest": "7bf7e7984ccecc44",
+    "digest": "11ddcd3efd9eea12",
     "rows": 47,
   },
   "goalMonthStates": {
@@ -204,8 +204,8 @@ exports[`dev seeds produce the same data as before (table digests) > verificatio
     "rows": 347,
   },
   "microExerciseEntries": {
-    "digest": "e29fda2846a82c5d",
-    "rows": 47,
+    "digest": "54bd358f18419606",
+    "rows": 49,
   },
   "monthPlans": {
     "digest": "7662c772699e540c",

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { PROGRAM_CATALOG, getProgramDefinition } from '@/data/programCatalog'
 import { getCatalogEntry } from '@/data/exerciseCatalog'
+import { practiceStepWindow } from '@/domain/program'
 import enPrograms from '@/locales/en/programs.json'
 import plPrograms from '@/locales/pl/programs.json'
 
@@ -130,8 +131,18 @@ describe('program catalog', () => {
         // practice save tick the step (or vice versa).
         expect(stepSlugs.has(practice.exerciseSlug), label).toBe(false)
         expect(practice.everyDays, label).toBeGreaterThanOrEqual(1)
-        const starts = practice.startsAfterStep ?? -1
-        const ends = practice.endsAfterStep ?? program.steps.length - 1
+        // A phase practice names a real week phase and carries no step indices of its own.
+        if (practice.phaseKey) {
+          const phase = (program.phases ?? []).find(
+            candidate => candidate.key === practice.phaseKey
+          )
+          expect(phase?.week, `${label} phase ${practice.phaseKey}`).toBeDefined()
+          expect(practice.startsAfterStep, label).toBeUndefined()
+          expect(practice.endsAfterStep, label).toBeUndefined()
+        }
+        const window = practiceStepWindow(program, practice)
+        const starts = window.startsAfterStep ?? -1
+        const ends = window.endsAfterStep ?? program.steps.length - 1
         expect(starts, label).toBeLessThan(ends)
         expect(ends, label).toBeLessThan(program.steps.length)
         if (practice.introKey) {
@@ -154,17 +165,42 @@ describe('program catalog', () => {
       }
       // At most two practices run at the same time (plan: daily load budget).
       program.steps.forEach((_, index) => {
-        const running = practices.filter(
-          practice =>
-            index > (practice.startsAfterStep ?? -1) &&
-            index <= (practice.endsAfterStep ?? program.steps.length)
-        )
+        const running = practices.filter(practice => {
+          const window = practiceStepWindow(program, practice)
+          return (
+            index > (window.startsAfterStep ?? -1) &&
+            index <= (window.endsAfterStep ?? program.steps.length)
+          )
+        })
         expect(
           running.length,
           `${program.slug} step ${index} runs ${running.length} practices`
         ).toBeLessThanOrEqual(2)
       })
     }
+  })
+
+  it('shame path: Momenty to the close and exactly one practice per week phase', () => {
+    const shame = PROGRAM_CATALOG.find(program => program.slug === 'shame-compassion')!
+    const moments = shame.practices!.find(practice => practice.exerciseSlug === 'moment-shame')!
+    expect(moments.phaseKey).toBeUndefined()
+    expect(moments.endsAfterStep).toBeUndefined()
+    const weeks = shame.phases!.filter(phase => phase.week !== undefined)
+    for (const phase of weeks) {
+      const own = shame.practices!.filter(practice => practice.phaseKey === phase.key)
+      expect(own, `practices of ${phase.key}`).toHaveLength(1)
+    }
+    expect(shame.practices!.filter(practice => practice.phaseKey)).toHaveLength(weeks.length)
+    // The practice opens after its phase's first step (which creates its material)
+    // and closes after the next phase's first step; week 1 runs from the enrollment.
+    const byPhase = (key: string) =>
+      practiceStepWindow(
+        shame,
+        shame.practices!.find(practice => practice.phaseKey === key)!
+      )
+    expect(byPhase('w1')).toEqual({ startsAfterStep: undefined, endsAfterStep: 4 })
+    expect(byPhase('w2')).toEqual({ startsAfterStep: 4, endsAfterStep: 7 })
+    expect(byPhase('w8')).toEqual({ startsAfterStep: 20, endsAfterStep: 24 })
   })
 
   it('phases: start at step 0, strictly ascending, titled in both locales', () => {

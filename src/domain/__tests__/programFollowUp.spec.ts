@@ -1,8 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import type { MicroExerciseEntry } from '@/domain/microExercises'
 import type { DayRef } from '@/domain/period'
-import type { ProgramDefinition, ProgramEnrollment } from '@/domain/program'
 import {
+  practiceEveryDays,
+  PRACTICE_OVERRIDE_ALL,
+  type ProgramDefinition,
+  type ProgramEnrollment,
+} from '@/domain/program'
+import {
+  doseOverrides,
   doseProposal,
   futureLetterDue,
   futureLetterShowAt,
@@ -74,11 +80,40 @@ describe('doseProposal', () => {
     ])
   })
 
-  it('leaves only the breath when the check said "nie robię ich"', () => {
+  it('moves every open practice to once a week when the check said "nie robię ich"', () => {
     const early = enrollment({ currentStepIndex: 4 })
     const proposal = doseProposal(program, early, [check('none')])
     expect(proposal?.kind).toBe('none')
-    expect(proposal?.items).toEqual([{ slug: 'moment-shame', from: 2, to: 7 }])
+    expect(proposal?.items).toEqual([
+      { slug: 'paced-breathing', from: 1, to: 7 },
+      { slug: 'moment-shame', from: 2, to: 7 },
+    ])
+  })
+
+  it('an accepted proposal also covers the practices of later phases', () => {
+    const proposal = doseProposal(program, enrollment(), [check('tooMuch')])!
+    expect(doseOverrides(proposal)).toEqual({
+      'moment-shame': { everyDays: 3 },
+      'self-compassion-break': { everyDays: 3 },
+      [PRACTICE_OVERRIDE_ALL]: { everyDays: 3 },
+    })
+    // The evidence log opens later (after step 17) and is not listed — the path-wide key slows it too.
+    const later = enrollment({ practiceOverrides: doseOverrides(proposal) })
+    const log = program.practices!.find(practice => practice.exerciseSlug === 'positive-data-log')!
+    expect(practiceEveryDays(log, later)).toBe(3)
+    // Never faster than the definition, and a practice's own override wins.
+    expect(practiceEveryDays({ exerciseSlug: 'weekly', everyDays: 7 }, later)).toBe(7)
+    expect(
+      practiceEveryDays(
+        log,
+        enrollment({
+          practiceOverrides: {
+            'positive-data-log': { everyDays: 5 },
+            [PRACTICE_OVERRIDE_ALL]: { everyDays: 3 },
+          },
+        })
+      )
+    ).toBe(5)
   })
 
   it('is silent for "w sam raz", for checks before this enrollment and once the user decided', () => {

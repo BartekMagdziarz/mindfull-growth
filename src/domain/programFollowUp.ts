@@ -1,12 +1,19 @@
 import type { MicroExerciseEntry, MicroStepValue } from '@/domain/microExercises'
 import type { DayRef } from '@/domain/period'
-import type { ProgramDefinition, ProgramEnrollment, ProgramPractice } from '@/domain/program'
+import {
+  isPracticeWindowOpen,
+  practiceEveryDays,
+  PRACTICE_OVERRIDE_ALL,
+  type ProgramDefinition,
+  type ProgramEnrollment,
+} from '@/domain/program'
 import { addDaysToDayRef, getPeriodRefsForDate } from '@/utils/periods'
 
 /**
  * After-the-steps layer of a path (plan v3 §3.5–3.6, P4): the letter to a
  * future self that resurfaces on its day, and the mid-path dose check that
- * may propose a calmer practice rhythm. Pure functions; the service writes.
+ * may propose that the practices come up less often. Pure functions; the
+ * service writes.
  */
 
 // ── List na gorszy dzień ────────────────────────────────────────────
@@ -34,51 +41,32 @@ export function futureLetterDue(
 // ── Czy nie za dużo? ────────────────────────────────────────────────
 
 export const DOSE_CHECK_SLUG = 'dose-check'
-export const BREATH_SLUG = 'paced-breathing'
 
 export interface DoseProposalItem {
   slug: string
-  /** Rhythm the practice runs at now (definition or the user's override). */
+  /** Every how many days the practice comes up now (definition or the user's override). */
   from: number
-  /** Proposed rhythm. */
+  /** Proposed number of days. */
   to: number
 }
 
 export interface DoseProposal {
-  /** `tooMuch` → less often; `none` → only the breath stays. */
+  /** `tooMuch` → every third day; `none` → once a week. */
   kind: 'tooMuch' | 'none'
   entryId: string
   items: DoseProposalItem[]
 }
 
-function practiceRhythm(
-  practice: ProgramPractice,
-  enrollment: Pick<ProgramEnrollment, 'practiceOverrides'>
-): number {
-  const override = enrollment.practiceOverrides?.[practice.exerciseSlug]
-  return override && override.everyDays > 0 ? override.everyDays : practice.everyDays
-}
-
-function windowOpen(
-  program: ProgramDefinition,
-  practice: ProgramPractice,
-  enrollment: ProgramEnrollment
-): boolean {
-  if (enrollment.status !== 'active') return false
-  const index = enrollment.currentStepIndex
-  if (index >= program.steps.length) return false
-  if (practice.startsAfterStep !== undefined && index <= practice.startsAfterStep) return false
-  if (practice.endsAfterStep !== undefined && index > practice.endsAfterStep) return false
-  return true
-}
+/** Days between occurrences each answer proposes. */
+const DOSE_TARGET_DAYS = { tooMuch: 3, none: 7 } as const
 
 /**
  * What the path view proposes after the dose check (never "do more"):
- * "za dużo" → every practice running more often than every third day
- * slows down to every third day; "nie robię ich" → everything but the
- * breath goes weekly. The proposal disappears once the user decided —
- * any override written after the check counts as a decision, including
- * "zostaw jak jest" (an override equal to the current rhythm).
+ * "za dużo" → every practice coming up more often than every third day
+ * slows down to every third day; "nie robię ich" → every practice goes
+ * weekly. The proposal disappears once the user decided — any override
+ * written after the check counts as a decision, including "zostaw jak
+ * jest" (an override equal to what runs now).
  */
 export function doseProposal(
   program: ProgramDefinition,
@@ -100,30 +88,37 @@ export function doseProposal(
   ) {
     return null
   }
-  const open = (program.practices ?? []).filter(practice =>
-    windowOpen(program, practice, enrollment)
-  )
-  const items: DoseProposalItem[] = open.flatMap(practice => {
-    const from = practiceRhythm(practice, enrollment)
-    if (load === 'none') {
-      return practice.exerciseSlug === BREATH_SLUG || from >= 7
-        ? []
-        : [{ slug: practice.exerciseSlug, from, to: 7 }]
-    }
-    return from >= 3 ? [] : [{ slug: practice.exerciseSlug, from, to: 3 }]
-  })
+  const to = DOSE_TARGET_DAYS[load]
+  const items: DoseProposalItem[] = (program.practices ?? [])
+    .filter(practice => isPracticeWindowOpen(program, practice, enrollment))
+    .flatMap(practice => {
+      const from = practiceEveryDays(practice, enrollment)
+      return from >= to ? [] : [{ slug: practice.exerciseSlug, from, to }]
+    })
   return items.length ? { kind: load, entryId: check.id, items } : null
 }
 
-/** Overrides that keep every open practice at its current rhythm — "zostaw jak jest" as a recorded decision. */
+/**
+ * The overrides an accepted proposal writes: the listed practices, plus
+ * `PRACTICE_OVERRIDE_ALL` so the practices of later phases come up no more
+ * often than the user just agreed to.
+ */
+export function doseOverrides(proposal: DoseProposal): Record<string, { everyDays: number }> {
+  return {
+    ...Object.fromEntries(proposal.items.map(item => [item.slug, { everyDays: item.to }])),
+    [PRACTICE_OVERRIDE_ALL]: { everyDays: DOSE_TARGET_DAYS[proposal.kind] },
+  }
+}
+
+/** Overrides that keep every open practice as it runs now — "zostaw jak jest" as a recorded decision. */
 export function keepRhythmOverrides(
   program: ProgramDefinition,
   enrollment: ProgramEnrollment
 ): Record<string, { everyDays: number }> {
   const result: Record<string, { everyDays: number }> = {}
   for (const practice of program.practices ?? []) {
-    if (windowOpen(program, practice, enrollment))
-      result[practice.exerciseSlug] = { everyDays: practiceRhythm(practice, enrollment) }
+    if (isPracticeWindowOpen(program, practice, enrollment))
+      result[practice.exerciseSlug] = { everyDays: practiceEveryDays(practice, enrollment) }
   }
   return result
 }

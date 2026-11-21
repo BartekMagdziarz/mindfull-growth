@@ -492,6 +492,44 @@ describe('MicroExerciseRunner v3 features', () => {
     expect(options[1]!.getAttribute('aria-pressed')).toBe('true')
   })
 
+  it('optionsFrom lists only the practices a path has handed over; a closed path waiting for Powrót lists all', async () => {
+    const { useProgramEnrollmentStore } = await import('@/stores/programEnrollment.store')
+    const store = useProgramEnrollmentStore()
+    const shame = {
+      id: 'shame',
+      programSlug: 'shame-compassion',
+      status: 'active' as const,
+      startedAt: '2026-09-01T10:00:00.000Z',
+      // Week 4's first step is ahead: the breath, the safe place and the rehearsal were handed over.
+      currentStepIndex: 9,
+      completedSteps: [],
+      createdAt: '2026-09-01T10:00:00.000Z',
+      updatedAt: '2026-09-01T10:00:00.000Z',
+    }
+    store.enrollments = [shame]
+    const labels = () =>
+      screen
+        .getAllByRole('button')
+        .filter(b => b.classList.contains('micro-choice__option'))
+        .map(b => b.textContent?.trim())
+    const midway = renderMicro('maintenance-plan')
+    expect(labels()).toEqual([
+      expect.stringMatching(/moment of shame/i),
+      expect.stringMatching(/breathing/i),
+      'Back to my place',
+      'Plan rehearsal',
+      'My plan for a hard moment',
+    ])
+    midway.unmount()
+
+    // Closed on the maintenance plan, the follow-up measure (step 25) still ahead.
+    store.enrollments = [{ ...shame, status: 'completed' as const, currentStepIndex: 24 }]
+    renderMicro('path-return', { kind: 'shame' })
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // the letter → what stayed
+    expect(labels()).toHaveLength(9 + 2)
+    expect(labels()).toContain('A step towards people')
+  })
+
   it('a full hint quotes the whole letter in "Powrót"', async () => {
     const long = 'A'.repeat(400)
     seedEntries([

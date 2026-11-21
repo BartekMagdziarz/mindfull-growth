@@ -216,7 +216,12 @@ import { getProgramDefinition } from '@/data/programCatalog'
 import type { MicroExerciseEntry } from '@/domain/microExercises'
 import { isMomentFamilyKind, type MomentFamilyKind } from '@/domain/momentFamilies'
 import { momentsProgress, weekRefsEndingAt } from '@/domain/momentsProgress'
-import { doseProposal, futureLetterDue, keepRhythmOverrides } from '@/domain/programFollowUp'
+import {
+  doseOverrides,
+  doseProposal,
+  futureLetterDue,
+  keepRhythmOverrides,
+} from '@/domain/programFollowUp'
 import type { DayRef, WeekRef } from '@/domain/period'
 import type { ProgramStep, ProgramEnrollment } from '@/domain/program'
 import type { WeeklyReflection } from '@/domain/reflection'
@@ -522,12 +527,7 @@ async function applyDose(): Promise<void> {
   const target = openEnrollment.value
   const proposal = dose.value
   if (!target || !proposal) return
-  await run(() =>
-    enrollmentStore.applyPracticeOverrides(
-      target.id,
-      Object.fromEntries(proposal.items.map(item => [item.slug, { everyDays: item.to }]))
-    )
-  )
+  await run(() => enrollmentStore.applyPracticeOverrides(target.id, doseOverrides(proposal)))
 }
 async function keepDose(): Promise<void> {
   const target = openEnrollment.value

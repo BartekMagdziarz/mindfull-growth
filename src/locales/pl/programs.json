@@ -503,7 +503,7 @@
   },
   "shame-compassion": {
     "title": "Ze wstydu do współczucia",
-    "description": "Osiem tygodni pracy ze wstydem. Cel: zauważać go szybciej, odpowiadać ciepłem zamiast atakiem na siebie, atakiem na innych albo ukryciem, i wracać do kontaktu. Najpierw rozpoznajesz, które części przejmują ster, i budujesz oparcie. Potem układasz plan na trudną chwilę, poznajesz Krytyka, znajdujesz własny głos i w małych krokach wychodzisz z ukrycia. Obok kroków: oddech, Momenty i krótkie praktyki, w połowie pytanie, czy nie za dużo, a osiem tygodni po zakończeniu Powrót. Ta ścieżka nie zastąpi terapii, jeśli wstyd wiąże się z przemocą, wykorzystaniem albo kryzysem.",
+    "description": "Osiem tygodni pracy ze wstydem. Cel: zauważać go szybciej, odpowiadać ciepłem zamiast atakiem na siebie, atakiem na innych albo ukryciem, i wracać do kontaktu. Najpierw rozpoznajesz, które części przejmują ster, i budujesz oparcie. Potem układasz plan na trudną chwilę, poznajesz Krytyka, znajdujesz własny głos i w małych krokach wychodzisz z ukrycia. Obok kroków: Momenty i w każdej fazie jedna nowa krótka praktyka, w połowie pytanie, czy nie za dużo, a osiem tygodni po zakończeniu Powrót. Ta ścieżka nie zastąpi terapii, jeśli wstyd wiąże się z przemocą, wykorzystaniem albo kryzysem.",
     "reflection": {
       "severity": "Jak bardzo wstyd wpływał na ten tydzień?"
     },
@@ -619,7 +619,7 @@
         "why": "Drugi punkt pokazuje kierunek, zanim dojdziesz do końca. To obraz, nie ocena."
       },
       "step12": {
-        "intro": "Sprawdź, czy praktyk nie jest za dużo. Jeśli tak, zostanie mniej. Jeśli nie robisz ich wcale, zostanie to, co najmniejsze.",
+        "intro": "Sprawdź, czy praktyk nie jest za dużo. Jeśli tak, będą pojawiać się rzadziej. Jeśli nie robisz ich wcale, zostanie raz w tygodniu.",
         "title": "Czy nie za dużo?",
         "why": "Ścieżka ma się mieścić w życiu. Lepiej mniej i regularnie niż dużo i wcale."
       },
@@ -700,20 +700,32 @@
       }
     },
     "practices": {
-      "paced-breathing": {
-        "intro": "Codziennie przez pierwsze dwa tygodnie. Dwie, trzy minuty z wydechem dłuższym niż wdech. Fundament pod wszystko, co dalej; po współczującym ja zastąpi go przerwa na współczucie."
-      },
       "moment-shame": {
-        "intro": "Co drugi dzień od mapy wstydu do końca pracy z Krytykiem. Pięć dotknięć: która część przejęła ster, kiedy to zauważasz, co robisz zamiast, jak mocno. Potem Momenty zostają na żądanie."
+        "intro": "Co drugi dzień, od mapy wstydu do końca ścieżki. Pięć dotknięć: która część przejęła ster, kiedy to zauważasz, co robisz zamiast, jak mocno."
+      },
+      "paced-breathing": {
+        "intro": "Codziennie w pierwszej fazie. Dwie, trzy minuty z wydechem dłuższym niż wdech. Fundament pod wszystko, co dalej."
+      },
+      "safe-place-return": {
+        "intro": "Co drugi dzień, gdy masz już swoje bezpieczne miejsce. Minuta oddechu i krótki powrót do miejsca i jego kotwic."
+      },
+      "response-rehearsal": {
+        "intro": "Co drugi dzień, gdy masz już plan na trudną chwilę. Przechodzisz przez niego w wyobraźni: sygnał, dwa zdania, mały krok."
       },
       "self-compassion-break": {
-        "intro": "Co drugi dzień, od współczującego ja do końca ścieżki. Dwadzieścia sekund oddechu i trzy kroki: co boli, nie tylko ja, co chcę sobie powiedzieć."
+        "intro": "Co drugi dzień w fazie innego spojrzenia. Dwadzieścia sekund oddechu i trzy kroki: co boli, nie tylko ja, co chcę sobie powiedzieć."
+      },
+      "critic-handover": {
+        "intro": "Co drugi dzień w fazie Krytyka. Co powiedział, przed czym chciał ochronić, a potem zdanie, którym dziękujesz i przejmujesz ster."
       },
       "shame-writing": {
-        "intro": "Co drugi dzień w tygodniu własnego głosu. Po trudnej chwili trzy akapity: nie tylko ja, życzliwość do siebie, dystans. Działa, jeśli to więcej niż notka."
+        "intro": "Co drugi dzień w fazie własnego głosu. Po trudnej chwili trzy akapity: nie tylko ja, życzliwość do siebie, dystans. Działa, jeśli to więcej niż notka."
       },
       "positive-data-log": {
-        "intro": "Co drugi dzień od kroku o przekonaniach. Dopisujesz dowody na rozsądne wymaganie wobec siebie."
+        "intro": "Co drugi dzień, gdy masz już nowe przekonanie. Dopisujesz dowody na rozsądne wymaganie wobec siebie."
+      },
+      "step-toward-people": {
+        "intro": "Co drugi dzień w ostatniej fazie. Zapisujesz jeden mały krok, przy którym wstyd kazał się schować, i to, jak wyszło."
       }
     },
     "scaleLabels": {
@@ -866,12 +878,12 @@
       "f": "Napisałaś, że praktyk jest za dużo. Rzadziej też działa — liczy się regularność, nie ilość."
     },
     "leadNone": {
-      "m": "Napisałeś, że ich nie robisz. To nie wyrzut. Zostawmy samo to, co najmniejsze: oddech. Reszta raz w tygodniu, aż wróci miejsce.",
-      "f": "Napisałaś, że ich nie robisz. To nie wyrzut. Zostawmy samo to, co najmniejsze: oddech. Reszta raz w tygodniu, aż wróci miejsce."
+      "m": "Napisałeś, że ich nie robisz. To nie wyrzut. Niech pojawiają się raz w tygodniu, aż wróci miejsce.",
+      "f": "Napisałaś, że ich nie robisz. To nie wyrzut. Niech pojawiają się raz w tygodniu, aż wróci miejsce."
     },
     "cardHint": "Warto przeczytać kartę „{card}”.",
     "applyTooMuch": "Rzadziej",
-    "applyNone": "Zostaw tylko oddech",
+    "applyNone": "Raz w tygodniu",
     "keep": "Zostaw jak jest",
     "followUp": "W widoku ścieżki czeka propozycja rzadszych praktyk. Jedno kliknięcie.",
     "open": "Otwórz ścieżkę"

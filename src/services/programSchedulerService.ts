@@ -34,7 +34,12 @@ import type {
   ProgramPractice,
   UpdateProgramEnrollmentPayload,
 } from '@/domain/program'
-import { isDeliveringEnrollment } from '@/domain/program'
+import {
+  isDeliveringEnrollment,
+  isPracticeWindowOpen as isPracticeWindowOpenAt,
+  practiceEveryDays,
+  practiceStepWindow,
+} from '@/domain/program'
 import { getProgramDefinition } from '@/data/programCatalog'
 import {
   definitionContentVersion,
@@ -110,15 +115,13 @@ export function isPracticeItem(item: ExercisePlanItem): boolean {
   return item.programRole === 'practice'
 }
 
-/** The practice as the user runs it: definition rhythm, or the enrollment's override. */
+/** The practice as the user runs it: how often it comes up after the enrollment's overrides. */
 export function effectivePractice(
   practice: ProgramPractice,
   enrollment: Pick<ProgramEnrollment, 'practiceOverrides'>
 ): ProgramPractice {
-  const override = enrollment.practiceOverrides?.[practice.exerciseSlug]
-  return override && override.everyDays > 0
-    ? { ...practice, everyDays: override.everyDays }
-    : practice
+  const everyDays = practiceEveryDays(practice, enrollment)
+  return everyDays === practice.everyDays ? practice : { ...practice, everyDays }
 }
 
 /**
@@ -143,22 +146,13 @@ function todayDayRef(): DayRef {
   return getPeriodRefsForDate(new Date()).day
 }
 
-/**
- * Whether a practice runs at the enrollment's current step. Windows are
- * expressed in steps, not dates: `startsAfterStep` / `endsAfterStep` are
- * passed once the index moves beyond them (done or skipped alike).
- */
+/** Whether a practice runs at the enrollment's current step (`@/domain/program`). */
 export function isPracticeWindowOpen(
   program: ProgramDefinition,
   practice: ProgramPractice,
   enrollment: ProgramEnrollment
 ): boolean {
-  if (enrollment.status !== 'active') return false
-  const index = enrollment.currentStepIndex
-  if (index >= program.steps.length) return false
-  if (practice.startsAfterStep !== undefined && index <= practice.startsAfterStep) return false
-  if (practice.endsAfterStep !== undefined && index > practice.endsAfterStep) return false
-  return true
+  return isPracticeWindowOpenAt(program, practice, enrollment)
 }
 
 /**
@@ -248,8 +242,12 @@ export async function reconcilePractices(
         created.push(
           await exercisePlanDexieRepository.create({
             exerciseSlug: practice.exerciseSlug,
+            // A phase practice anchors on its resolved step window.
             dayRef: eligibleDayForPractice(
-              effectivePractice(practice, enrollment),
+              {
+                ...effectivePractice(practice, enrollment),
+                ...practiceStepWindow(program, practice),
+              },
               enrollment,
               lastDoneAt,
               today
@@ -637,7 +635,7 @@ export function deriveStepStates(
   })
 }
 
-export type ProgramPracticeStateKind = 'upcoming' | 'active' | 'ended'
+export type ProgramPracticeStateKind = 'upcoming' | 'active' | 'onDemand'
 
 export interface ProgramPracticeState {
   practice: ProgramPractice
@@ -647,10 +645,11 @@ export interface ProgramPracticeState {
 }
 
 /**
- * Practice rail model for the program detail view: not started yet
- * (no enrollment, or its window opens after a later step), running (with
- * its pending occurrence) or over. A paused enrollment keeps its open
- * practices 'active' but without a pending occurrence.
+ * Practice model for the program detail view: not handed over yet (no
+ * enrollment, or its window opens after a later step), running (with its
+ * pending occurrence), or — once its window passed or the path closed —
+ * available on demand. A paused enrollment keeps its open practices
+ * 'active' but without a pending occurrence.
  */
 export function derivePracticeStates(
   program: ProgramDefinition,
@@ -660,14 +659,15 @@ export function derivePracticeStates(
   return (program.practices ?? []).map(practice => {
     if (!enrollment) return { practice, state: 'upcoming' }
     const index = enrollment.currentStepIndex
+    const { startsAfterStep, endsAfterStep } = practiceStepWindow(program, practice)
     if (
       enrollment.status === 'completed' ||
       index >= program.steps.length ||
-      (practice.endsAfterStep !== undefined && index > practice.endsAfterStep)
+      (endsAfterStep !== undefined && index > endsAfterStep)
     ) {
-      return { practice, state: 'ended' }
+      return { practice, state: 'onDemand' }
     }
-    if (practice.startsAfterStep !== undefined && index <= practice.startsAfterStep) {
+    if (startsAfterStep !== undefined && index <= startsAfterStep) {
       return { practice, state: 'upcoming' }
     }
     const pendingItem = planItems.find(

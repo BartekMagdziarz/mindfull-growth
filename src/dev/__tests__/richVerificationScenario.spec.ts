@@ -96,7 +96,7 @@ describe('RichVerificationScenario', () => {
     const today = buildRichVerificationScenario(anchor).meta
     const tomorrow = buildRichVerificationScenario('2026-07-20' as DayRef).meta
 
-    expect(fixtureMarkerValue(today)).toBe('rich-v1:11:2026-07-19')
+    expect(fixtureMarkerValue(today)).toBe('rich-v1:13:2026-07-19')
     expect(fixtureMarkerValue(tomorrow)).not.toBe(fixtureMarkerValue(today))
   })
 })

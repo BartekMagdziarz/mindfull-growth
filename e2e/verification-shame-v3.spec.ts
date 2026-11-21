@@ -79,7 +79,10 @@ test.describe('shame path v3', () => {
     await expect(week4.locator('.pp-disc--meter')).toHaveAttribute('aria-label', /z 3 kroków/)
     // Praktyki: the practices and Momenty as tiles (no week task since 2026-11-17).
     const practices = page.getByTestId('path-practices')
-    await expect(practices).toContainText('Przerwa na współczucie')
+    // Week 4's first step is still ahead, so the practice of week 3 runs next to Momenty.
+    await expect(practices).toContainText('Próba planu')
+    await expect(practices).not.toContainText('Przerwa na współczucie')
+    await expect(practices.getByTestId('path-practice-tile')).toHaveCount(1)
     await expect(page.getByTestId('path-world')).toHaveCount(0)
     await expect(
       page.getByTestId('path-moment-tile').getByRole('button', { name: 'Zapisz' })
@@ -254,7 +257,7 @@ test.describe('shame path v3', () => {
     await expect(card).toContainText('Ze wstydu do współczucia')
     const practices = page.getByTestId('today-practices')
     await expect(practices.locator('.ndp', { hasText: 'Zapis myśli' })).toBeVisible()
-    await expect(practices.locator('.ndp', { hasText: 'Przerwa na współczucie' })).toBeVisible()
+    await expect(practices.locator('.ndp', { hasText: 'Próba planu' })).toBeVisible()
 
     const tile = card.locator('[data-testid="today-path-tile"]', {
       hasText: 'Ze wstydu do współczucia',
