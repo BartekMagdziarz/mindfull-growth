@@ -20,6 +20,15 @@ vi.mock('@/repositories/microExerciseEntryDexieRepository', () => ({
   },
 }))
 
+// "Dziękuję, przejmuję ster" quotes the handover sentence kept in a wizard record.
+const seededAppreciations: Array<Record<string, unknown>> = []
+vi.mock('@/repositories/exercisesDexieRepository', async importOriginal => ({
+  ...(await importOriginal<typeof import('@/repositories/exercisesDexieRepository')>()),
+  ifsProtectorAppreciationDexieRepository: {
+    getAll: vi.fn(async () => [...seededAppreciations]),
+  },
+}))
+
 const stubs = {
   AppCard: { template: '<div><slot /></div>' },
   AppButton: {
@@ -66,6 +75,7 @@ function seedEntries(
 
 beforeEach(() => {
   seeded.splice(0, seeded.length)
+  seededAppreciations.splice(0, seededAppreciations.length)
   setActivePinia(createPinia())
   // Copy assertions below are English.
   useUserPreferencesStore().$patch({ locale: 'en' })
@@ -491,6 +501,79 @@ describe('MicroExerciseRunner v3 features', () => {
     const { container } = renderMicro('path-return', { kind: 'shame' })
     const hint = container.querySelector('[data-testid="micro-hint"]')!
     expect(hint.textContent).toContain(long)
+  })
+
+  it('a multi-field hint quotes the whole plan as labelled lines ("Próba planu")', async () => {
+    seedEntries([
+      {
+        exerciseSlug: 'shame-response',
+        responses: {
+          signals: ['hot face', 'lowered eyes'],
+          unblendSentence: 'This is my Critic speaking, not me.',
+          sentence: 'You are human and it hurts.',
+          move: ['stay', 'ask'],
+        },
+      },
+    ])
+    const { container } = renderMicro('response-rehearsal')
+    const hint = container.querySelector('[data-testid="micro-hint"]')!
+    expect(hint.textContent).toContain('Your plan')
+    const labels = [...hint.querySelectorAll('dt')].map(node => node.textContent)
+    expect(labels).toEqual([
+      'How I know it is shame',
+      'The sentence that separates me from the part',
+      'The kind sentence',
+      'The small step',
+    ])
+    const values = [...hint.querySelectorAll('dd')].map(node => node.textContent)
+    expect(values).toEqual([
+      'hot face, lowered eyes',
+      'This is my Critic speaking, not me.',
+      'You are human and it hurts.',
+      'Stay in the situation a minute longer, Ask a question',
+    ])
+  })
+
+  it('a multi-field hint stays away without an entry, and skips empty fields', async () => {
+    const empty = renderMicro('safe-place-return')
+    // The first step is the optional breath; the place card is the second.
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' }))
+    expect(empty.container.querySelector('[data-testid="micro-hint"]')).toBeNull()
+    empty.unmount()
+
+    seedEntries([{ exerciseSlug: 'safe-place', responses: { place: 'A pier at dawn' } }])
+    const { container } = renderMicro('safe-place-return')
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' }))
+    const hint = container.querySelector('[data-testid="micro-hint"]')!
+    expect([...hint.querySelectorAll('dt')].map(node => node.textContent)).toEqual(['The place'])
+    expect(hint.textContent).toContain('A pier at dawn')
+  })
+
+  it('a record hint quotes the newest handover sentence from the protector wizard', async () => {
+    seededAppreciations.push(
+      { id: 'a1', createdAt: '2026-09-01T10:00:00.000Z', handover: 'Old sentence.' },
+      { id: 'a2', createdAt: '2026-09-20T10:00:00.000Z', handover: 'Thank you. I am steering.' },
+      { id: 'a3', createdAt: '2026-09-25T10:00:00.000Z', handover: '  ' }
+    )
+    const { container } = renderMicro('critic-handover')
+    await fireEvent.update(container.querySelector('textarea')!, 'Sloppy again')
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → guards
+    await fireEvent.click(screen.getByRole('button', { name: 'From failure' }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → sentence
+    const hint = await screen.findByTestId('micro-hint')
+    expect(hint.textContent).toContain('Your handover sentence')
+    expect(hint.textContent).toContain('„Thank you. I am steering.”')
+    // The quote never fills the field.
+    expect((container.querySelector('textarea') as HTMLTextAreaElement).value).toBe('')
+  })
+
+  it('"Krok do ludzi": a day without a step skips the outcome and asks for tomorrow', async () => {
+    const { emitted } = renderMicro('step-toward-people')
+    await fireEvent.click(screen.getByRole('radio', { name: 'None today' }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' }))
+    expect(screen.getByText('Which small step tomorrow?')).toBeTruthy()
+    await fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+    expect(emitted().saved?.[0]).toEqual([{ responses: { step: 'none' } }])
   })
 
   it('a 1–5 scale is a row of numbers with the middle preselected; a tap changes the saved value', async () => {

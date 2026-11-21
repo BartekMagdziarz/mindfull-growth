@@ -41,21 +41,29 @@ export type MicroStepConditions = MicroStepCondition | MicroStepCondition[]
 /**
  * A quiet quote under the step's description, taken from an earlier
  * entry: the latest entry of another micro (`latest`, e.g. the body
- * signals from the shame map) or the entry picked in an earlier
- * `entryPick` step of this run (`picked`). Never fills the field.
- * Label at `…<stepKey>.hintLabel`.
+ * signals from the shame map), the entry picked in an earlier
+ * `entryPick` step of this run (`picked`), or a sentence kept in a wizard
+ * record (`record`). Never fills the field. Label at `…<stepKey>.hintLabel`.
  */
 export type MicroHintSource = (
   | {
       source: 'latest'
       slug: string
       step: string
+      /**
+       * Several responses of that entry, quoted as a small card instead of
+       * `step` alone (the plan for a hard moment in "Próba planu"); each
+       * line's label at `…<stepKey>.hintFields.<key>`.
+       */
+      steps?: readonly string[]
       /** Narrows the quoted entry by its own answers. */
       filter?: MicroStepConditions
       /** Shown only when the current run's answers match (e.g. a shame-only hint on a shared step). */
       when?: MicroStepConditions
     }
   | { source: 'picked'; pickStep: string; step: string }
+  /** `protector-handover`: the newest handover sentence from "Czego pilnuje Krytyk". */
+  | { source: 'record'; record: 'protector-handover' }
 ) & {
   /** Quote the whole text (a letter read back in "Powrót"), not the usual ~160 chars. */
   full?: boolean

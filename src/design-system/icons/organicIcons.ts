@@ -1804,6 +1804,36 @@ const expansion: Draft[] = [
     path('M4 20h16 M4 16h7 M4 12h5 M14 17l6-6l-2-2l-6 6l-1 3Z'),
   ],
   [
+    'exercise-safe-place-return',
+    'Wracam do miejsca',
+    'exercises',
+    'ćwiczenie praktyka bezpieczne miejsce powrót safe-place-return',
+    path('M4 11l8-7 8 7v9H4Z M15 15h-5 M12 13l-2 2 2 2'),
+  ],
+  [
+    'exercise-response-rehearsal',
+    'Próba planu',
+    'exercises',
+    'ćwiczenie praktyka plan próba trudna chwila response-rehearsal',
+    path('M7 5h10q2 0 2 2v12q0 2-2 2H7q-2 0-2-2V7q0-2 2-2Z M9 3h6v3H9Z M10.5 11l4.5 2.5-4.5 2.5Z'),
+  ],
+  [
+    'exercise-critic-handover',
+    'Dziękuję, przejmuję ster',
+    'exercises',
+    'ćwiczenie praktyka krytyk ster część critic-handover',
+    path(
+      'M12 6a6 6 0 1 0 0 12a6 6 0 0 0 0-12Z M12 3v7.5 M12 13.5V21 M3 12h7.5 M13.5 12H21 M16.2 7.8l2.2-2.2 M7.8 7.8L5.6 5.6 M16.2 16.2l2.2 2.2 M7.8 16.2l-2.2 2.2'
+    ) + circle(12, 12, 1.5),
+  ],
+  [
+    'exercise-step-toward-people',
+    'Krok do ludzi',
+    'exercises',
+    'ćwiczenie praktyka kontakt ludzie krok step-toward-people',
+    path('M3 12h7 M7 9l3 3-3 3 M12 20v-2q0-4 4.5-4t4.5 4v2') + circle(16.5, 8, 2.5),
+  ],
+  [
     'exercise-dose-check',
     'Czy dawka pasuje',
     'exercises',

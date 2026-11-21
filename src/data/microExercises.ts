@@ -967,6 +967,147 @@ export const MICRO_EXERCISES: MicroExerciseDefinition[] = [
       { key: 'next', type: 'textarea', optional: true },
     ],
   },
+  // ── Phase practices of the shame path (plan
+  // ideas/html-plans/2026-11-17-shame-path-phase-practices.html §4): each one
+  // rehearses, when calm, what the phase's steps have just created. They work
+  // without the path too — the quotes simply stay away when there is no entry.
+  // "Wracam do miejsca": a short return to the safe place built in week 2.
+  {
+    slug: 'safe-place-return',
+    i18nKey: 'safePlaceReturn',
+    steps: [
+      {
+        key: 'breath',
+        type: 'breathTimer',
+        phaseSeconds: [4, 0, 6, 0],
+        totalSeconds: 60,
+        optional: true,
+      },
+      {
+        key: 'place',
+        type: 'info',
+        hintFrom: {
+          source: 'latest',
+          slug: 'safe-place',
+          step: 'place',
+          steps: ['place', 'anchor'],
+          full: true,
+        },
+      },
+      { key: 'noticed', type: 'textarea', optional: true },
+      { key: 'helpful', type: 'slider', min: 1, max: 5, optional: true },
+    ],
+    innerPractice: true,
+  },
+  // "Próba planu": the plan for a hard moment walked through when calm
+  // (implementation intentions + cope ahead) — the whole plan on one card first.
+  {
+    slug: 'response-rehearsal',
+    i18nKey: 'responseRehearsal',
+    steps: [
+      {
+        key: 'plan',
+        type: 'info',
+        hintFrom: {
+          source: 'latest',
+          slug: 'shame-response',
+          step: 'signals',
+          steps: ['signals', 'unblendSentence', 'sentence', 'move'],
+          full: true,
+        },
+      },
+      {
+        key: 'situation',
+        type: 'choice',
+        options: [
+          'body',
+          'work',
+          'money',
+          'relationships',
+          'family',
+          'parenting',
+          'health',
+          'competence',
+          'belonging',
+          'past',
+        ],
+        hintFrom: { source: 'latest', slug: 'shame-map', step: 'areas' },
+      },
+      { key: 'said', type: 'choice', multiple: true, options: ['unblend', 'kind'] },
+      {
+        key: 'move',
+        type: 'choice',
+        options: ['stay', 'eyes', 'say', 'ask', 'hand', 'later'],
+        hintFrom: { source: 'latest', slug: 'shame-response', step: 'move' },
+      },
+      { key: 'ready', type: 'slider', min: 1, max: 5 },
+    ],
+    innerPractice: true,
+  },
+  // "Dziękuję, przejmuję ster": the Critic's line, what it guarded, the
+  // handover sentence from "Czego pilnuje Krytyk", the body's answer.
+  {
+    slug: 'critic-handover',
+    i18nKey: 'criticHandover',
+    steps: [
+      { key: 'said', type: 'textarea' },
+      {
+        key: 'guards',
+        type: 'choice',
+        multiple: true,
+        options: ['failure', 'rejection', 'exposure', 'laziness', 'hurt', 'unsure'],
+      },
+      {
+        key: 'sentence',
+        type: 'textarea',
+        hintFrom: { source: 'record', record: 'protector-handover' },
+      },
+      { key: 'body', type: 'choice', options: ['softens', 'same', 'tightens'] },
+    ],
+    innerPractice: true,
+  },
+  // "Krok do ludzi": one small visible step, written down after the fact
+  // (opposite action to the urge to hide); a day without one plans the next.
+  {
+    slug: 'step-toward-people',
+    i18nKey: 'stepTowardPeople',
+    earlyFinishAfter: ['outcome'],
+    steps: [
+      {
+        key: 'step',
+        type: 'choice',
+        options: [
+          'question',
+          'notKnow',
+          'unfinished',
+          'askHelp',
+          'tell',
+          'stayed',
+          'other',
+          'none',
+        ],
+      },
+      {
+        key: 'outcome',
+        type: 'choice',
+        options: ['better', 'asExpected', 'worse'],
+        showWhen: {
+          step: 'step',
+          in: ['question', 'notKnow', 'unfinished', 'askHelp', 'tell', 'stayed', 'other'],
+        },
+      },
+      {
+        key: 'note',
+        type: 'textarea',
+        optional: true,
+        showWhen: {
+          step: 'step',
+          in: ['question', 'notKnow', 'unfinished', 'askHelp', 'tell', 'stayed', 'other'],
+        },
+      },
+      { key: 'next', type: 'textarea', optional: true, showWhen: { step: 'step', in: ['none'] } },
+    ],
+  },
 ]
 
 export function getMicroExercise(slug: string): MicroExerciseDefinition | undefined {

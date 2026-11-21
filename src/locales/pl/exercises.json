@@ -548,6 +548,26 @@
       "title": "Moment lęku",
       "subtitle": "Zapis w Momentach",
       "description": "Pięć dotknięć: co pociągnęło, kiedy zauważone, co zamiast i jak silny był lęk. Reszta, jeśli chcesz."
+    },
+    "safePlaceReturn": {
+      "title": "Wracam do miejsca",
+      "subtitle": "Dwie minuty w bezpiecznym miejscu",
+      "description": "Krótki powrót do miejsca, które już masz: oddech, obraz i kotwice. Im częściej wracasz na spokojnie, tym szybciej miejsce przychodzi w trudnej chwili."
+    },
+    "responseRehearsal": {
+      "title": "Próba planu",
+      "subtitle": "Plan na trudną chwilę, na spokojnie",
+      "description": "Przechodzisz w wyobraźni przez swój plan: sygnał, dwa zdania i mały krok. Dzięki próbom plan przychodzi sam, gdy wstyd uderza."
+    },
+    "criticHandover": {
+      "title": "Dziękuję, przejmuję ster",
+      "subtitle": "Zdanie do Krytyka",
+      "description": "Zapisujesz, co powiedział Krytyk i przed czym chciał cię ochronić, a potem dziękujesz mu i przejmujesz ster."
+    },
+    "stepTowardPeople": {
+      "title": "Krok do ludzi",
+      "subtitle": "Mały krok zamiast ukrycia",
+      "description": "Zapisujesz jeden mały krok, przy którym wstyd kazał się schować, i to, jak naprawdę wyszło."
     }
   }
 }

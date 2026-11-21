@@ -38,11 +38,12 @@ describe('exercise catalog', () => {
     expect(catalogEntriesForTab('self-discovery')).toHaveLength(14)
     // 10 wizards + 11 problem-path micro tools (Momenty + shame response
     // replaced the two logs) + 6 shame-path v3 micros (dose check and
-    // Powrót stay hidden) + 5 problem-path measures; variants stay hidden.
-    expect(catalogEntriesForTab('cbt')).toHaveLength(32)
+    // Powrót stay hidden) + 4 phase practices of the shame path (2026-11-17)
+    // + 5 problem-path measures; variants stay hidden.
+    expect(catalogEntriesForTab('cbt')).toHaveLength(36)
     expect(catalogEntriesForTab('logotherapy')).toHaveLength(8)
     expect(catalogEntriesForTab('ifs')).toHaveLength(10)
-    expect(EXERCISE_CATALOG).toHaveLength(76)
+    expect(EXERCISE_CATALOG).toHaveLength(80)
   })
 
   it('has card copy for every entry in both locales', () => {

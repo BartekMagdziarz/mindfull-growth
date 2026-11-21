@@ -90,9 +90,15 @@ describe('micro exercise definitions', () => {
             source!.steps.some(candidate => candidate.key === hint.step),
             `${label} quotes ${hint.step}`
           ).toBe(true)
+          for (const key of hint.steps ?? []) {
+            expect(
+              source!.steps.some(candidate => candidate.key === key),
+              `${label} quotes ${key}`
+            ).toBe(true)
+          }
           expectConditionsFit(source!, hint.filter, label)
           expectConditionsFit(definition, hint.when, `${label} when`)
-        } else {
+        } else if (hint.source === 'picked') {
           const pickIndex = definition.steps.findIndex(candidate => candidate.key === hint.pickStep)
           expect(pickIndex, `${label} pick step`).toBeGreaterThanOrEqual(0)
           expect(pickIndex, `${label} pick step must be earlier`).toBeLessThan(index)
@@ -130,6 +136,13 @@ describe('micro exercise definitions', () => {
           if (step.type === 'entryPick') fields.push('empty')
           for (const field of fields) {
             expect(isCopyValue(stepCopy?.[field]), `${where}.${field}`).toBe(true)
+          }
+          // A multi-field quote labels each of its lines.
+          if (step.hintFrom?.source === 'latest' && step.hintFrom.steps) {
+            const hintFields = stepCopy?.hintFields as Copy | undefined
+            for (const key of step.hintFrom.steps) {
+              expect(isCopyValue(hintFields?.[key]), `${where}.hintFields.${key}`).toBe(true)
+            }
           }
           if (step.type === 'choice') {
             const options = stepCopy?.options as Copy | undefined

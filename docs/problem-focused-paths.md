@@ -455,3 +455,30 @@ What replaces the weekly commitment (planned, not built): Momenty as the constan
 of every phase, one new practice per phase that joins a growing on-demand collection, and a
 list of Moment moves that grows with the phases — plan
 `ideas/html-plans/2026-11-17-shame-path-phase-practices.html` (version 2).
+
+**P11 (2026-11-17) — phase practices, stage E1: four new micros.** Plan v2
+(`ideas/html-plans/2026-11-17-shame-path-phase-practices.html`): Momenty are the constant
+practice of every phase, each phase adds ONE new practice that later stays in an on-demand
+collection, and the Moment moves grow with the phases. E1 ships the four practices that did
+not exist; they are ordinary catalog micros (CBT tab) and are **not wired into the path yet**
+(the scheduling by phase, the growing moves list and the Praktyki card are stages E2–E4):
+
+| Slug | Title | Phase it is meant for | Steps |
+|---|---|---|---|
+| `safe-place-return` | Wracam do miejsca | 2 · Oparcie | breath 60 s (opt.) · the place and its anchors quoted from `safe-place` · what you notice (opt.) · helpful 1–5 (opt.); `innerPractice` |
+| `response-rehearsal` | Próba planu | 3 · Plan na trudną chwilę | the whole plan quoted from `shame-response` · an area (the shame map's list) · which sentences were said · one move · "will it come by itself" 1–5; `innerPractice` |
+| `critic-handover` | Dziękuję, przejmuję ster | 5 · Krytyk | the Critic's line · what it guarded · the handover sentence (quote from the protector wizard) · the body's answer; `innerPractice` |
+| `step-toward-people` | Krok do ludzi | 8 · Utrwalenie | the step taken (or "none today" → a step for tomorrow) · how it went · a note (opt.); `earlyFinishAfter: outcome` |
+
+Two runner extensions carry them, both on `hintFrom` (the quote never fills a field):
+`steps: string[]` on a `latest` source quotes several responses of one entry as labelled
+lines (copy at `…<stepKey>.hintFields.<key>`; empty responses are skipped, no entry = no
+quote), and `{ source: 'record', record: 'protector-handover' }` quotes the newest non-empty
+`IFSProtectorAppreciation.handover`. The hint logic moved out of the runner into
+`src/composables/useMicroHint.ts` (the runner was over the size ceiling);
+`resolveMicroHintEntry` in `microExerciseFlow.ts` returns the quoted entry. Guards:
+`microExercises.spec` (multi-field keys and their labels), `MicroExerciseRunner.spec` (the
+plan card, a missing entry, the record quote, the "none today" branch),
+`exerciseCatalog.spec` (CBT tab 36, catalog 80). Four icons joined the organic family
+(`exercise-safe-place-return`, `-response-rehearsal`, `-critic-handover`,
+`-step-toward-people`).

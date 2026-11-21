@@ -53,7 +53,15 @@
         <!-- A quiet quote from an earlier entry (hintFrom); never fills the field. -->
         <blockquote v-if="hint" class="micro-hint" data-testid="micro-hint">
           <span class="micro-hint__label">{{ hint.label }}</span>
-          <span class="micro-hint__text">„{{ hint.text }}”</span>
+          <span v-if="hint.lines.length === 1 && !hint.lines[0]!.label" class="micro-hint__text"
+            >„{{ hint.lines[0]!.text }}”</span
+          >
+          <dl v-else class="micro-hint__fields">
+            <template v-for="line in hint.lines" :key="line.key">
+              <dt v-if="line.label">{{ line.label }}</dt>
+              <dd>{{ line.text }}</dd>
+            </template>
+          </dl>
         </blockquote>
       </header>
 
@@ -249,6 +257,7 @@ import { DsRatingStack } from '@/design-system/components'
 import ExerciseScaleRow from '@/components/exercises/ExerciseScaleRow.vue'
 import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import MicroBreathTimer from '@/components/exercises/MicroBreathTimer.vue'
+import { formatMicroSourceValue, useMicroHint } from '@/composables/useMicroHint'
 import { useT } from '@/composables/useT'
 import { getCatalogEntry } from '@/data/exerciseCatalog'
 import { getMicroExercise } from '@/data/microExercises'
@@ -269,12 +278,10 @@ import { useMicroExerciseEntryStore } from '@/stores/microExerciseEntry.store'
 import { useProgramEnrollmentStore } from '@/stores/programEnrollment.store'
 import {
   canFinishEarly,
-  conditionList,
   hasStepsAfter,
   isMicroStepOptional,
   type MicroChoiceAnswers,
   pickableEntries,
-  resolveMicroHint,
   visibleMicroSteps,
 } from '@/utils/microExerciseFlow'
 
@@ -526,38 +533,13 @@ function isStackScale(step: Extract<MicroExerciseStep, { type: 'slider' }>): boo
   return step.max - step.min <= 4 && (step.step ?? 1) === 1
 }
 
-/**
- * A response of another definition as display text: choice ids become
- * their labels, lists join, prose passes through. Undefined = nothing
- * to show.
- */
-function formatSourceValue(
-  source: MicroExerciseDefinition | undefined,
-  key: string,
-  value: MicroStepValue | undefined
-): string | undefined {
-  if (value === undefined || value === null) return undefined
-  const sourceStep = source?.steps.find(step => step.key === key)
-  const label = (option: string) =>
-    sourceStep?.type === 'choice' && source
-      ? tg(`exerciseWizards.micro.${source.i18nKey}.${key}.options.${option}`)
-      : option
-  if (typeof value === 'string') return value.trim() ? label(value) : undefined
-  if (typeof value === 'number') return String(value)
-  if (Array.isArray(value)) {
-    const items = value.filter((item): item is string => typeof item === 'string').map(label)
-    return items.length ? items.join(', ') : undefined
-  }
-  return undefined
-}
-
 function pickCardLines(
   step: Extract<MicroExerciseStep, { type: 'entryPick' }>,
   entry: MicroExerciseEntry
 ): Array<{ key: string; text: string; meta: boolean }> {
   const source = getMicroExercise(step.slug)
   return step.show.flatMap(key => {
-    const text = formatSourceValue(source, key, entry.responses[key])
+    const text = formatMicroSourceValue(tg, source, key, entry.responses[key])
     if (!text) return []
     const sourceStep = source?.steps.find(candidate => candidate.key === key)
     return [{ key, text, meta: sourceStep?.type === 'choice' }]
@@ -566,43 +548,14 @@ function pickCardLines(
 
 // ── hintFrom ─────────────────────────────────────────────────────────
 
-const HINT_MAX_CHARS = 160
-
-const hint = computed<{ label: string; text: string } | null>(() => {
-  const step = currentStep.value
-  const source = step.hintFrom
-  if (!source) return null
-  if (source.source === 'latest') {
-    const when = conditionList(source.when)
-    const answers = choiceAnswers.value
-    const holds = when.every(condition => {
-      const answer = answers[condition.step]
-      const picked = Array.isArray(answer) ? answer : answer ? [answer] : []
-      return picked.some(option => condition.in.includes(option))
-    })
-    if (!holds) return null
-  }
-  const raw = resolveMicroHint(source, entries.value, { ...pickValues })
-  const sourceDefinition =
-    source.source === 'latest'
-      ? getMicroExercise(source.slug)
-      : (() => {
-          const pickStep = props.definition.steps.find(
-            candidate => candidate.key === source.pickStep
-          )
-          return pickStep?.type === 'entryPick' ? getMicroExercise(pickStep.slug) : undefined
-        })()
-  const text = formatSourceValue(sourceDefinition, source.step, raw)
-  if (!text) return null
-  const label =
-    optionalText(stepKey(step, 'hintLabel')) || t('exerciseWizards.micro.shared.hintLabel')
-  return {
-    label,
-    text:
-      !source.full && text.length > HINT_MAX_CHARS
-        ? `${text.slice(0, HINT_MAX_CHARS - 1).trimEnd()}…`
-        : text,
-  }
+const { hint } = useMicroHint({
+  definition: props.definition,
+  currentStep,
+  entries,
+  pickValues,
+  choiceAnswers,
+  stepKey,
+  optionalText,
 })
 
 // ── validation & save ────────────────────────────────────────────────
@@ -878,6 +831,26 @@ function leaveTooMuch(): void {
 }
 
 .micro-hint__text {
+  color: var(--mg-color-ink);
+  font-size: var(--mg-font-size-md);
+}
+
+/* Several fields of one entry (the plan in "Próba planu"): a quiet list, label over value. */
+.micro-hint__fields {
+  display: grid;
+  gap: var(--mg-space-1);
+  margin: 0;
+}
+
+.micro-hint__fields dt {
+  margin-top: var(--mg-space-1);
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-xs);
+  font-weight: 700;
+}
+
+.micro-hint__fields dd {
+  margin: 0;
   color: var(--mg-color-ink);
   font-size: var(--mg-font-size-md);
 }

@@ -152,16 +152,25 @@ export function resolveMicroHint(
   entries: readonly MicroExerciseEntry[],
   currentResponses: Record<string, MicroStepValue | undefined>
 ): MicroStepValue | undefined {
+  // A `record` hint quotes a wizard record, not a micro entry (see `useMicroHint`).
+  if (hint.source === 'record') return undefined
   if (hint.source === 'picked') {
     const pickedId = currentResponses[hint.pickStep]
     if (typeof pickedId !== 'string' || !pickedId) return undefined
     const picked = entries.find(entry => entry.id === pickedId)
     return picked?.responses[hint.step] ?? undefined
   }
-  const latest = entries
+  return resolveMicroHintEntry(hint, entries)?.responses[hint.step] ?? undefined
+}
+
+/** The entry a `latest` hint quotes: the newest one of its slug that passes the hint's filter. */
+export function resolveMicroHintEntry(
+  hint: Extract<MicroHintSource, { source: 'latest' }>,
+  entries: readonly MicroExerciseEntry[]
+): MicroExerciseEntry | undefined {
+  return entries
     .filter(entry => entry.exerciseSlug === hint.slug && entryMatches(entry, hint.filter))
     .sort(byNewest)[0]
-  return latest?.responses[hint.step] ?? undefined
 }
 
 /**

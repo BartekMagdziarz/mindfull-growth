@@ -548,6 +548,26 @@
       "title": "An anxious moment",
       "subtitle": "A note in Moments",
       "description": "Five taps: what pulled, when you noticed, what you did instead and how strong the anxiety was. The rest if you wish."
+    },
+    "safePlaceReturn": {
+      "title": "Back to my place",
+      "subtitle": "Two minutes in the safe place",
+      "description": "A short return to the place you already have: breath, image and anchors. The more often you return when calm, the faster the place comes in a hard moment."
+    },
+    "responseRehearsal": {
+      "title": "Plan rehearsal",
+      "subtitle": "The plan for a hard moment, when calm",
+      "description": "You walk through your plan in your mind: the signal, two sentences and a small step. Rehearsed, the plan comes by itself when shame strikes."
+    },
+    "criticHandover": {
+      "title": "Thank you, I'm steering now",
+      "subtitle": "A sentence for the Critic",
+      "description": "You write down what the Critic said and what it was trying to protect you from, then thank it and take the wheel."
+    },
+    "stepTowardPeople": {
+      "title": "A step towards people",
+      "subtitle": "A small step instead of hiding",
+      "description": "You write down one small step where shame told you to hide, and how it really went."
     }
   }
 }

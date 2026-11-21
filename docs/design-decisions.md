@@ -890,3 +890,19 @@ Klucze `planning.today.actions.clearToday`, `hideForToday` i `clearEntry` nie ma
 konsumenta w wierszu. Wzorzec „akcja jako słowo” żyje na razie w CSS obszaru (dwóch
 konsumentów w jednym planie dnia); przy konsumencie spoza „Dzisiaj” powinien trafić do
 `base.css`.
+
+## 2026-11-17 — Cytat z kilku pól w mikroćwiczeniu; cztery ikony praktyk fazy
+
+Kontekst: praktyki faz ścieżki wstydu („Wracam do miejsca”, „Próba planu”) mają pokazać to, co
+użytkownik sam wcześniej zbudował: miejsce z kotwicami albo cały plan na trudną chwilę. Runner
+umiał zacytować pod pytaniem tylko jedną odpowiedź z wcześniejszego wpisu (`.micro-hint`:
+etykieta wersalikami + tekst w cudzysłowie, bez ramki, żeby nie odwracać drabinki tonalnej).
+Decyzja:
+- cytat z kilku pól jest tą samą anatomią, a nie nową kartą: pod etykietą lista `dl`
+  (`.micro-hint__fields`) — nazwa pola `xs`/`muted`/700, wartość `md`/`ink`, bez cudzysłowu,
+  bez tła, bez cienia. Jeden konsument (runner), więc żyje w jego CSS, wyłącznie na tokenach;
+- puste pola się nie rysują, a bez wpisu nie ma cytatu wcale (krok czyta się sam);
+- cztery nowe ikony ćwiczeń w rodzinie organicznej (siatka 24, kontur 1.75, `currentColor`):
+  dom ze strzałką powrotu, plansza z trójkątem „odtwórz”, koło sterowe, strzałka do postaci.
+Konsekwencje: `IconPicker` pokazuje 329 ikon; każdy kolejny cytat wielopolowy używa
+`hintFrom.steps` i etykiet `hintFields.*`, bez własnych stylów.

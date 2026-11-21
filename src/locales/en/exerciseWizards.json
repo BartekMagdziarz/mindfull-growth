@@ -4817,6 +4817,168 @@
         "description": "Resume a practice, return to your own sentence, tell someone. (Optional.)",
         "placeholder": "This week…"
       }
+    },
+    "safePlaceReturn": {
+      "breath": {
+        "title": "A minute of breath",
+        "description": "Four seconds in, six out. You can skip this.",
+        "why": "A longer exhale calms the body, and a calm body brings the image back more easily."
+      },
+      "place": {
+        "title": "Return to your place",
+        "description": "Rest your eyes on one point or close them. Bring back the light, the sounds and the temperature. Stay there for a few breaths.",
+        "why": "A place you return to when calm comes back faster in a hard moment.",
+        "hintLabel": "Your place",
+        "hintFields": {
+          "place": "The place",
+          "anchor": "Anchors"
+        }
+      },
+      "noticed": {
+        "title": "What do you notice there today?",
+        "description": "One detail is enough. You can skip this.",
+        "placeholder": "Today there is…"
+      },
+      "helpful": {
+        "title": "Did this help?",
+        "description": "1 is not at all, 5 is a lot. You can skip this.",
+        "minLabel": "Not at all",
+        "maxLabel": "A lot"
+      }
+    },
+    "responseRehearsal": {
+      "plan": {
+        "title": "Your plan for a hard moment",
+        "description": "If you already have a plan, it is shown below. Read it slowly. In a moment you will walk through it in your mind.",
+        "why": "A plan rehearsed when calm comes by itself when things get hot.",
+        "hintLabel": "Your plan",
+        "hintFields": {
+          "signals": "How I know it is shame",
+          "unblendSentence": "The sentence that separates me from the part",
+          "sentence": "The kind sentence",
+          "move": "The small step"
+        }
+      },
+      "situation": {
+        "title": "Where does shame usually strike?",
+        "description": "Pick one area and picture a specific situation: where you are, who is next to you.",
+        "hintLabel": "From your shame map",
+        "options": {
+          "body": "Body and appearance",
+          "work": "Work and achievement",
+          "money": "Money",
+          "relationships": "Partnership and intimacy",
+          "family": "Family",
+          "parenting": "Parenting",
+          "health": "Health",
+          "competence": "Competence and knowledge",
+          "belonging": "Belonging, being liked",
+          "past": "The past"
+        }
+      },
+      "said": {
+        "title": "Say your sentences",
+        "description": "Out loud or in your mind, as if the situation were happening now. Tick the ones that were said.",
+        "why": "A sentence said once when calm is easier to find when things are hot.",
+        "options": {
+          "unblend": "The sentence that separates me from the part",
+          "kind": "The kind sentence"
+        }
+      },
+      "move": {
+        "title": "Which small step this time?",
+        "description": "One move towards people instead of hiding. Picture yourself making it.",
+        "hintLabel": "From your plan",
+        "options": {
+          "stay": "Stay in the situation a minute longer",
+          "eyes": "Lift your eyes",
+          "say": "Say one sentence out loud",
+          "ask": "Ask a question",
+          "hand": "A hand on your heart or belly",
+          "later": "Tell someone later"
+        }
+      },
+      "ready": {
+        "title": "How likely is this plan to come by itself?",
+        "description": "1 is not at all, 5 is for sure.",
+        "minLabel": "Not at all",
+        "maxLabel": "For sure"
+      }
+    },
+    "criticHandover": {
+      "said": {
+        "title": "What did the Critic say?",
+        "description": "One sentence, the way you hear it.",
+        "why": "Written down, the Critic's sentence becomes the voice of a part, not the truth about you.",
+        "placeholder": "Sloppy work again…"
+      },
+      "guards": {
+        "title": "What was it trying to protect you from?",
+        "description": "Tick everything that fits. The Critic is usually guarding something.",
+        "why": "Once you see what the Critic guards, thanking it is easier than fighting it.",
+        "options": {
+          "failure": "From failure",
+          "rejection": "From rejection",
+          "exposure": "From embarrassment",
+          "laziness": "From letting yourself off",
+          "hurt": "From getting hurt",
+          "unsure": "I don't know yet"
+        }
+      },
+      "sentence": {
+        "title": "Thank it and take the wheel",
+        "description": "Write the sentence that thanks the Critic and lets it know you are steering now. Say it out loud or in your mind.",
+        "why": "Thanks relieve the Critic of its watch without a fight.",
+        "hintLabel": "Your handover sentence",
+        "placeholder": "Thank you for keeping watch. I'm steering now."
+      },
+      "body": {
+        "title": "What did your body do?",
+        "description": "Check your shoulders, jaw and belly.",
+        "why": "An answer that lands shows in the body, not in the words.",
+        "options": {
+          "softens": "It softens",
+          "same": "No change",
+          "tightens": "It tightens"
+        }
+      }
+    },
+    "stepTowardPeople": {
+      "step": {
+        "title": "Which step towards people is behind you?",
+        "description": "One small step from today or yesterday where shame told you to hide.",
+        "why": "Shame says disappear. A small step the other way shows that staying is possible.",
+        "options": {
+          "question": "A question that felt stupid",
+          "notKnow": "Saying “I don't know”",
+          "unfinished": "Showing something unfinished",
+          "askHelp": "Asking for help",
+          "tell": "Telling someone about something hard",
+          "stayed": "Staying a minute longer",
+          "other": "Another step",
+          "none": "None today"
+        }
+      },
+      "outcome": {
+        "title": "How did it go?",
+        "description": "Compare it with what shame predicted.",
+        "why": "Shame predicts rejection. Every check gives proof that thinking alone cannot.",
+        "options": {
+          "better": "Better than shame predicted",
+          "asExpected": "About the same",
+          "worse": "Worse"
+        }
+      },
+      "note": {
+        "title": "What do you want to remember from it?",
+        "description": "One sentence. You can skip this.",
+        "placeholder": "Nobody paid attention to it…"
+      },
+      "next": {
+        "title": "Which small step tomorrow?",
+        "description": "Small enough to do even with shame present. You can skip this.",
+        "placeholder": "I will ask when I don't understand something."
+      }
     }
   }
 }

@@ -4817,6 +4817,168 @@
         "description": "Wznowić praktykę, wrócić do własnego zdania, powiedzieć komuś.",
         "placeholder": "W tym tygodniu…"
       }
+    },
+    "safePlaceReturn": {
+      "breath": {
+        "title": "Minuta oddechu",
+        "description": "Cztery sekundy wdechu, sześć wydechu. Możesz pominąć.",
+        "why": "Dłuższy wydech uspokaja ciało, a spokojne ciało łatwiej przywołuje obraz."
+      },
+      "place": {
+        "title": "Wróć do swojego miejsca",
+        "description": "Zatrzymaj wzrok na jednym punkcie albo zamknij oczy. Przywołaj światło, dźwięki i temperaturę. Zostań tam przez kilka oddechów.",
+        "why": "Miejsce, do którego wracasz na spokojnie, szybciej przychodzi w trudnej chwili.",
+        "hintLabel": "Twoje miejsce",
+        "hintFields": {
+          "place": "Miejsce",
+          "anchor": "Kotwice"
+        }
+      },
+      "noticed": {
+        "title": "Co dziś w nim zauważasz?",
+        "description": "Wystarczy jeden szczegół. Możesz pominąć.",
+        "placeholder": "Dziś jest tam…"
+      },
+      "helpful": {
+        "title": "Czy to pomogło?",
+        "description": "1 to wcale, 5 to bardzo. Możesz pominąć.",
+        "minLabel": "Wcale",
+        "maxLabel": "Bardzo"
+      }
+    },
+    "responseRehearsal": {
+      "plan": {
+        "title": "Twój plan na trudną chwilę",
+        "description": "Jeśli masz już plan, widzisz go poniżej. Przeczytaj go powoli. Za chwilę przejdziesz przez niego w wyobraźni.",
+        "why": "Plan przećwiczony na spokojnie przychodzi sam, gdy robi się gorąco.",
+        "hintLabel": "Twój plan",
+        "hintFields": {
+          "signals": "Po czym poznaję wstyd",
+          "unblendSentence": "Zdanie, które oddziela mnie od części",
+          "sentence": "Ciepłe zdanie",
+          "move": "Mały krok"
+        }
+      },
+      "situation": {
+        "title": "Gdzie wstyd zwykle uderza?",
+        "description": "Wybierz jeden obszar i wyobraź sobie konkretną sytuację: gdzie jesteś, kto jest obok.",
+        "hintLabel": "Z twojej mapy wstydu",
+        "options": {
+          "body": "Ciało i wygląd",
+          "work": "Praca i osiągnięcia",
+          "money": "Pieniądze",
+          "relationships": "Związek i bliskość",
+          "family": "Rodzina",
+          "parenting": "Rodzicielstwo",
+          "health": "Zdrowie",
+          "competence": "Kompetencje i wiedza",
+          "belonging": "Przynależność, bycie lubianym",
+          "past": "Przeszłość"
+        }
+      },
+      "said": {
+        "title": "Powiedz swoje zdania",
+        "description": "Na głos albo w myślach, tak jakby ta sytuacja działa się teraz. Zaznacz te, które padły.",
+        "why": "Zdanie wypowiedziane raz na spokojnie łatwiej znaleźć na gorąco.",
+        "options": {
+          "unblend": "Zdanie, które oddziela mnie od części",
+          "kind": "Ciepłe zdanie"
+        }
+      },
+      "move": {
+        "title": "Jaki mały krok tym razem?",
+        "description": "Jeden ruch w stronę ludzi zamiast ukrycia. Zobacz w wyobraźni, jak go robisz.",
+        "hintLabel": "Z twojego planu",
+        "options": {
+          "stay": "Zostań w sytuacji minutę dłużej",
+          "eyes": "Podnieś wzrok",
+          "say": "Powiedz jedno zdanie na głos",
+          "ask": "Zadaj pytanie",
+          "hand": "Dłoń na sercu lub brzuchu",
+          "later": "Opowiedz komuś później"
+        }
+      },
+      "ready": {
+        "title": "Na ile ten plan przyjdzie sam?",
+        "description": "1 to wcale, 5 to na pewno.",
+        "minLabel": "Wcale",
+        "maxLabel": "Na pewno"
+      }
+    },
+    "criticHandover": {
+      "said": {
+        "title": "Co powiedział Krytyk?",
+        "description": "Jedno zdanie, tak jak je słyszysz.",
+        "why": "Zapisane zdanie Krytyka staje się głosem części, a nie prawdą o tobie.",
+        "placeholder": "Znowu wyszło byle jak…"
+      },
+      "guards": {
+        "title": "Przed czym chciał cię ochronić?",
+        "description": "Zaznacz wszystko, co pasuje. Krytyk zwykle czegoś pilnuje.",
+        "why": "Gdy widać, czego Krytyk pilnuje, łatwiej mu podziękować niż z nim walczyć.",
+        "options": {
+          "failure": "Przed porażką",
+          "rejection": "Przed odrzuceniem",
+          "exposure": "Przed kompromitacją",
+          "laziness": "Przed odpuszczeniem sobie",
+          "hurt": "Przed zranieniem",
+          "unsure": "Jeszcze nie wiem"
+        }
+      },
+      "sentence": {
+        "title": "Podziękuj i przejmij ster",
+        "description": "Napisz zdanie, którym dziękujesz Krytykowi i dajesz znać, że teraz ty prowadzisz. Powiedz je na głos albo w myślach.",
+        "why": "Podziękowanie zdejmuje z Krytyka wartę bez walki.",
+        "hintLabel": "Twoje zdanie przejęcia steru",
+        "placeholder": "Dziękuję, że pilnujesz. Teraz ja prowadzę."
+      },
+      "body": {
+        "title": "Co zrobiło ciało?",
+        "description": "Sprawdź barki, szczękę i brzuch.",
+        "why": "Odpowiedź, która trafia, poznaje się po ciele, nie po słowach.",
+        "options": {
+          "softens": "Mięknie",
+          "same": "Bez zmian",
+          "tightens": "Napina się"
+        }
+      }
+    },
+    "stepTowardPeople": {
+      "step": {
+        "title": "Jaki krok do ludzi masz za sobą?",
+        "description": "Jeden mały krok z dziś albo z wczoraj, przy którym wstyd kazał się schować.",
+        "why": "Wstyd każe zniknąć. Mały krok w drugą stronę pokazuje, że da się zostać.",
+        "options": {
+          "question": "Pytanie, które wydawało się głupie",
+          "notKnow": "Powiedzenie „nie wiem”",
+          "unfinished": "Pokazanie niedokończonej rzeczy",
+          "askHelp": "Prośba o pomoc",
+          "tell": "Powiedzenie komuś o czymś trudnym",
+          "stayed": "Zostanie minutę dłużej",
+          "other": "Inny krok",
+          "none": "Dziś żadnego"
+        }
+      },
+      "outcome": {
+        "title": "Jak wyszło?",
+        "description": "Porównaj z tym, co podpowiadał wstyd.",
+        "why": "Wstyd przewiduje odrzucenie. Każde sprawdzenie daje dowód, którego nie da samo myślenie.",
+        "options": {
+          "better": "Lepiej, niż podpowiadał wstyd",
+          "asExpected": "Mniej więcej tak samo",
+          "worse": "Gorzej"
+        }
+      },
+      "note": {
+        "title": "Co chcesz z tego zapamiętać?",
+        "description": "Jedno zdanie. Możesz pominąć.",
+        "placeholder": "Nikt nie zwrócił na to uwagi…"
+      },
+      "next": {
+        "title": "Jaki mały krok jutro?",
+        "description": "Tak mały, żeby dało się go zrobić mimo wstydu. Możesz pominąć.",
+        "placeholder": "Zapytam, gdy czegoś nie zrozumiem."
+      }
     }
   }
 }
