@@ -92,13 +92,20 @@ sam znak — leżący, płaski słupek na torze skali 1–5 (wykresy danych nie 
 **długość = obciążenie, położenie kropki = stan, kolor = para.**
 
 - Komponenty: `src/components/shared/charts/LoadStateTrack.vue` (jedna para; rozmiary
-  `md` 22 px, `sm` 16 px, `xs` 10 px) i `LoadStateMatrix.vue` (tygodnie w wierszach, obszary
+  `lg` 48 px, `md` 22 px, `sm` 16 px, `xs` 10 px) i `LoadStateMatrix.vue` (tygodnie w wierszach, obszary
   w kolumnach o wspólnej skali — stan obszaru czyta się w dół po kropkach, nazwy i daty są
   raz). Jeden obszar daje kolumnę tygodni, jeden tydzień — wiersz obszarów.
 - Gdzie: karta podsumowania kalendarza (miesiąc: osobne pole z macierzą; tydzień: jeden
   wiersz), tabela roku „Oceny miesięcy” (stos `xs` tygodni w komórce miesiąca), refleksja
-  tygodnia (ostatnie 10 tygodni obszaru nad słupkami oceny; „Oceny” w kontekście dziennika),
-  refleksja miesiąca („Z tygodni”).
+  tygodnia (kafel wyniku kroku obszaru: znak `lg` na żywo, pod nim zwinięte minione tygodnie
+  `sm`; „Oceny” w kontekście dziennika), refleksja miesiąca („Z tygodni”).
+- `live` (od 2026-11-22) to znak w trakcie oceniania — jedyne miejsce, gdzie się rusza:
+  długość i położenie przechodzą płynnie, pojedyncza ocena rysuje się od razu neutralnym
+  błękitem danych (para dostaje kolor dopiero z drugą oceną), `previewLoad` / `previewState`
+  rysują blady słupek albo pustą studnię tam, gdzie stanie ocena, a `active` budzi element osi,
+  której kontrolka jest pod kursorem (kropka rośnie o włos, na końcu słupka pojawia się
+  uchwyt). Poza `live` znak jest nieruchomy, a para bez obu ocen to pusty tor. Nie używać
+  `live` w widokach, które tylko pokazują dane.
 - Kolor pary to drabinki `--mg-color-load-*` w konwencji ćwiartek emocji: `good-1…5`
   (stan zwykły lub dobry, tydzień od lekkiego do ciężkiego), `strain-1…4` (słaby stan przy
   obciążeniu 3–5), `low-1…2` (słaby stan przy lekkim tygodniu). Fiolet znaczy „mało energii
@@ -108,7 +115,7 @@ sam znak — leżący, płaski słupek na torze skali 1–5 (wykresy danych nie 
 - Stan 3 to przejście wzdłuż słupka: od własnego błękitu w stronę koloru wiersza niżej,
   wyraźnie tylko przy obciążeniu 1 i 5. Reguła mieszka w `src/domain/loadStateTone.ts`;
   miesza przeglądarka (`color-mix` w oklab na tokenach), więc w widokach nie ma literałów.
-  Ten sam plik daje kolor słupka stanu w `QuietRatingBar`, gdy obie osie są ocenione.
+  Ten sam plik daje kolor znaczków osi w kroku obszaru refleksji tygodnia.
 - Kropka stanu to studnia wykonania (`mg-well mg-well--done`) przekolorowana zmiennymi
   `--mg-well-field` / `--mg-well-mark`. Te dwie zmienne są dla wykresów danych; w „Planie
   dnia” zostają wartości domyślne.
@@ -263,12 +270,17 @@ z rampą krycia, −/+ pod spodem w akcencie, ślad poprzedniej wartości (`ghos
 klawiatura strzałkami, Delete czyści, `radiogroup` z rolą `radio` na chmurkach.
 `quiet` = puste chmurki i podpisy końców pokazują się dopiero w użyciu (karty
 rytuału); bez niego są stale widoczne (pojedyncze pytanie w kroku ćwiczenia).
+Ocena z tagami w rytuale to od 2026-11-22 pole `QuietRatingField`: tytuł, licznik
+z samą cyfrą (`QuietRatingCounter`) i tagi (`QuietTagDock`) — pola Obciążenie i Stan
+w kroku obszaru refleksji tygodnia (wynikiem jest tam żywy znak nad polami) oraz
+pięć osi kompasu w refleksji miesiąca. Słupek zostaje dla pojedynczych ocen bez
+tagów.
 Kolor i gęstość przez zmienne `--ds-rating-fill`, `--ds-rating-bar-width`,
 `--ds-rating-bar-height`, `--ds-rating-gap`, `--ds-rating-step-size` (domyślne w
 `:where()`, więc każda reguła hosta wygrywa); rozmiar wartości to token
 `--mg-font-size-rating`, kształt chmurki `--mg-radius-cloud-a/b`. Hosty:
-`QuietRatingBar` (obciążenie = atrament, stan = kolor pary, wysiłek = róż, kompas
-kompaktowy) i krótkie skale w `MicroExerciseRunner`. Rzędy 1–5 (`layout="row"`) i
+`QuietRatingBar` (wysiłek kierunku = róż, nasilenie na ścieżce) i krótkie skale w
+`MicroExerciseRunner`. Rzędy 1–5 (`layout="row"`) i
 skale 6–11 (`ExerciseScaleRow`) to osobne anatomie.
 
 ## Wysokość na każdym poziomie (2026-11-14)

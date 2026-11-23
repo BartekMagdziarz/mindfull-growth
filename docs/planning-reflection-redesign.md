@@ -242,8 +242,9 @@ month → open week. UX for this chain (length, skippability) is an open topic.
   the pair colour, smooth gradient between week centres, gaps where a week has no
   reflection). Placements: rhythm calendar "Oceny tygodni" (4 area rows), the period
   summary rating card (wide column, 2×2 area ribbons: weeks of the month / last 12
-  weeks), the quiet weekly reflection area step (10-week tail above the two bars, the
-  current week drawn live), the monthly reflection journal context ("Z tygodni").
+  weeks), the quiet weekly reflection area step (since 2026-11-22: a result tile with the
+  week's mark drawn live and the last rated weeks folded inside it, above two axis fields
+  with a digit counter and tags), the monthly reflection journal context ("Z tygodni").
   Not placed: Today, week cards in the month view (they keep a 4×2 cell matrix), the
   weekly review step. Supersedes the D2 amendment's "4 × 3 matrix" reading and the
   diverging rose↔sky scale with inverted Demands. Concept and decisions: UX Lab

@@ -48,18 +48,6 @@ describe('QuietRatingBar · symmetric column', () => {
     expect(wrapper.findAll('.ds-rating__bars .is-ghost')).toHaveLength(0)
   })
 
-  it('renders slot content inside the card, under the bar', () => {
-    const wrapper = mount(QuietRatingBar, {
-      props: { modelValue: 2, label: 'Sens', compact: true },
-      slots: { default: '<div class="probe">tags</div>' },
-    })
-    const probe = wrapper.find('.qr-axis > .probe')
-    expect(probe.exists()).toBe(true)
-    expect(
-      wrapper.find('.qr-bar-body').element.compareDocumentPosition(probe.element) &
-        Node.DOCUMENT_POSITION_FOLLOWING
-    ).toBeTruthy()
-  })
   it('offers five explicit row choices, clearing and keyboard adjustment', async () => {
     const wrapper = mount(QuietRatingBar, {
       props: { modelValue: 2, label: 'Wpływ', layout: 'row' },

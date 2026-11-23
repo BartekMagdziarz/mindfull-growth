@@ -7,11 +7,14 @@ import {
   allAreaTags,
   areaTagKey,
   buildQuietEvidenceRows,
+  matchTags,
   parseTags,
   plural,
   quietMonthWeeks,
   quietWeekDays,
+  ratingStopFromOffset,
   serializeTags,
+  steppedRating,
 } from '../quietRitualModel'
 
 // The app's weeks are not ISO weeks: 2026-W28 runs Mon 13 – Sun 19 July.
@@ -257,5 +260,44 @@ describe('quietMonthAreaSeries', () => {
     expect(series.body[0]).toMatchObject(gap)
     expect(series.tasks[1]).toMatchObject({ load: 2, state: 2 })
     expect(series.emotions.every(p => p.load === null)).toBe(true)
+  })
+})
+
+describe('matchTags', () => {
+  const pool = ['mało snu', 'delegacja', 'termin oferty', 'Dwa treningi', 'oferta dnia']
+
+  it('returns the whole pool without the chosen tags when nothing is typed', () => {
+    expect(matchTags(pool, [], '')).toEqual(pool)
+    expect(matchTags(pool, ['Delegacja'], '  ')).not.toContain('delegacja')
+    expect(matchTags(pool, [], '', 2)).toEqual(['mało snu', 'delegacja'])
+  })
+
+  it('puts prefix matches before tags that only contain the text, ignoring case', () => {
+    expect(matchTags(pool, [], ' OF')).toEqual(['oferta dnia', 'termin oferty'])
+    expect(matchTags(pool, [], 'tr')).toEqual(['Dwa treningi'])
+    expect(matchTags(pool, ['oferta dnia'], 'of')).toEqual(['termin oferty'])
+    expect(matchTags(pool, [], 'xyz')).toEqual([])
+  })
+})
+
+describe('rating counter and live mark helpers', () => {
+  it('steps one place: starts at 1, clears below 1, stops at 5', () => {
+    expect(steppedRating(null, 1)).toBe(1)
+    expect(steppedRating(null, -1)).toBeNull()
+    expect(steppedRating(1, -1)).toBeNull()
+    expect(steppedRating(3, 1)).toBe(4)
+    expect(steppedRating(5, 1)).toBe(5)
+  })
+
+  it('snaps a pointer on the mark to the nearest of five places', () => {
+    // mark 560 px wide and 48 px high: place centres 24 · 152 · 280 · 408 · 536
+    expect([24, 152, 280, 408, 536].map(x => ratingStopFromOffset(x, 560, 48))).toEqual([
+      1, 2, 3, 4, 5,
+    ])
+    expect(ratingStopFromOffset(87, 560, 48)).toBe(1)
+    expect(ratingStopFromOffset(89, 560, 48)).toBe(2)
+    expect(ratingStopFromOffset(-40, 560, 48)).toBe(1)
+    expect(ratingStopFromOffset(900, 560, 48)).toBe(5)
+    expect(ratingStopFromOffset(10, 40, 48)).toBe(1)
   })
 })

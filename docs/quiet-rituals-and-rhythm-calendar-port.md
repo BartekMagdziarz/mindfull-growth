@@ -122,7 +122,9 @@ pod zwiniętym ujawnieniem~~ → **zmienione 2026-09-20 (D10 w `planning-reflect
 osie to **Obciążenie** (= pole Wymagań) i **Stan**; kolumna Działania nie jest już pytana ani
 rysowana (pola zostają jako historia). Nad słupkami wstęga ostatnich 10 tygodni obszaru
 (`LoadStateRibbon`), bieżący tydzień dorysowuje się po obu ocenach; słupek stanu przyjmuje
-kolor ćwiartki pary. W tabeli kalendarza rytmu spojrzenie „Oceny tygodni” = 4 wiersze
+kolor ćwiartki pary. **Zmienione 2026-11-22** (`docs/design-decisions.md`): krok obszaru to kafel
+wyniku (żywy znak obciążenie · stan, w nim zwinięte minione tygodnie) i dwa pola osi z licznikiem
+i tagami; słupki zostały tylko w refleksji miesiąca. W tabeli kalendarza rytmu spojrzenie „Oceny tygodni” = 4 wiersze
 obszarów ze wstęgami; karta „Ocena” podsumowania bierze szerszą kolumnę i pokazuje wstęgi 2×2.
 
 **C6. Nazwy sekcji produktowe** (Wymagania / Działania / Stan) + istniejące, odmieniane

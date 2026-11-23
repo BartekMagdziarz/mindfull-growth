@@ -918,3 +918,53 @@ a kafle wyboru i odpowiedzi używają cienia kontrolki, uniesienia pod kursorem
 i wklęsłości po zaznaczeniu. Krótkie zaznaczone odpowiedzi zachowują
 wypełnienie akcentem. Wskazówki, skale i przyciski ikon korzystają
 z dostępnych stylów systemu.
+
+## 2026-11-22 — Krok obszaru refleksji tygodnia: kafel wyniku i dwa pola z licznikiem
+
+Kontekst: po wdrożeniu znaku obciążenie · stan (14.11) krok obszaru zaczynał się od kolumny
+dziesięciu tygodni historii, a dwa pionowe słupki oceny zjeżdżały pod zgięcie karty; historia
+mówiła leżącym słupkiem z kropką, ocena pionowymi słupkami — dwa języki w jednym kroku. Pięć
+rund w UX Labie (`/concepts/area-rating-step`): słupki z historią obok, znak rozłożony na
+warstwy, mapa 5 × 5, kafle w jednym kroku, kropki ocen pod dużym znakiem, uchwyty na znaku,
+suwaki przy znaku. User wybrał układ K i sam ustalił jego części.
+Decyzja:
+- na górze kroku stoi **kafel wyniku**: kafel obszaru z kalendarza w dużym rozmiarze (ikona w
+  kole, nazwa, znak `LoadStateTrack` `lg` w trybie `live`). Historia jest dodatkiem: słowo
+  „Minione tygodnie” rozwija w kaflu pięć ostatnich ocenionych tygodni (`sm`, od najnowszego,
+  bez pustych torów), na skali dużego znaku; rozwinięcie zostaje między czterema krokami
+  obszarów;
+- pod kaflem dwa równe **pola osi** (mgła, cień zagnieżdżony): tytuł ze znaczkiem osi (mały
+  słupek / kropka w kolorze pary) i „?”, licznik, tagi;
+- **licznik pokazuje samą cyfrę** — świadomy wyjątek od „zero liczb na wierzchu”, na prośbę
+  usera: cyfra jest tu kontrolką, nie statystyką. Strzałki-chmury i słowa końców skali budzą się
+  pod kursorem pola i przy fokusie; **pusty licznik pokazuje je od razu** (kontrolka, która chowa
+  swoje uchwyty, musi je pokazać, gdy jest pusta). Strzałka pod kursorem rysuje na znaku cień
+  następnej oceny; zejście poniżej 1 czyści ocenę jak w `DsRatingStack`;
+- **tagi bez podpisu**: chipy na środku, pod nimi zawsze w tym samym miejscu dwa małe okrągłe
+  przyciski. „+” zamienia się w pole; podczas pisania pod polem wyskakuje dymek z maks. pięcioma
+  pasującymi wcześniejszymi tagami (najpierw zaczynające się od tekstu). Strzałka rozwija w
+  miejscu bazę wcześniejszych tagów osi (do 14; tekst w polu ją filtruje). Gdy tagi już są,
+  przyciski są wyblakłe do najechania na pole — ta sama zasada co strzałki licznika;
+- pole osi pod kursorem **nie bieleje** (chipy są z papieru i by znikły); sygnałem jest
+  obudzony element na znaku;
+- reguła ogólna z tej serii: podpowiedzi pojawiające się podczas pisania żyją w dymku (układ
+  nie skacze), a lista otwarta świadomie rozwija się w miejscu.
+Konsekwencje: `LoadStateTrack` ma rozmiar `lg` i tryb `live` (podgląd, budzenie, pojedyncza
+ocena) — część wspólna, opisana w README. `QuietAreaStep` i `QuietAreaResultTile` mają jednego
+konsumenta (refleksja tygodnia); pole oceny (`QuietRatingField` = tytuł + `QuietRatingCounter` +
+`QuietTagDock`) ma dwóch, oba w rytuałach, więc żyje w funkcji rytuału, wyłącznie na tokenach.
+Z kroku zniknęły `.qr-tail`, `.qr-bars` i `.qr-ratings`.
+
+Tego samego dnia, na prośbę usera, układ pola przeszedł na **kompas refleksji miesiąca**. Miesiąc
+nie ma pary obciążenie · stan ani znaku, więc nie ma tam kafla wyniku — przeniesione jest samo
+pole:
+- pięć osi kompasu to pięć pól tej samej wielkości co pola tygodnia, w układzie **trzy i dwa**,
+  wyśrodkowane (zamiast pięciu wąskich słupków w jednym rzędzie);
+- ocena poprzedniego miesiąca, którą słupek rysował jako ślad, jest cichą linią pod cyfrą
+  („Poprzedni miesiąc: 4”) i budzi się razem ze strzałkami; skala kompasu nie ma słów końców;
+- tagi osi używają tej samej anatomii (`QuietTagDock`); `QuietTagField` (podpis ze strzałką,
+  zwijany edytor) został usunięty — rytuały mają jedną kontrolkę tagów.
+Zostaje: „Wysiłek” w kroku kierunków miesiąca i nasilenie w kroku ścieżki tygodnia nadal są
+słupkiem (`QuietRatingBar` → `DsRatingStack`) — to pojedyncze oceny bez tagów, obok decyzji i
+notatki.
+

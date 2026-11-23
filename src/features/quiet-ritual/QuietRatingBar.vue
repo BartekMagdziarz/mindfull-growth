@@ -1,15 +1,5 @@
 <template>
-  <article
-    class="qr-axis"
-    :class="{
-      'qr-axis--row': layout === 'row',
-      'qr-axis--effort': effort,
-      'qr-axis--compact': compact,
-      'qr-axis--load': tone === 'load',
-      'qr-axis--paired': !!fillColor,
-    }"
-    :style="fillColor ? { '--qr-fill': fillColor } : undefined"
-  >
+  <article class="qr-axis" :class="{ 'qr-axis--row': layout === 'row', 'qr-axis--effort': effort }">
     <header>
       <h2>{{ label }}</h2>
       <details v-if="hint" class="qr-help">
@@ -61,8 +51,6 @@
       :ghost-label="previousLabel"
       @update:model-value="emit('update:modelValue', $event)"
     />
-    <!-- Optional foot (e.g. the axis' tags) stays inside the same card. -->
-    <slot />
   </article>
 </template>
 
@@ -78,12 +66,6 @@ const props = withDefaults(
     hint?: string
     /** Effort axis — rose family, "Duży / Niewielki" ends (legacy actions column). */
     effort?: boolean
-    /** Load axis — ink fills (sky-800), the "pencil" of the load/state pair. */
-    tone?: 'default' | 'load'
-    /** Custom fill for the filled steps, e.g. the load/state quadrant colour. */
-    fillColor?: string | null
-    /** Narrow variant for the five-axis compass (five bars side by side). */
-    compact?: boolean
     /** Previous period's value, drawn as a faint outline until the bar is used. */
     previous?: number | null
     previousLabel?: string
@@ -93,9 +75,6 @@ const props = withDefaults(
   {
     layout: 'column',
     effort: false,
-    compact: false,
-    tone: 'default',
-    fillColor: null,
     previous: null,
     previousLabel: 'Poprzednio',
   }
@@ -109,31 +88,3 @@ function step(delta: number) {
   emit('update:modelValue', Math.max(0, Math.min(5, (props.modelValue ?? 0) + delta)) || null)
 }
 </script>
-
-<style scoped>
-.qr-axis--compact {
-  padding: 20px 14px 16px;
-  min-width: 0;
-}
-.qr-axis--compact header {
-  justify-content: space-between;
-  gap: 8px;
-}
-.qr-axis--compact h2 {
-  font-size: var(--mg-font-size-lg);
-}
-/* Five bars side by side: narrower clouds and a smaller value. */
-.qr-axis--compact .qr-bar-body {
-  --ds-rating-bar-width: 64px;
-  --mg-font-size-rating: var(--mg-font-size-xl);
-}
-/* Narrow card: the scale ends wrap to two lines and stay inside the card. */
-.qr-axis--compact :deep(.ds-rating__ends) {
-  right: calc(100% + 6px);
-  width: 46px;
-  padding: 4px 0;
-  font-size: var(--mg-font-size-mark);
-  line-height: 1.15;
-  white-space: normal;
-}
-</style>

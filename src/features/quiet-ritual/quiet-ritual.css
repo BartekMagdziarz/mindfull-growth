@@ -864,12 +864,6 @@
 .qr-evidence > .qr-help {
   margin: 10px 0 0 auto;
 }
-.qr-ratings {
-  width: min(100%, 620px);
-  margin: 12px auto 24px;
-  display: grid;
-  gap: 22px;
-}
 .qr-axis {
   background: var(--qr-field);
   border-radius: var(--mg-radius-lg);
@@ -1135,9 +1129,6 @@
     min-height: 0;
     max-height: none;
   }
-  .qr-ratings {
-    align-content: start;
-  }
   .qr-footer {
     padding-top: 22px;
   }
@@ -1240,11 +1231,6 @@
   color: var(--qr-accent);
 }
 
-/* Life-area steps: two drawn vertical bars (ink strokes), +/- in the bar column, tags per area. */
-.qr-ratings {
-  width: min(100%, 760px);
-  margin: 0 auto 4px;
-}
 /* Tags written before the load/state split — read-only, with the week they belong to. */
 .qr-legacy-tags {
   display: flex;
@@ -1258,136 +1244,17 @@
 .qr-legacy-tags .material-symbols-outlined {
   font-size: var(--mg-font-size-sm);
 }
-.qr-bars {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 22px;
-}
-.qr-bars .qr-axis {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  padding: 16px 26px 12px;
-}
-.qr-bars .qr-axis header {
-  margin-bottom: 6px;
-}
-/* The area step (ribbon + two bars + tags) fits one desktop screen; the step card itself scrolls otherwise. */
-.qr-bars .qr-bar-body {
-  --ds-rating-gap: 6px;
-  --ds-rating-bar-height: 28px;
-  --ds-rating-step-size: 32px;
-}
-/* The column is DsRatingStack (design system); the ritual only recolours it per
-   axis and shows the scale ends while the whole card is hovered or focused. */
+/* The column is DsRatingStack (design system); the ritual only recolours the
+   effort axis and shows the scale ends while the whole card is hovered or focused. */
 .qr-axis--effort .qr-bar-body {
   --ds-rating-fill: var(--qr-effort-strong);
 }
 .qr-axis--effort .qr-bar-body .ds-rating__value {
   color: var(--qr-effort-ink);
 }
-.qr-axis--load .qr-bar-body {
-  --ds-rating-fill: var(--mg-color-data-ink);
-}
-.qr-axis--paired .qr-bar-body {
-  --ds-rating-fill: var(--qr-fill);
-}
 .qr-axis:hover .qr-bar-body .ds-rating__ends,
 .qr-axis:has(:focus-visible) .qr-bar-body .ds-rating__ends {
   opacity: 1;
-}
-/* Axis tags under a rating bar: pills + one chevron; open = search/re-use/create. */
-.qr-tagfield {
-  display: grid;
-  gap: 8px;
-  margin-top: 10px;
-  padding-top: 8px;
-  border-top: 1px solid var(--qr-line-soft);
-}
-.qr-tagfield-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-.qr-tagfield-list {
-  display: contents;
-}
-.qr-tagfield-list li {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  max-width: 100%;
-  padding: 2px 9px;
-  background: var(--qr-inner);
-  border-radius: var(--mg-radius-pill);
-  font-size: var(--mg-font-size-xs);
-  font-weight: 600;
-}
-.qr-tagfield-list li span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.qr-tagfield--open .qr-tagfield-list li {
-  padding-right: 3px;
-}
-.qr-tagfield-list li button {
-  display: grid;
-  place-items: center;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: transparent;
-  color: var(--qr-muted);
-}
-.qr-tagfield-list li button .material-symbols-outlined {
-  font-size: var(--mg-font-size-sm);
-}
-.qr-tagfield-list li button:hover {
-  background: var(--qr-field);
-  color: var(--qr-ink);
-}
-.qr-tagfield-toggle {
-  width: 26px;
-  height: 26px;
-}
-.qr-tagfield-toggle .material-symbols-outlined {
-  font-size: var(--mg-font-size-icon-md);
-  color: var(--qr-muted);
-  transition: transform 0.18s;
-}
-.qr-tagfield-toggle[aria-expanded='true'] .material-symbols-outlined {
-  transform: rotate(180deg);
-}
-.qr-tagfield-editor {
-  display: grid;
-  gap: 6px;
-}
-.qr-tagfield-editor input {
-  width: 100%;
-  padding: 6px 11px;
-  border: 1px solid var(--qr-line-soft);
-  border-radius: var(--mg-radius-pill);
-  background: var(--qr-inner);
-  font-size: var(--mg-font-size-xs);
-}
-.qr-tagfield-suggestions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 3px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.qr-tagfield-suggestions .qr-quiet {
-  min-height: 26px;
-  padding: 2px 8px;
-  font-size: var(--mg-font-size-xs) !important;
-}
-.qr-tagfield-create {
-  color: var(--qr-ink);
 }
 
 /* Journal step: writing surface on the left, context column on the right. */
@@ -1629,9 +1496,6 @@
 }
 @media (max-width: 900px) {
   .qr-journal--with-context {
-    grid-template-columns: 1fr;
-  }
-  .qr-bars {
     grid-template-columns: 1fr;
   }
 }
@@ -1953,11 +1817,19 @@
 .qm-signals .qr-quiet[aria-pressed='true'] {
   color: var(--qr-ink);
 }
+/* Compass: five rating fields the size of the weekly area fields, three and two, centred. */
 .qm-compass {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 14px;
-  margin: 18px 0;
+  width: min(100%, 60.5rem);
+  margin: 12px auto;
+}
+.qm-compass > * {
+  grid-column: span 2;
+}
+.qm-compass > :nth-child(4) {
+  grid-column: 2 / span 2;
 }
 .qm-anchors {
   width: 100%;
@@ -2202,14 +2074,14 @@
   .qm-week-cards {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-  .qm-compass {
-    gap: 10px;
-  }
 }
 @media (max-width: 760px) {
   .qm-compass {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    row-gap: 30px;
+    grid-template-columns: 1fr;
+  }
+  .qm-compass > *,
+  .qm-compass > :nth-child(4) {
+    grid-column: auto;
   }
   .qm-journal--open {
     grid-template-columns: 1fr;
@@ -2233,9 +2105,6 @@
 @media (max-width: 480px) {
   .qm-priority-body {
     grid-template-columns: 1fr;
-  }
-  .qm-compass {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .qm .qr-top {
     flex-wrap: wrap;
@@ -2350,31 +2219,6 @@
   padding-bottom: 2px;
 }
 /* Demands stay available but never lead: the quiet step asks Wysiłek and Stan. */
-/* Tail of the area: the last weeks as a load/state ribbon above the two bars. */
-.qr-tail {
-  display: grid;
-  gap: 6px;
-  margin-bottom: 12px;
-  padding: 12px 22px 8px;
-  background: var(--qr-field);
-  border-radius: var(--mg-radius-lg);
-}
-.qr-tail > header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: var(--mg-font-size-sm);
-  font-weight: 700;
-  color: var(--qr-muted);
-}
-.qr-tail > header .material-symbols-outlined {
-  font-size: var(--mg-font-size-icon-md);
-  color: var(--qr-accent-strong);
-}
-/* ostatnie tygodnie obszaru: wąska kolumna słupków, nie na całą szerokość pola */
-.qr-tail > .ls-matrix {
-  max-width: 22rem;
-}
 .qr-ai {
   display: grid;
   gap: 8px;
@@ -2386,7 +2230,6 @@
   align-content: start;
 }
 .qm-compass {
-  align-items: start;
   align-content: start;
 }
 

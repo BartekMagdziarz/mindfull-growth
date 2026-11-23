@@ -127,26 +127,21 @@
       </p>
     </section>
 
-    <!-- 2 · Kompas -->
+    <!-- 2 · Kompas — pięć pól osi (tytuł, licznik z cyfrą, tagi), trzy i dwa -->
     <section v-else-if="current === 1" class="qm-compass">
-      <QuietRatingBar
+      <QuietRatingField
         v-for="axis in COMPASS"
         :key="axis.key"
-        :label="axis.label"
+        :title="axis.label"
         :hint="axis.hint"
-        compact
         :model-value="axis.ref.value"
         :previous="previousCompass[axis.key] ?? null"
         previous-label="Poprzedni miesiąc"
+        :tags="axisTags(axis.key)"
+        :pool="axisTagSuggestions(axis.key)"
         @update:model-value="setCompass(axis, $event)"
-      >
-        <QuietTagField
-          :model-value="axisTags(axis.key)"
-          :suggestions="axisTagSuggestions(axis.key)"
-          :label="axis.label"
-          @update:model-value="writeAxisTags(axis.key, $event)"
-        />
-      </QuietRatingBar>
+        @update:tags="writeAxisTags(axis.key, $event)"
+      />
     </section>
 
     <!-- 3 · Kotwice -->
@@ -463,7 +458,7 @@ import QuietEmotionStack from './QuietEmotionStack.vue'
 import ProfileProposalNotice from '@/features/ai-profile/ProfileProposalNotice.vue'
 import ReflectionCompanionPanel from '@/features/ai-companion/ReflectionCompanionPanel.vue'
 import QuietRatingBar from './QuietRatingBar.vue'
-import QuietTagField from './QuietTagField.vue'
+import QuietRatingField from './QuietRatingField.vue'
 import QuietRitualShell, { type QuietRitualStep } from './QuietRitualShell.vue'
 import {
   allAreaTags,

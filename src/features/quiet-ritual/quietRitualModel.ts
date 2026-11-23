@@ -321,3 +321,51 @@ export function addTag(tags: string[], raw: string): string[] {
     return tags
   return [...tags, tag]
 }
+
+/**
+ * Earlier tags that match what is being typed: never one already chosen,
+ * first those starting with the text, then those containing it. An empty text
+ * returns the whole pool (the browsing shelf).
+ */
+export function matchTags(
+  pool: string[],
+  chosen: string[],
+  query: string,
+  limit = Infinity
+): string[] {
+  const lower = (value: string) => value.toLocaleLowerCase('pl')
+  const taken = new Set(chosen.map(lower))
+  const free = pool.filter(tag => !taken.has(lower(tag)))
+  const needle = lower(query.trim().replace(/\s+/g, ' '))
+  if (!needle) return free.slice(0, limit)
+  const starts = free.filter(tag => lower(tag).startsWith(needle))
+  const inside = free.filter(tag => !lower(tag).startsWith(needle) && lower(tag).includes(needle))
+  return [...starts, ...inside].slice(0, limit)
+}
+
+// ---------------------------------------------------------------------------
+// Rating counter and the live load & state mark of an area step
+// ---------------------------------------------------------------------------
+
+/**
+ * The rating one place further on the 1–5 scale. Stepping below 1 clears the
+ * rating and an empty rating starts at 1 — the same rule as `DsRatingStack`.
+ */
+export function steppedRating(current: number | null, delta: number): number | null {
+  if (current == null) return delta > 0 ? 1 : null
+  const next = current + delta
+  if (next < 1) return null
+  return Math.min(5, next)
+}
+
+/**
+ * The scale place (1–5) under the pointer on a load & state mark: `offset`
+ * from the mark's left edge, `width` of the mark, `size` = its height (the
+ * outer places sit half a height from the edges, as `LoadStateTrack` draws them).
+ */
+export function ratingStopFromOffset(offset: number, width: number, size: number): number {
+  const stepWidth = (width - size) / 4
+  if (stepWidth <= 0) return 1
+  const index = Math.round((offset - size / 2) / stepWidth)
+  return Math.max(0, Math.min(4, index)) + 1
+}
