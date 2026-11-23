@@ -168,8 +168,8 @@ export function pastWeeks(area: AreaKey, mode: HistoryMode, count: number): Past
 
 /** Wcześniej użyte tagi osi (w produkcie: z innych obszarów i tygodni). */
 export const TAG_POOL: Record<AxisKey, string[]> = {
-  load: ['delegacja', 'mało snu', 'termin oferty', 'choroba w domu', 'dwa treningi', 'remont'],
-  state: ['napięcie', 'spokój', 'ból pleców', 'wolny weekend', 'wdzięczność'],
+  load: ['delegacja', 'mało snu', 'termin oferty', 'choroba w domu', 'dwa treningi', 'remont', 'nadgodziny', 'wyjazd', 'goście w domu', 'egzamin'],
+  state: ['napięcie', 'spokój', 'ból pleców', 'wolny weekend', 'wdzięczność', 'zmęczenie', 'lekkość', 'bezsenność', 'rozdrażnienie'],
 }
 
 /** Podpowiedzi: najpierw tagi tej osi z innych obszarów tygodnia, potem wcześniejsze; bez już wybranych. */
@@ -182,6 +182,21 @@ export function tagSuggestions(draft: Draft, area: AreaKey, axis: AxisKey): stri
   for (const key of AREA_KEYS) if (key !== area) draft[key].tags[axis].forEach(push)
   TAG_POOL[axis].forEach(push)
   return out
+}
+
+/**
+ * Istniejące tagi pasujące do wpisywanego tekstu: bez już wybranych, najpierw
+ * zaczynające się od tekstu, potem zawierające go; pusty tekst zwraca całą bazę.
+ */
+export function matchTags(pool: string[], chosen: string[], query: string, limit = Infinity): string[] {
+  const lower = (value: string) => value.toLocaleLowerCase('pl')
+  const taken = new Set(chosen.map(lower))
+  const free = pool.filter(tag => !taken.has(lower(tag)))
+  const needle = lower(query.trim())
+  if (!needle) return free.slice(0, limit)
+  const starts = free.filter(tag => lower(tag).startsWith(needle))
+  const inside = free.filter(tag => !lower(tag).startsWith(needle) && lower(tag).includes(needle))
+  return [...starts, ...inside].slice(0, limit)
 }
 
 const fold = (value: string) => value.trim().replace(/\s+/g, ' ')
@@ -237,12 +252,27 @@ export function stopFromOffset(offset: number, width: number, size: number): Rat
   return (Math.max(0, Math.min(4, index)) + 1) as Rating
 }
 
-export type VariantId = 'g' | 'e' | 'f' | 'a' | 'b' | 'c' | 'd'
-export const VARIANT_IDS: readonly VariantId[] = ['g', 'e', 'f', 'a', 'b', 'c', 'd']
+/** Miejsce skali o `delta` dalej; poniżej 1 ocena znika, bez oceny ruch w prawo zaczyna od 1 (jak `DsRatingStack`). */
+export function steppedRating(current: MaybeRating, delta: number): MaybeRating {
+  if (current == null) return delta > 0 ? 1 : null
+  const next = current + delta
+  if (next < 1) return null
+  return Math.min(5, next) as Rating
+}
+
+/** Runda 4: czy minione tygodnie są rozwinięte (domyślnie schowane). */
+export type PastFold = 'closed' | 'open'
+export const PAST_FOLDS: readonly { id: PastFold; label: string }[] = [
+  { id: 'closed', label: 'Schowane' },
+  { id: 'open', label: 'Rozwinięte' },
+]
+
+export type VariantId = 'k' | 'h' | 'i' | 'j' | 'g' | 'e' | 'f' | 'a' | 'b' | 'c' | 'd'
+export const VARIANT_IDS: readonly VariantId[] = ['k', 'h', 'i', 'j', 'g', 'e', 'f', 'a', 'b', 'c', 'd']
 export interface VariantDef {
   id: VariantId
-  /** 3 = uchwyty na znaku, 2 = duży znak z ocenami obok, 1 = pierwsze cztery podejścia. */
-  round: 1 | 2 | 3
+  /** 5 = kafel wyniku i pola z licznikami, 4 = suwaki przy znaku, 3 = uchwyty na znaku, 2 = duży znak z ocenami obok, 1 = pierwsze cztery podejścia. */
+  round: 1 | 2 | 3 | 4 | 5
   title: string
   lead: string
   sets: string
@@ -250,6 +280,42 @@ export interface VariantDef {
   risk: string
 }
 export const VARIANTS: readonly VariantDef[] = [
+  {
+    id: 'k',
+    round: 5,
+    title: 'Kafel wyniku i dwa pola z licznikami',
+    lead: 'Na górze kafel wyniku: ikona, nazwa obszaru, „Minione tygodnie” i żywy znak tygodnia. Pod nim dwa równe pola, „Obciążenie” i „Stan”. Każde ma tytuł, licznik z samą dużą cyfrą i strzałkami pod kursorem, a na dole tagi z dwoma małymi przyciskami: „+” i strzałką w dół.',
+    sets: 'Licznik w polu osi: strzałki po bokach cyfry, pod nimi słowa końców skali. „+” otwiera pole wpisywania; podczas pisania pod polem wyskakują pasujące istniejące tagi. Strzałka w dół rozwija bazę wcześniejszych tagów tej osi.',
+    history: 'Schowana w kaflu wyniku. Rozwija się od razu pod znakiem, na jego skali; pola zjeżdżają niżej.',
+    risk: 'Cyfra na wierzchu to wyjątek od zasady „zero liczb”. Strzałki licznika widać dopiero pod kursorem — pusty licznik pokazuje je od razu. Przy dużej bazie rozwinięta lista tagów wydłuża pole.',
+  },
+  {
+    id: 'h',
+    round: 4,
+    title: 'Suwaki pod znakiem, trzy furtki',
+    lead: 'Znak stoi na środku, zaraz pod nim dwa suwaki tej samej szerokości: gałka „Obciążenia” stoi dokładnie pod końcem słupka, gałka „Stanu” pod kropką. Niżej jedna cicha linia z trzema furtkami: tag do obciążenia, tag do stanu, minione tygodnie.',
+    sets: 'Dwa suwaki pod znakiem, na jego skali. Klik w tor przeskakuje, gałkę można przeciągnąć. Tagi dopisuje się w linii furtek; każda grupa ma znaczek swojej osi.',
+    history: 'Schowana. „Minione tygodnie” rozwija pięć mniejszych znaków pod linią furtek, na tej samej skali.',
+    risk: 'Tagi stoją dalej od suwaka, którego dotyczą — łączy je tylko znaczek osi. Rozwinięta historia jest oddzielona od dużego znaku suwakami.',
+  },
+  {
+    id: 'i',
+    round: 4,
+    title: 'Dwie chmury obok siebie',
+    lead: 'Pod znakiem dwie równe chmury: „Obciążenie” z lewej, „Stan” z prawej. Każda ma wszystko, co dotyczy jej osi: nazwę, suwak, słowa końców skali i swoje tagi. Krok wypełnia szerokość karty.',
+    sets: 'Suwak w chmurze swojej osi, tagi tuż pod nim. Najechanie na chmurę budzi jej element na znaku.',
+    history: 'Schowana. „Minione tygodnie” pod chmurami rozwija pięć znaków na skali dużego znaku.',
+    risk: 'Suwaki są o połowę krótsze niż znak, więc gałka nie stoi pod elementem, który przesuwa. Związek trzymają znaczek osi, kolor i podświetlenie.',
+  },
+  {
+    id: 'j',
+    round: 4,
+    title: 'Suwaki nad znakiem, historia pod nim',
+    lead: 'Na górze dwa suwaki z tagami w linii nazwy, pod nimi wynik: kafel obszaru jak w kalendarzu, tylko duży. Gałki stoją dokładnie nad końcem słupka i nad kropką. Minione tygodnie rozwijają się w tym samym kaflu, od razu pod znakiem.',
+    sets: 'Dwa suwaki nad znakiem, na jego skali. Tagi po prawej w linii nazwy osi.',
+    history: 'Schowana. Rozwija się bezpośrednio pod dużym znakiem — porównanie bez przeskoku wzrokiem.',
+    risk: 'Znak nie jest pierwszą rzeczą pod pytaniem; ręka i kursor pracują nad wykresem. Dużo tagów wydłuża linię nazwy.',
+  },
   {
     id: 'g',
     round: 3,
@@ -317,10 +383,10 @@ export const VARIANTS: readonly VariantDef[] = [
 export const variantOf = (id: VariantId): VariantDef => VARIANTS.find(item => item.id === id) ?? VARIANTS[0]
 
 export const decisions: readonly { id: string; title: string; body: string }[] = [
-  { id: '1', title: 'Nazwa na uchwycie czy z lewej', body: 'Na uchwycie: podpis leży na tym, co zmienia, i nie da się go pomylić, ale tekst się porusza. Z lewej: spokojniej, uchwyt ma same strzałki, a oś nazywa podpis wiersza. Przełącznik „Podpis” pokazuje obie wersje.' },
-  { id: '2', title: 'Trzy gesty czy mniej', body: 'Strzałki (krok), klik w miejsce skali (skok) i przeciąganie (kropka, koniec słupka, uchwyt). Wszystkie robią to samo. Jeśli przeciąganie nie pasuje do aplikacji, zostają dwa pierwsze.' },
-  { id: '3', title: 'Stan nad znakiem, obciążenie pod', body: 'Uchwyt stanu wskazuje kropkę z góry, uchwyt obciążenia koniec słupka z dołu, więc nie wchodzą na siebie przy tej samej ocenie. Kolejność od góry zgadza się z pytaniem kroku, które dotyczy stanu.' },
-  { id: '4', title: 'Uchwyt bez oceny', body: 'Dopóki oś nie ma oceny, uchwyt czeka na początku toru jako duch, a miejsca skali są wyraźniejsze. Pierwszy klik w miejsce albo strzałka w prawo ustawia ocenę.' },
-  { id: '5', title: 'Ile historii i co z lukami', body: 'Scena pokazuje pięć tygodni, domyślnie tylko ocenione. Przełącznik „Historia” zostawia tygodnie bez refleksji jako puste tory, tak jak macierz miesiąca.' },
-  { id: '6', title: 'Co to znaczy dla wspólnego znaku', body: 'Przy wdrożeniu `LoadStateTrack` dostaje rozmiar 48 px, płynne przejście, rysowanie jednej oceny i cień podglądu. Uchwyty z torami to nowa anatomia tego kroku — jeden konsument, więc żyje w stylach rytuału.' },
+  { id: '1', title: 'Przyciski tagów pod chipami — zdecydowane', body: 'User 22.11: przyciski zostają w osobnym wierszu pod chipami, zawsze na środku na dole pola. W spoczynku są wyblakłe, pod kursorem pola stają się chmurami — tak samo jak strzałki licznika. W pustym polu są wyraźne od razu.' },
+  { id: '2', title: 'Podpowiedzi podczas pisania', body: 'Dymek pod polem pokazuje do pięciu istniejących tagów: najpierw te, które zaczynają się od wpisanego tekstu, potem te, które go zawierają. Strzałki w górę i w dół wybierają, Enter dopisuje wybrany albo wpisany tekst, Esc zamyka.' },
+  { id: '3', title: 'Baza tagów pod strzałką', body: 'Rozwinięta baza pokazuje wcześniejsze tagi tej osi bez już wybranych; klik dopisuje, baza zostaje otwarta. Gdy baza jest otwarta, wpisywany tekst filtruje ją w miejscu, bez dymka. Do rozstrzygnięcia: ile tagów pokazać naraz przy dużej bazie.' },
+  { id: '4', title: 'Kiedy widać strzałki licznika', body: 'Po ustawieniu oceny strzałki budzą się pod kursorem i przy fokusie z klawiatury. Dopóki oś nie ma oceny, widać je od razu razem ze słowami końców skali. Strzałka w lewo przy 1 czyści ocenę.' },
+  { id: '5', title: 'Rozwinięta historia przesuwa pola', body: 'Historia rozwija się w kaflu wyniku, więc pola z licznikami zjeżdżają o jej wysokość. Do rozstrzygnięcia: czy aplikacja pamięta rozwinięcie między czterema krokami obszarów.' },
+  { id: '6', title: 'Co to znaczy dla wspólnego znaku', body: 'Przy wdrożeniu `LoadStateTrack` dostaje rozmiar 48 px, płynne przejście, rysowanie jednej oceny, cień podglądu i podświetlenie elementu. Licznik oceny to kandydat na odmianę `mg-v2-stepper`, nie nową anatomię.' },
 ]

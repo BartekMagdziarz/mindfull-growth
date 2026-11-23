@@ -1,5 +1,5 @@
 <template>
-  <div class="atl" :class="{ 'atl--center': center, 'atl--tinted': tinted }">
+  <div class="atl" :class="{ 'atl--center': center, 'atl--end': end, 'atl--tinted': tinted }">
     <ul class="atl__line" :aria-label="`Tagi: ${label}`">
       <li v-for="tag in modelValue" :key="tag" class="atl__tag">
         <span>{{ tag }}</span>
@@ -9,7 +9,7 @@
       </li>
       <li v-if="!open">
         <button type="button" class="atl__add" :aria-label="`Dodaj tag: ${label}`" title="Dodaj tag" @click="start">
-          <AppIcon name="add" /><span v-if="!modelValue.length">tag</span>
+          <AppIcon name="add" /><span v-if="!modelValue.length">{{ addLabel }}</span>
         </button>
       </li>
       <li v-else>
@@ -56,11 +56,15 @@ const props = withDefaults(
     /** Czego dotyczą tagi, np. „Ciało · Obciążenie”. */
     label: string
     center?: boolean
+    /** Linia dosunięta do prawej (tagi w linii nazwy osi). */
+    end?: boolean
+    /** Słowo przy „+”, gdy oś nie ma jeszcze tagów. */
+    addLabel?: string
     /** Linia leży na barwnym kaflu: welon zamiast papieru. */
     tinted?: boolean
     limit?: number
   }>(),
-  { suggestions: () => [], center: false, tinted: false, limit: 4 }
+  { suggestions: () => [], center: false, end: false, addLabel: 'tag', tinted: false, limit: 4 }
 )
 const emit = defineEmits<{ 'update:modelValue': [tags: string[]] }>()
 
@@ -138,6 +142,14 @@ function remove(tag: string) {
   left: 50%;
   translate: -50% 0;
   justify-content: center;
+}
+.atl--end .atl__line {
+  justify-content: flex-end;
+}
+.atl--end .atl__hints {
+  right: 0;
+  left: auto;
+  justify-content: flex-end;
 }
 .atl .atl__line > li,
 .atl .atl__hints > li {

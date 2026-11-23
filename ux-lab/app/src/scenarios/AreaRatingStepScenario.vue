@@ -5,9 +5,9 @@
         <div>
           <span class="lab-eyebrow">Propozycja · refleksja tygodnia · kroki obszarów</span>
           <h1>Krok obszaru: obciążenie i stan</h1>
-          <p>Runda 3. Głównym elementem kroku jest ten sam znak, który pokazuje kalendarz, tylko duży i żywy. Kontrolka stoi teraz na samym znaku: uchwyt „Stan” nad kropką, uchwyt „Obciążenie” pod końcem słupka. Pod spodem wcześniejsze tygodnie mniejszym znakiem i ciche tagi dla obu ocen. Sceny są klikalne i dzielą jeden szkic.</p>
+          <p>Runda 5. Na górze kafel wyniku: ten sam znak, który pokazuje kalendarz, duży i żywy, z rozwijanymi minionymi tygodniami. Pod nim dwa pola, „Obciążenie” i „Stan”, każde z tytułem, dużą cyfrą licznika i tagami na dole: „+” dopisuje tag, strzałka rozwija bazę wcześniejszych. Sceny są klikalne i dzielą jeden szkic.</p>
         </div>
-        <span class="status-badge status-badge--experiment">Runda 3 · do rozmowy</span>
+        <span class="status-badge status-badge--experiment">Runda 5 · do rozmowy</span>
       </header>
 
       <!-- 01 · Stan obecny -->
@@ -42,6 +42,11 @@
             <option v-for="item in HISTORY_MODES" :key="item.id" :value="item.id">{{ item.label }}</option>
           </select>
         </label>
+        <label>Minione tygodnie (H–K)
+          <select :value="pastFold" @change="setQuery('past', pick($event), 'closed')">
+            <option v-for="item in PAST_FOLDS" :key="item.id" :value="item.id">{{ item.label }}</option>
+          </select>
+        </label>
         <label>Podpis (G)
           <select :value="labels" @change="setQuery('labels', pick($event), 'chip')">
             <option v-for="item in HANDLE_LABELS" :key="item.id" :value="item.id">{{ item.label }}</option>
@@ -59,7 +64,7 @@
       </div>
     </template>
 
-    <!-- 02 · runda 3: uchwyty na znaku; 03 · runda 2 i 1 jako zapis -->
+    <!-- 02 · runda 5: kafel wyniku i pola z licznikami; 03–06 · rundy 4–1 jako zapis -->
     <template v-for="item in blocks" :key="item.id">
     <header v-if="groupOf(item.id) && !standalone" class="ars__block ars__block-head ars__group">
       <span class="lab-eyebrow">{{ groupOf(item.id)?.eyebrow }}</span>
@@ -82,8 +87,56 @@
           :steps="item.id === 'd' ? STEPS_MERGED : STEPS_SEPARATE"
           :current="item.id === 'd' ? 1 : 1 + AREA_KEYS.indexOf(areaKey)"
         >
+          <AreaStepFields
+            v-if="item.id === 'k'"
+            :key="`k-${tagsOpen}`"
+            :area="area"
+            :draft="draft[areaKey]"
+            :past="past(areaKey, 5)"
+            :current-label="CURRENT_WEEK_LABEL"
+            :suggestions="suggestions"
+            :past-open="pastOpen"
+            :tags-open="tagsOpen"
+            @rate="(axis, value) => rate(areaKey, axis, value)"
+            @tags="(axis, tags) => setTags(areaKey, axis, tags)"
+            @update:past-open="setPastOpen"
+          />
+          <AreaStepTray
+            v-else-if="item.id === 'h'"
+            :area="area"
+            :draft="draft[areaKey]"
+            :past="past(areaKey, 5)"
+            :suggestions="suggestions"
+            :past-open="pastOpen"
+            @rate="(axis, value) => rate(areaKey, axis, value)"
+            @tags="(axis, tags) => setTags(areaKey, axis, tags)"
+            @update:past-open="setPastOpen"
+          />
+          <AreaStepClouds
+            v-else-if="item.id === 'i'"
+            :area="area"
+            :draft="draft[areaKey]"
+            :past="past(areaKey, 5)"
+            :suggestions="suggestions"
+            :past-open="pastOpen"
+            @rate="(axis, value) => rate(areaKey, axis, value)"
+            @tags="(axis, tags) => setTags(areaKey, axis, tags)"
+            @update:past-open="setPastOpen"
+          />
+          <AreaStepAbove
+            v-else-if="item.id === 'j'"
+            :area="area"
+            :draft="draft[areaKey]"
+            :past="past(areaKey, 5)"
+            :current-label="CURRENT_WEEK_LABEL"
+            :suggestions="suggestions"
+            :past-open="pastOpen"
+            @rate="(axis, value) => rate(areaKey, axis, value)"
+            @tags="(axis, tags) => setTags(areaKey, axis, tags)"
+            @update:past-open="setPastOpen"
+          />
           <AreaStepHandles
-            v-if="item.id === 'g'"
+            v-else-if="item.id === 'g'"
             :area="area"
             :draft="draft[areaKey]"
             :past="past(areaKey, 5)"
@@ -158,7 +211,7 @@
       <!-- 03 · do rozmowy -->
       <section class="ars__block">
         <header class="ars__block-head">
-          <span class="lab-eyebrow">05 · Do rozmowy</span>
+          <span class="lab-eyebrow">07 · Do rozmowy</span>
           <h2>Sześć rozstrzygnięć</h2>
         </header>
         <ol class="ars__decisions">
@@ -176,12 +229,16 @@
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { Rating } from '@product/domain/loadState'
+import AreaStepAbove from '~lab/components/area-rating/AreaStepAbove.vue'
+import AreaStepClouds from '~lab/components/area-rating/AreaStepClouds.vue'
+import AreaStepFields from '~lab/components/area-rating/AreaStepFields.vue'
 import AreaStepHandles from '~lab/components/area-rating/AreaStepHandles.vue'
 import AreaStepHero from '~lab/components/area-rating/AreaStepHero.vue'
 import AreaStepLayers from '~lab/components/area-rating/AreaStepLayers.vue'
 import AreaStepMap from '~lab/components/area-rating/AreaStepMap.vue'
 import AreaStepStacks from '~lab/components/area-rating/AreaStepStacks.vue'
 import AreaStepTiles from '~lab/components/area-rating/AreaStepTiles.vue'
+import AreaStepTray from '~lab/components/area-rating/AreaStepTray.vue'
 import RitualFrame from '~lab/components/area-rating/RitualFrame.vue'
 import {
   AREA_KEYS,
@@ -195,6 +252,7 @@ import {
   HANDLE_LABELS,
   HISTORY_MODES,
   MERGED_QUESTION,
+  PAST_FOLDS,
   pastWeeks,
   STEPS_MERGED,
   STEPS_SEPARATE,
@@ -208,6 +266,7 @@ import {
   type FillId,
   type HandleLabels,
   type HistoryMode,
+  type PastFold,
   type PastWeek,
   type VariantId,
 } from '~lab/lab/areaRatingStep'
@@ -222,8 +281,12 @@ import {
  * kalendarzu jako główny element kroku, duży i żywy; E oceny pod znakiem,
  * F znak i historia razem, oceny obok — user: kropki ocen wyglądają na
  * rozłączone ze znakiem. Runda 3: G, uchwyty przypięte do kropki i końca
- * słupka.
- * `/preview/area-rating-step?variant=g&area=body&fill=rated` pokazuje jeden
+ * słupka — user: suwaki tak, ale obie kontrolki razem, historia schowana, tagi
+ * nie w pustej połowie karty. Runda 4 (22.11): para suwaków przy znaku — H pod
+ * znakiem z linią trzech furtek (pomysł usera), I dwie chmury obok siebie,
+ * J suwaki nad znakiem i historia w kaflu wyniku — user: kafel wyniku z J
+ * zostaje, na górze; pod nim dwa pola z licznikami i tagami. Runda 5 (22.11): K.
+ * `/preview/area-rating-step?variant=k&area=body&fill=rated&past=open` pokazuje jeden
  * krok w geometrii produktu do zrzutów 1:1.
  */
 const route = useRoute()
@@ -242,13 +305,21 @@ const pinned = computed(() => (AREA_KEYS.includes(route.query.pop as AreaKey) ? 
 
 const controls = computed(() => oneOf<ControlStyle>(route.query.controls, ['dots', 'steps'], 'dots'))
 const labels = computed(() => oneOf<HandleLabels>(route.query.labels, ['chip', 'row'], 'chip'))
+/** Runda 4: minione tygodnie są schowane, dopóki user ich nie rozwinie; `?past=open` do zrzutów. */
+const pastFold = computed(() => oneOf<PastFold>(route.query.past, ['closed', 'open'], 'closed'))
+const pastOpen = computed(() => pastFold.value === 'open')
+const setPastOpen = (open: boolean) => setQuery('past', open ? 'open' : 'closed', 'closed')
+/** Runda 5: `?tagsopen=1` rozwija bazy tagów od startu — do zrzutów. */
+const tagsOpen = computed(() => route.query.tagsopen === '1')
 
-const blocks = computed(() => (standalone.value ? VARIANTS.filter(item => item.id === oneOf<VariantId>(route.query.variant, VARIANT_IDS, 'g')) : VARIANTS))
+const blocks = computed(() => (standalone.value ? VARIANTS.filter(item => item.id === oneOf<VariantId>(route.query.variant, VARIANT_IDS, 'k')) : VARIANTS))
 /** Nagłówek grupy przed pierwszym podejściem każdej rundy. */
 const GROUPS: Partial<Record<VariantId, { eyebrow: string; title: string; lead: string }>> = {
-  g: { eyebrow: '02 · Runda 3 · kontrolka na znaku', title: 'Uchwyt stoi przy tym, co zmienia', lead: 'Kliknij strzałkę na uchwycie, miejsce skali na torze albo złap kropkę i koniec słupka. Najedź na miejsce skali — znak pokaże, co się zmieni.' },
-  e: { eyebrow: '03 · Runda 2 · zapis', title: 'Duży znak, oceny obok niego', lead: 'User 21.11: wykresy duże i małe są w porządku, ale kropki ocen wyglądają na rozłączone ze znakiem — nie widać, że zmieniają słupek i kropkę.' },
-  a: { eyebrow: '04 · Runda 1 · zapis', title: 'Cztery wcześniejsze podejścia', lead: 'Punkt wyjścia rundy 2. User 21.11: „nie do końca jestem przekonany do tych wersji”.' },
+  k: { eyebrow: '02 · Runda 5 · kafel wyniku i dwa pola', title: 'Znak na górze, pod nim licznik dla każdej oceny', lead: 'Najedź na pole — pokażą się strzałki licznika, a znak obudzi element tej osi. „+” na dole pola otwiera wpisywanie tagu z podpowiedziami, strzałka obok rozwija bazę wcześniejszych tagów. Kropkę i koniec słupka nadal można złapać wprost na znaku.' },
+  h: { eyebrow: '03 · Runda 4 · zapis', title: 'Para suwaków przy znaku', lead: 'User 22.11: kafel wyniku z J zostaje i idzie na górę; zamiast suwaków dwa pola z licznikami, tytułem i tagami.' },
+  g: { eyebrow: '04 · Runda 3 · zapis', title: 'Uchwyty na znaku', lead: 'User 22.11: suwaki to lepszy kierunek, ale obie kontrolki powinny stać razem, historia może być schowana, a tagi po prawej zostawiają pół karty pustej.' },
+  e: { eyebrow: '05 · Runda 2 · zapis', title: 'Duży znak, oceny obok niego', lead: 'User 21.11: wykresy duże i małe są w porządku, ale kropki ocen wyglądają na rozłączone ze znakiem — nie widać, że zmieniają słupek i kropkę.' },
+  a: { eyebrow: '06 · Runda 1 · zapis', title: 'Cztery wcześniejsze podejścia', lead: 'Punkt wyjścia rundy 2. User 21.11: „nie do końca jestem przekonany do tych wersji”.' },
 }
 const groupOf = (id: VariantId) => GROUPS[id]
 
@@ -311,7 +382,7 @@ onUnmounted(() => document.documentElement.removeAttribute('data-theme'))
 </script>
 
 <style scoped>
-.ars__block { margin-top: 34px; scroll-margin-top: 150px; }
+.ars__block { margin-top: 34px; scroll-margin-top: 270px; }
 .ars__block-head { margin-bottom: 14px; }
 .ars__block-head h2 { margin: 4px 0 0; font-size: 20px; font-weight: 800; letter-spacing: -0.01em; }
 .ars__block-head p { max-width: 760px; margin: 6px 0 0; color: var(--mg-color-muted); font-size: 13px; line-height: 1.5; }

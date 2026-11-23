@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { AREA_KEYS, AREAS, decisions, draftFor, HISTORY, isRated, mapCells, pastWeeks, STEPS_MERGED, STEPS_SEPARATE, stopFromOffset, tagSuggestions, toggled, VARIANTS, withTag } from '~lab/lab/areaRatingStep'
+import { AREA_KEYS, AREAS, decisions, draftFor, HISTORY, isRated, mapCells, matchTags, pastWeeks, STEPS_MERGED, STEPS_SEPARATE, steppedRating, stopFromOffset, tagSuggestions, toggled, VARIANTS, withTag } from '~lab/lab/areaRatingStep'
 
 describe('areaRatingStep', () => {
   it('gives every area both axes with a question and scale ends', () => {
@@ -59,6 +59,16 @@ describe('areaRatingStep', () => {
     expect(tagSuggestions(draft, 'body', 'state')).not.toContain('rozmowa z szefem')
   })
 
+  it('matches existing tags while typing: prefix first, then inside, never a chosen one', () => {
+    const pool = ['mało snu', 'delegacja', 'termin oferty', 'Dwa treningi', 'oferta dnia']
+    expect(matchTags(pool, [], '')).toEqual(pool)
+    expect(matchTags(pool, ['Delegacja'], '')).not.toContain('delegacja')
+    expect(matchTags(pool, [], ' OF')).toEqual(['oferta dnia', 'termin oferty'])
+    expect(matchTags(pool, [], 'tr')).toEqual(['Dwa treningi'])
+    expect(matchTags(pool, [], 'E', 2)).toHaveLength(2)
+    expect(matchTags(pool, [], 'xyz')).toEqual([])
+  })
+
   it('adds a trimmed tag once', () => {
     expect(withTag(['sen'], '  nowy   tag ')).toEqual(['sen', 'nowy tag'])
     const tags = ['Sen']
@@ -66,9 +76,9 @@ describe('areaRatingStep', () => {
     expect(withTag(tags, '   ')).toBe(tags)
   })
 
-  it('orders the rounds newest first: handles on the mark, hero mark, first four', () => {
-    expect(VARIANTS.map(item => item.id)).toEqual(['g', 'e', 'f', 'a', 'b', 'c', 'd'])
-    expect(VARIANTS.map(item => item.round)).toEqual([3, 2, 2, 1, 1, 1, 1])
+  it('orders the rounds newest first: result tile with counters, sliders by the mark, handles on the mark, hero mark, first four', () => {
+    expect(VARIANTS.map(item => item.id)).toEqual(['k', 'h', 'i', 'j', 'g', 'e', 'f', 'a', 'b', 'c', 'd'])
+    expect(VARIANTS.map(item => item.round)).toEqual([5, 4, 4, 4, 3, 2, 2, 1, 1, 1, 1])
     expect(VARIANTS.every(item => item.sets && item.history && item.risk)).toBe(true)
     expect(decisions.length).toBeGreaterThanOrEqual(5)
   })
@@ -81,5 +91,13 @@ describe('areaRatingStep', () => {
     expect(stopFromOffset(-40, 560, 48)).toBe(1)
     expect(stopFromOffset(900, 560, 48)).toBe(5)
     expect(stopFromOffset(10, 40, 48)).toBe(1)
+  })
+
+  it('steps a slider by one place: starts at 1, clears below 1, stops at 5', () => {
+    expect(steppedRating(null, 1)).toBe(1)
+    expect(steppedRating(null, -1)).toBeNull()
+    expect(steppedRating(1, -1)).toBeNull()
+    expect(steppedRating(3, 1)).toBe(4)
+    expect(steppedRating(5, 1)).toBe(5)
   })
 })

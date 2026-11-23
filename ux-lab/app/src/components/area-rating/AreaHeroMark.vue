@@ -1,5 +1,5 @@
 <template>
-  <span class="ahm" role="img" :aria-label="label" :title="label">
+  <span class="ahm" :class="active ? `is-waking-${active}` : null" role="img" :aria-label="label" :title="label">
     <i class="ahm__rail" />
     <!-- podgląd: dokąd sięgnie słupek / gdzie stanie kropka po kliknięciu -->
     <i v-if="previewLoad != null" class="ahm__ghost-bar" :style="{ '--ahm-to': String(previewLoad) }" />
@@ -34,8 +34,10 @@ const props = withDefaults(
     previewState?: number | null
     /** Uchwyt na końcu słupka: koniec da się złapać i przesunąć. */
     grip?: boolean
+    /** Oś, której kontrolka jest pod kursorem: jej element na znaku się budzi. */
+    active?: 'load' | 'state' | null
   }>(),
-  { previewLoad: null, previewState: null, grip: false }
+  { previewLoad: null, previewState: null, grip: false, active: null }
 )
 
 const tone = computed(() => loadStateTone(props.load, props.state))
@@ -118,8 +120,16 @@ const label = computed(() => {
   transition: opacity var(--mg-duration-fast) var(--mg-ease-standard);
 }
 .ahm:hover .ahm__grip,
-.ahm.is-live .ahm__grip {
+.ahm.is-live .ahm__grip,
+.ahm.is-waking-load .ahm__grip {
   opacity: 1;
+}
+/* kontrolka osi pod kursorem: jej element rośnie o włos, drugi zostaje w spokoju */
+.ahm.is-waking-state .ahm__dot:not(.is-off) {
+  scale: 1.12;
+}
+.ahm.is-waking-load .ahm__grip {
+  height: 1.5rem;
 }
 .ahm__dot {
   --mg-well-size: calc(var(--ahm-size) - 2 * var(--ahm-inset));
