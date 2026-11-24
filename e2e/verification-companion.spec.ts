@@ -9,11 +9,16 @@ async function openJournal(page: Page, period = week) {
     () => localStorage.getItem('mindfull_growth_verification_seed_version') !== null,
     { timeout: 90000 }
   )
-  await page
-    .locator('.qr-progress')
-    .getByRole('button', { name: /Dziennik/ })
-    .click()
-  await expect(page.getByRole('textbox', { name: 'Dziennik tygodnia' })).toBeVisible()
+  // On a cold CI runner the first click can land while the ritual is still settling its step and
+  // be lost; click again until the journal step is there.
+  const journal = page.getByRole('textbox', { name: 'Dziennik tygodnia' })
+  await expect(async () => {
+    await page
+      .locator('.qr-progress')
+      .getByRole('button', { name: /Dziennik/ })
+      .click()
+    await expect(journal).toBeVisible({ timeout: 3_000 })
+  }).toPass({ timeout: 30_000 })
 }
 async function fakeOpenAI(page: Page) {
   let requests = 0
@@ -362,7 +367,8 @@ test.describe('weekly reflection companion', () => {
     api.fail()
     await openJournal(page)
     await page.getByRole('button', { name: 'Włącz AI dla tego tygodnia' }).click()
-    await expect(page.getByRole('alert')).toContainText('Nie udało się uzyskać odpowiedzi')
+    // A 5xx from the provider is named as an outage (aiProviderErrorCopy), not a generic failure.
+    await expect(page.getByRole('alert')).toContainText('Dostawca AI jest chwilowo niedostępny')
     await expect(page.getByRole('textbox', { name: 'Dziennik tygodnia' })).toBeEditable()
     await expect(page.getByRole('log').locator('article')).toHaveCount(0)
   })

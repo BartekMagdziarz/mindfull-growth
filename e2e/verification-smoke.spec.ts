@@ -96,31 +96,27 @@ test.describe('verification environment', () => {
     ).toBeVisible()
     await expect(ritual.locator('.qr-day-head')).toHaveCount(7)
     await ritual.getByRole('button', { name: 'Następny krok' }).click()
-    // Area step (D10): two axes — load and state — with the area's last ten weeks above the bars
-    // (one lying bar per week: length = load, dot = state).
-    await expect(ritual.getByRole('radiogroup', { name: 'Obciążenie', exact: true })).toBeVisible()
-    await expect(ritual.getByRole('radiogroup', { name: 'Stan', exact: true })).toBeVisible()
-    await expect(ritual.getByRole('radiogroup', { name: 'Działania', exact: true })).toHaveCount(0)
-    const tail = ritual.locator('.qr-tail .ls-matrix')
-    await expect(tail).toBeVisible()
-    await expect(tail.locator('.ls-track')).toHaveCount(10)
-    // Rating both axes colours the state bar by the pair and draws the week as the tail's last row.
-    // Seeded weeks already carry ratings; a click on the current value toggles it off, so press until set.
-    for (const axis of ['Obciążenie', 'Stan']) {
-      const step = ritual
-        .getByRole('radiogroup', { name: axis, exact: true })
-        .getByRole('radio', { name: '4', exact: true })
-      await step.click()
-      if ((await step.getAttribute('aria-checked')) !== 'true') await step.click()
-      await expect(step).toHaveAttribute('aria-checked', 'true')
+    // Area step (decision 2026-11-22): a result tile with this week's load & state mark over two
+    // counter fields, load and state; earlier weeks fold out of the tile.
+    const load = ritual.getByRole('spinbutton', { name: / · Obciążenie$/ })
+    const state = ritual.getByRole('spinbutton', { name: / · Stan$/ })
+    await expect(load).toBeVisible()
+    await expect(state).toBeVisible()
+    await expect(ritual.getByRole('spinbutton', { name: / · Działania$/ })).toHaveCount(0)
+    const tile = ritual.locator('.qr-tile')
+    await tile.getByRole('button', { name: 'Minione tygodnie' }).click()
+    await expect(tile.locator('.qr-tile__past .ls-track').first()).toBeVisible()
+    // Rating both axes draws the pair on the live mark. Seeded weeks already carry ratings, so the
+    // keyboard sets an exact value: End = 5, one step left = 4.
+    for (const counter of [load, state]) {
+      await counter.focus()
+      await counter.press('End')
+      await counter.press('ArrowLeft')
+      await expect(counter).toHaveAttribute('aria-valuenow', '4')
     }
-    await expect(ritual.locator('.qr-bars .qr-axis--paired')).toHaveCount(1)
-    // The tail's last row is this week: once both axes are rated its description reads the pair.
-    await expect(tail.locator('.ls-track').last()).toHaveAttribute(
-      'aria-label',
-      /obciążenie 4, stan 4/
-    )
-    await expect(tail.locator('.ls-track').last().locator('.ls-track__bar')).toBeVisible()
+    const mark = tile.locator('.qr-tile__now .ls-track')
+    await expect(mark).toHaveAttribute('aria-label', /obciążenie 4, stan 4/)
+    await expect(mark.locator('.ls-track__bar')).toBeVisible()
     await ritual.getByRole('button', { name: 'Poprzedni krok' }).click()
     await expect(ritual.getByRole('heading', { name: 'Co wydarzyło się naprawdę?' })).toBeVisible()
   })

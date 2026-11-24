@@ -28,8 +28,10 @@ test('restarting a path leaves only the new approach in this week’s reflection
     return block
   }
 
-  // The seed has an accepted task for the old approach in this week.
-  await expect(await openReflection()).toContainText('Użyj swojej odpowiedzi na wstyd')
+  // The seed puts the old approach in its fourth week, with that week's phase question.
+  const before = await openReflection()
+  await expect(before.locator('.qr-path-block__head')).toContainText('4 z 8')
+  await expect(before).toContainText('Tydzień 4 ·')
 
   await page.goto('/exercises/programs/shame-compassion')
   await page.getByTestId('path-restart').click()
@@ -38,7 +40,8 @@ test('restarting a path leaves only the new approach in this week’s reflection
 
   const block = await openReflection()
   await expect(block.locator('.qr-path-block__head')).toContainText('1 z 8')
-  await expect(block).not.toContainText('Użyj swojej odpowiedzi na wstyd')
+  await expect(block.locator('.qr-path-block__head')).not.toContainText('4 z 8')
+  await expect(block).not.toContainText('Tydzień 4 ·')
   // Reopening the reflection reads the persisted restart the same way.
   await openReflection()
 })
