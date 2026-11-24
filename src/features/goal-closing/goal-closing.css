@@ -92,24 +92,8 @@
   display: grid;
   place-items: center;
 }
-.gc-dot {
-  display: block;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-}
-.gc-dot--met {
-  background: var(--qr-accent);
-}
-.gc-dot--missed {
-  border: 1.5px solid var(--qr-effort);
-}
-.gc-dot--no-data {
-  border: 1.5px solid var(--qr-line-mid);
-}
-.gc-dot--ongoing {
-  border: 1.5px dashed var(--qr-line-mid);
-}
+/* Period marks are the app's dot as data (`mg-well mg-well--data mg-well--xs`):
+   met = done, missed = rose field, ongoing = accent ring, no data = tint. */
 .gc-result {
   display: grid;
   justify-items: end;
@@ -273,22 +257,8 @@
   align-items: center;
   flex-wrap: wrap;
 }
-.gc-scale button {
-  width: 18px;
-  height: 18px;
-  padding: 0;
-  border-radius: 50%;
-  border: 1.5px solid var(--qr-line-mid);
-  background: transparent;
-}
-.gc-scale button.then {
-  background: var(--qr-line-soft);
-  border-color: transparent;
-}
-.gc-scale button.now {
-  background: var(--qr-accent);
-  border-color: var(--qr-accent);
-}
+/* The 1–10 points are the app's wells: today's answer = done, the confidence
+   given back then = soft. */
 .gc-scale small {
   margin-left: 8px;
   color: var(--qr-muted);
@@ -374,27 +344,12 @@
   color: var(--mg-color-muted);
   font-size: var(--mg-font-size-xs);
 }
-.gc-summary__krs span::before {
-  content: '';
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  margin-right: 5px;
-  border-radius: 50%;
-  vertical-align: 1px;
-  background: var(--mg-color-primary);
-}
-.gc-summary__krs span.is-missed::before {
-  width: 6px;
-  height: 6px;
-  background: transparent;
-  border: 1.5px solid var(--mg-color-effort);
-}
-.gc-summary__krs span.is-no-data::before {
-  width: 6px;
-  height: 6px;
-  background: transparent;
-  border: 1.5px solid var(--mg-color-field-border);
+/* Each KR carries its result as the app's dot: met = done, missed = rose field,
+   no data = the empty well. */
+.gc-summary__krs span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mg-space-1);
 }
 .gc-summary__lead {
   margin: 0;

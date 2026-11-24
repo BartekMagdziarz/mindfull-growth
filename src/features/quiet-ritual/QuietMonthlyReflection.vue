@@ -85,7 +85,11 @@
                 class="qr-ctx-action"
                 :class="focusWeekCount(priority.id) ? 'qr-ctx-action--met' : 'qr-ctx-action--none'"
               >
-                <AppIcon name="calendar_view_week" /><span>Fokus tygodnia</span
+                <i
+                  class="mg-well mg-well--xs"
+                  :class="{ 'mg-well--done': focusWeekCount(priority.id) }"
+                  aria-hidden="true"
+                /><AppIcon name="calendar_view_week" /><span>Fokus tygodnia</span
                 ><b>{{ focusWeekCount(priority.id) }}×</b>
               </li>
               <li
@@ -94,7 +98,14 @@
                 :class="`qr-ctx-action qr-ctx-action--${entry.tone}`"
                 :title="entry.title"
               >
-                <AppIcon :name="entry.icon" /><span>{{ entry.title }}</span
+                <i
+                  class="mg-well mg-well--xs"
+                  :class="{
+                    'mg-well--done': entry.tone === 'met',
+                    'mg-well--missed': entry.tone === 'missed',
+                  }"
+                  aria-hidden="true"
+                /><AppIcon :name="entry.icon" /><span>{{ entry.title }}</span
                 ><b>{{ entry.readout }}</b>
               </li>
             </ul>
@@ -418,7 +429,14 @@
               :class="`qr-ctx-action qr-ctx-action--${entry.tone}`"
               :title="entry.title"
             >
-              <AppIcon :name="entry.icon" /><span>{{ entry.title }}</span
+              <i
+                class="mg-well mg-well--xs"
+                :class="{
+                  'mg-well--done': entry.tone === 'met',
+                  'mg-well--missed': entry.tone === 'missed',
+                }"
+                aria-hidden="true"
+              /><AppIcon :name="entry.icon" /><span>{{ entry.title }}</span
               ><b>{{ entry.readout }}</b>
             </li>
           </ul>

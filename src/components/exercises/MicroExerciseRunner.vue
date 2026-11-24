@@ -12,10 +12,11 @@
         class="micro-steps"
         :aria-label="t('exerciseWizards.micro.shared.steps')"
       >
-        <ol>
+        <ol class="mg-v2-pager">
           <li v-for="(step, idx) in steps" :key="step.key">
             <button
               type="button"
+              class="mg-v2-pager__step"
               :class="{ 'is-done': idx < stepIndex, 'is-current': idx === stepIndex }"
               :aria-current="idx === stepIndex ? 'step' : undefined"
               :disabled="idx >= stepIndex"
@@ -758,60 +759,6 @@ function leaveTooMuch(): void {
   justify-content: center;
   gap: var(--mg-space-2);
   margin-bottom: calc(-1 * var(--mg-space-2));
-}
-
-.micro-steps ol {
-  display: flex;
-  align-items: center;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.micro-steps button {
-  display: grid;
-  place-items: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: transparent;
-  cursor: default;
-}
-
-.micro-steps button:not(:disabled) {
-  cursor: pointer;
-}
-
-.micro-steps button:focus-visible {
-  outline: 2px solid var(--mg-color-focus);
-  outline-offset: 0;
-}
-
-.micro-steps i {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--mg-color-primary);
-  opacity: 0.2;
-  transition:
-    width var(--mg-duration-fast) ease,
-    opacity var(--mg-duration-fast) ease;
-}
-
-.micro-steps .is-done i {
-  opacity: 0.55;
-}
-
-.micro-steps .is-done:hover i {
-  opacity: 0.85;
-}
-
-.micro-steps .is-current i {
-  width: 18px;
-  border-radius: var(--mg-radius-xs);
-  opacity: 1;
 }
 
 .micro-steps small {

@@ -445,21 +445,8 @@
   background: transparent;
   border-radius: var(--mg-radius-sm);
 }
-.qr-day-button > span {
-  display: grid;
-  place-items: center;
-  width: 26px;
-  height: 27px;
-  border: 1px solid var(--qr-line-mid);
-  border-radius: var(--mg-radius-organic-b);
-  background: var(--qr-inner);
-}
-.qr-day-button[aria-pressed='true'] i {
-  width: 11px;
-  height: 11px;
-  border-radius: var(--mg-radius-organic-c);
-  background: var(--qr-accent);
-}
+/* The cell's mark is the app's well (`mg-well mg-well--md` + done / soft /
+   ghost in the markup): picked day = the done dot. */
 .qr-day-button:hover {
   background: var(--qr-inner);
 }
@@ -739,9 +726,9 @@
   height: 46px;
   color: var(--qr-muted);
 }
-/* Completion = the app's disc (.mg-well, as in „Plan dnia” and the calendar):
-   empty well = planned, blot = recorded, soft field = partial record. A day
-   with neither plan nor record keeps the quiet dash. */
+/* Completion = the app's dot (.mg-well, as in „Plan dnia” and the calendar):
+   empty well = planned, done dot = recorded, lit field = partial record. A
+   day with neither plan nor record keeps the quiet dash. */
 .qr-record-dot {
   --mg-well-size: 1.5rem;
   display: grid;
@@ -752,10 +739,6 @@
   color: var(--qr-muted);
   opacity: 0.55;
   font-size: var(--mg-font-size-xs);
-}
-.qr-record-dot.partial {
-  border-color: transparent;
-  background: var(--mg-color-sky-field);
 }
 /* Numbers = one week chart per row: flat bars on the row's shared floor, the
    value above its bar; a day without a record is a stub of that floor. */
@@ -962,29 +945,7 @@
   color: var(--qr-muted);
   font-size: var(--mg-font-size-xs);
 }
-.qr-progress {
-  display: flex;
-}
-.qr-progress button {
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  background: transparent;
-  border-radius: 50%;
-}
-.qr-progress i {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--qr-accent);
-  opacity: 0.2;
-}
-.qr-progress .active i {
-  opacity: 1;
-  width: 18px;
-  border-radius: var(--mg-radius-xs);
-}
+/* Steps of the ritual = the shared pager (`mg-v2-pager`, base.css). */
 .qr-arrow {
   background: var(--qr-field);
   width: 44px;
@@ -1423,14 +1384,8 @@
   max-width: 100%;
   background: var(--qr-inner);
 }
-.qr-ctx-action::before {
-  content: '';
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--qr-accent);
-  flex-shrink: 0;
-}
+/* The chip's state is the app's dot (`mg-well mg-well--xs` in the markup):
+   met = done, missed = rose field, none = the empty well. */
 .qr-ctx-action .material-symbols-outlined {
   font-size: var(--mg-font-size-sm);
   color: var(--qr-accent);
@@ -1444,15 +1399,8 @@
 .qr-ctx-action b {
   font-weight: 700;
 }
-.qr-ctx-action--missed::before {
-  background: var(--qr-effort-mid);
-}
 .qr-ctx-action--none {
   color: var(--qr-muted);
-}
-.qr-ctx-action--none::before {
-  background: transparent;
-  border: 1px solid var(--qr-line-mid);
 }
 .qr-ctx-quotes {
   display: grid;
@@ -1573,28 +1521,14 @@
   text-align: center;
   font-size: var(--mg-font-size-xs) !important;
 }
-.qm-dot {
+/* The week's toggle: a hit area around the app's well. */
+.qm-week-toggle {
   width: 40px;
   height: 40px;
   display: grid;
   place-items: center;
   background: transparent;
-  border-radius: 50%;
-}
-.qm-dot i {
-  width: 22px;
-  height: 22px;
-  border: 1px solid var(--qr-line-mid);
-  border-radius: var(--mg-radius-organic-c);
-}
-.qm-dot.active i {
-  background: var(--qr-accent);
-  border: 5px solid var(--qr-inner);
-  outline: 1px solid var(--qr-accent);
-}
-.qm-dot.whole i {
-  outline-style: dashed;
-  opacity: 0.65;
+  border-radius: var(--mg-radius-pill);
 }
 .qm-target {
   border-radius: var(--mg-radius-sm);
@@ -2156,20 +2090,9 @@
    Additions for the product port (states the Lab fixture did not need).
    --------------------------------------------------------------------------- */
 
-/* A day/week cell covered by an inherited whole-period placement reads softer
-   than an explicit one — same language as the production assignment matrix. */
-.qr-day-button.soft > span {
-  border-style: dashed;
-}
-.qr-day-button.soft i {
-  opacity: 0.45;
-}
-/* Day after the goal's deadline: still clickable, but visibly outside the window. */
-.qr-day-button.beyond > span {
-  border-style: dotted;
-  opacity: 0.5;
-}
-.qr-day-button.beyond:hover > span {
+/* A day/week cell covered by an inherited whole-period placement is the soft
+   well; a day after the goal's deadline is the ghost well — still clickable. */
+.qr-day-button.beyond:hover > .mg-well {
   opacity: 0.85;
 }
 .qr-deadline {
@@ -2457,18 +2380,11 @@
   background: var(--qr-inner);
   color: var(--qr-ink);
 }
-.qr-path-chips__part i {
-  display: inline-block;
-  width: 0.6rem;
-  height: 0.6rem;
-  border-radius: var(--mg-radius-organic-a);
-  background: var(--part);
-  outline: 1px solid var(--mg-color-data-ink-soft);
-  outline-offset: -1px;
+.qr-path-chips__part .mg-pip {
+  --mg-pip-color: var(--part);
 }
-.qr-path-chips__part[aria-checked='true'] i {
-  outline: 1px solid var(--qr-on-accent);
-  outline-offset: -1px;
+.qr-path-chips__part[aria-checked='true'] .mg-pip {
+  --mg-pip-edge: var(--qr-on-accent);
 }
 .qr-path-added {
   display: grid;
@@ -2488,14 +2404,8 @@
   font-size: var(--mg-font-size-xs);
   color: var(--qr-ink);
 }
-.qr-path-added li i {
-  display: block;
-  width: 0.6rem;
-  height: 0.6rem;
-  border-radius: var(--mg-radius-organic-b);
-  background: var(--part);
-  outline: 1px solid var(--mg-color-data-ink-soft);
-  outline-offset: -1px;
+.qr-path-added li .mg-pip {
+  --mg-pip-color: var(--part);
 }
 .qr-path-added li small {
   font-size: var(--mg-font-size-xs);
@@ -2557,20 +2467,8 @@
   display: inline-flex;
   gap: 4px;
 }
-.qr-path-bf__day {
-  --mg-well-size: 1.5rem;
-  font-size: var(--mg-font-size-xs);
-  font-weight: 800;
-  color: var(--mg-color-muted);
-  cursor: pointer;
-}
-.qr-path-bf__day.is-picked {
-  border-color: var(--mg-color-primary);
-  color: var(--mg-color-primary-strong);
-  box-shadow:
-    var(--mg-shadow-inset-sm),
-    0 0 0 3px var(--mg-color-primary-soft);
-}
+/* The day picker is a row of the app's wells carrying the day's letter; the
+   picked day is the done dot (`mg-well--icon mg-well--done`). */
 .qr-path-bf__foot {
   display: flex;
   flex-wrap: wrap;
@@ -2628,14 +2526,8 @@
   color: var(--qr-muted);
 }
 .qr-path-moments__dot {
-  display: block;
-  width: 0.6rem;
-  height: 0.6rem;
+  --mg-pip-color: var(--part);
   margin-top: 0.3rem;
-  border-radius: var(--mg-radius-organic-a);
-  background: var(--part);
-  outline: 1px solid var(--mg-color-data-ink-soft);
-  outline-offset: -1px;
 }
 .qr-path-moments__copy {
   display: grid;

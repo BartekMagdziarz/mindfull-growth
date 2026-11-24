@@ -67,7 +67,10 @@
                 :title="`${cell.title}: ${PERIOD_STATE_LABEL[cell.state]}`"
               >
                 <template v-if="cell.state !== 'unplanned'">
-                  <i class="gc-dot" :class="`gc-dot--${cell.state}`" />
+                  <i
+                    class="gc-dot mg-well mg-well--data mg-well--xs"
+                    :class="[`gc-dot--${cell.state}`, GC_WELL[cell.state]]"
+                  />
                   <span class="sr-only">{{ PERIOD_STATE_LABEL[cell.state] }}</span>
                 </template>
                 <span v-else class="sr-only">{{ PERIOD_STATE_LABEL[cell.state] }}</span>
@@ -223,10 +226,14 @@
                 :aria-checked="draft.confidenceInHindsight === value"
                 :aria-label="`${value} z 10`"
                 :title="`${value}/10`"
-                :class="{
-                  now: draft.confidenceInHindsight !== null && value <= draft.confidenceInHindsight,
-                  then: value <= goal.confidenceRating,
-                }"
+                class="mg-well mg-well--sm"
+                :class="
+                  draft.confidenceInHindsight !== null && value <= draft.confidenceInHindsight
+                    ? 'now mg-well--done'
+                    : value <= goal.confidenceRating
+                      ? 'then mg-well--soft'
+                      : ''
+                "
                 @click="
                   draft.confidenceInHindsight = draft.confidenceInHindsight === value ? null : value
                 "
@@ -434,6 +441,14 @@ const PERIOD_STATE_LABEL: Record<GoalClosingMonthState, string> = {
   'no-data': 'bez zapisów',
   unplanned: 'poza planem',
   ongoing: 'w toku',
+}
+/** A period of the KR row is the app's dot as a data mark. */
+const GC_WELL: Record<GoalClosingMonthState, string> = {
+  met: 'mg-well--done',
+  missed: 'mg-well--missed',
+  'no-data': '',
+  unplanned: '',
+  ongoing: 'mg-well--current',
 }
 const OUTCOME_COPY: Record<GoalOutcome, { title: string; hint: string }> = {
   partial: { title: 'Częściowo', hint: 'część rezultatów doszła do skutku' },

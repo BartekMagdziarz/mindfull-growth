@@ -69,38 +69,288 @@
   transform: scale(0.985);
 }
 
-/* The well: the organic entry disc of "Plan dnia", shared with the calendar's
-   completion marks so a done task reads identically in both places. Size via
-   --mg-well-size; components add their own states on top. */
+/* THE dot („studnia”): the organic entry disc of "Plan dnia" and the ONLY
+   round mark for a state anywhere in the app — done, selected, planned,
+   answered, current, recorded. Never draw a ring-with-a-dot locally: use this
+   class (or DsWell) and one of the states below. Size via a size modifier or
+   --mg-well-size; the inner mark is always --mg-well-mark-size of the OUTER
+   diameter, because the rim is a shadow and the box has no border.
+   Data charts may recolour it: --mg-well-field / --mg-well-mark (the filled
+   states) and --mg-well-ground (an empty data mark) — nothing else. */
 .mg-well {
   position: relative;
   display: grid;
   place-items: center;
   flex: 0 0 auto;
-  width: var(--mg-well-size, 2.1rem);
-  height: var(--mg-well-size, 2.1rem);
+  box-sizing: border-box;
+  width: var(--mg-well-size, var(--mg-well-size-lg));
+  height: var(--mg-well-size, var(--mg-well-size-lg));
+  margin: 0;
   padding: 0;
-  border: 1px solid var(--mg-color-border);
+  border: 0;
   border-radius: var(--mg-radius-organic-a);
-  background: var(--mg-color-canvas);
+  background: var(--mg-well-ground, var(--mg-color-canvas));
+  box-shadow: var(--mg-shadow-well);
+  font-style: normal;
+  appearance: none;
+  -webkit-appearance: none;
+  /* The mark sits between the field and any content (icon, letter, number). */
+  isolation: isolate;
+}
+
+.mg-well--xs {
+  --mg-well-size: var(--mg-well-size-xs);
+}
+
+.mg-well--sm {
+  --mg-well-size: var(--mg-well-size-sm);
+}
+
+.mg-well--md {
+  --mg-well-size: var(--mg-well-size-md);
+}
+
+.mg-well--lg {
+  --mg-well-size: var(--mg-well-size-lg);
+}
+
+.mg-well--xl {
+  --mg-well-size: var(--mg-well-size-xl);
+}
+
+/* On the page sky (no card under the dot) the sky-toned ground and field
+   would vanish into the page: the well takes the next step of the ladder —
+   mist — for both, and keeps its mark. */
+.mg-well--sky {
+  --mg-well-ground: var(--mg-color-mist);
+  --mg-well-field: var(--mg-color-mist);
+}
+
+/* The second organic outline, for rows of dots that should not look stamped. */
+.mg-well--alt {
+  border-radius: var(--mg-radius-organic-b);
+}
+
+:is(button, label, input).mg-well:not(:disabled) {
+  cursor: pointer;
+}
+
+/* The rim lives in box-shadow, so the shadow focus ring cannot show: outline. */
+.mg-well:focus-visible {
+  outline: 2px solid var(--mg-color-focus);
+  outline-offset: 2px;
+}
+
+/* Done / selected / recorded: the field with the mark inside. A checked
+   native radio or checkbox styled as a well reads the same. */
+.mg-well--done,
+.mg-well:checked,
+.mg-well--soft {
+  background: var(--mg-well-field, var(--mg-color-sky-field));
   box-shadow: var(--mg-shadow-inset-sm);
 }
 
-/* Field and mark can be recoloured by a data chart (--mg-well-field /
-   --mg-well-mark, e.g. the state dot of the load & state bars); the defaults
-   are the completion colours of "Plan dnia". */
-.mg-well--done {
-  border-color: transparent;
-  background: var(--mg-well-field, var(--mg-color-sky-field));
-}
-
-.mg-well--done::after {
-  width: 62%;
-  aspect-ratio: 1;
+.mg-well--done::after,
+.mg-well:checked::after,
+.mg-well--soft::after {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: var(--mg-well-mark-size);
+  height: var(--mg-well-mark-size);
+  margin: auto;
   border-radius: var(--mg-radius-organic-c);
   background: var(--mg-well-mark, var(--mg-color-state));
   content: '';
   transform: rotate(-2deg);
+}
+
+/* Soft: the mark is there but not firm — a placement inherited from the whole
+   week, a step being answered, a past rating shown next to the new one. */
+.mg-well--soft::after {
+  opacity: 0.45;
+}
+
+/* Current / today / picked: the empty well lifted by the accent ring and its
+   halo — „you are here”, not done yet. The halo scales with the dot; an
+   overdue window may turn ring and halo rose (--mg-well-ring / -halo). */
+.mg-well--current {
+  --mg-shadow-well-current:
+    inset 0 0 0 1.5px var(--mg-well-ring, var(--mg-color-primary)), var(--mg-shadow-inset-sm),
+    0 0 0 max(2px, calc(var(--mg-well-size, var(--mg-well-size-lg)) * 0.09))
+      var(--mg-well-halo, var(--mg-color-primary-soft));
+
+  box-shadow: var(--mg-shadow-well-current);
+}
+
+/* Lit: the field without the mark — a reading that is not a finished task
+   (a number recorded today, a partial record). */
+.mg-well--lit {
+  background: var(--mg-well-field, var(--mg-color-sky-field));
+  box-shadow: var(--mg-shadow-inset-sm);
+}
+
+/* Missed: the rose field of the effort charts, no mark. */
+.mg-well--missed {
+  background: var(--mg-color-effort-soft);
+  box-shadow: none;
+}
+
+/* Ghost: not reachable yet (a future slot, a day outside the window). A faded
+   flat well — never a dashed or dotted outline. */
+.mg-well--ghost {
+  box-shadow: none;
+  opacity: 0.45;
+}
+
+/* A data mark (history strips, week rows of a chart): the empty dot is a flat
+   tint instead of the control's rim — it says „nothing here”, not „click”.
+   Filled states are unchanged. --mg-well-ground recolours the empty tint. */
+.mg-well--data:not(.mg-well--done, .mg-well--soft, .mg-well--lit, .mg-well--missed, :checked) {
+  background: var(--mg-well-ground, var(--mg-color-border));
+  box-shadow: none;
+}
+
+.mg-well--data.mg-well--current {
+  box-shadow: var(--mg-shadow-well-current);
+}
+
+/* A well that carries an icon, a letter or a number (a step of a path, a day
+   of the week): not done = the content in muted ink on the empty well; done =
+   the same done dot with the content inverted on it, so the mark stays THE
+   done dot of "Plan dnia". */
+/* Two classes: area resets such as `.quiet-ritual button { font: inherit;
+   color: inherit }` outrank one. */
+.mg-well.mg-well--icon {
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-xs);
+  font-weight: var(--mg-weight-strong);
+  line-height: 1;
+}
+
+.mg-well--icon > .app-icon {
+  font-size: var(--mg-font-size-icon-sm);
+}
+
+.mg-well--icon.mg-well--current {
+  color: var(--mg-color-primary-strong);
+}
+
+.mg-well--icon:is(.mg-well--done, :checked) {
+  color: var(--mg-color-on-primary);
+}
+
+/* The pip: the small SOLID dot — a colour key (legend, part of the self, life
+   area), a bullet, an event in a mini calendar, a count, a typing indicator.
+   It names or counts; it never says done / selected / current (that is the
+   well). Colour via --mg-pip-color (defaults to the text colour). */
+.mg-pip {
+  display: inline-block;
+  flex: none;
+  width: var(--mg-pip-size, var(--mg-pip-size-sm));
+  height: var(--mg-pip-size, var(--mg-pip-size-sm));
+  border-radius: var(--mg-radius-organic-a);
+  background: var(--mg-pip-color, currentColor);
+}
+
+.mg-pip--xs {
+  --mg-pip-size: var(--mg-pip-size-xs);
+}
+
+.mg-pip--md {
+  --mg-pip-size: var(--mg-pip-size-md);
+}
+
+.mg-pip--lg {
+  --mg-pip-size: var(--mg-pip-size-lg);
+}
+
+/* A pastel key (a part of the self) needs a hairline edge on a light ground. */
+.mg-pip--edge {
+  outline: 1px solid var(--mg-pip-edge, var(--mg-color-data-ink-soft));
+  outline-offset: -1px;
+}
+
+/* Pager: the progress of a wizard or a ritual — a progress bar cut into steps,
+   NOT a dot of state (that is the well above). Pips in the accent: to come at
+   a fifth, done at half, the current one drawn out into a bar.
+   `.mg-v2-pager > (li >) button.mg-v2-pager__step(.is-done|.is-current) > i`;
+   ExerciseStepper, the micro runner and the ritual shell share it. */
+.mg-v2-pager {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mg-v2-pager__step {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--mg-radius-pill);
+  background: transparent;
+  cursor: default;
+}
+
+.mg-v2-pager__step:not(:disabled) {
+  cursor: pointer;
+}
+
+.mg-v2-pager__step:focus-visible {
+  outline: 2px solid var(--mg-color-focus);
+  outline-offset: 0;
+}
+
+/* ds: not-a-dot — a pip of the pager (progress), not a dot of state */
+.mg-v2-pager__step > i {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--mg-radius-pill);
+  background: var(--mg-color-primary);
+  opacity: 0.2;
+  transition:
+    width var(--mg-duration-fast) ease,
+    opacity var(--mg-duration-fast) ease;
+}
+
+.mg-v2-pager__step.is-done > i {
+  opacity: 0.55;
+}
+
+.mg-v2-pager__step.is-done:not(:disabled):hover > i {
+  opacity: 0.85;
+}
+
+.mg-v2-pager__step.is-current > i {
+  width: 18px;
+  border-radius: var(--mg-radius-xs);
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mg-v2-pager__step > i {
+    transition: none;
+  }
+}
+
+/* The same dot inside an SVG chart (DsWellSvg): field + mark at
+   WELL_MARK_RATIO of the radius; an empty point is the canvas with the rim. */
+.mg-well-svg__field {
+  fill: var(--mg-well-field, var(--mg-color-sky-field));
+}
+
+.mg-well-svg__mark {
+  fill: var(--mg-well-mark, var(--mg-color-state));
+}
+
+.mg-well-svg--empty .mg-well-svg__field {
+  fill: var(--mg-color-canvas);
+  stroke: var(--mg-color-border);
+  stroke-width: 1;
 }
 
 .mg-v2-surface {
@@ -258,6 +508,7 @@
   transition: background var(--mg-duration-fast) ease;
 }
 
+/* ds: not-a-dot — the switch's knob is a handle, not a dot of state */
 .mg-v2-switch::after {
   position: absolute;
   top: 0.0625rem;
@@ -668,25 +919,12 @@ input[type='number'].mg-v2-input::-webkit-outer-spin-button {
   color: var(--mg-color-muted);
 }
 
+/* A numbered step marker is the well carrying its number
+   (`mg-well mg-well--icon mg-v2-progress-marker`, DsProgressMarker): to do =
+   the number on the empty well, current = the accent ring, done = the done dot
+   without the number. Only the size lives here. */
 .mg-v2-progress-marker {
-  display: inline-grid;
-  place-items: center;
-  width: 1.5rem;
-  height: 1.5rem;
-  border: 1px solid var(--mg-color-border);
-  border-radius: var(--mg-radius-organic-a);
-  color: var(--mg-color-primary-strong);
-  background: var(--mg-color-sky-field);
-  font-size: var(--mg-font-size-xs);
-  font-weight: 900;
-}
-
-.mg-v2-progress-marker--done::after {
-  width: 0.55rem;
-  height: 0.55rem;
-  border-radius: var(--mg-radius-organic-b);
-  background: var(--mg-color-primary-strong);
-  content: '';
+  --mg-well-size: var(--mg-well-size-md);
 }
 
 .mg-v2-pill {
@@ -860,7 +1098,6 @@ input[type='number'].mg-v2-input::-webkit-outer-spin-button {
   --mg-timeline-ink: var(--mg-color-primary-strong);
   --mg-timeline-sky: var(--mg-color-data-fill);
   --mg-timeline-halo: color-mix(in srgb, var(--mg-color-primary-strong) 32%, transparent);
-  --mg-timeline-halo-ground: var(--mg-color-surface);
   display: grid;
   gap: var(--mg-space-2);
   min-width: 0;
@@ -877,10 +1114,6 @@ input[type='number'].mg-v2-input::-webkit-outer-spin-button {
    opens are the affordance. Keyboard focus keeps the paper field. */
 .mg-v2-timeline.mg-v2-inline-trigger:hover {
   background: transparent;
-}
-
-.mg-v2-timeline.mg-v2-inline-trigger:focus-visible {
-  --mg-timeline-halo-ground: var(--mg-color-paper);
 }
 
 .mg-v2-timeline__track {
@@ -929,39 +1162,24 @@ input[type='number'].mg-v2-input::-webkit-outer-spin-button {
   content: '';
 }
 
+/* Period dots and the „today” marker are the app's well (`mg-well` + done /
+   soft / current in the markup); the axis only places and sizes them. A
+   year in progress is the soft dot; today is the accent ring, rose when the
+   window is overdue. */
 .mg-v2-timeline__dot {
+  --mg-well-size: var(--mg-well-size-xs);
   position: absolute;
   top: 50%;
-  width: 0.625rem;
-  height: 0.625rem;
-  border: 0;
-  border-radius: var(--mg-radius-organic-b);
-  background: var(--mg-color-paper);
-  box-shadow:
-    inset 1px 1px 2px rgb(var(--neo-inset-dark) / 0.3),
-    inset -1px -1px 2px rgb(var(--neo-inset-light) / 0.8);
-  transform: translate(-50%, -50%) rotate(8deg);
-}
-
-.mg-v2-timeline__dot--done,
-.mg-v2-timeline__dot--current {
-  background: var(--mg-color-state);
-  box-shadow: none;
+  transform: translate(-50%, -50%);
 }
 
 .mg-v2-timeline__dot--today {
-  width: 1.0625rem;
-  height: 1.0625rem;
-  border-radius: var(--mg-radius-organic-a);
-  background: var(--mg-color-ink);
-  box-shadow:
-    0 0 0 3px var(--mg-timeline-halo-ground),
-    0 0 0 4.5px var(--mg-timeline-halo);
-  transform: translate(-50%, -50%) rotate(-2deg);
+  --mg-well-size: var(--mg-well-size-sm);
 }
 
 .mg-v2-timeline--overdue .mg-v2-timeline__dot--today {
-  background: var(--mg-timeline-ink);
+  --mg-well-ring: var(--mg-timeline-ink);
+  --mg-well-halo: var(--mg-timeline-halo);
 }
 
 .mg-v2-timeline__labels {
@@ -1024,6 +1242,7 @@ input[type='number'].mg-v2-input::-webkit-outer-spin-button {
   text-transform: uppercase;
 }
 
+/* ds: not-a-dot — a checkbox with a tick (pick many), not a dot of state */
 .mg-v2-checkbox {
   appearance: none;
   -webkit-appearance: none;
@@ -1401,8 +1620,9 @@ input[type='number'].mg-v2-input::-webkit-outer-spin-button {
   transform: rotate(0.25deg);
 }
 
-/* Stepper: organic dots drawn on the sheet. Done = accent blob, current =
-   ink blob with a paper halo, future = dashed outline. */
+/* Stepper: a row of the app's wells (`mg-well` on each dot, sized here). Done
+   = the done dot, current = the accent ring, future = the empty well. A
+   stepper on the page sky (not in a card) adds `mg-well--sky`. */
 .mg-v2-stepper {
   display: flex;
   flex-direction: column;
@@ -1420,36 +1640,16 @@ input[type='number'].mg-v2-input::-webkit-outer-spin-button {
 }
 
 .mg-v2-stepper__dot {
-  width: 0.75rem;
-  height: 0.75rem;
-  padding: 0;
-  border: 1.5px dashed var(--mg-color-primary-strong);
-  border-radius: var(--mg-radius-organic-b);
-  background: transparent;
+  --mg-well-size: var(--mg-well-size-sm);
+  transition: transform var(--mg-duration-fast) ease;
+}
+
+.mg-v2-stepper__dot:disabled {
   cursor: default;
-  transition:
-    transform var(--mg-duration-fast) ease,
-    background var(--mg-duration-fast) ease;
 }
 
-.mg-v2-stepper__dot--done {
-  border: 0;
-  background: var(--mg-color-primary);
-  cursor: pointer;
-}
-
-.mg-v2-stepper__dot--done:hover {
-  transform: scale(1.15);
-}
-
-.mg-v2-stepper__dot--current {
-  width: 1rem;
-  height: 1rem;
-  border: 0;
-  border-radius: var(--mg-radius-organic-a);
-  background: var(--mg-color-ink);
-  box-shadow: var(--mg-shadow-stepper-halo);
-  transform: rotate(-2deg);
+.mg-v2-stepper__dot.mg-well--done:not(:disabled):hover {
+  transform: scale(1.12);
 }
 
 .mg-v2-stepper__label {
@@ -1497,48 +1697,26 @@ input[type='number'].mg-v2-input::-webkit-outer-spin-button {
   border-left-color: var(--mg-color-primary);
 }
 
+/* The dot is THE well (`mg-well mg-well--sm` + done / current in the markup);
+   the thread hangs on the page sky, so it takes the sky ground, and only pins
+   the dot to the axis. */
 .mg-v2-thread__dot {
+  --mg-well-ground: var(--mg-color-mist);
+  --mg-well-field: var(--mg-color-mist);
+
   position: absolute;
   top: var(--mg-thread-dot-top);
   left: var(--mg-thread-axis);
   z-index: 1;
-  width: 0.75rem;
-  height: 0.75rem;
-  border: 1.5px dashed var(--mg-color-primary-strong);
-  border-radius: var(--mg-radius-organic-b);
-  background: transparent;
   transform: translate(-50%, -50%);
-  transition:
-    background var(--mg-duration-fast) ease,
-    transform var(--mg-duration-fast) ease;
-}
-
-.mg-v2-thread__item--done > .mg-v2-thread__dot {
-  border: 0;
-  background: var(--mg-color-primary);
-}
-
-.mg-v2-thread__item--current > .mg-v2-thread__dot {
-  width: 1rem;
-  height: 1rem;
-  border: 0;
-  border-radius: var(--mg-radius-organic-a);
-  background: var(--mg-color-ink);
-  box-shadow: var(--mg-shadow-stepper-halo);
-  transform: translate(-50%, -50%) rotate(-2deg);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .mg-v2-icon-board,
   .mg-v2-tile,
-  .mg-v2-stepper__dot,
   .mg-v2-hairline,
   .mg-v2-surface--sheet::after {
     transform: none !important;
-  }
-
-  .mg-v2-thread__item--current > .mg-v2-thread__dot {
-    transform: translate(-50%, -50%);
   }
 }
 

@@ -178,7 +178,14 @@
                     :title="beyondTitle(row, day.dayRef)"
                     @click="planner.handleMatrixCellToggle(row, day.dayRef)"
                   >
-                    <span><i /></span>
+                    <span
+                      class="mg-well mg-well--md"
+                      :class="{
+                        'mg-well--done': planner.dayCellState(row, day.dayRef) === 'checked',
+                        'mg-well--soft': planner.dayCellState(row, day.dayRef) === 'soft',
+                        'mg-well--ghost': planner.isDayBeyondGoalEnd(row, day.dayRef),
+                      }"
+                    />
                   </button>
                 </template>
                 <button

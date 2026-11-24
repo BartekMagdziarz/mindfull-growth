@@ -968,3 +968,52 @@ Zostaje: „Wysiłek” w kroku kierunków miesiąca i nasilenie w kroku ścież
 słupkiem (`QuietRatingBar` → `DsRatingStack`) — to pojedyncze oceny bez tagów, obok decyzji i
 notatki.
 
+## 2026-11-24 — Jedna kropka: studnia dla stanu, pestka dla koloru, strażnik na resztę
+
+Kontekst: użytkownik kolejny raz znalazł kropki z inną proporcją i kolorem
+(nić kwestionariuszy: atramentowa kropka z papierową obwódką; plan tygodnia:
+biały pierścień z kropką ~42 %). Inwentaryzacja całego `src/` (skrypt po
+wszystkich regułach CSS z okrągłym promieniem + szablony z `rounded-full`)
+dała ~37 miejsc z własną kropką stanu i ~20 małych pełnych kropek w 15
+wariantach rozmiaru i kształtu. Nawet wspólna studnia `.mg-well` gubiła
+proporcję: kropka miała 62 % WNĘTRZA, a 1-px ramka zjadała je tym bardziej, im
+mniejsza studnia (52 % przy 12 px, 58 % przy 2,1 rem).
+
+Decyzja:
+
+- **Studnia** (`.mg-well`, `DsWell`, `DsWellSvg`) jest jedynym znakiem stanu.
+  Kropka = `--mg-well-mark-size` 58 % średnicy ZEWNĘTRZNEJ (zmierzone na zrzucie
+  wzorcowym z „Dzisiaj”: 39 px / 68 px); obrzeże przeszło z `border` do cienia
+  `--mg-shadow-well`, więc proporcja nie zależy od rozmiaru. Komplet stanów w
+  `base.css` (`--done`, `--soft`, `--current`, `--lit`, `--missed`, `--ghost`,
+  `--data`, `--icon`, `--alt`), rozmiary `--xs…--xl` z tokenów, natywne
+  radio/checkbox przez `:checked`.
+- Stan „bieżący” to pierścień akcentu z poświatą (`--current`) — przejęty z
+  istniejących pierścieni ścieżek i kalendarza; atramentowa kropka z papierową
+  obwódką (stepper, nić, T-S-I-B-P, oś czasu) zniknęła razem z tokenem
+  `--mg-shadow-stepper-halo`.
+- Dzień „chybiony” w kalendarzu rytmu ma różowe pole jak pasek historii w
+  „Dzisiaj” (wcześniej błękitny pierścień), dzień bez planu — płaską kropkę
+  danych zamiast mniejszej kropeczki, przyszły — ducha zamiast kreskowanego
+  obrysu.
+- Studnia leżąca na niebie strony, bez karty (nić kwestionariusza, stepper w
+  nagłówku, rząd dni check-inu, kroki Koła życia) dostaje `mg-well--sky`:
+  grunt i pole o krok jaśniejsze (mgła), bo pole nieba zlewało się z tłem i
+  zrobiona kropka wyglądała na gołą kropkę bez pierścienia.
+- **Pestka** (`.mg-pip`) jest jedyną małą pełną kropką: klucze kolorów, kolor
+  części i obszaru, wypunktowania, liczniki, „pisze…”. Nie mówi o stanie.
+- **Paginacja** kreatorów to jedna anatomia `.mg-v2-pager` (trzy kopie CSS
+  scalone); to pasek postępu, nie kropka.
+- Wykresy danych przebarwiają studnię tylko zmiennymi (`--mg-well-field/-mark/
+  -ground/-ring/-halo`) — kształt i proporcja zostają (stan obciążenia, emocje,
+  Koło życia, linia życia).
+- Strażnik dostał reguły `localDot` (blokowa, CSS) i `tailwindDot`; baza
+  długu = 0. Wyjątek tylko komentarzem `ds: not-a-dot — <powód>`.
+
+Konsekwencje: nowa kropka stanu w widoku = `<DsWell state="done" size="sm" />`
+albo klasy `mg-well`; lokalna kropka nie przejdzie strażnika ani hooka.
+Martwy kod z kropkami usunięty: `neo-step-*`, `neo-checkbox`, osierocone
+`.next-day-cal*` (karta kalendarza dnia usunięta 2026-10-20). Świadomie poza
+studnią: okrągły checkbox z ptaszkiem `.mg-v2-checkbox` (zaznaczanie wielu),
+pola ikon, gałki suwaka i przełącznika, próbki kolorów, numerowane dyski SUDS,
+pierścienie postępu (donuty) w podsumowaniu kalendarza.

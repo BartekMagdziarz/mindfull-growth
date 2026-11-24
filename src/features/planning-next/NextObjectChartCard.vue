@@ -14,7 +14,12 @@
       :aria-label="chartAriaLabel"
     >
       <div class="next-object-card__dots" :style="columnsStyle">
-        <i v-for="point in points" :key="point.key" :class="dotState(point)" />
+        <i
+          v-for="(point, index) in points"
+          :key="point.key"
+          class="mg-well mg-well--data"
+          :class="[dotState(point), WELL_STATE[dotState(point)], { 'mg-well--alt': index % 2 }]"
+        />
       </div>
       <div class="next-object-card__labels" :style="columnsStyle">
         <span v-for="point in points" :key="point.key">{{ point.label }}</span>
@@ -41,19 +46,32 @@
     </div>
 
     <div v-else-if="chartKind === 'line'" class="next-object-card__chart">
-      <svg viewBox="0 0 500 115" preserveAspectRatio="none" role="img" :aria-label="chartAriaLabel">
-        <line
-          v-if="targetY !== null"
-          x1="0"
-          :y1="targetY"
-          x2="500"
-          :y2="targetY"
-          class="next-object-card__target"
+      <div class="next-object-card__plot">
+        <svg
+          viewBox="0 0 500 115"
+          preserveAspectRatio="none"
+          role="img"
+          :aria-label="chartAriaLabel"
+        >
+          <line
+            v-if="targetY !== null"
+            x1="0"
+            :y1="targetY"
+            x2="500"
+            :y2="targetY"
+            class="next-object-card__target"
+          />
+          <path v-if="linePath" class="next-object-card__line-echo" :d="linePathWithOffset" />
+          <path v-if="linePath" class="next-object-card__line" :d="linePath" />
+        </svg>
+        <!-- The last value is THE dot (the SVG stretches, the well must not). -->
+        <span
+          v-if="lastPoint"
+          class="mg-well mg-well--done mg-well--xs next-object-card__end"
+          :style="{ left: `${lastPoint.x / 5}%`, top: `${(lastPoint.y / 115) * 100}%` }"
+          aria-hidden="true"
         />
-        <path v-if="linePath" class="next-object-card__line-echo" :d="linePathWithOffset" />
-        <path v-if="linePath" class="next-object-card__line" :d="linePath" />
-        <circle v-if="lastPoint" :cx="lastPoint.x" :cy="lastPoint.y" r="5" />
-      </svg>
+      </div>
       <div class="next-object-card__labels" :style="columnsStyle" aria-hidden="true">
         <span v-for="point in points" :key="point.key">{{ point.label }}</span>
       </div>
@@ -139,6 +157,13 @@ const chartAriaLabel = computed(
 function barHeight(value: number): number {
   return Math.max(9, Math.min(96, (value / maxValue.value) * 92))
 }
+/** The dots are the app's well as a data mark: done, missed (rose), future (ghost), off (tint). */
+const WELL_STATE: Record<string, string> = {
+  done: 'mg-well--done',
+  missed: 'mg-well--missed',
+  pending: 'mg-well--ghost',
+  off: '',
+}
 function dotState(point: NextObjectChartPoint): string {
   if (point.future) return 'pending'
   if (point.value !== undefined) return point.status === 'missed' ? 'missed' : 'done'
@@ -210,7 +235,7 @@ function pathFor(points: Array<{ x: number; y: number }>, offset = 0): string {
   min-height: 2.6rem;
 }
 
-.next-object-card--bare .next-object-card__chart > svg {
+.next-object-card--bare .next-object-card__plot > svg {
   min-height: 2.8rem;
   max-height: 3.2rem;
 }
@@ -294,39 +319,14 @@ function pathFor(points: Array<{ x: number; y: number }>, offset = 0): string {
   padding: 0.55rem 0.4rem 0.1rem;
 }
 
+/* Fluid wells (`mg-well mg-well--data`): as wide as their column, never larger
+   than the card's mark. */
 .next-object-card__dots i {
-  position: relative;
-  display: grid;
   width: 100%;
   max-width: 3.4rem;
+  height: auto;
   aspect-ratio: 1;
-  place-items: center;
   justify-self: center;
-  border-radius: var(--mg-radius-organic-a);
-  background: var(--mg-color-border);
-}
-
-.next-object-card__dots i:nth-child(even) {
-  border-radius: var(--mg-radius-organic-b);
-}
-.next-object-card__dots i.done {
-  background: var(--mg-color-sky-field);
-  box-shadow: var(--mg-shadow-inset-sm);
-}
-.next-object-card__dots i.done::after {
-  width: 70%;
-  aspect-ratio: 1;
-  border-radius: var(--mg-radius-organic-c);
-  background: var(--mg-color-state);
-  content: '';
-  transform: rotate(-2deg);
-}
-.next-object-card__dots i.missed {
-  background: var(--mg-color-effort-soft);
-}
-.next-object-card__dots i.pending {
-  border: 1px dashed var(--mg-color-state-soft);
-  background: transparent;
 }
 
 .next-object-card__bars {
@@ -367,7 +367,19 @@ function pathFor(points: Array<{ x: number; y: number }>, offset = 0): string {
   box-shadow: none;
 }
 
-.next-object-card__chart > svg {
+.next-object-card__plot {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.next-object-card__end {
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+
+.next-object-card__plot > svg {
   width: 100%;
   flex: 1 1 auto;
   min-height: 5.4rem;
@@ -394,10 +406,6 @@ function pathFor(points: Array<{ x: number; y: number }>, offset = 0): string {
   stroke-width: 1;
   stroke-dasharray: 7 7;
 }
-.next-object-card__chart circle {
-  fill: var(--mg-color-state);
-}
-
 .next-object-card__labels {
   display: grid;
   padding: 0 0.25rem;

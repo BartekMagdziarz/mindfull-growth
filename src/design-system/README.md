@@ -17,6 +17,65 @@ Design V2 jest celowo ograniczony do korzenia `.mg-design-v2`. Nie zmienia globa
 4. `prefers-reduced-motion` redukuje animacje i przejścia w całym korzeniu V2.
 5. Tekst podstawowy używa `--mg-color-ink`, a tekst pomocniczy `--mg-color-muted`; interaktywne etykiety używają mocniejszego koloru semantycznego.
 
+## Kropka — studnia i pestka (decyzja 2026-11-24)
+
+W aplikacji są DOKŁADNIE dwa okrągłe znaki. Nic innego nie rysuje „kółka w kółku”.
+
+**1. Studnia (`.mg-well`, `DsWell`, w SVG `DsWellSvg`) — każdy znak STANU**: zrobione, wybrane,
+zaplanowane, odpowiedziane, bieżące, zapisane. Wzorem jest kropka wykonania zadania w „Dzisiaj”.
+
+- Wewnętrzna kropka ma zawsze `--mg-well-mark-size` = **58 % średnicy zewnętrznej** (zmierzone na
+  kropce „Planu dnia” 2,1 rem). Obrzeże pustej studni to cień (`--mg-shadow-well`), nie ramka — dzięki
+  temu proporcja jest ta sama przy 12 px i przy 34 px. W TS ta sama liczba to `WELL_MARK_RATIO`
+  (`src/design-system/well.ts`).
+- Stany (klasy na tym samym elemencie):
+
+  | klasa | wygląd | kiedy |
+  | --- | --- | --- |
+  | `mg-well` | pusta studnia: płótno + obrzeże | nie zrobione / nie wybrane / zaplanowane |
+  | `mg-well--done` (oraz `:checked`) | pole nieba + kropka 58 % | zrobione, wybrane, zapisane, osiągnięte |
+  | `mg-well--soft` | to samo, kropka 45 % krycia | odziedziczone z całego okresu, ocena „wtedy”, podgląd |
+  | `mg-well--current` | pusta + pierścień akcentu z poświatą | bieżący krok, dziś, odpowiadane teraz |
+  | `mg-well--lit` | samo pole, bez kropki | częściowy zapis, wartość wpisana, ale nie „zrobione” |
+  | `mg-well--missed` | różowe pole wysiłku | chybione / planowane i niezrobione w danych |
+  | `mg-well--ghost` | wyblakła, bez cienia | jeszcze niedostępne, przyszłe, poza oknem |
+  | `mg-well--data` | pusta = płaski odcień | znak danych (paski historii, wiersze tygodnia), nie kontrolka |
+  | `mg-well--icon` | ikona / litera / liczba na studni, odwrócona na kropce | krok ścieżki, dzień tygodnia, numer kroku |
+  | `mg-well--sky` | grunt i pole: mgła | kropka leży na niebie strony, nie na karcie (nić kwestionariusza, stepper w nagłówku, rząd dni nad kartą) — inaczej pole zlewa się z tłem |
+  | `mg-well--alt` | drugi kształt organiczny | rzędy kropek, żeby nie wyglądały na stempel |
+
+- Rozmiary: `mg-well--xs` 12 px · `--sm` 16 px · `--md` 24 px · `--lg` 2,1 rem (domyślny, „Plan dnia”)
+  · `--xl` 2,75 rem; inny rozmiar układu = `--mg-well-size` u konsumenta (np. tor `LoadStateTrack`).
+- Przebarwienie TYLKO dla wykresów danych: `--mg-well-field` / `--mg-well-mark` (stany wypełnione),
+  `--mg-well-ground` (pusty znak danych), `--mg-well-ring` / `--mg-well-halo` (pierścień `--current`,
+  np. róż przeterminowanej osi). Tak rysują: kropka stanu w `LoadStateTrack`, glif „stan” w kroku
+  obszaru, kropki natężenia i liczby w pickerze emocji, punkty Koła życia i linii życia.
+- Studnia może być `span`, `i`, `button` albo natywnym `input[type=radio|checkbox]` (wygląd `:checked`
+  = `--done`). Fokus klawiatury = obrys (cień jest zajęty przez obrzeże).
+- Anatomie, które wcześniej miały własne kropki, teraz ją tylko ustawiają: `.mg-v2-thread__dot`
+  (nić kwestionariuszy), `.mg-v2-stepper__dot`, `.mg-v2-progress-marker` / `DsProgressMarker`
+  (numer na studni, zrobione = sama kropka), `.mg-v2-timeline__dot` (rok w toku = `--soft`,
+  „dziś” = `--current`).
+
+**2. Pestka (`.mg-pip`) — mała PEŁNA kropka, która nazywa albo liczy**: klucz koloru w legendzie,
+kolor części IFS, kolor obszaru życia, wypunktowanie, licznik natężenia, „pisze…”. Nigdy stan.
+Rozmiary `--xs` 4 px · domyślny 6 px · `--md` 8 px · `--lg` 10 px; kolor `--mg-pip-color` (domyślnie
+kolor tekstu); pastelowy klucz dostaje `mg-pip--edge` (włoskowa krawędź `--mg-pip-edge`).
+
+**Paginacja kreatora (`.mg-v2-pager`) to nie kropka**, tylko pasek postępu pocięty na kroki: pestki
+akcentu, bieżący krok wyciągnięty w kreskę (`ExerciseStepper`, `MicroExerciseRunner`, rytuały).
+
+**Strażnik.** `npm run check:design-system` ma dwie reguły: `localDot` (reguła CSS, która rysuje okrągły
+znak poza `.mg-well` / `.mg-pip` — kropka w kropce w pseudo-elemencie albo w gołym `i/b/span/button`,
+klasa nazwana `dot / radio / well / disc / blob / pip` albo dowolne okrągłe, zamalowane pole ≤ 20 px)
+i `tailwindDot` (`rounded-full` z równym `w-N h-N`). Rzecz, która tylko jest okrągła, deklaruje to komentarzem `ds: not-a-dot — <powód>` przy
+regule (gałka `.mg-v2-switch` i suwaków, „✕” w chipie emocji, checkbox z ptaszkiem
+`.mg-v2-checkbox`). Baza długu: 0 — każda nowa lokalna kropka zatrzymuje commit.
+
+Nie używać: ikon `radio_button_*` / `check_circle` jako znaku stanu na liście, `rounded-full` + `w-N h-N`
+w szablonie, kreskowanych ani kropkowanych obrysów kropek, atramentu `--mg-color-ink` ani
+papierowej obwódki na kropce (token `--mg-shadow-stepper-halo` usunięty 2026-11-24).
+
 ## Konwencja cieni komponentowych
 
 Strażnik dopuszcza `box-shadow` wyłącznie w postaci `var(--mg-shadow-…)`.
@@ -37,7 +96,7 @@ Jeden kierunek tonu i jeden kierunek głębi:
 - Zaznaczone chipy (`.mg-v2-pill--primary`, `--selected`) = cienki obrys akcentu, płasko — bez wklęsłości i bez niebieskiej wypełnienia.
 - Karty obiektów (biblioteka): fakty pod tytułem to cicha linia `.mg-v2-meta` (tekst wyciszony, separatory „·”), nie rząd `.mg-v2-badge`; status pokazujemy tekstem TYLKO gdy nie jest domyślny, a zmienia się go w menu „⋯” (`ObjectsCardStatusMenu`). Kontrolki karty (powiązania, miesiące/lata, rozwiń, menu) siedzą w `.mg-v2-card-tray` — niewidoczne do hovera/fokusu/otwartego popovera; licznik na ikonie = `.mg-v2-icon-count` (wyciszona cyfra, bez wypełnionej kropki).
 - Belka Biblioteki obiektów (2026-09-12): prawa grupa kontrolek ma wysokość pigułki — pole szukania to `.mg-v2-field--compact` (2rem, rośnie po fokusie), okres to chip → popover rok/miesiąc (`ObjectsPeriodSelect`), filtry to chip „Filtry · N” → popover z kompaktowymi multi-selectami i przełącznikiem `.mg-v2-switch` (`button[role=switch]`, tor sky-well/akcent, gałka paper). Ustawiony filtr = `.mg-v2-pill--primary.mg-v2-pill--selected`; aktywne filtry z popovera dostają rząd chipów pod belką (`ObjectsLibraryActiveFilters`), okres nie jest tam powtarzany.
-- Karty obiektów (2026-09-12, faza 2): czas = `.mg-v2-timeline` (ołówek `__pencil` = kreskowana hairline, atrament `__ink` do „dziś”, kropki `__dot` ze steppera: `--today` atrament z halo, `--done` akcent, przyszła = kreskowany obrys; `--overdue` przebarwia na rose, `--open` blaknie ołówek maską), geometria w `utils/objectWindow.ts` (`ObjectCardTimeline.vue`). Przynależność (od 2026-10-25) = linia tekstu `ObjectCardMetaLine` pod tytułem: „kiedy” (okresy / „na stałe” / „od N tygodni”) · nazwy priorytetów i obszarów, przycięte z pełną listą na hover; glify `.mg-v2-glyph*` usunięte. Oś i obie części linii są przyciskami otwierającymi istniejące pickery; tacka hover ma tylko „⋯”, a menu duplikuje „Powiązania…/Miesiące…/Lata…”.
+- Karty obiektów (2026-09-12, faza 2): czas = `.mg-v2-timeline` (ołówek `__pencil` = kreskowana hairline, atrament `__ink` do „dziś”, kropki `__dot` = studnie aplikacji od 2026-11-24: rok zamknięty `--done`, rok w toku `--soft`, „dziś” `--current`; `--overdue` przebarwia pierścień „dziś” na rose, `--open` blaknie ołówek maską), geometria w `utils/objectWindow.ts` (`ObjectCardTimeline.vue`). Przynależność (od 2026-10-25) = linia tekstu `ObjectCardMetaLine` pod tytułem: „kiedy” (okresy / „na stałe” / „od N tygodni”) · nazwy priorytetów i obszarów, przycięte z pełną listą na hover; glify `.mg-v2-glyph*` usunięte. Oś i obie części linii są przyciskami otwierającymi istniejące pickery; tacka hover ma tylko „⋯”, a menu duplikuje „Powiązania…/Miesiące…/Lata…”.
 - Wykresy: linie i kropki atramentem `sky-800`, wypełnienia akcentem/pastelami; nie kodować `sky-600`/`sky-500`.
 
 ## Warianty organiczne
@@ -49,9 +108,9 @@ Do wyboru są trzy skończone kształty: `--mg-radius-organic-a`, `--mg-radius-o
 Od portu „reszty aplikacji” korzeń `.mg-design-v2` siedzi na `<main>` w `AppShell.vue`, więc każdy routowany widok (także logowanie) ma tokeny, Nunito, fokus i reduced-motion. Zagnieżdżone korzenie (Dziennik, Obiekty, dialogi teleportowane do `body`) zostają — redeklaracja tych samych zmiennych jest nieszkodliwa.
 
 - `AppCard` i `AppButton` renderują anatomie `mg-v2-*` (raised → `--raised-sm`, raised-strong → `--raised`, flat → bez cienia, inset → `--flat`; filled → `--primary`, text → `--quiet`, outlined/tonal → domyślny chip). ~170 konsumentów (kreatory ćwiczeń, profil, historia) przeszło bez edycji.
-- `adapters.css` mostkuje pozostałe klasy legacy (`neo-segmented`, `neo-step-*`, `neo-back-btn`, `neo-selector`, `neo-checkbox-row`, `neo-panel`, `neo-embedded`, `neo-warning`, `neo-icon-circle`, `neo-progress-*`, `neo-toggle-*`, `neo-footer`, `neo-control`, `neo-pill`). Stany hover/pressed używają realnej specyficzności, bo muszą pobić pseudoklasy z `main.css`.
-- Nowe anatomie strony: `.mg-v2-page-head` (back · eyebrow/tytuł/opis/meta · akcje; `PageHeader.vue`), `.mg-v2-section-head` + `.mg-v2-hairline` (kreskowana linia ołówka), `.mg-v2-surface--sheet` (podwójna włoskowa krawędź kartki), `.mg-v2-icon-board` (tablica ikony; `--tinted` przyjmuje `--mg-icon-board-tint` / `--mg-icon-board-tint-mix` z danych domenowych), `.mg-v2-tile` + `.mg-v2-tile-grid` (płytki katalogu z alternującymi kształtami i mikro-przekręceniem), `.mg-v2-stepper` (kropki: zrobione = akcent, bieżące = atrament z papierową obwódką, przyszłe = kreskowany obrys).
-- Nić `.mg-v2-thread` (2026-10-25): pionowy stepper dla stosu kart wypełnianych po kolei (kwestionariusze, `LikertItemList`). `ol.mg-v2-thread > li.mg-v2-thread__item(--done|--current) > span.mg-v2-thread__dot + karta`; kropki w gramatyce steppera, szew ołówkiem → akcentem po zrobieniu. `--mg-thread-dot-top` wyrównuje kropkę z pierwszą linią karty. Nie dla list bez kolejności i nie jako dekoracja.
+- `adapters.css` mostkuje pozostałe klasy legacy (`neo-segmented`, `neo-back-btn`, `neo-selector`, `neo-checkbox-row`, `neo-panel`, `neo-embedded`, `neo-warning`, `neo-icon-circle`, `neo-progress-*`, `neo-toggle-*`, `neo-footer`, `neo-control`, `neo-pill`). Stany hover/pressed używają realnej specyficzności, bo muszą pobić pseudoklasy z `main.css`.
+- Nowe anatomie strony: `.mg-v2-page-head` (back · eyebrow/tytuł/opis/meta · akcje; `PageHeader.vue`), `.mg-v2-section-head` + `.mg-v2-hairline` (kreskowana linia ołówka), `.mg-v2-surface--sheet` (podwójna włoskowa krawędź kartki), `.mg-v2-icon-board` (tablica ikony; `--tinted` przyjmuje `--mg-icon-board-tint` / `--mg-icon-board-tint-mix` z danych domenowych), `.mg-v2-tile` + `.mg-v2-tile-grid` (płytki katalogu z alternującymi kształtami i mikro-przekręceniem), `.mg-v2-stepper` (od 2026-11-24 rząd studni: zrobione = `mg-well--done`, bieżące = `--current`, przyszłe = pusta studnia — sekcja „Kropka”).
+- Nić `.mg-v2-thread` (2026-10-25): pionowy stepper dla stosu kart wypełnianych po kolei (kwestionariusze, `LikertItemList`). `ol.mg-v2-thread > li.mg-v2-thread__item(--done|--current) > span.mg-v2-thread__dot + karta`; kropka = studnia `mg-well mg-well--sm` (odpowiedziane = `--done`, karta do odpowiedzi = `--current`, reszta pusta), szew ołówkiem → akcentem po zrobieniu. `--mg-thread-dot-top` wyrównuje kropkę z pierwszą linią karty. Nie dla list bez kolejności i nie jako dekoracja.
 - Ćwiczenia: każdy widok trasy używa `ExercisePage.vue` (PageContainer reading + PageHeader z powrotem do katalogu); katalog trzyma zakładkę w `?tab=`.
 
 Kroki ćwiczeń korzystają z `mg-v2-block` do grupowania odpowiedzi. Kontrolki

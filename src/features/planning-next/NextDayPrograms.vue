@@ -51,7 +51,12 @@
             <i
               v-for="n in row.dots.total"
               :key="n"
-              :class="{ 'is-done': n <= row.dots.done, 'is-current': n === row.dots.current }"
+              class="mg-well mg-well--data"
+              :class="{
+                'is-done mg-well--done': n <= row.dots.done,
+                'is-current mg-well--current': n === row.dots.current && n > row.dots.done,
+                'mg-well--alt': n % 2 === 0,
+              }"
             />
           </span>
         </span>

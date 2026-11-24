@@ -172,18 +172,6 @@
   --mg-well-size: 1.3rem;
 }
 
-.pp-well--current {
-  border-color: var(--mg-color-primary);
-  color: var(--mg-color-primary-strong);
-  box-shadow:
-    var(--mg-shadow-inset-sm),
-    0 0 0 3px var(--mg-color-primary-soft);
-}
-
-.pp-well--today {
-  border-color: var(--mg-color-primary);
-}
-
 .pp-well .material-symbols-outlined {
   font-size: var(--mg-font-size-sm);
 }

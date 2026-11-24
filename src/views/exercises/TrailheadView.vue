@@ -35,12 +35,8 @@
 
           <div class="space-y-4">
             <div v-for="entry in sortedEntries" :key="entry.id" class="relative">
-              <!-- Timeline dot -->
-              <div
-                class="trailhead-dot absolute -left-6 top-3 w-5 h-5 flex items-center justify-center"
-              >
-                <div class="w-2.5 h-2.5 rounded-full bg-status-warn" />
-              </div>
+              <!-- Timeline dot: the app's done dot (an entry that exists) -->
+              <span class="trailhead-dot mg-well mg-well--done mg-well--sm" aria-hidden="true" />
 
               <AppCard variant="raised" padding="md" class="space-y-2">
                 <div class="flex items-center justify-between">
@@ -181,11 +177,10 @@ function formatDate(isoString: string): string {
 </script>
 
 <style scoped>
-/* Timeline dot: a small mist cloud carrying the status dot. */
+/* The entry's dot hangs left of its card, on the timeline. */
 .trailhead-dot {
-  border: 1px solid var(--mg-color-border-subtle);
-  border-radius: var(--mg-radius-icon-field-a);
-  background: var(--mg-color-mist);
-  box-shadow: var(--mg-shadow-raised-sm);
+  position: absolute;
+  top: var(--mg-space-3);
+  left: calc(-1 * var(--mg-space-6));
 }
 </style>

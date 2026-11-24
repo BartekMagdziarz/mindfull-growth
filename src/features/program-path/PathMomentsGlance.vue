@@ -25,8 +25,8 @@
             <template v-for="n in columns" :key="`d${n}`">
               <i
                 v-if="stats[n - 1]"
-                class="smg__disc"
-                :class="{ 'is-quiet': stats[n - 1]!.quiet }"
+                class="smg__disc mg-well"
+                :class="{ 'is-quiet': stats[n - 1]!.quiet, 'mg-well--alt': n % 2 === 0 }"
                 :style="{
                   '--fill': stats[n - 1]!.total
                     ? `${(stats[n - 1]!.responded / stats[n - 1]!.total) * 100}%`
@@ -34,7 +34,12 @@
                 }"
                 :title="discTitle(n)"
               />
-              <i v-else class="smg__disc smg__disc--slot" aria-hidden="true" />
+              <i
+                v-else
+                class="smg__disc smg__disc--slot mg-well mg-well--ghost"
+                :class="{ 'mg-well--alt': n % 2 === 0 }"
+                aria-hidden="true"
+              />
             </template>
           </div>
         </section>
@@ -240,30 +245,19 @@ const noticedBars = computed(() => {
   gap: 4px;
   justify-items: center;
 }
+/* The app's well as a meter: the share of moments met with the new response
+   fills it from the bottom. A quiet week is the empty well, a week still to
+   come the ghost — no dotted or dashed outlines. */
 .smg__disc {
-  display: block;
-  width: 1.15rem;
-  height: 1.15rem;
-  border: 1px solid var(--mg-color-border);
-  border-radius: var(--mg-radius-organic-a);
+  --mg-well-size: 1.15rem;
   background: linear-gradient(
     to top,
     var(--ink) var(--fill, 0%),
     var(--mg-color-paper) var(--fill, 0%)
   );
-  box-shadow: var(--mg-shadow-inset-sm);
-}
-.smg__disc:nth-child(even) {
-  border-radius: var(--mg-radius-organic-b);
 }
 .smg__disc.is-quiet {
-  border-style: dotted;
   background: var(--mg-color-paper);
-}
-.smg__disc--slot {
-  border-style: dashed;
-  background: transparent;
-  box-shadow: none;
 }
 .smg__bar-row {
   display: contents;

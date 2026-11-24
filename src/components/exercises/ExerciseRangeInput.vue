@@ -66,6 +66,7 @@ const fill = computed(() => {
   background: var(--mg-color-primary);
 }
 
+/* ds: not-a-dot — the slider thumb is a handle */
 .exercise-range::-webkit-slider-thumb {
   width: 1.125rem;
   height: 1.125rem;
@@ -77,6 +78,7 @@ const fill = computed(() => {
   -webkit-appearance: none;
 }
 
+/* ds: not-a-dot — the slider thumb is a handle */
 .exercise-range::-moz-range-thumb {
   width: 1.125rem;
   height: 1.125rem;

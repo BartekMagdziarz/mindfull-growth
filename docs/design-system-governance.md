@@ -74,12 +74,18 @@ to sygnał, że semantyka ma za mało ról, a nie powód do nadpisywania `.mg-*`
    `primary-fill` (~3,3:1) — tylko na przyciskach ≥ 13 px / wadze label.
 9. **Desktop 1512 × 982 @2x to jedyny sędzia.** Każda decyzja wizualna jest
    oceniana na zrzutach żywych widoków w tym oknie, nie na mockupach.
+10. **Jedna kropka (2026-11-24).** Każdy okrągły znak stanu (zrobione,
+   wybrane, zaplanowane, bieżące, odpowiedziane) to studnia `.mg-well` /
+   `DsWell` / `DsWellSvg` z kropką 58 % średnicy; mała pełna kropka, która
+   nazywa kolor albo liczy, to pestka `.mg-pip`; postęp kreatora to
+   `.mg-v2-pager`. Widok nie rysuje własnego „kółka w kółku” — wykres może
+   tylko przebarwić studnię zmiennymi `--mg-well-*`. README → „Kropka”.
 
 ## 4. Co wolno, czego nie wolno (egzekwowane automatycznie)
 
 | Warstwa | Wolno | Nie wolno |
 | --- | --- | --- |
-| widok (`src/views`, `src/features`, `src/components/**`) | klasy anatomii, komponenty, `var(--mg-*)`, układ (grid/flex/gap/padding z `--mg-space-*`) | `#hex`, `rgb()`, `box-shadow` literalny, `font-family`, `font-size` w px/rem, `border-radius` literalny, klasy `neo-*`, `rounded-*`/`shadow-*`/`text-[…]` Tailwinda |
+| widok (`src/views`, `src/features`, `src/components/**`) | klasy anatomii, komponenty, `var(--mg-*)`, układ (grid/flex/gap/padding z `--mg-space-*`) | `#hex`, `rgb()`, `box-shadow` literalny, `font-family`, `font-size` w px/rem, `border-radius` literalny, klasy `neo-*`, `rounded-*`/`shadow-*`/`text-[…]` Tailwinda, własna kropka stanu (reguły `localDot`, `tailwindDot` — użyj `mg-well` / `mg-pip`; wyjątek tylko komentarzem `ds: not-a-dot — <powód>`) |
 | anatomia (`base.css`) | tylko `var(--mg-*)`; stany hover/focus/pressed/disabled/selected | wartości literalne, selektory per widok |
 | semantyka (`design-system/tokens.css`) | `rgb(var(--sky-*))`, `color-mix` na prymitywach | nowe hexy |
 | prymitywy (`styles/tokens.css`) | triplety RGB w skalach 50–800 | wartości poza skalą („jednorazowy błękit”) |

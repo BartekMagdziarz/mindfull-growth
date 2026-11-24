@@ -1,5 +1,5 @@
 <template>
-  <!-- znaczniki wykonania = dyski z „Plan dnia” (wykonane = ten sam kleks); tydzień: jeden duży dysk na dzień -->
+  <!-- znaczniki wykonania = kropki aplikacji jako dane, jak pasek dni w „Dzisiaj”; tydzień: jedna duża kropka na dzień -->
   <span
     v-if="wells"
     class="sm-wells"
@@ -10,12 +10,11 @@
     aria-hidden="true"
   >
     <template v-for="(well, index) in wells" :key="index">
-      <i v-if="well === 'none'" class="sm-faint" />
-      <i v-else-if="well === 'outside'" class="sm-gap" />
+      <i v-if="well === 'outside'" class="sm-gap" />
       <i
         v-else
-        class="mg-well sm-well"
-        :class="[`sm-well--${well}`, { 'mg-well--done': well === 'done' }]"
+        class="mg-well mg-well--data sm-well"
+        :class="[`sm-well--${well}`, WELL_STATE[well]]"
       />
     </template>
   </span>
@@ -32,7 +31,7 @@
       class="sm-bar__value"
       :style="{ height: `${scaleY(point.value)}%` }"
     />
-    <i v-else-if="point.planned" class="sm-bar__plan" />
+    <i v-else-if="point.planned" class="sm-bar__plan mg-well mg-well--xs" />
     <i v-else class="sm-bar__none" />
   </span>
 </template>
@@ -52,6 +51,17 @@ const props = defineProps<{
  * Dyski wykonania: tydzień (kolumna = dzień) → jeden dysk dnia; miesiąc (kolumna = tydzień) → dyski dni Pn–Nd,
  * a dla celu „N razy w tygodniu” dyski slotów celu (wykonane, potem brakujące wg stanu tygodnia).
  */
+/** Day states on the shared dot: the same grammar as the day strip in „Dzisiaj”. */
+const WELL_STATE: Record<DayWell, string> = {
+  done: 'mg-well--done',
+  partial: 'mg-well--lit',
+  missed: 'mg-well--missed',
+  today: 'mg-well--current',
+  future: 'mg-well--ghost',
+  none: '',
+  outside: '',
+}
+
 const wells = computed<DayWell[] | null>(() => {
   const p = props.point
   if (props.scale === 'week') return p.dayWells?.length ? [p.dayWells[0]] : null
@@ -80,39 +90,10 @@ function scaleY(value: number): number {
 .sm-wells--one {
   --mg-well-size: 34px;
 }
-.sm-well--partial {
-  background: var(--mg-color-sky-field);
-}
-.sm-well--missed {
-  border: 1.5px solid color-mix(in srgb, var(--mg-color-primary-strong) 38%, transparent);
-}
-.sm-well--today {
-  border: 1.5px solid var(--mg-color-primary-strong);
-}
-.sm-well--future {
-  border: 1.5px dashed color-mix(in srgb, var(--mg-color-primary-strong) 50%, transparent);
-  background: transparent;
-  box-shadow: none;
-  opacity: 0.8;
-}
-/* bez planu: mała kropka na środku miejsca dysku; poza okresem: samo miejsce */
-.sm-faint,
+/* poza okresem: samo miejsce kropki */
 .sm-gap {
-  display: grid;
-  place-items: center;
   width: var(--mg-well-size);
   height: var(--mg-well-size);
-}
-.sm-faint::after {
-  width: 9px;
-  height: 9px;
-  border-radius: var(--mg-radius-organic-a);
-  background: color-mix(in srgb, var(--mg-color-data-fill) 45%, transparent);
-  content: '';
-}
-.sm-wells:not(.sm-wells--one) .sm-faint::after {
-  width: 6px;
-  height: 6px;
 }
 
 .sm-bar {
@@ -137,15 +118,11 @@ function scaleY(value: number): number {
   right: -3px;
   border-top: 1.5px dashed color-mix(in srgb, var(--mg-color-ink) 75%, transparent);
 }
+/* planned, nothing recorded yet: the app's empty dot on the floor of the bar */
 .sm-bar__plan {
   position: absolute;
   left: 9px;
   bottom: 2px;
-  width: 12px;
-  height: 12px;
-  border: 2px solid var(--cp-accent-strong);
-  border-radius: var(--mg-radius-pill);
-  box-sizing: border-box;
 }
 .sm-bar__none {
   position: absolute;

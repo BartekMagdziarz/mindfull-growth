@@ -134,6 +134,8 @@
   --mg-color-warn: rgb(var(--status-warn));
   --mg-color-warn-soft: rgb(var(--status-warn-soft) / 0.85);
   --mg-color-warn-on: rgb(var(--status-warn-on));
+  --mg-color-bad: rgb(var(--status-bad));
+  --mg-color-bad-soft: rgb(var(--status-bad-soft) / 0.85);
   --mg-color-inverse: rgb(var(--neo-text));
   --mg-color-inverse-ink: rgb(var(--color-surface-container));
   --mg-color-scrim: rgb(var(--overlay-scrim) / 0.5);
@@ -158,10 +160,27 @@
   --mg-lift-hover: -1px;
   --mg-shadow-inset: inset 0 2px 4px rgb(var(--sky-700) / 0.12);
   --mg-shadow-inset-sm: inset 0 1px 2px rgb(var(--sky-700) / 0.1);
-  /* Paper halo around the current stepper dot (sketch marker on a sheet). */
-  --mg-shadow-stepper-halo: 0 0 0 3px var(--mg-color-paper);
   /* The ring marking „today” on a tile (Najbliżej). */
   --mg-shadow-current-ring: 0 0 0 3px var(--mg-color-primary-soft);
+  /* The dot („studnia”, `.mg-well` / DsWell) — THE one round mark for done /
+     selected / planned / current anywhere in the app (decision 2026-11-24).
+     The inner mark is a share of the OUTER diameter: 58 % is the done task of
+     „Plan dnia” at 2.1rem, so a 12 px dot and a 34 px dot are the same object.
+     The rim is a shadow, not a border, so it never eats into that share. */
+  --mg-well-mark-size: 58%;
+  --mg-well-size-xs: 0.75rem;
+  --mg-well-size-sm: 1rem;
+  --mg-well-size-md: 1.5rem;
+  --mg-well-size-lg: 2.1rem;
+  --mg-well-size-xl: 2.75rem;
+  --mg-shadow-well: inset 0 0 0 1px var(--mg-color-border), var(--mg-shadow-inset-sm);
+  /* The pip (`.mg-pip`) — the only other round mark: a small SOLID dot that
+     names a colour or counts (legend key, part colour, bullet, event in a
+     mini calendar, typing indicator). Never a state — that is the well. */
+  --mg-pip-size-xs: 0.25rem;
+  --mg-pip-size-sm: 0.375rem;
+  --mg-pip-size-md: 0.5rem;
+  --mg-pip-size-lg: 0.625rem;
   --mg-shadow-drag-preview: 0 18px 38px color-mix(in srgb, var(--mg-color-ink) 18%, transparent);
   --mg-shadow-drop-target: 0 6px 14px
     color-mix(in srgb, var(--mg-color-primary-strong) 18%, transparent);

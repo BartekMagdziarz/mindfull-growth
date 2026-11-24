@@ -25,7 +25,7 @@
         </span>
         <span
           v-if="window.state !== 'upcoming'"
-          class="mg-v2-timeline__dot mg-v2-timeline__dot--today"
+          class="mg-v2-timeline__dot mg-v2-timeline__dot--today mg-well mg-well--current"
           :style="{ left: `${todayLeft}%` }"
         />
       </div>
@@ -39,7 +39,7 @@
       </div>
     </template>
 
-    <!-- Years: one stepper dot per year -->
+    <!-- Years: one well per year (done / soft = in progress / empty) -->
     <template v-else-if="variant === 'years' && years">
       <div class="mg-v2-timeline__track" aria-hidden="true">
         <span class="mg-v2-timeline__cloud">
@@ -52,17 +52,17 @@
         <span
           v-for="(dot, index) in years.years"
           :key="dot.ref"
-          class="mg-v2-timeline__dot"
+          class="mg-v2-timeline__dot mg-well"
           :class="{
-            'mg-v2-timeline__dot--done': dot.state === 'done',
-            'mg-v2-timeline__dot--current': dot.state === 'current',
+            'mg-well--done': dot.state === 'done',
+            'mg-well--soft': dot.state === 'current',
           }"
           :style="{ left: `${yearLeft(index)}%` }"
         />
         <!-- "Today" sits where the sky feathers out, not on the year's dot -->
         <span
           v-if="years.progress !== null"
-          class="mg-v2-timeline__dot mg-v2-timeline__dot--today"
+          class="mg-v2-timeline__dot mg-v2-timeline__dot--today mg-well mg-well--current"
           :style="{ left: `${years.progress * 100}%` }"
         />
       </div>

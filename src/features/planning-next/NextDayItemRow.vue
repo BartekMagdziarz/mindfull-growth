@@ -120,13 +120,14 @@
           :title="day.title"
         >
           <i
-            class="mg-well ndi__dot"
+            class="mg-well mg-well--data ndi__dot"
             :class="[
               `is-${day.state}`,
               {
                 'mg-well--done': day.state === 'done',
+                'mg-well--missed': day.state === 'missed',
+                'mg-well--alt': index % 2 === 1,
                 'is-short': day.short,
-                'ndi__dot--b': index % 2 === 1,
               },
             ]"
             :style="day.fill !== undefined ? { '--fill': `${day.fill}%` } : undefined"
@@ -191,8 +192,11 @@
             v-for="(multiItem, index) in multiActiveItems"
             :key="multiItem.id"
             type="button"
-            class="mg-well ndi__well ndi__well--dot ndi__well--button"
-            :class="{ 'ndi__well--done': multiCheckedIds.has(multiItem.id) }"
+            class="mg-well mg-well--icon ndi__well ndi__well--dot ndi__well--button"
+            :class="{
+              'mg-well--done': multiCheckedIds.has(multiItem.id),
+              'mg-well--alt': index % 2 === 0,
+            }"
             :style="{ '--ndi-i': multiActiveItems.length - 1 - index }"
             :disabled="isPending"
             :aria-label="multiItem.label"
@@ -940,25 +944,11 @@ function submitValueDraft(event: Event): void {
   color: var(--mg-color-primary-strong);
 }
 
+/* History days are data marks of the shared well (`mg-well--data`): empty =
+   flat tint, done = the done dot, missed = the rose field. A reading fills
+   the disc from the bottom. */
 .ndi__dot {
   overflow: hidden;
-  border-color: transparent;
-  background: var(--mg-color-border);
-  box-shadow: none;
-  font-style: normal;
-}
-
-.ndi__dot--b {
-  border-radius: var(--mg-radius-organic-b);
-}
-
-.ndi__dot.is-done {
-  box-shadow: var(--mg-shadow-inset-sm);
-}
-
-/* Missed days are rose — the same effort tone the week charts use. */
-.ndi__dot.is-missed {
-  background: var(--mg-color-effort-soft);
 }
 
 .ndi__dot.is-reading {
@@ -1189,21 +1179,15 @@ function submitValueDraft(event: Event): void {
 /* Threshold met: a firmer tint than "has a reading", but the fraction stays
    legible — the filled chart blob is reserved for single-completion rows. */
 .ndi__well--met {
-  border-color: transparent;
   color: var(--mg-color-primary-strong);
   background: var(--mg-color-state-soft);
 }
 
 .ndi__well--dot {
-  width: 1.7rem;
-  height: 1.7rem;
+  --mg-well-size: 1.7rem;
   color: var(--mg-color-muted);
   animation: ndi-dot-in var(--mg-duration-fast) var(--mg-ease-standard) both;
   animation-delay: calc(var(--ndi-i, 0) * 28ms);
-}
-
-.ndi__multi > .ndi__well--dot:nth-child(even) {
-  border-radius: var(--mg-radius-organic-b);
 }
 
 .ndi__well--dot .material-symbols-outlined {
@@ -1217,23 +1201,15 @@ function submitValueDraft(event: Event): void {
   line-height: 1;
 }
 
-/* A checked item's dot fills solid: the glyph inverts instead of hiding
-   behind the completion blob. */
-.ndi__well--dot.ndi__well--done {
-  border-color: transparent;
-  color: var(--mg-color-on-primary);
-  background: var(--mg-color-state);
-  box-shadow: none;
-}
-
-.ndi__well--dot:not(:disabled):hover {
+/* A checked item is THE done dot with its glyph inverted on the mark
+   (`mg-well--icon mg-well--done`). */
+.ndi__well--dot:not(:disabled, .mg-well--done):hover {
   color: var(--mg-color-primary-strong);
   background: var(--mg-color-sky-well);
 }
 
-.ndi__well--dot.ndi__well--done:not(:disabled):hover {
-  color: var(--mg-color-on-primary);
-  background: var(--mg-color-primary-fill-hover);
+.ndi__well--dot.mg-well--done:not(:disabled):hover {
+  --mg-well-mark: var(--mg-color-primary-fill-hover);
 }
 
 @keyframes ndi-dot-in {

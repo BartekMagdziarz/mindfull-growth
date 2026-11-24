@@ -11,17 +11,35 @@
       <fieldset class="flex flex-col gap-3" :disabled="loading">
         <legend class="sr-only">{{ t('planning.criteria.title') }}</legend>
         <label class="flex gap-2 items-start">
-          <input v-model="scope" type="radio" value="next" name="criteria-scope" />
+          <input
+            v-model="scope"
+            class="mg-well mg-well--sm"
+            type="radio"
+            value="next"
+            name="criteria-scope"
+          />
           <span
             >{{ t('planning.criteria.next') }} <strong>{{ nextStart }}</strong></span
           >
         </label>
         <label class="flex gap-2 items-start">
-          <input v-model="scope" type="radio" value="all" name="criteria-scope" />
+          <input
+            v-model="scope"
+            class="mg-well mg-well--sm"
+            type="radio"
+            value="all"
+            name="criteria-scope"
+          />
           <span>{{ t('planning.criteria.all') }}</span>
         </label>
         <label class="flex gap-2 items-start">
-          <input v-model="scope" type="radio" value="date" name="criteria-scope" />
+          <input
+            v-model="scope"
+            class="mg-well mg-well--sm"
+            type="radio"
+            value="date"
+            name="criteria-scope"
+          />
           <span>{{ t('planning.criteria.date') }}</span>
         </label>
         <label v-if="scope === 'date'" class="flex flex-col gap-1">

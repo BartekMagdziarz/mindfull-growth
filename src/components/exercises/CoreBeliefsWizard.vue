@@ -263,17 +263,11 @@
               @click="beliefCategory = cat.value"
             >
               <div class="flex items-center gap-3">
-                <div
-                  class="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0"
-                  :class="
-                    beliefCategory === cat.value ? 'border-primary bg-primary' : 'border-outline'
-                  "
-                >
-                  <div
-                    v-if="beliefCategory === cat.value"
-                    class="w-2 h-2 rounded-full bg-on-primary"
-                  />
-                </div>
+                <span
+                  class="mg-well mg-well--sm"
+                  :class="{ 'mg-well--done': beliefCategory === cat.value }"
+                  aria-hidden="true"
+                />
                 <div>
                   <p class="text-base font-semibold text-on-surface">{{ cat.label }}</p>
                   <p class="text-sm text-on-surface-variant">{{ cat.description }}</p>

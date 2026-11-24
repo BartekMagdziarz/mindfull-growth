@@ -10,7 +10,9 @@
         class="pc__legend-row"
         :class="{ 'is-dominant': row.dominant, 'is-zero': row.count === 0 }"
       >
-        <i :style="partStyle(row.part)" /><span class="pc__legend-name">{{ row.label }}</span
+        <i class="mg-pip mg-pip--lg mg-pip--edge" :style="partStyle(row.part)" /><span
+          class="pc__legend-name"
+          >{{ row.label }}</span
         ><span class="pc__legend-n"
           >{{ row.count === null ? '' : row.count || '·'
           }}<em v-if="row.later"> (+{{ row.later }})</em></span
@@ -286,18 +288,10 @@ const legendHead = computed(() => {
   line-height: 1.2;
   transition: color 120ms ease;
 }
-.pc__legend-row i {
-  display: block;
-  width: 0.55rem;
-  height: 0.55rem;
+.pc__legend-row .mg-pip {
+  --mg-pip-color: var(--part);
+  --mg-pip-edge: var(--ink);
   margin-top: 0.12rem;
-  border-radius: var(--mg-radius-organic-a);
-  background: var(--part);
-  outline: 1px solid var(--ink);
-  outline-offset: -1px;
-}
-.pc__legend-row:nth-child(odd) i {
-  border-radius: var(--mg-radius-organic-b);
 }
 .pc__legend-name {
   overflow-wrap: anywhere;

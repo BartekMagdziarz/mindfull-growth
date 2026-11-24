@@ -170,29 +170,6 @@
   cursor: not-allowed;
 }
 
-/* Marks: raised dots and dashed plans. */
-.cp .ev-mark--recorded,
-.cp .ev-mark--planned-only {
-  position: relative;
-  width: 21px;
-  height: 20px;
-  border-radius: var(--mg-radius-organic-a);
-  background: var(--cp-inner);
-  box-shadow: var(--mg-shadow-raised-sm);
-}
-.cp .ev-mark--recorded::after {
-  content: '';
-  position: absolute;
-  inset: 5px 5px 4px 4px;
-  border-radius: var(--mg-radius-organic-b);
-  background: var(--mg-color-ink);
-  transform: rotate(-2deg);
-}
-.cp .ev-mark--planned-only {
-  border: 1.5px dashed var(--cp-accent-strong);
-  background: transparent;
-  box-shadow: none;
-}
 .cp .sm-bar {
   border-bottom-color: var(--cp-line-strong);
 }

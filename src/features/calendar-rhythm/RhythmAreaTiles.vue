@@ -28,7 +28,7 @@
                 <i
                   v-for="n in 5"
                   :key="n"
-                  class="mg-well"
+                  class="mg-well mg-well--data mg-well--xs"
                   :class="{ 'mg-well--done': n <= row.value }"
                 />
               </span>
@@ -198,16 +198,11 @@ const tiles = computed(() =>
   font-size: var(--mg-font-size-xs);
   font-weight: var(--mg-weight-label);
 }
-/* kropki skali: studnia wykonania z „Dzisiaj” w małym rozmiarze — pełna do oceny, pusta dalej */
+/* kropki skali: kropka aplikacji jako dane (xs) — pełna do oceny, dalej płaski welon kafla */
 .rat__dots {
-  --mg-well-size: 12px;
+  --mg-well-ground: var(--mg-color-veil-strong);
   display: inline-flex;
   gap: 4px;
-}
-.rat__dots .mg-well:not(.mg-well--done) {
-  border-color: transparent;
-  background: var(--mg-color-veil-strong);
-  box-shadow: none;
 }
 @media (prefers-reduced-motion: reduce) {
   .rat__tile,

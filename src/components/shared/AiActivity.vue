@@ -1,7 +1,7 @@
 <template>
   <div class="ai-activity">
     <span class="ai-activity__status" role="status">
-      <span class="ai-activity__dot" aria-hidden="true" />
+      <span class="ai-activity__dot mg-pip" aria-hidden="true" />
       <span>{{ label }}</span>
     </span>
     <button
@@ -41,12 +41,9 @@ const emit = defineEmits<{ cancel: [] }>()
   align-items: center;
   gap: 10px;
 }
+/* A breathing pip of the accent (`mg-pip`). */
 .ai-activity__dot {
-  width: 6px;
-  height: 6px;
-  flex: 0 0 6px;
-  border-radius: 50%;
-  background: var(--mg-color-primary);
+  --mg-pip-color: var(--mg-color-primary);
   animation: ai-breathe 2.4s ease-in-out infinite;
 }
 /* Quiet pill in the field tone of its host (the companion panel exposes

@@ -91,7 +91,7 @@
               ></span>
               <span
                 v-if="q !== activeQuad && quadSelCount(q) > 0"
-                class="mdot"
+                class="mdot mg-pip"
                 aria-hidden="true"
               ></span>
             </button>
@@ -123,7 +123,12 @@
               <span>{{ pleasantnessLabel(q) }}</span>
             </span>
             <span v-if="quadSelCount(q) > 0" class="cq-dots" aria-hidden="true">
-              <i v-for="n in quadSelCount(q)" :key="n"></i>
+              <i
+                v-for="n in quadSelCount(q)"
+                :key="n"
+                class="mg-well mg-well--done"
+                :class="{ 'mg-well--alt': n % 2 === 0 }"
+              ></i>
             </span>
           </button>
         </div>
@@ -195,12 +200,16 @@
                 :key="i"
                 type="button"
                 tabindex="-1"
-                class="ct-dot"
-                :class="{
-                  'is-empty': i > level(g.slug),
-                  'is-preview': open === g.slug && slotHover > 0 && i <= slotHover,
-                  'is-dimmed': open === g.slug && slotHover > 0 && i > slotHover,
-                }"
+                class="ct-dot mg-well"
+                :class="[
+                  dotWell(g.slug, i),
+                  {
+                    'mg-well--alt': i % 2 === 0,
+                    'is-empty': i > level(g.slug),
+                    'is-preview': open === g.slug && slotHover > 0 && i <= slotHover,
+                    'is-dimmed': open === g.slug && slotHover > 0 && i > slotHover,
+                  },
+                ]"
                 :title="scaleLabel(i)"
                 :aria-label="
                   t('emotionGroups.ui.intensityOf', { name: groupName(g.slug), level: i })
@@ -303,6 +312,15 @@ function writeSel(slug: string, lvl: number | null) {
 }
 function level(slug: string): number {
   return selMap.value[slug] ?? 0
+}
+/**
+ * Kropka natężenia = kropka aplikacji (.mg-well) w kolorach ćwiartki: pełna do
+ * poziomu, pod kursorem miękka do wskazanego miejsca, puste miejsce = samo pole.
+ */
+function dotWell(slug: string, i: number): string {
+  const previewing = open.value === slug && slotHover.value > 0
+  if (previewing && i <= slotHover.value) return 'mg-well--soft'
+  return i <= level(slug) ? 'mg-well--done' : 'mg-well--lit'
 }
 function toggle(slug: string) {
   writeSel(slug, slug in selMap.value ? null : 0)

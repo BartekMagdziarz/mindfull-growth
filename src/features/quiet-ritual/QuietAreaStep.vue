@@ -38,7 +38,19 @@
           @awake="$event ? (active = axis) : leave(axis)"
         >
           <template #glyph>
-            <i class="qr-area__glyph" :style="{ background: glyph[axis] }" aria-hidden="true" />
+            <!-- stan = TA SAMA kropka co na znaku (studnia w kolorach pary); obciążenie = słupek -->
+            <i
+              v-if="axis === 'state'"
+              class="qr-area__glyph mg-well mg-well--done mg-well--sm"
+              :style="{ '--mg-well-field': glyph.stateField, '--mg-well-mark': glyph.state }"
+              aria-hidden="true"
+            />
+            <i
+              v-else
+              class="qr-area__glyph"
+              :style="{ background: glyph.load }"
+              aria-hidden="true"
+            />
           </template>
         </QuietRatingField>
       </div>
@@ -108,11 +120,16 @@ const emit = defineEmits<{
 
 const pair = computed(() => ({ load: toRating(props.load), state: toRating(props.state) }))
 
-/** Legend glyphs by the axis names: a small bar and a small dot in the pair's colour. */
+/** Legend glyphs by the axis names: a small bar and THE state dot in the pair's colour. */
 const NEUTRAL = 'var(--mg-color-data-fill)'
-const glyph = computed<Record<RatingAxis, string>>(() => {
+const NEUTRAL_FIELD = `color-mix(in oklab, ${NEUTRAL} 24%, var(--mg-color-paper))`
+const glyph = computed(() => {
   const tone = loadStateTone(pair.value.load, pair.value.state)
-  return { load: tone?.fill ?? NEUTRAL, state: tone?.mark ?? NEUTRAL }
+  return {
+    load: tone?.fill ?? NEUTRAL,
+    state: tone?.mark ?? NEUTRAL,
+    stateField: tone?.field ?? NEUTRAL_FIELD,
+  }
 })
 
 const preview = ref<{ axis: RatingAxis; value: number } | null>(null)
@@ -142,7 +159,7 @@ function leave(axis: RatingAxis) {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
 }
-/* legend glyphs by the axis names: a small bar and a small dot in the pair's colour */
+/* legend glyphs by the axis names: a small bar, and the state dot itself (`mg-well`) */
 .qr-area__glyph {
   display: inline-block;
   flex: none;
@@ -151,12 +168,6 @@ function leave(axis: RatingAxis) {
   width: 1rem;
   height: 0.4375rem;
   border-radius: var(--mg-radius-pill);
-}
-.qr-area__field--state .qr-area__glyph {
-  width: 0.625rem;
-  height: 0.625rem;
-  margin-inline: 0.1875rem;
-  border-radius: var(--mg-radius-organic-c);
 }
 @media (max-width: 900px) {
   .qr-area__pair {

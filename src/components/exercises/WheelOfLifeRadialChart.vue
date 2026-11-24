@@ -83,31 +83,27 @@
         stroke-linejoin="round"
       />
 
-      <!-- Rating dots on current shape -->
-      <circle
+      <!-- Rating dots on current shape: the app's dot in the rating's colour -->
+      <DsWellSvg
         v-for="(area, i) in areas"
         :key="`dot-${i}`"
         :cx="getAnimatedPoint(i).x"
         :cy="getAnimatedPoint(i).y"
-        :r="compact ? 2.6 : isHighlighted(i) ? 5 : 4"
-        :class="[
-          getDotColor(area.rating),
-          isHighlighted(i) ? 'stroke-primary-strong' : 'stroke-surface',
-        ]"
-        :stroke-width="compact ? 1 : isHighlighted(i) ? 2 : 1.5"
+        :r="compact ? 3.2 : isHighlighted(i) ? 7 : 5.5"
+        :field="getDotTone(area.rating).field"
+        :mark="getDotTone(area.rating).mark"
       />
 
-      <!-- Comparison dots -->
-      <circle
-        v-for="(_, i) in areas"
-        :key="`comp-dot-${i}`"
-        v-show="hasComparisonArea(i)"
-        :cx="getComparisonPoint(i).x"
-        :cy="getComparisonPoint(i).y"
-        r="3"
-        class="fill-on-surface-variant/40 stroke-surface"
-        stroke-width="1"
-      />
+      <!-- Comparison dots: the empty dot -->
+      <template v-for="(_, i) in areas" :key="`comp-dot-${i}`">
+        <DsWellSvg
+          v-if="hasComparisonArea(i)"
+          :cx="getComparisonPoint(i).x"
+          :cy="getComparisonPoint(i).y"
+          :r="4"
+          state="empty"
+        />
+      </template>
 
       <!-- Area labels -->
       <template v-if="!compact">
@@ -193,6 +189,7 @@
 <script setup lang="ts">
 import { computed, ref, watch, onMounted } from 'vue'
 import { useT } from '@/composables/useT'
+import DsWellSvg from '@/design-system/components/DsWellSvg.vue'
 import type { WheelChartArea } from './wheelOfLifeTypes'
 
 const { t } = useT()
@@ -488,11 +485,12 @@ const comparisonPolygonPoints = computed(() => {
     .join(' ')
 })
 
-function getDotColor(rating: number): string {
-  if (rating >= 8) return 'fill-status-good'
-  if (rating >= 6) return 'fill-primary'
-  if (rating >= 4) return 'fill-status-warn'
-  return 'fill-status-bad'
+/** The rating's colour as a data recolour of the dot (field = soft, mark = full). */
+function getDotTone(rating: number): { field: string; mark: string } {
+  if (rating >= 8) return { field: 'var(--mg-color-good-soft)', mark: 'var(--mg-color-good)' }
+  if (rating >= 6) return { field: 'var(--mg-color-sky-field)', mark: 'var(--mg-color-state)' }
+  if (rating >= 4) return { field: 'var(--mg-color-warn-soft)', mark: 'var(--mg-color-warn)' }
+  return { field: 'var(--mg-color-bad-soft)', mark: 'var(--mg-color-bad)' }
 }
 
 function getRatingTextColor(rating: number): string {

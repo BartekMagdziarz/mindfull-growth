@@ -21,8 +21,9 @@ dla użytkownika:
 
 1. **Czy istnieje anatomia/komponent?** (`mg-v2-surface/-button/-pill/-field/
    -tile/-icon-board/-page-head/-section-head/-stepper/-segmented/-popover`,
-   `DsButton/DsSurface/DsSegmentedControl/AppCard/AppButton/AppDialog/
-   PageHeader/ExercisePage/MicroExerciseRunner/QuietRitualShell`). Jeśli tak —
+   `DsButton/DsSurface/DsSegmentedControl/DsWell/DsWellSvg/AppCard/AppButton/
+   AppDialog/PageHeader/ExercisePage/MicroExerciseRunner/QuietRitualShell`,
+   kropki `mg-well` / `mg-pip` / `mg-v2-pager`). Jeśli tak —
    użyj, nie kopiuj stylów.
 2. **Czy brakuje roli, nie wartości?** Gdy widok „potrzebuje innego koloru /
    cienia / rozmiaru”, to zwykle brakuje ROLI semantycznej. Dodaj token
@@ -47,6 +48,13 @@ dla użytkownika:
 - Typografia: `--mg-font-size-xs…2xl` (12/13/15/18/24/32) + `--mg-font-size-chart`;
   wagi `--mg-weight-body/label/strong/title` (400/600/700/800). Zakaz
   `text-[Npx]`, px/rem w `font-size`, wag 500/650/750/850/900.
+- Kropka = studnia: każdy okrągły znak stanu (zrobione / wybrane / zaplanowane /
+  bieżące / odpowiedziane, radio, kropka oceny, punkt wykresu) to `DsWell` /
+  `.mg-well` + stan (`--done/--soft/--current/--lit/--missed/--ghost/--data/--icon`)
+  i rozmiar (`--xs…--xl`); w SVG `DsWellSvg`. Mała pełna kropka koloru/licznika =
+  `.mg-pip`; postęp kreatora = `.mg-v2-pager`. Nigdy własne „kółko w kółku”,
+  `rounded-full w-N h-N` ani ikony `radio_button_*` jako znak stanu (strażnik:
+  `localDot`, `tailwindDot`). README → „Kropka”.
 - Kształt = rola: nośnik ikony = koło organiczne (`--mg-radius-icon-field-*`);
   karta `lg`; pole `sm`; przycisk `--mg-radius-button`; chip `pill`; słupki
   `sketch`. Zakaz literalnego `border-radius` i `rounded-*` poza `rounded-full`.

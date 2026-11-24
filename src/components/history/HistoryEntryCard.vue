@@ -38,7 +38,7 @@
           ></span>
           <span aria-hidden="true">{{ badge.name }}</span>
           <span v-if="badge.intensity" class="inline-flex gap-0.5" aria-hidden="true">
-            <i v-for="n in badge.intensity" :key="n" class="h-1 w-1 rounded-full bg-current"></i>
+            <i v-for="n in badge.intensity" :key="n" class="mg-pip mg-pip--xs"></i>
           </span>
           <span class="sr-only">{{ badge.description }}</span>
         </span>

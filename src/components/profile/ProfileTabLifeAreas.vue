@@ -28,7 +28,7 @@
         class="mg-v2-block flex items-center gap-[10px]"
         style="padding: 12px"
       >
-        <span class="area-dot flex-shrink-0" :style="dotStyle(area, index)" aria-hidden="true" />
+        <span class="mg-pip mg-pip--lg" :style="dotStyle(area, index)" aria-hidden="true" />
         <div class="flex-1 min-w-0">
           <div class="text-mg-sm font-bold truncate" style="color: var(--mg-color-ink)">
             {{ area.name }}
@@ -95,16 +95,10 @@ const recentlyAddedName = computed(() => {
 
 function dotStyle(area: LifeArea, index: number) {
   if (area.color) {
-    return {
-      background: area.color,
-      boxShadow: `0 0 0 3px ${area.color}2E`,
-    }
+    return { '--mg-pip-color': area.color }
   }
   const hue = FALLBACK_HUES[index % FALLBACK_HUES.length]
-  return {
-    background: `oklch(70% 0.13 ${hue})`,
-    boxShadow: `0 0 0 3px oklch(70% 0.13 ${hue} / 0.18)`,
-  }
+  return { '--mg-pip-color': `oklch(70% 0.13 ${hue})` }
 }
 
 function goToAreas() {
@@ -118,10 +112,4 @@ onMounted(async () => {
 })
 </script>
 
-<style scoped>
-.area-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: var(--mg-radius-pill);
-}
-</style>
+<style scoped></style>

@@ -18,12 +18,12 @@
           <i v-if="lastIndex(track) > 0 && span(track)" class="sk__trail" :style="span(track)!" />
           <i
             v-if="first(track) !== null"
-            class="sk__start"
+            class="sk__start mg-well mg-well--xs"
             :style="{ left: pos(track, first(track) as number) }"
           />
           <i
             v-if="lastIndex(track) > 0 && last(track) !== null"
-            class="sk__now"
+            class="sk__now mg-well mg-well--done mg-well--xs"
             :style="{ left: pos(track, last(track) as number) }"
           />
         </span>
@@ -178,20 +178,16 @@ const trackTitle = (instrument: OutcomeSeries, track: OutcomeTrack) =>
   border-radius: inherit;
   background: color-mix(in srgb, var(--mg-color-primary) 34%, var(--mg-color-paper));
 }
+/* Start and now are the app's dot on the track: start = the empty well, now =
+   the done dot (where you are after the work). */
 .sk__start,
 .sk__now {
   position: absolute;
   top: 50%;
-  width: 0.7rem;
-  height: 0.7rem;
-  border: 1.5px solid var(--mg-color-primary-fill);
-  border-radius: var(--mg-radius-organic-a);
-  background: var(--mg-color-paper);
   transform: translate(-50%, -50%);
 }
 .sk__now {
   z-index: 1;
-  background: var(--mg-color-primary-fill);
 }
 .sk__tables {
   display: grid;

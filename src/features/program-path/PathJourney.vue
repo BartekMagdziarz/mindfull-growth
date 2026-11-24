@@ -64,10 +64,10 @@
         @click="toggle(group)"
       >
         <span
-          class="mg-well pp-well"
+          class="mg-well mg-well--icon pp-well"
           :class="{
-            'pp-well--past': stateOf(group) === 'done',
-            'pp-well--current': stateOf(group) === 'current',
+            'mg-well--lit pp-well--past': stateOf(group) === 'done',
+            'mg-well--current': stateOf(group) === 'current',
           }"
         >
           <AppIcon v-if="group.isReturn" name="replay" />
@@ -465,11 +465,9 @@ function confirmRestart(): void {
 .wk--current .wk__title {
   font-weight: 800;
 }
-.pp-well--past {
-  border-color: transparent;
-  background: var(--mg-color-sky-field);
+/* A walked week: the lit well (field, no mark) with its number in the accent. */
+.mg-well.pp-well--past {
   color: var(--mg-color-primary-strong);
-  box-shadow: none;
 }
 /* The open week's field: ONE mist surface that holds the "why" sentence and
    the step tiles, so the tiles read as the content of the week rather than

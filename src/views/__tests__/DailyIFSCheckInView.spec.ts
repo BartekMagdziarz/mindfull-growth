@@ -54,7 +54,7 @@ describe('DailyIFSCheckInView', () => {
       },
     })
 
-    expect(container.querySelectorAll('.w-7.h-7.rounded-full')).toHaveLength(7)
+    expect(container.querySelectorAll('.mg-well')).toHaveLength(7)
     expect(screen.getByText('2 check-ins this week')).toBeInTheDocument()
   })
 })

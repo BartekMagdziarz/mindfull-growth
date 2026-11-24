@@ -162,7 +162,7 @@
               <div v-for="week in weeks" :key="week.weekRef" class="qm-cell">
                 <button
                   type="button"
-                  class="qm-dot"
+                  class="qm-week-toggle"
                   :class="{
                     active: planner.weekCellState(row, week.weekRef) === 'checked',
                     whole: planner.weekCellState(row, week.weekRef) === 'soft',
@@ -171,7 +171,13 @@
                   :aria-pressed="planner.weekCellState(row, week.weekRef) !== 'empty'"
                   @click="planner.handleMatrixCellToggle(row, week.weekRef)"
                 >
-                  <i />
+                  <span
+                    class="mg-well mg-well--md"
+                    :class="{
+                      'mg-well--done': planner.weekCellState(row, week.weekRef) === 'checked',
+                      'mg-well--soft': planner.weekCellState(row, week.weekRef) === 'soft',
+                    }"
+                  />
                 </button>
                 <template v-if="expanded === planner.rowKey(row) && planner.canSplitTarget(row)">
                   <input

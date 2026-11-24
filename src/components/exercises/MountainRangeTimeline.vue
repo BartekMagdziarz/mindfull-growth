@@ -80,13 +80,13 @@
         class="cursor-pointer"
         @click="$emit('select', pt.event.id)"
       >
-        <circle
+        <!-- The app's dot in the event's emotion colour; the picked one grows. -->
+        <DsWellSvg
           :cx="pt.x"
           :cy="pt.y"
-          :r="selectedEventId === pt.event.id ? 7 : 5"
-          :fill="pt.color"
-          :class="selectedEventId === pt.event.id ? 'stroke-primary' : 'stroke-surface'"
-          :stroke-width="selectedEventId === pt.event.id ? 2.5 : 1.5"
+          :r="selectedEventId === pt.event.id ? 9 : 6.5"
+          :field="`color-mix(in oklab, ${pt.color} 45%, var(--mg-color-paper))`"
+          :mark="pt.color"
         />
         <text
           :x="pt.x"
@@ -147,6 +147,7 @@ import { useEmotionStore } from '@/stores/emotion.store'
 import { getGroup } from '@/domain/emotionGroups'
 import { getQuadrant } from '@/domain/emotion'
 import { useT } from '@/composables/useT'
+import DsWellSvg from '@/design-system/components/DsWellSvg.vue'
 
 const { t } = useT()
 

@@ -7,7 +7,11 @@
         class="mg-v2-thread__item"
         :class="threadClass(group.items, index === currentGroupIndex)"
       >
-        <span class="mg-v2-thread__dot" aria-hidden="true" />
+        <span
+          class="mg-v2-thread__dot mg-well mg-well--sm"
+          :class="dotClass(group.items, index === currentGroupIndex)"
+          aria-hidden="true"
+        />
         <AppCard padding="lg" class="space-y-4">
           <h3 class="likert-question likert-question--title">{{ t(group.scale.labelKey) }}</h3>
 
@@ -48,7 +52,11 @@
         :class="threadClass([item], item.id === currentItemId)"
         :data-item-id="item.id"
       >
-        <span class="mg-v2-thread__dot" aria-hidden="true" />
+        <span
+          class="mg-v2-thread__dot mg-well mg-well--sm"
+          :class="dotClass([item], item.id === currentItemId)"
+          aria-hidden="true"
+        />
         <AppCard padding="lg" class="space-y-4">
           <p class="likert-question">{{ tg(item.textKey) }}</p>
 
@@ -128,6 +136,12 @@ function threadClass(items: AssessmentItemDefinition[], current: boolean) {
     'mg-v2-thread__item--done': items.every(isAnswered),
     'mg-v2-thread__item--current': current,
   }
+}
+
+/** The thread's dot is the app's well: answered = done, the card to answer now = current. */
+function dotClass(items: AssessmentItemDefinition[], current: boolean): string {
+  if (items.every(isAnswered)) return 'mg-well--done'
+  return current ? 'mg-well--current' : ''
 }
 
 const vlqGroups = computed<VlqGroup[]>(() => {

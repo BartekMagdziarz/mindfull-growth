@@ -45,12 +45,13 @@
           <AppIcon name="arrow_back" />
         </button>
         <nav aria-label="Etapy rytuału">
-          <div class="qr-progress">
+          <div class="qr-progress mg-v2-pager">
             <button
               v-for="(step, index) in steps"
               :key="step.id"
               type="button"
-              :class="{ active: current === index }"
+              class="mg-v2-pager__step"
+              :class="{ 'active is-current': current === index }"
               :aria-current="current === index ? 'step' : undefined"
               :aria-label="`${index + 1}. ${step.label}`"
               :title="step.label"

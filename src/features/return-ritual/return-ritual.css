@@ -175,25 +175,12 @@
 .rr-cell.is-planned {
   background: var(--qr-field);
 }
-/* `.quiet-ritual button` zeroes borders; these controls need theirs. */
+/* „Planned” is the app's well (`mg-well`, done when planned). */
 .quiet-ritual .rr-plan {
-  display: grid;
-  place-items: center;
-  width: 1.6rem;
-  height: 1.6rem;
-  padding: 0;
-  border: 1.5px solid var(--qr-line-strong);
-  border-radius: var(--mg-radius-icon-field-a);
-  background: var(--qr-inner);
+  --mg-well-size: 1.6rem;
 }
-.quiet-ritual .rr-plan:hover {
-  border-color: var(--qr-accent);
-}
-.quiet-ritual .rr-plan[aria-pressed='true'] i {
-  width: 0.65rem;
-  height: 0.65rem;
-  border-radius: var(--mg-radius-icon-field-b);
-  background: var(--qr-accent);
+.quiet-ritual .rr-plan:not(.mg-well--done):hover {
+  background: var(--mg-color-sky-well);
 }
 .quiet-ritual .rr-done {
   display: grid;

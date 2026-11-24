@@ -12,7 +12,12 @@
           :aria-current="index === current ? 'step' : undefined"
         >
           <span class="mg-v2-wizard-shell__chapter">
-            <DsProgressMarker :done="index < current" :value="index + 1" :label="step.label" />
+            <DsProgressMarker
+              :done="index < current"
+              :current="index === current"
+              :value="index + 1"
+              :label="step.label"
+            />
             <span v-if="index === current" class="mg-v2-wizard-shell__chapter-copy">
               <strong>{{ step.label }}</strong>
               <small v-if="step.description">{{ step.description }}</small>

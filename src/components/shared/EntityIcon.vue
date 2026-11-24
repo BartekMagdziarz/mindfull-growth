@@ -9,7 +9,12 @@
     <span v-else-if="legacyEmoji" class="leading-none" :class="emojiClass">
       {{ legacyEmoji }}
     </span>
-    <span v-else class="rounded-full bg-current/65" :class="dotClass" />
+    <span
+      v-else
+      class="mg-pip"
+      :class="dotClass"
+      style="--mg-pip-color: color-mix(in srgb, currentColor 65%, transparent)"
+    />
   </span>
 </template>
 
@@ -50,7 +55,7 @@ const sizeConfig = computed(() => {
       container: 'h-5 w-5 text-mg-xs',
       iconFont: 'text-xs',
       emoji: 'text-mg-xs',
-      dot: 'h-1.5 w-1.5',
+      dot: '',
     }
   }
   if (props.size === 'md') {
@@ -58,7 +63,7 @@ const sizeConfig = computed(() => {
       container: 'h-8 w-8 text-sm',
       iconFont: 'text-base',
       emoji: 'text-sm',
-      dot: 'h-2 w-2',
+      dot: 'mg-pip--md',
     }
   }
   if (props.size === 'lg') {
@@ -66,14 +71,14 @@ const sizeConfig = computed(() => {
       container: 'h-10 w-10 text-base',
       iconFont: 'text-xl',
       emoji: 'text-base',
-      dot: 'h-2.5 w-2.5',
+      dot: 'mg-pip--lg',
     }
   }
   return {
     container: 'h-6 w-6 text-xs',
     iconFont: 'text-sm',
     emoji: 'text-xs',
-    dot: 'h-1.5 w-1.5',
+    dot: '',
   }
 })
 

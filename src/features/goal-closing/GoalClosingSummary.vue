@@ -12,7 +12,14 @@
         :key="item.id"
         :class="`is-${item.evaluation}`"
         :title="item.lastReadout"
-        >{{ item.title }}</span
+        ><i
+          class="mg-well mg-well--xs"
+          :class="{
+            'mg-well--done': item.evaluation === 'met',
+            'mg-well--missed': item.evaluation === 'missed',
+          }"
+          aria-hidden="true"
+        />{{ item.title }}</span
       >
     </p>
 

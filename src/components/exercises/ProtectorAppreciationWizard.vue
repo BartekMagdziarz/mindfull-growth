@@ -290,15 +290,15 @@
               >
                 <div class="flex gap-1.5">
                   <span
-                    class="w-2 h-2 rounded-full bg-primary animate-bounce"
+                    class="mg-pip mg-pip--md text-primary animate-bounce"
                     style="animation-delay: 0ms"
                   />
                   <span
-                    class="w-2 h-2 rounded-full bg-primary animate-bounce"
+                    class="mg-pip mg-pip--md text-primary animate-bounce"
                     style="animation-delay: 150ms"
                   />
                   <span
-                    class="w-2 h-2 rounded-full bg-primary animate-bounce"
+                    class="mg-pip mg-pip--md text-primary animate-bounce"
                     style="animation-delay: 300ms"
                   />
                 </div>

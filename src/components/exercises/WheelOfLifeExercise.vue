@@ -10,18 +10,19 @@
         }}
       </div>
       <div class="flex items-center gap-2">
-        <template v-for="(_step, i) in wizard.steps.value" :key="_step.id">
-          <div
-            class="w-3 h-3 rounded-full border transition-all"
-            :class="
-              i < wizard.currentStep.value
-                ? 'bg-primary/70 border-primary/60'
-                : i === wizard.currentStep.value
-                  ? 'bg-primary/20 border-primary/60 scale-110'
-                  : 'bg-transparent border-neu-border/30'
-            "
-          />
-        </template>
+        <span
+          v-for="(_step, i) in wizard.steps.value"
+          :key="_step.id"
+          class="mg-well mg-well--xs mg-well--sky"
+          :class="
+            i < wizard.currentStep.value
+              ? 'mg-well--done'
+              : i === wizard.currentStep.value
+                ? 'mg-well--current'
+                : ''
+          "
+          aria-hidden="true"
+        />
       </div>
     </div>
 
@@ -88,15 +89,15 @@
             </p>
             <ul class="space-y-2 text-sm text-on-surface-variant">
               <li class="flex gap-2">
-                <span class="mt-2 h-1.5 w-1.5 rounded-full bg-primary/70" />
+                <span class="mg-pip mt-2 text-primary/70" />
                 <span>{{ t('exerciseWizards.wheelOfLife.intro.instruction1') }}</span>
               </li>
               <li class="flex gap-2">
-                <span class="mt-2 h-1.5 w-1.5 rounded-full bg-primary/70" />
+                <span class="mg-pip mt-2 text-primary/70" />
                 <span>{{ t('exerciseWizards.wheelOfLife.intro.instruction2') }}</span>
               </li>
               <li class="flex gap-2">
-                <span class="mt-2 h-1.5 w-1.5 rounded-full bg-primary/70" />
+                <span class="mg-pip mt-2 text-primary/70" />
                 <span>{{ t('exerciseWizards.wheelOfLife.intro.instruction3') }}</span>
               </li>
             </ul>

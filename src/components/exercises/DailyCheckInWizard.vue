@@ -429,20 +429,15 @@
             <!-- Streak Display -->
             <div class="space-y-2">
               <div class="flex items-center gap-1.5 justify-center">
-                <div
-                  v-for="day in weekDays"
-                  :key="day.label"
-                  class="w-6 h-6 rounded-full flex items-center justify-center text-xs"
-                  :class="
-                    day.completed
-                      ? 'bg-primary text-on-primary'
-                      : day.isToday
-                        ? 'border-2 border-primary text-primary'
-                        : 'bg-neu-border/20 text-on-surface-variant'
-                  "
+                <!-- the week as the app's dots: checked-in day = done, today = ring -->
+                <span
+                  v-for="(day, index) in weekDays"
+                  :key="index"
+                  class="mg-well mg-well--icon mg-well--md"
+                  :class="day.completed ? 'mg-well--done' : day.isToday ? 'mg-well--current' : ''"
                 >
                   {{ day.label }}
-                </div>
+                </span>
               </div>
               <p class="text-xs text-on-surface-variant text-center">
                 {{

@@ -15,11 +15,7 @@
         class="inline-flex items-center gap-1 text-mg-chart font-bold uppercase tracking-wide text-on-surface-variant"
       >
         {{ column.label }}
-        <span
-          v-if="column.marker"
-          class="h-1.5 w-1.5 rounded-full bg-outline/60"
-          :title="column.marker"
-        />
+        <span v-if="column.marker" class="mg-pip text-outline/60" :title="column.marker" />
       </span>
       <span v-if="column.sublabel" class="text-mg-chart font-semibold text-on-surface">
         {{ column.sublabel }}

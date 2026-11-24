@@ -50,14 +50,13 @@
           >
             <button
               type="button"
-              class="rr-plan"
+              class="rr-plan mg-well"
+              :class="{ 'mg-well--done': draft.dayRefs.includes(day.dayRef) }"
               :aria-pressed="draft.dayRefs.includes(day.dayRef)"
               :aria-label="`Zaplanowany ${day.long}`"
               :title="draft.dayRefs.includes(day.dayRef) ? 'Zaplanowany' : 'Nie zaplanowany'"
               @click="emit('plannedToggle', weekDraftKey(draft), day.dayRef)"
-            >
-              <i />
-            </button>
+            />
             <!-- Entry control, by measurement mode -->
             <button
               v-if="modeOf(draft) === 'completion'"

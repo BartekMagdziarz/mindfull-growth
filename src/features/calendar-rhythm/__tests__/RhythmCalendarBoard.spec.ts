@@ -190,7 +190,7 @@ describe('Week scale · focus lens and reflection lens', () => {
     expect(cells[0].find('.sm-well--missed').exists()).toBe(true) // Mon: planned, nothing recorded
     expect(cells[1].find('.mg-well--done').exists()).toBe(true) // Tue: recorded
     expect(cells[2].find('.sm-well--today').exists()).toBe(true) // Wed = clock, planned
-    expect(cells[3].find('.sm-faint').exists()).toBe(true) // Thu: no plan
+    expect(cells[3].find('.sm-well--none').exists()).toBe(true) // Thu: no plan (flat data dot)
     expect(cells[4].find('.sm-well--future').exists()).toBe(true) // Fri: planned later
     expect(wrapper.text()).toContain('Fokus tygodnia')
   })
@@ -312,7 +312,7 @@ describe('Month scale · focus lens, reflection lens and day discs', () => {
     expect(discs).toHaveLength(7)
     expect(discs[0].classes()).toContain('sm-well--missed')
     expect(discs[1].classes()).toContain('mg-well--done')
-    expect(discs[2].classes()).toContain('sm-faint')
+    expect(discs[2].classes()).toContain('sm-well--none')
   })
 
   it('shows the monthly reflection with its anchors and direction verdicts', async () => {

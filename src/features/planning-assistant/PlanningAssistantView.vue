@@ -107,7 +107,7 @@
             </article>
             <div v-if="busy" class="pa-thinking" role="status">
               <span class="sr-only">Przygotowuję szkic.</span
-              ><i v-for="dot in 3" :key="dot" :style="{ '--pa-dot': dot }" /><button
+              ><i v-for="dot in 3" :key="dot" class="mg-pip" :style="{ '--pa-dot': dot }" /><button
                 class="pa-link"
                 type="button"
                 @click="cancel"

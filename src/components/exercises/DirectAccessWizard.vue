@@ -212,15 +212,15 @@
                   </p>
                   <div class="flex gap-1.5">
                     <span
-                      class="w-2 h-2 rounded-full bg-on-surface-variant/40 animate-bounce"
+                      class="mg-pip mg-pip--md text-on-surface-variant/40 animate-bounce"
                       style="animation-delay: 0ms"
                     />
                     <span
-                      class="w-2 h-2 rounded-full bg-on-surface-variant/40 animate-bounce"
+                      class="mg-pip mg-pip--md text-on-surface-variant/40 animate-bounce"
                       style="animation-delay: 150ms"
                     />
                     <span
-                      class="w-2 h-2 rounded-full bg-on-surface-variant/40 animate-bounce"
+                      class="mg-pip mg-pip--md text-on-surface-variant/40 animate-bounce"
                       style="animation-delay: 300ms"
                     />
                   </div>

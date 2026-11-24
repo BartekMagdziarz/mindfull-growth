@@ -6,20 +6,15 @@
     <!-- Week-in-review -->
     <div class="mb-6 flex flex-col items-center gap-2">
       <div class="flex items-center gap-1.5">
-        <div
-          v-for="day in weekDays"
-          :key="day.label"
-          class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium"
-          :class="
-            day.completed
-              ? 'bg-primary text-on-primary'
-              : day.isToday
-                ? 'border-2 border-primary text-primary'
-                : 'bg-neu-border/20 text-on-surface-variant'
-          "
+        <!-- the week as the app's dots: checked-in day = done, today = ring -->
+        <span
+          v-for="(day, index) in weekDays"
+          :key="index"
+          class="mg-well mg-well--icon mg-well--md mg-well--sky"
+          :class="day.completed ? 'mg-well--done' : day.isToday ? 'mg-well--current' : ''"
         >
           {{ day.label }}
-        </div>
+        </span>
       </div>
       <p class="text-sm text-on-surface-variant">
         {{

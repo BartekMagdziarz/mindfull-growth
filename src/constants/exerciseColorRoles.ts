@@ -110,23 +110,23 @@ export const ACTIVITY_CATEGORY_CLASSES: Record<
 > = {
   pleasure: {
     color: 'bg-activity-pleasure-soft text-activity-pleasure-on',
-    dot: 'bg-activity-pleasure',
+    dot: 'text-activity-pleasure',
   },
   mastery: {
     color: 'bg-activity-mastery-soft text-activity-mastery-on',
-    dot: 'bg-activity-mastery',
+    dot: 'text-activity-mastery',
   },
   social: {
     color: 'bg-activity-social-soft text-activity-social-on',
-    dot: 'bg-activity-social',
+    dot: 'text-activity-social',
   },
   physical: {
     color: 'bg-activity-physical-soft text-activity-physical-on',
-    dot: 'bg-activity-physical',
+    dot: 'text-activity-physical',
   },
   'values-aligned': {
     color: 'bg-activity-values-soft text-activity-values-on',
-    dot: 'bg-activity-values',
+    dot: 'text-activity-values',
   },
 }
 

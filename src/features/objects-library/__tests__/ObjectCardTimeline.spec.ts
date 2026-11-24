@@ -81,8 +81,8 @@ describe('ObjectCardTimeline', () => {
     const dots = container.querySelectorAll('.mg-v2-timeline__dot')
     // Three year dots plus the today disc at the sky's feathered edge.
     expect(dots).toHaveLength(4)
-    expect(dots[0]).toHaveClass('mg-v2-timeline__dot--done')
-    expect(dots[1]).toHaveClass('mg-v2-timeline__dot--current')
+    expect(dots[0]).toHaveClass('mg-well--done')
+    expect(dots[1]).toHaveClass('mg-well--soft')
     expect((dots[2] as HTMLElement).style.left).toBe('100%')
     expect(dots[3]).toHaveClass('mg-v2-timeline__dot--today')
     expect((dots[3] as HTMLElement).style.left).toBe('85%')

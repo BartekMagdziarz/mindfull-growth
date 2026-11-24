@@ -155,7 +155,7 @@
                   ]"
                   @click="newActivityCategory = cat.id"
                 >
-                  <span class="inline-block w-2 h-2 rounded-full mr-1.5" :class="cat.dotClass" />
+                  <span class="mg-pip mg-pip--md mr-1.5" :class="cat.dotClass" />
                   {{ cat.label }}
                 </button>
               </div>

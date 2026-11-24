@@ -437,17 +437,11 @@
               @click="chosenSolutionId = sol.id"
             >
               <div class="flex items-center gap-3">
-                <div
-                  class="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0"
-                  :class="
-                    chosenSolutionId === sol.id ? 'border-primary bg-primary' : 'border-outline'
-                  "
-                >
-                  <div
-                    v-if="chosenSolutionId === sol.id"
-                    class="w-2 h-2 rounded-full bg-on-primary"
-                  />
-                </div>
+                <span
+                  class="mg-well mg-well--sm"
+                  :class="{ 'mg-well--done': chosenSolutionId === sol.id }"
+                  aria-hidden="true"
+                />
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-medium text-on-surface">{{ sol.description }}</p>
                   <p class="text-xs text-on-surface-variant mt-0.5">
@@ -722,12 +716,11 @@
             </p>
             <div class="space-y-1.5">
               <div v-for="sol in rankedSolutions" :key="sol.id" class="flex items-center gap-2">
-                <AppIcon
-                  v-if="sol.id === chosenSolutionId"
-                  name="check_circle"
-                  class="text-base text-primary flex-shrink-0"
+                <span
+                  class="mg-well mg-well--sm"
+                  :class="{ 'mg-well--done': sol.id === chosenSolutionId }"
+                  aria-hidden="true"
                 />
-                <span v-else class="w-4 h-4 flex-shrink-0" />
                 <span
                   class="text-sm"
                   :class="

@@ -7,7 +7,7 @@
           v-for="(label, idx) in stepLabels"
           :key="label.key"
           type="button"
-          class="mg-v2-progress-marker wizard-step"
+          class="mg-well mg-well--icon mg-v2-progress-marker wizard-step"
           :class="dotClass(idx)"
           :aria-label="`Step ${idx + 1}: ${label.full}${idx < stepIndex ? ' (completed)' : idx === stepIndex ? ' (current)' : ''}`"
           @click="idx <= stepIndex && goToStep(label.key)"
@@ -423,10 +423,10 @@
             :key="entry.key"
             class="flex items-center gap-2 text-sm"
           >
-            <AppIcon
-              :name="entry.ok ? 'check_circle' : 'radio_button_unchecked'"
-              class="text-base"
-              :class="entry.ok ? 'text-success' : 'text-on-surface-variant/60'"
+            <span
+              class="mg-well mg-well--sm"
+              :class="{ 'mg-well--done': entry.ok }"
+              aria-hidden="true"
             />
             <span :class="entry.ok ? 'text-on-surface' : 'text-on-surface-variant'">
               {{ entry.label }}
@@ -633,9 +633,9 @@ const stepLabels = computed<Array<{ key: GoalWizardStep; full: string; short: st
 ])
 
 function dotClass(idx: number): string {
-  if (idx === stepIndex.value) return 'wizard-step--current'
-  if (idx < stepIndex.value) return 'mg-v2-progress-marker--done wizard-step--done'
-  return 'wizard-step--upcoming'
+  if (idx === stepIndex.value) return 'mg-well--current'
+  if (idx < stepIndex.value) return 'mg-well--done wizard-step--done'
+  return ''
 }
 
 function toggleTagMenu(menu: 'priority' | 'lifeArea'): void {
@@ -791,27 +791,12 @@ onBeforeUnmount(() => {
   background: transparent;
 }
 
+/* Step markers are the app's well carrying the SMART letter (base.css). */
 .wizard-step {
-  width: 2rem;
-  height: 2rem;
-}
-
-.wizard-step--current {
-  border-color: var(--mg-color-primary);
-  color: var(--mg-color-on-primary);
-  background: var(--mg-color-primary);
-}
-
-.wizard-step--done {
-  cursor: pointer;
+  --mg-well-size: 2rem;
 }
 
 .wizard-step--done:hover {
   transform: translateY(-1px);
-}
-
-.wizard-step--upcoming {
-  color: var(--mg-color-muted);
-  background: var(--mg-color-paper);
 }
 </style>

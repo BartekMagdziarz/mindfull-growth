@@ -107,11 +107,11 @@
                     {{ formatQuality(lowestQuality) }}
                   </p>
                   <div class="flex gap-1 mt-1">
-                    <div
+                    <span
                       v-for="n in 5"
                       :key="n"
-                      class="w-2.5 h-2.5 rounded-full"
-                      :class="n <= ratings[lowestQuality] ? 'bg-primary' : 'bg-neu-border/30'"
+                      class="mg-well mg-well--data mg-well--xs"
+                      :class="{ 'mg-well--done': n <= ratings[lowestQuality] }"
                     />
                   </div>
                 </div>
@@ -481,10 +481,7 @@
               <!-- Legend -->
               <div class="flex flex-wrap gap-x-3 gap-y-1 mt-2">
                 <div v-for="q in allQualities" :key="`legend-${q}`" class="flex items-center gap-1">
-                  <div
-                    class="w-2.5 h-2.5 rounded-full"
-                    :style="{ backgroundColor: qualityColor(q) }"
-                  />
+                  <span class="mg-pip mg-pip--lg" :style="{ '--mg-pip-color': qualityColor(q) }" />
                   <span class="text-mg-chart text-on-surface-variant">{{ formatQuality(q) }}</span>
                 </div>
               </div>

@@ -165,7 +165,7 @@
                       'priority-boundary-row--editing': isEditingBoundary(field.kind, item),
                     }"
                   >
-                    <span aria-hidden="true" class="priority-boundary-row__dot" />
+                    <span aria-hidden="true" class="priority-boundary-row__dot mg-pip" />
                     <input
                       v-if="isEditingBoundary(field.kind, item)"
                       :ref="focusBoundaryEditor"
@@ -917,12 +917,10 @@ onMounted(() => {
   border-color: var(--mg-color-primary);
 }
 
+/* The bullet is a pip (`mg-pip`) in muted ink. */
 .priority-boundary-row__dot {
-  width: 0.375rem;
-  height: 0.375rem;
+  --mg-pip-color: var(--mg-color-muted);
   margin-top: 0.95rem;
-  border-radius: var(--mg-radius-pill);
-  background: var(--mg-color-muted);
 }
 
 .priority-boundary-row__text,

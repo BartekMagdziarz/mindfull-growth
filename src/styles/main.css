@@ -530,83 +530,6 @@
     -moz-appearance: textfield;
   }
 
-  /* Neumorphic checkbox (circular). Unchecked = RAISED (button-like, invites
-     a tap); :checked = INSET with color fill (pressed-in, confirms done). */
-  .neo-checkbox {
-    appearance: none;
-    -webkit-appearance: none;
-    width: 1rem;
-    height: 1rem;
-    border-radius: 9999px;
-    border: 1px solid rgb(var(--neo-border) / 0.4);
-    background: linear-gradient(
-      145deg,
-      rgb(var(--neo-surface-top)),
-      rgb(var(--neo-surface-bottom))
-    );
-    box-shadow:
-      -1.5px -1.5px 3px rgb(var(--neo-shadow-light) / 0.85),
-      1.5px 1.5px 3px rgb(var(--neo-shadow-dark) / 0.33);
-    display: inline-grid;
-    place-content: center;
-    cursor: pointer;
-    flex-shrink: 0;
-    transition:
-      border-color 160ms ease,
-      background-color 160ms ease,
-      box-shadow 160ms ease;
-  }
-
-  .neo-checkbox::before {
-    content: '';
-    width: 0.24rem;
-    height: 0.48rem;
-    border-right: 2px solid rgb(var(--neo-accent-text));
-    border-bottom: 2px solid rgb(var(--neo-accent-text));
-    transform: rotate(45deg) scale(0);
-    transform-origin: center;
-    transition: transform 130ms ease-out;
-    margin-top: -0.02rem;
-  }
-
-  .neo-checkbox:checked {
-    border-color: rgb(var(--color-primary));
-    background: linear-gradient(
-      160deg,
-      rgb(var(--color-primary)),
-      rgb(var(--color-primary) / 0.78)
-    );
-    box-shadow:
-      inset 1px 1.5px 2.5px rgb(var(--sky-600) / 0.5),
-      inset -1px -1px 2px rgb(var(--sky-200) / 0.55);
-  }
-
-  .neo-checkbox:checked::before {
-    transform: rotate(45deg) scale(1);
-  }
-
-  .neo-checkbox:focus-visible {
-    outline: none;
-    box-shadow:
-      -1.5px -1.5px 3px rgb(var(--neo-shadow-light) / 0.85),
-      1.5px 1.5px 3px rgb(var(--neo-shadow-dark) / 0.33),
-      0 0 0 2px rgb(var(--neo-surface-top)),
-      0 0 0 4px rgb(var(--neo-focus) / 0.45);
-  }
-
-  .neo-checkbox:checked:focus-visible {
-    box-shadow:
-      inset 1px 1.5px 2.5px rgb(var(--sky-600) / 0.5),
-      inset -1px -1px 2px rgb(var(--sky-200) / 0.55),
-      0 0 0 2px rgb(var(--neo-surface-top)),
-      0 0 0 4px rgb(var(--neo-focus) / 0.45);
-  }
-
-  .neo-checkbox:disabled {
-    cursor: not-allowed;
-    opacity: 0.55;
-  }
-
   /* Neumorphic toggle switch.
      Off = subtle RAISED neutral track (unfilled, inviting); on = INSET
      colored track (pressed-in, confirms engaged). Thumb stays raised on top
@@ -681,40 +604,6 @@
       -2px -2px 4px rgb(var(--neo-shadow-light) / 0.8),
       2px 2px 4px rgb(var(--neo-shadow-dark) / 0.33);
     transition: width 300ms ease;
-  }
-
-  /* Neumorphic step circle states.
-     Completed = INSET (done, locked in); active = RAISED with strong accent
-     (current focus, invites action); future = RAISED neutral (awaiting). */
-  .neo-step-completed {
-    background: linear-gradient(
-      160deg,
-      rgb(var(--neo-accent-end) / 0.75),
-      rgb(var(--neo-accent-start) / 0.6)
-    );
-    color: rgb(var(--neo-accent-text));
-    box-shadow:
-      inset 1.5px 2px 4px rgb(var(--sky-600) / 0.45),
-      inset -1.5px -1.5px 3px rgb(var(--sky-200) / 0.5);
-  }
-  .neo-step-active {
-    background: linear-gradient(
-      135deg,
-      rgb(var(--neo-accent-start) / 0.65),
-      rgb(var(--neo-accent-end) / 0.55)
-    );
-    color: rgb(var(--neo-accent-text));
-    box-shadow:
-      -4px -4px 8px rgb(var(--neo-shadow-light) / 0.8),
-      4px 4px 8px rgb(var(--neo-shadow-dark) / 0.33);
-  }
-  .neo-step-future {
-    background: rgb(var(--neo-surface-base));
-    color: rgb(var(--neo-muted));
-    border: 1px solid rgb(var(--neo-border) / 0.08);
-    box-shadow:
-      -2px -2px 4px rgb(var(--neo-shadow-light) / 0.8),
-      2px 2px 4px rgb(var(--neo-shadow-dark) / 0.33);
   }
 
   /* Neumorphic footer bar */
@@ -860,7 +749,6 @@
   .neo-pill,
   .neo-icon-button,
   .neo-input,
-  .neo-checkbox,
   .neo-toggle-track,
   .neo-toggle-thumb,
   .neo-progress-fill,
@@ -884,8 +772,7 @@
   .neo-surface,
   .neo-pill,
   .neo-icon-button,
-  .neo-input,
-  .neo-checkbox {
+  .neo-input {
     border-color: rgb(var(--neo-border));
     box-shadow:
       0 0 0 1px rgb(var(--neo-border) / 0.95),

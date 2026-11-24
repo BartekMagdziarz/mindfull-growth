@@ -1,7 +1,12 @@
 <template>
-  <!-- tydzień: 7 slotów dni; miesiąc: cichy słupek „dni z wpisem / dni miesiąca” -->
+  <!-- tydzień: 7 kropek dni (kropka aplikacji); miesiąc: cichy słupek „dni z wpisem / dni miesiąca” -->
   <span v-if="data.daySlots" class="entry-slots" :aria-label="label" :title="label" role="img">
-    <i v-for="(on, index) in data.daySlots" :key="index" :class="{ on }" />
+    <i
+      v-for="(on, index) in data.daySlots"
+      :key="index"
+      class="mg-well mg-well--data mg-well--xs"
+      :class="{ 'on mg-well--done': on }"
+    />
   </span>
   <span v-else class="entry-bar" :aria-label="label" :title="label" role="img">
     <i
@@ -31,16 +36,7 @@ const label = computed(
   gap: 3px;
   align-items: center;
 }
-.entry-slots i {
-  display: inline-block;
-  width: 9px;
-  height: 9px;
-  border-radius: var(--mg-radius-pill);
-  background: var(--cp-mark-dim);
-}
-.entry-slots i.on {
-  background: var(--cp-mark);
-}
+/* a day with an entry = the app's done dot; without = the flat data tint */
 .entry-bar {
   position: relative;
   display: inline-block;

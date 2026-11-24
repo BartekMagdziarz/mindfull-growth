@@ -26,14 +26,8 @@
             :aria-label="`Step ${idx + 1}: ${label}`"
             :aria-current="idx === stepIndex ? 'step' : undefined"
             :disabled="idx > stepIndex"
-            class="mg-v2-stepper__dot"
-            :class="
-              idx < stepIndex
-                ? 'mg-v2-stepper__dot--done cursor-pointer'
-                : idx === stepIndex
-                  ? 'mg-v2-stepper__dot--current'
-                  : ''
-            "
+            class="mg-v2-stepper__dot mg-well"
+            :class="idx < stepIndex ? 'mg-well--done' : idx === stepIndex ? 'mg-well--current' : ''"
             @click="idx < stepIndex && goToStep(STEPS[idx])"
           />
         </div>

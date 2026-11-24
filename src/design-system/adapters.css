@@ -74,11 +74,6 @@
   background: transparent;
 }
 
-.mg-design-v2 :where(.neo-checkbox) {
-  border-color: var(--mg-color-border);
-  box-shadow: var(--mg-shadow-raised-sm);
-}
-
 .mg-design-v2 :where(.neo-pill) {
   border-color: var(--mg-color-border);
   border-radius: var(--mg-radius-pill);
@@ -138,32 +133,6 @@
   color: var(--mg-color-primary-strong);
   background: var(--mg-color-paper);
   box-shadow: var(--mg-shadow-raised-sm);
-}
-
-/* Wizard step dots → sketch stepper (done / current / future). */
-.mg-design-v2 :where(.neo-step-completed) {
-  border: 0;
-  border-radius: var(--mg-radius-organic-b);
-  color: var(--mg-color-on-primary);
-  background: var(--mg-color-primary);
-  box-shadow: none;
-}
-
-.mg-design-v2 :where(.neo-step-active) {
-  border: 0;
-  border-radius: var(--mg-radius-organic-a);
-  color: var(--mg-color-on-primary);
-  background: var(--mg-color-ink);
-  box-shadow: var(--mg-shadow-stepper-halo);
-  transform: rotate(-2deg);
-}
-
-.mg-design-v2 :where(.neo-step-future) {
-  border: 1.5px dashed var(--mg-color-primary-strong);
-  border-radius: var(--mg-radius-organic-b);
-  color: var(--mg-color-muted);
-  background: transparent;
-  box-shadow: none;
 }
 
 /* Back button → organic icon control in the accent. */

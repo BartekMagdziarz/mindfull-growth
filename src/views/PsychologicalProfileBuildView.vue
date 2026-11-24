@@ -29,7 +29,7 @@
                 :disabled="idx > stepIndex"
                 :aria-label="stepAriaLabel(step, idx)"
                 :aria-current="idx === stepIndex ? 'step' : undefined"
-                class="mg-v2-stepper__dot"
+                class="mg-v2-stepper__dot mg-well mg-well--sky"
                 :class="stepDotClass(idx)"
                 :data-test-step-dot="step"
                 @click="handleStepDot(step, idx)"
@@ -249,8 +249,8 @@ const backDisabled = computed(
 )
 
 function stepDotClass(idx: number): string {
-  if (idx < stepIndex.value) return 'mg-v2-stepper__dot--done'
-  if (idx === stepIndex.value) return 'mg-v2-stepper__dot--current'
+  if (idx < stepIndex.value) return 'mg-well--done'
+  if (idx === stepIndex.value) return 'mg-well--current'
   return ''
 }
 

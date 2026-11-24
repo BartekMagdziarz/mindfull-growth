@@ -42,12 +42,8 @@
       :stroke-opacity="piece.isFuture ? 0.4 : 1"
     />
 
-    <!-- Endpoint: the last measured value as a done well (sky-field disc,
-         state-blue core), the same mark a finished task gets in Today. -->
-    <g v-if="endpoint">
-      <circle :cx="endpoint.x" :cy="endpoint.y" r="7" fill="var(--mg-color-sky-field)" />
-      <circle :cx="endpoint.x" :cy="endpoint.y" r="4" fill="var(--mg-color-state)" />
-    </g>
+    <!-- Endpoint: the last measured value is THE done dot of „Plan dnia”. -->
+    <DsWellSvg v-if="endpoint" :cx="endpoint.x" :cy="endpoint.y" :r="7" />
 
     <!-- Period labels -->
     <text
@@ -70,6 +66,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useT } from '@/composables/useT'
+import DsWellSvg from '@/design-system/components/DsWellSvg.vue'
 import type { ObjectsLibraryChartPoint } from '@/services/objectsLibraryQueries'
 import {
   VIEWBOX_W,

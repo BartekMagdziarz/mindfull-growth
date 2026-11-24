@@ -23,7 +23,7 @@
       </i>
       <i
         v-if="live && previewState != null && previewState !== state"
-        class="ls-track__ghost-dot"
+        class="mg-well mg-well--data ls-track__ghost-dot"
         :style="{ '--ls-track-at': String(previewState) }"
       />
       <!-- kropka stanu: ta sama studnia co wykonanie w „Dzisiaj”, w kolorze słupka -->
@@ -145,7 +145,8 @@ const label = computed(() => {
   top: var(--ls-track-inset);
   left: calc((var(--ls-track-at) - 1) * var(--ls-track-step) + var(--ls-track-inset));
 }
-.ls-track__dot {
+.ls-track__dot,
+.ls-track__ghost-dot {
   --mg-well-size: calc(var(--ls-track-size) - 2 * var(--ls-track-inset));
 }
 
@@ -174,11 +175,7 @@ const label = computed(() => {
   background: color-mix(in srgb, var(--mg-color-data-fill) 28%, transparent);
 }
 .ls-track__ghost-dot {
-  width: calc(var(--ls-track-size) - 2 * var(--ls-track-inset));
-  height: calc(var(--ls-track-size) - 2 * var(--ls-track-inset));
-  border-radius: var(--mg-radius-organic-a);
-  background: var(--mg-color-veil-strong);
-  box-shadow: var(--mg-shadow-inset-sm);
+  --mg-well-ground: var(--mg-color-veil-strong);
 }
 /* koniec słupka: cichy znak „to się przesuwa”, widoczny, gdy budzi się oś obciążenia */
 .ls-track__grip {

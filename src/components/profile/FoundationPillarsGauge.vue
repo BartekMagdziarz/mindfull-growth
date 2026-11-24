@@ -39,14 +39,13 @@
             :class="pillar.satisfied ? 'border-primary-strong/70' : 'border-on-surface-variant/40'"
             :style="{ bottom: pillar.linePct + '%' }"
           />
-          <!-- Satisfied check -->
+          <!-- Satisfied: the app's done dot -->
           <Transition name="fade">
             <span
               v-if="pillar.satisfied"
-              class="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-neu-base text-primary shadow-mg-raised-sm"
-            >
-              <AppIcon name="check" class="text-sm" />
-            </span>
+              class="pillar-done mg-well mg-well--done mg-well--sm"
+              aria-hidden="true"
+            />
           </Transition>
         </div>
 
@@ -111,6 +110,12 @@ const ariaLabel = computed(() =>
 </script>
 
 <style scoped>
+.pillar-done {
+  position: absolute;
+  top: 0.375rem;
+  right: 0.375rem;
+}
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.4s ease;

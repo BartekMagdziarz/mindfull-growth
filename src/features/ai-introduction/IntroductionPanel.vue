@@ -71,7 +71,15 @@
           :disabled="busy || record.status !== 'active'"
           @click="choose(area)"
         >
-          <i aria-hidden="true" :data-status="record.coverage[area]" />
+          <i
+            class="mg-well mg-well--xs"
+            :class="{
+              'mg-well--done': record.coverage[area] === 'answered',
+              'mg-well--ghost': record.coverage[area] === 'skipped',
+            }"
+            aria-hidden="true"
+            :data-status="record.coverage[area]"
+          />
           <span class="sr-only"
             >{{ INTRO_LABELS[area]
             }}{{
@@ -437,16 +445,7 @@ onBeforeUnmount(() => {
   color: var(--mg-color-primary-strong);
   box-shadow: var(--mg-shadow-inset-sm);
 }
-.introduction-steps i {
-  width: 0.55rem;
-  height: 0.55rem;
-  border: 1px solid var(--mg-color-muted);
-  border-radius: 50%;
-}
-.introduction-steps i[data-status='answered'] {
-  background: var(--mg-color-primary-strong);
-  border-color: var(--mg-color-primary-strong);
-}
+/* Each area's dot is the app's well: discussed = done, skipped = ghost. */
 .introduction-area {
   text-align: center;
   font-size: var(--mg-font-size-sm);

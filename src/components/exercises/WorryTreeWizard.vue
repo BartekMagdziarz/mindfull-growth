@@ -107,17 +107,11 @@
             @click="selectWorryType('real-problem')"
           >
             <div class="flex items-center gap-3">
-              <div
-                class="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0"
-                :class="
-                  worryType === 'real-problem' ? 'border-primary bg-primary' : 'border-outline'
-                "
-              >
-                <div
-                  v-if="worryType === 'real-problem'"
-                  class="w-2 h-2 rounded-full bg-on-primary"
-                />
-              </div>
+              <span
+                class="mg-well mg-well--sm"
+                :class="{ 'mg-well--done': worryType === 'real-problem' }"
+                aria-hidden="true"
+              />
               <div>
                 <p class="text-base font-semibold text-on-surface">
                   {{ t('exerciseWizards.worryTree.classify.realProblem') }}
@@ -138,17 +132,11 @@
             @click="selectWorryType('hypothetical')"
           >
             <div class="flex items-center gap-3">
-              <div
-                class="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0"
-                :class="
-                  worryType === 'hypothetical' ? 'border-primary bg-primary' : 'border-outline'
-                "
-              >
-                <div
-                  v-if="worryType === 'hypothetical'"
-                  class="w-2 h-2 rounded-full bg-on-primary"
-                />
-              </div>
+              <span
+                class="mg-well mg-well--sm"
+                :class="{ 'mg-well--done': worryType === 'hypothetical' }"
+                aria-hidden="true"
+              />
               <div>
                 <p class="text-base font-semibold text-on-surface">
                   {{ t('exerciseWizards.worryTree.classify.hypothetical') }}
@@ -194,12 +182,11 @@
             @click="selectCanActNow(true)"
           >
             <div class="flex items-center gap-3">
-              <div
-                class="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0"
-                :class="canActNow === true ? 'border-primary bg-primary' : 'border-outline'"
-              >
-                <div v-if="canActNow === true" class="w-2 h-2 rounded-full bg-on-primary" />
-              </div>
+              <span
+                class="mg-well mg-well--sm"
+                :class="{ 'mg-well--done': canActNow === true }"
+                aria-hidden="true"
+              />
               <div>
                 <p class="text-base font-semibold text-on-surface">
                   {{ t('exerciseWizards.worryTree.canAct.yesTitle') }}
@@ -220,12 +207,11 @@
             @click="selectCanActNow(false)"
           >
             <div class="flex items-center gap-3">
-              <div
-                class="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0"
-                :class="canActNow === false ? 'border-primary bg-primary' : 'border-outline'"
-              >
-                <div v-if="canActNow === false" class="w-2 h-2 rounded-full bg-on-primary" />
-              </div>
+              <span
+                class="mg-well mg-well--sm"
+                :class="{ 'mg-well--done': canActNow === false }"
+                aria-hidden="true"
+              />
               <div>
                 <p class="text-base font-semibold text-on-surface">
                   {{ t('exerciseWizards.worryTree.canAct.noTitle') }}

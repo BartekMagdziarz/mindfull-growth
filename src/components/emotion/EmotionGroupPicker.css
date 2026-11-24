@@ -84,6 +84,7 @@
   line-height: normal;
   background: var(--q-bottom, var(--mg-color-mist));
 }
+/* ds: not-a-dot — the ✕ that removes a chip is a button */
 .fx {
   width: 17px;
   height: 17px;
@@ -163,13 +164,10 @@
 }
 /* w tej ćwiartce też coś wybrano */
 .mdot {
+  --mg-pip-color: var(--q-sel);
   position: absolute;
   top: 2px;
   right: 2px;
-  width: 6px;
-  height: 6px;
-  border-radius: var(--mg-radius-pill);
-  background: var(--q-sel);
 }
 
 /* ---- kafel Kompasu: wspólna skóra ćwiartek i grup ----
@@ -250,24 +248,15 @@
   justify-content: flex-end;
   gap: 3px;
 }
-.cq-dots > i {
-  width: 0.8rem;
-  height: 0.8rem;
-  display: grid;
-  place-items: center;
-  border-radius: var(--mg-radius-organic-a);
-  background: var(--dot-ring);
-  box-shadow: var(--mg-shadow-inset-sm);
+/* kropki = kropka aplikacji (.mg-well) w kolorach ćwiartki: pole = jasny pastel,
+   środek = kolor wyboru; kształt i proporcje ze studni (58 %) */
+.cq-dots,
+.ct-dots {
+  --mg-well-field: var(--dot-ring);
+  --mg-well-mark: var(--q-sel);
 }
-.cq-dots > i:nth-child(even) {
-  border-radius: var(--mg-radius-organic-b);
-}
-.cq-dots > i::after {
-  content: '';
-  width: 56%;
-  aspect-ratio: 1;
-  border-radius: var(--mg-radius-organic-c);
-  background: var(--q-sel);
+.cq-dots > .mg-well {
+  --mg-well-size: 0.8rem;
 }
 
 /* zewnętrzne kółko kropki: jasny pastel ćwiartki, jaśniejszy niż wybrany kafel,
@@ -365,41 +354,13 @@
   justify-content: center;
   gap: 4px;
 }
-/* kropka natężenia — język kropek zadania (organiczna, wciśnięta, wypełniona) */
+/* kropka natężenia = kropka aplikacji (.mg-well, stany w szablonie: pełna do
+   poziomu, miękka w podglądzie, puste miejsce = samo pole) */
 .ct-dot {
-  flex: none;
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: var(--dot);
-  height: var(--dot);
-  padding: 0;
-  border: 0;
-  cursor: pointer;
-  border-radius: var(--mg-radius-organic-a);
-  background: var(--dot-ring);
-  box-shadow: var(--mg-shadow-inset-sm);
+  --mg-well-size: var(--dot);
 }
-.ct-dot:nth-child(even) {
-  border-radius: var(--mg-radius-organic-b);
-}
-.ct-dot::after {
-  content: '';
-  width: 56%;
-  aspect-ratio: 1;
-  border-radius: var(--mg-radius-organic-c);
-  background: var(--q-sel);
-  transform: rotate(-2deg);
-}
-/* puste miejsce (na hover / fokus kafla) — samo jasne kółko, bez wypełnienia */
-.ct-dot.is-empty::after {
-  opacity: 0;
-}
-/* podgląd poziomu pod kursorem */
-.ct-dot.is-preview::after {
-  opacity: 0.55;
-}
-.ct-dot.is-dimmed:not(.is-empty)::after {
+/* poziomy ponad wskazanym pod kursorem bledną */
+.ct-dot.is-dimmed.mg-well--done::after {
   opacity: 0.2;
 }
 

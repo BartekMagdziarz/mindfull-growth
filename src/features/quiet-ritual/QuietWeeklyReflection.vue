@@ -52,14 +52,14 @@
                 :class="{ 'qr-col-selected': selectedDay === index }"
                 :title="cellTitle(cell, index)"
               >
-                <!-- wykonanie = dysk z „Planu dnia” (.mg-well): pusty = plan, z kleksem = zapis -->
+                <!-- wykonanie = kropka aplikacji (.mg-well): pusta = plan, z kropką = zapis, samo pole = częściowo -->
                 <span
                   v-if="row.entryMode === 'completion' || row.entryMode === 'multi-completion'"
                   class="qr-record-dot"
                   :class="{
                     'mg-well': cell.planned || cell.value !== null,
                     'mg-well--done recorded': cell.met ?? cell.value !== null,
-                    partial: cell.value !== null && cell.met === false,
+                    'mg-well--lit partial': cell.value !== null && cell.met === false,
                     planned: cell.planned,
                   }"
                 >
@@ -330,7 +330,11 @@
 
               <ul v-if="backfilledMoments(block).length" class="qr-path-added">
                 <li v-for="moment in backfilledMoments(block)" :key="moment.id">
-                  <i :style="partStyle(momentPart(moment))" aria-hidden="true" />
+                  <i
+                    class="mg-pip mg-pip--lg mg-pip--edge"
+                    :style="partStyle(momentPart(moment))"
+                    aria-hidden="true"
+                  />
                   <span
                     ><b>{{ momentDayLabel(moment) }}</b> ·
                     {{ partLabel(block, momentPart(moment)) }} · {{ responseLabels(moment) }}</span
@@ -365,8 +369,8 @@
                       v-for="day in weekDays"
                       :key="day"
                       type="button"
-                      class="mg-well qr-path-bf__day"
-                      :class="{ 'is-picked': backfillForm.day === day }"
+                      class="mg-well mg-well--icon mg-well--md qr-path-bf__day"
+                      :class="{ 'is-picked mg-well--done': backfillForm.day === day }"
                       role="radio"
                       :aria-checked="backfillForm.day === day"
                       @click="backfillForm.day = day"
@@ -392,7 +396,9 @@
                       :aria-checked="backfillForm.part === part"
                       @click="backfillForm.part = part"
                     >
-                      <i aria-hidden="true" />{{ partLabel(block, part) }}
+                      <i class="mg-pip mg-pip--lg mg-pip--edge" aria-hidden="true" />{{
+                        partLabel(block, part)
+                      }}
                     </button>
                   </div>
                 </div>
@@ -442,7 +448,7 @@
                 <li v-for="moment in weekMoments(block)" :key="moment.id">
                   <span class="qr-path-moments__day">{{ momentDayLabel(moment) }}</span>
                   <i
-                    class="qr-path-moments__dot"
+                    class="qr-path-moments__dot mg-pip mg-pip--lg mg-pip--edge"
                     :style="partStyle(momentPart(moment))"
                     aria-hidden="true"
                   />
@@ -700,7 +706,14 @@
               :class="`qr-ctx-action qr-ctx-action--${toneFor(row.key)}`"
               :title="row.title"
             >
-              <AppIcon :name="row.icon" /><span>{{ row.title }}</span
+              <i
+                class="mg-well mg-well--xs"
+                :class="{
+                  'mg-well--done': toneFor(row.key) === 'met',
+                  'mg-well--missed': toneFor(row.key) === 'missed',
+                }"
+                aria-hidden="true"
+              /><AppIcon :name="row.icon" /><span>{{ row.title }}</span
               ><b>{{ row.result }}</b>
             </li>
           </ul>

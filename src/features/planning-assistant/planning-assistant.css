@@ -551,11 +551,9 @@
   gap: var(--mg-space-2);
   padding: var(--mg-space-3) var(--mg-space-2);
 }
-.pa-thinking > i {
-  width: 5px;
-  height: 5px;
-  border-radius: var(--mg-radius-pill);
-  background: var(--mg-color-primary);
+/* Three breathing pips (`mg-pip`) while the draft is prepared. */
+.pa-thinking > .mg-pip {
+  --mg-pip-color: var(--mg-color-primary);
   animation: pa-breathe 1.5s ease-in-out infinite;
   animation-delay: calc(var(--pa-dot) * 0.15s);
 }

@@ -5,7 +5,9 @@
  * Skanuje całe `src/` (.vue, .css, .ts) i liczy linie, które omijają system:
  * surowe kolory, lokalne cienie, lokalne font-family, literalne font-size i
  * border-radius, klasy legacy `neo-*` oraz utility Tailwinda zastępowane przez
- * tokeny (`rounded-*` poza `rounded-full`, `shadow-neu-*`, `text-[Npx]`).
+ * tokeny (`rounded-*` poza `rounded-full`, `shadow-neu-*`, `text-[Npx]`) oraz
+ * kropki stanu narysowane poza wspólną studnią `.mg-well` (reguły blokowe CSS +
+ * małe koła Tailwinda; wyjątek = komentarz `ds: not-a-dot — <powód>`).
  *
  * Zapadka: `scripts/design-system-baseline.json` trzyma liczbę naruszeń per
  * plik. Sprawdzenie kończy się błędem, gdy jakikolwiek plik ma WIĘCEJ naruszeń
@@ -49,6 +51,7 @@ const exemptRules = {
   'src/domain/emotionFamily.ts': ['rawColor'], // j.w.
   'src/features/program-path/partColors.ts': ['rawColor', 'rawSky'], // kolory części IFS (K2)
   'src/domain/loadState.ts': ['rawSky'], // paleta pary obciążenie/stan (D10), kanały dla alf
+  'src/components/shared/ColorSwatchPicker.vue': ['tailwindDot'], // próbki kolorów do wyboru, nie kropki stanu
 }
 
 const rules = {
@@ -90,6 +93,117 @@ const rules = {
     label: 'utility text-[Npx]',
     test: l => /\btext-\[\d+(?:\.\d+)?px\]/.test(l),
   },
+  // Kropka = studnia (decyzja 2026-11-24): małe koło z Tailwinda (radio, kropka
+  // stanu, kropka oceny) rysowane w szablonie zamiast `mg-well` / DsWell.
+  tailwindDot: {
+    label: 'kropka z Tailwinda (rounded-full w-N h-N) — użyj mg-well / DsWell albo mg-pip',
+    test: l => {
+      if (!/\brounded-full\b/.test(l) || /\bmg-(?:well|pip)\b|\banimate-|ds:\s*not-a-dot/.test(l))
+        return false
+      const size = axis =>
+        l.match(new RegExp(`(?<![\\w-])${axis}-(1|1\\.5|2|2\\.5|3|3\\.5|4|5)(?![\\w.])`))?.[1]
+      return size('w') !== undefined && size('w') === size('h')
+    },
+  },
+}
+
+// Reguły blokowe (całe reguły CSS w .css i <style> plików .vue).
+// localDot: okrągły znak stanu narysowany lokalnie — kropka w kropce
+// (pseudo-element o rozmiarze w % rodzica) albo klasa nazwana jak kropka
+// (dot / radio / well / disc / blob / pip). Kropka stanu ma JEDNĄ anatomię:
+// `.mg-well` (base.css) / DsWell / DsWellSvg; mała pełna kropka (klucz koloru,
+// wypunktowanie, licznik) to `.mg-pip`. Rzecz, która tylko jest okrągła
+// (gałka przełącznika, próbka koloru do wyboru), deklaruje to komentarzem
+// `ds: not-a-dot — <powód>` przy regule.
+const ROUND_RADIUS =
+  /border-radius\s*:\s*(?:50%|100%|9{3,4}px|var\(--mg-radius-(?:organic|pill|full)[\w-]*\))/i
+const DOT_NAME = /(?:^|[-_])(?:dot|dots|radio|well|disc|blob|pip)(?:$|[-_])/i
+const paints = body =>
+  /\bbackground(?:-color)?\s*:\s*(?!\s*(?:none|transparent)\s*[;}]?$)/im.test(body) ||
+  /\bborder(?:-width)?\s*:\s*(?!\s*(?:0|none)\b)\S/i.test(body)
+/** Koło, nie pasek: aspect-ratio 1 albo ta sama szerokość i wysokość. */
+const isSquare = body => {
+  if (/aspect-ratio\s*:\s*1\b/.test(body)) return true
+  const w = body.match(/(?:^|[\s;{])width\s*:\s*([^;]+)/)?.[1]?.trim()
+  const h = body.match(/(?:^|[\s;{])height\s*:\s*([^;]+)/)?.[1]?.trim()
+  return Boolean(w) && w === h
+}
+/** Rozmiar kropki, nie kontrolki: szerokość ≤ 20 px (1.25rem). */
+const isSmall = body => {
+  const w = body.match(/(?:^|[\s;{])width\s*:\s*([\d.]+)(px|rem)\s*[;}]?/)
+  if (!w) return false
+  const px = w[2] === 'rem' ? parseFloat(w[1]) * 16 : parseFloat(w[1])
+  return px <= 20
+}
+const lastCompound = sel =>
+  sel
+    .trim()
+    .split(/\s*[\s>+~]\s*/)
+    .pop() ?? ''
+const blockRules = {
+  localDot: {
+    label: 'kropka poza studnią — użyj mg-well / DsWell albo mg-pip (README → „Kropka”)',
+    test: (selector, body, note) => {
+      if (/\bmg-(?:well|pip)\b/.test(selector) || /ds:\s*not-a-dot/i.test(note + body)) return false
+      if (!ROUND_RADIUS.test(body)) return false
+      return selector.split(',').some(sel => {
+        const last = lastCompound(sel)
+        const sized = isSquare(body) || !/(?:^|[\s;{])(?:width|height)\s*:/.test(body)
+        // kropka w kropce: pseudo-element albo goły znacznik (i / b / span / button)
+        const innerMark =
+          (/::?(?:after|before)$/.test(last) ||
+            /(?:^|[\s>+~])(?:i|b|span|button)(?:\[[^\]]*\])*$/.test(` ${last}`)) &&
+          isSquare(body) &&
+          paints(body)
+        const named =
+          sized &&
+          last
+            .split(/[.#:[\]]/)
+            .some(part => part && !/^mg-(?:well|pip)/.test(part) && DOT_NAME.test(part))
+        // każde małe okrągłe pole z kolorem albo obrysem (≤ 20 px) to kropka
+        const small = isSquare(body) && paints(body) && isSmall(body)
+        return innerMark || named || small
+      })
+    },
+  },
+}
+
+const ruleLabels = { ...rules, ...blockRules }
+
+/** Bloki CSS pliku: { selector, body, line } (selektor z komentarzem przed nim). */
+function cssBlocks(rel, source) {
+  const chunks = []
+  if (rel.endsWith('.vue')) {
+    const re = /<style[^>]*>([\s\S]*?)<\/style>/g
+    let m
+    while ((m = re.exec(source))) {
+      const start = m.index + m[0].indexOf('>') + 1
+      chunks.push({ css: m[1], offset: source.slice(0, start).split('\n').length - 1 })
+    }
+  } else if (rel.endsWith('.css')) {
+    chunks.push({ css: source, offset: 0 })
+  }
+  const blocks = []
+  for (const { css, offset } of chunks) {
+    const re = /([^{}]+)\{([^{}]*)\}/g
+    let m
+    while ((m = re.exec(css))) {
+      const raw = m[1]
+      const selector = raw.replace(/\/\*[\s\S]*?\*\//g, '').trim()
+      if (!selector || selector.startsWith('@')) continue
+      const lead = raw.length - raw.trimStart().length
+      const comments = (raw.match(/\/\*[\s\S]*?\*\//g) ?? []).join(' ')
+      const selectorAt = m.index + raw.lastIndexOf(selector.split('\n')[0])
+      blocks.push({
+        selector,
+        note: comments,
+        body: m[2],
+        line: offset + css.slice(0, Math.max(selectorAt, m.index + lead)).split('\n').length,
+        text: selector.replace(/\s+/g, ' ').slice(0, 110),
+      })
+    }
+  }
+  return blocks
 }
 
 const allowedExtensions = new Set(['.css', '.ts', '.vue'])
@@ -132,6 +246,12 @@ async function scanFile(abs) {
       if (rule.test(line)) hits.push({ line: index + 1, rule: id, text: trimmed.slice(0, 110) })
     }
   })
+  for (const block of cssBlocks(rel, source))
+    for (const [id, rule] of Object.entries(blockRules)) {
+      if (skip.has(id)) continue
+      if (rule.test(block.selector, block.body, block.note))
+        hits.push({ line: block.line, rule: id, text: block.text })
+    }
   return { rel, hits }
 }
 
@@ -174,7 +294,7 @@ if (flag('--list')) {
     const hits = ruleFilter.length ? r.hits.filter(h => ruleFilter.includes(h.rule)) : r.hits
     if (!hits.length) continue
     console.log(`\n${r.rel} (${hits.length})`)
-    for (const h of hits) console.log(`  :${h.line}  [${rules[h.rule].label}]  ${h.text}`)
+    for (const h of hits) console.log(`  :${h.line}  [${ruleLabels[h.rule].label}]  ${h.text}`)
   }
   console.log(`\nRazem: ${total} naruszeń w ${results.length} plikach`)
   process.exit(0)
@@ -224,7 +344,7 @@ if (regressions.length) {
   for (const reg of regressions) {
     console.error(`\n  ${reg.rel}: ${reg.now} (baza ${reg.allowed})`)
     for (const h of reg.hits.slice(0, 12))
-      console.error(`    :${h.line}  [${rules[h.rule].label}]  ${h.text}`)
+      console.error(`    :${h.line}  [${ruleLabels[h.rule].label}]  ${h.text}`)
     if (reg.hits.length > 12)
       console.error(`    … i ${reg.hits.length - 12} więcej (--list --file ${reg.rel})`)
   }
